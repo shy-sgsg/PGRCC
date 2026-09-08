@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<GMTI>
+    <GMTI_parameter>
+        <!-- 四通道 Stage2 仿真默认配置。test=0：处理共享内存实际 IQ；
+             test=1：以共享内存完成周期同步后，从 GMTI_data_new 读取 SSD IQ。 -->
+        <test>0</test>
+        <GMTI_data>outputs/stage2_four_channel_three_targets_5period_20260723/data/stage2_statistical_newprotocol_period_0000.bin</GMTI_data>
+        <GMTI_data2>outputs/stage2_four_channel_three_targets_5period_20260723/data/stage2_statistical_newprotocol_period_0000.bin</GMTI_data2>
+        <GMTI_data_new>outputs/stage2_four_channel_three_targets_5period_20260723/data/stage2_statistical_newprotocol_period_0000.bin</GMTI_data_new>
+        <result_add>outputs/four_channel_runtime_result</result_add>
+        <Plane_POS></Plane_POS>
+        <reffunc_add></reffunc_add>
+        <isSeparated>separate</isSeparated>
+        <INFO_Type>1</INFO_Type>
+        <pipe_root_path>/home/raco</pipe_root_path>
+        <shm_name>/my_ring_buffer</shm_name>
+        <shm_read_chunk_bytes>1048576</shm_read_chunk_bytes>
+        <shm_reconnect_ms>1000</shm_reconnect_ms>
+        <shm_idle_sleep_us>100</shm_idle_sleep_us>
+        <shm_cycle_timeout_ms>0</shm_cycle_timeout_ms>
+        <shm_expected_prt_mode>9</shm_expected_prt_mode>
+        <shm_prt_counter_phase>0</shm_prt_counter_phase>
+        <shm_scan_beam_count>61</shm_scan_beam_count>
+
+        <estimate_error_angle>0</estimate_error_angle>
+        <wavepos_parallel>1</wavepos_parallel>
+        <wavepos_parallel_max_workers>8</wavepos_parallel_max_workers>
+        <enable_dbs_fusion>1</enable_dbs_fusion>
+        <fusion_min_valid_beam_ratio>0.95</fusion_min_valid_beam_ratio>
+        <iq_compose>I+jQ</iq_compose>
+        <isPC>0</isPC>
+        <hasRefFunc>0</hasRefFunc>
+        <info_len>256</info_len>
+
+        <!-- 新协议数据布局：256 字节头 + 11820 个样点；每样点为
+             ch1(I,Q), ch2(I,Q), ch3(I,Q), ch4(I,Q)，每个分量为 int16 小端。 -->
+        <iq_data_type>int16</iq_data_type>
+        <new_protocol_channel_count>4</new_protocol_channel_count>
+        <pulse_len>11820</pulse_len>
+        <rg_len>4096</rg_len>
+        <pulse_num>130</pulse_num>
+        <read_pulse_num>130</read_pulse_num>
+        <read_pulse_offset>0</read_pulse_offset>
+        <process_pulse_num>130</process_pulse_num>
+        <new_protocol_file_scan_beam_count>61</new_protocol_file_scan_beam_count>
+        <new_protocol_file_period_index>0</new_protocol_file_period_index>
+        <new_protocol_file_first_beam>1</new_protocol_file_first_beam>
+        <new_protocol_velocity_source>position_delta</new_protocol_velocity_source>
+        <new_protocol_read_channel_1>1</new_protocol_read_channel_1>
+        <new_protocol_read_channel_2>2</new_protocol_read_channel_2>
+        <new_protocol_gpu_preprocess>1</new_protocol_gpu_preprocess>
+        <pulse_dec>1</pulse_dec>
+
+        <fc>16</fc>
+        <Br>50</Br>
+        <fs>60</fs>
+        <Tr>130</Tr>
+        <PRF>1300</PRF>
+        <Rmin>82802.7</Rmin>
+        <d_chan>0.17</d_chan>
+        <ref_lon>117</ref_lon>
+        <ref_H>20</ref_H>
+        <pf>1e-7</pf>
+        <cfar_guard_cells>4</cfar_guard_cells>
+        <cfar_background_cells>16</cfar_background_cells>
+        <cfar_type>GO</cfar_type>
+        <cfar_doppler_circular>true</cfar_doppler_circular>
+        <secBias>18</secBias>
+        <skip_pulses>0</skip_pulses>
+
+        <wavepos_use_roi>false</wavepos_use_roi>
+        <roi_lat1>40.45121057</roi_lat1>
+        <roi_lng1>116.98377429</roi_lng1>
+        <roi_Ry1>400</roi_Ry1>
+        <roi_Rx1>400</roi_Rx1>
+        <!-- 输入扫描仍是 61 波位；算法只处理第 2 至第 60 波位。 -->
+        <wavepos_st>2</wavepos_st>
+        <wavepos_ed>60</wavepos_ed>
+        <wavepos_skip>1</wavepos_skip>
+        <scan_min_deg>-60</scan_min_deg>
+        <scan_max_deg>60</scan_max_deg>
+        <scan_step_deg>2</scan_step_deg>
+        <beam_width_deg>2.28</beam_width_deg>
+        <min_points>10</min_points>
+        <min_len>1</min_len>
+        <rg_st>1</rg_st>
+        <rg_ed>4095</rg_ed>
+        <calib_coef>1.0</calib_coef>
+        <squint_side>1</squint_side>
+        <az_count>61</az_count>
+        <boshu>2.28</boshu>
+        <loc_beam_gate_deg>4.56</loc_beam_gate_deg>
+        <max_theta>59</max_theta>
+        <period_first>1</period_first>
+        <period_num>61</period_num>
+        <n_tiaoguo>1</n_tiaoguo>
+        <raw_fenbianlv>25</raw_fenbianlv>
+
+        <motion_comp_enable>1</motion_comp_enable>
+        <motion_comp_analytic_enable>1</motion_comp_analytic_enable>
+        <motion_comp_use_row_doppler>1</motion_comp_use_row_doppler>
+        <motion_comp_iter>8</motion_comp_iter>
+        <motion_comp_denom_min>1e-06</motion_comp_denom_min>
+        <motion_comp_debug>1</motion_comp_debug>
+        <motion_comp_apply_to_localization>1</motion_comp_apply_to_localization>
+        <motion_comp_solver>root1d</motion_comp_solver>
+        <motion_comp_iter_tol_mps>0.0001</motion_comp_iter_tol_mps>
+        <motion_comp_root_grid_step_mps>0.02</motion_comp_root_grid_step_mps>
+        <motion_comp_root_cost_max>0.25</motion_comp_root_cost_max>
+        <p38_enhanced_enable>0</p38_enhanced_enable>
+        <p38_refit_enable>1</p38_refit_enable>
+        <p38_theory_guided_fallback>1</p38_theory_guided_fallback>
+        <p38_diagnostics_dump>0</p38_diagnostics_dump>
+        <p38_refit_row_guard_bins>2</p38_refit_row_guard_bins>
+        <p38_refit_range_guard_bins>2</p38_refit_range_guard_bins>
+        <p38_refit_top_power_frac>0.01</p38_refit_top_power_frac>
+        <p38_refit_min_sample_count>8</p38_refit_min_sample_count>
+        <p38_refit_min_inlier_ratio>0.6</p38_refit_min_inlier_ratio>
+        <p38_refit_max_rmse_rad>0.6</p38_refit_max_rmse_rad>
+        <p38_refit_max_delta_k>0.01</p38_refit_max_delta_k>
+        <p38_refit_max_delta_b_rad>1.5</p38_refit_max_delta_b_rad>
+
+        <dynamic_cfar_enable>0</dynamic_cfar_enable>
+        <!-- 真实系统修复链路：带内/带外独立检测，最后按目标位置合并。 -->
+        <csi_cancellation_mode>row_phase_ls_min_magnitude</csi_cancellation_mode>
+        <csi_range_phase_correction_enable>1</csi_range_phase_correction_enable>
+        <csi_detection_band_mode>split</csi_detection_band_mode>
+        <csi_split_boundary_guard_rows>4</csi_split_boundary_guard_rows>
+        <csi_split_merge_doppler_bins>2</csi_split_merge_doppler_bins>
+        <csi_split_merge_range_bins>2</csi_split_merge_range_bins>
+        <csi_split_in_band_cfar_type>GO</csi_split_in_band_cfar_type>
+        <csi_split_small_cluster_enable>1</csi_split_small_cluster_enable>
+        <csi_split_small_cluster_min_points>5</csi_split_small_cluster_min_points>
+        <csi_split_small_cluster_peak_over_median_db>30</csi_split_small_cluster_peak_over_median_db>
+        <csi_split_small_cluster_near_doppler_rows>4</csi_split_small_cluster_near_doppler_rows>
+        <csi_split_small_cluster_near_range_bins>3</csi_split_small_cluster_near_range_bins>
+        <csi_split_vertical_line_filter_enable>1</csi_split_vertical_line_filter_enable>
+        <csi_split_vertical_line_min_doppler_rows>10</csi_split_vertical_line_min_doppler_rows>
+        <csi_split_vertical_line_max_range_bins>1</csi_split_vertical_line_max_range_bins>
+        <csi_split_vertical_line_peak_over_median_db>25</csi_split_vertical_line_peak_over_median_db>
+        <csi_split_out_of_band_phase_filter_enable>0</csi_split_out_of_band_phase_filter_enable>
+        <csi_split_out_of_band_phase_max_std_rad>0.2</csi_split_out_of_band_phase_max_std_rad>
+        <p38_slope_upper_bound_filter_enabled>0</p38_slope_upper_bound_filter_enabled>
+        <ati_velocity_sign>1</ati_velocity_sign>
+        <ati_phase_to_velocity_sign>1</ati_phase_to_velocity_sign>
+        <motion_doppler_axis_sign>-1</motion_doppler_axis_sign>
+        <ati_phase_bias_rad>0</ati_phase_bias_rad>
+        <ati_vmax_mps>50</ati_vmax_mps>
+        <len_tiaoguo>200</len_tiaoguo>
+        <dbs_max_mosaic_pixels>300000000</dbs_max_mosaic_pixels>
+        <dbs_mosaic_margin_ratio>0.08</dbs_mosaic_margin_ratio>
+        <dbs_mosaic_margin_m>500</dbs_mosaic_margin_m>
+        <dbs_mosaic_mode>max</dbs_mosaic_mode>
+        <week_offset>0</week_offset>
+        <squint_angle>0</squint_angle>
+        <lat_st>2</lat_st>
+        <lat_ed>2</lat_ed>
+        <lon_st>2</lon_st>
+        <lon_ed>2</lon_ed>
+
+        <track_idx_window>3</track_idx_window>
+        <track_truth_threshold>2</track_truth_threshold>
+        <!-- T02 可经历两屏漏检；采用 5 屏 2 命中，回归屏仍由当前量测输出。 -->
+        <track_confirm_window>5</track_confirm_window>
+        <track_confirm_hits>2</track_confirm_hits>
+        <track_max_missed>2</track_max_missed>
+        <track_tentative_max_missed>1</track_tentative_max_missed>
+        <track_distance_mode>1</track_distance_mode>
+        <track_assignment_mode>0</track_assignment_mode>
+        <track_output_state_source>measurement</track_output_state_source>
+        <track_use_distance_cost>true</track_use_distance_cost>
+        <!-- 不将差分速度作为关联代价；物理上不可能的跳变由 10 m/s 硬门拒绝。 -->
+        <track_use_speed_cost>false</track_use_speed_cost>
+        <track_use_heading_cost>true</track_use_heading_cost>
+        <track_use_detection_speed_cost>false</track_use_detection_speed_cost>
+        <track_distance_weight>1.0</track_distance_weight>
+        <track_speed_smooth_weight>0.3</track_speed_smooth_weight>
+        <track_heading_weight>0.5</track_heading_weight>
+        <track_detection_speed_weight>0.0</track_detection_speed_weight>
+        <track_use_euclidean_gate>true</track_use_euclidean_gate>
+        <track_use_mahalanobis_gate>true</track_use_mahalanobis_gate>
+        <track_use_max_speed_gate>true</track_use_max_speed_gate>
+        <track_use_heading_gate>false</track_use_heading_gate>
+        <!-- GMTIxx.bin 未携带可用于一致性比较的径向速度字段，保留关闭。 -->
+        <track_use_detection_speed_gate>false</track_use_detection_speed_gate>
+        <!-- 抑制跨周期 23.5 m/s 的定位跳变；本场景合作目标的平面速度约 3 到 4 m/s。 -->
+        <track_gate_m>350</track_gate_m>
+        <track_v_max>10</track_v_max>
+        <track_suppress_coasted_speed_outlier>true</track_suppress_coasted_speed_outlier>
+        <track_chi2_gate>9.21</track_chi2_gate>
+        <track_heading_gate_deg>90</track_heading_gate_deg>
+        <track_detection_speed_gate_mps>30</track_detection_speed_gate_mps>
+        <track_euclidean_cost_scale_m>0</track_euclidean_cost_scale_m>
+        <track_mahalanobis_cost_scale>0</track_mahalanobis_cost_scale>
+        <track_speed_cost_scale_mps>0</track_speed_cost_scale_mps>
+        <track_heading_cost_scale_deg>180</track_heading_cost_scale_deg>
+        <track_detection_speed_cost_scale_mps>0</track_detection_speed_cost_scale_mps>
+        <track_tentative_gate_scale>1.5</track_tentative_gate_scale>
+        <track_tentative_chi2_scale>1.5</track_tentative_chi2_scale>
+        <!-- 与四通道 DBS/定位离散化误差匹配，避免低估量测协方差而断开真航迹。 -->
+        <track_measurement_noise_pos>100</track_measurement_noise_pos>
+        <track_dummy_cost>1.5</track_dummy_cost>
+        <track_invalid_cost>1.0e12</track_invalid_cost>
+        <track_allow_equal_dummy_cost>false</track_allow_equal_dummy_cost>
+        <!-- 每条检测在一个周期内最多更新一条航迹，防止重复确认输出。 -->
+        <track_allow_detection_reuse>false</track_allow_detection_reuse>
+        <track_default_dt>1.0</track_default_dt>
+        <track_debug_dump>1</track_debug_dump>
+        <track_debug_dump_level>1</track_debug_dump_level>
+
+        <range_fft_len>12288</range_fft_len>
+        <range_crop_start>3864</range_crop_start>
+        <range_compress_len>4096</range_compress_len>
+        <sample_delay_us>488</sample_delay_us>
+        <sample_window_us>197</sample_window_us>
+
+        <!-- 四通道合成：左列 ch1+ch3，右列 ch2+ch4。
+             若硬件通道顺序或相位中心变动，必须同时修改配对和每通道 x/y/z。 -->
+        <enable_four_channel_fusion>1</enable_four_channel_fusion>
+        <four_channel_phase_compensation_enable>1</four_channel_phase_compensation_enable>
+        <four_channel_fusion_channel_3>3</four_channel_fusion_channel_3>
+        <four_channel_fusion_channel_4>4</four_channel_fusion_channel_4>
+        <four_channel_fusion_squint_side>1</four_channel_fusion_squint_side>
+        <four_channel_carrier_phase_sign>-1</four_channel_carrier_phase_sign>
+        <four_channel_ch1_x_m>-0.085</four_channel_ch1_x_m>
+        <four_channel_ch1_y_m>0</four_channel_ch1_y_m>
+        <four_channel_ch1_z_m>0.085</four_channel_ch1_z_m>
+        <four_channel_ch2_x_m>0.085</four_channel_ch2_x_m>
+        <four_channel_ch2_y_m>0</four_channel_ch2_y_m>
+        <four_channel_ch2_z_m>0.085</four_channel_ch2_z_m>
+        <four_channel_ch3_x_m>-0.085</four_channel_ch3_x_m>
+        <four_channel_ch3_y_m>0</four_channel_ch3_y_m>
+        <four_channel_ch3_z_m>-0.085</four_channel_ch3_z_m>
+        <four_channel_ch4_x_m>0.085</four_channel_ch4_x_m>
+        <four_channel_ch4_y_m>0</four_channel_ch4_y_m>
+        <four_channel_ch4_z_m>-0.085</four_channel_ch4_z_m>
+        <csi_channel_alignment_mode>integer_equivalent_delay</csi_channel_alignment_mode>
+        <detection_results_csv_dump>1</detection_results_csv_dump>
+        <!-- 仅输出 |Vr| >= 2 m/s（7.2 km/h）的目标；低速检测按虚警剔除。 -->
+        <low_radial_velocity_filter_enabled>1</low_radial_velocity_filter_enabled>
+        <low_radial_velocity_threshold_mps>2.25</low_radial_velocity_threshold_mps>
+        <!-- 相邻波位对同一散射点的重复观测仅保留最强者，再进入航迹关联。 -->
+        <adjacent_beam_duplicate_suppression_enabled>1</adjacent_beam_duplicate_suppression_enabled>
+        <adjacent_beam_duplicate_position_gate_m>30.0</adjacent_beam_duplicate_position_gate_m>
+        <adjacent_beam_duplicate_velocity_gate_mps>0.35</adjacent_beam_duplicate_velocity_gate_mps>
+
+        <simulation_geometry>
+            <geometry_config_name>algorithm_axis_x_north</geometry_config_name>
+            <local_x_axis>north</local_x_axis>
+            <local_y_axis>east</local_y_axis>
+            <platform_heading_source>velocity</platform_heading_source>
+            <platform_heading_deg>0</platform_heading_deg>
+            <beam_angle_reference>algorithm</beam_angle_reference>
+            <beam_zero_direction>algorithm</beam_zero_direction>
+            <beam_positive_direction>algorithm</beam_positive_direction>
+            <beam_theta_offset_deg>0</beam_theta_offset_deg>
+            <range_geometry>algorithm</range_geometry>
+            <use_ground_range_for_position>1</use_ground_range_for_position>
+            <platform_origin_lat_deg>40.4512</platform_origin_lat_deg>
+            <platform_origin_lon_deg>116.986</platform_origin_lon_deg>
+            <platform_origin_alt_m>6000</platform_origin_alt_m>
+            <projection_ref_lon_deg>117</projection_ref_lon_deg>
+            <squint_side>1</squint_side>
+        </simulation_geometry>
+
+        <debug_pc_peak>1</debug_pc_peak>
+        <pc_peak_scene_truth>outputs/stage2_four_channel_three_targets_5period_20260723/truth/scene_truth.csv</pc_peak_scene_truth>
+        <two_channel_phase_model>ctdr</two_channel_phase_model>
+        <rx_baseline_sign>1</rx_baseline_sign>
+        <channel_phase_sign>-1</channel_phase_sign>
+        <velocity_ambiguity_enable>1</velocity_ambiguity_enable>
+        <velocity_search_min_mps>-50</velocity_search_min_mps>
+        <velocity_search_max_mps>50</velocity_search_max_mps>
+        <velocity_max_doppler_order>8</velocity_max_doppler_order>
+        <velocity_max_phase_order>32</velocity_max_phase_order>
+        <velocity_max_candidates>512</velocity_max_candidates>
+        <velocity_beam_gate_deg>4.56</velocity_beam_gate_deg>
+        <p38_min_peak_row_energy_fraction>0.05</p38_min_peak_row_energy_fraction>
+        <p38_theory_prior_relative_span>0.5</p38_theory_prior_relative_span>
+        <p38_theory_prior_trigger_relative_error>0.1</p38_theory_prior_trigger_relative_error>
+    </GMTI_parameter>
+</GMTI>

@@ -1,0 +1,135 @@
+{
+  "experiment_id": "p8_channel_impairment_rawlfm_smoke",
+  "output_root": "outputs/eval/p8_channel_impairment_rawlfm_smoke",
+  "match_config": "configs/eval/localization_match_config.json",
+  "default_xml_overrides": {
+    "pf": 1e-8,
+    "min_points": 3,
+    "cluster_strong_small_enable": false,
+    "range_compression_window": "kaiser",
+    "range_compression_kaiser_beta": 6.0,
+    "range_compression_bandwidth_scale": 1.0,
+    "ati_vmax_mps": 50.0,
+    "motion_comp_enable": 1,
+    "motion_comp_apply_to_localization": 1,
+    "motion_comp_solver": "root1d",
+    "motion_comp_use_row_doppler": 1,
+    "velocity_ambiguity_enable": 1,
+    "velocity_search_min_mps": -50.0,
+    "velocity_search_max_mps": 50.0,
+    "csi_channel_alignment_mode": "none",
+    "cfar_doppler_circular": true,
+    "csi_detection_band_mode": "union",
+    "channel_calibration_enable": 1,
+    "channel_calibration_apply_to_localization": 1,
+    "channel_calibration_range_stride": 4,
+    "channel_calibration_min_sample_count": 256,
+    "channel_calibration_max_range_shift_bins": 0.05,
+    "channel_calibration_min_range_correlation": 0.30,
+    "csi_metrics_enable": 1,
+    "csi_metrics_dump_power_maps": 1,
+    "runtime_diagnostics_enabled": 1
+  },
+  "cases": [
+    {
+      "case_id": "I00_zero_disabled",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202620,
+      "scenario_overrides": {
+        "targets.0.target_id": "P8_ZERO",
+        "targets.0.amplitude.snr_db": 25.0,
+        "scene.output_signal_domain": "raw_lfm"
+      },
+      "xml_overrides": {"channel_calibration_enable": 0},
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "I00_reference_diagnostic",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202620,
+      "scenario_overrides": {
+        "targets.0.target_id": "P8_ZERO",
+        "targets.0.amplitude.snr_db": 25.0,
+        "scene.output_signal_domain": "raw_lfm"
+      },
+      "xml_overrides": {"channel_calibration_reference_valid": 0},
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "I01_zero_enabled",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202620,
+      "calibration_reference_from_case_id": "I00_reference_diagnostic",
+      "scenario_overrides": {
+        "targets.0.target_id": "P8_ZERO",
+        "targets.0.amplitude.snr_db": 25.0,
+        "channel_impairments.enabled": true,
+        "scene.output_signal_domain": "raw_lfm"
+      },
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "I02_phase_3deg",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202620,
+      "calibration_reference_from_case_id": "I00_reference_diagnostic",
+      "scenario_overrides": {
+        "targets.0.target_id": "P8_PHASE3",
+        "targets.0.amplitude.snr_db": 25.0,
+        "channel_impairments.enabled": true,
+        "channel_impairments.channel_fixed_phase_mismatch_deg": 3.0,
+        "scene.output_signal_domain": "raw_lfm"
+      },
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "I03_phase_10deg",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202620,
+      "calibration_reference_from_case_id": "I00_reference_diagnostic",
+      "scenario_overrides": {
+        "targets.0.target_id": "P8_PHASE10",
+        "targets.0.amplitude.snr_db": 25.0,
+        "channel_impairments.enabled": true,
+        "channel_impairments.channel_fixed_phase_mismatch_deg": 10.0,
+        "scene.output_signal_domain": "raw_lfm"
+      },
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "I04_amp_1db",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202620,
+      "calibration_reference_from_case_id": "I00_reference_diagnostic",
+      "scenario_overrides": {
+        "targets.0.target_id": "P8_AMP1",
+        "targets.0.amplitude.snr_db": 25.0,
+        "channel_impairments.enabled": true,
+        "channel_impairments.channel_amp_mismatch_db": 1.0,
+        "scene.output_signal_domain": "raw_lfm"
+      },
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "I05_shift_0p25",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202620,
+      "calibration_reference_from_case_id": "I00_reference_diagnostic",
+      "scenario_overrides": {
+        "targets.0.target_id": "P8_SHIFT025",
+        "targets.0.amplitude.snr_db": 25.0,
+        "channel_impairments.enabled": true,
+        "channel_impairments.channel_range_shift_samples": 0.25,
+        "scene.output_signal_domain": "raw_lfm"
+      },
+      "metrics": ["p4", "p5"]
+    }
+  ]
+}

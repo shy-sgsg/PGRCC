@@ -1,0 +1,102 @@
+{
+  "experiment_id": "p7_continuous_window_smoke_cuda",
+  "output_root": "outputs/eval/p7_continuous_window_smoke_cuda",
+  "match_config": "configs/eval/localization_match_config.json",
+  "default_xml_overrides": {
+    "pf": 1e-8,
+    "range_compression_window": "kaiser",
+    "range_compression_kaiser_beta": 6.0,
+    "range_compression_bandwidth_scale": 1.0,
+    "ati_vmax_mps": 50.0,
+    "motion_comp_enable": 1,
+    "motion_comp_apply_to_localization": 1,
+    "motion_comp_solver": "root1d",
+    "motion_comp_use_row_doppler": 1,
+    "velocity_ambiguity_enable": 1,
+    "velocity_search_min_mps": -50.0,
+    "velocity_search_max_mps": 50.0,
+    "velocity_max_doppler_order": 8,
+    "velocity_max_phase_order": 32,
+    "velocity_max_candidates": 512,
+    "velocity_beam_gate_deg": 4.56,
+    "csi_detection_band_mode": "union",
+    "channel_calibration_enable": 0,
+    "runtime_diagnostics_enabled": 1
+  },
+  "cases": [
+    {
+      "case_id": "CW01_off_rect",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/beam50_two_targets_continuous.run.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.enabled": false,
+        "targets.1.enabled": false
+      },
+      "xml_overrides": {"azimuth_fft_window": "none"},
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "CW02_two_rect",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/beam50_two_targets_continuous.run.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_CW_A",
+        "targets.0.amplitude.snr_db": 25.0,
+        "targets.1.target_id": "P7_CW_B",
+        "targets.1.amplitude.snr_db": 25.0
+      },
+      "xml_overrides": {"azimuth_fft_window": "none"},
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "CW03_two_bh",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/beam50_two_targets_continuous.run.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_CW_A",
+        "targets.0.amplitude.snr_db": 25.0,
+        "targets.1.target_id": "P7_CW_B",
+        "targets.1.amplitude.snr_db": 25.0
+      },
+      "xml_overrides": {"azimuth_fft_window": "blackman_harris"},
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "CW04_high_pos40_rect",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "targets.0.target_id": "P7_CW_POS40",
+        "targets.0.motion.ve_mps": -31.52043014428,
+        "targets.0.motion.vn_mps": -24.62645901304,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "xml_overrides": {"azimuth_fft_window": "none"},
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "CW05_high_pos40_bh",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "targets.0.target_id": "P7_CW_POS40",
+        "targets.0.motion.ve_mps": -31.52043014428,
+        "targets.0.motion.vn_mps": -24.62645901304,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "xml_overrides": {"azimuth_fft_window": "blackman_harris"},
+      "metrics": ["p4", "p6"]
+    }
+  ]
+}

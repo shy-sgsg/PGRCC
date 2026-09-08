@@ -1,0 +1,92 @@
+# 构建目录
+build/
+build-*/
+out/
+build_dir/
+
+# 开发文档目录
+docs/
+doc/
+
+# 结果目录
+result/
+outputs/
+
+# Mac相关文件
+__MACOSX/
+**/._*
+
+# CMake相关文件
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+CTestTestfile.cmake
+*.cmake
+
+# CUDA相关产物
+*.cuo
+*.cubin
+*.fatbin
+*.gpu
+*.ptx
+*.nvcc.log
+*.nvcc.profile
+*.nvvm
+*.linkinfo
+
+# 编译生成的文件
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exe
+*.out
+*.app
+*.bin
+*.elf
+*.hex
+*.pyc
+
+# 文档
+*.pdf
+*.docx
+*.csv
+
+# 临时文件和日志
+*.log
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# IDE相关文件
+.idea/
+.vscode/
+.agents/
+.codex/
+*.sublime-*
+*.project
+*.cproject
+*.settings/
+*.launch
+
+# 自动生成的文件
+*.generated.*
+*_generated_*
+
+# 当前环境的 Git 元数据位于显式工作树目录，避免把它自身纳入版本库
+.git-real/
+
+# 第一阶段研究交付物
+!docs/
+!docs/AI_CSI_*.md
+!outputs/
+!outputs/ai_csi_oracle/
+!outputs/ai_csi_oracle/**

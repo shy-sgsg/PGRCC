@@ -1,0 +1,68 @@
+{
+  "experiment_id": "p5_csi_alignment_ab_cuda",
+  "output_root": "outputs/eval/p5_csi_alignment_ab_cuda",
+  "match_config": "configs/eval/localization_match_config.json",
+  "default_xml_overrides": {
+    "pf": 1e-7,
+    "csi_metrics_enable": 1,
+    "csi_metrics_dump_power_maps": 1,
+    "csi_metrics_beam_id": 50,
+    "metrics_target_half_range_bins": 2,
+    "metrics_target_half_doppler_bins": 2,
+    "metrics_guard_range_bins": 4,
+    "metrics_guard_doppler_bins": 4,
+    "metrics_background_range_bins": 20,
+    "metrics_background_doppler_bins": 16,
+    "metrics_strong_peak_threshold_db": 15.0,
+    "metrics_min_valid_background_cells": 100,
+    "ati_vmax_mps": 50.0,
+    "motion_comp_enable": 1,
+    "motion_comp_apply_to_localization": 1,
+    "motion_comp_solver": "root1d",
+    "motion_comp_use_row_doppler": 1,
+    "velocity_ambiguity_enable": 1,
+    "velocity_search_min_mps": -50.0,
+    "velocity_search_max_mps": 50.0,
+    "velocity_max_doppler_order": 8,
+    "velocity_max_phase_order": 32,
+    "velocity_max_candidates": 512,
+    "csi_detection_band_mode": "union",
+    "runtime_diagnostics_enabled": 1
+  },
+  "cases": [
+    {
+      "case_id": "AB01_legacy_off",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_target_off_seed202606.json",
+      "random_seed": 202606,
+      "xml_overrides": {"csi_channel_alignment_mode": "integer_equivalent_delay"},
+      "metrics": ["p5"]
+    },
+    {
+      "case_id": "AB02_legacy_target",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202606,
+      "paired_off_case_id": "AB01_legacy_off",
+      "xml_overrides": {"csi_channel_alignment_mode": "integer_equivalent_delay"},
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "AB03_ctdr_off",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_target_off_seed202606.json",
+      "random_seed": 202606,
+      "xml_overrides": {"csi_channel_alignment_mode": "none"},
+      "metrics": ["p5"]
+    },
+    {
+      "case_id": "AB04_ctdr_target",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202606,
+      "paired_off_case_id": "AB03_ctdr_off",
+      "xml_overrides": {"csi_channel_alignment_mode": "none"},
+      "metrics": ["p4", "p5"]
+    }
+  ]
+}

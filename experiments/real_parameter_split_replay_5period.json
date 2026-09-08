@@ -1,0 +1,72 @@
+{
+  "experiment_id": "real_parameter_split_replay_5period",
+  "output_root": "outputs/eval/real_parameter_split_replay_5period",
+  "xml_override_profile": "configs/eval/csi_split_repaired_overrides.json",
+  "match_config": "configs/eval/localization_match_config.json",
+  "default_xml_overrides": {
+    "test": 0,
+    "runtime_mode": "debug",
+    "runtime_diagnostics_enabled": 1,
+    "wavepos_st": 2,
+    "wavepos_ed": 60,
+    "wavepos_skip": 1,
+    "period_first": 1,
+    "period_num": 61,
+    "new_protocol_file_first_beam": 1,
+    "new_protocol_file_scan_beam_count": 61,
+    "new_protocol_file_period_index": 0,
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2,
+    "enable_four_channel_fusion": 1,
+    "four_channel_phase_compensation_enable": 1,
+    "csi_metrics_enable": 1,
+    "csi_metrics_dump_power_maps": 1,
+    "csi_metrics_beam_id": -1,
+    "detection_results_csv_dump": 1,
+    "track_debug_dump": 1,
+    "track_debug_dump_level": 1
+  },
+  "cases": [
+    {
+      "case_id": "period_0000",
+      "kind": "existing_data",
+      "data_path": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/data/stage2_statistical_newprotocol_period_0000.bin",
+      "truth_dir": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/truth",
+      "base_xml": "gmti.xml",
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "period_0001",
+      "kind": "existing_data",
+      "data_path": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/data/stage2_statistical_newprotocol_period_0001.bin",
+      "truth_dir": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/truth",
+      "base_xml": "gmti.xml",
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "period_0002",
+      "kind": "existing_data",
+      "data_path": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/data/stage2_statistical_newprotocol_period_0002.bin",
+      "truth_dir": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/truth",
+      "base_xml": "gmti.xml",
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "period_0003",
+      "kind": "existing_data",
+      "data_path": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/data/stage2_statistical_newprotocol_period_0003.bin",
+      "truth_dir": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/truth",
+      "base_xml": "gmti.xml",
+      "metrics": ["p4", "p5"]
+    },
+    {
+      "case_id": "period_0004",
+      "kind": "existing_data",
+      "data_path": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/data/stage2_statistical_newprotocol_period_0004.bin",
+      "truth_dir": "outputs/stage2_phase2_eirp94_gt5_tx0886_rx12_reloc_b11_10_targets_5period_20260729/truth",
+      "base_xml": "gmti.xml",
+      "metrics": ["p4", "p5"]
+    }
+  ]
+}

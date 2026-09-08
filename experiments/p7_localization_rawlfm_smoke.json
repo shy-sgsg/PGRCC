@@ -1,0 +1,1896 @@
+{
+  "experiment_id": "p7_localization_rawlfm_smoke",
+  "output_root": "outputs/eval/p7_localization_rawlfm_smoke",
+  "match_config": "configs/eval/localization_match_config.json",
+  "localization_design": {
+    "seeds": [
+      202681,
+      202682,
+      202683
+    ],
+    "speed_limit_mps": 50.0,
+    "beam_width_deg": 2.28,
+    "position_priority": "exact CTDR/p38 positioning remains valid when the single-period velocity ambiguity status is unresolved",
+    "final_speed_source": "multi_period_track_displacement_over_elapsed_time"
+  },
+  "default_xml_overrides": {
+    "pf": 1e-08,
+    "min_points": 3,
+    "cluster_strong_small_enable": false,
+    "range_compression_window": "kaiser",
+    "range_compression_kaiser_beta": 6.0,
+    "range_compression_bandwidth_scale": 1.0,
+    "azimuth_fft_window": "none",
+    "ati_vmax_mps": 50.0,
+    "motion_comp_enable": 1,
+    "motion_comp_apply_to_localization": 1,
+    "motion_comp_solver": "root1d",
+    "motion_comp_use_row_doppler": 1,
+    "velocity_ambiguity_enable": 1,
+    "velocity_search_min_mps": -50.0,
+    "velocity_search_max_mps": 50.0,
+    "velocity_max_doppler_order": 8,
+    "velocity_max_phase_order": 32,
+    "velocity_max_candidates": 512,
+    "velocity_beam_gate_deg": 4.56,
+    "csi_detection_band_mode": "union",
+    "csi_channel_alignment_mode": "none",
+    "cfar_doppler_circular": true,
+    "channel_calibration_enable": 0,
+    "runtime_diagnostics_enabled": 1
+  },
+  "cases": [
+    {
+      "case_id": "P7_OFF_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "background_target_off",
+      "sweep_axis": "background",
+      "sweep_value": null,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_BACKGROUND_OFF",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0,
+        "targets.0.amplitude.snr_db": -34.0,
+        "targets.0.enabled": false
+      },
+      "metrics": [
+        "p4"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n50p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -50.0,
+      "truth_radial_velocity_mps": -50.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n50p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 39.40053768035,
+        "targets.0.motion.vn_mps": 30.7830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n40p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -40.0,
+      "truth_radial_velocity_mps": -40.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n40p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 31.52043014428,
+        "targets.0.motion.vn_mps": 24.62645901304,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n30p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -30.0,
+      "truth_radial_velocity_mps": -30.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n30p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 23.64032260821,
+        "targets.0.motion.vn_mps": 18.46984425978,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n20p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -20.0,
+      "truth_radial_velocity_mps": -20.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n20p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 15.76021507214,
+        "targets.0.motion.vn_mps": 12.31322950652,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n10p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -10.0,
+      "truth_radial_velocity_mps": -10.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n10p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 7.88010753607,
+        "targets.0.motion.vn_mps": 6.15661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n5p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -5.0,
+      "truth_radial_velocity_mps": -5.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n5p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 3.940053768035,
+        "targets.0.motion.vn_mps": 3.07830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n1p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -1.0,
+      "truth_radial_velocity_mps": -1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 0.788010753607,
+        "targets.0.motion.vn_mps": 0.615661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p0p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.0,
+      "truth_radial_velocity_mps": 0.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p0p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p1p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 1.0,
+      "truth_radial_velocity_mps": 1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.788010753607,
+        "targets.0.motion.vn_mps": -0.615661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p5p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p5p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p10p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 10.0,
+      "truth_radial_velocity_mps": 10.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p10p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -7.88010753607,
+        "targets.0.motion.vn_mps": -6.15661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p20p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 20.0,
+      "truth_radial_velocity_mps": 20.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p20p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -15.76021507214,
+        "targets.0.motion.vn_mps": -12.31322950652,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p30p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 30.0,
+      "truth_radial_velocity_mps": 30.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p30p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -23.64032260821,
+        "targets.0.motion.vn_mps": -18.46984425978,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p40p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 40.0,
+      "truth_radial_velocity_mps": 40.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p40p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -31.52043014428,
+        "targets.0.motion.vn_mps": -24.62645901304,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p50p0_s202681",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202681,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 50.0,
+      "truth_radial_velocity_mps": 50.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p50p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -39.40053768035,
+        "targets.0.motion.vn_mps": -30.7830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFF_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "background_target_off",
+      "sweep_axis": "background",
+      "sweep_value": null,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_BACKGROUND_OFF",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0,
+        "targets.0.amplitude.snr_db": -34.0,
+        "targets.0.enabled": false
+      },
+      "metrics": [
+        "p4"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n50p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -50.0,
+      "truth_radial_velocity_mps": -50.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n50p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 39.40053768035,
+        "targets.0.motion.vn_mps": 30.7830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n40p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -40.0,
+      "truth_radial_velocity_mps": -40.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n40p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 31.52043014428,
+        "targets.0.motion.vn_mps": 24.62645901304,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n30p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -30.0,
+      "truth_radial_velocity_mps": -30.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n30p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 23.64032260821,
+        "targets.0.motion.vn_mps": 18.46984425978,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n20p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -20.0,
+      "truth_radial_velocity_mps": -20.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n20p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 15.76021507214,
+        "targets.0.motion.vn_mps": 12.31322950652,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n10p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -10.0,
+      "truth_radial_velocity_mps": -10.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n10p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 7.88010753607,
+        "targets.0.motion.vn_mps": 6.15661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n5p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -5.0,
+      "truth_radial_velocity_mps": -5.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n5p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 3.940053768035,
+        "targets.0.motion.vn_mps": 3.07830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n1p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -1.0,
+      "truth_radial_velocity_mps": -1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 0.788010753607,
+        "targets.0.motion.vn_mps": 0.615661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p0p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.0,
+      "truth_radial_velocity_mps": 0.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p0p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p1p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 1.0,
+      "truth_radial_velocity_mps": 1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.788010753607,
+        "targets.0.motion.vn_mps": -0.615661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p5p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p5p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p10p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 10.0,
+      "truth_radial_velocity_mps": 10.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p10p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -7.88010753607,
+        "targets.0.motion.vn_mps": -6.15661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p20p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 20.0,
+      "truth_radial_velocity_mps": 20.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p20p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -15.76021507214,
+        "targets.0.motion.vn_mps": -12.31322950652,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p30p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 30.0,
+      "truth_radial_velocity_mps": 30.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p30p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -23.64032260821,
+        "targets.0.motion.vn_mps": -18.46984425978,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p40p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 40.0,
+      "truth_radial_velocity_mps": 40.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p40p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -31.52043014428,
+        "targets.0.motion.vn_mps": -24.62645901304,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p50p0_s202682",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202682,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 50.0,
+      "truth_radial_velocity_mps": 50.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p50p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -39.40053768035,
+        "targets.0.motion.vn_mps": -30.7830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFF_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "background_target_off",
+      "sweep_axis": "background",
+      "sweep_value": null,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_BACKGROUND_OFF",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0,
+        "targets.0.amplitude.snr_db": -34.0,
+        "targets.0.enabled": false
+      },
+      "metrics": [
+        "p4"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n50p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -50.0,
+      "truth_radial_velocity_mps": -50.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n50p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 39.40053768035,
+        "targets.0.motion.vn_mps": 30.7830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n40p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -40.0,
+      "truth_radial_velocity_mps": -40.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n40p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 31.52043014428,
+        "targets.0.motion.vn_mps": 24.62645901304,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n30p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -30.0,
+      "truth_radial_velocity_mps": -30.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n30p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 23.64032260821,
+        "targets.0.motion.vn_mps": 18.46984425978,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n20p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -20.0,
+      "truth_radial_velocity_mps": -20.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n20p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 15.76021507214,
+        "targets.0.motion.vn_mps": 12.31322950652,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n10p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -10.0,
+      "truth_radial_velocity_mps": -10.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n10p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 7.88010753607,
+        "targets.0.motion.vn_mps": 6.15661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n5p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -5.0,
+      "truth_radial_velocity_mps": -5.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n5p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 3.940053768035,
+        "targets.0.motion.vn_mps": 3.07830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_n1p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -1.0,
+      "truth_radial_velocity_mps": -1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_n1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": 0.788010753607,
+        "targets.0.motion.vn_mps": 0.615661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p0p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.0,
+      "truth_radial_velocity_mps": 0.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p0p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p1p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 1.0,
+      "truth_radial_velocity_mps": 1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -0.788010753607,
+        "targets.0.motion.vn_mps": -0.615661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p5p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p5p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p10p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 10.0,
+      "truth_radial_velocity_mps": 10.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p10p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -7.88010753607,
+        "targets.0.motion.vn_mps": -6.15661475326,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p20p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 20.0,
+      "truth_radial_velocity_mps": 20.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p20p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -15.76021507214,
+        "targets.0.motion.vn_mps": -12.31322950652,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p30p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 30.0,
+      "truth_radial_velocity_mps": 30.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p30p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -23.64032260821,
+        "targets.0.motion.vn_mps": -18.46984425978,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p40p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 40.0,
+      "truth_radial_velocity_mps": 40.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p40p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -31.52043014428,
+        "targets.0.motion.vn_mps": -24.62645901304,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_SPEED_p50p0_s202683",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202683,
+      "scenario_class": "speed_sweep",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 50.0,
+      "truth_radial_velocity_mps": 50.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_SPEED_p50p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -39.40053768035,
+        "targets.0.motion.vn_mps": -30.7830737663,
+        "targets.0.amplitude.snr_db": -34.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_n1p1",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": -1.1,
+      "beam_offset_normalized": -1.1,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_n1p1",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": -2.508,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_n1p0",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": -1.0,
+      "beam_offset_normalized": -1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_n1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": -2.28,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_n0p9",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": -0.9,
+      "beam_offset_normalized": -0.9,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_n0p9",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": -2.052,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_n0p75",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": -0.75,
+      "beam_offset_normalized": -0.75,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_n0p75",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": -1.71,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_n0p5",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": -0.5,
+      "beam_offset_normalized": -0.5,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_n0p5",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": -1.14,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_n0p25",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": -0.25,
+      "beam_offset_normalized": -0.25,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_n0p25",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": -0.57,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_p0p0",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": 0.0,
+      "beam_offset_normalized": 0.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_p0p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_p0p25",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": 0.25,
+      "beam_offset_normalized": 0.25,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_p0p25",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.57,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_p0p5",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": 0.5,
+      "beam_offset_normalized": 0.5,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_p0p5",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 1.14,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_p0p75",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": 0.75,
+      "beam_offset_normalized": 0.75,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_p0p75",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 1.71,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_p0p9",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": 0.9,
+      "beam_offset_normalized": 0.9,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_p0p9",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 2.052,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_p1p0",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": 1.0,
+      "beam_offset_normalized": 1.0,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_p1p0",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 2.28,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_OFFSET_p1p1",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202684,
+      "scenario_class": "beam_offset_sweep",
+      "sweep_axis": "beam_offset_normalized",
+      "sweep_value": 1.1,
+      "beam_offset_normalized": 1.1,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_OFFSET_p1p1",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 2.508,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_BEAM_10",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202685,
+      "scenario_class": "beam_position",
+      "sweep_axis": "beam_id",
+      "sweep_value": 10,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 10,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_BEAM_10",
+        "targets.0.init.beam_id": 10,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_BEAM_30",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202685,
+      "scenario_class": "beam_position",
+      "sweep_axis": "beam_id",
+      "sweep_value": 30,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 30,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_BEAM_30",
+        "targets.0.init.beam_id": 30,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_BEAM_50",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202685,
+      "scenario_class": "beam_position",
+      "sweep_axis": "beam_id",
+      "sweep_value": 50,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_BEAM_50",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_RANGE_crop_left",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202686,
+      "scenario_class": "range_position",
+      "sweep_axis": "expected_bin",
+      "sweep_value": 64,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_RANGE_crop_left",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 64,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_RANGE_near",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202686,
+      "scenario_class": "range_position",
+      "sweep_axis": "expected_bin",
+      "sweep_value": 320,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_RANGE_near",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 320,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_RANGE_mid",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202686,
+      "scenario_class": "range_position",
+      "sweep_axis": "expected_bin",
+      "sweep_value": 2048,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_RANGE_mid",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 2048,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_RANGE_far",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202686,
+      "scenario_class": "range_position",
+      "sweep_axis": "expected_bin",
+      "sweep_value": 3776,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_RANGE_far",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 3776,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    },
+    {
+      "case_id": "P7_RANGE_crop_right",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202686,
+      "scenario_class": "range_position",
+      "sweep_axis": "expected_bin",
+      "sweep_value": 4032,
+      "scenario_overrides": {
+        "scene.output_signal_domain": "raw_lfm",
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_RANGE_crop_right",
+        "targets.0.init.beam_id": 50,
+        "targets.0.init.expected_bin": 4032,
+        "targets.0.init.azimuth_offset_deg": 0.0,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": -30.0
+      },
+      "metrics": [
+        "p4",
+        "p6"
+      ]
+    }
+  ]
+}

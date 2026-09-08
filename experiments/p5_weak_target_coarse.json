@@ -1,0 +1,1627 @@
+{
+  "experiment_id": "p5_weak_target_coarse_cuda",
+  "output_root": "outputs/eval/p5_weak_target_coarse_cuda",
+  "match_config": "configs/eval/localization_match_config.json",
+  "weak_target_design": {
+    "seeds": [
+      202631,
+      202632,
+      202633
+    ],
+    "radial_speed_magnitudes_mps": [
+      0.0,
+      0.25,
+      0.5,
+      1.0,
+      2.0,
+      3.0,
+      5.0
+    ],
+    "injected_snr_db": [
+      -10.0,
+      -7.5,
+      -5.0,
+      -2.5,
+      0.0,
+      2.5,
+      5.0,
+      7.5,
+      10.0,
+      12.5
+    ],
+    "velocity_sweep_fixed_snr_db": 20.0,
+    "snr_sweep_fixed_radial_velocity_mps": 5.0,
+    "coarse_acceptance": {
+      "minimum_pd": 0.9,
+      "maximum_median_position_error_m": 10.0,
+      "maximum_incremental_false_alarms_per_beam": 1.0
+    }
+  },
+  "default_xml_overrides": {
+    "pf": 1e-08,
+    "range_compression_window": "kaiser",
+    "range_compression_kaiser_beta": 6.0,
+    "range_compression_bandwidth_scale": 1.0,
+    "azimuth_fft_window": "none",
+    "ati_vmax_mps": 50.0,
+    "motion_comp_enable": 1,
+    "motion_comp_apply_to_localization": 1,
+    "motion_comp_solver": "root1d",
+    "motion_comp_use_row_doppler": 1,
+    "velocity_ambiguity_enable": 1,
+    "velocity_search_min_mps": -50.0,
+    "velocity_search_max_mps": 50.0,
+    "velocity_max_doppler_order": 8,
+    "velocity_max_phase_order": 32,
+    "velocity_max_candidates": 512,
+    "velocity_beam_gate_deg": 4.56,
+    "csi_detection_band_mode": "union",
+    "channel_calibration_enable": 0,
+    "runtime_diagnostics_enabled": 1
+  },
+  "cases": [
+    {
+      "case_id": "WT_OFF_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "sweep_axis": "background",
+      "sweep_value": null,
+      "scenario_overrides": {
+        "targets.0.enabled": false
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -5.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 3.940053768035,
+        "targets.0.motion.vn_mps": 3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n3_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -3.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -3.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n3",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 2.3640322608210003,
+        "targets.0.motion.vn_mps": 1.846984425978
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n2_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -2.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -2.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n2",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 1.576021507214,
+        "targets.0.motion.vn_mps": 1.231322950652
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n1_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -1.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -1.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n1",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.788010753607,
+        "targets.0.motion.vn_mps": 0.615661475326
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n0p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -0.5,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -0.5,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n0p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.3940053768035,
+        "targets.0.motion.vn_mps": 0.307830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n0p25_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -0.25,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -0.25,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n0p25",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.19700268840175,
+        "targets.0.motion.vn_mps": 0.1539153688315
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0p25_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.25,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.25,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0p25",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.19700268840175,
+        "targets.0.motion.vn_mps": -0.1539153688315
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.5,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.5,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.3940053768035,
+        "targets.0.motion.vn_mps": -0.307830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p1_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 1.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 1.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p1",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.788010753607,
+        "targets.0.motion.vn_mps": -0.615661475326
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p2_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 2.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 2.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p2",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -1.576021507214,
+        "targets.0.motion.vn_mps": -1.231322950652
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p3_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 3.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 3.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p3",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -2.3640322608210003,
+        "targets.0.motion.vn_mps": -1.846984425978
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 5.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n10_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -10.0,
+      "injected_snr_db": -10.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n10",
+        "targets.0.amplitude.snr_db": -10.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n7p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -7.5,
+      "injected_snr_db": -7.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n7p5",
+        "targets.0.amplitude.snr_db": -7.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -5.0,
+      "injected_snr_db": -5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n5",
+        "targets.0.amplitude.snr_db": -5.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n2p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -2.5,
+      "injected_snr_db": -2.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n2p5",
+        "targets.0.amplitude.snr_db": -2.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p0_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 0.0,
+      "injected_snr_db": 0.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p0",
+        "targets.0.amplitude.snr_db": 0.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p2p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 2.5,
+      "injected_snr_db": 2.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p2p5",
+        "targets.0.amplitude.snr_db": 2.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 5.0,
+      "injected_snr_db": 5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p5",
+        "targets.0.amplitude.snr_db": 5.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p7p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 7.5,
+      "injected_snr_db": 7.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p7p5",
+        "targets.0.amplitude.snr_db": 7.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p10_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 10.0,
+      "injected_snr_db": 10.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p10",
+        "targets.0.amplitude.snr_db": 10.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p12p5_s202631",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202631,
+      "paired_off_case_id": "WT_OFF_s202631",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 12.5,
+      "injected_snr_db": 12.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p12p5",
+        "targets.0.amplitude.snr_db": 12.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_OFF_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "sweep_axis": "background",
+      "sweep_value": null,
+      "scenario_overrides": {
+        "targets.0.enabled": false
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -5.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 3.940053768035,
+        "targets.0.motion.vn_mps": 3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n3_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -3.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -3.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n3",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 2.3640322608210003,
+        "targets.0.motion.vn_mps": 1.846984425978
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n2_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -2.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -2.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n2",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 1.576021507214,
+        "targets.0.motion.vn_mps": 1.231322950652
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n1_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -1.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -1.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n1",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.788010753607,
+        "targets.0.motion.vn_mps": 0.615661475326
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n0p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -0.5,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -0.5,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n0p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.3940053768035,
+        "targets.0.motion.vn_mps": 0.307830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n0p25_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -0.25,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -0.25,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n0p25",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.19700268840175,
+        "targets.0.motion.vn_mps": 0.1539153688315
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0p25_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.25,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.25,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0p25",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.19700268840175,
+        "targets.0.motion.vn_mps": -0.1539153688315
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.5,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.5,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.3940053768035,
+        "targets.0.motion.vn_mps": -0.307830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p1_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 1.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 1.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p1",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.788010753607,
+        "targets.0.motion.vn_mps": -0.615661475326
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p2_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 2.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 2.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p2",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -1.576021507214,
+        "targets.0.motion.vn_mps": -1.231322950652
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p3_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 3.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 3.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p3",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -2.3640322608210003,
+        "targets.0.motion.vn_mps": -1.846984425978
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 5.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n10_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -10.0,
+      "injected_snr_db": -10.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n10",
+        "targets.0.amplitude.snr_db": -10.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n7p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -7.5,
+      "injected_snr_db": -7.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n7p5",
+        "targets.0.amplitude.snr_db": -7.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -5.0,
+      "injected_snr_db": -5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n5",
+        "targets.0.amplitude.snr_db": -5.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n2p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -2.5,
+      "injected_snr_db": -2.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n2p5",
+        "targets.0.amplitude.snr_db": -2.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p0_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 0.0,
+      "injected_snr_db": 0.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p0",
+        "targets.0.amplitude.snr_db": 0.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p2p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 2.5,
+      "injected_snr_db": 2.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p2p5",
+        "targets.0.amplitude.snr_db": 2.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 5.0,
+      "injected_snr_db": 5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p5",
+        "targets.0.amplitude.snr_db": 5.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p7p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 7.5,
+      "injected_snr_db": 7.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p7p5",
+        "targets.0.amplitude.snr_db": 7.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p10_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 10.0,
+      "injected_snr_db": 10.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p10",
+        "targets.0.amplitude.snr_db": 10.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p12p5_s202632",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202632,
+      "paired_off_case_id": "WT_OFF_s202632",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 12.5,
+      "injected_snr_db": 12.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p12p5",
+        "targets.0.amplitude.snr_db": 12.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_OFF_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "sweep_axis": "background",
+      "sweep_value": null,
+      "scenario_overrides": {
+        "targets.0.enabled": false
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -5.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 3.940053768035,
+        "targets.0.motion.vn_mps": 3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n3_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -3.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -3.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n3",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 2.3640322608210003,
+        "targets.0.motion.vn_mps": 1.846984425978
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n2_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -2.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -2.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n2",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 1.576021507214,
+        "targets.0.motion.vn_mps": 1.231322950652
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n1_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -1.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -1.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n1",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.788010753607,
+        "targets.0.motion.vn_mps": 0.615661475326
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n0p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -0.5,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -0.5,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n0p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.3940053768035,
+        "targets.0.motion.vn_mps": 0.307830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_n0p25_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": -0.25,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": -0.25,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_n0p25",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": 0.19700268840175,
+        "targets.0.motion.vn_mps": 0.1539153688315
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.0,
+        "targets.0.motion.vn_mps": -0.0
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0p25_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.25,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.25,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0p25",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.19700268840175,
+        "targets.0.motion.vn_mps": -0.1539153688315
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p0p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 0.5,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 0.5,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p0p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.3940053768035,
+        "targets.0.motion.vn_mps": -0.307830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p1_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 1.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 1.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p1",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -0.788010753607,
+        "targets.0.motion.vn_mps": -0.615661475326
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p2_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 2.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 2.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p2",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -1.576021507214,
+        "targets.0.motion.vn_mps": -1.231322950652
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p3_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 3.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 3.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p3",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -2.3640322608210003,
+        "targets.0.motion.vn_mps": -1.846984425978
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_V_p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "radial_velocity_mps",
+      "sweep_value": 5.0,
+      "injected_snr_db": 20.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_V_p5",
+        "targets.0.amplitude.snr_db": 20.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n10_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -10.0,
+      "injected_snr_db": -10.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n10",
+        "targets.0.amplitude.snr_db": -10.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n7p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -7.5,
+      "injected_snr_db": -7.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n7p5",
+        "targets.0.amplitude.snr_db": -7.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -5.0,
+      "injected_snr_db": -5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n5",
+        "targets.0.amplitude.snr_db": -5.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_n2p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": -2.5,
+      "injected_snr_db": -2.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_n2p5",
+        "targets.0.amplitude.snr_db": -2.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p0_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 0.0,
+      "injected_snr_db": 0.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p0",
+        "targets.0.amplitude.snr_db": 0.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p2p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 2.5,
+      "injected_snr_db": 2.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p2p5",
+        "targets.0.amplitude.snr_db": 2.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 5.0,
+      "injected_snr_db": 5.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p5",
+        "targets.0.amplitude.snr_db": 5.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p7p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 7.5,
+      "injected_snr_db": 7.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p7p5",
+        "targets.0.amplitude.snr_db": 7.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p10_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 10.0,
+      "injected_snr_db": 10.0,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p10",
+        "targets.0.amplitude.snr_db": 10.0,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    },
+    {
+      "case_id": "WT_SNR_p12p5_s202633",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202633,
+      "paired_off_case_id": "WT_OFF_s202633",
+      "sweep_axis": "injected_snr_db",
+      "sweep_value": 12.5,
+      "injected_snr_db": 12.5,
+      "truth_radial_velocity_mps": 5.0,
+      "p5_allow_censored_target_power": true,
+      "scenario_overrides": {
+        "targets.0.target_id": "WEAK_SNR_p12p5",
+        "targets.0.amplitude.snr_db": 12.5,
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663
+      },
+      "metrics": [
+        "p4",
+        "p5"
+      ]
+    }
+  ]
+}

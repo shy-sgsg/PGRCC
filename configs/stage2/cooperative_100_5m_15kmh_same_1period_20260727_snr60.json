@@ -1,0 +1,2563 @@
+{
+  "case_id": "stage2_cooperative_100_5m_15kmh",
+  "output_dir": "outputs/stage2_cooperative_100_5m_15kmh_same_1period_20260727_snr60",
+  "scene_mode": "full",
+  "truth_output": true,
+  "waveform": {
+    "fc_ghz": 16.0,
+    "bandwidth_mhz": 50.0,
+    "fs_mhz": 60.0,
+    "tr_us": 130.0,
+    "prf_hz": 1300.0,
+    "pulse_len": 11820,
+    "pulse_num": 130,
+    "d_chan_m": 0.17,
+    "iq_data_type": "int16",
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2
+  },
+  "range_processing": {
+    "range_fft_len": 12288,
+    "range_crop_start": 3864,
+    "range_crop_len": 4096,
+    "sample_delay_us": 488.0
+  },
+  "scan": {
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 61,
+    "beam_width_deg": 2.28,
+    "beam_index_base": 1
+  },
+  "platform": {
+    "speed_mps": 60.0,
+    "height_m": 6000.0,
+    "origin_lat_deg": 40.4512107203,
+    "origin_lon_deg": 116.985931582,
+    "origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "simulation_geometry": {
+    "geometry_config_name": "algorithm_axis_x_north",
+    "local_x_axis": "north",
+    "local_y_axis": "east",
+    "platform_heading_source": "velocity",
+    "platform_heading_deg": 0.0,
+    "beam_angle_reference": "algorithm",
+    "beam_zero_direction": "algorithm",
+    "beam_positive_direction": "algorithm",
+    "beam_theta_offset_deg": 0.0,
+    "range_geometry": "algorithm",
+    "use_ground_range_for_position": true,
+    "platform_origin_lat_deg": 40.4512107203,
+    "platform_origin_lon_deg": 116.985931582,
+    "platform_origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "channel_geometry": {
+    "channel_1": {
+      "name": "left_upper",
+      "x_m": -0.085,
+      "y_m": 0.0,
+      "z_m": 0.085
+    },
+    "channel_2": {
+      "name": "right_upper",
+      "x_m": 0.085,
+      "y_m": 0.0,
+      "z_m": 0.085
+    },
+    "channel_3": {
+      "name": "left_lower",
+      "x_m": -0.085,
+      "y_m": 0.0,
+      "z_m": -0.085
+    },
+    "channel_4": {
+      "name": "right_lower",
+      "x_m": 0.085,
+      "y_m": 0.0,
+      "z_m": -0.085
+    }
+  },
+  "random": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 1,
+    "beam_count": 0,
+    "random_seed": 20260727
+  },
+  "scene": {
+    "mode": "full",
+    "output_signal_domain": "raw_lfm",
+    "range_min_m": 82800.0,
+    "range_max_m": 93000.0,
+    "azimuth_min_deg": -60.0,
+    "azimuth_max_deg": 60.0,
+    "ground_z_m": 0.0,
+    "clutter_amplitude_scale": 1.0,
+    "single_point": {
+      "range_m": 85000.0,
+      "beam_id": -1,
+      "expected_bin": -1,
+      "azimuth_deg": 0.0,
+      "amplitude": 1.0
+    },
+    "area_clutter": {
+      "enabled": true,
+      "model": "continuous_texture",
+      "scatterer_count": 0,
+      "mean_power": 0.1,
+      "texture_sigma": 0.4,
+      "spatial_cell_m": 30.0,
+      "azimuth_subcell_count": 9
+    },
+    "strong_scatterers": {
+      "enabled": false,
+      "count": 0,
+      "rcs_db_min": 10.0,
+      "rcs_db_max": 30.0
+    },
+    "line_scatterers": {
+      "enabled": false,
+      "line_count": 0,
+      "points_per_line": 0,
+      "rcs_db": 12.0
+    },
+    "thermal_noise": {
+      "enabled": true,
+      "noise_power": 0.01
+    }
+  },
+  "channel_impairments": {
+    "enabled": false,
+    "channel_amp_mismatch_db": 0.0,
+    "channel_fixed_phase_mismatch_deg": 0.0,
+    "channel_phase_jitter_std_deg": 0.0,
+    "channel_range_shift_samples": 0.0,
+    "channel_time_delay_ns": 0.0,
+    "channel_noise_power_ratio_db": 0.0,
+    "iq_gain_imbalance_db": 0.0,
+    "iq_phase_imbalance_deg": 0.0,
+    "baseline_error_m": 0.0,
+    "per_pulse_phase_drift_deg": 0.0,
+    "per_beam_phase_bias_deg": 0.0,
+    "sample_clock_error_ppm": 0.0,
+    "channel_drop_probability": 0.0,
+    "channel_saturation_level": 0.0
+  },
+  "targets": [
+    {
+      "target_id": "COOP_001",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 6,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -3.8567256581192364,
+        "vn_mps": 4.596266658713868
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_002",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 6,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 5.785088487178855,
+        "vn_mps": -6.894399988070802
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_003",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 7,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.014783638153149,
+        "vn_mps": 4.458868952864366
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_004",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 7,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.022175457229724,
+        "vn_mps": -6.688303429296548
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_005",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 8,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.1679502227539835,
+        "vn_mps": 4.3160388020319065
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_006",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 8,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.251925334130975,
+        "vn_mps": -6.47405820304786
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_007",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 9,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.316038802031907,
+        "vn_mps": 4.1679502227539835
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_008",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 9,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.474058203047861,
+        "vn_mps": -6.251925334130975
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_009",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 10,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.458868952864366,
+        "vn_mps": 4.014783638153149
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_010",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 10,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.688303429296548,
+        "vn_mps": -6.022175457229724
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_011",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 11,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.596266658713868,
+        "vn_mps": 3.8567256581192355
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_012",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 11,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.894399988070802,
+        "vn_mps": -5.785088487178854
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_013",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 12,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.728064521640332,
+        "vn_mps": 3.69396885195395
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_014",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 12,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.092096782460497,
+        "vn_mps": -5.5409532779309245
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_015",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 13,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.854101966249685,
+        "vn_mps": 3.526711513754839
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_016",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 13,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.281152949374527,
+        "vn_mps": -5.2900672706322585
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_017",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 14,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.97422543533025,
+        "vn_mps": 3.355157420824481
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_018",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 14,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.461338152995374,
+        "vn_mps": -5.032736131236722
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_019",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 15,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.088288576938556,
+        "vn_mps": 3.1795155853992294
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_020",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 15,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.632432865407834,
+        "vn_mps": -4.769273378098844
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_021",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 16,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.196152422706632,
+        "vn_mps": 2.9999999999999996
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_022",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 16,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.794228634059948,
+        "vn_mps": -4.499999999999999
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_023",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 17,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.297685557153562,
+        "vn_mps": 2.816829376715345
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_024",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 17,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.946528335730343,
+        "vn_mps": -4.225244065073017
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_025",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 18,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.392764277795003,
+        "vn_mps": 2.6302268807344644
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_026",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 18,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.089146416692504,
+        "vn_mps": -3.9453403211016966
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_027",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 19,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.481272745855605,
+        "vn_mps": 2.4404198584548014
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_028",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 19,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.221909118783408,
+        "vn_mps": -3.660629787682202
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_029",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 20,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.5631031274007245,
+        "vn_mps": 2.247639560495472
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_030",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 20,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.344654691101088,
+        "vn_mps": -3.371459340743208
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_031",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 21,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.638155724715451,
+        "vn_mps": 2.0521208599540124
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_032",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 21,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.457233587073176,
+        "vn_mps": -3.0781812899310186
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_033",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 22,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.706339097770921,
+        "vn_mps": 1.8541019662496843
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_034",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 22,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.559508646656381,
+        "vn_mps": -2.7811529493745266
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_035",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 23,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.767570175629913,
+        "vn_mps": 1.653824134901995
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_036",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 23,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.65135526344487,
+        "vn_mps": -2.4807362023529924
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_037",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 24,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.821774357655979,
+        "vn_mps": 1.4515313735980064
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_038",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 24,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.732661536483969,
+        "vn_mps": -2.1772970603970094
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_039",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 25,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.868885604402834,
+        "vn_mps": 1.247470144906556
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_040",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 25,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.803328406604251,
+        "vn_mps": -1.8712052173598341
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_041",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 26,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.908846518073248,
+        "vn_mps": 1.041889066001582
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_042",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 26,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.863269777109872,
+        "vn_mps": -1.562833599002373
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_043",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 27,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.941608412449423,
+        "vn_mps": 0.8350386057603927
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_044",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 27,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.912412618674134,
+        "vn_mps": -1.252557908640589
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_045",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 28,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.967131372209639,
+        "vn_mps": 0.6271707796059208
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_046",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 28,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.950697058314459,
+        "vn_mps": -0.9407561694088813
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_047",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 29,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.985384301558945,
+        "vn_mps": 0.4185388424647518
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_048",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 29,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.978076452338417,
+        "vn_mps": -0.6278082636971277
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_049",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 30,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.996344962114574,
+        "vn_mps": 0.2093969802150058
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_050",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 30,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.994517443171862,
+        "vn_mps": -0.31409547032250873
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_051",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 31,
+        "expected_bin": 1500,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.176716,
+        "vn_mps": -0.0
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_052",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 31,
+        "expected_bin": 1502,
+        "azimuth_offset_deg": 0.00012534469425375556
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.176715999990005,
+        "vn_mps": -9.137308095874917e-06
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_053",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 32,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.996344962114574,
+        "vn_mps": -0.2093969802150058
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_054",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 32,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.994517443171862,
+        "vn_mps": 0.31409547032250873
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_055",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 33,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.985384301558945,
+        "vn_mps": -0.4185388424647518
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_056",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 33,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.978076452338417,
+        "vn_mps": 0.6278082636971277
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_057",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 34,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.967131372209639,
+        "vn_mps": -0.6271707796059208
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_058",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 34,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.950697058314459,
+        "vn_mps": 0.9407561694088813
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_059",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 35,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.941608412449423,
+        "vn_mps": -0.8350386057603927
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_060",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 35,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.912412618674134,
+        "vn_mps": 1.252557908640589
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_061",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 36,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.908846518073248,
+        "vn_mps": -1.041889066001582
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_062",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 36,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.863269777109872,
+        "vn_mps": 1.562833599002373
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_063",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 37,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.868885604402834,
+        "vn_mps": -1.247470144906556
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_064",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 37,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.803328406604251,
+        "vn_mps": 1.8712052173598341
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_065",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 38,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.821774357655979,
+        "vn_mps": -1.4515313735980064
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_066",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 38,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.732661536483969,
+        "vn_mps": 2.1772970603970094
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_067",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 39,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.767570175629913,
+        "vn_mps": -1.653824134901995
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_068",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 39,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.65135526344487,
+        "vn_mps": 2.4807362023529924
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_069",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 40,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.706339097770921,
+        "vn_mps": -1.8541019662496843
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_070",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 40,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.559508646656381,
+        "vn_mps": 2.7811529493745266
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_071",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 41,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.638155724715451,
+        "vn_mps": -2.0521208599540124
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_072",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 41,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.457233587073176,
+        "vn_mps": 3.0781812899310186
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_073",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 42,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.5631031274007245,
+        "vn_mps": -2.247639560495472
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_074",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 42,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.344654691101088,
+        "vn_mps": 3.371459340743208
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_075",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 43,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.481272745855605,
+        "vn_mps": -2.4404198584548014
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_076",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 43,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.221909118783408,
+        "vn_mps": 3.660629787682202
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_077",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 44,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.392764277795003,
+        "vn_mps": -2.6302268807344644
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_078",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 44,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 8.089146416692504,
+        "vn_mps": 3.9453403211016966
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_079",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 45,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.297685557153562,
+        "vn_mps": -2.816829376715345
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_080",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 45,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.946528335730343,
+        "vn_mps": 4.225244065073017
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_081",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 46,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.196152422706632,
+        "vn_mps": -2.9999999999999996
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_082",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 46,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.794228634059948,
+        "vn_mps": 4.499999999999999
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_083",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 47,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -5.088288576938556,
+        "vn_mps": -3.1795155853992294
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_084",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 47,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.632432865407834,
+        "vn_mps": 4.769273378098844
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_085",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 48,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.97422543533025,
+        "vn_mps": -3.355157420824481
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_086",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 48,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.461338152995374,
+        "vn_mps": 5.032736131236722
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_087",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 49,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.854101966249685,
+        "vn_mps": -3.526711513754839
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_088",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 49,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.281152949374527,
+        "vn_mps": 5.2900672706322585
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_089",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 50,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.728064521640332,
+        "vn_mps": -3.69396885195395
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_090",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 50,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 7.092096782460497,
+        "vn_mps": 5.5409532779309245
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_091",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 51,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.596266658713868,
+        "vn_mps": -3.8567256581192355
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_092",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 51,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.894399988070802,
+        "vn_mps": 5.785088487178854
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_093",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 52,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.458868952864366,
+        "vn_mps": -4.014783638153149
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_094",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 52,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.688303429296548,
+        "vn_mps": 6.022175457229724
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_095",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 53,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.316038802031907,
+        "vn_mps": -4.1679502227539835
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_096",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 53,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.474058203047861,
+        "vn_mps": 6.251925334130975
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_097",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 54,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.1679502227539835,
+        "vn_mps": -4.3160388020319065
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_098",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 54,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.251925334130975,
+        "vn_mps": 6.47405820304786
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_099",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 55,
+        "expected_bin": 1000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -4.014783638153149,
+        "vn_mps": -4.458868952864366
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    },
+    {
+      "target_id": "COOP_100",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 55,
+        "expected_bin": 3000,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": 6.022175457229724,
+        "vn_mps": 6.688303429296548
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 60.0
+      },
+      "visibility": {
+        "type": "hard_gate",
+        "single_beam_only": true,
+        "visible_beam_span": 0
+      }
+    }
+  ],
+  "design_contract": {
+    "target_count": 100,
+    "minimum_neighbour_spacing_m": 5.0,
+    "minimum_radial_speed_kmh": 15.0,
+    "resolution_group": "COOP_051/COOP_052 are 5 m apart at +15/+15 km/h radial speed",
+    "single_visible_beams": "6..55; every target is constrained to its reference beam",
+    "no_beam_edge": true,
+    "no_cross_beam_in_all_periods": true
+  }
+}

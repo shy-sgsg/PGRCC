@@ -1,0 +1,188 @@
+{
+  "experiment_id": "p6_velocity_union_kaiser6_pfa1e8_regression",
+  "output_root": "outputs/eval/p6_velocity_union_kaiser6_pfa1e8_regression",
+  "match_config": "configs/eval/localization_match_config.json",
+  "default_xml_overrides": {
+    "pf": 1e-8,
+    "range_compression_window": "kaiser",
+    "range_compression_kaiser_beta": 6.0,
+    "range_compression_bandwidth_scale": 1.0,
+    "ati_vmax_mps": 50.0,
+    "motion_comp_enable": 1,
+    "motion_comp_apply_to_localization": 1,
+    "motion_comp_solver": "root1d",
+    "motion_comp_use_row_doppler": 1,
+    "velocity_ambiguity_enable": 1,
+    "velocity_search_min_mps": -50.0,
+    "velocity_search_max_mps": 50.0,
+    "velocity_max_doppler_order": 8,
+    "velocity_max_phase_order": 32,
+    "velocity_max_candidates": 512,
+    "velocity_beam_gate_deg": 4.56,
+    "velocity_phase_sigma_rad": 0.15,
+    "velocity_beam_sigma_deg": 0.5,
+    "velocity_cost_margin_min": 1.0,
+    "velocity_equivalent_cost_tolerance": 1e-6,
+    "csi_detection_band_mode": "union",
+    "csi_metrics_enable": 0,
+    "runtime_diagnostics_enabled": 1
+  },
+  "cases": [
+    {
+      "case_id": "V00_zero",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_V00",
+        "targets.0.motion.ve_mps": 0.0,
+        "targets.0.motion.vn_mps": 0.0,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V01_pos1",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_V01P",
+        "targets.0.motion.ve_mps": -0.788010753607,
+        "targets.0.motion.vn_mps": -0.615661475326,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V02_neg1",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_V01N",
+        "targets.0.motion.ve_mps": 0.788010753607,
+        "targets.0.motion.vn_mps": 0.615661475326,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V03_pos10",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_V10P",
+        "targets.0.motion.ve_mps": -7.88010753607,
+        "targets.0.motion.vn_mps": -6.15661475326,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V04_neg10",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_V10N",
+        "targets.0.motion.ve_mps": 7.88010753607,
+        "targets.0.motion.vn_mps": 6.15661475326,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V05_vamb_minus_0p1",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_VAMB_M01",
+        "targets.0.motion.ve_mps": -9.518435955281717,
+        "targets.0.motion.vn_mps": -7.436617198687845,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V06_exact_vamb",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_VAMB",
+        "targets.0.motion.ve_mps": -9.597237030642416,
+        "targets.0.motion.vn_mps": -7.498183346220445,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V07_vamb_plus_0p1",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_VAMB_P01",
+        "targets.0.motion.ve_mps": -9.676038106003116,
+        "targets.0.motion.vn_mps": -7.559749493753045,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V08_pos14",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_V14P",
+        "targets.0.motion.ve_mps": -11.032150550498,
+        "targets.0.motion.vn_mps": -8.619260654564,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V09_neg14",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_V14N",
+        "targets.0.motion.ve_mps": 11.032150550498,
+        "targets.0.motion.vn_mps": 8.619260654564,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V10_pos_2vamb",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_2VAMB_P",
+        "targets.0.motion.ve_mps": -19.194474061284833,
+        "targets.0.motion.vn_mps": -14.99636669244089,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "V11_neg_2vamb",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202609,
+      "scenario_overrides": {
+        "targets.0.target_id": "P6_2VAMB_N",
+        "targets.0.motion.ve_mps": 19.194474061284833,
+        "targets.0.motion.vn_mps": 14.99636669244089,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "case_id": "mechanical_phase_center_validation_20260823",
+  "output_dir": "outputs/mechanical_phase_center_validation_20260823",
+  "scan_mode": "mechanical",
+  "mechanical_scan": {
+    "scan_start_deg": -1.0,
+    "scan_end_deg": 1.0,
+    "scan_speed_deg_s": 20.0,
+    "scan_direction": "forward",
+    "cpi_pulse_count": 130,
+    "cpi_step_pulse": 130,
+    "max_cpi_angle_span_deg": 2.0,
+    "phase_center_rotation_enable": true,
+    "phase_center_mount_angle_deg": 0.0,
+    "phase_center_rotation_sign": 1
+  },
+  "scene_mode": "target_only",
+  "truth_output": true,
+  "waveform": {
+    "fc_ghz": 16.0,
+    "bandwidth_mhz": 1.0,
+    "fs_mhz": 2.0,
+    "tr_us": 20.0,
+    "prf_hz": 1300.0,
+    "pulse_len": 512,
+    "acquired_pulse_len": 512,
+    "pulse_num": 130,
+    "d_chan_m": 0.17,
+    "iq_data_type": "float32",
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2
+  },
+  "channel_geometry": {
+    "channel_1": {"name": "rx1", "x_m": 0.0, "y_m": -0.255, "z_m": 0.0},
+    "channel_2": {"name": "rx2", "x_m": 0.0, "y_m": -0.085, "z_m": 0.0},
+    "channel_3": {"name": "rx3", "x_m": 0.0, "y_m": 0.085, "z_m": 0.0},
+    "channel_4": {"name": "rx4", "x_m": 0.0, "y_m": 0.255, "z_m": 0.0}
+  },
+  "range_processing": {
+    "range_fft_len": 512,
+    "range_crop_start": 0,
+    "range_crop_len": 512,
+    "sample_delay_us": 488.0
+  },
+  "scan": {
+    "scan_min_deg": 0.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 1,
+    "beam_width_deg": 2.28,
+    "beam_index_base": 1
+  },
+  "platform": {
+    "speed_mps": 60.0,
+    "height_m": 6000.0,
+    "origin_lat_deg": 40.4512107203,
+    "origin_lon_deg": 116.985931582,
+    "origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "simulation_geometry": {
+    "geometry_config_name": "algorithm_axis_x_north",
+    "local_x_axis": "north",
+    "local_y_axis": "east",
+    "platform_heading_source": "velocity",
+    "platform_heading_deg": 0.0,
+    "beam_angle_reference": "algorithm",
+    "beam_zero_direction": "algorithm",
+    "beam_positive_direction": "algorithm",
+    "beam_theta_offset_deg": 0.0,
+    "range_geometry": "algorithm",
+    "use_ground_range_for_position": true,
+    "platform_origin_lat_deg": 40.4512107203,
+    "platform_origin_lon_deg": 116.985931582,
+    "platform_origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "random": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 1,
+    "beam_count": 1,
+    "random_seed": 20260823,
+    "four_channel_phase_center_mode": "physical"
+  },
+  "scene": {
+    "mode": "target_only",
+    "output_signal_domain": "raw_lfm",
+    "range_min_m": 73000.0,
+    "range_max_m": 75000.0,
+    "azimuth_min_deg": -2.0,
+    "azimuth_max_deg": 2.0,
+    "ground_z_m": 0.0,
+    "clutter_amplitude_scale": 1.0,
+    "area_clutter": {"enabled": false},
+    "strong_scatterers": {"enabled": false},
+    "line_scatterers": {"enabled": false},
+    "thermal_noise": {"enabled": false, "noise_power": 0.0, "include_target_only": false}
+  },
+  "channel_impairments": {"enabled": false},
+  "targets": [
+    {
+      "target_id": "MECH_PHASE_TARGET",
+      "enabled": true,
+      "init": {"type": "beam_bin_azimuth", "beam_id": 1, "expected_bin": 128, "azimuth_deg": 0.0},
+      "motion": {"type": "enu_velocity", "ve_mps": 5.0, "vn_mps": 0.0},
+      "amplitude": {"type": "snr_db", "snr_db": 40.0},
+      "visibility": {"type": "gaussian", "single_beam_only": true}
+    }
+  ]
+}

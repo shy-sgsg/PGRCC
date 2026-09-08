@@ -1,0 +1,47 @@
+{
+  "source": {
+    "path": "/home/shy/桌面/副本各算法模块采集板参数设计20260818_kty更正.xlsx",
+    "sha256": "a76ed3879c028365405ff5866634aec4c7fb8315b8dde03652a6c3b65a302968",
+    "sheet": "Sheet1",
+    "column": "N",
+    "mode": "广域GMTI（远距离）",
+    "extracted_on": "2026-08-20"
+  },
+  "workbook_values": {
+    "range_resolution_m": 5.0,
+    "bandwidth_mhz": 50.0,
+    "swath_m": 10080.0,
+    "swath_time_us": 67.2,
+    "pulse_width_us": 130.0,
+    "receive_duration_us": 197.2,
+    "ddc_sample_rate_mhz": 60.0,
+    "acquired_samples": 11832,
+    "fpga_uploaded_samples": 11840,
+    "receive_delay_us": 488.0,
+    "prt_us": 769.230769230769,
+    "prf_hz": 1300.0,
+    "duty_cycle": 0.169,
+    "transfer_rate_gib_per_s": 0.230598449707031,
+    "scan_speed_deg_per_s": 20.0,
+    "scan_ranges_deg": [45.0, 90.0, 180.0]
+  },
+  "derived_processing": {
+    "pulse_width_samples": 7800,
+    "valid_swath_samples": 4032,
+    "fpga_padding_samples": 8,
+    "range_crop_start": 0,
+    "range_compress_len": 4032,
+    "range_fft_len": 12288,
+    "nearest_slant_range_m": 73149.359752,
+    "valid_swath_m": 10073.0265888,
+    "farthest_slant_range_m": 83222.3863408,
+    "derivation": "c=299792458m/s; Rnear=c*receive_delay/2; swath=c*(acquired_samples/fs-pulse_width)/2"
+  },
+  "non_workbook_inputs": {
+    "pulse_count_per_beam": 128,
+    "pulse_count_source": "新协议现有生产接口；工作簿N20为空",
+    "beam_count": 61,
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0
+  }
+}

@@ -1,0 +1,109 @@
+#pragma once
+
+#include "trackModule.hpp"
+#include <array>
+#include <cstdint>
+#include <deque>
+#include <iosfwd>
+#include <string>
+#include <vector>
+
+enum class TrackState {
+    Tentative,
+    Confirmed,
+    Coasted,
+    Deleted
+};
+
+bool runTrackAssociationSelfTests(std::ostream& out);
+
+struct TrackPoint {
+    double e = 0.0;
+    double n = 0.0;
+    double utc = 0.0;
+    int result_id = -1;
+
+    TrackPoint() {}
+    TrackPoint(double e_in, double n_in, double utc_in, int result_id_in)
+        : e(e_in), n(n_in), utc(utc_in), result_id(result_id_in) {}
+};
+
+// 某一处理周期内、尚未被量测态覆盖的 Kalman 状态快照。
+// prediction 是本周期关联前的先验；filtered 是关联量测更新后的在线后验。
+struct TrackKinematicSnapshot {
+    bool valid = false;
+    double e = 0.0;
+    double n = 0.0;
+    double ve = 0.0;
+    double vn = 0.0;
+    double utc = 0.0;
+    double range = 0.0;
+    double direction = 0.0;
+};
+
+struct ManagedTrack {
+    uint16_t id = 0;
+    TrackState state = TrackState::Tentative;
+    double e = 0.0;
+    double n = 0.0;
+    double ve = 0.0;
+    double vn = 0.0;
+    std::array<double, 16> P{};
+    double utc = 0.0;       // 最近一次实际关联量测的 UTC
+    double state_utc = 0.0; // 当前 Kalman 状态已预测/更新到的 UTC
+    double speed = 0.0;
+    double direction = 0.0;
+    double range = 0.0;
+    int last_result_id = -1;
+    int age = 0;
+    int hit_count = 0;
+    int miss_count = 0;
+    int consecutive_hits = 0;
+    bool matched_this_frame = false;
+    int matched_det_index = -1;
+    bool is_output_this_frame = false;
+    TrackKinematicSnapshot prediction_snapshot;
+    TrackKinematicSnapshot filtered_snapshot;
+    std::deque<int> hit_history;
+    std::deque<TrackPoint> point_history;
+    std::deque<double> speed_history;
+    std::deque<double> heading_history;
+    std::deque<double> residual_history;
+    std::deque<int> recent_result_ids;
+};
+
+class TrackManager {
+public:
+    std::vector<GMTIDetection> update(const Config& cfg,
+                                      const std::vector<GMTIDetection>& current_targets);
+    std::vector<GMTIDetection> updateRawDetections(
+        const Config& cfg,
+        const std::vector<GMTIDetection>& current_detections,
+        int result_id,
+        double frame_utc);
+    void reset();
+
+private:
+    friend bool runTrackAssociationSelfTests(std::ostream& out);
+    uint16_t allocateId();
+    uint16_t allocateNextId();
+    bool isActiveId(uint16_t id) const;
+    ManagedTrack* findTrackById(uint16_t id);
+    int currentResultId(const Config& cfg) const;
+    int maxMiss(const Config& cfg) const;
+    void dumpDebugSnapshot(const Config& cfg,
+                           int result_id,
+                           double frame_utc,
+                           const std::vector<GMTIDetection>& detections,
+                           const std::vector<int>& det_to_track_id,
+                           int num_outputs,
+                           int num_new_tracks,
+                           int num_matched_tracks,
+                           int num_unmatched_detections) const;
+    void pruneDeleted();
+
+    uint16_t next_id_ = 1;
+    int last_update_result_id_ = 0;
+    bool association_config_logged_ = false;
+    std::vector<ManagedTrack> tracks_;
+};

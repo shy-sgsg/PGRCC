@@ -1,0 +1,82 @@
+{
+  "case_id": "p45_mirror_mapping_cpu_dryrun",
+  "output_dir": "outputs/p45_mirror_mapping_cpu_dryrun",
+  "system": {
+    "fc_ghz": 16.0,
+    "bandwidth_mhz": 50.0,
+    "fs_mhz": 60.0,
+    "sample_delay_us": 488.0,
+    "ddc_len": 11820,
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 61,
+    "beam_width_deg": 2.28,
+    "pulse_num": 130,
+    "platform_height_m": 6000.0,
+    "platform_speed_mps": 60.0,
+    "d_chan_m": 0.17,
+    "squint_side": 1
+  },
+  "canvas": {
+    "resolution_m": 250.0,
+    "margin_m": 0.0,
+    "max_cells": 500000
+  },
+  "scene": {
+    "mode": "mirror",
+    "range_min_m": 82800.0,
+    "range_max_m": 93000.0,
+    "ground_z_m": 0.0,
+    "clutter_amplitude_scale": 1.0,
+    "area_clutter": {"enabled": false},
+    "roi": {"enabled": false},
+    "thermal_noise_enabled": false
+  },
+  "sar_source": {
+    "image_path": "simulator/scenarios/PGA_KuSAR_Block0.tif",
+    "input_type": "geotiff",
+    "image_type": "intensity",
+    "pixel_size_range_m": 0.3,
+    "pixel_size_azimuth_m": 0.3,
+    "source_center_col": -1,
+    "source_center_row": -1,
+    "row_increases_with_azimuth": true,
+    "col_increases_with_range": true,
+    "valid_crop_enabled": true,
+    "valid_col_start": 5,
+    "valid_col_end_exclusive": 8170,
+    "valid_row_start": 0,
+    "valid_row_end_exclusive": 3700,
+    "percentile_low": 1.0,
+    "percentile_high": 99.0,
+    "percentile_normalize": true
+  },
+  "tiling": {
+    "mode": "mirror",
+    "random_start_offset": false,
+    "reference_beam_id_1based": 31,
+    "anchor_slant_range_m": 87900.0,
+    "tile_gain_jitter_db": 0.0,
+    "phase_policy": "independent_random_per_ground_cell",
+    "random_seed": 202606
+  },
+  "scatterer_extraction": {
+    "amplitude_scale": 1.0,
+    "phase_mode": "random_uniform",
+    "random_seed": 202606
+  },
+  "forward": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 31,
+    "beam_count": 1,
+    "pulse_start": 0,
+    "pulse_count": 1,
+    "backend": "cpu",
+    "compare_cpu_cuda": false,
+    "beam_gain_threshold": 0.01,
+    "truth_max_rows": 50000,
+    "dry_run": true
+  },
+  "targets": {"enabled": false}
+}

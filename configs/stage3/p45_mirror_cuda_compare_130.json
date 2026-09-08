@@ -1,0 +1,51 @@
+{
+  "case_id": "p45_mirror_cuda_compare_cropped_130",
+  "output_dir": "outputs/p45_mirror_cuda_compare_cropped_130",
+  "canvas": {
+    "resolution_m": 10.0,
+    "margin_m": 0.0,
+    "max_cells": 2000000
+  },
+  "scene": {
+    "mode": "mirror",
+    "range_min_m": 82800.0,
+    "range_max_m": 93000.0,
+    "ground_z_m": 0.0,
+    "area_clutter": {"enabled": false},
+    "roi": {"enabled": false},
+    "thermal_noise_enabled": false
+  },
+  "sar_source": {
+    "image_path": "simulator/scenarios/PGA_KuSAR_Block0.tif",
+    "input_type": "geotiff",
+    "image_type": "intensity",
+    "pixel_size_range_m": 0.3,
+    "pixel_size_azimuth_m": 0.3,
+    "valid_crop_enabled": true,
+    "valid_col_start": 5,
+    "valid_col_end_exclusive": 8170,
+    "valid_row_start": 0,
+    "valid_row_end_exclusive": 3700,
+    "percentile_normalize": true,
+    "percentile_low": 1.0,
+    "percentile_high": 99.0
+  },
+  "forward": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 31,
+    "beam_count": 1,
+    "pulse_start": 0,
+    "pulse_count": 130,
+    "backend": "cuda",
+    "compare_cpu_cuda": true,
+    "cuda_batch_pulses": 130,
+    "beam_gain_threshold": 0.01,
+    "compare_abs_tolerance": 0.0005,
+    "compare_rel_tolerance": 0.0005,
+    "dbs_output_resolution_m": 3.0,
+    "truth_max_rows": 100000,
+    "dry_run": false
+  },
+  "targets": {"enabled": false}
+}

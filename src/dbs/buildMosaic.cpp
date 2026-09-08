@@ -1,0 +1,560 @@
+#include "dbs/DbsStitcher.hpp"
+#include <numeric>
+#include <vector>
+#include <cmath>
+#include <limits>
+#include <algorithm> // std::min/std::max
+#include "dbs/rotation_xy.hpp"
+#include "dbs/stitcher_kernel.hpp"
+#include <cuda_runtime.h>
+#include <iostream>
+#include "trig_lut.hpp"
+
+#include "dbs/PerfLogger.hpp"
+
+static double bytes_to_gib(size_t bytes)
+{
+  return static_cast<double>(bytes) / (1024.0 * 1024.0 * 1024.0);
+}
+
+// 简易 clamp（C++11 里没有 std::clamp）
+static inline int clamp_int(int v, int lo, int hi)
+{
+  return v < lo ? lo : (v > hi ? hi : v);
+}
+static inline float clamp_float(float v, float lo, float hi)
+{
+  return v < lo ? lo : (v > hi ? hi : v);
+}
+// 光速（避免外部依赖）
+static inline float c0f_local() { return 299792458.0f; }
+
+static inline float cfg_effective_fs(const Config &cfg)
+{
+  return (cfg.R_bin > 0.0)
+           ? static_cast<float>(c0f_local() / (2.0 * cfg.R_bin))
+           : static_cast<float>(cfg.fs);
+}
+
+static inline float clamp_unit_float(float x)
+{
+  return x < -1.0f ? -1.0f : (x > 1.0f ? 1.0f : x);
+}
+
+static inline float wrap180_float(float angle_deg)
+{
+  angle_deg = std::fmod(angle_deg + 180.0f, 360.0f);
+  if (angle_deg < 0.0f)
+    angle_deg += 360.0f;
+  return angle_deg - 180.0f;
+}
+
+static inline bool in_beam_angle_gate(float fd, float lambda, float velocity,
+                                      float beam_angle_deg, float gate_deg)
+{
+  if (!(velocity > 0.0f) || !(lambda > 0.0f) || !(gate_deg > 0.0f))
+    return true;
+  const float ratio = clamp_unit_float(-fd * lambda / (2.0f * velocity));
+  const float pixel_angle_deg =
+      gmti::trig_lut::asin(ratio) * 180.0f / static_cast<float>(M_PI);
+  return std::fabs(wrap180_float(pixel_angle_deg - beam_angle_deg)) <= gate_deg;
+}
+
+bool DbsStitcher::buildMosaic(const Config &cfg,
+                              const RDData &RD,
+                              const MetaPack &meta,
+                              const Grid &grid,
+                              Mosaic &mosaic)
+{
+  const std::string algoGroup = "BuildMosaic";
+  PerfLogger::Timer t_stage, t_total;
+  // t_total.start();
+
+  t_stage.start();
+  const int B = (int)meta.beams.size();                   // bowei_num
+  const int M = (RD.amp.empty() ? 0 : RD.amp[0].cols);    // range_samp_used
+  const int nEff = (RD.amp.empty() ? 0 : RD.amp[0].rows); // f_youxiao
+  const int nx = (int)grid.x.size();
+  const int ny = (int)grid.y.size();
+  if (B <= 0 || M <= 0 || nEff <= 0 || nx <= 0 || ny <= 0)
+    return false;
+
+  const float R_bin = c0f_local() / (2.0f * cfg_effective_fs(cfg));
+  const float lambda = c0f_local() / (float)cfg.fc;
+  const float R_min = (float)cfg.R_min;
+
+  // —— Height：统一高度（mean(meta.z) - P.mean_ground_h）
+  double zmean = 0.0;
+  for (int i = 0; i < B; ++i)
+    zmean += meta.beams[(size_t)i].z;
+  zmean = (B > 0) ? (zmean / B) : 0.0;
+  const float Height = (float)(zmean - cfg.MT_nowz);
+
+  // —— 每波位 fd 轴 min/max/delta（按波位并行）
+  std::vector<float> min_RD_y(B), max_RD_y(B), delta_RD_y(B);
+  for (int b = 0; b < B; ++b)
+  {
+    const std::vector<float> &frow = RD.fd_axis[b]; // size=nEff
+    float mn = std::numeric_limits<float>::infinity();
+    float mx = -std::numeric_limits<float>::infinity();
+    for (size_t k = 0; k < frow.size(); ++k)
+    {
+      const float v = frow[k];
+      mn = v < mn ? v : mn;
+      mx = v > mx ? v : mx;
+    }
+    min_RD_y[b] = (frow.empty() ? 0.0f : mn);
+    max_RD_y[b] = (frow.empty() ? 0.0f : mx);
+    delta_RD_y[b] = (nEff > 1) ? (max_RD_y[b] - min_RD_y[b]) / (float)(nEff - 1) : 1e-9f;
+  }
+
+  // —— 速度与航迹角（按波位并行）
+  std::vector<float> vN(B), vE(B), V_feiji(B), sin_jiaodu(B), cos_jiaodu(B);
+  int squint_side = cfg.squint_side; // 0 for left, 1 for right
+  const float beam_angle_gate_deg = static_cast<float>(
+      cfg.loc_beam_gate_deg > 0.0 ? cfg.loc_beam_gate_deg
+                                  : std::max(0.0, cfg.beamwidth_deg * 0.5) + 0.5);
+  for (int b = 0; b < B; ++b)
+  {
+    vN[b] = meta.beams[b].vN;
+    vE[b] = meta.beams[b].vE;
+    V_feiji[b] = std::sqrt(vN[b] * vN[b] + vE[b] * vE[b]);
+    const float denom = (std::fabs(vE[b]) > 1e-12f) ? std::fabs(vE[b]) : 1e-12f;
+    const float jiaodu = gmti::trig_lut::atan(std::fabs(vN[b] / denom));
+    sin_jiaodu[b] = gmti::trig_lut::sin(jiaodu);
+    cos_jiaodu[b] = gmti::trig_lut::cos(jiaodu);
+  }
+
+  // —— 输出缓存
+  mosaic.amp = Image2D<float>(ny, nx);
+  mosaic.which_beam = Image2D<uint16_t>(ny, nx);
+  mosaic.r_save = Image2D<float>(ny, nx);
+  mosaic.fd_save = Image2D<float>(ny, nx);
+  mosaic.x_rel_save = Image2D<float>(ny, nx);
+  mosaic.y_rel_save = Image2D<float>(ny, nx);
+
+  // 清零（可并行按元素写）
+  const size_t Npix = (size_t)nx * ny;
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+  for (size_t idx = 0; idx < Npix; ++idx)
+  {
+    mosaic.amp.buf[idx] = 0.0f;
+    mosaic.which_beam.buf[idx] = (uint16_t)0;
+    mosaic.r_save.buf[idx] = 0.0f;
+    mosaic.fd_save.buf[idx] = 0.0f;
+    mosaic.x_rel_save.buf[idx] = 0.0f;
+    mosaic.y_rel_save.buf[idx] = 0.0f;
+  }
+
+  // —— 旋转到飞机坐标
+  // const int flag = P.flight_dir_flag;
+  int flag = infer_flight_dir_flag(vN, vE); // 1/2/3/4
+  DBG("Inferred flight_dir_flag = " << flag);
+
+  flag = flag + squint_side * 4;
+
+  // —— 主循环：逐像素 (i, j) ；按列并行，列内顺序，避免 prev_pos 跨线程
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+  for (int i = 0; i < nx; ++i)
+  {
+    const float x_label = (float)grid.x[i];
+
+    for (int j = 0; j < ny; ++j)
+    {
+      const float y_label = (float)grid.y[j];
+      float weighted_amp_sum = 0.0f;
+      float weight_sum = 0.0f;
+      float max_amp = 0.0f;
+      float best_contribution = -1.0f;
+
+      // ===== 遍历每个波位（顺序即可；对每个像素内部不存在共享写） =====
+      for (int n = 0; n < B; ++n)
+      {
+        // === 精确投影到第 n 波位 ===
+        const float tmp_x = x_label - meta.beams[n].x;
+        const float tmp_y = y_label - meta.beams[n].y;
+
+        float x_tmp, y_tmp;
+        {
+          const float c = cos_jiaodu[n], s = sin_jiaodu[n];
+          rotation_xy_inv(tmp_x, tmp_y, flag, c, s, x_tmp, y_tmp);
+        }
+
+        const float R = std::sqrt(x_tmp * x_tmp + y_tmp * y_tmp + Height * Height);
+        const float fd = (R > 0.0f) ? (2.0f * V_feiji[n] * x_tmp / (R * lambda)) : 0.0f;
+        if (!in_beam_angle_gate(fd, lambda, V_feiji[n],
+                                meta.beams[n].angle_deg,
+                                beam_angle_gate_deg))
+          continue;
+
+        // —— 浮点索引（MATLAB 1-based）
+        float R_idx = ((R - R_min) / R_bin) + 1.0f;
+        float fd_idx = ((fd - min_RD_y[n]) /
+                        (delta_RD_y[n] > 1e-9f ? delta_RD_y[n] : 1e-9f)) +
+                       1.0f;
+
+        // —— 有效性判定
+        if (!(R_idx > 1.0f && R_idx < (float)(M - 1)))
+          continue;
+        if (!(fd_idx > 1.0f && fd_idx < (float)(nEff)))
+          continue;
+
+        // —— 最近/双线性插值
+        int R_lo = (int)std::floor(R_idx);
+        int R_hi = (int)std::ceil(R_idx);
+        int fd_lo = (int)std::floor(fd_idx);
+        int fd_hi = (int)std::ceil(fd_idx);
+
+        R_lo = clamp_int(R_lo, 1, M - 1);
+        R_hi = clamp_int(R_hi, 1, M - 1);
+        fd_lo = clamp_int(fd_lo, 1, nEff - 1);
+        fd_hi = clamp_int(fd_hi, 1, nEff - 1);
+
+        const Image2D<float> &A = RD.amp[n]; // nEff x M（幅度，已为正）
+
+        float amp_tmp = 0.0f;
+        int R_pick = R_lo, fd_pick = fd_lo;
+
+        if (cfg.dbs_interp_mode == 1)
+        {
+          // 最近点
+          R_pick = ((R_hi - R_idx) > (R_idx - R_lo)) ? R_lo : R_hi;
+          fd_pick = ((fd_hi - fd_idx) > (fd_idx - fd_lo)) ? fd_lo : fd_hi;
+          amp_tmp = A.at(fd_pick - 1, R_pick - 1);
+        }
+        else
+        {
+          // 双线性（按原逻辑对幅度线性组合）
+          const float a11 = std::fabs(A.at(fd_lo - 1, R_lo - 1));
+          const float a12 = std::fabs(A.at(fd_lo - 1, R_hi - 1));
+          const float a21 = std::fabs(A.at(fd_hi - 1, R_lo - 1));
+          const float a22 = std::fabs(A.at(fd_hi - 1, R_hi - 1));
+
+          const float wR1 = (R_hi - R_idx), wR2 = (R_idx - R_lo);
+          const float wF1 = (fd_hi - fd_idx), wF2 = (fd_idx - fd_lo);
+
+          amp_tmp = a11 * wR1 * wF1 + a12 * wR2 * wF1 + a21 * wR1 * wF2 + a22 * wR2 * wF2;
+          const float denom = (float)((R_hi - R_lo) * (fd_hi - fd_lo));
+          amp_tmp = (denom != 0.0f) ? (amp_tmp / denom) : a11;
+
+          // 最近邻用于保存 R/fd 的物理值
+          R_pick = ((R_hi - R_idx) > (R_idx - R_lo)) ? R_lo : R_hi;
+          fd_pick = ((fd_hi - fd_idx) > (fd_idx - fd_lo)) ? fd_lo : fd_hi;
+        }
+
+        float contribution = std::fabs(amp_tmp);
+        if (cfg.dbs_mosaic_mode == "weighted") {
+          const float pixel_angle_deg = gmti::trig_lut::asin(
+              clamp_unit_float(-fd / (2.0f * V_feiji[n] / lambda))) *
+              180.0f / static_cast<float>(M_PI);
+          const float angle_error = wrap180_float(
+              pixel_angle_deg - meta.beams[n].angle_deg);
+          const float sigma_deg = std::max(1.0e-3f,
+              static_cast<float>(cfg.beamwidth_deg / 2.355));
+          const float beam_gain = std::exp(-0.5f *
+              (angle_error / sigma_deg) * (angle_error / sigma_deg));
+          if (beam_gain < 0.5f) continue;
+          const float blend_weight = beam_gain * beam_gain;
+          weighted_amp_sum += beam_gain * amp_tmp;
+          weight_sum += blend_weight;
+          contribution = beam_gain * std::fabs(amp_tmp);
+        } else {
+          max_amp = std::max(max_amp, std::fabs(amp_tmp));
+        }
+        if (contribution > best_contribution)
+        {
+          best_contribution = contribution;
+          mosaic.which_beam.at(j, i) = (uint16_t)(n + 1); // 1-based
+
+          mosaic.x_rel_save.at(j, i) = x_tmp;
+          mosaic.y_rel_save.at(j, i) = y_tmp;
+
+          // 最近原则保存 R/fd 的物理值
+          mosaic.r_save.at(j, i) = (float)(R_pick - 1) * R_bin + R_min;
+          mosaic.fd_save.at(j, i) = (float)(fd_pick - 1) * delta_RD_y[n] + min_RD_y[n];
+        }
+      } // for n
+      mosaic.amp.at(j, i) = cfg.dbs_mosaic_mode == "weighted"
+          ? (weight_sum > 0.0f ? weighted_amp_sum / weight_sum : 0.0f)
+          : max_amp;
+    } // for j
+  } // for i
+
+  return true;
+}
+
+// GPU-accelerated variant: batched queries + device-resident amplitude buffers.
+// useTexInterp: 是否用纹理内存进行硬件双线性插值
+bool DbsStitcher::buildMosaicGPU(const Config &cfg,
+                                 const RDData &RD,
+                                 const MetaPack &meta,
+                                 const Grid &grid,
+                                 Mosaic &mosaic,
+                                 bool useTexInterp)
+{
+  const int B = (int)meta.beams.size();
+  const int M = (RD.amp.empty() ? 0 : RD.amp[0].cols);
+  const int nEff = (RD.amp.empty() ? 0 : RD.amp[0].rows);
+  const int nx = (int)grid.x.size();
+  const int ny = (int)grid.y.size();
+  if (cfg.runtime_diagnostics_enabled) {
+    std::cout << "[fusion][dbs][buildGPU] B=" << B << " M=" << M
+              << " nEff=" << nEff << " nx=" << nx << " ny=" << ny << std::endl;
+  }
+  if (B <= 0 || M <= 0 || nEff <= 0 || nx <= 0 || ny <= 0)
+    return false;
+
+  const size_t nxSize = static_cast<size_t>(nx);
+  const size_t nySize = static_cast<size_t>(ny);
+  if (nxSize != 0 && nySize > std::numeric_limits<size_t>::max() / nxSize)
+  {
+    std::cerr << "[fusion][dbs][buildGPU] mosaic pixel count overflow" << std::endl;
+    return false;
+  }
+  const size_t Npix = nxSize * nySize;
+  const size_t maxPixels = std::max<size_t>(1, cfg.dbs_max_mosaic_pixels);
+  if (Npix > maxPixels)
+  {
+    std::cerr << "[fusion][dbs][buildGPU] refuse to allocate mosaic: pixels=" << Npix
+              << " cap=" << maxPixels << std::endl;
+    return false;
+  }
+
+  const size_t hostMosaicBytes = Npix * (sizeof(float) + sizeof(uint16_t));
+  const size_t devMosaicBytes = hostMosaicBytes + nxSize * sizeof(float) + nySize * sizeof(float);
+  const size_t allAmpBytesEstimate = static_cast<size_t>(B) * static_cast<size_t>(M) *
+                                     static_cast<size_t>(nEff) * sizeof(float);
+  if (cfg.runtime_diagnostics_enabled) {
+    std::cout << "[fusion][dbs][buildGPU] memory estimate: host_mosaic~"
+              << bytes_to_gib(hostMosaicBytes) << " GiB, device_mosaic~"
+              << bytes_to_gib(devMosaicBytes) << " GiB, rd_amp_pack~"
+              << bytes_to_gib(allAmpBytesEstimate) << " GiB" << std::endl;
+  }
+
+  const float R_bin = c0f_local() / (2.0f * cfg_effective_fs(cfg));
+  const float lambda = c0f_local() / (float)cfg.fc;
+  const float beam_angle_gate_deg = static_cast<float>(
+      cfg.loc_beam_gate_deg > 0.0 ? cfg.loc_beam_gate_deg
+                                  : std::max(0.0, cfg.beamwidth_deg * 0.5) + 0.5);
+
+  double zmean = 0.0;
+  for (int i = 0; i < B; ++i) zmean += meta.beams[(size_t)i].z;
+  zmean = (B > 0) ? (zmean / B) : 0.0;
+  const float Height = (float)(zmean - cfg.MT_nowz);
+
+  std::vector<float> min_RD_y(B), max_RD_y(B), delta_RD_y(B);
+  for (int b = 0; b < B; ++b)
+  {
+    const std::vector<float> &frow = RD.fd_axis[b];
+    float mn = std::numeric_limits<float>::infinity();
+    float mx = -std::numeric_limits<float>::infinity();
+    for (size_t k = 0; k < frow.size(); ++k)
+    {
+      const float v = frow[k];
+      mn = v < mn ? v : mn;
+      mx = v > mx ? v : mx;
+    }
+    min_RD_y[b] = (frow.empty() ? 0.0f : mn);
+    max_RD_y[b] = (frow.empty() ? 0.0f : mx);
+    delta_RD_y[b] = (nEff > 1) ? (max_RD_y[b] - min_RD_y[b]) / (float)(nEff - 1) : 1e-9f;
+  }
+
+  std::vector<float> vN(B), vE(B), V_feiji(B), sin_jiaodu(B), cos_jiaodu(B);
+  int squint_side = cfg.squint_side;
+  for (int b = 0; b < B; ++b)
+  {
+    vN[b] = meta.beams[b].vN;
+    vE[b] = meta.beams[b].vE;
+    V_feiji[b] = std::sqrt(vN[b] * vN[b] + vE[b] * vE[b]);
+    const float denom = (std::fabs(vE[b]) > 1e-12f) ? std::fabs(vE[b]) : 1e-12f;
+    const float jiaodu = gmti::trig_lut::atan(std::fabs(vN[b] / denom));
+    sin_jiaodu[b] = gmti::trig_lut::sin(jiaodu);
+    cos_jiaodu[b] = gmti::trig_lut::cos(jiaodu);
+  }
+
+  // output
+  mosaic.amp = Image2D<float>(ny, nx);
+  mosaic.which_beam = Image2D<uint16_t>(ny, nx);
+#ifdef DEBUG
+  mosaic.r_save = Image2D<float>(ny, nx);
+  mosaic.fd_save = Image2D<float>(ny, nx);
+  mosaic.x_rel_save = Image2D<float>(ny, nx);
+  mosaic.y_rel_save = Image2D<float>(ny, nx);
+#else
+  mosaic.r_save = Image2D<float>();
+  mosaic.fd_save = Image2D<float>();
+  mosaic.x_rel_save = Image2D<float>();
+  mosaic.y_rel_save = Image2D<float>();
+#endif
+
+#ifdef _OPENMP
+#pragma omp parallel for schedule(static)
+#endif
+  for (size_t idx = 0; idx < Npix; ++idx)
+  {
+    mosaic.amp.buf[idx] = 0.0f;
+    mosaic.which_beam.buf[idx] = (uint16_t)0;
+#ifdef DEBUG
+    mosaic.r_save.buf[idx] = 0.0f;
+    mosaic.fd_save.buf[idx] = 0.0f;
+    mosaic.x_rel_save.buf[idx] = 0.0f;
+    mosaic.y_rel_save.buf[idx] = 0.0f;
+#endif
+  }
+
+  int flag = infer_flight_dir_flag(vN, vE);
+  flag = flag + squint_side * 4;
+
+  // Full GPU approach: pack all beam amplitude matrices into one contiguous buffer
+  // and run a 2D kernel where each thread computes one output pixel.
+
+  // 1) Prepare BeamDevParams.  Amplitude matrices are copied from their
+  // existing per-beam host buffers directly into the final device offsets;
+  // do not build another ~100 MiB host-side concatenation first.
+  std::vector<BeamDevParams> h_beams(B);
+  const size_t amp_elements_per_beam =
+      static_cast<size_t>(M) * static_cast<size_t>(nEff);
+
+  for (int b = 0; b < B; ++b)
+  {
+    const auto &mb = meta.beams[b];
+    float vN_b = mb.vN;
+    float vE_b = mb.vE;
+    float V = std::sqrt(vN_b * vN_b + vE_b * vE_b);
+    float denom_local = (std::fabs(vE_b) > 1e-12f) ? std::fabs(vE_b) : 1e-12f;
+    float angle = gmti::trig_lut::atan(std::fabs(vN_b / denom_local));
+
+    BeamDevParams bp;
+    bp.x = (float)mb.x;
+    bp.y = (float)mb.y;
+    bp.z = (float)mb.z;
+    bp.vN = vN_b;
+    bp.vE = vE_b;
+    bp.V_feiji = V;
+    bp.sin_j = gmti::trig_lut::sin(angle);
+    bp.cos_j = gmti::trig_lut::cos(angle);
+    // Use the min/max-based fd definitions computed above (matches CPU logic)
+    bp.min_fd = min_RD_y[b];
+    bp.delta_fd = delta_RD_y[b];
+    bp.angle_deg = mb.angle_deg;
+    bp.angle_gate_deg = beam_angle_gate_deg;
+    bp.blend_sigma_deg = std::max(1.0e-3f,
+        static_cast<float>(cfg.beamwidth_deg / 2.355));
+    bp.blend_mode = cfg.dbs_mosaic_mode == "weighted" ? 1 : 0;
+    bp.offset = static_cast<uint64_t>(static_cast<size_t>(b) * amp_elements_per_beam);
+    bp.flag = flag; // use the same inferred flag as CPU (including squint_side)
+
+    h_beams[b] = bp;
+
+    const Image2D<float> &A = RD.amp[b];
+    if (A.rows != nEff || A.cols != M || A.buf.size() != amp_elements_per_beam) {
+      std::cerr << "[fusion][dbs][buildGPU] inconsistent beam amplitude shape at beam "
+                << b << std::endl;
+      return false;
+    }
+  }
+
+  // 2) allocate device memory
+  float *d_all_amps = nullptr;
+  BeamDevParams *d_beams = nullptr;
+  float *d_grid_x = nullptr;
+  float *d_grid_y = nullptr;
+  float *d_amp_mosaic = nullptr;
+  uint16_t *d_which_beam = nullptr;
+
+  size_t all_amps_bytes = static_cast<size_t>(B) *
+                          amp_elements_per_beam * sizeof(float);
+  cudaError_t cudaStatus = cudaSuccess;
+  cudaStatus = cudaMalloc((void**)&d_all_amps, all_amps_bytes);
+  if (cudaStatus == cudaSuccess) cudaStatus = cudaMalloc((void**)&d_beams, sizeof(BeamDevParams) * (size_t)B);
+  if (cudaStatus == cudaSuccess) cudaStatus = cudaMalloc((void**)&d_grid_x, sizeof(float) * (size_t)nx);
+  if (cudaStatus == cudaSuccess) cudaStatus = cudaMalloc((void**)&d_grid_y, sizeof(float) * (size_t)ny);
+  if (cudaStatus == cudaSuccess) cudaStatus = cudaMalloc((void**)&d_amp_mosaic, sizeof(float) * (size_t)nx * (size_t)ny);
+  if (cudaStatus == cudaSuccess) cudaStatus = cudaMalloc((void**)&d_which_beam, sizeof(uint16_t) * (size_t)nx * (size_t)ny);
+  if (cudaStatus != cudaSuccess)
+  {
+    std::cerr << "[fusion][dbs][buildGPU] cudaMalloc failed: "
+              << cudaGetErrorString(cudaStatus) << std::endl;
+    cudaFree(d_all_amps);
+    cudaFree(d_beams);
+    cudaFree(d_grid_x);
+    cudaFree(d_grid_y);
+    cudaFree(d_amp_mosaic);
+    cudaFree(d_which_beam);
+    return false;
+  }
+
+  // 3) copy to device
+  for (int b = 0; b < B && cudaStatus == cudaSuccess; ++b) {
+    const Image2D<float> &A = RD.amp[static_cast<size_t>(b)];
+    cudaStatus = cudaMemcpy(
+        d_all_amps + static_cast<size_t>(b) * amp_elements_per_beam,
+        A.buf.data(), amp_elements_per_beam * sizeof(float),
+        cudaMemcpyHostToDevice);
+  }
+  if (cudaStatus == cudaSuccess) {
+    cudaStatus = cudaMemcpy(d_beams, h_beams.data(),
+                            sizeof(BeamDevParams) * static_cast<size_t>(B),
+                            cudaMemcpyHostToDevice);
+  }
+  if (cudaStatus == cudaSuccess) {
+    cudaStatus = cudaMemcpy(d_grid_x, grid.x.data(),
+                            sizeof(float) * static_cast<size_t>(nx),
+                            cudaMemcpyHostToDevice);
+  }
+  if (cudaStatus == cudaSuccess) {
+    cudaStatus = cudaMemcpy(d_grid_y, grid.y.data(),
+                            sizeof(float) * static_cast<size_t>(ny),
+                            cudaMemcpyHostToDevice);
+  }
+  if (cudaStatus != cudaSuccess) {
+    std::cerr << "[fusion][dbs][buildGPU] host-to-device copy failed: "
+              << cudaGetErrorString(cudaStatus) << std::endl;
+    cudaFree(d_all_amps);
+    cudaFree(d_beams);
+    cudaFree(d_grid_x);
+    cudaFree(d_grid_y);
+    cudaFree(d_amp_mosaic);
+    cudaFree(d_which_beam);
+    return false;
+  }
+
+  // 4) launch kernel
+  PerfLogger::Timer t_kernel; t_kernel.start();
+  dim3 block(16, 16);
+  dim3 gsize((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
+
+  int flag_base = flag;
+
+  launchBuildMosaicKernel(
+    d_amp_mosaic, d_which_beam, d_all_amps,
+    d_grid_x, d_grid_y, d_beams,
+    nx, ny, B, M, nEff,
+    (float)cfg.R_min, R_bin, lambda, Height, flag_base,
+    useTexInterp
+  );
+
+  cudaDeviceSynchronize();
+  double t_kernel_ms = t_kernel.stop_ms();
+  PerfLogger::add("buildMosaic_kernel", t_kernel_ms);
+
+  // 5) copy results back
+  mosaic.amp = Image2D<float>(ny, nx);
+  mosaic.which_beam = Image2D<uint16_t>(ny, nx);
+  cudaMemcpy(mosaic.amp.buf.data(), d_amp_mosaic, sizeof(float) * (size_t)nx * (size_t)ny, cudaMemcpyDeviceToHost);
+  cudaMemcpy(mosaic.which_beam.buf.data(), d_which_beam, sizeof(uint16_t) * (size_t)nx * (size_t)ny, cudaMemcpyDeviceToHost);
+
+  // 6) cleanup
+  cudaFree(d_all_amps);
+  cudaFree(d_beams);
+  cudaFree(d_grid_x);
+  cudaFree(d_grid_y);
+  cudaFree(d_amp_mosaic);
+  cudaFree(d_which_beam);
+
+  return true;
+}

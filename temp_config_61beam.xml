@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GMTI>
+    <GMTI_parameter>
+        <!--
+          本文件供 GMTI_core/GMTI_pipe_core 读取已经生成的 61 波位新协议文件。
+          造数时仍使用 temp_config.xml 描述老格式源文件，并把输出路径显式指定为下方 GMTI_data_new。
+          GMTI 主流程在 INFO_Type=1 时实际读取 GMTI_data_new。
+        -->
+        <GMTI_data>/home/shy/AIR/小长/GMTI_Data/Mission068/RawData/ID19_8H19M_GMTI0</GMTI_data>
+        <GMTI_data2>/home/shy/AIR/小长/GMTI_Data/Mission068/RawData/ID19_8H19M_GMTI1</GMTI_data2>
+        <result_add>/home/shy/AIR/小长/GMTI_Data/Mission068/result_61beam</result_add>
+        <Plane_POS>/home/shy/AIR/小长/GMTI_Data/Mission068/RTIPOS/RTIPOS_ID19.out</Plane_POS>
+        <reffunc_add>/home/shy/AIR/小长/GMTI_Data/Mission068/RefFun_Br50MHz_Tr38us_Len4096.dat</reffunc_add>
+        <isSeparated>separate</isSeparated>
+        <INFO_Type>1</INFO_Type>
+        <GMTI_data_new>/home/shy/AIR/小长/GMTI程序/GMTI/GMTI_algorithm/GMTI_APX15_CUDA_latest/result/debug.dat</GMTI_data_new>
+        <test>0</test>
+        <pipe_root_path>/home/raco</pipe_root_path>
+        <estimate_error_angle>0</estimate_error_angle>
+        <wavepos_parallel>1</wavepos_parallel>
+        <wavepos_parallel_max_workers>8</wavepos_parallel_max_workers>
+        <enable_dbs_fusion>1</enable_dbs_fusion>
+        <!-- P38 物理一致性判定会显式剔除不可信波位；61 波位扫描至少保留 80% 才进入融合。 -->
+        <fusion_min_valid_beam_ratio>0.80</fusion_min_valid_beam_ratio>
+        <iq_compose>I+jQ</iq_compose>
+        <isPC>0</isPC>
+        <hasRefFunc>0</hasRefFunc>
+
+        <!-- 新协议：每个 PRT 为 256 字节头 + 11820 点双通道复数 float32。 -->
+        <info_len>256</info_len>
+        <pulse_len>11820</pulse_len>
+        <rg_len>4096</rg_len>
+        <!-- 11820 点输入尾部补零至 12288，IFFT 后从 0-based 3864 截取 4096 点。 -->
+        <range_fft_len>12288</range_fft_len>
+        <range_crop_start>3864</range_crop_start>
+        <range_compress_len>4096</range_compress_len>
+
+        <!-- 每个波位存储 130 个 PRT；从偏移 1 开始读取中间 128 个用于方位 FFT。 -->
+        <pulse_num>130</pulse_num>
+        <read_pulse_num>128</read_pulse_num>
+        <read_pulse_offset>1</read_pulse_offset>
+        <pulse_dec>1</pulse_dec>
+
+        <fc>17</fc>
+        <Br>50</Br>
+        <!-- 4096 点原始采样经 3 倍 FFT 插值后，等效距离采样率为 225 MHz。 -->
+        <fs>225</fs>
+        <Tr>38</Tr>
+        <PRF>1300</PRF>
+        <Rmin>13950</Rmin>
+        <d_chan>0.17</d_chan>
+        <ref_lon>117</ref_lon>
+        <ref_H>20</ref_H>
+        <pf>1e-6</pf>
+        <secBias>18</secBias>
+
+        <!-- 造数文件已经是完整的 61 波位目标文件，不再跳过源脉冲。 -->
+        <skip_pulses>0</skip_pulses>
+        <wavepos_use_roi>false</wavepos_use_roi>
+        <roi_lat1>40.45121057</roi_lat1>
+        <roi_lng1>116.98377429</roi_lng1>
+        <roi_Ry1>400</roi_Ry1>
+        <roi_Rx1>400</roi_Rx1>
+
+        <wavepos_st>1</wavepos_st>
+        <wavepos_ed>61</wavepos_ed>
+        <wavepos_skip>1</wavepos_skip>
+        <scan_min_deg>-59</scan_min_deg>
+        <scan_max_deg>61</scan_max_deg>
+        <min_points>10</min_points>
+        <min_len>1</min_len>
+        <rg_st>1</rg_st>
+        <rg_ed>4095</rg_ed>
+        <calib_coef>1.0</calib_coef>
+        <squint_side>1</squint_side>
+        <az_count>61</az_count>
+        <boshu>5</boshu>
+        <loc_beam_gate_deg>5</loc_beam_gate_deg>
+        <max_theta>60</max_theta>
+        <period_first>1</period_first>
+        <period_num>61</period_num>
+        <n_tiaoguo>1</n_tiaoguo>
+        <raw_fenbianlv>10</raw_fenbianlv>
+        <!-- 实时默认：高开销增强模块关闭；专项 A/B 时再单独打开。 -->
+        <motion_comp_enable>0</motion_comp_enable>
+        <p38_enhanced_enable>0</p38_enhanced_enable>
+        <p38_refit_enable>0</p38_refit_enable>
+        <p38_theory_guided_fallback>0</p38_theory_guided_fallback>
+        <dynamic_cfar_enable>0</dynamic_cfar_enable>
+        <motion_comp_analytic_enable>1</motion_comp_analytic_enable>
+        <motion_comp_use_row_doppler>1</motion_comp_use_row_doppler>
+        <motion_comp_iter>3</motion_comp_iter>
+        <ati_velocity_sign>1</ati_velocity_sign>
+        <ati_phase_to_velocity_sign>1</ati_phase_to_velocity_sign>
+        <motion_doppler_axis_sign>1</motion_doppler_axis_sign>
+        <ati_phase_bias_rad>0.0</ati_phase_bias_rad>
+        <ati_vmax_mps>50.0</ati_vmax_mps>
+        <motion_comp_denom_min>1e-6</motion_comp_denom_min>
+        <motion_comp_debug>0</motion_comp_debug>
+        <p38_diagnostics_dump>false</p38_diagnostics_dump>
+        <len_tiaoguo>200</len_tiaoguo>
+        <dbs_max_mosaic_pixels>100000000</dbs_max_mosaic_pixels>
+        <dbs_mosaic_margin_ratio>0.05</dbs_mosaic_margin_ratio>
+        <dbs_mosaic_margin_m>200</dbs_mosaic_margin_m>
+        <week_offset>0</week_offset>
+        <squint_angle>-2.5</squint_angle>
+        <lat_st>2</lat_st>
+        <lat_ed>2</lat_ed>
+        <lon_st>2</lon_st>
+        <lon_ed>2</lon_ed>
+
+        <track_idx_window>3</track_idx_window>
+        <track_truth_threshold>2</track_truth_threshold>
+        <track_confirm_window>3</track_confirm_window>
+        <track_confirm_hits>2</track_confirm_hits>
+        <track_max_missed>2</track_max_missed>
+        <track_tentative_max_missed>1</track_tentative_max_missed>
+        <track_distance_mode>1</track_distance_mode>
+        <track_assignment_mode>1</track_assignment_mode>
+        <track_output_state_source>measurement</track_output_state_source>
+        <track_use_distance_cost>true</track_use_distance_cost>
+        <track_use_speed_cost>true</track_use_speed_cost>
+        <track_use_heading_cost>true</track_use_heading_cost>
+        <track_use_detection_speed_cost>false</track_use_detection_speed_cost>
+        <track_distance_weight>1.0</track_distance_weight>
+        <track_speed_smooth_weight>0.3</track_speed_smooth_weight>
+        <track_heading_weight>0.5</track_heading_weight>
+        <track_detection_speed_weight>0.0</track_detection_speed_weight>
+        <track_use_euclidean_gate>true</track_use_euclidean_gate>
+        <track_use_mahalanobis_gate>true</track_use_mahalanobis_gate>
+        <track_use_max_speed_gate>true</track_use_max_speed_gate>
+        <track_use_heading_gate>false</track_use_heading_gate>
+        <track_use_detection_speed_gate>false</track_use_detection_speed_gate>
+        <track_gate_m>300</track_gate_m>
+        <track_v_max>100</track_v_max>
+        <track_chi2_gate>9.21</track_chi2_gate>
+        <track_heading_gate_deg>90</track_heading_gate_deg>
+        <track_detection_speed_gate_mps>30</track_detection_speed_gate_mps>
+        <track_euclidean_cost_scale_m>0</track_euclidean_cost_scale_m>
+        <track_mahalanobis_cost_scale>0</track_mahalanobis_cost_scale>
+        <track_speed_cost_scale_mps>0</track_speed_cost_scale_mps>
+        <track_heading_cost_scale_deg>180</track_heading_cost_scale_deg>
+        <track_detection_speed_cost_scale_mps>0</track_detection_speed_cost_scale_mps>
+        <track_tentative_gate_scale>1.5</track_tentative_gate_scale>
+        <track_tentative_chi2_scale>1.5</track_tentative_chi2_scale>
+        <track_dummy_cost>1.5</track_dummy_cost>
+        <track_invalid_cost>1.0e12</track_invalid_cost>
+        <track_allow_equal_dummy_cost>false</track_allow_equal_dummy_cost>
+        <track_default_dt>1.0</track_default_dt>
+        <track_debug_dump>true</track_debug_dump>
+        <track_debug_dump_level>1</track_debug_dump_level>
+    </GMTI_parameter>
+</GMTI>

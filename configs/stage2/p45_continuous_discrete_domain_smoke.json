@@ -1,0 +1,63 @@
+{
+  "case_id": "p45_continuous_discrete_domain_smoke",
+  "output_dir": "outputs/p45_continuous_discrete_domain_smoke",
+  "scene_mode": "full",
+  "truth_output": false,
+  "waveform": {
+    "fc_ghz": 16.0, "bandwidth_mhz": 50.0, "fs_mhz": 60.0,
+    "tr_us": 130.0, "prf_hz": 1300.0,
+    "pulse_len": 512, "pulse_num": 4, "d_chan_m": 0.17,
+    "iq_data_type": "float32", "new_protocol_channel_count": 2,
+    "new_protocol_read_channel_1": 1, "new_protocol_read_channel_2": 2
+  },
+  "range_processing": {
+    "range_fft_len": 512, "range_crop_start": 0,
+    "range_crop_len": 512, "sample_delay_us": 488.0
+  },
+  "scan": {
+    "scan_min_deg": 0.0, "scan_step_deg": 2.0, "beam_count": 1,
+    "beam_width_deg": 2.28, "beam_index_base": 1
+  },
+  "platform": {
+    "speed_mps": 60.0, "height_m": 6000.0,
+    "origin_lat_deg": 40.4512107203, "origin_lon_deg": 116.985931582,
+    "origin_alt_m": 6000.0, "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "random": {
+    "period_start": 0, "period_count": 1,
+    "beam_start": 1, "beam_count": 1, "random_seed": 202606
+  },
+  "scene": {
+    "mode": "full",
+    "range_min_m": 73200.0, "range_max_m": 74400.0,
+    "azimuth_min_deg": -0.5, "azimuth_max_deg": 0.5,
+    "ground_z_m": 0.0, "clutter_amplitude_scale": 1.0,
+    "area_clutter": {
+      "enabled": true, "model": "continuous_texture", "scatterer_count": 0,
+      "mean_power": 0.1, "texture_sigma": 0.0,
+      "spatial_cell_m": 30.0, "azimuth_subcell_count": 3
+    },
+    "strong_scatterers": {
+      "enabled": true, "count": 1,
+      "rcs_db_min": 10.0, "rcs_db_max": 10.0
+    },
+    "line_scatterers": {
+      "enabled": false, "line_count": 0,
+      "points_per_line": 0, "rcs_db": 12.0
+    },
+    "thermal_noise": {"enabled": false, "noise_power": 0.0}
+  },
+  "targets": [
+    {
+      "target_id": "disabled_validation_placeholder", "enabled": false,
+      "init": {
+        "type": "beam_bin_azimuth_offset", "beam_id": 1,
+        "expected_bin": 128, "azimuth_offset_deg": 0.0
+      },
+      "motion": {"type": "static"},
+      "amplitude": {"type": "snr_db", "snr_db": 0.0},
+      "visibility": {"type": "gaussian"}
+    }
+  ]
+}

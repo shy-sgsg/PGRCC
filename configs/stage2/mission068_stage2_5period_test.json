@@ -1,0 +1,123 @@
+{
+  "case_id": "mission068_stage2_5period_test",
+  "output_dir": "outputs/stage2",
+  "scene_mode": "full",
+  "truth_output": true,
+  "waveform": {
+    "fc_ghz": 16.0,
+    "bandwidth_mhz": 50.0,
+    "fs_mhz": 60.0,
+    "tr_us": 130.0,
+    "prf_hz": 1300.0,
+    "pulse_len": 11820,
+    "pulse_num": 130,
+    "d_chan_m": 0.17,
+    "iq_data_type": "float32",
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2
+  },
+  "channel_geometry": {
+    "coordinate_frame": "platform_local_x_along_track_y_east_z_up",
+    "horizontal_spacing_source": "existing d_chan_m=0.17 m",
+    "vertical_spacing_source": "vertical phase-centre spacing equals horizontal spacing: 0.17 m",
+    "channel_1": {"name": "left_top", "x_m": -0.085, "y_m": 0.0, "z_m": 0.085},
+    "channel_2": {"name": "right_top", "x_m": 0.085, "y_m": 0.0, "z_m": 0.085},
+    "channel_3": {"name": "left_bottom", "x_m": -0.085, "y_m": 0.0, "z_m": -0.085},
+    "channel_4": {"name": "right_bottom", "x_m": 0.085, "y_m": 0.0, "z_m": -0.085}
+  },
+  "range_processing": {
+    "range_fft_len": 12288,
+    "range_crop_start": 3864,
+    "range_crop_len": 4096,
+    "sample_delay_us": 488.0
+  },
+  "scan": {
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 61,
+    "beam_width_deg": 2.28,
+    "beam_index_base": 1
+  },
+  "platform": {
+    "speed_mps": 60.0,
+    "height_m": 6000.0,
+    "origin_lat_deg": 40.4512107203,
+    "origin_lon_deg": 116.985931582,
+    "origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "random": {
+    "period_start": 0,
+    "period_count": 5,
+    "beam_start": 1,
+    "beam_count": 0,
+    "random_seed": 20260717
+  },
+  "scene": {
+    "mode": "full",
+    "range_min_m": 82800.0,
+    "range_max_m": 93000.0,
+    "azimuth_min_deg": -60.0,
+    "azimuth_max_deg": 60.0,
+    "ground_z_m": 0.0,
+    "clutter_amplitude_scale": 1.0,
+    "output_signal_domain": "raw_lfm",
+    "area_clutter": {
+      "enabled": true,
+      "model": "continuous_texture",
+      "scatterer_count": 0,
+      "mean_power": 0.1,
+      "texture_sigma": 0.4,
+      "spatial_cell_m": 30.0,
+      "azimuth_subcell_count": 9
+    },
+    "strong_scatterers": {"enabled": false, "count": 0},
+    "line_scatterers": {"enabled": false, "line_count": 0, "points_per_line": 0},
+    "thermal_noise": {"enabled": false, "noise_power": 0.0}
+  },
+  "channel_impairments": {"enabled": false},
+  "targets": [
+    {
+      "target_id": "T01_B08_R0700_M10DB",
+      "enabled": true,
+      "init": {"type": "beam_bin_azimuth_offset", "beam_id": 8, "expected_bin": 700, "azimuth_offset_deg": -0.35},
+      "motion": {"type": "enu_velocity", "ve_mps": -2.778633480, "vn_mps": 2.877359200},
+      "amplitude": {"type": "snr_db", "snr_db": -2.5},
+      "visibility": {"type": "hard_gate"}
+    },
+    {
+      "target_id": "T02_B18_R1200_M10DB",
+      "enabled": true,
+      "init": {"type": "beam_bin_azimuth_offset", "beam_id": 18, "expected_bin": 1200, "azimuth_offset_deg": 0.20},
+      "motion": {"type": "enu_velocity", "ve_mps": -2.696382138, "vn_mps": 1.315113441},
+      "amplitude": {"type": "snr_db", "snr_db": -2.5},
+      "visibility": {"type": "hard_gate"}
+    },
+    {
+      "target_id": "T03_B28_R1750_M10DB",
+      "enabled": false,
+      "init": {"type": "beam_bin_azimuth_offset", "beam_id": 28, "expected_bin": 1750, "azimuth_offset_deg": -0.20},
+      "motion": {"type": "enu_velocity", "ve_mps": -3.978087580, "vn_mps": 0.418113852},
+      "amplitude": {"type": "snr_db", "snr_db": 0.0},
+      "visibility": {"type": "hard_gate"}
+    },
+    {
+      "target_id": "T04_B38_R2350_M10DB",
+      "enabled": true,
+      "init": {"type": "beam_bin_azimuth_offset", "beam_id": 38, "expected_bin": 2350, "azimuth_offset_deg": 0.30},
+      "motion": {"type": "enu_velocity", "ve_mps": -2.425739315, "vn_mps": -0.604804740},
+      "amplitude": {"type": "snr_db", "snr_db": 6.0},
+      "visibility": {"type": "hard_gate"}
+    },
+    {
+      "target_id": "T05_B48_R2950_M10DB",
+      "enabled": true,
+      "init": {"type": "beam_bin_azimuth_offset", "beam_id": 48, "expected_bin": 2950, "azimuth_offset_deg": -0.25},
+      "motion": {"type": "enu_velocity", "ve_mps": -2.072593933, "vn_mps": -1.397982258},
+      "amplitude": {"type": "snr_db", "snr_db": 10.0},
+      "visibility": {"type": "hard_gate"}
+    }
+  ]
+}

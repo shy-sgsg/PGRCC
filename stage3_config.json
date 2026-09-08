@@ -1,0 +1,64 @@
+{
+  "case_id": "stage3_sar_surface_mirror_default",
+  "output_dir": "outputs/stage3_sar_surface_mirror_default",
+  "canvas": {
+    "resolution_m": 50.0,
+    "margin_m": 0.0,
+    "max_cells": 5000000
+  },
+  "scene": {
+    "mode": "mirror",
+    "range_min_m": 82800.0,
+    "range_max_m": 93000.0,
+    "ground_z_m": 0.0,
+    "area_clutter": {"enabled": false},
+    "roi": {"enabled": false},
+    "thermal_noise_enabled": false
+  },
+  "sar_source": {
+    "image_path": "simulator/scenarios/PGA_KuSAR_Block0.tif",
+    "input_type": "geotiff",
+    "image_type": "intensity",
+    "pixel_size_range_m": 0.3,
+    "pixel_size_azimuth_m": 0.3,
+    "source_center_col": -1,
+    "source_center_row": -1,
+    "row_increases_with_azimuth": true,
+    "col_increases_with_range": true,
+    "valid_crop_enabled": true,
+    "valid_col_start": 5,
+    "valid_col_end_exclusive": 8170,
+    "valid_row_start": 0,
+    "valid_row_end_exclusive": 3700,
+    "percentile_normalize": true,
+    "percentile_low": 1.0,
+    "percentile_high": 99.0
+  },
+  "tiling": {
+    "mode": "mirror",
+    "reference_beam_id_1based": 31,
+    "anchor_slant_range_m": 87900.0,
+    "random_start_offset": false,
+    "tile_gain_jitter_db": 0.0,
+    "phase_policy": "independent_random_per_ground_cell",
+    "random_seed": 202606
+  },
+  "forward": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 31,
+    "beam_count": 1,
+    "pulse_start": 0,
+    "pulse_count": 130,
+    "backend": "cpu",
+    "compare_cpu_cuda": false,
+    "cuda_batch_pulses": 130,
+    "beam_gain_threshold": 0.01,
+    "chirp_phase_sign": 1,
+    "carrier_phase_sign": -1,
+    "dbs_output_resolution_m": 3.0,
+    "truth_max_rows": 50000,
+    "dry_run": false
+  },
+  "targets": {"enabled": false}
+}

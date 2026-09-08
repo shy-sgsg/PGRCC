@@ -1,0 +1,670 @@
+#include "stage1_writer.h"
+
+#include "dbs/NewProtocolLayout.hpp"
+#include "tinyxml.h"
+
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <sstream>
+
+namespace gmti {
+namespace sim_stage1 {
+
+namespace {
+
+struct PosRow {
+    double t = 0.0;
+    double lat = 0.0;
+    double lon = 0.0;
+    double alt = 0.0;
+    double vn = 0.0;
+    double ve = 0.0;
+    double vd = 0.0;
+};
+
+struct PosSample {
+    double lat_deg = 0.0;
+    double lon_deg = 0.0;
+    double alt_m = 0.0;
+    double vn = 0.0;
+    double ve = 0.0;
+    double vd = 0.0;
+};
+
+static inline int16_t satI16(double x)
+{
+    if (x > 32767.0) return 32767;
+    if (x < -32768.0) return -32768;
+    return static_cast<int16_t>(std::lround(x));
+}
+
+static inline void putU16(std::vector<uint8_t> &b, size_t off, uint16_t v)
+{
+    b[off] = static_cast<uint8_t>(v & 0xffU);
+    b[off + 1] = static_cast<uint8_t>((v >> 8) & 0xffU);
+}
+
+static inline void putI16(std::vector<uint8_t> &b, size_t off, int16_t v)
+{
+    putU16(b, off, static_cast<uint16_t>(v));
+}
+
+static inline void putU32(std::vector<uint8_t> &b, size_t off, uint32_t v)
+{
+    for (int i = 0; i < 4; ++i) b[off + static_cast<size_t>(i)] = static_cast<uint8_t>((v >> (8 * i)) & 0xffU);
+}
+
+static inline void putU64(std::vector<uint8_t> &b, size_t off, uint64_t v)
+{
+    for (int i = 0; i < 8; ++i) b[off + static_cast<size_t>(i)] = static_cast<uint8_t>((v >> (8 * i)) & 0xffU);
+}
+
+static inline void putF32(std::vector<uint8_t> &b, size_t off, float v)
+{
+    uint32_t raw = 0;
+    std::memcpy(&raw, &v, sizeof(float));
+    putU32(b, off, raw);
+}
+
+static inline void putF64(std::vector<uint8_t> &b, size_t off, double v)
+{
+    uint64_t raw = 0;
+    std::memcpy(&raw, &v, sizeof(double));
+    putU64(b, off, raw);
+}
+
+static inline void putComplexIq(std::vector<uint8_t> &packet,
+                                size_t sample_idx,
+                                int channel_1based,
+                                int channel_count,
+                                const std::string &iq_type,
+                                const std::complex<float> &z)
+{
+    const size_t iq_bytes = gmti::new_protocol::bytesPerIq(iq_type);
+    const size_t off = gmti::new_protocol::kHeaderBytes +
+                       sample_idx * gmti::new_protocol::sampleBytes(static_cast<size_t>(channel_count), iq_type) +
+                       gmti::new_protocol::channelOffset(static_cast<size_t>(channel_1based), iq_type);
+    gmti::new_protocol::storeIqFromFloat(packet.data() + off, iq_type, z.real());
+    gmti::new_protocol::storeIqFromFloat(packet.data() + off + iq_bytes, iq_type, z.imag());
+}
+
+std::complex<float> lerp(const std::complex<float> &a, const std::complex<float> &b, double w)
+{
+    const float wf = static_cast<float>(w);
+    return a * (1.0f - wf) + b * wf;
+}
+
+double lerpDouble(double a, double b, double w)
+{
+    return a + (b - a) * w;
+}
+
+double radToDegIfLikely(double x)
+{
+    return std::fabs(x) <= 3.2 ? x * 180.0 / M_PI : x;
+}
+
+double degToRadIfLikely(double x)
+{
+    return std::fabs(x) > M_PI ? x * M_PI / 180.0 : x;
+}
+
+bool readPosRows(const std::string &path, std::vector<PosRow> &rows, std::string &err)
+{
+    std::ifstream in(path.c_str(), std::ios::binary | std::ios::ate);
+    if (!in) {
+        err = "failed to open POS file: " + path;
+        return false;
+    }
+    const std::streamsize bytes = in.tellg();
+    const std::streamsize row_bytes = static_cast<std::streamsize>(7 * sizeof(double));
+    if (bytes <= 0 || (bytes % row_bytes) != 0) {
+        err = "POS file size is not a 7-double row multiple: " + path;
+        return false;
+    }
+    in.seekg(0, std::ios::beg);
+    rows.resize(static_cast<size_t>(bytes / row_bytes));
+    for (size_t i = 0; i < rows.size(); ++i) {
+        double v[7] = {0.0};
+        for (int j = 0; j < 7; ++j) {
+            in.read(reinterpret_cast<char *>(&v[j]), sizeof(double));
+            if (!in) {
+                err = "failed to read POS row";
+                return false;
+            }
+        }
+        rows[i].t = v[0];
+        rows[i].lat = v[1];
+        rows[i].lon = v[2];
+        rows[i].alt = v[3];
+        rows[i].vn = v[4];
+        rows[i].ve = v[5];
+        rows[i].vd = v[6];
+    }
+    return true;
+}
+
+std::vector<std::string> splitPosFiles(const std::string &paths)
+{
+    std::vector<std::string> out;
+    std::istringstream iss(paths);
+    std::string path;
+    while (std::getline(iss, path, ';')) {
+        const size_t first = path.find_first_not_of(" \t\r\n");
+        if (first == std::string::npos) continue;
+        const size_t last = path.find_last_not_of(" \t\r\n");
+        out.push_back(path.substr(first, last - first + 1));
+    }
+    return out;
+}
+
+bool readPosRowsFromFiles(const std::string &paths,
+                          std::vector<PosRow> &rows,
+                          std::string &err)
+{
+    const std::vector<std::string> files = splitPosFiles(paths);
+    if (files.empty()) {
+        err = "no RTIPOS file specified";
+        return false;
+    }
+    rows.clear();
+    for (const std::string &path : files) {
+        std::vector<PosRow> part;
+        if (!readPosRows(path, part, err)) return false;
+        rows.insert(rows.end(), part.begin(), part.end());
+    }
+    std::stable_sort(rows.begin(), rows.end(),
+                     [](const PosRow &a, const PosRow &b) { return a.t < b.t; });
+    // Consecutive Mission068 files overlap.  Keep the earlier acquisition
+    // sample for a duplicate epoch; the 25 Hz reconstruction below then has
+    // one unambiguous value at each time.
+    std::vector<PosRow> unique_rows;
+    unique_rows.reserve(rows.size());
+    for (const PosRow &row : rows) {
+        if (unique_rows.empty() || std::fabs(row.t - unique_rows.back().t) > 1.0e-6) {
+            unique_rows.push_back(row);
+        }
+    }
+    rows.swap(unique_rows);
+    if (rows.size() < 2) {
+        err = "RTIPOS input must contain at least two distinct timestamps";
+        return false;
+    }
+    return true;
+}
+
+PosSample interpPosAtUtc(const std::vector<PosRow> &rows, double t)
+{
+    const double earth_radius_m = 6378137.0;
+    PosSample out;
+    if (rows.empty()) return out;
+    auto eval = [&](const PosRow &r, size_t vel_left, size_t vel_right) {
+        out.lat_deg = radToDegIfLikely(r.lat);
+        out.lon_deg = radToDegIfLikely(r.lon);
+        out.alt_m = r.alt;
+        const PosRow &a = rows[vel_left];
+        const PosRow &b = rows[vel_right];
+        const double dt = b.t - a.t;
+        if (std::fabs(dt) > 1e-9) {
+            const double lat_a = degToRadIfLikely(a.lat);
+            const double lat_b = degToRadIfLikely(b.lat);
+            const double lon_a = degToRadIfLikely(a.lon);
+            const double lon_b = degToRadIfLikely(b.lon);
+            const double lat_mid = 0.5 * (lat_a + lat_b);
+            out.vn = (lat_b - lat_a) * earth_radius_m / dt;
+            out.ve = (lon_b - lon_a) * earth_radius_m * std::cos(lat_mid) / dt;
+            out.vd = -(b.alt - a.alt) / dt;
+        } else {
+            out.vn = r.vn;
+            out.ve = r.ve;
+            out.vd = r.vd;
+        }
+    };
+    if (t <= rows.front().t) {
+        eval(rows.front(), 0, rows.size() > 1 ? 1 : 0);
+        return out;
+    }
+    if (t >= rows.back().t) {
+        eval(rows.back(), rows.size() > 1 ? rows.size() - 2 : 0, rows.size() - 1);
+        return out;
+    }
+    size_t right = 1;
+    while (right < rows.size() && rows[right].t < t) {
+        ++right;
+    }
+    const size_t left = right - 1;
+    const double denom = rows[right].t - rows[left].t;
+    const double w = (std::fabs(denom) < 1e-9) ? 0.0 : (t - rows[left].t) / denom;
+    out.lat_deg = radToDegIfLikely(lerpDouble(rows[left].lat, rows[right].lat, w));
+    out.lon_deg = radToDegIfLikely(lerpDouble(rows[left].lon, rows[right].lon, w));
+    out.alt_m = lerpDouble(rows[left].alt, rows[right].alt, w);
+    const double dt = rows[right].t - rows[left].t;
+    if (std::fabs(dt) > 1e-9) {
+        const double lat_l = degToRadIfLikely(rows[left].lat);
+        const double lat_r = degToRadIfLikely(rows[right].lat);
+        const double lon_l = degToRadIfLikely(rows[left].lon);
+        const double lon_r = degToRadIfLikely(rows[right].lon);
+        const double lat_mid = 0.5 * (lat_l + lat_r);
+        out.vn = (lat_r - lat_l) * earth_radius_m / dt;
+        out.ve = (lon_r - lon_l) * earth_radius_m * std::cos(lat_mid) / dt;
+        out.vd = -(rows[right].alt - rows[left].alt) / dt;
+    } else {
+        out.vn = lerpDouble(rows[left].vn, rows[right].vn, w);
+        out.ve = lerpDouble(rows[left].ve, rows[right].ve, w);
+        out.vd = lerpDouble(rows[left].vd, rows[right].vd, w);
+    }
+    return out;
+}
+
+struct Ins25HzTimeline {
+    std::vector<double> t;
+    std::vector<PosSample> samples;
+};
+
+bool buildIns25HzTimeline(const std::vector<PosRow> &rows,
+                          double start_utc,
+                          double end_utc,
+                          Ins25HzTimeline &timeline,
+                          std::string &err)
+{
+    constexpr double kInsHz = 25.0;
+    constexpr double kInsStepSec = 1.0 / kInsHz;
+    if (start_utc < rows.front().t - 1.0e-6 || end_utc > rows.back().t + 1.0e-6) {
+        std::ostringstream oss;
+        oss << "RTIPOS coverage [" << rows.front().t << ", " << rows.back().t
+            << "] does not cover generated UTC [" << start_utc << ", " << end_utc << "]";
+        err = oss.str();
+        return false;
+    }
+    const double first = rows.front().t +
+        std::floor((start_utc - rows.front().t) * kInsHz + 1.0e-8) * kInsStepSec;
+    const double last = rows.front().t +
+        std::floor((end_utc - rows.front().t) * kInsHz + 1.0e-8) * kInsStepSec;
+    timeline.t.clear();
+    timeline.samples.clear();
+    for (double t = first; t <= last + 1.0e-8; t += kInsStepSec) {
+        timeline.t.push_back(t);
+        PosSample sample = interpPosAtUtc(rows, t);
+        // RTIPOS trailing fields are not a frozen velocity-interface
+        // contract for Mission068.  Derive N/E/D from the 25 Hz position
+        // samples so the new-protocol velocity fields have documented units.
+        sample.vn = 0.0;
+        sample.ve = 0.0;
+        sample.vd = 0.0;
+        timeline.samples.push_back(sample);
+    }
+    const double earth_radius_m = 6378137.0;
+    for (size_t i = 0; i < timeline.samples.size(); ++i) {
+        const size_t left = (i == 0) ? i : i - 1;
+        const size_t right = (i + 1 < timeline.samples.size()) ? i + 1 : i;
+        const double dt = timeline.t[right] - timeline.t[left];
+        if (!(dt > 0.0)) continue;
+        const double lat_l = timeline.samples[left].lat_deg * M_PI / 180.0;
+        const double lat_r = timeline.samples[right].lat_deg * M_PI / 180.0;
+        const double lon_l = timeline.samples[left].lon_deg * M_PI / 180.0;
+        const double lon_r = timeline.samples[right].lon_deg * M_PI / 180.0;
+        const double lat_mid = 0.5 * (lat_l + lat_r);
+        timeline.samples[i].vn = (lat_r - lat_l) * earth_radius_m / dt;
+        timeline.samples[i].ve = (lon_r - lon_l) * earth_radius_m * std::cos(lat_mid) / dt;
+        timeline.samples[i].vd = -(timeline.samples[right].alt_m - timeline.samples[left].alt_m) / dt;
+    }
+    return !timeline.samples.empty();
+}
+
+const PosSample &holdIns25Hz(const Ins25HzTimeline &timeline, double utc)
+{
+    const std::vector<double>::const_iterator it =
+        std::upper_bound(timeline.t.begin(), timeline.t.end(), utc + 1.0e-9);
+    if (it == timeline.t.begin()) return timeline.samples.front();
+    return timeline.samples[static_cast<size_t>((it - timeline.t.begin()) - 1)];
+}
+
+bool writeIns25HzAudit(const std::string &output_dir,
+                       const Ins25HzTimeline &timeline,
+                       std::string &err)
+{
+    std::ofstream out(pathJoin(pathJoin(output_dir, "debug"), "ins_25hz_samples.csv"));
+    if (!out) {
+        err = "failed to write ins_25hz_samples.csv";
+        return false;
+    }
+    out << std::setprecision(15)
+        << "utc,lat_deg,lon_deg,alt_m,vn_mps,ve_mps,vd_mps\n";
+    for (size_t i = 0; i < timeline.samples.size(); ++i) {
+        const PosSample &s = timeline.samples[i];
+        out << timeline.t[i] << ',' << s.lat_deg << ',' << s.lon_deg << ','
+            << s.alt_m << ',' << s.vn << ',' << s.ve << ',' << s.vd << '\n';
+    }
+    return true;
+}
+
+void fillHeader(std::vector<uint8_t> &pkt,
+                uint32_t prt_counter,
+                double utc,
+                int week,
+                const PosSample &pos,
+                double theta_new_deg,
+                uint32_t prt_len)
+{
+    std::fill(pkt.begin(), pkt.end(), 0U);
+    putU64(pkt, 0, 0x5A5A5A5A5A5A5A5AULL);
+    // FPGA protocol V1.5: WAGMTI PRT mode is 9.  Mode 5 is SAR 3 m.
+    pkt[8] = 9;
+    putU32(pkt, 9, prt_len);
+    putF32(pkt, 16, static_cast<float>(utc));
+    putU32(pkt, 20, prt_counter);
+    pkt[88] = 0x02;
+    pkt[90] = 0x40;
+    pkt[92] = 0x0B;
+    pkt[93] = 0x01;
+    putI16(pkt, 94, static_cast<int16_t>(week));
+    const double sec_of_day = utc - std::floor(utc / 86400.0) * 86400.0;
+    putU32(pkt, 96, static_cast<uint32_t>(std::llround(sec_of_day * 1000.0)));
+    putF64(pkt, 104, pos.lat_deg);
+    putF64(pkt, 112, pos.lon_deg);
+    putF64(pkt, 120, pos.alt_m);
+    putF32(pkt, 128, static_cast<float>(pos.vn));
+    putF32(pkt, 132, static_cast<float>(pos.ve));
+    putF32(pkt, 136, static_cast<float>(pos.vd));
+    const double speed = std::sqrt(pos.vn * pos.vn + pos.ve * pos.ve + pos.vd * pos.vd);
+    putF32(pkt, 140, static_cast<float>(speed));
+    pkt[208] = static_cast<uint8_t>(prt_counter & 0xffU);
+    putI16(pkt, 218, satI16(theta_new_deg * 100.0));
+    putU64(pkt, 248, 0x5B5B5B5B5B5B5B5BULL);
+}
+
+void updateAgg(const std::vector<std::complex<float> > &x, double &sum_abs, double &sum_power,
+               double &max_abs, bool &has_nan, bool &has_inf)
+{
+    for (size_t i = 0; i < x.size(); ++i) {
+        const float re = x[i].real();
+        const float im = x[i].imag();
+        if (std::isnan(re) || std::isnan(im)) has_nan = true;
+        if (std::isinf(re) || std::isinf(im)) has_inf = true;
+        const double a = std::abs(x[i]);
+        sum_abs += a;
+        sum_power += a * a;
+        if (a > max_abs) max_abs = a;
+    }
+}
+
+} // namespace
+
+bool generateStage1Data(const Stage1OldSystemConfig &old_cfg,
+                        const Stage1NewSystemConfig &new_cfg,
+                        const Stage1RunOptions &opt,
+                        const std::vector<BeamMapEntry> &beam_map,
+                        const std::vector<PulseMapEntry> &pulse_map,
+                        RangeFftZeroPadResizer &resizer,
+                        const std::string &out_file,
+                        GenerationStats &stats,
+                        std::string &err)
+{
+    std::ofstream out(out_file.c_str(), std::ios::binary);
+    if (!out) {
+        err = "failed to open output data file: " + out_file;
+        return false;
+    }
+    std::ofstream resize_stats(pathJoin(pathJoin(opt.output_dir, "debug"),
+                                         "range_resize_stats.csv").c_str(),
+                               std::ios::out | std::ios::app);
+    if (!resize_stats) {
+        err = "failed to open range_resize_stats.csv for real data stats";
+        return false;
+    }
+    const std::string iq_type = new_cfg.iq_data_type.empty() ? "float32" : new_cfg.iq_data_type;
+    const int channel_count = std::max(2, new_cfg.new_protocol_channel_count);
+    const uint32_t prt_len = static_cast<uint32_t>(
+        gmti::new_protocol::packetBytes(static_cast<size_t>(new_cfg.ddc_len_new),
+                                        static_cast<size_t>(channel_count),
+                                        iq_type));
+    std::vector<uint8_t> packet(prt_len);
+    std::vector<std::complex<float> > row_old_ch1(static_cast<size_t>(old_cfg.pulse_len));
+    std::vector<std::complex<float> > row_old_ch2(static_cast<size_t>(old_cfg.pulse_len));
+    std::vector<std::complex<float> > row_new_ch1;
+    std::vector<std::complex<float> > row_new_ch2;
+    double sum_abs1 = 0.0, sum_pow1 = 0.0, max1 = 0.0;
+    double sum_abs2 = 0.0, sum_pow2 = 0.0, max2 = 0.0;
+    uint64_t sample_count = 0;
+    uint32_t prt_counter = 0;
+    const int gen_beam_start = std::max(0, opt.beam_start);
+    const int gen_beam_count = (opt.beam_count > 0) ? opt.beam_count : new_cfg.beam_count - gen_beam_start;
+    const int gen_beam_end = std::min(new_cfg.beam_count, gen_beam_start + gen_beam_count);
+    const std::string pos_files = opt.pos_files.empty() ? old_cfg.pos_path : opt.pos_files;
+    std::vector<PosRow> pos_rows;
+    if (!readPosRowsFromFiles(pos_files, pos_rows, err)) {
+        return false;
+    }
+
+    double output_start_utc = 0.0;
+    bool have_output_start_utc = false;
+    Ins25HzTimeline ins_25hz;
+    for (int pidx = 0; pidx < opt.period_count; ++pidx) {
+        const int period = opt.period_start + pidx;
+        for (int nb = gen_beam_start; nb < gen_beam_end; ++nb) {
+            const BeamMapEntry &bm = beam_map[static_cast<size_t>(nb)];
+            OldBlock l1, r1, l2, r2;
+            if (!readOldBlock(old_cfg, period, bm.source_left_beam_index, 1, l1, err)) return false;
+            if (!readOldBlock(old_cfg, period, bm.source_right_beam_index, 1, r1, err)) return false;
+            if (!readOldBlock(old_cfg, period, bm.source_left_beam_index, 2, l2, err)) return false;
+            if (!readOldBlock(old_cfg, period, bm.source_right_beam_index, 2, r2, err)) return false;
+            for (int np = 0; np < new_cfg.pulse_num_new; ++np) {
+                const PulseMapEntry &pm = pulse_map[static_cast<size_t>(np)];
+                const size_t ll = static_cast<size_t>(pm.old_left_index) * static_cast<size_t>(old_cfg.pulse_len);
+                const size_t rr = static_cast<size_t>(pm.old_right_index) * static_cast<size_t>(old_cfg.pulse_len);
+                for (int n = 0; n < old_cfg.pulse_len; ++n) {
+                    const size_t o = static_cast<size_t>(n);
+                    const std::complex<float> a1 = lerp(l1.samples[ll + o], r1.samples[ll + o], bm.interp_weight);
+                    const std::complex<float> b1 = lerp(l1.samples[rr + o], r1.samples[rr + o], bm.interp_weight);
+                    const std::complex<float> a2 = lerp(l2.samples[ll + o], r2.samples[ll + o], bm.interp_weight);
+                    const std::complex<float> b2 = lerp(l2.samples[rr + o], r2.samples[rr + o], bm.interp_weight);
+                    row_old_ch1[o] = lerp(a1, b1, pm.weight);
+                    row_old_ch2[o] = lerp(a2, b2, pm.weight);
+                }
+                if (!resizer.resize(row_old_ch1.data(), row_new_ch1) ||
+                    !resizer.resize(row_old_ch2.data(), row_new_ch2)) {
+                    err = "range resize failed while generating data";
+                    return false;
+                }
+                if (pidx == 0 && (nb - gen_beam_start) < 3 && np < 3) {
+                    const SignalStats in1 = computeStats(row_old_ch1);
+                    const SignalStats out1 = computeStats(row_new_ch1);
+                    const SignalStats in2 = computeStats(row_old_ch2);
+                    const SignalStats out2 = computeStats(row_new_ch2);
+                    resize_stats << "real_p" << period << "_b" << nb << "_q" << np << "_ch1,"
+                                 << in1.mean_abs << "," << in1.rms << "," << in1.max_abs << ","
+                                 << out1.mean_abs << "," << out1.rms << "," << out1.max_abs << ","
+                                 << boolText(out1.has_nan) << "," << boolText(out1.has_inf) << "\n";
+                    resize_stats << "real_p" << period << "_b" << nb << "_q" << np << "_ch2,"
+                                 << in2.mean_abs << "," << in2.rms << "," << in2.max_abs << ","
+                                 << out2.mean_abs << "," << out2.rms << "," << out2.max_abs << ","
+                                 << boolText(out2.has_nan) << "," << boolText(out2.has_inf) << "\n";
+                }
+                // Keep UTC interpolation in double.  Casting old timestamps
+                // near 40,000 s to float first loses the 0.5 ms PRT spacing
+                // and can make the emitted float32 UTC go backwards after
+                // rounding.
+                const double utc_left = l1.utc[static_cast<size_t>(pm.old_left_index)];
+                const double utc_right = l1.utc[static_cast<size_t>(pm.old_right_index)];
+                const double source_utc = utc_left + (utc_right - utc_left) * pm.weight;
+                if (!have_output_start_utc) {
+                    output_start_utc = source_utc;
+                    have_output_start_utc = true;
+                    const uint64_t total_packets =
+                        static_cast<uint64_t>(opt.period_count) *
+                        static_cast<uint64_t>(gen_beam_end - gen_beam_start) *
+                        static_cast<uint64_t>(new_cfg.pulse_num_new);
+                    const double output_end_utc = output_start_utc +
+                        static_cast<double>(total_packets - 1U) / new_cfg.prf_new_hz;
+                    if (!buildIns25HzTimeline(pos_rows, output_start_utc,
+                                               output_end_utc, ins_25hz, err) ||
+                        !writeIns25HzAudit(opt.output_dir, ins_25hz, err)) {
+                        return false;
+                    }
+                }
+                // The converted stream follows the new-protocol PRT clock;
+                // source-period timestamps are used only to establish its
+                // epoch.  This keeps wide-angle remapping and the five input
+                // files on one continuous 1300 Hz test timeline.
+                const double utc = output_start_utc +
+                    static_cast<double>(stats.packets_written) / new_cfg.prf_new_hz;
+                // The echo header advances at 1300 Hz, while the real INS is
+                // 25 Hz.  Every PRT therefore carries the latest 25 Hz sample
+                // unchanged until the next inertial update.
+                const PosSample &pos = holdIns25Hz(ins_25hz, utc);
+                fillHeader(packet, prt_counter, utc, old_cfg.week_offset, pos, bm.theta_new_deg, prt_len);
+                for (int n = 0; n < new_cfg.ddc_len_new; ++n) {
+                    const std::complex<float> z1 = (opt.channel_mode == "ch2") ? std::complex<float>(0, 0) : row_new_ch1[static_cast<size_t>(n)];
+                    const std::complex<float> z2 = (opt.channel_mode == "ch1") ? std::complex<float>(0, 0) : row_new_ch2[static_cast<size_t>(n)];
+                    putComplexIq(packet, static_cast<size_t>(n),
+                                 new_cfg.new_protocol_read_channel_1,
+                                 channel_count, iq_type, z1);
+                    putComplexIq(packet, static_cast<size_t>(n),
+                                 new_cfg.new_protocol_read_channel_2,
+                                 channel_count, iq_type, z2);
+                }
+                out.write(reinterpret_cast<const char *>(packet.data()), static_cast<std::streamsize>(packet.size()));
+                if (!out) {
+                    err = "write failed for stage1 data";
+                    return false;
+                }
+                updateAgg(row_new_ch1, sum_abs1, sum_pow1, max1, stats.has_nan, stats.has_inf);
+                updateAgg(row_new_ch2, sum_abs2, sum_pow2, max2, stats.has_nan, stats.has_inf);
+                sample_count += static_cast<uint64_t>(new_cfg.ddc_len_new);
+                ++stats.packets_written;
+                ++prt_counter;
+            }
+            std::cout << "[stage1] period=" << period << " beam=" << nb << " done\n";
+        }
+    }
+    stats.output_bytes = stats.packets_written * static_cast<uint64_t>(prt_len);
+    if (sample_count > 0U) {
+        stats.mean_abs_ch1 = sum_abs1 / static_cast<double>(sample_count);
+        stats.rms_ch1 = std::sqrt(sum_pow1 / static_cast<double>(sample_count));
+        stats.max_abs_ch1 = max1;
+        stats.mean_abs_ch2 = sum_abs2 / static_cast<double>(sample_count);
+        stats.rms_ch2 = std::sqrt(sum_pow2 / static_cast<double>(sample_count));
+        stats.max_abs_ch2 = max2;
+    }
+    return true;
+}
+
+bool writeStage1ConfigXml(const Stage1OldSystemConfig &old_cfg,
+                          const Stage1NewSystemConfig &new_cfg,
+                          const Stage1RunOptions &opt,
+                          const std::string &data_file,
+                          std::string &err)
+{
+    const std::string path = pathJoin(pathJoin(opt.output_dir, "config"), "temp_config_stage1_newsystem.xml");
+    TiXmlDocument doc;
+    if (!doc.LoadFile(old_cfg.xml_path.c_str())) {
+        err = "failed to load old XML template: " + old_cfg.xml_path;
+        return false;
+    }
+    TiXmlElement *root = doc.FirstChildElement("GMTI");
+    TiXmlElement *param = root ? root->FirstChildElement("GMTI_parameter") : nullptr;
+    if (!param) {
+        err = "old XML template missing GMTI_parameter";
+        return false;
+    }
+
+    auto setNode = [&](const char *name, const std::string &value) {
+        TiXmlElement *e = param->FirstChildElement(name);
+        if (!e) {
+            e = new TiXmlElement(name);
+            param->LinkEndChild(e);
+        }
+        e->Clear();
+        e->LinkEndChild(new TiXmlText(value.c_str()));
+    };
+    auto setInt = [&](const char *name, int value) {
+        std::ostringstream oss;
+        oss << value;
+        setNode(name, oss.str());
+    };
+    auto setDouble = [&](const char *name, double value) {
+        std::ostringstream oss;
+        oss << value;
+        setNode(name, oss.str());
+    };
+
+    setNode("result_add", pathJoin(opt.output_dir, "algorithm_result"));
+    setNode("INFO_Type", "1");
+    setNode("GMTI_data_new", data_file);
+    setNode("Plane_POS", opt.pos_files.empty() ? old_cfg.pos_path : opt.pos_files);
+    setNode("isSeparated", "separate");
+    setNode("iq_data_type", new_cfg.iq_data_type);
+    setInt("new_protocol_channel_count", new_cfg.new_protocol_channel_count);
+    setInt("new_protocol_read_channel_1", new_cfg.new_protocol_read_channel_1);
+    setInt("new_protocol_read_channel_2", new_cfg.new_protocol_read_channel_2);
+    setInt("info_len", 256);
+    setInt("shm_expected_prt_mode", 9);
+    setInt("pulse_len", new_cfg.ddc_len_new);
+    setInt("rg_len", new_cfg.pc_crop_len);
+    setInt("range_fft_len", new_cfg.fft_len_new);
+    setInt("range_crop_start", new_cfg.pc_crop_start);
+    setInt("range_compress_len", new_cfg.pc_crop_len);
+    setInt("pulse_num", new_cfg.pulse_num_new);
+    setInt("read_pulse_num", new_cfg.pulse_num_new);
+    setInt("read_pulse_offset", 0);
+    setDouble("fc", new_cfg.fc_new_ghz);
+    setDouble("Br", new_cfg.br_new_mhz);
+    setDouble("fs", new_cfg.fs_new_mhz);
+    setDouble("Tr", new_cfg.tr_new_us);
+    setDouble("PRF", new_cfg.prf_new_hz);
+    setInt("skip_pulses", 0);
+    setInt("wavepos_st", 1);
+    setInt("wavepos_ed", new_cfg.beam_count);
+    setInt("wavepos_skip", 1);
+    setDouble("scan_min_deg", new_cfg.scan_min_deg);
+    setDouble("scan_max_deg", new_cfg.scan_max_deg);
+    setInt("az_count", new_cfg.beam_count);
+    setDouble("boshu", new_cfg.beam_width_deg);
+    setDouble("loc_beam_gate_deg", new_cfg.beam_width_deg * 2.0);
+    setDouble("max_theta", std::max(std::fabs(new_cfg.scan_min_deg), std::fabs(new_cfg.scan_max_deg)));
+    setInt("period_first", 1);
+    setInt("period_num", new_cfg.beam_count);
+    setInt("rg_ed", new_cfg.pc_crop_len - 1);
+    setInt("raw_fenbianlv", 25);
+    // Platform velocity is intentionally derived by GMTI_pipe_core from the
+    // 25 Hz-held latitude/longitude samples, not from these packet fields.
+    setNode("new_protocol_velocity_source", "position_delta");
+    setInt("motion_comp_enable", 0);
+    setInt("motion_comp_apply_to_localization", 0);
+    setInt("motion_comp_analytic_enable", 0);
+    setInt("motion_comp_use_row_doppler", 0);
+    setNode("motion_comp_solver", "old");
+    setInt("motion_comp_iter", 8);
+    setDouble("motion_comp_iter_tol_mps", 1.0e-4);
+    setInt("ati_velocity_sign", 1);
+    setInt("ati_phase_to_velocity_sign", 1);
+    setInt("motion_doppler_axis_sign", -1);
+    setDouble("ati_phase_bias_rad", 0.0);
+    setDouble("ati_vmax_mps", 50.0);
+    setDouble("motion_comp_denom_min", 1.0e-6);
+    setDouble("motion_comp_root_grid_step_mps", 0.02);
+    setDouble("motion_comp_root_cost_max", 0.25);
+    setInt("motion_comp_debug", 0);
+    setInt("p38_refit_enable", 1);
+    setInt("p38_refit_row_guard_bins", 2);
+    setInt("p38_refit_range_guard_bins", 2);
+    setNode("p38_refit_top_power_frac", "0.01");
+    setInt("p38_refit_min_sample_count", 8);
+    setNode("p38_refit_min_inlier_ratio", "0.60");
+    setNode("p38_refit_max_rmse_rad", "0.60");
+    setNode("p38_refit_max_delta_k", "0.01");
+    setNode("p38_refit_max_delta_b_rad", "1.50");
+
+    if (!doc.SaveFile(path.c_str())) {
+        err = "failed to save generated XML: " + path;
+        return false;
+    }
+    return true;
+}
+
+} // namespace sim_stage1
+} // namespace gmti

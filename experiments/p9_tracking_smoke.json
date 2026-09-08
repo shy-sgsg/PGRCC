@@ -1,0 +1,229 @@
+{
+  "experiment_id": "p9_tracking_production_robustness",
+  "workflow": "tracking",
+  "output_root": "outputs/eval/p9_tracking_production_robustness",
+  "algorithm_exe": "build/track_detection_eval",
+  "random_seed": 20260714,
+  "truth_match_gate_m": 150.0,
+  "default_scenario": {
+    "type": "straight",
+    "periods": 20,
+    "dt_s": 1.0,
+    "target_count": 1,
+    "speed_mps": 20.0,
+    "spacing_m": 250.0
+  },
+  "default_injection": {
+    "random_miss_probability": 0.0,
+    "false_alarm_rate": 0.0,
+    "position_noise_std_m": 5.0,
+    "velocity_noise_std_mps": 1.0,
+    "timestamp_jitter_s": 0.0,
+    "duplicate_detection_probability": 0.0,
+    "outlier_probability": 0.0
+  },
+  "default_tracker": {
+    "assignment_mode": "hungarian",
+    "distance_mode": "mahalanobis",
+    "output_source": "measurement",
+    "confirm_window": 3,
+    "confirm_hits": 2,
+    "max_missed": 2,
+    "tentative_max_missed": 1,
+    "gate_m": 300.0,
+    "chi2_gate": 9.21,
+    "dummy_cost": 1.5,
+    "measurement_noise_m": 20.0,
+    "process_noise_pos": 25.0,
+    "process_noise_vel": 10.0,
+    "use_speed_cost": true,
+    "speed_weight": 0.15,
+    "use_heading_cost": true,
+    "heading_weight": 1.0,
+    "heading_min_displacement_m": 5.0,
+    "min_linearity": 0.40
+  },
+  "cases": [
+    {
+      "case_id": "T00a_empty_high_false_alarm_confirm2",
+      "scenario": {"target_count": 0, "periods": 50},
+      "injection": {"false_alarm_rate": 4.0}
+    },
+    {
+      "case_id": "T00b_empty_high_false_alarm_confirm3",
+      "scenario": {"target_count": 0, "periods": 50},
+      "injection": {"false_alarm_rate": 4.0},
+      "tracker": {"confirm_window": 4, "confirm_hits": 3}
+    },
+    {"case_id": "T01_single_strong_cv"},
+    {
+      "case_id": "T02_single_weak",
+      "injection": {"random_miss_probability": 0.20, "position_noise_std_m": 35.0}
+    },
+    {
+      "case_id": "T02_single_weak_confirm3",
+      "injection": {"random_miss_probability": 0.20, "position_noise_std_m": 35.0},
+      "tracker": {"confirm_window": 4, "confirm_hits": 3}
+    },
+    {
+      "case_id": "T03_high_speed",
+      "scenario": {"speed_mps": 50.0}
+    },
+    {
+      "case_id": "T04_low_near_blind_speed",
+      "scenario": {"speed_mps": 0.5},
+      "injection": {"position_noise_std_m": 2.0}
+    },
+    {
+      "case_id": "T05_acceleration",
+      "scenario": {"type": "accelerating", "speed_mps": 5.0, "acceleration_mps2": 3.0}
+    },
+    {
+      "case_id": "T06_turn",
+      "scenario": {"type": "turn", "speed_mps": 25.0, "turn_rate_deg_s": 7.0}
+    },
+    {
+      "case_id": "T07_parallel_close",
+      "scenario": {"type": "parallel", "target_count": 2, "cross_spacing_m": 35.0, "speed_step_mps": 1.0}
+    },
+    {
+      "case_id": "T08_crossing",
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0}
+    },
+    {
+      "case_id": "T08_crossing_heading_w1",
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0},
+      "tracker": {"heading_weight": 1.0}
+    },
+    {
+      "case_id": "T08_crossing_heading_w3",
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0},
+      "tracker": {"heading_weight": 3.0}
+    },
+    {
+      "case_id": "T08_crossing_motion_weighted",
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0},
+      "tracker": {"speed_weight": 0.5, "heading_weight": 1.0}
+    },
+    {
+      "case_id": "T09_merge_then_split",
+      "scenario": {"type": "merge_split", "target_count": 2, "speed_mps": 18.0, "merge_cross_speed_mps": 5.0}
+    },
+    {
+      "case_id": "T10_intermittent",
+      "injection": {"miss_periods": [6, 7, 13]}
+    },
+    {
+      "case_id": "T11a_one_period_miss",
+      "injection": {"miss_periods": [8]}
+    },
+    {
+      "case_id": "T11b_two_period_miss",
+      "injection": {"miss_periods": [8, 9]}
+    },
+    {
+      "case_id": "T11c_three_period_miss",
+      "injection": {"miss_periods": [8, 9, 10]}
+    },
+    {
+      "case_id": "T12_high_false_alarm",
+      "injection": {"false_alarm_rate": 4.0, "position_noise_std_m": 8.0}
+    },
+    {
+      "case_id": "T12_high_false_alarm_confirm3",
+      "injection": {"false_alarm_rate": 4.0, "position_noise_std_m": 8.0},
+      "tracker": {"confirm_window": 4, "confirm_hits": 3}
+    },
+    {
+      "case_id": "T13_high_position_noise",
+      "injection": {"position_noise_std_m": 60.0}
+    },
+    {
+      "case_id": "T14_velocity_jump",
+      "injection": {"speed_jump_periods": [7, 14], "speed_jump_mps": 45.0}
+    },
+    {
+      "case_id": "T15_wrong_ambiguity_order",
+      "injection": {"speed_jump_periods": [8, 9], "speed_jump_mps": 24.4}
+    },
+    {
+      "case_id": "T16a_four_targets",
+      "scenario": {"type": "parallel", "target_count": 4, "cross_spacing_m": 90.0}
+    },
+    {
+      "case_id": "T16b_eight_targets",
+      "scenario": {"type": "parallel", "target_count": 8, "cross_spacing_m": 90.0}
+    },
+    {
+      "case_id": "T16c_sixteen_targets",
+      "scenario": {"type": "parallel", "target_count": 16, "cross_spacing_m": 90.0}
+    },
+    {
+      "case_id": "T16d_thirty_two_targets",
+      "scenario": {"type": "parallel", "target_count": 32, "cross_spacing_m": 90.0}
+    },
+    {
+      "case_id": "T16e_sixty_four_targets",
+      "scenario": {"type": "parallel", "target_count": 64, "cross_spacing_m": 90.0}
+    },
+    {
+      "case_id": "T17_enter_leave",
+      "scenario": {
+        "type": "parallel",
+        "target_count": 2,
+        "active_windows": [[1, 12], [7, 20]],
+        "cross_spacing_m": 120.0
+      }
+    },
+    {
+      "case_id": "T18_variable_period_dt",
+      "scenario": {"period_dt_s": [0.5, 1.0, 1.5, 0.75, 1.25]}
+    },
+    {
+      "case_id": "A_nearest_euclidean",
+      "random_seed": 20260799,
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0},
+      "injection": {"position_noise_std_m": 12.0},
+      "tracker": {"assignment_mode": "nearest", "distance_mode": "euclidean"}
+    },
+    {
+      "case_id": "A_nearest_mahalanobis",
+      "random_seed": 20260799,
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0},
+      "injection": {"position_noise_std_m": 12.0},
+      "tracker": {"assignment_mode": "nearest", "distance_mode": "mahalanobis"}
+    },
+    {
+      "case_id": "A_hungarian_euclidean",
+      "random_seed": 20260799,
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0},
+      "injection": {"position_noise_std_m": 12.0},
+      "tracker": {"assignment_mode": "hungarian", "distance_mode": "euclidean"}
+    },
+    {
+      "case_id": "A_hungarian_mahalanobis",
+      "random_seed": 20260799,
+      "scenario": {"type": "crossing", "target_count": 2, "speed_mps": 25.0, "cross_offset_m": 5.0},
+      "injection": {"position_noise_std_m": 12.0},
+      "tracker": {"assignment_mode": "hungarian", "distance_mode": "mahalanobis"}
+    },
+    {
+      "case_id": "O_source_measurement",
+      "random_seed": 20260801,
+      "injection": {"position_noise_std_m": 20.0},
+      "tracker": {"output_source": "measurement"}
+    },
+    {
+      "case_id": "O_source_prediction",
+      "random_seed": 20260801,
+      "injection": {"position_noise_std_m": 20.0},
+      "tracker": {"output_source": "prediction"}
+    },
+    {
+      "case_id": "O_source_kalman_filtered",
+      "random_seed": 20260801,
+      "injection": {"position_noise_std_m": 20.0},
+      "tracker": {"output_source": "kalman_filtered"}
+    }
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "case_id": "azimuth_localization_paired_smoke",
+  "output_dir": "outputs/azimuth_localization_paired_smoke",
+  "scene_mode": "target_only",
+  "truth_output": true,
+  "waveform": {
+    "fc_ghz": 16.0,
+    "bandwidth_mhz": 50.0,
+    "fs_mhz": 60.0,
+    "tr_us": 130.0,
+    "prf_hz": 1300.0,
+    "pulse_len": 11820,
+    "pulse_num": 130,
+    "d_chan_m": 0.17,
+    "iq_data_type": "float32",
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2
+  },
+  "range_processing": {
+    "range_fft_len": 12288,
+    "range_crop_start": 3864,
+    "range_crop_len": 4096,
+    "sample_delay_us": 488.0
+  },
+  "scan": {
+    "scan_min_deg": 0.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 1,
+    "beam_width_deg": 2.28,
+    "beam_index_base": 1
+  },
+  "platform": {
+    "speed_mps": 60.0,
+    "height_m": 6000.0,
+    "origin_lat_deg": 40.4512107203,
+    "origin_lon_deg": 116.985931582,
+    "origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "channel_geometry": {
+    "channel_1": {"name": "left_a", "x_m": -0.085, "y_m": 0.0, "z_m": 0.085},
+    "channel_2": {"name": "right_a", "x_m": 0.085, "y_m": 0.0, "z_m": 0.085},
+    "channel_3": {"name": "left_b", "x_m": -0.085, "y_m": 0.0, "z_m": -0.085},
+    "channel_4": {"name": "right_b", "x_m": 0.085, "y_m": 0.0, "z_m": -0.085}
+  },
+  "random": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 1,
+    "beam_count": 1,
+    "random_seed": 20260812,
+    "four_channel_phase_center_mode": "paired_same_phase_center"
+  },
+  "scene": {
+    "mode": "target_only",
+    "output_signal_domain": "raw_lfm",
+    "range_min_m": 82800.0,
+    "range_max_m": 93000.0,
+    "azimuth_min_deg": -2.0,
+    "azimuth_max_deg": 2.0,
+    "ground_z_m": 0.0,
+    "clutter_amplitude_scale": 0.0,
+    "area_clutter": {"enabled": false},
+    "strong_scatterers": {"enabled": false, "count": 0},
+    "line_scatterers": {"enabled": false, "line_count": 0, "points_per_line": 0},
+    "thermal_noise": {"enabled": false, "noise_power": 0.0, "include_target_only": true}
+  },
+  "channel_impairments": {"enabled": false},
+  "targets": [
+    {
+      "target_id": "T01",
+      "enabled": true,
+      "init": {"type": "beam_bin_azimuth_offset", "beam_id": 1, "expected_bin": 2200, "azimuth_offset_deg": 0.0},
+      "motion": {"type": "enu_velocity", "ve_mps": -3.0, "vn_mps": 2.0},
+      "amplitude": {"type": "snr_db", "snr_db": 45.0},
+      "visibility": {"type": "hard_gate", "single_beam_only": true}
+    }
+  ]
+}

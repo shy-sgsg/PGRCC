@@ -1,0 +1,123 @@
+{
+  "experiment_id": "p7_localization_union_smoke",
+  "output_root": "outputs/eval/p7_localization_union_smoke",
+  "match_config": "configs/eval/localization_match_config.json",
+  "default_xml_overrides": {
+    "pf": 1e-8,
+    "range_compression_window": "kaiser",
+    "range_compression_kaiser_beta": 6.0,
+    "range_compression_bandwidth_scale": 1.0,
+    "ati_vmax_mps": 50.0,
+    "motion_comp_enable": 1,
+    "motion_comp_apply_to_localization": 1,
+    "motion_comp_solver": "root1d",
+    "motion_comp_use_row_doppler": 1,
+    "velocity_ambiguity_enable": 1,
+    "velocity_search_min_mps": -50.0,
+    "velocity_search_max_mps": 50.0,
+    "velocity_max_doppler_order": 8,
+    "velocity_max_phase_order": 32,
+    "velocity_max_candidates": 512,
+    "velocity_beam_gate_deg": 4.56,
+    "csi_detection_band_mode": "union",
+    "channel_calibration_enable": 0,
+    "runtime_diagnostics_enabled": 1
+  },
+  "cases": [
+    {
+      "case_id": "L00_center_pos5",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "targets.0.target_id": "P7_CENTER_POS5",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "L01_offset_pos_half_bw",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "targets.0.target_id": "P7_OFFSET_POS_HALF_BW",
+        "targets.0.init.azimuth_offset_deg": 1.14,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": 30.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "L02_offset_neg_half_bw",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "targets.0.target_id": "P7_OFFSET_NEG_HALF_BW",
+        "targets.0.init.azimuth_offset_deg": -1.14,
+        "targets.0.visibility.type": "gaussian",
+        "targets.0.motion.ve_mps": -3.940053768035,
+        "targets.0.motion.vn_mps": -3.07830737663,
+        "targets.0.amplitude.snr_db": 30.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "L03_center_pos40",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "targets.0.target_id": "P7_CENTER_POS40",
+        "targets.0.motion.ve_mps": -31.52043014428,
+        "targets.0.motion.vn_mps": -24.62645901304,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "L04_center_neg40",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/p5_csi/stage2_area_clutter_single_target_seed202606.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "targets.0.target_id": "P7_CENTER_NEG40",
+        "targets.0.motion.ve_mps": 31.52043014428,
+        "targets.0.motion.vn_mps": 24.62645901304,
+        "targets.0.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4", "p6"]
+    },
+    {
+      "case_id": "M01_stage2_two_ranges",
+      "kind": "stage2",
+      "scenario_template": "simulator/scenarios/beam50_two_targets.run.json",
+      "random_seed": 202621,
+      "scenario_overrides": {
+        "random.beam_start": 50,
+        "random.beam_count": 1,
+        "targets.0.target_id": "P7_M01_A",
+        "targets.0.amplitude.snr_db": 25.0,
+        "targets.1.target_id": "P7_M01_B",
+        "targets.1.amplitude.snr_db": 25.0
+      },
+      "metrics": ["p4"]
+    },
+    {
+      "case_id": "M02_stage3_two_targets",
+      "kind": "stage3",
+      "scenario_template": "configs/stage3/p7_stage3_multi_cuda_130.json",
+      "target_config_template": "configs/stage3/p7_stage3_two_targets.json",
+      "xml_overrides": {
+        "pf": 1e-7,
+        "range_compression_window": "rect"
+      },
+      "metrics": ["p4"]
+    }
+  ]
+}

@@ -1,0 +1,328 @@
+#include "dbs/stitcher_kernel.hpp"
+#include "dbs/stitcher_kernel_texarray.hpp"
+#include <cuda_runtime.h>
+#include <device_launch_parameters.h>
+#include <math.h>
+#include <stdio.h>
+
+__device__ inline float sample2D_linear_texarray(
+    const float* amp,
+    int width,
+    int height,
+    float x,
+    float y)
+{
+    if (!amp || width <= 1 || height <= 1) {
+        return 0.0f;
+    }
+    if (x < 0.0f || y < 0.0f || x > (float)(width - 1) || y > (float)(height - 1)) {
+        return 0.0f;
+    }
+
+    x = fmaxf(0.0f, fminf(x, (float)(width - 1)));
+    y = fmaxf(0.0f, fminf(y, (float)(height - 1)));
+
+    int x0 = (int)floorf(x);
+    int y0 = (int)floorf(y);
+    int x1 = (x0 + 1 < width) ? (x0 + 1) : (width - 1);
+    int y1 = (y0 + 1 < height) ? (y0 + 1) : (height - 1);
+    float wx = x - (float)x0;
+    float wy = y - (float)y0;
+
+    float v00 = amp[y0 * width + x0];
+    float v01 = amp[y0 * width + x1];
+    float v10 = amp[y1 * width + x0];
+    float v11 = amp[y1 * width + x1];
+
+    return (1.0f - wy) * (1.0f - wx) * v00
+         + (1.0f - wy) * wx * v01
+         + wy * (1.0f - wx) * v10
+         + wy * wx * v11;
+}
+
+__device__ inline float clamp_unit_device_texarray(float x)
+{
+    return x < -1.0f ? -1.0f : (x > 1.0f ? 1.0f : x);
+}
+
+__device__ inline float wrap180_device_texarray(float angle_deg)
+{
+    angle_deg = fmodf(angle_deg + 180.0f, 360.0f);
+    if (angle_deg < 0.0f) angle_deg += 360.0f;
+    return angle_deg - 180.0f;
+}
+
+__device__ inline bool in_beam_angle_gate_device_texarray(
+    float fd, float lambda, float velocity,
+    float beam_angle_deg, float gate_deg)
+{
+    if (!(velocity > 0.0f) || !(lambda > 0.0f) || !(gate_deg > 0.0f)) return true;
+    const float ratio = clamp_unit_device_texarray(-fd * lambda / (2.0f * velocity));
+    const float pixel_angle_deg = asinf(ratio) * 180.0f / 3.14159265358979323846f;
+    return fabsf(wrap180_device_texarray(pixel_angle_deg - beam_angle_deg)) <= gate_deg;
+}
+
+__global__ void buildMosaicFullKernelTexArray(
+    float* d_amp_mosaic,
+    uint16_t* d_which_beam,
+    const float* d_all_amps,
+    const float* d_grid_x,
+    const float* d_grid_y,
+    const BeamDevParams* d_beams,
+    int nx, int ny, int B, int M, int nEff,
+    float R_min, float R_bin, float lambda, float Height, int flag_base,
+#if DBS_USE_CUDA_TEXTURE_OBJECTS
+    cudaTextureObject_t* texObjArr // B 个纹理对象
+#else
+    const float** ampArr
+#endif
+) {
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    int j = blockIdx.y * blockDim.y + threadIdx.y;
+    if (i < 0 || i >= nx || j < 0 || j >= ny) return;
+    float x_label = d_grid_x[i];
+    float y_label = d_grid_y[j];
+    float weighted_amp_sum = 0.0f;
+    float weight_sum = 0.0f;
+    float max_amp = 0.0f;
+    float best_contribution = -1.0f;
+    uint16_t best_beam_idx = 0;
+    for (int b = 0; b < B; ++b) {
+        BeamDevParams bp = d_beams[b];
+        float dx = x_label - bp.x;
+        float dy = y_label - bp.y;
+        float c = bp.cos_j;
+        float s = bp.sin_j;
+        int flag = bp.flag;
+        float x_tmp = 0.0f, y_tmp = 0.0f;
+        switch (flag) {
+        case 1: x_tmp = -dx * c - dy * s; y_tmp = -dx * s + dy * c; break;
+        case 2: x_tmp = dx * c + dy * s; y_tmp = dx * s - dy * c; break;
+        case 3: x_tmp = -dx * c + dy * s; y_tmp = dx * s + dy * c; break;
+        case 4: x_tmp = dx * c - dy * s; y_tmp = -dx * s - dy * c; break;
+        case 6: x_tmp = dx * c + dy * s; y_tmp = -dx * s + dy * c; break;
+        case 5: x_tmp = -dx * c - dy * s; y_tmp = dx * s - dy * c; break;
+        case 8: x_tmp = dx * c - dy * s; y_tmp = dx * s + dy * c; break;
+        case 7: x_tmp = -dx * c + dy * s; y_tmp = -dx * s - dy * c; break;
+        default: x_tmp = dx; y_tmp = dy; break;
+        }
+        float R = sqrtf(x_tmp * x_tmp + y_tmp * y_tmp + Height * Height);
+        float fd = (R > 1e-6f) ? (2.0f * bp.V_feiji * x_tmp / (R * lambda)) : 0.0f;
+        if (!in_beam_angle_gate_device_texarray(fd, lambda, bp.V_feiji,
+                                                bp.angle_deg, bp.angle_gate_deg)) continue;
+        float R_max = R_min + (M - 1) * R_bin;
+        float fd_max = bp.min_fd + (nEff - 1) * bp.delta_fd;
+        if (R < R_min || R > R_max || fd < bp.min_fd || fd > fd_max) continue;
+        float R_idx = (R - R_min) / R_bin;
+        float fd_idx = (fd - bp.min_fd) / (bp.delta_fd > 1e-9f ? bp.delta_fd : 1e-9f);
+        R_idx = fmaxf(0.0f, fminf(R_idx, (float)(M - 1)));
+        fd_idx = fmaxf(0.0f, fminf(fd_idx, (float)(nEff - 1)));
+        if (R_idx >= 0.0f && R_idx < (float)(M - 1) && fd_idx >= 0.0f && fd_idx < (float)(nEff - 1)) {
+#if DBS_USE_CUDA_TEXTURE_OBJECTS
+            float amp_val = tex2D<float>(texObjArr[b], R_idx + 0.5f, fd_idx + 0.5f);
+#else
+            const float* amp = ampArr ? ampArr[b] : nullptr;
+            float amp_val = sample2D_linear_texarray(amp, M, nEff, R_idx, fd_idx);
+#endif
+            float contribution = fabsf(amp_val);
+            if (bp.blend_mode != 0) {
+                const float ratio = clamp_unit_device_texarray(
+                    -fd * lambda / (2.0f * bp.V_feiji));
+                const float pixel_angle_deg = asinf(ratio) *
+                    180.0f / 3.14159265358979323846f;
+                const float angle_error = wrap180_device_texarray(
+                    pixel_angle_deg - bp.angle_deg);
+                const float beam_gain = expf(-0.5f *
+                    (angle_error / bp.blend_sigma_deg) *
+                    (angle_error / bp.blend_sigma_deg));
+                if (beam_gain < 0.5f) continue;
+                weighted_amp_sum += beam_gain * amp_val;
+                weight_sum += beam_gain * beam_gain;
+                contribution = beam_gain * fabsf(amp_val);
+            } else {
+                max_amp = fmaxf(max_amp, fabsf(amp_val));
+            }
+            if (contribution > best_contribution) {
+                best_contribution = contribution;
+                best_beam_idx = (uint16_t)(b + 1);
+            }
+        }
+    }
+    int out_idx = j * nx + i;
+    if (out_idx < 0 || out_idx >= nx * ny) return;
+    d_amp_mosaic[out_idx] = d_beams[0].blend_mode != 0
+        ? (weight_sum > 0.0f ? weighted_amp_sum / weight_sum : 0.0f)
+        : max_amp;
+    d_which_beam[out_idx] = best_beam_idx;
+}
+
+void launchBuildMosaicKernelTexArray(
+    float* d_amp_mosaic, uint16_t* d_which_beam,
+    const float* d_all_amps,
+    const float* d_grid_x, const float* d_grid_y,
+    const void* d_beams,
+    int nx, int ny, int B, int M, int nEff,
+    float R_min, float R_bin, float lambda, float Height, int flag_base
+) {
+    dim3 block(16, 16);
+    dim3 gsize((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
+    cudaError_t err;
+    // 先将 device 上的 d_beams 拷贝到 host
+    BeamDevParams* h_beams = (BeamDevParams*)malloc(B * sizeof(BeamDevParams));
+    if (!h_beams) {
+        printf("[HOST] malloc h_beams failed!\n");
+        return;
+    }
+    err = cudaMemcpy(h_beams, d_beams, B * sizeof(BeamDevParams), cudaMemcpyDeviceToHost);
+    if (err != cudaSuccess) {
+        printf("[HOST] cudaMemcpy d_beams to h_beams failed: %s\n", cudaGetErrorString(err));
+        free(h_beams);
+        return;
+    }
+#if DBS_USE_CUDA_TEXTURE_OBJECTS
+    // 分配 B 个纹理对象
+    cudaTextureObject_t* h_texObjArr = (cudaTextureObject_t*)malloc(B * sizeof(cudaTextureObject_t));
+    cudaTextureObject_t* d_texObjArr = nullptr;
+    err = cudaMalloc((void**)&d_texObjArr, B * sizeof(cudaTextureObject_t));
+    if (err != cudaSuccess) {
+        printf("[HOST] cudaMalloc d_texObjArr failed: %s\n", cudaGetErrorString(err));
+        free(h_beams);
+        free(h_texObjArr);
+        return;
+    }
+    cudaArray_t* h_cuArrayArr = (cudaArray_t*)malloc(B * sizeof(cudaArray_t));
+    for (int b = 0; b < B; ++b) {
+        size_t offset = h_beams[b].offset;
+        const float* b_data = d_all_amps + offset;
+        float* temp_dev = nullptr;
+        err = cudaMalloc((void**)&temp_dev, M * nEff * sizeof(float));
+        if (err != cudaSuccess) {
+            printf("[HOST] Beam %d: cudaMalloc temp_dev failed: %s\n", b, cudaGetErrorString(err));
+            h_texObjArr[b] = 0;
+            h_cuArrayArr[b] = nullptr;
+            continue;
+        }
+        cudaMemcpyKind copyKind = cudaMemcpyHostToDevice;
+        cudaPointerAttributes attr;
+        if (cudaPointerGetAttributes(&attr, b_data) == cudaSuccess && attr.type == cudaMemoryTypeDevice) {
+            copyKind = cudaMemcpyDeviceToDevice;
+        }
+        err = cudaMemcpy(temp_dev, b_data, M * nEff * sizeof(float), copyKind);
+        if (err != cudaSuccess) {
+            printf("[HOST] Beam %d: cudaMemcpy to temp_dev failed: %s\n", b, cudaGetErrorString(err));
+            cudaFree(temp_dev);
+            h_texObjArr[b] = 0;
+            h_cuArrayArr[b] = nullptr;
+            continue;
+        }
+        cudaChannelFormatDesc channelDesc = cudaCreateChannelDesc<float>();
+        cudaArray_t cuArray;
+        err = cudaMallocArray(&cuArray, &channelDesc, M, nEff);
+        if (err != cudaSuccess) {
+            printf("[HOST] Beam %d: cudaMallocArray failed: %s\n", b, cudaGetErrorString(err));
+            cudaFree(temp_dev);
+            h_texObjArr[b] = 0;
+            h_cuArrayArr[b] = nullptr;
+            continue;
+        }
+        err = cudaMemcpy2DToArray(cuArray, 0, 0, temp_dev, M * sizeof(float), M * sizeof(float), nEff, cudaMemcpyDeviceToDevice);
+        if (err != cudaSuccess) {
+            printf("[HOST] Beam %d: cudaMemcpy2DToArray failed: %s\n", b, cudaGetErrorString(err));
+            cudaFree(temp_dev);
+            cudaFreeArray(cuArray);
+            h_texObjArr[b] = 0;
+            h_cuArrayArr[b] = nullptr;
+            continue;
+        }
+        cudaFree(temp_dev);
+        cudaResourceDesc resDesc = {};
+        resDesc.resType = cudaResourceTypeArray;
+        resDesc.res.array.array = cuArray;
+        cudaTextureDesc texDesc = {};
+        texDesc.addressMode[0] = cudaAddressModeClamp;
+        texDesc.addressMode[1] = cudaAddressModeClamp;
+        texDesc.filterMode = cudaFilterModeLinear;
+        texDesc.readMode = cudaReadModeElementType;
+        texDesc.normalizedCoords = 0;
+        cudaTextureObject_t texObj = 0;
+        err = cudaCreateTextureObject(&texObj, &resDesc, &texDesc, nullptr);
+        if (err != cudaSuccess) {
+            printf("[HOST] Beam %d: cudaCreateTextureObject failed: %s\n", b, cudaGetErrorString(err));
+            cudaFreeArray(cuArray);
+            h_texObjArr[b] = 0;
+            h_cuArrayArr[b] = nullptr;
+            continue;
+        }
+        h_texObjArr[b] = texObj;
+        h_cuArrayArr[b] = cuArray;
+    }
+    // 拷贝纹理对象数组到 device
+    err = cudaMemcpy(d_texObjArr, h_texObjArr, B * sizeof(cudaTextureObject_t), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+        printf("[HOST] cudaMemcpy texObjArr to device failed: %s\n", cudaGetErrorString(err));
+        free(h_beams);
+        free(h_texObjArr);
+        free(h_cuArrayArr);
+        cudaFree(d_texObjArr);
+        return;
+    }
+    buildMosaicFullKernelTexArray<<<gsize, block>>>(
+        d_amp_mosaic, d_which_beam, d_all_amps,
+        d_grid_x, d_grid_y, (const BeamDevParams*)d_beams,
+        nx, ny, B, M, nEff,
+        R_min, R_bin, lambda, Height, flag_base,
+        d_texObjArr
+    );
+    cudaDeviceSynchronize();
+    // 清理
+    for (int b = 0; b < B; ++b) {
+        if (h_texObjArr[b]) cudaDestroyTextureObject(h_texObjArr[b]);
+        if (h_cuArrayArr[b]) cudaFreeArray(h_cuArrayArr[b]);
+    }
+    cudaFree(d_texObjArr);
+    free(h_beams);
+    free(h_texObjArr);
+    free(h_cuArrayArr);
+#else
+    // CoreX path: build a device-resident array of device amplitude pointers.
+    const float** h_ampArr = (const float**)malloc(B * sizeof(float*));
+    const float** d_ampArr = nullptr;
+    if (!h_ampArr) {
+        printf("[HOST] malloc h_ampArr failed!\n");
+        free(h_beams);
+        return;
+    }
+    for (int b = 0; b < B; ++b) {
+        h_ampArr[b] = d_all_amps + (size_t)h_beams[b].offset;
+    }
+    err = cudaMalloc((void**)&d_ampArr, B * sizeof(float*));
+    if (err != cudaSuccess) {
+        printf("[HOST] cudaMalloc d_ampArr failed: %s\n", cudaGetErrorString(err));
+        free(h_beams);
+        free(h_ampArr);
+        return;
+    }
+    err = cudaMemcpy(d_ampArr, h_ampArr, B * sizeof(float*), cudaMemcpyHostToDevice);
+    if (err != cudaSuccess) {
+        printf("[HOST] cudaMemcpy ampArr to device failed: %s\n", cudaGetErrorString(err));
+        cudaFree(d_ampArr);
+        free(h_beams);
+        free(h_ampArr);
+        return;
+    }
+    buildMosaicFullKernelTexArray<<<gsize, block>>>(
+        d_amp_mosaic, d_which_beam, d_all_amps,
+        d_grid_x, d_grid_y, (const BeamDevParams*)d_beams,
+        nx, ny, B, M, nEff,
+        R_min, R_bin, lambda, Height, flag_base,
+        d_ampArr
+    );
+    err = cudaDeviceSynchronize();
+    if (err != cudaSuccess) {
+        printf("[HOST] cudaDeviceSynchronize error: %s\n", cudaGetErrorString(err));
+    }
+    cudaFree(d_ampArr);
+    free(h_beams);
+    free(h_ampArr);
+#endif
+}
