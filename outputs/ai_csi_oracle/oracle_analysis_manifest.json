@@ -1,0 +1,34 @@
+{
+  "script": "scripts/run_ai_csi_oracle_suite.py",
+  "cases": [
+    {
+      "condition": "typical_uniform_clutter",
+      "condition_label": "Typical: uniform texture",
+      "case_id": "ai_csi_stage2_typical_1beam_20260908",
+      "target_bin": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/stage2_target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/stage2_background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "xml": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/stage2_target/config/temp_config_stage2_period_0000.xml",
+      "truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/stage2_target/truth/truth_targets_by_beam.csv",
+      "per_case_output": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/per_case/typical_uniform_clutter"
+    },
+    {
+      "condition": "nonideal_nonuniform_amp_phase_drop",
+      "condition_label": "Non-ideal: nonuniform + amp/phase + drops",
+      "case_id": "ai_csi_stage2_nonideal_1beam_20260908",
+      "target_bin": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/nonideal_target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/nonideal_background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "xml": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/nonideal_target/config/temp_config_stage2_period_0000.xml",
+      "truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/nonideal_target/truth/truth_targets_by_beam.csv",
+      "per_case_output": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_oracle/per_case/nonideal_nonuniform_amp_phase_drop"
+    }
+  ],
+  "oracle_weight_constraint": "每个案例的 Oracle weight/alpha 只由配对 clutter+noise truth 估计，再固定应用到 clutter+target+noise；目标 truth 不参与权重求解。",
+  "summary_files": [
+    "outputs/ai_csi_oracle/single_factor_summary.csv",
+    "outputs/ai_csi_oracle/leave_one_out_summary.csv",
+    "outputs/ai_csi_oracle/oracle_overall_summary.csv"
+  ],
+  "gpu_production_run": false,
+  "evidence_boundary": "CPU offline replay of current source operators; CUDA production execution not claimed because no NVIDIA driver is available",
+  "raw_output_policy": "generated BINs and per-case replay artifacts stay outside Git tracking; only compact research deliverables are tracked"
+}
