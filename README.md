@@ -42,10 +42,11 @@ scripts/                    分析、评估和复现实验脚本
 tests/                      工程测试
 docs/                       数学模型、实验报告和后续 AI 建议
 outputs/ai_csi_oracle/      小型 CSV/PNG/JSON 研究交付物
+outputs/ai_csi_baseline/   7 场景 × 6 方法的传统 baseline 交付物
 ```
 
-原始 BIN、构建目录、缓存和逐案例中间结果不纳入 Git；它们需要在本地生成或
-保留用于复核。
+原始 BIN、构建目录、缓存和逐案例中间结果已按清理策略移除；需要复核时按本页
+复现入口重新生成，不把大体量数据复制进 Git 历史。
 
 ## 环境要求
 
@@ -92,11 +93,33 @@ python3 scripts/run_ai_csi_oracle_suite.py
 - `outputs/ai_csi_oracle/mismatch_contribution.png`
 - `outputs/ai_csi_oracle/ca_target_loss_pd.png`
 
+## 复现传统 Baseline 矩阵
+
+Baseline 先于 AI 训练执行，分为同一 F1/F2 输入的 strict 组和原始四通道
+space-time academic reference 组；两组不混排。覆盖理想/均匀、非均匀杂波、
+通道幅相误差、有效样本不足、低 SCNR、近杂波脊和支撑边缘目标。Oracle/背景
+训练权重只使用 clutter+noise，目标 truth 仅用于评价。
+
+```bash
+python3 -m py_compile scripts/run_baseline_benchmark.py
+python3 scripts/run_baseline_benchmark.py
+```
+
+配置、方法边界和指标定义见
+[`AI_CSI_04_Baseline方法与实现说明.md`](docs/AI_CSI_04_Baseline方法与实现说明.md)；
+结果解释见 [`AI_CSI_05_Baseline实验报告.md`](docs/AI_CSI_05_Baseline实验报告.md)，
+不足与后续 Physics-AI 接口见
+[`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)。
+完整紧凑产物在 `outputs/ai_csi_baseline/`，原始 BIN 和临时矩阵默认逐场景清理。
+
 ## 研究文档
 
 - [当前对消数学模型](docs/AI_CSI_01_当前对消数学模型.md)
 - [Current–Oracle 实验报告](docs/AI_CSI_02_Current_Oracle实验报告.md)
 - [后续 AI 方法建议](docs/AI_CSI_03_后续AI方法建议.md)
+- [Baseline 方法与实现说明](docs/AI_CSI_04_Baseline方法与实现说明.md)
+- [Baseline 实验报告](docs/AI_CSI_05_Baseline实验报告.md)
+- [Baseline 不足与 Physics-AI 方向分析](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)
 - [研究进展](docs/AI_CSI_研究进展.md)
 - [Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
 

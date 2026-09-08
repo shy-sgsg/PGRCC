@@ -98,3 +98,11 @@ outputs/ai_csi_oracle/nonideal_target/
 outputs/ai_csi_oracle/nonideal_background/
 outputs/ai_csi_oracle/nonideal/
 outputs/ai_csi_oracle/per_case/
+
+# 第一轮 baseline benchmark：只保留紧凑汇总和图，原始 BIN/临时配置不入库
+!outputs/ai_csi_baseline/
+!outputs/ai_csi_baseline/*.csv
+!outputs/ai_csi_baseline/*.png
+!outputs/ai_csi_baseline/*.json
+outputs/ai_csi_baseline/cases/
+outputs/ai_csi_baseline/generated_configs/

@@ -4,7 +4,7 @@
 
 第一阶段已完成，当前没有训练 AI，也没有实现端到端 clutter-free RD 网络。
 已完成 Current–Oracle 的两类场景回放、单因素替换、leave-one-error-out 归因、
-新增指标和后续方法建议。
+新增指标、传统 baseline 矩阵和后续方法建议。AI 仍未训练。
 
 ## 已完成事项
 
@@ -17,6 +17,8 @@
 | Current/Oracle 单因素与 LOO | 完成 | 三个 CSV 汇总 |
 | 指标补充 | 完成 | `target_loss_dB`、`residual_high_energy_points`、`false_alarm_count`、`Pd` |
 | 失配归因与 AI 建议 | 完成 | [`AI_CSI_02_Current_Oracle实验报告.md`](AI_CSI_02_Current_Oracle实验报告.md)、[`AI_CSI_03_后续AI方法建议.md`](AI_CSI_03_后续AI方法建议.md) |
+| 传统 baseline 方法矩阵 | 完成 | [`AI_CSI_04_Baseline方法与实现说明.md`](AI_CSI_04_Baseline方法与实现说明.md)、[`AI_CSI_05_Baseline实验报告.md`](AI_CSI_05_Baseline实验报告.md) |
+| Baseline 不足与 Physics-AI 接口 | 完成 | [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](AI_CSI_06_Baseline不足与Physics_AI方向分析.md) |
 
 ## 当前实验事实
 
@@ -29,9 +31,24 @@
 - 负差距不是把结果修剪成“Oracle 更好”，而是记录了当前非线性最小幅度算子
   与背景-only 线性复权之间的真实性能/统计权衡。
 
+## Baseline 实验事实
+
+- 首轮覆盖 7 个场景 × 6 个方法，共 42 条结果；场景包含理想/均匀、非均匀杂波、
+  通道幅相误差、有效样本不足、低 SCNR、近杂波脊和支撑边缘目标。
+- F1/F2 strict 组的 7 场景等权平均 SCNR 提升：Current 12.318 dB、Phase-only
+  7.403 dB、Row-LS/Wiener 9.246 dB；四通道 academic reference 单独报告，未与
+  strict 组混排。
+- 有效样本不足场景实际为 45/130，有 85 个通道脉冲丢失；近杂波脊目标相对杂波
+  中心约 1.050 Hz；支撑边缘目标距动态支撑边界 2 行。
+- Baseline 的 FA/Pfa 使用纯 C+N background 和固定 GO-CFAR；fixed-region high
+  点使用全 Doppler、固定距离区间，避免缩小主动支撑自动改善指标。
+- 运行 manifest 保存命令、源码 dirty 状态、Release 仿真器身份、环境探测和每个
+  关键 BIN 的路径/大小/SHA-256；原始 BIN 默认逐 case 清理。
+
 ## 可复现入口
 
-源码构建已完成：
+源码构建此前已完成并记录在 baseline manifest；当前 `build/` 中间目录已清理，
+需要复现时重新执行：
 
 ```text
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -59,7 +76,20 @@ python3 scripts/run_ai_csi_oracle_suite.py
 - `outputs/ai_csi_oracle/mismatch_contribution.png`
 - `outputs/ai_csi_oracle/ca_target_loss_pd.png`
 
-原始 BIN、仿真报告和逐案例中间回放目录只在本地工作区保留；Git 只跟踪上述
+## Baseline 传统方法复现入口
+
+```text
+python3 -m py_compile scripts/run_baseline_benchmark.py
+python3 scripts/run_baseline_benchmark.py
+```
+
+实验配置：`configs/research/ai_csi_baseline_suite.json`；方法说明、指标定义和
+输入边界见 [`AI_CSI_04_Baseline方法与实现说明.md`](AI_CSI_04_Baseline方法与实现说明.md)，
+汇报结果和图表见 [`AI_CSI_05_Baseline实验报告.md`](AI_CSI_05_Baseline实验报告.md)。
+完整 CSV/PNG/JSON 在 `outputs/ai_csi_baseline/`。
+
+历史原始 BIN、仿真报告和逐案例中间回放目录已在记录输入大小与 SHA-256 后按授权
+清理；输入身份见 `outputs/ai_csi_oracle/raw_input_inventory.json`。Git 只跟踪上述
 紧凑交付物，避免把大体量原始数据复制进版本历史。
 
 ## 证据边界

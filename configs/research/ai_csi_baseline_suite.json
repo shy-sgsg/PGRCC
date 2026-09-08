@@ -1,0 +1,102 @@
+{
+  "base_config": "configs/research/ai_csi_stage2_typical_1beam.json",
+  "output_root": "outputs/ai_csi_baseline/cases",
+  "cases": [
+    {
+      "case_id": "baseline_ideal_uniform_20260921",
+      "label": "Ideal / uniform clutter",
+      "seed": 20260921,
+      "use_paired_background": true,
+      "target_id": "BL_T01_IDEAL",
+      "target_snr_db": 10.0,
+      "texture_sigma": 0.4,
+      "azimuth_subcell_count": 9,
+      "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+      "impairments": {}
+    },
+    {
+      "case_id": "baseline_nonuniform_20260922",
+      "label": "Nonuniform clutter",
+      "seed": 20260922,
+      "use_paired_background": true,
+      "target_id": "BL_T02_NONUNIFORM",
+      "target_snr_db": 10.0,
+      "texture_sigma": 1.1,
+      "azimuth_subcell_count": 17,
+      "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+      "impairments": {}
+    },
+    {
+      "case_id": "baseline_amp_phase_20260923",
+      "label": "Channel amplitude / phase error",
+      "seed": 20260923,
+      "use_paired_background": false,
+      "target_id": "BL_T03_AMP_PHASE",
+      "target_snr_db": 10.0,
+      "texture_sigma": 0.4,
+      "azimuth_subcell_count": 9,
+      "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+      "impairments": {
+        "enabled": true,
+        "channel_amp_mismatch_db": 2.5,
+        "channel_fixed_phase_mismatch_deg": 18.0,
+        "channel_phase_jitter_std_deg": 3.0,
+        "channel_drop_probability": 0.0
+      }
+    },
+    {
+      "case_id": "baseline_sample_reduced_20260924",
+      "label": "Effective samples reduced",
+      "seed": 20260924,
+      "use_paired_background": false,
+      "target_id": "BL_T04_SAMPLE_REDUCED",
+      "target_snr_db": 10.0,
+      "texture_sigma": 0.4,
+      "azimuth_subcell_count": 9,
+      "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+      "impairments": {
+        "enabled": true,
+        "channel_amp_mismatch_db": 0.0,
+        "channel_fixed_phase_mismatch_deg": 0.0,
+        "channel_phase_jitter_std_deg": 0.0,
+        "channel_drop_probability": 0.55
+      }
+    },
+    {
+      "case_id": "baseline_low_scnr_20260925",
+      "label": "Low SCNR",
+      "seed": 20260925,
+      "use_paired_background": true,
+      "target_id": "BL_T05_LOW_SCNR",
+      "target_snr_db": -2.0,
+      "texture_sigma": 0.4,
+      "azimuth_subcell_count": 9,
+      "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+      "impairments": {}
+    },
+    {
+      "case_id": "baseline_low_radial_20260926",
+      "label": "Low radial velocity / clutter ridge",
+      "seed": 20260926,
+      "use_paired_background": true,
+      "target_id": "BL_T06_LOW_RADIAL",
+      "target_snr_db": 10.0,
+      "texture_sigma": 0.4,
+      "azimuth_subcell_count": 9,
+      "motion": {"ve_mps": 0.0, "vn_mps": 0.0},
+      "impairments": {}
+    },
+    {
+      "case_id": "baseline_support_edge_20260927",
+      "label": "Target at clutter-support edge",
+      "seed": 20260927,
+      "use_paired_background": true,
+      "target_id": "BL_T07_SUPPORT_EDGE",
+      "target_snr_db": 10.0,
+      "texture_sigma": 0.4,
+      "azimuth_subcell_count": 9,
+      "motion": {"ve_mps": -2.0, "vn_mps": 2.0},
+      "impairments": {}
+    }
+  ]
+}

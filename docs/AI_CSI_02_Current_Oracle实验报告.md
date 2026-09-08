@@ -172,5 +172,6 @@ GO-CFAR 使用源码相同的 guard=4、background=16、Pfa=1e-6 和环形 Doppl
 
 脚本入口是 [`run_ai_csi_oracle_suite.py`](../scripts/run_ai_csi_oracle_suite.py)，
 它调用 [`run_ai_csi_oracle.py`](../scripts/run_ai_csi_oracle.py) 逐案例回放并汇总。
-原始 BIN、仿真日志和逐案例中间目录仍保留在本地工作区，但按体量策略不纳入
-Git 历史。
+原始 BIN、仿真日志和逐案例中间目录已在记录输入大小与 SHA-256 后清理；输入
+身份见 [`raw_input_inventory.json`](../outputs/ai_csi_oracle/raw_input_inventory.json)，
+根目录汇总结果保留用于审计和报告复核。

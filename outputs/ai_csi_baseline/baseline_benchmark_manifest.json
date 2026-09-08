@@ -1,0 +1,341 @@
+{
+  "script": "scripts/run_baseline_benchmark.py",
+  "suite": "configs/research/ai_csi_baseline_suite.json",
+  "suite_definition": {
+    "base_config": "configs/research/ai_csi_stage2_typical_1beam.json",
+    "output_root": "outputs/ai_csi_baseline/cases",
+    "cases": [
+      {
+        "case_id": "baseline_ideal_uniform_20260921",
+        "label": "Ideal / uniform clutter",
+        "seed": 20260921,
+        "use_paired_background": true,
+        "target_id": "BL_T01_IDEAL",
+        "target_snr_db": 10.0,
+        "texture_sigma": 0.4,
+        "azimuth_subcell_count": 9,
+        "motion": {
+          "ve_mps": -0.5,
+          "vn_mps": 0.5
+        },
+        "impairments": {}
+      },
+      {
+        "case_id": "baseline_nonuniform_20260922",
+        "label": "Nonuniform clutter",
+        "seed": 20260922,
+        "use_paired_background": true,
+        "target_id": "BL_T02_NONUNIFORM",
+        "target_snr_db": 10.0,
+        "texture_sigma": 1.1,
+        "azimuth_subcell_count": 17,
+        "motion": {
+          "ve_mps": -0.5,
+          "vn_mps": 0.5
+        },
+        "impairments": {}
+      },
+      {
+        "case_id": "baseline_amp_phase_20260923",
+        "label": "Channel amplitude / phase error",
+        "seed": 20260923,
+        "use_paired_background": false,
+        "target_id": "BL_T03_AMP_PHASE",
+        "target_snr_db": 10.0,
+        "texture_sigma": 0.4,
+        "azimuth_subcell_count": 9,
+        "motion": {
+          "ve_mps": -0.5,
+          "vn_mps": 0.5
+        },
+        "impairments": {
+          "enabled": true,
+          "channel_amp_mismatch_db": 2.5,
+          "channel_fixed_phase_mismatch_deg": 18.0,
+          "channel_phase_jitter_std_deg": 3.0,
+          "channel_drop_probability": 0.0
+        }
+      },
+      {
+        "case_id": "baseline_sample_reduced_20260924",
+        "label": "Effective samples reduced",
+        "seed": 20260924,
+        "use_paired_background": false,
+        "target_id": "BL_T04_SAMPLE_REDUCED",
+        "target_snr_db": 10.0,
+        "texture_sigma": 0.4,
+        "azimuth_subcell_count": 9,
+        "motion": {
+          "ve_mps": -0.5,
+          "vn_mps": 0.5
+        },
+        "impairments": {
+          "enabled": true,
+          "channel_amp_mismatch_db": 0.0,
+          "channel_fixed_phase_mismatch_deg": 0.0,
+          "channel_phase_jitter_std_deg": 0.0,
+          "channel_drop_probability": 0.55
+        }
+      },
+      {
+        "case_id": "baseline_low_scnr_20260925",
+        "label": "Low SCNR",
+        "seed": 20260925,
+        "use_paired_background": true,
+        "target_id": "BL_T05_LOW_SCNR",
+        "target_snr_db": -2.0,
+        "texture_sigma": 0.4,
+        "azimuth_subcell_count": 9,
+        "motion": {
+          "ve_mps": -0.5,
+          "vn_mps": 0.5
+        },
+        "impairments": {}
+      },
+      {
+        "case_id": "baseline_low_radial_20260926",
+        "label": "Low radial velocity / clutter ridge",
+        "seed": 20260926,
+        "use_paired_background": true,
+        "target_id": "BL_T06_LOW_RADIAL",
+        "target_snr_db": 10.0,
+        "texture_sigma": 0.4,
+        "azimuth_subcell_count": 9,
+        "motion": {
+          "ve_mps": 0.0,
+          "vn_mps": 0.0
+        },
+        "impairments": {}
+      },
+      {
+        "case_id": "baseline_support_edge_20260927",
+        "label": "Target at clutter-support edge",
+        "seed": 20260927,
+        "use_paired_background": true,
+        "target_id": "BL_T07_SUPPORT_EDGE",
+        "target_snr_db": 10.0,
+        "texture_sigma": 0.4,
+        "azimuth_subcell_count": 9,
+        "motion": {
+          "ve_mps": -2.0,
+          "vn_mps": 2.0
+        },
+        "impairments": {}
+      }
+    ]
+  },
+  "reproducibility": {
+    "working_directory": "/home/shy/AIR/SAR+AI/project/PGRCC",
+    "command": [
+      "/home/shy/anaconda3/bin/python3",
+      "scripts/run_baseline_benchmark.py"
+    ],
+    "source_commit": "7099e2e5ff1b88b4d2a2a22638649e1e808f7f63",
+    "worktree_status": " M .gitignore\n M README.md\n M \"docs/AI_CSI_\\347\\240\\224\\347\\251\\266\\350\\277\\233\\345\\261\\225.md\"\n?? configs/research/ai_csi_baseline_suite.json\n?? \"docs/AI_CSI_04_Baseline\\346\\226\\271\\346\\263\\225\\344\\270\\216\\345\\256\\236\\347\\216\\260\\350\\257\\264\\346\\230\\216.md\"\n?? \"docs/AI_CSI_05_Baseline\\345\\256\\236\\351\\252\\214\\346\\212\\245\\345\\221\\212.md\"\n?? \"docs/AI_CSI_06_Baseline\\344\\270\\215\\350\\266\\263\\344\\270\\216Physics_AI\\346\\226\\271\\345\\220\\221\\345\\210\\206\\346\\236\\220.md\"\n?? outputs/ai_csi_baseline/baseline_benchmark_manifest.json\n?? outputs/ai_csi_baseline/baseline_detection_runtime.png\n?? outputs/ai_csi_baseline/baseline_residual_p99.png\n?? outputs/ai_csi_baseline/baseline_scenario_summary.csv\n?? outputs/ai_csi_baseline/baseline_scnr_improvement.png\n?? outputs/ai_csi_baseline/baseline_summary.csv\n?? outputs/ai_csi_baseline/baseline_target_loss.png\n?? scripts/run_baseline_benchmark.py\n",
+    "worktree_dirty": true,
+    "simulator_executable": "build/simulate_stage2_statistical",
+    "simulator_executable_bytes": 589856,
+    "simulator_executable_sha256": "9f8a6a4c73027c9feaadfe47091a385a4480e0a3f06dd3280e6a57cc8215ab7a",
+    "cmake_build_type": "Release",
+    "python": "3.13.5",
+    "numpy": "2.1.3",
+    "matplotlib": "3.10.0",
+    "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.43",
+    "gpu_probe": {
+      "command": [
+        "nvidia-smi"
+      ],
+      "returncode": 9,
+      "output": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.\n\n"
+    }
+  },
+  "comparison_groups": {
+    "F1/F2 strict": "Current, phase-only CSI/DPCA-class, and row complex LS/Wiener use the same F1/F2 interface and dynamic backend CFAR.",
+    "4-channel academic reference": "JDL, MNEC, and SA-MNEC use original four-channel space-time data and are not mixed into the strict F1/F2 claim."
+  },
+  "methods": {
+    "Current legacy CSI": "source legacy_min_magnitude CSI",
+    "Phase-only CSI (DPCA-class)": "F1 - exp(j*phase_current) F2 inside current dynamic support; no amplitude equalization",
+    "Row complex LS / Wiener": "background-only per-Doppler row alpha = sum(F1 conj(F2))/sum(|F2|^2)",
+    "JDL-3x4 reduced STAP": "4 channels x 3 adjacent Doppler rows, diagonally loaded covariance, unit-gain reduced-dimension beamformer",
+    "MNEC": "adaptive dominant-eigenspace projector with minimum-norm unit-gain steering response",
+    "SA-MNEC": "four subaperture covariance estimates, trace normalization/per-channel normalization, then MNEC projector",
+    "ADMM-ANM-STAP": "not implemented in first round; optional and not required to establish the requested trend",
+    "DU-ANM-STAP": "not implemented",
+    "neural_network": "not trained"
+  },
+  "oracle_weight_policy": "No target truth is used to construct a background-trained weight. Row-LS/Wiener, JDL, MNEC and SA-MNEC weights and their input calibration are computed from C+N only, then fixed for target evaluation.",
+  "current_observation_policy": "Current legacy/phase-only CSI retain the existing target-observation P38 calibration path; this is not an Oracle weight. Background-trained LS/Wiener, JDL, MNEC and SA-MNEC weights use C+N only.",
+  "metrics": {
+    "high_energy_region": "fixed all-Doppler rows and configured range columns rg_st..rg_ed",
+    "high_energy_threshold": "15 dB over the per-scenario fixed-region C+N input median",
+    "background_fa": "pure C+N background with the same CPU GO-CFAR geometry; Pfa = hit cells / valid CFAR test cells",
+    "mdv": "local row-shift target sweep around clutter centre; minimum detected Doppler separation converted by lambda/2; a proxy, not an operational full sweep",
+    "runtime": "CPU method runtime for one paired case, excluding simulator generation and MDV sweep"
+  },
+  "sa_mnec_reference": {
+    "title": "Subaperture Averaged Minimum Norm Eigen-Canceler for Airborne Radar Clutter Suppression",
+    "doi": "10.1109/LGRS.2026.3664295",
+    "url": "https://doi.org/10.1109/LGRS.2026.3664295",
+    "basis": "public abstract: subaperture averaged CCM combined with MNEC for nonhomogeneous clutter, channel amplitude/phase errors and sample-limited conditions"
+  },
+  "raw_data_policy": "Generated BINs and transient matrices are removed by default after each case; only compact CSV/PNG/JSON summaries are retained.",
+  "scenario_inputs": [
+    {
+      "case_id": "baseline_ideal_uniform_20260921",
+      "scenario_label": "Ideal / uniform clutter",
+      "target_id": "BL_T01_IDEAL",
+      "target_fd_truth_hz": -53.2468982695,
+      "target_row_truth": 60,
+      "fa_ctr_hz": 0.1869459725706979,
+      "dynamic_support_row_start": 42,
+      "dynamic_support_row_end": 88,
+      "target_support_edge_signed_rows": 18,
+      "target_clutter_center_offset_hz": -53.4338442420707,
+      "channel_dropped_pulses": 0,
+      "channel_valid_pulses": 130,
+      "channel_valid_fraction": 1.0,
+      "target_bin_path": "outputs/ai_csi_baseline/cases/baseline_ideal_uniform_20260921/target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin_path": "outputs/ai_csi_baseline/cases/baseline_ideal_uniform_20260921/background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "fafae5d78a4c0856fb0d660b655b6732f854285d20c54ea086d45b3801ba9703",
+      "background_input_sha256": "c49404fcd4e3750d9566353ef139a52b50b4fd66bed5234c4e2b07f8191f7e2a",
+      "target_snr_config_dB": 10.0
+    },
+    {
+      "case_id": "baseline_nonuniform_20260922",
+      "scenario_label": "Nonuniform clutter",
+      "target_id": "BL_T02_NONUNIFORM",
+      "target_fd_truth_hz": -53.2468982695,
+      "target_row_truth": 60,
+      "fa_ctr_hz": 1.7434119265121593,
+      "dynamic_support_row_start": 42,
+      "dynamic_support_row_end": 88,
+      "target_support_edge_signed_rows": 18,
+      "target_clutter_center_offset_hz": -54.99031019601216,
+      "channel_dropped_pulses": 0,
+      "channel_valid_pulses": 130,
+      "channel_valid_fraction": 1.0,
+      "target_bin_path": "outputs/ai_csi_baseline/cases/baseline_nonuniform_20260922/target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin_path": "outputs/ai_csi_baseline/cases/baseline_nonuniform_20260922/background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "612af4e7abb2446067fd18c0c397985d0c8d76c9eb2609216e6bf103da75d57f",
+      "background_input_sha256": "9fe2eb485b0fa2588b609c268543b10e95365ba46e3d9f417bf6319d10c44a99",
+      "target_snr_config_dB": 10.0
+    },
+    {
+      "case_id": "baseline_amp_phase_20260923",
+      "scenario_label": "Channel amplitude / phase error",
+      "target_id": "BL_T03_AMP_PHASE",
+      "target_fd_truth_hz": -53.2468982695,
+      "target_row_truth": 60,
+      "fa_ctr_hz": -0.80697272477415,
+      "dynamic_support_row_start": 42,
+      "dynamic_support_row_end": 88,
+      "target_support_edge_signed_rows": 18,
+      "target_clutter_center_offset_hz": -52.43992554472585,
+      "channel_dropped_pulses": 0,
+      "channel_valid_pulses": 130,
+      "channel_valid_fraction": 1.0,
+      "target_bin_path": "outputs/ai_csi_baseline/cases/baseline_amp_phase_20260923/target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin_path": "outputs/ai_csi_baseline/cases/baseline_amp_phase_20260923/background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "6d4fe5a52a2091ebcf730c56c2bb01df23ab575f28d8107038ecf54bcfbcbf14",
+      "background_input_sha256": "f881537b58619348b5c6d27d859657296658dbc335f16b87e39dfd1e14a8134c",
+      "target_snr_config_dB": 10.0
+    },
+    {
+      "case_id": "baseline_sample_reduced_20260924",
+      "scenario_label": "Effective samples reduced",
+      "target_id": "BL_T04_SAMPLE_REDUCED",
+      "target_fd_truth_hz": -53.2468982695,
+      "target_row_truth": 60,
+      "fa_ctr_hz": 0.37561121809213893,
+      "dynamic_support_row_start": 42,
+      "dynamic_support_row_end": 88,
+      "target_support_edge_signed_rows": 18,
+      "target_clutter_center_offset_hz": -53.62250948759214,
+      "channel_dropped_pulses": 85,
+      "channel_valid_pulses": 45,
+      "channel_valid_fraction": 0.34615384615384615,
+      "target_bin_path": "outputs/ai_csi_baseline/cases/baseline_sample_reduced_20260924/target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin_path": "outputs/ai_csi_baseline/cases/baseline_sample_reduced_20260924/background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "d344056094bf42b65127415364ec763d752d3e4eb3e7f4702f67d428deda55d2",
+      "background_input_sha256": "983fb3d371ce0323414050d7e19743c5e3648fa3ef890cf00c5f9b7755cecf59",
+      "target_snr_config_dB": 10.0
+    },
+    {
+      "case_id": "baseline_low_scnr_20260925",
+      "scenario_label": "Low SCNR",
+      "target_id": "BL_T05_LOW_SCNR",
+      "target_fd_truth_hz": -53.2468982695,
+      "target_row_truth": 60,
+      "fa_ctr_hz": -0.5803636315725681,
+      "dynamic_support_row_start": 42,
+      "dynamic_support_row_end": 88,
+      "target_support_edge_signed_rows": 18,
+      "target_clutter_center_offset_hz": -52.666534637927434,
+      "channel_dropped_pulses": 0,
+      "channel_valid_pulses": 130,
+      "channel_valid_fraction": 1.0,
+      "target_bin_path": "outputs/ai_csi_baseline/cases/baseline_low_scnr_20260925/target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin_path": "outputs/ai_csi_baseline/cases/baseline_low_scnr_20260925/background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "253197bab2ccb0997837a5243cb7f4db0708f93858ec86a6275a7a92dcd62e56",
+      "background_input_sha256": "25642954160e21feda80e6aabfe4fa19d6ef495b9a199ed56fc78eb3a567a934",
+      "target_snr_config_dB": -2.0
+    },
+    {
+      "case_id": "baseline_low_radial_20260926",
+      "scenario_label": "Low radial velocity / clutter ridge",
+      "target_id": "BL_T06_LOW_RADIAL",
+      "target_fd_truth_hz": 7.83355978204e-13,
+      "target_row_truth": 65,
+      "fa_ctr_hz": -1.0501039988663285,
+      "dynamic_support_row_start": 42,
+      "dynamic_support_row_end": 88,
+      "target_support_edge_signed_rows": 23,
+      "target_clutter_center_offset_hz": 1.050103998867112,
+      "channel_dropped_pulses": 0,
+      "channel_valid_pulses": 130,
+      "channel_valid_fraction": 1.0,
+      "target_bin_path": "outputs/ai_csi_baseline/cases/baseline_low_radial_20260926/target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin_path": "outputs/ai_csi_baseline/cases/baseline_low_radial_20260926/background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "a688601878c6f04d43cf8b66b064a0d34101a1af443f8f0d7ca256a43277e868",
+      "background_input_sha256": "02895a4f1cd655d06e24bbcfb7e26ae62d289e838f36d7d26624da6e79f3969c",
+      "target_snr_config_dB": 10.0
+    },
+    {
+      "case_id": "baseline_support_edge_20260927",
+      "scenario_label": "Target at clutter-support edge",
+      "target_id": "BL_T07_SUPPORT_EDGE",
+      "target_fd_truth_hz": -212.987593078,
+      "target_row_truth": 44,
+      "fa_ctr_hz": 0.5433544681400176,
+      "dynamic_support_row_start": 42,
+      "dynamic_support_row_end": 88,
+      "target_support_edge_signed_rows": 2,
+      "target_clutter_center_offset_hz": -213.53094754614003,
+      "channel_dropped_pulses": 0,
+      "channel_valid_pulses": 130,
+      "channel_valid_fraction": 1.0,
+      "target_bin_path": "outputs/ai_csi_baseline/cases/baseline_support_edge_20260927/target/data/stage2_statistical_newprotocol_period_0000.bin",
+      "background_bin_path": "outputs/ai_csi_baseline/cases/baseline_support_edge_20260927/background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "2fb750cd1c31bc08b46f1ec2cd671042893fed5f37eac4068f973402e253e5df",
+      "background_input_sha256": "4c3c59c99da1667b2206103bf60338f058316507553b6ac050ef75f67f4018ce",
+      "target_snr_config_dB": 10.0
+    }
+  ],
+  "gpu_production_run": false,
+  "evidence_boundary": "CPU offline baseline replay; no CUDA production claim because the current environment has no communicable NVIDIA driver."
+}

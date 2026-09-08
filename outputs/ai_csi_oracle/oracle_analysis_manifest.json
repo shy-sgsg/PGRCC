@@ -30,5 +30,6 @@
   ],
   "gpu_production_run": false,
   "evidence_boundary": "CPU offline replay of current source operators; CUDA production execution not claimed because no NVIDIA driver is available",
-  "raw_output_policy": "generated BINs and per-case replay artifacts stay outside Git tracking; only compact research deliverables are tracked"
+  "raw_output_policy": "historical generated BINs and per-case replay artifacts were deleted after input identity was recorded; only compact research deliverables are retained",
+  "retention_note": "The historical input paths above identify the run used for the summaries; regenerate them from the research configs when raw replay is needed."
 }
