@@ -1225,8 +1225,8 @@ def run_case(
             else:
                 metrics, details = run_adaptive_method(
                     data,
-                    method_config=method_config,
                     method=method,
+                    config=method_config,
                     roc_scales=roc_scales,
                     detection_threshold_scale=detection_threshold_scale,
                 )
