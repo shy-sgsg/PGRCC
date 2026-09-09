@@ -1,0 +1,118 @@
+{
+  "base_config": "configs/research/ai_csi_stage2_typical_1beam.json",
+  "output_root": "outputs/pgrcc_oracle_v11/cases",
+  "base_case": {
+    "case_id": "pgrcc_oracle_v11",
+    "label": "PGRCC V1.1 fine-grid bounded complex residual Oracle audit",
+    "use_paired_background": true,
+    "target_id": "PGRCC_ORACLE_V11_TARGET",
+    "beam_id": 31,
+    "target_expected_bin": 2200,
+    "target_azimuth_offset_deg": 0.0,
+    "platform_speed_mps": 60.0,
+    "platform_height_m": 6000.0,
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_theta_offset_deg": 0.0,
+    "target_snr_db": 6.0,
+    "texture_sigma": 0.4,
+    "azimuth_subcell_count": 9,
+    "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+    "impairments": {
+      "enabled": false,
+      "channel_amp_mismatch_db": 0.0,
+      "channel_fixed_phase_mismatch_deg": 0.0,
+      "channel_phase_jitter_std_deg": 0.0,
+      "channel_drop_probability": 0.0
+    }
+  },
+  "method_config": {
+    "robust_huber_delta": 1.5,
+    "robust_physics_regularization": 0.05
+  },
+  "audit": {
+    "case_count": 16,
+    "lhs_seed": 20261200,
+    "seeds": [
+      20261201, 20261202, 20261203, 20261204,
+      20261205, 20261206, 20261207, 20261208,
+      20261209, 20261210, 20261211, 20261212,
+      20261213, 20261214, 20261215, 20261216
+    ],
+    "dimensions": {
+      "texture_sigma": [0.2, 1.5],
+      "azimuth_subcell_count": [3, 25],
+      "channel_amp_mismatch_db": [0.0, 4.0],
+      "channel_fixed_phase_mismatch_deg": [0.0, 30.0],
+      "channel_phase_jitter_std_deg": [0.0, 6.0],
+      "valid_sample_fraction": [0.4, 1.0],
+      "target_snr_db": [-12.0, 12.0],
+      "target_radial_speed_mps": [-4.0, 4.0],
+      "target_azimuth_offset_deg": [-1.0, 1.0],
+      "target_expected_bin": [1200, 3200]
+    },
+    "factor_families": [
+      "nominal",
+      "texture",
+      "channel_amp",
+      "channel_phase",
+      "phase_jitter",
+      "valid_fraction",
+      "target_snr",
+      "target_velocity",
+      "geometry"
+    ]
+  },
+  "regions": {
+    "doppler_row_stride": 4,
+    "range_block_size": 256,
+    "range_block_stride": 256,
+    "local_doppler_half_width": 2,
+    "fine_delta_log_amplitude": [-0.2, -0.1, -0.05, -0.02, 0.0, 0.02, 0.05, 0.1, 0.2],
+    "fine_delta_phase_deg": [-15.0, -10.0, -5.0, -2.0, 0.0, 2.0, 5.0, 10.0, 15.0],
+    "fine_gate": [0.0, 0.25, 0.5, 0.75, 1.0],
+    "top_k_per_region": 8,
+    "exact_top_k_per_region": 3,
+    "refinement_delta_log_amplitude_step": 0.01,
+    "refinement_delta_phase_step_deg": 1.0,
+    "refinement_gate_step": 0.125
+  },
+  "strict_worthwhile_policy": {
+    "min_delta_scnr_db": 0.25,
+    "min_delta_target_preservation_db": -0.25,
+    "max_delta_tail_p95_db": 0.0,
+    "max_delta_tail_cvar95_db": 0.0,
+    "max_delta_background_pfa": 0.0,
+    "min_delta_detection_margin_db": -0.25
+  },
+  "noninferiority_policy": {
+    "min_delta_scnr_db": 0.25
+  },
+  "repeatability": {
+    "repeats": 2
+  },
+  "reporting": {
+    "near_zero_gain_abs_db": 0.05
+  },
+  "decision": {
+    "minimum_exact_noninferior_case_fraction": 0.10,
+    "minimum_median_exact_gain_dB": 0.25
+  },
+  "provenance": {
+    "frozen_benchmark_outputs": [
+      "outputs/ai_csi_baseline_v21_final_screen",
+      "outputs/ai_csi_baseline_v21_formal",
+      "outputs/ai_csi_baseline_v21_final_velocity",
+      "outputs/ai_csi_baseline_v21_final_roc",
+      "outputs/ai_csi_baseline_v21_transition",
+      "outputs/ai_csi_baseline_v21_mixed_stress"
+    ],
+    "forbidden_inference_features": [
+      "target_truth",
+      "paired_C_plus_N_truth",
+      "future_output_metric",
+      "oracle_candidate_metric",
+      "scene_mapping"
+    ]
+  }
+}

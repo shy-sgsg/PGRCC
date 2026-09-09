@@ -1,0 +1,407 @@
+{
+  "schema_id": "pgrcc_support_routing_oracle_v1",
+  "mode": "support_routing_oracle",
+  "config": "configs/research/support_routing_oracle.json",
+  "output_dir": "outputs/support_routing_oracle",
+  "provenance": {
+    "source_commit": "ed8fd2e93e46a1ce4881f0de4cf7412afe1d7569",
+    "git_backend": "git-real",
+    "worktree_dirty_at_run": true,
+    "worktree_status_at_run": [
+      "M scripts/build_pgrcc_oracle.py",
+      "?? configs/research/pgrcc_oracle_v11.json",
+      "?? configs/research/support_routing_oracle.json",
+      "?? outputs/support_routing_oracle_pilot/support_routing_manifest.json",
+      "?? outputs/support_routing_oracle_pilot2/support_routing_manifest.json",
+      "?? scripts/build_pgrcc_oracle_v11.py",
+      "?? scripts/build_support_routing_oracle.py",
+      "?? tests/test_pgrcc_oracle_helpers.py"
+    ],
+    "command": [
+      "python3",
+      "scripts/build_support_routing_oracle.py",
+      "--config",
+      "configs/research/support_routing_oracle.json",
+      "--out",
+      "outputs/support_routing_oracle"
+    ],
+    "working_directory": "/home/shy/AIR/SAR+AI/project/PGRCC"
+  },
+  "cases": [
+    {
+      "case_id": "support_nominal_inside_s20261301",
+      "seed": 20261301,
+      "factor_family": "nominal_inside",
+      "factor": "nominal_inside",
+      "target_truth_row": 60,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "362a7337b2cf134a17c0c8a23197651d993aac9d7c39ae40af82bfc9ce64183e",
+      "background_input_sha256": "15bc7fd59f6307a391c5b4f05bea7fd5009f8c02b658099fb7414ff6838f4ea9",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 0.5
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 0.5,
+        "realized_target_radial_speed_mps": 0.5
+      },
+      "support_scenario": "nominal_inside",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 18
+    },
+    {
+      "case_id": "support_clutter_ridge_low_s20261302",
+      "seed": 20261302,
+      "factor_family": "clutter_ridge_low_speed",
+      "factor": "clutter_ridge_low_speed",
+      "target_truth_row": 65,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "4a81683c10c1352e18cf5e612395d49a0d53ff285caf205b31c0c2c1fea2fb9b",
+      "background_input_sha256": "5e71103804564ed8534b9c52c7a77a3dc1c7a94a5227ff857c81fc0e8c2ea384",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 0.0
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 0.0,
+        "realized_target_radial_speed_mps": 0.0
+      },
+      "support_scenario": "clutter_ridge_low_speed",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 23
+    },
+    {
+      "case_id": "support_edge_in_s20261303",
+      "seed": 20261303,
+      "factor_family": "support_edge_in",
+      "factor": "support_edge_in",
+      "target_truth_row": 46,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "efcbf5594e9a69cf8638e3c1929365e568af60c0e8ed7c1b9f45d01ebe3c4b70",
+      "background_input_sha256": "e76f104448ac78d64018819341c01e5b038a340c9522e6f6f080ca751dff3815",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 1.8
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 1.8,
+        "realized_target_radial_speed_mps": 1.8
+      },
+      "support_scenario": "support_edge_in",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 4
+    },
+    {
+      "case_id": "support_edge_out_s20261304",
+      "seed": 20261304,
+      "factor_family": "support_edge_out",
+      "factor": "support_edge_out",
+      "target_truth_row": 42,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "d5cded80d83615f3a01dfe614fc350db8612a2a734e0d17979ba8e9e2976a603",
+      "background_input_sha256": "aac92368d20634691400c0435e41fa525d9d3b5fe32957dc898dd1f2625c6422",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 2.2
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 2.2,
+        "realized_target_radial_speed_mps": 2.2
+      },
+      "support_scenario": "support_edge_out",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 0
+    },
+    {
+      "case_id": "support_high_speed_out_s20261305",
+      "seed": 20261305,
+      "factor_family": "high_speed_outside_support",
+      "factor": "high_speed_outside_support",
+      "target_truth_row": 22,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "9b39020f759d13f8a34ab31a6d4e31baba5375412ce743598024b76abd20512f",
+      "background_input_sha256": "edfbe64edff1c01790e3af581023de7ea747ee1dbef54b75350e49aeb823e7ce",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 4.0
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 4.0,
+        "realized_target_radial_speed_mps": 4.0
+      },
+      "support_scenario": "high_speed_outside_support",
+      "target_support_status": "outside",
+      "target_support_edge_distance_rows": -20
+    },
+    {
+      "case_id": "support_negative_high_speed_out_s20261306",
+      "seed": 20261306,
+      "factor_family": "negative_high_speed_outside_support",
+      "factor": "negative_high_speed_outside_support",
+      "target_truth_row": 108,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "871d547a64a1b4325a8088966b333477c21c2f9b9d0d533a25510edf641ba5a7",
+      "background_input_sha256": "091b2344250daa1fa5c5b1a7eded7d8f3634450537cff4919a7626af693ce97e",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": -4.0
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": -4.0,
+        "realized_target_radial_speed_mps": -4.0
+      },
+      "support_scenario": "negative_high_speed_outside_support",
+      "target_support_status": "outside",
+      "target_support_edge_distance_rows": -20
+    },
+    {
+      "case_id": "support_nonuniform_s20261307",
+      "seed": 20261307,
+      "factor_family": "nonuniform_clutter",
+      "factor": "nonuniform_clutter",
+      "target_truth_row": 60,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "a780b9c625cbd3153f7677120f9a21d5ab057411c01a13750288bd802c6c9333",
+      "background_input_sha256": "69c6b0535e900accf0b59e92379fdbd5405fa76f7cb2695431f4ed30a568f531",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "texture_sigma": 1.5,
+        "target_radial_speed_mps": 0.5
+      },
+      "audit_values": {
+        "requested_texture_sigma": 1.5,
+        "realized_texture_sigma": 1.5,
+        "requested_target_radial_speed_mps": 0.5,
+        "realized_target_radial_speed_mps": 0.5
+      },
+      "support_scenario": "nonuniform_clutter",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 18
+    },
+    {
+      "case_id": "support_sample_loss_s20261308",
+      "seed": 20261308,
+      "factor_family": "sample_loss",
+      "factor": "sample_loss",
+      "target_truth_row": 60,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "c0354722e4827e610a058ca88975710ff37ca6df71052072c8b58a8cbdb28654",
+      "background_input_sha256": "b54ec035d7dae99436b0c4c989c59929cde0dd6f71def6271d189ecc3c6f9afa",
+      "valid_sample_fraction": 0.4153846153846154,
+      "audit_requested_values": {
+        "valid_sample_fraction": 0.4,
+        "target_radial_speed_mps": 0.5
+      },
+      "audit_values": {
+        "requested_valid_sample_fraction": 0.4,
+        "realized_valid_sample_fraction": 0.4153846153846154,
+        "requested_target_radial_speed_mps": 0.5,
+        "realized_target_radial_speed_mps": 0.5
+      },
+      "support_scenario": "sample_loss",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 18
+    },
+    {
+      "case_id": "support_edge_in_offset_s20261309",
+      "seed": 20261309,
+      "factor_family": "support_edge_in_split_guard",
+      "factor": "support_edge_in_split_guard",
+      "target_truth_row": 54,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "574fa07b197737599a93973bbd87b72e0a0c3b081010ea7fb70291390e1c1348",
+      "background_input_sha256": "3dfb670db01e830b6127a46f49c462137abdbd7af4cca10e29c383f46d1ea3df",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 1.8,
+        "target_azimuth_offset_deg": -0.75
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 1.8,
+        "realized_target_radial_speed_mps": 1.8,
+        "requested_target_azimuth_offset_deg": -0.75,
+        "realized_target_azimuth_offset_deg": -0.75
+      },
+      "support_scenario": "support_edge_in_split_guard",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 12
+    },
+    {
+      "case_id": "support_edge_out_offset_s20261310",
+      "seed": 20261310,
+      "factor_family": "support_edge_out_split_guard",
+      "factor": "support_edge_out_split_guard",
+      "target_truth_row": 33,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "f681594ecb123242eb8f5d6a34c96a9075cb5694ea47c7a67e7d91fecd2e9c83",
+      "background_input_sha256": "7f6e2d36bde682bac0730a482baf26d4c80c75d47bcb4a7c8a3435d147ae3ff5",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 2.2,
+        "target_azimuth_offset_deg": 0.75
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 2.2,
+        "realized_target_radial_speed_mps": 2.2,
+        "requested_target_azimuth_offset_deg": 0.75,
+        "realized_target_azimuth_offset_deg": 0.75
+      },
+      "support_scenario": "support_edge_out_split_guard",
+      "target_support_status": "outside",
+      "target_support_edge_distance_rows": -9
+    },
+    {
+      "case_id": "support_mixed_impairment_s20261311",
+      "seed": 20261311,
+      "factor_family": "mixed_impairment_support_edge",
+      "factor": "mixed_impairment_support_edge",
+      "target_truth_row": 42,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "07c98113089d287497b926f95633d02e47177906e02782e7c152ff967c11dee1",
+      "background_input_sha256": "1969761f4bec24f4dab87e7fdc11bff1478ee2e1dc1959df01c9fafcb1c23d2e",
+      "valid_sample_fraction": 0.6384615384615384,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 2.2,
+        "texture_sigma": 1.1,
+        "channel_amp_mismatch_db": 2.5,
+        "channel_fixed_phase_mismatch_deg": 18.0,
+        "channel_phase_jitter_std_deg": 3.0,
+        "valid_sample_fraction": 0.6
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 2.2,
+        "realized_target_radial_speed_mps": 2.2,
+        "requested_texture_sigma": 1.1,
+        "realized_texture_sigma": 1.1,
+        "requested_channel_amp_mismatch_db": 2.5,
+        "realized_channel_amp_mismatch_db": 2.5,
+        "requested_channel_fixed_phase_mismatch_deg": 18.0,
+        "realized_channel_fixed_phase_mismatch_deg": 18.0,
+        "requested_channel_phase_jitter_std_deg": 3.0,
+        "realized_channel_phase_jitter_std_deg": 3.0,
+        "requested_valid_sample_fraction": 0.6,
+        "realized_valid_sample_fraction": 0.6384615384615384
+      },
+      "support_scenario": "mixed_impairment_support_edge",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 0
+    },
+    {
+      "case_id": "support_low_speed_nonuniform_s20261312",
+      "seed": 20261312,
+      "factor_family": "low_speed_nonuniform",
+      "factor": "low_speed_nonuniform",
+      "target_truth_row": 62,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "63c6f035f4e9f93ec415094b5ddaacf2400d3488aecdc7d381bcee32f5e6d6d9",
+      "background_input_sha256": "ac126ff9a45b9cc23c7c488e5f505dce286561dbaa81cd4fb7acb6b620555a51",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 0.25,
+        "texture_sigma": 1.1
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 0.25,
+        "realized_target_radial_speed_mps": 0.25,
+        "requested_texture_sigma": 1.1,
+        "realized_texture_sigma": 1.1
+      },
+      "support_scenario": "low_speed_nonuniform",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 20
+    }
+  ],
+  "case_count_requested": 12,
+  "case_count_completed": 12,
+  "detailed_row_count": 1440,
+  "summary_row_count": 48,
+  "failures": [],
+  "method_counts": {
+    "Current dynamic": 12,
+    "Current split": 12,
+    "hard_g0_c0.0_coh0.0": 11,
+    "soft_c0.2_s0.1_g0_e2": 3,
+    "soft_c0.2_s0.1_g0_e1": 6,
+    "soft_c0.2_s0.1_g1_e1": 1,
+    "soft_c0.2_s0.1_g2_e1": 1,
+    "hard_g1_c0.0_coh0.3": 1,
+    "soft_c0.2_s0.1_g2_e2": 1
+  },
+  "feature_policy": "background-only physical features; target truth/oracle/future output are evaluation-only",
+  "feature_names": [
+    "coherence",
+    "robust_confidence",
+    "robust_condition",
+    "support_edge_distance_rows",
+    "distance_to_clutter_ridge_hz",
+    "residual_ratio_dB",
+    "valid_sample_fraction"
+  ],
+  "formula": "Y=p_clutter*Y_CSI+(1-p_clutter)*Y_bypass; hard p in {0,1}; soft p in [0,1]",
+  "worthwhile_policy": {
+    "min_delta_scnr_db": 0.25,
+    "min_delta_target_loss_db": 0.0,
+    "max_delta_tail_p95_db": 0.0,
+    "max_delta_tail_cvar95_db": 0.0,
+    "max_delta_background_pfa": 0.0,
+    "min_delta_detection_margin_db": 0.0
+  },
+  "coverage": [
+    "dynamic support edge in/out",
+    "split guard",
+    "local CSI/bypass",
+    "hard binary",
+    "soft blend",
+    "clutter ridge",
+    "support edge",
+    "low speed",
+    "high speed outside support",
+    "nonuniform clutter",
+    "sample loss"
+  ],
+  "summary_metrics": [
+    "SCNR_improvement_dB",
+    "target_loss_dB",
+    "target_Pd",
+    "background_Pfa",
+    "target_cfar_margin_dB",
+    "residual_p95_dB",
+    "residual_cvar95_dB",
+    "MDV_mps",
+    "support_edge_loss_dB",
+    "fallback_fraction_inside_support"
+  ],
+  "decision": {
+    "code": "NO_GO_SUPPORT_ROUTING",
+    "hard_best_noninferior_fraction": 0.0,
+    "soft_best_noninferior_fraction": 0.0,
+    "positive_gain_fraction_among_routed_summaries": 0.08333333333333333,
+    "rule": "Support routing is no-go when neither best hard nor best soft routing is worthwhile under the fixed policy across the tested cases."
+  },
+  "runtime_seconds": 432.48914510800023,
+  "status": "ok"
+}

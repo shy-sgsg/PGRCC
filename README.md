@@ -188,6 +188,11 @@ worthwhile region 为 0%，因此没有生成训练数据或训练 PGRCC-v1。�
 GO-CFAR 代表性复核和后续路线边界见
 [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](docs/AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)。
 
+随后完成了不改变旧产物的 V1.1 细网格 headroom 审计，并在 no-go 后运行了 Support
+Routing Oracle；两者分别为 `NO_GO_COMPLEX_WEIGHT_RESIDUAL` 和
+`NO_GO_SUPPORT_ROUTING`，仍不启动 AI 训练。复现命令、资源检查、exact 统计和产物导航见
+[`AI_CSI_10_PGRCC_V1.1与Support_Routing审计报告.md`](docs/AI_CSI_10_PGRCC_V1.1与Support_Routing审计报告.md)。
+
 ## 研究文档
 
 - [当前对消数学模型](docs/AI_CSI_01_当前对消数学模型.md)
@@ -199,6 +204,7 @@ GO-CFAR 代表性复核和后续路线边界见
 - [Baseline V2 审计与实验报告](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)
 - [Baseline V2.1 物理修正与最终能力边界](docs/AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md)
 - [PGRCC-v1 Oracle 与数据集设计报告](docs/AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)
+- [PGRCC V1.1 与 Support Routing Oracle 审计报告](docs/AI_CSI_10_PGRCC_V1.1与Support_Routing审计报告.md)
 - [研究进展](docs/AI_CSI_研究进展.md)
 - [Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
 

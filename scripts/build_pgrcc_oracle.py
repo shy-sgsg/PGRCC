@@ -135,9 +135,44 @@ def repo_path(path: Path) -> str:
     return str(path.relative_to(ROOT)).replace(os.sep, "/")
 
 
-def git_output(*args: str) -> str:
+def _git_command(backend: str, args: Sequence[str]) -> List[str]:
+    if backend == "normal":
+        return ["git", *args]
+    if backend == "git-real":
+        return [
+            "git",
+            "--git-dir",
+            str(ROOT / ".git-real"),
+            "--work-tree",
+            str(ROOT),
+            *args,
+        ]
+    raise ValueError(f"unknown git backend: {backend!r}")
+
+
+def git_backend() -> str | None:
+    """Return the first usable repository layout without assuming ``.git-real``."""
+
+    for backend in ("normal", "git-real"):
+        result = subprocess.run(
+            _git_command(backend, ("rev-parse", "--verify", "HEAD")),
+            cwd=ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            check=False,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            return backend
+    return None
+
+
+def git_output(*args: str, backend: str | None = None) -> str:
+    selected = backend if backend is not None else git_backend()
+    if selected is None:
+        return ""
     result = subprocess.run(
-        ["git", "--git-dir=.git-real", "--work-tree=.", *args],
+        _git_command(selected, args),
         cwd=ROOT,
         text=True,
         stdout=subprocess.PIPE,
@@ -148,9 +183,11 @@ def git_output(*args: str) -> str:
 
 
 def source_provenance(command: Sequence[str]) -> Dict[str, object]:
-    status = git_output("status", "--short", "--untracked-files=all")
+    backend = git_backend()
+    status = git_output("status", "--short", "--untracked-files=all", backend=backend)
     return {
-        "source_commit": git_output("rev-parse", "HEAD"),
+        "source_commit": git_output("rev-parse", "HEAD", backend=backend),
+        "git_backend": backend or "unavailable",
         "worktree_dirty_at_run": bool(status),
         "worktree_status_at_run": status.splitlines(),
         "command": list(command),
@@ -194,6 +231,60 @@ def endpoint(bounds: Sequence[object], high: bool) -> object:
     return float(value)
 
 
+_AUDIT_IMPAIRMENT_NAMES = {
+    "channel_amp_mismatch_db",
+    "channel_fixed_phase_mismatch_deg",
+    "channel_phase_jitter_std_deg",
+}
+
+
+def audit_parameter_defaults(case: Mapping[str, object], names: Sequence[str]) -> Dict[str, object]:
+    """Return requested-space defaults before any audit transform is applied."""
+
+    impairments = case.get("impairments", {})
+    if not isinstance(impairments, Mapping):
+        impairments = {}
+    defaults: Dict[str, object] = {}
+    for name in names:
+        if name == "valid_sample_fraction":
+            defaults[name] = 1.0 - float(impairments.get("channel_drop_probability", 0.0))
+        elif name == "target_radial_speed_mps":
+            defaults[name] = case.get("radial_speed_mps")
+        elif name in _AUDIT_IMPAIRMENT_NAMES:
+            defaults[name] = impairments.get(name)
+        else:
+            defaults[name] = case.get(name)
+    return defaults
+
+
+def audit_parameter_metadata(
+    case: Mapping[str, object], requested: Mapping[str, object]
+) -> Dict[str, object]:
+    """Record both audit-space requests and realized simulator/config values.
+
+    Several audit dimensions are transformed into nested or differently named
+    runtime fields.  Keeping both sides prevents a report from silently
+    treating a requested fraction or radial speed as if it were a direct field.
+    """
+
+    impairments = case.get("impairments", {})
+    if not isinstance(impairments, Mapping):
+        impairments = {}
+    metadata: Dict[str, object] = {}
+    for name, value in requested.items():
+        metadata[f"requested_{name}"] = value
+        if name == "valid_sample_fraction":
+            realized = 1.0 - float(impairments.get("channel_drop_probability", 0.0))
+        elif name == "target_radial_speed_mps":
+            realized = case.get("radial_speed_mps")
+        elif name in _AUDIT_IMPAIRMENT_NAMES or name == "channel_drop_probability":
+            realized = impairments.get(name)
+        else:
+            realized = case.get(name)
+        metadata[f"realized_{name}"] = realized
+    return metadata
+
+
 def build_cases(config: Dict[str, object], limit: int | None) -> List[Dict[str, object]]:
     audit = config["audit"]
     seeds = [int(v) for v in audit["seeds"]]
@@ -226,14 +317,18 @@ def build_cases(config: Dict[str, object], limit: int | None) -> List[Dict[str, 
         family, selected = dedicated[index]
         case = copy.deepcopy(base)
         seed = seeds[index]
+        requested = audit_parameter_defaults(case, names)
         for name, high in selected.items():
-            set_audit_value(case, name, endpoint(dimensions[name], bool(high)))
+            value = endpoint(dimensions[name], bool(high))
+            set_audit_value(case, name, value)
+            requested[name] = value
         case["case_id"] = f"{base_id}_{family}_s{seed}"
         case["target_id"] = f"{base.get('target_id', 'PGRCC_TARGET')}_{family}_{seed}"
         case["seed"] = seed
         case["factor"] = family
         case["factor_family"] = family
-        case["audit_values"] = {name: case.get(name, case.get("impairments", {}).get(name)) for name in names}
+        case["audit_requested_values"] = requested
+        case["audit_values"] = audit_parameter_metadata(case, requested)
         # Stage2 only persists a paired C+N packet when channel impairments
         # are disabled.  With impairments, regenerate the background-only
         # packet independently from the same seed/config so it carries the
@@ -264,7 +359,8 @@ def build_cases(config: Dict[str, object], limit: int | None) -> List[Dict[str, 
         case["factor"] = "mixed_lhs"
         case["factor_family"] = "mixed_lhs"
         case["factor_level"] = f"lhs_{offset + 1:02d}"
-        case["audit_values"] = values
+        case["audit_requested_values"] = values
+        case["audit_values"] = audit_parameter_metadata(case, values)
         case["use_paired_background"] = not bool(case.get("impairments", {}).get("enabled", False))
         cases.append(case)
     return cases
@@ -1401,6 +1497,12 @@ def plot_outputs(region_map: Sequence[Mapping[str, object]], correlations: Seque
 
 
 def case_manifest_row(data: v1.CaseData) -> Dict[str, object]:
+    audit_values = copy.deepcopy(data.case.get("audit_values", {}))
+    if isinstance(audit_values, dict) and "requested_valid_sample_fraction" in audit_values:
+        # The simulator's observed valid fraction is the final realized value;
+        # the nested impairment setting remains available in the config-side
+        # metadata above for diagnosing clipping/rounding.
+        audit_values["realized_valid_sample_fraction"] = float(data.valid_sample_fraction)
     return {
         "case_id": str(data.case["case_id"]),
         "seed": int(data.case["seed"]),
@@ -1413,7 +1515,8 @@ def case_manifest_row(data: v1.CaseData) -> Dict[str, object]:
         "target_input_sha256": data.target_sha256,
         "background_input_sha256": data.background_sha256,
         "valid_sample_fraction": float(data.valid_sample_fraction),
-        "audit_values": data.case.get("audit_values", {}),
+        "audit_requested_values": data.case.get("audit_requested_values", {}),
+        "audit_values": audit_values,
     }
 
 

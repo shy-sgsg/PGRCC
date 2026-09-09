@@ -1,0 +1,83 @@
+{
+  "base_config": "configs/research/ai_csi_stage2_typical_1beam.json",
+  "output_root": "outputs/support_routing_oracle/cases",
+  "base_case": {
+    "case_id": "support_routing_oracle",
+    "label": "PGRCC Support Routing Oracle",
+    "use_paired_background": true,
+    "target_id": "PGRCC_SUPPORT_TARGET",
+    "beam_id": 31,
+    "target_expected_bin": 2200,
+    "target_azimuth_offset_deg": 0.0,
+    "platform_speed_mps": 60.0,
+    "platform_height_m": 6000.0,
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_theta_offset_deg": 0.0,
+    "target_snr_db": 10.0,
+    "texture_sigma": 0.4,
+    "azimuth_subcell_count": 9,
+    "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+    "impairments": {
+      "enabled": false,
+      "channel_amp_mismatch_db": 0.0,
+      "channel_fixed_phase_mismatch_deg": 0.0,
+      "channel_phase_jitter_std_deg": 0.0,
+      "channel_drop_probability": 0.0
+    }
+  },
+  "support_cases": [
+    {"case_id": "support_nominal_inside_s20261301", "seed": 20261301, "scenario": "nominal_inside", "overrides": {"target_radial_speed_mps": 0.5}},
+    {"case_id": "support_clutter_ridge_low_s20261302", "seed": 20261302, "scenario": "clutter_ridge_low_speed", "overrides": {"target_radial_speed_mps": 0.0}},
+    {"case_id": "support_edge_in_s20261303", "seed": 20261303, "scenario": "support_edge_in", "overrides": {"target_radial_speed_mps": 1.8}},
+    {"case_id": "support_edge_out_s20261304", "seed": 20261304, "scenario": "support_edge_out", "overrides": {"target_radial_speed_mps": 2.2}},
+    {"case_id": "support_high_speed_out_s20261305", "seed": 20261305, "scenario": "high_speed_outside_support", "overrides": {"target_radial_speed_mps": 4.0}},
+    {"case_id": "support_negative_high_speed_out_s20261306", "seed": 20261306, "scenario": "negative_high_speed_outside_support", "overrides": {"target_radial_speed_mps": -4.0}},
+    {"case_id": "support_nonuniform_s20261307", "seed": 20261307, "scenario": "nonuniform_clutter", "overrides": {"texture_sigma": 1.5, "target_radial_speed_mps": 0.5}},
+    {"case_id": "support_sample_loss_s20261308", "seed": 20261308, "scenario": "sample_loss", "overrides": {"valid_sample_fraction": 0.4, "target_radial_speed_mps": 0.5}},
+    {"case_id": "support_edge_in_offset_s20261309", "seed": 20261309, "scenario": "support_edge_in_split_guard", "overrides": {"target_radial_speed_mps": 1.8, "target_azimuth_offset_deg": -0.75}},
+    {"case_id": "support_edge_out_offset_s20261310", "seed": 20261310, "scenario": "support_edge_out_split_guard", "overrides": {"target_radial_speed_mps": 2.2, "target_azimuth_offset_deg": 0.75}},
+    {"case_id": "support_mixed_impairment_s20261311", "seed": 20261311, "scenario": "mixed_impairment_support_edge", "overrides": {"target_radial_speed_mps": 2.2, "texture_sigma": 1.1, "channel_amp_mismatch_db": 2.5, "channel_fixed_phase_mismatch_deg": 18.0, "channel_phase_jitter_std_deg": 3.0, "valid_sample_fraction": 0.6}},
+    {"case_id": "support_low_speed_nonuniform_s20261312", "seed": 20261312, "scenario": "low_speed_nonuniform", "overrides": {"target_radial_speed_mps": 0.25, "texture_sigma": 1.1}}
+  ],
+  "method_config": {
+    "robust_huber_delta": 1.5,
+    "robust_physics_regularization": 0.05
+  },
+  "hard_grid": {
+    "edge_guard_rows": [0, 1, 2, 3],
+    "robust_confidence_threshold": [0.0, 0.25, 0.5, 0.75],
+    "coherence_threshold": [0.0, 0.1, 0.3, 0.5]
+  },
+  "soft_grid": {
+    "robust_confidence_center": [0.2, 0.5, 0.8],
+    "robust_confidence_scale": [0.1, 0.25, 0.5],
+    "edge_center_rows": [0, 1, 2],
+    "edge_scale_rows": [1, 2]
+  },
+  "worthwhile_policy": {
+    "min_delta_scnr_db": 0.25,
+    "min_delta_target_loss_db": 0.0,
+    "max_delta_tail_p95_db": 0.0,
+    "max_delta_tail_cvar95_db": 0.0,
+    "max_delta_background_pfa": 0.0,
+    "min_delta_detection_margin_db": 0.0
+  },
+  "provenance": {
+    "frozen_benchmark_outputs": [
+      "outputs/ai_csi_baseline_v21_final_screen",
+      "outputs/ai_csi_baseline_v21_formal",
+      "outputs/ai_csi_baseline_v21_final_velocity",
+      "outputs/ai_csi_baseline_v21_final_roc",
+      "outputs/ai_csi_baseline_v21_transition",
+      "outputs/ai_csi_baseline_v21_mixed_stress"
+    ],
+    "forbidden_inference_features": [
+      "target_truth",
+      "paired_C_plus_N_truth",
+      "future_output_metric",
+      "oracle_candidate_metric",
+      "scene_mapping"
+    ]
+  }
+}

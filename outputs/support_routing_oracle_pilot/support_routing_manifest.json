@@ -1,0 +1,118 @@
+{
+  "schema_id": "pgrcc_support_routing_oracle_v1",
+  "mode": "support_routing_oracle",
+  "config": "configs/research/support_routing_oracle.json",
+  "output_dir": "outputs/support_routing_oracle_pilot",
+  "provenance": {
+    "source_commit": "ed8fd2e93e46a1ce4881f0de4cf7412afe1d7569",
+    "git_backend": "git-real",
+    "worktree_dirty_at_run": true,
+    "worktree_status_at_run": [
+      "M scripts/build_pgrcc_oracle.py",
+      "?? configs/research/pgrcc_oracle_v11.json",
+      "?? configs/research/support_routing_oracle.json",
+      "?? scripts/build_pgrcc_oracle_v11.py",
+      "?? scripts/build_support_routing_oracle.py",
+      "?? tests/test_pgrcc_oracle_helpers.py"
+    ],
+    "command": [
+      "python3",
+      "scripts/build_support_routing_oracle.py",
+      "--config",
+      "configs/research/support_routing_oracle.json",
+      "--out",
+      "outputs/support_routing_oracle_pilot",
+      "--case-limit",
+      "1"
+    ],
+    "working_directory": "/home/shy/AIR/SAR+AI/project/PGRCC"
+  },
+  "cases": [
+    {
+      "case_id": "support_nominal_inside_s20261301",
+      "seed": 20261301,
+      "factor_family": "nominal_inside",
+      "factor": "nominal_inside",
+      "target_truth_row": 60,
+      "target_truth_range_bin": 2200,
+      "target_bin_bytes": 49204480,
+      "background_bin_bytes": 49204480,
+      "target_input_sha256": "362a7337b2cf134a17c0c8a23197651d993aac9d7c39ae40af82bfc9ce64183e",
+      "background_input_sha256": "15bc7fd59f6307a391c5b4f05bea7fd5009f8c02b658099fb7414ff6838f4ea9",
+      "valid_sample_fraction": 1.0,
+      "audit_requested_values": {
+        "target_radial_speed_mps": 0.5
+      },
+      "audit_values": {
+        "requested_target_radial_speed_mps": 0.5,
+        "realized_target_radial_speed_mps": 0.5
+      },
+      "support_scenario": "nominal_inside",
+      "target_support_status": "inside",
+      "target_support_edge_distance_rows": 18
+    }
+  ],
+  "case_count_requested": 1,
+  "case_count_completed": 1,
+  "detailed_row_count": 120,
+  "summary_row_count": 3,
+  "failures": [],
+  "method_counts": {
+    "Current split": 1,
+    "hard_g0_c0.0_coh0.0": 1,
+    "soft_c0.2_s0.1_g0_e2": 1
+  },
+  "feature_policy": "background-only physical features; target truth/oracle/future output are evaluation-only",
+  "feature_names": [
+    "coherence",
+    "robust_confidence",
+    "robust_condition",
+    "support_edge_distance_rows",
+    "distance_to_clutter_ridge_hz",
+    "residual_ratio_dB",
+    "valid_sample_fraction"
+  ],
+  "formula": "Y=p_clutter*Y_CSI+(1-p_clutter)*Y_bypass; hard p in {0,1}; soft p in [0,1]",
+  "worthwhile_policy": {
+    "min_delta_scnr_db": 0.25,
+    "min_delta_target_loss_db": 0.0,
+    "max_delta_tail_p95_db": 0.0,
+    "max_delta_tail_cvar95_db": 0.0,
+    "max_delta_background_pfa": 0.0,
+    "min_delta_detection_margin_db": 0.0
+  },
+  "coverage": [
+    "dynamic support edge in/out",
+    "split guard",
+    "local CSI/bypass",
+    "hard binary",
+    "soft blend",
+    "clutter ridge",
+    "support edge",
+    "low speed",
+    "high speed outside support",
+    "nonuniform clutter",
+    "sample loss"
+  ],
+  "summary_metrics": [
+    "SCNR_improvement_dB",
+    "target_loss_dB",
+    "target_Pd",
+    "background_Pfa",
+    "target_cfar_margin_dB",
+    "residual_p95_dB",
+    "residual_cvar95_dB",
+    "MDV_mps",
+    "support_edge_loss_dB",
+    "fallback_fraction_inside_support"
+  ],
+  "decision": {
+    "code": "NO_GO_SUPPORT_ROUTING",
+    "hard_best_noninferior_fraction": 0.0,
+    "soft_best_noninferior_fraction": 0.0,
+    "positive_gain_fraction_among_routed_summaries": 0.0,
+    "rule": "Support routing is no-go when neither best hard nor best soft routing is worthwhile under the fixed policy across the tested cases."
+  },
+  "runtime_seconds": 38.17704727599994,
+  "status": "ok"
+}
