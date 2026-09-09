@@ -831,6 +831,7 @@ def output_metrics(
     input_bg: np.ndarray,
     input_target: np.ndarray,
     roc_scales: Sequence[float] | None = None,
+    detection_threshold_scale: float = 1.0,
 ) -> Dict[str, object]:
     rows, cols = bg.shape
     col_start = max(0, min(cols, int(data.p.rg_st)))
@@ -855,8 +856,15 @@ def output_metrics(
     signal_power_after = float(np.mean(np.abs(signal_after) ** 2))
     input_scnr = db(signal_power_before / max(before_clutter, 1.0e-300))
     output_scnr = db(signal_power_after / max(after_clutter, 1.0e-300))
-    target_cfar = oracle.go_cfar(detector_target, data.truth_row, data.truth_col, data.p)
-    cfar_bg = background_cfar(detector_bg, data.p)
+    if not math.isfinite(float(detection_threshold_scale)) or float(detection_threshold_scale) <= 0.0:
+        raise ValueError(f"detection_threshold_scale must be finite and positive, got {detection_threshold_scale!r}")
+    target_cfar = oracle.go_cfar(
+        detector_target, data.truth_row, data.truth_col, data.p,
+        threshold_scale=float(detection_threshold_scale),
+    )
+    cfar_bg = background_cfar(
+        detector_bg, data.p, threshold_scale=float(detection_threshold_scale)
+    )
     high_threshold = input_median * 10.0 ** (15.0 / 10.0)
     result: Dict[str, object] = {
         "residual_suppression_dB": db(np.mean(input_power) / max(np.mean(residual_power), 1.0e-300)),
@@ -873,6 +881,7 @@ def output_metrics(
         "background_power_before_roi": before_clutter,
         "background_power_after_roi": after_clutter,
         "target_detected": float(target_cfar["Pd"]),
+        "detection_threshold_scale": float(detection_threshold_scale),
         "target_cfar_candidate_cells": float(target_cfar["cfar_candidate_cells"]),
         "target_peak_power": float(target_cfar["target_peak_power"]),
         **cfar_bg,
@@ -970,6 +979,7 @@ def run_strict_method(
     method: str,
     roc_scales: Sequence[float] | None = None,
     method_config: Mapping[str, object] | None = None,
+    detection_threshold_scale: float = 1.0,
 ) -> Tuple[Dict[str, object], Dict[str, object]]:
     production = "production" in method
     alignment = data.alignment if production else data.background_alignment
@@ -1021,6 +1031,7 @@ def run_strict_method(
         alignment.f1_bg,
         alignment.f1_target,
         roc_scales=roc_scales,
+        detection_threshold_scale=detection_threshold_scale,
     )
     details = {
         "comparison_protocol": "production_replay" if production else "scientific_controlled",
@@ -1051,6 +1062,7 @@ def run_adaptive_method(
     method: str,
     config: Dict[str, object],
     roc_scales: Sequence[float] | None = None,
+    detection_threshold_scale: float = 1.0,
 ) -> Tuple[Dict[str, object], Dict[str, object]]:
     model = build_weight_model(data, method, config)
     bg, target, input_bg, input_target = apply_weight_model(
@@ -1065,6 +1077,7 @@ def run_adaptive_method(
         input_bg,
         input_target,
         roc_scales=roc_scales,
+        detection_threshold_scale=detection_threshold_scale,
     )
     details = {
         "comparison_protocol": "scientific_controlled",
@@ -1191,6 +1204,7 @@ def run_case(
     method_config: Dict[str, object],
     keep_data: bool,
     roc_scales: Sequence[float] | None = None,
+    detection_threshold_scale: float = 1.0,
 ) -> Tuple[List[Dict[str, object]], Dict[str, object], List[Dict[str, object]]]:
     paths = v1.prepare_case_data(base_config_path, suite, case, keep_data)
     try:
@@ -1202,10 +1216,20 @@ def run_case(
             started = time.perf_counter()
             if method in STRICT_METHODS:
                 metrics, details = run_strict_method(
-                    data, method, roc_scales=roc_scales, method_config=method_config
+                    data,
+                    method,
+                    roc_scales=roc_scales,
+                    method_config=method_config,
+                    detection_threshold_scale=detection_threshold_scale,
                 )
             else:
-                metrics, details = run_adaptive_method(data, method, method_config, roc_scales=roc_scales)
+                metrics, details = run_adaptive_method(
+                    data,
+                    method_config=method_config,
+                    method=method,
+                    roc_scales=roc_scales,
+                    detection_threshold_scale=detection_threshold_scale,
+                )
             runtime_ms = 1000.0 * (time.perf_counter() - started)
             rows.append(base_result_row(data, method, metrics, details, runtime_ms))
             for point in metrics.get("roc_points", []):
@@ -2431,6 +2455,7 @@ def run_analysis(
     keep_data: bool,
     workers: int = 1,
     roc_scales: Sequence[float] | None = None,
+    detection_threshold_scale: float = 1.0,
 ) -> Tuple[List[Dict[str, object]], List[Dict[str, object]], List[Dict[str, object]], List[Dict[str, object]]]:
     rows: List[Dict[str, object]] = []
     features: List[Dict[str, object]] = []
@@ -2460,7 +2485,13 @@ def run_analysis(
         print(json.dumps({"stage": "case", "index": index + 1, "total": len(cases), "case_id": case["case_id"], "factor": case.get("factor"), "level": case.get("factor_level")}, ensure_ascii=False), flush=True)
         try:
             case_rows, case_features, case_roc_rows = run_case(
-                base_config_path, suite, case, method_config, keep_data, roc_scales=roc_scales
+                base_config_path,
+                suite,
+                case,
+                method_config,
+                keep_data,
+                roc_scales=roc_scales,
+                detection_threshold_scale=detection_threshold_scale,
             )
             return index, case, case_rows, case_features, case_roc_rows, None
         except Exception as exc:
@@ -2537,8 +2568,13 @@ def main() -> int:
         cases = cases[: args.max_cases]
     method_config = dict(suite.get("method_config", {}))
     roc_scales = None
+    detection_threshold_scale = 1.0
     if args.mode in {"roc", "transition"}:
         roc_scales = suite.get("roc_sweep", {}).get("threshold_scales", DEFAULT_ROC_SCALES)
+    if args.mode == "transition":
+        detection_threshold_scale = float(
+            suite.get("transition_sweep", {}).get("target_detection_threshold_scale", 1.0)
+        )
     rows, features, failures, roc_rows = run_analysis(
         base_config_path,
         suite,
@@ -2548,6 +2584,7 @@ def main() -> int:
         args.keep_data,
         args.workers,
         roc_scales=roc_scales,
+        detection_threshold_scale=detection_threshold_scale,
     )
     mdv_rows = summarize_mdv(rows, suite)
     write_csv(out_dir / "baseline_v2_mdv_summary.csv", mdv_rows)
@@ -2585,6 +2622,7 @@ def main() -> int:
             "Pd": "empirical Bernoulli detection probability aggregated across independent seeds/trials with Wilson 95% intervals",
             "ROC": "dedicated roc mode sweeps the GO-CFAR threshold scale over regenerated target/background cases",
             "MDV": "only reported from regenerated physical velocity sweep, never from RD np.roll",
+            "default_detection_threshold_scale": detection_threshold_scale,
         },
         "mdv_summary": relative_repo_path(out_dir / "baseline_v2_mdv_summary.csv") if mdv_rows else None,
         "roc_points": relative_repo_path(out_dir / "baseline_v2_roc_points.csv") if roc_rows else None,
