@@ -1,0 +1,32 @@
+{
+  "schema_id": "pgrcc_v1_training_interface",
+  "input": "physics_expert_map_v1 input_fields plus expert availability flags",
+  "targets": [
+    "delta_log_amplitude",
+    "delta_phase",
+    "gate_target"
+  ],
+  "model_contract": {
+    "architecture": "small MLP or light 1-D CNN over bounded local feature vector",
+    "bounded_residual": "alpha_AI = alpha_phy * exp(clamp(delta_log_amplitude)) * exp(j*clamp(delta_phase))",
+    "output": "Y = (1-gate_target)*Y_Current + gate_target*Y_corrected",
+    "bounds": {
+      "delta_log_amplitude": [
+        -0.5,
+        0.5
+      ],
+      "delta_phase": [
+        -0.7853981634,
+        0.7853981634
+      ],
+      "gate_target": [
+        0.0,
+        1.0
+      ]
+    },
+    "identity_test": "delta_log_amplitude=0, delta_phase=0, gate_target=0 reproduces Current exactly",
+    "fallback": "low confidence, invalid features, or failed physics gate returns Current"
+  },
+  "label_policy": "paired C+N/truth may define oracle labels and loss only; never a network inference input",
+  "scope": "PGRCC-v1 interface; no training or RD-image model in V2.1"
+}

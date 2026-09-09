@@ -48,6 +48,10 @@ outputs/ai_csi_baseline_v21/ Baseline V2.1 clean-commit screen/sanity 交付物
 outputs/ai_csi_baseline_v21_velocity/ 物理重生成 velocity/MDV 交付物
 outputs/ai_csi_baseline_v21_transition/ 低 SNR transition ROC 交付物
 outputs/ai_csi_baseline_v21_mixed_stress/ LHS mixed-stress 交付物
+outputs/ai_csi_baseline_v21_final_screen/ 最终提交下的 90-case screen 交付物
+outputs/ai_csi_baseline_v21_final_velocity/ 最终提交下的 signed velocity/MDV 交付物
+outputs/ai_csi_baseline_v21_final_roc/ 最终提交下的独立 ROC 交付物
+outputs/ai_csi_baseline_v21_formal/ 正式 470-case 单因素矩阵交付物
 ```
 
 V1 原始 BIN 和逐案例中间结果已按清理策略移除；当前 V2 为复现 Stage2 保留
@@ -59,8 +63,9 @@ V1 原始 BIN 和逐案例中间结果已按清理策略移除；当前 V2 为�
 离线分析脚本需要 Python 3、NumPy 和 Matplotlib。
 
 本阶段已验证的工具链包括 CUDA Toolkit 12.4.131、CMake 4.2.3 和 FFTW3 3.3.10。
-CUDA 生产运行还需要可用的 NVIDIA 驱动；当前环境没有可通信的 NVIDIA 驱动，
-所以本阶段结果是 CPU 源码算子离线回放，不是 CUDA 生产运行结果。
+受限提权后的 `nvidia-smi` 可见 RTX 3050 Laptop GPU（4 GiB）；本阶段 V2.1
+统计仿真器和 Python 算子仍走 CPU offline 回放，没有运行 CUDA production pipeline，
+所以结果不是 CUDA 生产运行结果。
 
 ## 构建
 
@@ -129,9 +134,9 @@ shrinkage SMI/MVDR、physical JDL、MNEC 和明确标注为 approximate academic
 先运行 steering sanity，再运行 90-case、9 因素、每点 5 seed 的 screen：
 
 ```bash
-python3 scripts/run_baseline_v2.py --mode sanity --out outputs/ai_csi_baseline_v21
+python3 scripts/run_baseline_v2.py --mode sanity --out outputs/ai_csi_baseline_v21_final_screen
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  python3 scripts/run_baseline_v2.py --mode screen --workers 2 --out outputs/ai_csi_baseline_v21
+  python3 scripts/run_baseline_v2.py --mode screen --workers 2 --out outputs/ai_csi_baseline_v21_final_screen
 ```
 
 正式 sweep 的更密配置见
@@ -141,21 +146,29 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
 ```bash
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
   python3 scripts/run_baseline_v2.py --mode velocity --workers 2 \
-  --out outputs/ai_csi_baseline_v21_velocity
+  --out outputs/ai_csi_baseline_v21_final_velocity
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
   python3 scripts/run_baseline_v2.py --mode transition --workers 2 \
   --out outputs/ai_csi_baseline_v21_transition
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
   python3 scripts/run_baseline_v2.py --mode mixed_stress --workers 2 \
   --out outputs/ai_csi_baseline_v21_mixed_stress
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode roc --workers 2 \
+  --out outputs/ai_csi_baseline_v21_final_roc
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode formal --workers 2 \
+  --out outputs/ai_csi_baseline_v21_formal
 ```
 
 V2 历史审计报告见 [`AI_CSI_07_Baseline_V2审计与实验报告.md`](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)；
 V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
 [`AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md`](docs/AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md)。
 单 case 只保存二值 `target_detected`；经验 Pd 在 seed/trial 聚合层生成并带 Wilson
-95% CI。主汇总在 `outputs/ai_csi_baseline_v21/`；MDV 原始曲线和阈值汇总在
-`outputs/ai_csi_baseline_v21_velocity/`，transition ROC 点/汇总/图在
+95% CI。历史主汇总在 `outputs/ai_csi_baseline_v21/`；本次最终 screen、velocity、ROC
+分别在 `outputs/ai_csi_baseline_v21_final_screen/`、
+`outputs/ai_csi_baseline_v21_final_velocity/` 和 `outputs/ai_csi_baseline_v21_final_roc/`，
+正式矩阵在 `outputs/ai_csi_baseline_v21_formal/`，transition ROC 点/汇总/图在
 `outputs/ai_csi_baseline_v21_transition/`，不使用 RD `np.roll` 代替真实速度。
 
 ## 研究文档

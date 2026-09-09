@@ -9,6 +9,26 @@ CSV；旧 V2 结果不作为 V2.1 最终性能结论。
 当前主线只实现“物理基线 + 可审计接口”，不训练最终 AI，也不把目标 truth 输入
 自适应权重或未来网络。
 
+## 本次 V2.1 交付结果
+
+所有 final 产物均由源码提交 `47e094ab7e7d519bac756f13277e95f1bbf846fb`
+生成，manifest 的 `worktree_dirty=false`。旧 V2/V2.1 目录保留为历史审计，以下
+final 目录才是本次最终汇总入口：
+
+| 验证 | 当前证据 | 结果 |
+|---|---|---|
+| empirical steering sanity | `outputs/ai_csi_baseline_v21_final_screen/baseline_v21_empirical_steering_sanity.json` | 11/11 通过；空间相关性最低 0.999999887，JDL 相关性最低 0.806669，JDL 相位 RMS 最大 0.523 rad，幅度归一化误差最大 4.64e-4 |
+| screen | `outputs/ai_csi_baseline_v21_final_screen/` | 90 cases / 1170 method rows，全部 `ok` |
+| signed velocity / MDV | `outputs/ai_csi_baseline_v21_final_velocity/baseline_v2_mdv_summary.csv` | 35 cases / 455 rows；approaching、receding、zero 分开保留；所有方法的 abs-speed combined 均在对称性检查后生成，最大逐速度 Pd 差为 0 |
+| low-SNR transition | `outputs/ai_csi_baseline_v21_transition/` | 48 cases / 624 rows，全部 `ok`；Corrected JDL 在固定 threshold scale=2.0 下 Pd=19/48=0.3958，Wilson 95% CI=[0.2702, 0.5369]，Pfa=0.001481 |
+| ROC | `outputs/ai_csi_baseline_v21_final_roc/` | 5 regenerated seeds × 7 threshold scales，65 rows；Corrected JDL scale=2.0 的高 SNR operating point Pd=1.0，Wilson 95% CI=[0.5655, 1.0]，Pfa=0.001480 |
+| formal one-factor matrix | `outputs/ai_csi_baseline_v21_formal/` | 47 factor-level groups × 10 seeds = 470 cases / 6110 rows，全部 `ok`；每个 factor-level 有 130 method rows |
+| mixed stress | `outputs/ai_csi_baseline_v21_mixed_stress/` | 确定性 LHS 12 cases / 156 rows，全部 `ok` |
+
+formal 与 mixed 的 feature predictor 输出包含 leave-one-case-out、leave-one-seed-out；
+formal 还包含 leave-one-factor-family-out。折内缺失值填补、标准化只使用训练折统计量，
+没有把同一 scene 的局部行随机拆到训练和测试两侧。
+
 ## Steering 定义
 
 四通道目标 steering 的接口是：
@@ -96,22 +116,31 @@ Current。V2.1 不训练 Transformer、RD image-to-image、soft support、Deep U
 ```bash
 python3 scripts/run_baseline_v2.py --mode sanity \
   --suite configs/research/ai_csi_baseline_v2_suite.json \
-  --out outputs/ai_csi_baseline_v21
+  --out outputs/ai_csi_baseline_v21_final_screen
 python3 scripts/run_baseline_v2.py --mode screen \
   --suite configs/research/ai_csi_baseline_v2_suite.json \
-  --out outputs/ai_csi_baseline_v21
+  --out outputs/ai_csi_baseline_v21_final_screen
 python3 scripts/run_baseline_v2.py --mode velocity \
   --suite configs/research/ai_csi_baseline_v2_suite.json \
-  --out outputs/ai_csi_baseline_v21_velocity
+  --out outputs/ai_csi_baseline_v21_final_velocity
 python3 scripts/run_baseline_v2.py --mode transition \
   --suite configs/research/ai_csi_baseline_v2_suite.json \
   --out outputs/ai_csi_baseline_v21_transition
 python3 scripts/run_baseline_v2.py --mode mixed_stress \
   --suite configs/research/ai_csi_baseline_v2_suite.json \
   --out outputs/ai_csi_baseline_v21_mixed_stress
+python3 scripts/run_baseline_v2.py --mode roc --workers 2 \
+  --suite configs/research/ai_csi_baseline_v2_suite.json \
+  --out outputs/ai_csi_baseline_v21_final_roc
+python3 scripts/run_baseline_v2.py --mode formal --workers 2 \
+  --suite configs/research/ai_csi_baseline_v2_suite.json \
+  --out outputs/ai_csi_baseline_v21_formal
 ```
 
 正式提交必须同时检查各目录的 manifest、summary/ROC CSV、sanity CSV/JSON、schema
 JSON、输入 SHA-256、source commit 和 `worktree_dirty`。当前环境未能与 NVIDIA driver
-通信，因此本报告中的离线结果若无单独设备证据，只能称为 CPU research evidence，
-不能称为 CUDA production validation。
+通信的普通沙箱探测记录在 manifest 中；受限提权后的 `nvidia-smi` 已确认 RTX 3050
+Laptop GPU（4 GiB）。本次 Stage2 statistical simulator 和 Python baseline 仍是 CPU
+offline 链路，未运行 CUDA production pipeline，因此以上结果只能称为 CPU research
+evidence，不能称为 CUDA production validation。长任务期间主机 available memory 约
+9--12 GiB、磁盘剩余约 74--75 GiB；GPU 只作为资源状态记录，未混入这些 CPU 结果。

@@ -1,0 +1,52 @@
+{
+  "schema_id": "physics_expert_map_v1",
+  "grain": "one scene realization × seed × local Doppler row × local range block",
+  "identity_fields": [
+    "scene_id",
+    "seed",
+    "factor_family",
+    "doppler_row",
+    "range_block_start",
+    "range_block_stop"
+  ],
+  "input_fields": {
+    "p38_slope_rad_per_hz": "float",
+    "p38_intercept_rad": "float",
+    "p38_rmse_rad": "float",
+    "p38_inlier_count": "integer",
+    "coherence_mean": "float",
+    "F1_F2_energy_ratio_dB": "float",
+    "phase_residual_mean_rad": "float",
+    "phase_variance_rad2": "float",
+    "valid_sample_fraction": "float",
+    "texture_heterogeneity_cv": "float",
+    "distance_to_clutter_ridge_hz": "float",
+    "distance_to_support_edge_rows": "float",
+    "local_residual_tail_p95_dB": "float",
+    "robust_lsq_condition_number": "float",
+    "robust_lsq_confidence": "float"
+  },
+  "expert_outputs": {
+    "current_scnr_improvement_dB": "float",
+    "row_ls_scnr_improvement_dB": "float",
+    "robust_row_ls_scnr_improvement_dB": "float",
+    "current_hold": "boolean",
+    "adaptive_worthwhile": "boolean"
+  },
+  "oracle_label_fields": {
+    "delta_log_amplitude": "float",
+    "delta_phase": "float",
+    "gate_target": "float in [0,1]",
+    "oracle_gain_over_current_dB": "float"
+  },
+  "split_policy": {
+    "required": true,
+    "train_validation_test": "scene/seed grouped; leave-one-seed-out or whole-factor-family holdout",
+    "forbidden": [
+      "random local-row split",
+      "same scene realization across train and test",
+      "truth/oracle input to inference"
+    ]
+  },
+  "status": "export interface only; no row-level AI model is trained by V2.1"
+}
