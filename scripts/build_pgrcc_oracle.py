@@ -473,8 +473,8 @@ def replace_target_roi(
     """Evaluate a candidate with current-map CFAR thresholds fixed.
 
     Fixing the thresholds makes the region search cheap and prevents the local
-    candidate from changing its own operating point.  Exact full-map GO-CFAR
-    is rerun later for the selected representatives.
+    candidate from changing its own operating point.  The selected diagnostic
+    representatives are checked again with full-map GO-CFAR below.
     """
 
     alignment = arrays["alignment"]
@@ -584,6 +584,162 @@ def replace_target_roi(
         "delta_background_pfa": background_pfa - current_pfa if math.isfinite(background_pfa) and math.isfinite(current_pfa) else math.nan,
         "delta_detection_margin_dB": candidate_margin - current_margin if math.isfinite(candidate_margin) and math.isfinite(current_margin) else math.nan,
     }
+
+
+def materialize_candidate(
+    data: v1.CaseData,
+    arrays: Mapping[str, object],
+    candidate: Mapping[str, object],
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Materialize one candidate on the full current map for exact checking."""
+
+    alignment = arrays["alignment"]
+    assert isinstance(alignment, oracle.Alignment)
+    current_bg = np.asarray(arrays["current_bg"])
+    current_target = np.asarray(arrays["current_target"])
+    candidate_bg = current_bg.copy()
+    candidate_target = current_target.copy()
+    if str(candidate.get("candidate_type")) == "current":
+        return candidate_bg, candidate_target
+    expert = str(candidate.get("expert"))
+    row = int(candidate["doppler_row"])
+    lo = int(candidate["range_block_start"])
+    hi = int(candidate["range_block_stop"])
+    if expert == "current_p38":
+        alpha_phy = complex(np.exp(1j * arrays["p38_phase"][row]))
+    elif expert == "row_ls":
+        alpha_phy = complex(arrays["row_ls_alpha"][row])
+    elif expert == "robust_row_ls":
+        alpha_phy = complex(arrays["robust_alpha"][row])
+    else:
+        raise ValueError(f"unknown exact-check expert {expert!r}")
+    delta_a = float(candidate.get("delta_log_amplitude", 0.0))
+    delta_phi = float(candidate.get("delta_phase", 0.0))
+    gate = float(candidate.get("gate", 0.0))
+    alpha = alpha_phy * math.exp(delta_a) * np.exp(1j * delta_phi)
+    corrected_bg = alignment.f1_bg[row, lo:hi] - alpha * alignment.f2_bg[row, lo:hi]
+    corrected_target = alignment.f1_target[row, lo:hi] - alpha * alignment.f2_target[row, lo:hi]
+    if gate == 0.0:
+        # Preserve the exact identity contract, including bitwise equality of
+        # the selected region with Current before any metric computation.
+        return candidate_bg, candidate_target
+    candidate_bg[row, lo:hi] = (1.0 - gate) * current_bg[row, lo:hi] + gate * corrected_bg
+    candidate_target[row, lo:hi] = (1.0 - gate) * current_target[row, lo:hi] + gate * corrected_target
+    return candidate_bg, candidate_target
+
+
+def exact_global_metrics(
+    data: v1.CaseData,
+    arrays: Mapping[str, object],
+    bg: np.ndarray,
+    target: np.ndarray,
+) -> Dict[str, float]:
+    """Evaluate a full-map candidate with freshly recomputed GO-CFAR."""
+
+    alignment = arrays["alignment"]
+    assert isinstance(alignment, oracle.Alignment)
+    detector_bg = v1.dynamic_detector(bg, alignment.f2_bg, data.current_support)
+    detector_target = v1.dynamic_detector(target, alignment.f2_target, data.current_support)
+    col_start = max(0, min(bg.shape[1], int(data.p.rg_st)))
+    col_stop = max(col_start + 1, min(bg.shape[1], int(data.p.rg_ed) + 1))
+    residual_power = np.abs(bg[:, col_start:col_stop]) ** 2
+    input_power = np.abs(alignment.f1_bg[:, col_start:col_stop]) ** 2
+    input_median = float(np.median(input_power))
+    p95 = float(np.percentile(residual_power, 95.0))
+    p99 = float(np.percentile(residual_power, 99.0))
+    cvar = float(np.mean(residual_power[residual_power >= p95]))
+    r0 = max(0, data.truth_row - 2)
+    r1 = min(bg.shape[0], data.truth_row + 3)
+    c0 = max(0, data.truth_col - 2)
+    c1 = min(bg.shape[1], data.truth_col + 3)
+    before_signal = alignment.f1_target[r0:r1, c0:c1] - alignment.f1_bg[r0:r1, c0:c1]
+    after_signal = target[r0:r1, c0:c1] - bg[r0:r1, c0:c1]
+    before_signal_power = float(np.mean(np.abs(before_signal) ** 2))
+    after_signal_power = float(np.mean(np.abs(after_signal) ** 2))
+    before_clutter = float(np.mean(np.abs(alignment.f1_bg[r0:r1, c0:c1]) ** 2))
+    after_clutter = float(np.mean(np.abs(bg[r0:r1, c0:c1]) ** 2))
+    input_scnr = db(before_signal_power / max(before_clutter, 1.0e-300))
+    output_scnr = db(after_signal_power / max(after_clutter, 1.0e-300))
+    target_result = oracle.go_cfar(detector_target, data.truth_row, data.truth_col, data.p)
+    background_result = oracle.go_cfar(detector_bg, bg.shape[0] + 100, bg.shape[1] + 100, data.p)
+    radius = int(data.p.cfar_guard + data.p.cfar_background)
+    test_cells = float(bg.shape[0] * max(bg.shape[1] - 2 * radius, 0))
+    threshold = cfar_threshold_map(detector_target, data.p)
+    target_threshold = threshold[r0:r1, c0:c1]
+    valid = np.isfinite(target_threshold) & (target_threshold > 0.0)
+    if np.any(valid):
+        margin = db(float(np.max(np.abs(detector_target[r0:r1, c0:c1][valid]) ** 2 / target_threshold[valid])))
+    else:
+        margin = math.nan
+    return {
+        "exact_SCNR_improvement_dB": output_scnr - input_scnr,
+        "exact_target_loss_dB": db(after_signal_power / max(before_signal_power, 1.0e-300)),
+        "exact_residual_p95_dB": db(p95 / max(input_median, 1.0e-300)),
+        "exact_residual_p99_dB": db(p99 / max(input_median, 1.0e-300)),
+        "exact_residual_cvar95_dB": db(cvar / max(input_median, 1.0e-300)),
+        "exact_background_Pfa": float(background_result["false_alarm_count"] / max(test_cells, 1.0)),
+        "exact_target_Pd": float(target_result["Pd"]),
+        "exact_target_cfar_margin_dB": margin,
+        "exact_target_peak_power": float(target_result["target_peak_power"]),
+        "exact_background_false_alarm_count": float(background_result["false_alarm_count"]),
+    }
+
+
+def exact_representative_rows(
+    data: v1.CaseData,
+    arrays: Mapping[str, object],
+    pareto_rows: Sequence[Mapping[str, object]],
+) -> List[Dict[str, object]]:
+    candidates = [row for row in pareto_rows if str(row.get("candidate_type")) != "current"]
+    current = next((row for row in pareto_rows if str(row.get("candidate_type")) == "current"), None)
+    if current is None:
+        raise RuntimeError("exact representative check requires Current")
+    selected: Dict[Tuple[str, str], Mapping[str, object]] = {("current_reference", str(current.get("region_id"))): current}
+    if candidates:
+        selectors = {
+            "max_scnr": max(candidates, key=lambda row: finite(row.get("delta_scnr_dB"))),
+            "min_tail_p95": min(candidates, key=lambda row: finite(row.get("delta_residual_p95_dB"))),
+            "min_background_pfa": min(candidates, key=lambda row: finite(row.get("delta_background_pfa"))),
+            "max_detection_margin": max(candidates, key=lambda row: finite(row.get("delta_detection_margin_dB"))),
+        }
+        for reason, row in selectors.items():
+            key = (reason, str(row.get("region_id")) + str(row.get("expert")) + str(row.get("delta_phase")))
+            selected[key] = row
+    current_bg, current_target = materialize_candidate(data, arrays, current)
+    current_metrics = exact_global_metrics(data, arrays, current_bg, current_target)
+    output: List[Dict[str, object]] = []
+    for key, candidate in selected.items():
+        reason = key[0]
+        bg, target = materialize_candidate(data, arrays, candidate)
+        metrics = exact_global_metrics(data, arrays, bg, target)
+        row: Dict[str, object] = {
+            "case_id": str(data.case["case_id"]),
+            "seed": int(data.case["seed"]),
+            "factor_family": str(data.case.get("factor_family", "unknown")),
+            "selection_reason": reason,
+            "region_id": str(candidate.get("region_id")),
+            "expert": str(candidate.get("expert")),
+            "candidate_type": str(candidate.get("candidate_type")),
+            "doppler_row": int(candidate.get("doppler_row")),
+            "range_block_start": int(candidate.get("range_block_start")),
+            "range_block_stop": int(candidate.get("range_block_stop")),
+            "delta_log_amplitude": finite(candidate.get("delta_log_amplitude")),
+            "delta_phase": finite(candidate.get("delta_phase")),
+            "gate": finite(candidate.get("gate")),
+            "screen_delta_scnr_dB": finite(candidate.get("delta_scnr_dB")),
+            "screen_delta_target_preservation_dB": finite(candidate.get("delta_target_preservation_dB")),
+            "screen_delta_residual_p95_dB": finite(candidate.get("delta_residual_p95_dB")),
+            "screen_delta_background_pfa": finite(candidate.get("delta_background_pfa")),
+        }
+        row.update(metrics)
+        for metric, current_value in current_metrics.items():
+            candidate_value = metrics.get(metric, math.nan)
+            if metric == "exact_target_Pd":
+                row[f"delta_{metric}"] = float(candidate_value) - float(current_value)
+            elif metric.startswith("exact_") and metric not in {"exact_background_false_alarm_count", "exact_target_peak_power"}:
+                row[f"delta_{metric}"] = float(candidate_value) - float(current_value) if math.isfinite(float(candidate_value)) and math.isfinite(float(current_value)) else math.nan
+        output.append(row)
+    return output
 
 
 def candidate_row(
@@ -973,6 +1129,7 @@ def process_regions(
     return {
         "region_map": region_map,
         "pareto": all_pareto,
+        "exact_representatives": exact_representative_rows(data, arrays, all_pareto),
         "saturation": saturation,
         "region_count": len(regions),
         "threshold_bg": threshold_bg,
@@ -1296,6 +1453,7 @@ def main() -> int:
     policy = dict(config.get("worthwhile_policy", {}))
     all_regions: List[Dict[str, object]] = []
     all_pareto: List[Dict[str, object]] = []
+    all_exact: List[Dict[str, object]] = []
     all_saturation: List[Dict[str, object]] = []
     case_rows: List[Dict[str, object]] = []
     failures: List[Dict[str, object]] = []
@@ -1331,6 +1489,7 @@ def main() -> int:
                 expansion_records.append({"case_id": str(case["case_id"]), "expanded": False, "initial": initial_sat, "final": initial_sat})
             all_regions.extend(selected["region_map"])
             all_pareto.extend(selected["pareto"])
+            all_exact.extend(selected["exact_representatives"])
             case_rows.append(case_manifest_row(data))
             print(
                 f"[pgrcc-oracle] completed {case['case_id']}: regions={selected['region_count']} "
@@ -1352,6 +1511,7 @@ def main() -> int:
     headroom = summary_rows(all_regions)
     write_csv(out / "oracle_region_map.csv", all_regions)
     write_csv(out / "oracle_pareto_summary.csv", all_pareto)
+    write_csv(out / "oracle_exact_representatives.csv", all_exact)
     write_csv(out / "oracle_headroom_summary.csv", headroom)
     write_csv(out / "oracle_bound_saturation.csv", all_saturation)
     write_csv(out / "oracle_feature_correlations.csv", correlations)
@@ -1406,6 +1566,7 @@ def main() -> int:
         "case_count_completed": len(case_rows),
         "region_count": len(all_regions),
         "pareto_candidate_count": len(all_pareto),
+        "exact_representative_count": len(all_exact),
         "failures": failures,
         "expansion_records": expansion_records,
         "method_config": method_config,
