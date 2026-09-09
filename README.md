@@ -43,9 +43,11 @@ tests/                      工程测试
 docs/                       数学模型、实验报告和后续 AI 建议
 outputs/ai_csi_oracle/      小型 CSV/PNG/JSON 研究交付物
 outputs/ai_csi_baseline/   7 场景 × 6 方法的传统 baseline 交付物
-outputs/ai_csi_baseline_v2/ Baseline V2 多 seed screen 与 sanity 交付物
-outputs/ai_csi_baseline_v2_velocity/ 物理重生成 velocity/MDV 交付物
-outputs/ai_csi_baseline_v2_roc/ 独立多 seed CFAR ROC 交付物
+outputs/ai_csi_baseline_v2/ Baseline V2 历史 screen 与 sanity 交付物
+outputs/ai_csi_baseline_v21/ Baseline V2.1 clean-commit screen/sanity 交付物
+outputs/ai_csi_baseline_v21_velocity/ 物理重生成 velocity/MDV 交付物
+outputs/ai_csi_baseline_v21_transition/ 低 SNR transition ROC 交付物
+outputs/ai_csi_baseline_v21_mixed_stress/ LHS mixed-stress 交付物
 ```
 
 V1 原始 BIN 和逐案例中间结果已按清理策略移除；当前 V2 为复现 Stage2 保留
@@ -115,20 +117,21 @@ python3 scripts/run_baseline_benchmark.py
 [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)。
 完整紧凑产物在 `outputs/ai_csi_baseline/`，原始 BIN 和临时矩阵默认逐场景清理。
 
-## Baseline V2（当前主线）
+## Baseline V2.1（当前主线）
 
-Baseline V2 明确区分 production replay 与 scientific controlled baseline；后者的
+Baseline V2.1 明确区分 production replay 与 scientific controlled baseline；后者的
 P38、协方差和自适应权重只使用 paired C+N background。四通道 steering 使用当前
-几何、载频、beam side 和 Doppler ridge 推导；包含 diagonally-loaded SMI/MVDR、
+配置的 beam-center、按 range block 推导的几何路径和显式 Doppler temporal response；
+clutter ridge 只作诊断特征，不作为目标空间角。包含 diagonally-loaded SMI/MVDR、
 shrinkage SMI/MVDR、physical JDL、MNEC 和明确标注为 approximate academic reference
 的 SA-MNEC。当前不训练 AI。
 
 先运行 steering sanity，再运行 90-case、9 因素、每点 5 seed 的 screen：
 
 ```bash
-python3 scripts/run_baseline_v2.py --mode sanity --out outputs/ai_csi_baseline_v2
+python3 scripts/run_baseline_v2.py --mode sanity --out outputs/ai_csi_baseline_v21
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  python3 scripts/run_baseline_v2.py --mode screen --workers 2 --out outputs/ai_csi_baseline_v2
+  python3 scripts/run_baseline_v2.py --mode screen --workers 2 --out outputs/ai_csi_baseline_v21
 ```
 
 正式 sweep 的更密配置见
@@ -138,17 +141,22 @@ OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
 ```bash
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
   python3 scripts/run_baseline_v2.py --mode velocity --workers 2 \
-  --out outputs/ai_csi_baseline_v2_velocity
+  --out outputs/ai_csi_baseline_v21_velocity
 OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
-  python3 scripts/run_baseline_v2.py --mode roc --workers 2 \
-  --out outputs/ai_csi_baseline_v2_roc
+  python3 scripts/run_baseline_v2.py --mode transition --workers 2 \
+  --out outputs/ai_csi_baseline_v21_transition
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode mixed_stress --workers 2 \
+  --out outputs/ai_csi_baseline_v21_mixed_stress
 ```
 
-V2 审计报告见 [`AI_CSI_07_Baseline_V2审计与实验报告.md`](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)。
+V2 历史审计报告见 [`AI_CSI_07_Baseline_V2审计与实验报告.md`](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)；
+V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
+[`AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md`](docs/AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md)。
 单 case 只保存二值 `target_detected`；经验 Pd 在 seed/trial 聚合层生成并带 Wilson
-95% CI。主汇总在 `outputs/ai_csi_baseline_v2/`；MDV 原始曲线和阈值汇总在
-`outputs/ai_csi_baseline_v2_velocity/`，ROC 点/汇总/图在
-`outputs/ai_csi_baseline_v2_roc/`，不使用 RD `np.roll` 代替真实速度。
+95% CI。主汇总在 `outputs/ai_csi_baseline_v21/`；MDV 原始曲线和阈值汇总在
+`outputs/ai_csi_baseline_v21_velocity/`，transition ROC 点/汇总/图在
+`outputs/ai_csi_baseline_v21_transition/`，不使用 RD `np.roll` 代替真实速度。
 
 ## 研究文档
 
@@ -159,6 +167,7 @@ V2 审计报告见 [`AI_CSI_07_Baseline_V2审计与实验报告.md`](docs/AI_CSI
 - [Baseline 实验报告](docs/AI_CSI_05_Baseline实验报告.md)
 - [Baseline 不足与 Physics-AI 方向分析](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)
 - [Baseline V2 审计与实验报告](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)
+- [Baseline V2.1 物理修正与最终能力边界](docs/AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md)
 - [研究进展](docs/AI_CSI_研究进展.md)
 - [Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
 

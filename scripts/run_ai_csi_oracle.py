@@ -91,6 +91,14 @@ class Params:
     cfar_pfa: float = 1.0e-6
     cfar_guard: int = 4
     cfar_background: int = 16
+    # These values are part of the generated Stage2 configuration.  Keep
+    # explicit defaults for older XML files, but do not hide them in the
+    # CSI/STAP implementations.
+    platform_speed_mps: float = 60.0
+    platform_height_m: float = 6000.0
+    scan_min_deg: float = -60.0
+    scan_step_deg: float = 2.0
+    beam_theta_offset_deg: float = 0.0
 
     @classmethod
     def from_xml(cls, path: Path) -> "Params":
@@ -160,6 +168,11 @@ class Params:
             cfar_pfa=scalar(values.get("pf"), 1.0e-6),
             cfar_guard=integer(values.get("cfar_guard_cells"), 4),
             cfar_background=integer(values.get("cfar_background_cells"), 16),
+            platform_speed_mps=scalar(values.get("platform_speed_mps"), 60.0),
+            platform_height_m=scalar(values.get("platform_height_m"), 6000.0),
+            scan_min_deg=scalar(values.get("scan_min_deg"), -60.0),
+            scan_step_deg=scalar(values.get("scan_step_deg"), 2.0),
+            beam_theta_offset_deg=scalar(values.get("beam_theta_offset_deg"), 0.0),
         )
 
 
@@ -313,7 +326,7 @@ def current_axis(fa_ctr: float, p: Params) -> np.ndarray:
 def support_indices(axis: np.ndarray, fa_ctr: float, p: Params) -> Tuple[int, int, float, float]:
     support_half_deg = max(2.0, 0.5 * p.beam_width_deg)
     wavelength = C0 / p.fc_hz
-    speed = 60.0
+    speed = max(abs(float(getattr(p, "platform_speed_mps", 60.0))), 1.0e-12)
     bw = 2.0 * abs(speed) * math.sin(math.radians(support_half_deg)) / wavelength
     df = abs(axis[1] - axis[0]) if axis.size > 1 else 0.0
     fd_st = fa_ctr - bw - 0.5 * max(0.0, df)
@@ -481,7 +494,8 @@ def fit_p38(
 
 
 def phase_fallback(axis: np.ndarray, p: Params, shift: float, source: str) -> Dict[str, float | str | np.ndarray]:
-    raw_k = p.carrier_phase_sign * TWO_PI * (0.5 * p.d_channel_m) / 60.0
+    speed = max(abs(float(getattr(p, "platform_speed_mps", 60.0))), 1.0e-12)
+    raw_k = p.carrier_phase_sign * TWO_PI * (0.5 * p.d_channel_m) / speed
     k = raw_k + TWO_PI * shift / p.prf_hz
     return {
         "k": float(k),
@@ -946,7 +960,7 @@ def main() -> int:
     az_st, az_ed, fd_st, fd_ed = support_indices(axis, fa_ctr, p)
     current_support = np.zeros(p.pulse_num, dtype=bool)
     current_support[az_st : az_ed + 1] = True
-    speed = 60.0
+    speed = max(abs(float(getattr(p, "platform_speed_mps", 60.0))), 1.0e-12)
     delay_s = (0.5 * p.d_channel_m) / speed
     shift_truth = delay_s * p.prf_hz
     shift_current = float(round(shift_truth))

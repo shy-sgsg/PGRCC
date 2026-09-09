@@ -7,6 +7,14 @@
     "seed": 20260981,
     "use_paired_background": true,
     "target_id": "B2_TARGET",
+    "beam_id": 31,
+    "target_expected_bin": 2200,
+    "target_azimuth_offset_deg": 0.0,
+    "platform_speed_mps": 60.0,
+    "platform_height_m": 6000.0,
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_theta_offset_deg": 0.0,
     "target_snr_db": 10.0,
     "texture_sigma": 0.4,
     "azimuth_subcell_count": 9,
@@ -23,7 +31,31 @@
     "range_block_size": 256,
     "local_training_half_width": 256,
     "cut_guard_bins": 4,
-    "diagonal_loading_fraction": 0.01
+    "diagonal_loading_fraction": 0.01,
+    "robust_huber_delta": 1.5,
+    "robust_physics_regularization": 0.05
+  },
+  "steering_sanity": {
+    "target_snr_db": 30.0,
+    "spatial_correlation_min": 0.90,
+    "jdl_correlation_min": 0.80,
+    "spatial_phase_rms_max_rad": 0.40,
+    "jdl_phase_rms_max_rad": 0.60,
+    "amplitude_normalized_error_max": 0.25,
+    "velocity_invariance_correlation_min": 0.90,
+    "cases": [
+      {"case_id": "fixed_angle_v_m4", "label": "fixed angle, approaching -4 m/s", "sanity_group": "fixed_angle_velocity", "seed": 20261101, "radial_speed_mps": -4.0, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 2200},
+      {"case_id": "fixed_angle_v_m1", "label": "fixed angle, approaching -1 m/s", "sanity_group": "fixed_angle_velocity", "seed": 20261102, "radial_speed_mps": -1.0, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 2200},
+      {"case_id": "fixed_angle_v_0", "label": "fixed angle, zero target speed", "sanity_group": "fixed_angle_velocity", "seed": 20261103, "radial_speed_mps": 0.0, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 2200},
+      {"case_id": "fixed_angle_v_p1", "label": "fixed angle, receding +1 m/s", "sanity_group": "fixed_angle_velocity", "seed": 20261104, "radial_speed_mps": 1.0, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 2200},
+      {"case_id": "fixed_angle_v_p4", "label": "fixed angle, receding +4 m/s", "sanity_group": "fixed_angle_velocity", "seed": 20261105, "radial_speed_mps": 4.0, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 2200},
+      {"case_id": "angle_offset_m075", "label": "target azimuth offset -0.75 deg", "sanity_group": "angle_offset", "seed": 20261106, "radial_speed_mps": 0.5, "target_azimuth_offset_deg": -0.75, "target_expected_bin": 2200},
+      {"case_id": "angle_offset_0", "label": "target azimuth offset 0 deg", "sanity_group": "angle_offset", "seed": 20261107, "radial_speed_mps": 0.5, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 2200},
+      {"case_id": "angle_offset_p075", "label": "target azimuth offset +0.75 deg", "sanity_group": "angle_offset", "seed": 20261108, "radial_speed_mps": 0.5, "target_azimuth_offset_deg": 0.75, "target_expected_bin": 2200},
+      {"case_id": "range_bin_1200", "label": "target range bin 1200", "sanity_group": "range", "seed": 20261109, "radial_speed_mps": -0.5, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 1200},
+      {"case_id": "range_bin_2200", "label": "target range bin 2200", "sanity_group": "range", "seed": 20261110, "radial_speed_mps": -0.5, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 2200},
+      {"case_id": "range_bin_3200", "label": "target range bin 3200", "sanity_group": "range", "seed": 20261111, "radial_speed_mps": -0.5, "target_azimuth_offset_deg": 0.0, "target_expected_bin": 3200}
+    ]
   },
   "screen": {
     "seeds": [20260981, 20260982, 20260983, 20260984, 20260985],
@@ -57,6 +89,26 @@
     "seeds": [20261021, 20261022, 20261023, 20261024, 20261025],
     "levels": [-4.0, -2.0, -1.0, 0.0, 1.0, 2.0, 4.0],
     "mdv_pd_threshold": 0.5
+  },
+  "transition_sweep": {
+    "pilot_seeds": [20261121, 20261122, 20261123],
+    "pilot_levels_db": [-18.0, -12.0, -6.0, 0.0, 6.0, 10.0],
+    "refined_seeds": [20261131, 20261132, 20261133, 20261134, 20261135],
+    "refined_levels_db": [-12.0, -9.0, -6.0, -3.0, 0.0, 3.0]
+  },
+  "mixed_stress": {
+    "case_count": 12,
+    "lhs_seed": 20261150,
+    "seeds": [20261151, 20261152, 20261153, 20261154, 20261155, 20261156, 20261157, 20261158, 20261159, 20261160, 20261161, 20261162],
+    "dimensions": {
+      "clutter_texture_sigma": [0.2, 1.5],
+      "channel_amp_mismatch_db": [0.0, 4.0],
+      "channel_fixed_phase_mismatch_deg": [0.0, 30.0],
+      "channel_phase_jitter_std_deg": [0.0, 6.0],
+      "valid_sample_fraction": [0.4, 1.0],
+      "target_snr_db": [-10.0, 10.0],
+      "support_edge_radial_speed_mps": [-2.4, 2.4]
+    }
   },
   "roc_sweep": {
     "seeds": [20261031, 20261032, 20261033, 20261034, 20261035],

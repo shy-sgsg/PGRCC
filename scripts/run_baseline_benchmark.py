@@ -192,9 +192,27 @@ def apply_case_config(
     target_cfg = targets[0]
     target_cfg["target_id"] = str(case["target_id"])
     target_cfg["enabled"] = bool(target_enabled)
+    init_cfg = target_cfg.setdefault("init", {})
+    if "beam_id" in case:
+        init_cfg["beam_id"] = int(case["beam_id"])
+    if "target_expected_bin" in case:
+        init_cfg["expected_bin"] = int(case["target_expected_bin"])
+    if "target_azimuth_offset_deg" in case:
+        init_cfg["azimuth_offset_deg"] = float(case["target_azimuth_offset_deg"])
     target_cfg.setdefault("motion", {})
-    target_cfg["motion"]["ve_mps"] = float(case["motion"]["ve_mps"])
-    target_cfg["motion"]["vn_mps"] = float(case["motion"]["vn_mps"])
+    if str(case.get("velocity_mode", "")) == "radial":
+        beam_id = int(case.get("beam_id", init_cfg.get("beam_id", 31)))
+        theta_cmd = float(case.get("scan_min_deg", -60.0)) + (beam_id - 1) * float(case.get("scan_step_deg", 2.0))
+        theta = theta_cmd + float(case.get("beam_theta_offset_deg", 0.0)) + float(case.get("target_azimuth_offset_deg", 0.0))
+        platform_heading = float(case.get("platform_heading_deg", 90.0))
+        side_dir = -90.0 if int(case.get("squint_side", 1)) == 1 else 90.0
+        target_azimuth = math.radians(platform_heading - (side_dir - theta))
+        radial_speed = float(case.get("radial_speed_mps", 0.0))
+        target_cfg["motion"]["ve_mps"] = radial_speed * math.cos(target_azimuth)
+        target_cfg["motion"]["vn_mps"] = radial_speed * math.sin(target_azimuth)
+    else:
+        target_cfg["motion"]["ve_mps"] = float(case["motion"]["ve_mps"])
+        target_cfg["motion"]["vn_mps"] = float(case["motion"]["vn_mps"])
     target_cfg.setdefault("amplitude", {})
     target_cfg["amplitude"]["snr_db"] = float(case["target_snr_db"])
     impairment_cfg = config.setdefault("channel_impairments", {})
@@ -361,6 +379,18 @@ class CaseData:
 
 def load_case_data(case: Dict[str, object], paths: Dict[str, Path | bool]) -> CaseData:
     p = oracle.Params.from_xml(Path(paths["target_xml"]))
+    # The XML emitted by older Stage2 builds does not carry all global
+    # geometry scalars.  The controlled case is the explicit source for the
+    # replay parameters, so the downstream steering/support code sees the
+    # same immutable values that generated the scene.
+    for field, default in (
+        ("platform_speed_mps", 60.0),
+        ("platform_height_m", 6000.0),
+        ("scan_min_deg", -60.0),
+        ("scan_step_deg", 2.0),
+        ("beam_theta_offset_deg", 0.0),
+    ):
+        setattr(p, field, float(case.get(field, getattr(p, field, default))))
     truth_row, truth_col, target_id, target_fd = oracle.read_truth(Path(paths["truth"]))
     bg_raw, bg_header = oracle.read_raw(Path(paths["background_bin"]), p)
     target_raw, target_header = oracle.read_raw(Path(paths["target_bin"]), p)
@@ -377,7 +407,8 @@ def load_case_data(case: Dict[str, object], paths: Dict[str, Path | bool]) -> Ca
     az_st, az_ed, _, _ = oracle.support_indices(axis, fa_ctr, p)
     current_support = np.zeros(p.pulse_num, dtype=bool)
     current_support[az_st : az_ed + 1] = True
-    shift_current = float(round((0.5 * p.d_channel_m) / 60.0 * p.prf_hz))
+    speed = max(abs(float(p.platform_speed_mps)), 1.0e-12)
+    shift_current = float(round((0.5 * p.d_channel_m) / speed * p.prf_hz))
     alignment = oracle.make_alignment(
         "baseline_current",
         shift_current,

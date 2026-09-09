@@ -60,6 +60,7 @@ STRICT_METHODS = [
     "Current legacy CSI [scientific controlled]",
     "Phase-only CSI [scientific controlled]",
     "Row complex LS / Wiener [scientific controlled]",
+    "Row complex LS / Wiener robust IRLS [scientific controlled]",
 ]
 ADAPTIVE_METHODS = [
     "DL-SMI/MVDR global",
@@ -78,6 +79,7 @@ METHOD_PALETTE = {
     "Current legacy CSI [scientific controlled]": "#5b8db8",
     "Phase-only CSI [scientific controlled]": "#e69f49",
     "Row complex LS / Wiener [scientific controlled]": "#2ca02c",
+    "Row complex LS / Wiener robust IRLS [scientific controlled]": "#006d2c",
     "DL-SMI/MVDR global": "#9467bd",
     "DL-SMI/MVDR local": "#8c6bb1",
     "Shrinkage-SMI/MVDR global": "#d62728",
@@ -152,8 +154,27 @@ def ci95(values: Sequence[float]) -> Tuple[float, float]:
     mean = float(np.mean(finite))
     if finite.size < 2:
         return mean, math.nan
-    half = 1.96 * float(np.std(finite, ddof=1)) / math.sqrt(float(finite.size))
+    # Continuous seed-level summaries use Student-t quantiles when n is
+    # small.  Wilson intervals remain the Bernoulli-specific path below.
+    critical = student_t_critical_975(int(finite.size - 1))
+    half = critical * float(np.std(finite, ddof=1)) / math.sqrt(float(finite.size))
     return mean - half, mean + half
+
+
+def student_t_critical_975(df: int) -> float:
+    table = {
+        1: 12.7062047364, 2: 4.3026527297, 3: 3.1824463053,
+        4: 2.7764451052, 5: 2.5705818356, 6: 2.4469118511,
+        7: 2.3646242510, 8: 2.3060041350, 9: 2.2621571629,
+        10: 2.22813885196, 11: 2.2009851601, 12: 2.1788128297,
+        13: 2.1603686565, 14: 2.1447866879, 15: 2.1314495456,
+        16: 2.1199052992, 17: 2.1098155778, 18: 2.1009220402,
+        19: 2.0930240544, 20: 2.0859634473, 21: 2.0796138447,
+        22: 2.0738730679, 23: 2.0686576104, 24: 2.0638985616,
+        25: 2.0595385528, 26: 2.0555294386, 27: 2.0518305165,
+        28: 2.0484071418, 29: 2.0452296421, 30: 2.0422724563,
+    }
+    return float(table.get(int(df), 1.9599639845))
 
 
 def wilson_ci95(successes: int, trials: int) -> Tuple[float, float]:
@@ -172,9 +193,17 @@ def wilson_ci95(successes: int, trials: int) -> Tuple[float, float]:
 
 
 def rankdata(values: np.ndarray) -> np.ndarray:
+    values = np.asarray(values, dtype=float)
     order = np.argsort(values, kind="mergesort")
+    sorted_values = values[order]
     ranks = np.empty(values.size, dtype=float)
-    ranks[order] = np.arange(values.size, dtype=float)
+    start = 0
+    while start < values.size:
+        stop = start + 1
+        while stop < values.size and sorted_values[stop] == sorted_values[start]:
+            stop += 1
+        ranks[order[start:stop]] = 0.5 * (start + 1 + stop)
+        start = stop
     return ranks
 
 
@@ -223,7 +252,7 @@ def _set_factor(case: Dict[str, object], factor: str, level: object) -> None:
     impairments = case.setdefault("impairments", {})
     motion = case.setdefault("motion", {})
     scene = case.setdefault("scene_overrides", {})
-    if factor == "texture_sigma":
+    if factor in {"texture_sigma", "clutter_texture_sigma"}:
         case["texture_sigma"] = float(level)
     elif factor == "azimuth_subcell_count":
         case["azimuth_subcell_count"] = int(level)
@@ -243,12 +272,12 @@ def _set_factor(case: Dict[str, object], factor: str, level: object) -> None:
         case["target_snr_db"] = float(level)
     elif factor == "target_radial_speed_mps":
         speed = float(level)
-        motion["ve_mps"] = -speed
-        motion["vn_mps"] = 0.0
+        case["velocity_mode"] = "radial"
+        case["radial_speed_mps"] = speed
     elif factor == "support_edge_radial_speed_mps":
         speed = float(level)
-        motion["ve_mps"] = -speed
-        motion["vn_mps"] = 0.0
+        case["velocity_mode"] = "radial"
+        case["radial_speed_mps"] = speed
     else:
         raise ValueError(f"unknown V2 sweep factor: {factor}")
     case["factor"] = factor
@@ -290,6 +319,65 @@ def expand_cases(suite: Dict[str, object], mode: str) -> List[Dict[str, object]]
         seeds = [int(v) for v in roc.get("seeds", [])]
         base = _base_case(suite)
         factors = roc.get("single_factor_sweeps", {"target_snr_db": [10.0]})
+    elif mode == "transition":
+        transition = suite.get("transition_sweep", {})
+        base = _base_case(suite)
+        pilot_seeds = [int(v) for v in transition.get("pilot_seeds", [])]
+        refined_seeds = [int(v) for v in transition.get("refined_seeds", [])]
+        pilot_levels = [float(v) for v in transition.get("pilot_levels_db", [])]
+        refined_levels = [float(v) for v in transition.get("refined_levels_db", [])]
+        output: List[Dict[str, object]] = []
+        base_id = str(base.get("case_id", "baseline_v21"))
+        for label, levels, mode_seeds in (
+            ("pilot", pilot_levels, pilot_seeds),
+            ("refined", refined_levels, refined_seeds),
+        ):
+            for level in levels:
+                for seed in mode_seeds:
+                    case = copy.deepcopy(base)
+                    case["seed"] = seed
+                    case["case_id"] = _case_id(base_id, f"transition_{label}_target_snr_db", level, seed)
+                    case["target_id"] = f"{base.get('target_id', 'V21_TARGET')}_transition_{label}_{level}_{seed}"
+                    _set_factor(case, "target_snr_db", level)
+                    case["factor"] = "target_snr_db"
+                    case["factor_family"] = "transition"
+                    case["transition_phase"] = label
+                    output.append(case)
+        if not output:
+            raise ValueError("transition_sweep must define pilot/refined levels and seeds")
+        return output
+    elif mode == "mixed_stress":
+        stress = suite.get("mixed_stress", {})
+        base = _base_case(suite)
+        count = int(stress.get("case_count", 0))
+        seeds = [int(v) for v in stress.get("seeds", [])]
+        dimensions = stress.get("dimensions", {})
+        if count <= 0 or len(seeds) < count or not isinstance(dimensions, dict) or not dimensions:
+            raise ValueError("mixed_stress requires case_count, at least that many seeds, and dimensions")
+        rng = np.random.default_rng(int(stress.get("lhs_seed", 20261150)))
+        permutations = {str(name): rng.permutation(count) for name in dimensions}
+        output: List[Dict[str, object]] = []
+        base_id = str(base.get("case_id", "baseline_v21"))
+        for index in range(count):
+            case = copy.deepcopy(base)
+            case["seed"] = seeds[index]
+            case["case_id"] = f"{base_id}_mixed_stress_lhs{index + 1:02d}_s{seeds[index]}"
+            case["target_id"] = f"{base.get('target_id', 'V21_TARGET')}_mixed_stress_{index + 1}_{seeds[index]}"
+            applied: Dict[str, float] = {}
+            for name, bounds in dimensions.items():
+                if not isinstance(bounds, list) or len(bounds) != 2:
+                    raise ValueError(f"mixed_stress dimension {name} must be [low, high]")
+                low, high = float(bounds[0]), float(bounds[1])
+                unit = (float(permutations[str(name)][index]) + float(rng.random())) / float(count)
+                level = low + (high - low) * unit
+                _set_factor(case, str(name), level)
+                applied[str(name)] = level
+            case["factor"] = "mixed_stress"
+            case["factor_family"] = "mixed_stress"
+            case["factor_level"] = f"lhs_{index + 1:02d}"
+            case["mixed_stress_values"] = applied
+            output.append(case)
+        return output
     else:
         raise ValueError(f"unsupported case expansion mode: {mode}")
     if not seeds or not factors:
@@ -312,8 +400,15 @@ def expand_cases(suite: Dict[str, object], mode: str) -> List[Dict[str, object]]
 
 def physical_look_vector(theta_deg: float, squint_side: int) -> np.ndarray:
     theta = math.radians(float(theta_deg))
-    along = math.sin(theta)
-    cross = -math.cos(theta) if int(squint_side) == 1 else math.cos(theta)
+    if int(squint_side) == 1:
+        # Stage2's algorithm-axis mapping is side_dir - theta.  With the
+        # default local x=north/y=east convention this gives north=-sin(theta)
+        # on the left-looking side.
+        along = -math.sin(theta)
+        cross = -math.cos(theta)
+    else:
+        along = math.sin(theta)
+        cross = math.cos(theta)
     return np.asarray([along, cross, 0.0], dtype=float)
 
 
@@ -330,22 +425,27 @@ def path_offset(reference_range_m: float, los: np.ndarray, offset: np.ndarray) -
     return (-2.0 * dot + offset_sq / reference_range_m) / max(radial + 1.0, 1.0e-12)
 
 
-def channel_steering(theta_deg: float, p: oracle.Params, range_m: float | None = None) -> np.ndarray:
-    """Physical receive-array steering matching the Stage2 path convention."""
+def spatial_steering(theta_deg: float, range_m: float, geometry: oracle.Params) -> np.ndarray:
+    """Configured target spatial steering for one range block.
 
-    if range_m is None:
-        range_m = range_at_column(0.5 * (p.rg_st + p.rg_ed), p)
-    height = 6000.0
+    Doppler is deliberately absent from this function.  The range-dependent
+    receive path uses only the Stage2 geometry and the beam-center hypothesis.
+    """
+
+    range_m = float(range_m)
+    if not math.isfinite(range_m) or range_m <= 0.0:
+        raise ValueError(f"range_m must be finite and positive, got {range_m!r}")
+    height = float(getattr(geometry, "platform_height_m", 6000.0))
     ground_sq = max(1.0, range_m * range_m - height * height)
     ground = math.sqrt(ground_sq)
-    look = physical_look_vector(theta_deg, p.squint_side)
+    look = physical_look_vector(theta_deg, geometry.squint_side)
     los = np.asarray([ground * look[0], ground * look[1], -height], dtype=float) / range_m
-    offsets = np.asarray(p.offsets_m, dtype=float)
+    offsets = np.asarray(geometry.offsets_m, dtype=float)
     if offsets.shape != (4, 3):
         raise ValueError(f"expected four channel offsets, got {offsets.shape}")
     reference = path_offset(range_m, los, offsets[0])
     phase = np.asarray(
-        [p.carrier_phase_sign * 2.0 * math.pi / (oracle.C0 / p.fc_hz) *
+        [geometry.carrier_phase_sign * 2.0 * math.pi / (oracle.C0 / geometry.fc_hz) *
          (path_offset(range_m, los, offset) - reference) for offset in offsets],
         dtype=float,
     )
@@ -353,8 +453,16 @@ def channel_steering(theta_deg: float, p: oracle.Params, range_m: float | None =
     return steering / max(np.linalg.norm(steering), 1.0e-12) * 2.0
 
 
-def theta_from_relative_doppler(fd_rel_hz: float, p: oracle.Params) -> float:
-    speed = 60.0
+def channel_steering(theta_deg: float, p: oracle.Params, range_m: float) -> np.ndarray:
+    """Compatibility alias for callers outside the V2 runner."""
+
+    return spatial_steering(theta_deg, range_m, p)
+
+
+def clutter_angle_from_doppler(fd_rel_hz: float, p: oracle.Params) -> float:
+    """Stationary-clutter ridge angle, for diagnostics/features only."""
+
+    speed = max(abs(float(getattr(p, "platform_speed_mps", 60.0))), 1.0e-12)
     wavelength = oracle.C0 / p.fc_hz
     argument = float(fd_rel_hz) * wavelength / max(2.0 * speed, 1.0e-12)
     return math.degrees(math.asin(max(-1.0, min(1.0, argument))))
@@ -366,21 +474,22 @@ def temporal_response(fd_rel_hz: float, row_fd_rel_hz: float, p: oracle.Params) 
 
 
 def space_time_steering(
+    theta_deg: float,
     fd_rel_hz: float,
     row: int,
     axis: np.ndarray,
     fa_ctr: float,
     p: oracle.Params,
+    range_m: float,
     offsets: Sequence[int] = JDL_OFFSETS,
-    angle_deg: float | None = None,
 ) -> np.ndarray:
-    theta = theta_from_relative_doppler(fd_rel_hz, p) if angle_deg is None else float(angle_deg)
+    spatial = spatial_steering(theta_deg, range_m, p)
     parts: List[np.ndarray] = []
     for offset in offsets:
         feature_row = (row + int(offset)) % p.pulse_num
         feature_fd = float(axis[feature_row] - fa_ctr)
         temporal = temporal_response(fd_rel_hz, feature_fd, p)
-        parts.append(temporal * channel_steering(theta, p))
+        parts.append(temporal * spatial)
     vector = np.concatenate(parts).astype(np.complex128)
     return vector / max(np.linalg.norm(vector), 1.0e-12) * math.sqrt(len(parts))
 
@@ -506,18 +615,33 @@ def _feature_tensor(rd: np.ndarray, offsets: Sequence[int]) -> np.ndarray:
     return np.concatenate([np.roll(rd, -int(offset), axis=0) for offset in offsets], axis=2)
 
 
-def _physical_steering_for_row(data: v1.CaseData, row: int) -> np.ndarray:
-    fd_rel = float(data.axis[row] - data.fa_ctr)
-    return channel_steering(theta_from_relative_doppler(fd_rel, data.p), data.p)
+def target_beam_angle_deg(data: v1.CaseData) -> float:
+    """Return the configured beam-center target hypothesis, not target truth."""
+
+    p = data.p
+    beam_id = int(data.case.get("beam_id", 31))
+    return float(
+        p.scan_min_deg
+        + (beam_id - 1) * p.scan_step_deg
+        + p.beam_theta_offset_deg
+    )
 
 
-def _jdl_steering_for_row(data: v1.CaseData, row: int) -> np.ndarray:
+def _physical_steering_for_row(
+    data: v1.CaseData, row: int, range_m: float
+) -> np.ndarray:
+    return spatial_steering(target_beam_angle_deg(data), range_m, data.p)
+
+
+def _jdl_steering_for_row(data: v1.CaseData, row: int, range_m: float) -> np.ndarray:
     return space_time_steering(
+        target_beam_angle_deg(data),
         float(data.axis[row] - data.fa_ctr),
         row,
         data.axis,
         data.fa_ctr,
         data.p,
+        range_m,
         JDL_OFFSETS,
     )
 
@@ -569,8 +693,6 @@ def build_weight_model(data: v1.CaseData, method: str, config: Dict[str, object]
         segments = []
 
     for row in range(p.pulse_num):
-        spatial_steering = _physical_steering_for_row(data, row)
-        steering = _jdl_steering_for_row(data, row) if is_jdl else spatial_steering
         if is_sa:
             frequency = data.axis[row] - data.fa_ctr
             snapshot_parts: List[np.ndarray] = []
@@ -581,6 +703,9 @@ def build_weight_model(data: v1.CaseData, method: str, config: Dict[str, object]
                 )
         for block_index, (lo, hi) in enumerate(edges):
             center = (lo + hi - 1) // 2
+            range_m = range_at_column(center, p)
+            spatial = _physical_steering_for_row(data, row, range_m)
+            steering = _jdl_steering_for_row(data, row, range_m) if is_jdl else spatial
             cols = training_columns(center, p, mode, local_half_width, guard)
             if is_sa:
                 # Each subaperture contributes a covariance snapshot.  This is
@@ -589,7 +714,7 @@ def build_weight_model(data: v1.CaseData, method: str, config: Dict[str, object]
                 samples = np.stack([part[cols] for part in snapshot_parts], axis=0).reshape(-1, 4)
                 covariance, stats = loaded_covariance(samples, False, loading_fraction)
                 rank = int(stats["estimated_clutter_rank"])
-                weight = mnec_weight(covariance, spatial_steering, rank)
+                weight = mnec_weight(covariance, spatial, rank)
             else:
                 if is_jdl:
                     samples = feature_bg[row, cols, :]
@@ -621,7 +746,7 @@ def build_weight_model(data: v1.CaseData, method: str, config: Dict[str, object]
         "cut_guard_bins": guard,
         "diagonal_loading_fraction": loading_fraction,
         "weight_build_runtime_ms": 1000.0 * (time.perf_counter() - started),
-        "steering_source": "geometry-derived receive-array path and clutter-ridge Doppler",
+        "steering_source": "configured beam-center spatial hypothesis; Doppler row used only for temporal/JDL frequency",
         "covariance_training_source": "paired C+N background only",
     }
     return WeightModel(
@@ -776,20 +901,112 @@ def output_metrics(
     return result
 
 
+def robust_row_lsq_cancel(
+    f1_bg: np.ndarray,
+    f2_bg: np.ndarray,
+    f1_apply: np.ndarray,
+    f2_apply: np.ndarray,
+    phase_rows: np.ndarray,
+    support: np.ndarray,
+    p: oracle.Params,
+    huber_delta: float = 1.5,
+    physics_regularization: float = 0.05,
+) -> Tuple[np.ndarray, Dict[str, float]]:
+    """Background-only robust complex row LS with a bounded physics prior."""
+
+    out = f1_apply.copy()
+    columns = np.arange(max(0, p.rg_st), min(f1_bg.shape[1], p.rg_ed + 1), dtype=int)
+    if columns.size == 0:
+        return out, {"condition_number": math.nan, "confidence": 0.0, "iterations": 0.0}
+    alphas = np.zeros(f1_bg.shape[0], dtype=np.complex128)
+    condition_values: List[float] = []
+    confidence_values: List[float] = []
+    iteration_values: List[float] = []
+    prior_phase = np.asarray(phase_rows, dtype=float)
+    for row in np.flatnonzero(support):
+        x = np.asarray(f2_bg[row, columns], dtype=np.complex128)
+        y = np.asarray(f1_bg[row, columns], dtype=np.complex128)
+        energy = float(np.mean(np.abs(x) ** 2))
+        if not math.isfinite(energy) or energy <= 1.0e-24:
+            continue
+        prior = np.exp(1j * prior_phase[row])
+        alpha = prior
+        iterations = 0
+        for iterations in range(1, 6):
+            residual = y - alpha * x
+            center = float(np.median(np.abs(residual)))
+            scale = max(1.4826 * center, 1.0e-12)
+            threshold = max(float(huber_delta), 1.0e-6) * scale
+            magnitude = np.abs(residual)
+            weights = np.minimum(1.0, threshold / np.maximum(magnitude, 1.0e-12))
+            weighted_energy = float(np.sum(weights * np.abs(x) ** 2))
+            denom = weighted_energy + float(physics_regularization) * energy
+            numerator = np.sum(weights * np.conj(x) * y) + float(physics_regularization) * energy * prior
+            if denom <= 1.0e-24:
+                break
+            updated = numerator / denom
+            if abs(updated - alpha) <= 1.0e-8 * max(1.0, abs(alpha)):
+                alpha = updated
+                break
+            alpha = updated
+        alphas[row] = alpha
+        fitted = y - alpha * x
+        residual_power = float(np.mean(np.abs(fitted) ** 2))
+        confidence_values.append(float(energy / max(energy + residual_power, 1.0e-24)))
+        # The row problem is scalar; report the regularized effective normal
+        # equation conditioning rather than pretending to have a matrix rank.
+        condition_values.append(float((weighted_energy + float(physics_regularization) * energy) / max(float(physics_regularization) * energy, 1.0e-24)))
+        iteration_values.append(float(iterations))
+        out[row] = f1_apply[row] - alpha * f2_apply[row]
+    return out, {
+        "condition_number": float(np.nanmean(condition_values)) if condition_values else math.nan,
+        "confidence": float(np.nanmean(confidence_values)) if confidence_values else 0.0,
+        "iterations": float(np.nanmean(iteration_values)) if iteration_values else 0.0,
+    }
+
+
 def run_strict_method(
     data: v1.CaseData,
     method: str,
     roc_scales: Sequence[float] | None = None,
+    method_config: Mapping[str, object] | None = None,
 ) -> Tuple[Dict[str, object], Dict[str, object]]:
     production = "production" in method
     alignment = data.alignment if production else data.background_alignment
     p38_phase = np.asarray(alignment.p38["phase_rows"])
+    robust_details: Dict[str, float] = {}
     if method.startswith("Current"):
         bg = oracle.current_cancel(alignment.f1_bg, alignment.f2_bg, p38_phase, data.current_support)
         target = oracle.current_cancel(alignment.f1_target, alignment.f2_target, p38_phase, data.current_support)
     elif method.startswith("Phase-only"):
         bg = v1.phase_only_cancel(alignment.f1_bg, alignment.f2_bg, p38_phase, data.current_support)
         target = v1.phase_only_cancel(alignment.f1_target, alignment.f2_target, p38_phase, data.current_support)
+    elif method.startswith("Row complex LS / Wiener robust"):
+        config = method_config or {}
+        robust_kwargs = {
+            "huber_delta": float(config.get("robust_huber_delta", 1.5)),
+            "physics_regularization": float(config.get("robust_physics_regularization", 0.05)),
+        }
+        bg, robust_details = robust_row_lsq_cancel(
+            data.background_alignment.f1_bg,
+            data.background_alignment.f2_bg,
+            alignment.f1_bg,
+            alignment.f2_bg,
+            p38_phase,
+            data.current_support,
+            data.p,
+            **robust_kwargs,
+        )
+        target, _ = robust_row_lsq_cancel(
+            data.background_alignment.f1_bg,
+            data.background_alignment.f2_bg,
+            alignment.f1_target,
+            alignment.f2_target,
+            p38_phase,
+            data.current_support,
+            data.p,
+            **robust_kwargs,
+        )
     else:
         bg = oracle.direct_weight_cancel(alignment.f1_bg, alignment.f2_bg, alignment.alpha, data.current_support)
         target = oracle.direct_weight_cancel(alignment.f1_target, alignment.f2_target, alignment.alpha, data.current_support)
@@ -822,6 +1039,9 @@ def run_strict_method(
         "shrinkage_coefficient": math.nan,
         "steering_projection_error_mean": math.nan,
         "steering_projection_error_p95": math.nan,
+        "robust_lsq_condition_number": robust_details.get("condition_number", math.nan),
+        "robust_lsq_confidence": robust_details.get("confidence", math.nan),
+        "robust_lsq_iterations": robust_details.get("iterations", math.nan),
     }
     return metrics, details
 
@@ -850,7 +1070,7 @@ def run_adaptive_method(
         "comparison_protocol": "scientific_controlled",
         "method_family": "4-channel physical academic reference",
         "training_source": "paired C+N background only",
-        "steering_source": "geometry-derived channel path + Doppler ridge",
+        "steering_source": "configured beam-center spatial hypothesis; Doppler row used only for temporal/JDL frequency",
         "academic_reference_status": "approximate academic reference" if method.startswith("SA-MNEC") else "corrected research baseline",
         "training_mode": model.training_mode,
         "training_sample_count": model.row_stats["training_sample_count"],
@@ -895,6 +1115,7 @@ def feature_base(data: v1.CaseData) -> Dict[str, object]:
     return {
         "case_id": str(data.case["case_id"]),
         "factor": str(data.case.get("factor", "explicit")),
+        "factor_family": str(data.case.get("factor_family", data.case.get("factor", "explicit"))),
         "factor_level": data.case.get("factor_level", "explicit"),
         "seed": int(data.case.get("seed", -1)),
         "scenario_label": str(data.case.get("label", data.case.get("case_id", ""))),
@@ -913,6 +1134,8 @@ def feature_base(data: v1.CaseData) -> Dict[str, object]:
         "phase_variance_rad2": phase_variance,
         "distance_to_clutter_ridge_hz": abs(target_fd_offset),
         "distance_to_clutter_ridge_mps": abs(target_fd_offset) * (oracle.C0 / data.p.fc_hz) / 2.0,
+        "clutter_ridge_angle_deg_diagnostic": clutter_angle_from_doppler(target_fd_offset, data.p),
+        "target_beam_hypothesis_angle_deg": target_beam_angle_deg(data),
         "distance_to_support_edge_rows": edge_distance,
         "distance_to_support_edge_hz": float(edge_distance) * data.p.prf_hz / data.p.pulse_num if math.isfinite(float(edge_distance)) else math.nan,
         "target_fd_truth_hz": float(data.target_fd),
@@ -947,6 +1170,9 @@ def base_result_row(
         "target_clutter_center_offset_hz": float(data.target_fd - data.fa_ctr),
         "target_motion_ve_mps": float(data.case.get("motion", {}).get("ve_mps", math.nan)),
         "target_motion_vn_mps": float(data.case.get("motion", {}).get("vn_mps", math.nan)),
+        "target_velocity_mode": str(data.case.get("velocity_mode", "enu")),
+        "target_radial_speed_config_mps": float(data.case.get("radial_speed_mps", math.nan)),
+        "target_azimuth_offset_deg": float(data.case.get("target_azimuth_offset_deg", 0.0)),
         "channel_valid_fraction": float(data.valid_sample_fraction),
         "target_row_truth": int(data.truth_row),
         "target_range_bin_truth": int(data.truth_col),
@@ -975,7 +1201,9 @@ def run_case(
         for method in METHODS:
             started = time.perf_counter()
             if method in STRICT_METHODS:
-                metrics, details = run_strict_method(data, method, roc_scales=roc_scales)
+                metrics, details = run_strict_method(
+                    data, method, roc_scales=roc_scales, method_config=method_config
+                )
             else:
                 metrics, details = run_adaptive_method(data, method, method_config, roc_scales=roc_scales)
             runtime_ms = 1000.0 * (time.perf_counter() - started)
@@ -1007,7 +1235,274 @@ def run_case(
         v1.cleanup_case(paths)
 
 
-def steering_sanity(out_dir: Path) -> Dict[str, object]:
+def _complex_vector_comparison(predicted: np.ndarray, measured: np.ndarray) -> Dict[str, object]:
+    predicted = np.asarray(predicted, dtype=np.complex128).reshape(-1)
+    measured = np.asarray(measured, dtype=np.complex128).reshape(-1)
+    valid = np.isfinite(predicted.real) & np.isfinite(predicted.imag)
+    valid &= np.isfinite(measured.real) & np.isfinite(measured.imag)
+    predicted = predicted[valid]
+    measured = measured[valid]
+    pred_norm = np.linalg.norm(predicted)
+    measured_norm = np.linalg.norm(measured)
+    if pred_norm <= 1.0e-12 or measured_norm <= 1.0e-12:
+        return {
+            "normalized_complex_correlation": math.nan,
+            "phase_error_rms_rad": math.nan,
+            "amplitude_normalized_error": math.nan,
+            "phase_error_rad": [math.nan] * int(predicted.size),
+        }
+    predicted = predicted / pred_norm
+    measured = measured / measured_norm
+    correlation = abs(np.vdot(predicted, measured))
+    global_phase = float(np.angle(np.vdot(predicted, measured)))
+    aligned = predicted * np.exp(1j * global_phase)
+    phase_error = np.angle(measured * np.conj(aligned))
+    phase_weight = 0.5 * (np.abs(measured) ** 2 + np.abs(predicted) ** 2)
+    phase_weight /= max(float(np.sum(phase_weight)), 1.0e-12)
+    return {
+        "normalized_complex_correlation": float(correlation),
+        "phase_error_rms_rad": float(np.sqrt(np.sum(phase_weight * phase_error ** 2))),
+        "amplitude_normalized_error": float(np.linalg.norm(np.abs(measured) - np.abs(predicted))),
+        "phase_error_rad": phase_error.tolist(),
+    }
+
+
+def _empirical_sanity_cases(suite: Dict[str, object]) -> List[Dict[str, object]]:
+    spec = suite.get("steering_sanity", {})
+    base = _base_case(suite)
+    cases: List[Dict[str, object]] = []
+    for index, item in enumerate(spec.get("cases", [])):
+        case = copy.deepcopy(base)
+        case.update(copy.deepcopy(item))
+        case["case_id"] = str(item.get("case_id", f"steering_sanity_{index + 1:02d}"))
+        case["target_id"] = f"{case.get('target_id', 'V21_TARGET')}_{case['case_id']}"
+        case["factor"] = "steering_sanity"
+        case["factor_level"] = item.get("label", case["case_id"])
+        case["label"] = str(item.get("label", case["case_id"]))
+        case["target_snr_db"] = float(item.get("target_snr_db", spec.get("target_snr_db", 30.0)))
+        if "radial_speed_mps" in item:
+            case["velocity_mode"] = "radial"
+            case["radial_speed_mps"] = float(item["radial_speed_mps"])
+        case["use_paired_background"] = True
+        cases.append(case)
+    if not cases:
+        raise ValueError("steering_sanity.cases must contain at least one real Stage2 case")
+    return cases
+
+
+def empirical_steering_sanity(
+    out_dir: Path,
+    base_config_path: Path,
+    suite: Dict[str, object],
+) -> Dict[str, object]:
+    """Compare geometry predictions with same-seed S=(S+C+N)-(C+N) vectors."""
+
+    sanity_spec = suite.get("steering_sanity", {})
+    thresholds = {
+        "spatial_correlation_min": float(sanity_spec.get("spatial_correlation_min", 0.90)),
+        "jdl_correlation_min": float(sanity_spec.get("jdl_correlation_min", 0.80)),
+        "spatial_phase_rms_max_rad": float(sanity_spec.get("spatial_phase_rms_max_rad", 0.40)),
+        "jdl_phase_rms_max_rad": float(sanity_spec.get("jdl_phase_rms_max_rad", 0.60)),
+        "amplitude_normalized_error_max": float(sanity_spec.get("amplitude_normalized_error_max", 0.25)),
+        "velocity_invariance_correlation_min": float(sanity_spec.get("velocity_invariance_correlation_min", 0.90)),
+    }
+    run_suite = copy.deepcopy(suite)
+    run_suite["output_root"] = relative_repo_path(out_dir / "cases")
+    rows: List[Dict[str, object]] = []
+    measured_by_group: Dict[str, List[Tuple[int, np.ndarray]]] = {}
+    for case in _empirical_sanity_cases(suite):
+        paths: Dict[str, Path | bool] | None = None
+        try:
+            paths = v1.prepare_case_data(base_config_path, run_suite, case, keep_data=False)
+            data = v1.load_case_data(case, paths)
+            signal = data.raw_target_rd - data.raw_bg_rd
+            r0 = max(0, data.truth_row - 2)
+            r1 = min(signal.shape[0], data.truth_row + 3)
+            c0 = max(0, data.truth_col - 2)
+            c1 = min(signal.shape[1], data.truth_col + 3)
+            local = signal[r0:r1, c0:c1, :]
+            measured_power = np.sum(np.abs(local) ** 2, axis=2)
+            local_row, local_col = np.unravel_index(int(np.argmax(measured_power)), measured_power.shape)
+            row = r0 + int(local_row)
+            col = c0 + int(local_col)
+            measured_spatial = signal[row, col, :]
+            range_m = range_at_column(col, data.p)
+            angle_deg = target_beam_angle_deg(data)
+            actual_angle_deg = angle_deg + float(case.get("target_azimuth_offset_deg", 0.0))
+            predicted_spatial = spatial_steering(actual_angle_deg, range_m, data.p)
+            predicted_hypothesis_spatial = spatial_steering(angle_deg, range_m, data.p)
+            spatial_metrics = _complex_vector_comparison(predicted_spatial, measured_spatial)
+            hypothesis_spatial_metrics = _complex_vector_comparison(predicted_hypothesis_spatial, measured_spatial)
+            measured_features = _feature_tensor(signal, JDL_OFFSETS)[row, col, :]
+            predicted_features = space_time_steering(
+                actual_angle_deg,
+                float(data.axis[row] - data.fa_ctr),
+                row,
+                data.axis,
+                data.fa_ctr,
+                data.p,
+                range_m,
+            )
+            jdl_metrics = _complex_vector_comparison(predicted_features, measured_features)
+            angle_response = {
+                f"angle_perturbation_{offset:+g}deg_gain_dB": db20(
+                    abs(np.vdot(predicted_hypothesis_spatial, spatial_steering(angle_deg + offset, range_m, data.p)))
+                )
+                for offset in (-2.0, -1.0, 1.0, 2.0)
+            }
+            record: Dict[str, object] = {
+                "case_id": case["case_id"],
+                "label": case.get("label", case["case_id"]),
+                "seed": int(case.get("seed", -1)),
+                "sanity_group": case.get("sanity_group", "unspecified"),
+                "beam_id": int(case.get("beam_id", 31)),
+                "target_expected_bin": int(case.get("target_expected_bin", data.truth_col)),
+                "target_azimuth_offset_deg": float(case.get("target_azimuth_offset_deg", 0.0)),
+                "target_beam_hypothesis_angle_deg": angle_deg,
+                "target_geometry_angle_deg_for_sanity": actual_angle_deg,
+                "target_radial_speed_mps": finite_or_nan(case.get("radial_speed_mps")),
+                "target_fd_truth_hz": float(data.target_fd),
+                "target_fd_relative_hz": float(data.target_fd - data.fa_ctr),
+                "jdl_row_fd_relative_hz_used": float(data.axis[row] - data.fa_ctr),
+                "measured_peak_row": row,
+                "measured_peak_col": col,
+                "measured_range_m": range_m,
+                "spatial_normalized_complex_correlation": spatial_metrics["normalized_complex_correlation"],
+                "spatial_phase_error_rms_rad": spatial_metrics["phase_error_rms_rad"],
+                "spatial_amplitude_normalized_error": spatial_metrics["amplitude_normalized_error"],
+                "spatial_hypothesis_normalized_complex_correlation": hypothesis_spatial_metrics["normalized_complex_correlation"],
+                "spatial_hypothesis_phase_error_rms_rad": hypothesis_spatial_metrics["phase_error_rms_rad"],
+                "jdl_normalized_complex_correlation": jdl_metrics["normalized_complex_correlation"],
+                "jdl_phase_error_rms_rad": jdl_metrics["phase_error_rms_rad"],
+                "jdl_amplitude_normalized_error": jdl_metrics["amplitude_normalized_error"],
+                "signal_definition": "raw_target_rd - raw_background_rd from same-seed paired Stage2 outputs",
+                "status": "ok",
+            }
+            for index, value in enumerate(spatial_metrics["phase_error_rad"], start=1):
+                record[f"spatial_phase_error_ch{index}_rad"] = value
+            for index, value in enumerate(jdl_metrics["phase_error_rad"], start=1):
+                record[f"jdl_phase_error_feature{index}_rad"] = value
+            record.update(angle_response)
+            rows.append(record)
+            measured_by_group.setdefault(str(case.get("sanity_group", "unspecified")), []).append((len(rows) - 1, measured_spatial.copy()))
+            del data
+        except Exception as exc:
+            rows.append({
+                "case_id": case["case_id"],
+                "label": case.get("label", case["case_id"]),
+                "seed": int(case.get("seed", -1)),
+                "sanity_group": case.get("sanity_group", "unspecified"),
+                "status": "failed",
+                "failure_reason": repr(exc),
+            })
+        finally:
+            if paths is not None:
+                v1.cleanup_case(paths)
+
+    for group, indexed_vectors in measured_by_group.items():
+        if len(indexed_vectors) < 2:
+            continue
+        reference = indexed_vectors[0][1]
+        for index, vector in indexed_vectors:
+            comparison = _complex_vector_comparison(reference, vector)
+            rows[index]["velocity_spatial_invariance_corr"] = comparison["normalized_complex_correlation"]
+
+    checks: List[Dict[str, object]] = []
+    valid_rows = [row for row in rows if row.get("status") == "ok"]
+    for row in valid_rows:
+        checks.extend([
+            {
+                "case_id": row["case_id"],
+                "test": "spatial_normalized_complex_correlation",
+                "value": row.get("spatial_normalized_complex_correlation", math.nan),
+                "threshold": thresholds["spatial_correlation_min"],
+                "passed": bool(finite_or_nan(row.get("spatial_normalized_complex_correlation")) >= thresholds["spatial_correlation_min"]),
+            },
+            {
+                "case_id": row["case_id"],
+                "test": "jdl_normalized_complex_correlation",
+                "value": row.get("jdl_normalized_complex_correlation", math.nan),
+                "threshold": thresholds["jdl_correlation_min"],
+                "passed": bool(finite_or_nan(row.get("jdl_normalized_complex_correlation")) >= thresholds["jdl_correlation_min"]),
+            },
+            {
+                "case_id": row["case_id"],
+                "test": "spatial_phase_error_rms_rad",
+                "value": row.get("spatial_phase_error_rms_rad", math.nan),
+                "threshold": thresholds["spatial_phase_rms_max_rad"],
+                "passed": bool(finite_or_nan(row.get("spatial_phase_error_rms_rad")) <= thresholds["spatial_phase_rms_max_rad"]),
+            },
+            {
+                "case_id": row["case_id"],
+                "test": "jdl_phase_error_rms_rad",
+                "value": row.get("jdl_phase_error_rms_rad", math.nan),
+                "threshold": thresholds["jdl_phase_rms_max_rad"],
+                "passed": bool(finite_or_nan(row.get("jdl_phase_error_rms_rad")) <= thresholds["jdl_phase_rms_max_rad"]),
+            },
+            {
+                "case_id": row["case_id"],
+                "test": "spatial_amplitude_normalized_error",
+                "value": row.get("spatial_amplitude_normalized_error", math.nan),
+                "threshold": thresholds["amplitude_normalized_error_max"],
+                "passed": bool(finite_or_nan(row.get("spatial_amplitude_normalized_error")) <= thresholds["amplitude_normalized_error_max"]),
+            },
+        ])
+        if str(row.get("sanity_group")) == "fixed_angle_velocity" and "velocity_spatial_invariance_corr" in row:
+            checks.append({
+                "case_id": row["case_id"],
+                "test": "velocity_spatial_invariance_corr",
+                "value": row["velocity_spatial_invariance_corr"],
+                "threshold": thresholds["velocity_invariance_correlation_min"],
+                "passed": bool(finite_or_nan(row.get("velocity_spatial_invariance_corr")) >= thresholds["velocity_invariance_correlation_min"]),
+            })
+    if len(valid_rows) != len(rows):
+        checks.append({
+            "case_id": "all",
+            "test": "all_empirical_cases_completed",
+            "value": len(valid_rows),
+            "threshold": len(rows),
+            "passed": False,
+        })
+    write_csv(out_dir / "baseline_v21_empirical_steering_sanity.csv", rows)
+    write_csv(out_dir / "baseline_v21_empirical_steering_checks.csv", checks)
+    if rows:
+        labels = [str(row.get("case_id", "")) for row in rows]
+        corr = [finite_or_nan(row.get("spatial_normalized_complex_correlation")) for row in rows]
+        jdl_corr = [finite_or_nan(row.get("jdl_normalized_complex_correlation")) for row in rows]
+        fig, ax = plt.subplots(figsize=(max(9.0, 0.55 * len(labels)), 5.0))
+        x = np.arange(len(labels))
+        ax.bar(x - 0.18, corr, width=0.36, label="spatial", color="#1f77b4")
+        ax.bar(x + 0.18, jdl_corr, width=0.36, label="JDL 12-D", color="#17becf")
+        ax.axhline(thresholds["spatial_correlation_min"], color="#1f77b4", linestyle="--", linewidth=0.8)
+        ax.axhline(thresholds["jdl_correlation_min"], color="#17becf", linestyle=":", linewidth=0.8)
+        ax.set_xticks(x, labels, rotation=35, ha="right")
+        ax.set_ylim(0.0, 1.05)
+        ax.set_ylabel("Absolute normalized complex correlation")
+        ax.set_title("Empirical Stage2 steering sanity")
+        ax.grid(True, axis="y", color="#dddddd", linewidth=0.6)
+        ax.legend()
+        fig.tight_layout()
+        fig.savefig(out_dir / "baseline_v21_empirical_steering_sanity.png", dpi=160)
+        plt.close(fig)
+    result = {
+        "case_count": len(rows),
+        "completed_case_count": len(valid_rows),
+        "thresholds": thresholds,
+        "checks": checks,
+        "all_pass": bool(rows) and bool(checks) and all(bool(check["passed"]) for check in checks),
+        "signal_definition": "S=(S+C+N)-(C+N), same seed and same generated Stage2 scene configuration",
+        "spatial_definition": "configured target beam-center angle and measured range column",
+        "jdl_definition": "explicit target Doppler temporal response multiplied by the same configured spatial steering",
+    }
+    write_json(out_dir / "baseline_v21_empirical_steering_sanity.json", result)
+    return result
+
+
+def steering_sanity(
+    out_dir: Path,
+    base_config_path: Path,
+    suite: Dict[str, object],
+) -> Dict[str, object]:
     out_dir.mkdir(parents=True, exist_ok=True)
     p = SimpleNamespace(
         fc_hz=16.0e9,
@@ -1018,16 +1513,19 @@ def steering_sanity(out_dir: Path) -> Dict[str, object]:
         range_crop_start=3864,
         sample_delay_s=488.0e-6,
         fs_hz=60.0e6,
+        platform_speed_mps=60.0,
+        platform_height_m=6000.0,
         carrier_phase_sign=-1,
         squint_side=1,
         offsets_m=((-0.085, 0.0, 0.085), (0.085, 0.0, 0.085), (-0.085, 0.0, -0.085), (0.085, 0.0, -0.085)),
     )
+    sanity_range_m = range_at_column(2200, p)
     target_angle = 3.0
     clutter_angle = 0.0
-    target_fd = 2.0 * 60.0 * math.sin(math.radians(target_angle)) / (oracle.C0 / p.fc_hz)
-    clutter_fd = 2.0 * 60.0 * math.sin(math.radians(clutter_angle)) / (oracle.C0 / p.fc_hz)
-    target_s = channel_steering(target_angle, p)
-    clutter_s = channel_steering(clutter_angle, p)
+    target_fd = 2.0 * p.platform_speed_mps * math.sin(math.radians(target_angle)) / (oracle.C0 / p.fc_hz)
+    clutter_fd = 2.0 * p.platform_speed_mps * math.sin(math.radians(clutter_angle)) / (oracle.C0 / p.fc_hz)
+    target_s = spatial_steering(target_angle, sanity_range_m, p)
+    clutter_s = spatial_steering(clutter_angle, sanity_range_m, p)
     covariance = 20.0 * np.outer(clutter_s, clutter_s.conj()) + np.eye(4, dtype=np.complex128)
     target_w = mvdr_weight(covariance, target_s)
     target_gain = np.vdot(target_w, target_s)
@@ -1037,27 +1535,29 @@ def steering_sanity(out_dir: Path) -> Dict[str, object]:
     injected = target_amplitude * np.exp(1j * target_phase) * target_s
     recovered = np.vdot(target_w, injected)
     perturbations = [0.0, 0.5, 1.0, 2.0, 4.0]
-    perturb_gain_db = [db20(np.vdot(target_w, channel_steering(target_angle + d, p))) for d in perturbations]
+    perturb_gain_db = [db20(np.vdot(target_w, spatial_steering(target_angle + d, sanity_range_m, p))) for d in perturbations]
     # Center the Doppler scan on the tested target so the response peak is
     # evaluated in a target-centered physical neighborhood, not on a distant
     # JDL ambiguity branch.
     axis = target_fd + np.linspace(-450.0, 450.0, 121)
     angles = np.linspace(-5.0, 5.0, 81)
     jdl_target_row = 65
-    jdl_target_s = space_time_steering(target_fd, jdl_target_row, np.linspace(-650.0, 650.0, p.pulse_num), 0.0, p)
-    jdl_clutter_s = space_time_steering(clutter_fd, jdl_target_row, np.linspace(-650.0, 650.0, p.pulse_num), 0.0, p)
+    sanity_axis = np.linspace(-650.0, 650.0, p.pulse_num)
+    jdl_target_s = space_time_steering(target_angle, target_fd, jdl_target_row, sanity_axis, 0.0, p, sanity_range_m)
+    jdl_clutter_s = space_time_steering(clutter_angle, clutter_fd, jdl_target_row, sanity_axis, 0.0, p, sanity_range_m)
     jdl_covariance = 20.0 * np.outer(jdl_clutter_s, jdl_clutter_s.conj()) + np.eye(12, dtype=np.complex128)
     jdl_w = mvdr_weight(jdl_covariance, jdl_target_s)
     response = np.zeros((angles.size, axis.size), dtype=float)
     for i, angle in enumerate(angles):
         for j, fd in enumerate(axis):
             candidate = space_time_steering(
+                float(angle),
                 float(fd),
                 jdl_target_row,
-                np.linspace(-650.0, 650.0, p.pulse_num),
+                sanity_axis,
                 0.0,
                 p,
-                angle_deg=float(angle),
+                sanity_range_m,
             )
             response[i, j] = db20(np.vdot(jdl_w, candidate))
     scan_peak = np.unravel_index(int(np.nanargmax(response)), response.shape)
@@ -1093,9 +1593,9 @@ def steering_sanity(out_dir: Path) -> Dict[str, object]:
     axes[1].set_ylabel("Target gain (dB)")
     axes[1].grid(True, color="#dddddd", linewidth=0.6)
     fig.tight_layout()
-    fig.savefig(out_dir / "baseline_v2_steering_sanity.png", dpi=160)
+    fig.savefig(out_dir / "baseline_v21_steering_sanity.png", dpi=160)
     plt.close(fig)
-    result = {
+    synthetic_result = {
         "target_angle_deg": target_angle,
         "target_relative_doppler_hz": target_fd,
         "clutter_angle_deg": clutter_angle,
@@ -1109,8 +1609,14 @@ def steering_sanity(out_dir: Path) -> Dict[str, object]:
         "scan_peak_relative_doppler_hz": float(axis[scan_peak[1]]),
         "checks": checks,
         "all_pass": all(bool(check["passed"]) for check in checks),
-        "steering_definition": "common-transmit receive path difference using configured four-channel phase centres, carrier phase sign, beam side and clutter Doppler ridge",
+        "steering_definition": "configured beam-center spatial path difference plus explicit temporal Doppler response; clutter ridge is diagnostic only",
     }
+    empirical_result = empirical_steering_sanity(out_dir, base_config_path, suite)
+    result = dict(synthetic_result)
+    result["synthetic"] = synthetic_result
+    result["empirical"] = empirical_result
+    result["all_pass"] = bool(synthetic_result["all_pass"] and empirical_result["all_pass"])
+    result["steering_definition"] = "spatial(theta, range, geometry) with explicit temporal(fd, row); clutter_ridge_from_doppler is diagnostic only"
     write_json(out_dir / "steering_sanity.json", result)
     return result
 
@@ -1179,15 +1685,19 @@ def summarize_mdv(rows: List[Dict[str, object]], suite: Dict[str, object]) -> Li
     if not velocity:
         return []
     threshold = float(suite.get("velocity_sweep", {}).get("mdv_pd_threshold", 0.5))
-    grouped: Dict[Tuple[str, str], Dict[float, List[float]]] = {}
-    by_seed: Dict[Tuple[str, str, str], Dict[float, List[float]]] = {}
+    grouped: Dict[Tuple[str, str, str], Dict[float, List[float]]] = {}
+    by_seed: Dict[Tuple[str, str, str, str], Dict[float, List[float]]] = {}
     for row in velocity:
-        protocol_key = (str(row.get("method")), str(row.get("comparison_protocol")))
-        speed = abs(float(row.get("target_motion_ve_mps", math.nan)))
+        signed_speed = finite_or_nan(row.get("target_radial_speed_config_mps"))
+        if not math.isfinite(signed_speed):
+            signed_speed = finite_or_nan(row.get("target_motion_ve_mps"))
+        direction = "approaching" if signed_speed < 0.0 else ("receding" if signed_speed > 0.0 else "zero")
+        protocol_key = (str(row.get("method")), str(row.get("comparison_protocol")), direction)
+        speed = abs(float(signed_speed))
         pd = finite_or_nan(row.get("target_detected"))
         if math.isfinite(speed) and math.isfinite(pd):
             grouped.setdefault(protocol_key, {}).setdefault(speed, []).append(pd)
-            by_seed.setdefault((protocol_key[0], protocol_key[1], str(row.get("seed"))), {}).setdefault(speed, []).append(pd)
+            by_seed.setdefault((protocol_key[0], protocol_key[1], direction, str(row.get("seed"))), {}).setdefault(speed, []).append(pd)
 
     def crossing_value(curve: List[Tuple[float, float]]) -> float:
         for index, (speed, pd) in enumerate(curve):
@@ -1200,7 +1710,7 @@ def summarize_mdv(rows: List[Dict[str, object]], suite: Dict[str, object]) -> Li
         return math.nan
 
     output: List[Dict[str, object]] = []
-    for (method, protocol), by_speed in sorted(grouped.items()):
+    for (method, protocol, direction), by_speed in sorted(grouped.items()):
         curve = sorted((speed, float(np.mean(values)), len(values)) for speed, values in by_speed.items())
         group_crossing = math.nan
         low_speed = math.nan
@@ -1219,8 +1729,8 @@ def summarize_mdv(rows: List[Dict[str, object]], suite: Dict[str, object]) -> Li
                     high_speed = speed
                 break
         seed_crossings: List[float] = []
-        for (seed_method, seed_protocol, _seed), seed_by_speed in by_seed.items():
-            if seed_method != method or seed_protocol != protocol:
+        for (seed_method, seed_protocol, seed_direction, _seed), seed_by_speed in by_seed.items():
+            if seed_method != method or seed_protocol != protocol or seed_direction != direction:
                 continue
             seed_curve = sorted((speed, float(np.mean(values))) for speed, values in seed_by_speed.items())
             seed_value = crossing_value(seed_curve)
@@ -1231,6 +1741,8 @@ def summarize_mdv(rows: List[Dict[str, object]], suite: Dict[str, object]) -> Li
             {
                 "method": method,
                 "comparison_protocol": protocol,
+                "velocity_direction": direction,
+                "symmetry_verified": False,
                 "pd_threshold": threshold,
                 "mdv_mps": group_crossing,
                 "crossing_low_mps": low_speed,
@@ -1245,9 +1757,31 @@ def summarize_mdv(rows: List[Dict[str, object]], suite: Dict[str, object]) -> Li
                 "mdv_seed_ci95_high_mps": seed_high,
                 "mdv_seed_p05_mps": float(np.percentile(seed_crossings, 5.0)) if seed_crossings else math.nan,
                 "mdv_seed_p95_mps": float(np.percentile(seed_crossings, 95.0)) if seed_crossings else math.nan,
-                "definition": "smallest absolute regenerated radial-speed grid value with seed-mean empirical Pd (target_detected aggregated over seeds) >= threshold; linear interpolation only between adjacent grid points",
+                "definition": "smallest absolute regenerated signed-radial-speed grid value with direction-specific seed-mean empirical Pd >= threshold; approaching/receding are not combined unless symmetry is verified",
             }
         )
+    symmetry_tolerance = float(suite.get("velocity_sweep", {}).get("symmetry_pd_tolerance", 0.15))
+    by_curve = {(row["method"], row["comparison_protocol"], row["velocity_direction"]): row for row in output}
+    methods_protocols = sorted({(row["method"], row["comparison_protocol"]) for row in output})
+    for method, protocol in methods_protocols:
+        approaching = by_curve.get((method, protocol, "approaching"))
+        receding = by_curve.get((method, protocol, "receding"))
+        if approaching is None or receding is None:
+            continue
+        paired = []
+        for speed in sorted(set(grouped[(method, protocol, "approaching")]) & set(grouped[(method, protocol, "receding")])):
+            a = float(np.mean(grouped[(method, protocol, "approaching")][speed]))
+            r = float(np.mean(grouped[(method, protocol, "receding")][speed]))
+            paired.append(abs(a - r))
+        verified = bool(paired) and max(paired) <= symmetry_tolerance
+        approaching["symmetry_max_abs_pd_difference"] = max(paired) if paired else math.nan
+        receding["symmetry_max_abs_pd_difference"] = max(paired) if paired else math.nan
+        if verified:
+            combined = dict(approaching)
+            combined["velocity_direction"] = "abs_speed_combined"
+            combined["symmetry_verified"] = True
+            combined["definition"] = "approaching/receding curves combined only after per-speed mean Pd difference passed the configured symmetry tolerance"
+            output.append(combined)
     return output
 
 
@@ -1273,6 +1807,7 @@ def enrich_feature_diagnostics(
             ("current", "Current legacy CSI [production replay]"),
             ("phase_only", "Phase-only CSI [production replay]"),
             ("row_ls", "Row complex LS / Wiener [scientific controlled]"),
+            ("robust_row_ls", "Row complex LS / Wiener robust IRLS [scientific controlled]"),
             ("dl_mvdr", "DL-SMI/MVDR global"),
             ("shrinkage_mvdr", "Shrinkage-SMI/MVDR global"),
             ("jdl", "Corrected JDL physical"),
@@ -1381,7 +1916,7 @@ def feature_correlations(features: List[Dict[str, object]]) -> List[Dict[str, ob
 
 
 def feature_light_predictor(features: List[Dict[str, object]]) -> List[Dict[str, object]]:
-    """Run a small leave-one-out ridge screen, never a production model."""
+    """Run leakage-controlled exploratory ridge folds, never a production model."""
     predictor_features = [
         "valid_pulse_fraction",
         "texture_sigma_config",
@@ -1399,59 +1934,166 @@ def feature_light_predictor(features: List[Dict[str, object]]) -> List[Dict[str,
     output: List[Dict[str, object]] = []
     if len(features) < 5:
         return output
+    ridge_lambda = 1.0
+
+    def fit_predict(train_matrix: np.ndarray, train_y: np.ndarray, test_matrix: np.ndarray) -> np.ndarray:
+        # Imputation and standardization are deliberately fitted on the
+        # training fold only; test rows never influence either statistic.
+        train_matrix = np.asarray(train_matrix, dtype=float).copy()
+        test_matrix = np.asarray(test_matrix, dtype=float).copy()
+        medians = np.zeros(train_matrix.shape[1], dtype=float)
+        for column in range(train_matrix.shape[1]):
+            finite = train_matrix[:, column][np.isfinite(train_matrix[:, column])]
+            medians[column] = float(np.median(finite)) if finite.size else 0.0
+            train_matrix[~np.isfinite(train_matrix[:, column]), column] = medians[column]
+            test_matrix[~np.isfinite(test_matrix[:, column]), column] = medians[column]
+        means = np.mean(train_matrix, axis=0)
+        scales = np.std(train_matrix, axis=0)
+        scales[scales <= 1.0e-12] = 1.0
+        train_design = np.column_stack((np.ones(train_matrix.shape[0]), (train_matrix - means) / scales))
+        test_design = np.column_stack((np.ones(test_matrix.shape[0]), (test_matrix - means) / scales))
+        gram = train_design.T @ train_design
+        gram[1:, 1:] += ridge_lambda * np.eye(train_design.shape[1] - 1)
+        rhs = train_design.T @ train_y
+        try:
+            coefficients = np.linalg.solve(gram, rhs)
+        except np.linalg.LinAlgError:
+            coefficients = np.linalg.lstsq(gram, rhs, rcond=None)[0]
+        return test_design @ coefficients
+
     for target in targets:
         target_values = np.asarray([finite_or_nan(row.get(target)) for row in features], dtype=float)
         valid_target = np.isfinite(target_values)
-        if np.count_nonzero(valid_target) < 5:
+        indices = np.flatnonzero(valid_target)
+        if indices.size < 5:
             continue
-        selected = [features[index] for index in np.flatnonzero(valid_target)]
+        selected = [features[index] for index in indices]
         y = target_values[valid_target]
         matrix = np.asarray(
             [[finite_or_nan(row.get(name)) for name in predictor_features] for row in selected],
             dtype=float,
         )
-        for column in range(matrix.shape[1]):
-            finite = matrix[:, column][np.isfinite(matrix[:, column])]
-            fill = float(np.median(finite)) if finite.size else 0.0
-            matrix[~np.isfinite(matrix[:, column]), column] = fill
-        means = np.mean(matrix, axis=0)
-        scales = np.std(matrix, axis=0)
-        scales[scales <= 1.0e-12] = 1.0
-        standardized = (matrix - means) / scales
-        design = np.column_stack((np.ones(standardized.shape[0]), standardized))
-        predictions = np.full(y.size, math.nan, dtype=float)
-        ridge_lambda = 1.0
-        for holdout in range(y.size):
-            train = np.ones(y.size, dtype=bool)
-            train[holdout] = False
-            gram = design[train].T @ design[train]
-            gram[1:, 1:] += ridge_lambda * np.eye(design.shape[1] - 1)
-            rhs = design[train].T @ y[train]
-            try:
-                coefficients = np.linalg.solve(gram, rhs)
-            except np.linalg.LinAlgError:
-                coefficients = np.linalg.lstsq(gram, rhs, rcond=None)[0]
-            predictions[holdout] = float(design[holdout] @ coefficients)
-        residual = predictions - y
-        ss_res = float(np.sum(residual ** 2))
-        ss_tot = float(np.sum((y - np.mean(y)) ** 2))
-        gram = design.T @ design
-        gram[1:, 1:] += ridge_lambda * np.eye(design.shape[1] - 1)
-        rhs = design.T @ y
-        coefficients = np.linalg.solve(gram, rhs)
-        row: Dict[str, object] = {
-            "target": target,
-            "n": int(y.size),
-            "ridge_lambda": ridge_lambda,
-            "loo_rmse": float(math.sqrt(np.mean(residual ** 2))),
-            "loo_mae": float(np.mean(np.abs(residual))),
-            "loo_r2": float(1.0 - ss_res / ss_tot) if ss_tot > 1.0e-12 else math.nan,
-            "scope": "exploratory input-feature screen only; not a trained production model",
+        modes = {
+            "leave_one_case_out": [str(index) for index in range(len(selected))],
+            "leave_one_seed_out": sorted({str(row.get("seed", "")) for row in selected}),
+            "leave_one_factor_family_out": sorted({str(row.get("factor_family", row.get("factor", ""))) for row in selected}),
         }
-        for index, name in enumerate(predictor_features, start=1):
-            row[f"standardized_coefficient__{name}"] = float(coefficients[index])
-        output.append(row)
+        for mode, groups in modes.items():
+            fold_rows: List[Dict[str, object]] = []
+            all_y: List[float] = []
+            all_pred: List[float] = []
+            for group in groups:
+                if mode == "leave_one_case_out":
+                    test_mask = np.zeros(len(selected), dtype=bool)
+                    test_mask[int(group)] = True
+                elif mode == "leave_one_seed_out":
+                    test_mask = np.asarray([str(row.get("seed", "")) == group for row in selected], dtype=bool)
+                else:
+                    test_mask = np.asarray([
+                        str(row.get("factor_family", row.get("factor", ""))) == group for row in selected
+                    ], dtype=bool)
+                train_mask = ~test_mask
+                if np.count_nonzero(train_mask) < 3 or not np.any(test_mask):
+                    continue
+                prediction = fit_predict(matrix[train_mask], y[train_mask], matrix[test_mask])
+                actual = y[test_mask]
+                residual = prediction - actual
+                all_y.extend(actual.tolist())
+                all_pred.extend(prediction.tolist())
+                fold_rows.append({
+                    "target": target,
+                    "validation_mode": mode,
+                    "holdout_group": group,
+                    "n_train": int(np.count_nonzero(train_mask)),
+                    "n_test": int(np.count_nonzero(test_mask)),
+                    "fold_rmse": float(math.sqrt(np.mean(residual ** 2))),
+                    "fold_mae": float(np.mean(np.abs(residual))),
+                    "ridge_lambda": ridge_lambda,
+                    "scope": "exploratory input-feature screen only; fold imputation/normalization fitted on training data; no production model",
+                })
+            if not all_y:
+                continue
+            y_array = np.asarray(all_y, dtype=float)
+            pred_array = np.asarray(all_pred, dtype=float)
+            residual = pred_array - y_array
+            ss_tot = float(np.sum((y_array - np.mean(y_array)) ** 2))
+            summary = {
+                "target": target,
+                "validation_mode": mode,
+                "holdout_group": "aggregate",
+                "n": int(y_array.size),
+                "n_folds": len(fold_rows),
+                "ridge_lambda": ridge_lambda,
+                "rmse": float(math.sqrt(np.mean(residual ** 2))),
+                "mae": float(np.mean(np.abs(residual))),
+                "r2": float(1.0 - np.sum(residual ** 2) / ss_tot) if ss_tot > 1.0e-12 else math.nan,
+                "scope": "exploratory input-feature screen only; fold imputation/normalization fitted on training data; no production model",
+            }
+            output.append(summary)
+            output.extend(fold_rows)
     return output
+
+
+def physics_expert_map_schema() -> Dict[str, object]:
+    return {
+        "schema_id": "physics_expert_map_v1",
+        "grain": "one scene realization × seed × local Doppler row × local range block",
+        "identity_fields": ["scene_id", "seed", "factor_family", "doppler_row", "range_block_start", "range_block_stop"],
+        "input_fields": {
+            "p38_slope_rad_per_hz": "float",
+            "p38_intercept_rad": "float",
+            "p38_rmse_rad": "float",
+            "p38_inlier_count": "integer",
+            "coherence_mean": "float",
+            "F1_F2_energy_ratio_dB": "float",
+            "phase_residual_mean_rad": "float",
+            "phase_variance_rad2": "float",
+            "valid_sample_fraction": "float",
+            "texture_heterogeneity_cv": "float",
+            "distance_to_clutter_ridge_hz": "float",
+            "distance_to_support_edge_rows": "float",
+            "local_residual_tail_p95_dB": "float",
+            "robust_lsq_condition_number": "float",
+            "robust_lsq_confidence": "float",
+        },
+        "expert_outputs": {
+            "current_scnr_improvement_dB": "float",
+            "row_ls_scnr_improvement_dB": "float",
+            "robust_row_ls_scnr_improvement_dB": "float",
+            "current_hold": "boolean",
+            "adaptive_worthwhile": "boolean",
+        },
+        "oracle_label_fields": {
+            "delta_log_amplitude": "float",
+            "delta_phase": "float",
+            "gate_target": "float in [0,1]",
+            "oracle_gain_over_current_dB": "float",
+        },
+        "split_policy": {
+            "required": True,
+            "train_validation_test": "scene/seed grouped; leave-one-seed-out or whole-factor-family holdout",
+            "forbidden": ["random local-row split", "same scene realization across train and test", "truth/oracle input to inference"],
+        },
+        "status": "export interface only; no row-level AI model is trained by V2.1",
+    }
+
+
+def pgrcc_v1_training_schema() -> Dict[str, object]:
+    return {
+        "schema_id": "pgrcc_v1_training_interface",
+        "input": "physics_expert_map_v1 input_fields plus expert availability flags",
+        "targets": ["delta_log_amplitude", "delta_phase", "gate_target"],
+        "model_contract": {
+            "architecture": "small MLP or light 1-D CNN over bounded local feature vector",
+            "bounded_residual": "alpha_AI = alpha_phy * exp(clamp(delta_log_amplitude)) * exp(j*clamp(delta_phase))",
+            "output": "Y = (1-gate_target)*Y_Current + gate_target*Y_corrected",
+            "bounds": {"delta_log_amplitude": [-0.5, 0.5], "delta_phase": [-0.7853981634, 0.7853981634], "gate_target": [0.0, 1.0]},
+            "identity_test": "delta_log_amplitude=0, delta_phase=0, gate_target=0 reproduces Current exactly",
+            "fallback": "low confidence, invalid features, or failed physics gate returns Current",
+        },
+        "label_policy": "paired C+N/truth may define oracle labels and loss only; never a network inference input",
+        "scope": "PGRCC-v1 interface; no training or RD-image model in V2.1",
+    }
 
 
 def aggregate_roc_points(roc_rows: List[Dict[str, object]]) -> List[Dict[str, object]]:
@@ -1692,40 +2334,45 @@ def plot_velocity(rows: List[Dict[str, object]], out_dir: Path) -> None:
     velocity_rows = [row for row in rows if str(row.get("factor")) == "target_radial_speed_mps"]
     if not velocity_rows:
         return
-    grouped: Dict[str, List[Dict[str, object]]] = {}
+    grouped: Dict[Tuple[str, str], List[Dict[str, object]]] = {}
     for row in velocity_rows:
-        grouped.setdefault(str(row["method"]), []).append(row)
+        signed_speed = finite_or_nan(row.get("target_radial_speed_config_mps"))
+        direction = "approaching" if signed_speed < 0.0 else ("receding" if signed_speed > 0.0 else "zero")
+        grouped.setdefault((str(row["method"]), direction), []).append(row)
     fig, ax = plt.subplots(figsize=(11, 6))
     for method in METHODS:
-        if method not in grouped:
-            continue
-        by_speed: Dict[float, List[float]] = {}
-        for row in grouped[method]:
-            speed = abs(float(row.get("target_motion_ve_mps", math.nan)))
-            by_speed.setdefault(speed, []).append(float(row.get("target_detected", math.nan)))
-        xs = sorted(by_speed)
-        ys = [float(np.nanmean(by_speed[x])) for x in xs]
-        lows = []
-        highs = []
-        for x in xs:
-            values = [value for value in by_speed[x] if math.isfinite(value)]
-            low, high = wilson_ci95(int(sum(value >= 0.5 for value in values)), len(values))
-            lows.append(low)
-            highs.append(high)
-        ax.errorbar(
-            xs,
-            ys,
-            yerr=np.vstack((np.asarray(ys) - np.asarray(lows), np.asarray(highs) - np.asarray(ys))),
-            marker="o",
-            capsize=2,
-            linewidth=1.1,
-            label=method,
-            color=METHOD_PALETTE.get(method, "#333333"),
-        )
+        for direction in ("approaching", "receding", "zero"):
+            if (method, direction) not in grouped:
+                continue
+            method_rows = grouped[(method, direction)]
+            by_speed: Dict[float, List[float]] = {}
+            for row in method_rows:
+                speed = abs(float(row.get("target_radial_speed_config_mps", math.nan)))
+                by_speed.setdefault(speed, []).append(float(row.get("target_detected", math.nan)))
+            xs = sorted(by_speed)
+            ys = [float(np.nanmean(by_speed[x])) for x in xs]
+            lows = []
+            highs = []
+            for x in xs:
+                values = [value for value in by_speed[x] if math.isfinite(value)]
+                low, high = wilson_ci95(int(sum(value >= 0.5 for value in values)), len(values))
+                lows.append(low)
+                highs.append(high)
+            ax.errorbar(
+                xs,
+                ys,
+                yerr=np.vstack((np.asarray(ys) - np.asarray(lows), np.asarray(highs) - np.asarray(ys))),
+                marker="o",
+                capsize=2,
+                linewidth=1.1,
+                label=f"{method} [{direction}]",
+                color=METHOD_PALETTE.get(method, "#333333"),
+                linestyle="--" if direction == "receding" else "-",
+            )
     ax.set_xlabel("Regenerated target radial speed magnitude (m/s)")
     ax.set_ylabel("Empirical Pd (target_detected across seeds)")
     ax.set_ylim(-0.05, 1.05)
-    ax.set_title("Physical velocity sweep: target regenerated per speed")
+    ax.set_title("Physical velocity sweep: approaching and receding reported separately")
     ax.grid(True, color="#dddddd", linewidth=0.6)
     ax.legend(fontsize=7, ncol=2)
     fig.tight_layout()
@@ -1860,7 +2507,7 @@ def run_analysis(
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--suite", type=Path, default=Path("configs/research/ai_csi_baseline_v2_suite.json"))
-    parser.add_argument("--mode", choices=("sanity", "screen", "formal", "velocity", "roc", "explicit"), default="screen")
+    parser.add_argument("--mode", choices=("sanity", "screen", "formal", "velocity", "roc", "transition", "mixed_stress", "explicit"), default="screen")
     parser.add_argument("--out", type=Path, default=Path("outputs/ai_csi_baseline_v2"))
     parser.add_argument("--keep-data", action="store_true", help="retain generated BINs; only for one-case debugging")
     parser.add_argument("--max-cases", type=int, default=0, help="development limit; omit for the configured matrix")
@@ -1870,16 +2517,17 @@ def main() -> int:
     out_dir.mkdir(parents=True, exist_ok=True)
     (out_dir / "generated_configs").mkdir(parents=True, exist_ok=True)
     Path(os.environ["MPLCONFIGDIR"]).mkdir(parents=True, exist_ok=True)
+    suite_path = ROOT / args.suite if not args.suite.is_absolute() else args.suite
+    base_config_path, suite = load_suite(suite_path)
 
     if args.mode == "sanity":
-        result = steering_sanity(out_dir)
+        result = steering_sanity(out_dir, base_config_path, suite)
         print(json.dumps(result, ensure_ascii=False, indent=2, default=json_default))
         return 0 if result["all_pass"] else 2
 
-    base_config_path, suite = load_suite(ROOT / args.suite if not args.suite.is_absolute() else args.suite)
     sanity_path = out_dir / "steering_sanity.json"
     if not sanity_path.exists():
-        sanity = steering_sanity(out_dir)
+        sanity = steering_sanity(out_dir, base_config_path, suite)
     else:
         sanity = json.loads(sanity_path.read_text(encoding="utf-8"))
     if not bool(sanity.get("all_pass", False)):
@@ -1889,7 +2537,7 @@ def main() -> int:
         cases = cases[: args.max_cases]
     method_config = dict(suite.get("method_config", {}))
     roc_scales = None
-    if args.mode == "roc":
+    if args.mode in {"roc", "transition"}:
         roc_scales = suite.get("roc_sweep", {}).get("threshold_scales", DEFAULT_ROC_SCALES)
     rows, features, failures, roc_rows = run_analysis(
         base_config_path,
@@ -1903,6 +2551,8 @@ def main() -> int:
     )
     mdv_rows = summarize_mdv(rows, suite)
     write_csv(out_dir / "baseline_v2_mdv_summary.csv", mdv_rows)
+    write_json(out_dir / "physics_expert_map_schema_v1.json", physics_expert_map_schema())
+    write_json(out_dir / "pgrcc_v1_training_schema.json", pgrcc_v1_training_schema())
     provenance = v1.reproducibility_provenance([sys.executable, *sys.argv])
     manifest = {
         "script": "scripts/run_baseline_v2.py",
@@ -1944,8 +2594,9 @@ def main() -> int:
         "reproducibility": provenance,
         "evidence_boundary": "CPU offline baseline unless a real CUDA device and a separate production run are available",
     }
-    velocity_dir = ROOT / "outputs/ai_csi_baseline_v2_velocity"
-    roc_dir = ROOT / "outputs/ai_csi_baseline_v2_roc"
+    velocity_dir = ROOT / "outputs/ai_csi_baseline_v21_velocity"
+    roc_dir = ROOT / "outputs/ai_csi_baseline_v21_roc"
+    transition_dir = ROOT / "outputs/ai_csi_baseline_v21_transition"
     if (velocity_dir / "baseline_v2_mdv_summary.csv").exists():
         manifest["velocity_evidence"] = {
             "summary": relative_repo_path(velocity_dir / "baseline_v2_summary.csv"),
@@ -1960,6 +2611,13 @@ def main() -> int:
             "summary": relative_repo_path(roc_dir / "baseline_v2_roc_summary.csv"),
             "plot": relative_repo_path(roc_dir / "baseline_v2_pfa_roc.png"),
             "definition": "5 regenerated seeds and configured threshold-scale operating points",
+        }
+    if (transition_dir / "baseline_v2_roc_summary.csv").exists():
+        manifest["transition_evidence"] = {
+            "points": relative_repo_path(transition_dir / "baseline_v2_roc_points.csv"),
+            "summary": relative_repo_path(transition_dir / "baseline_v2_roc_summary.csv"),
+            "pd_scnr": relative_repo_path(transition_dir / "baseline_v2_pd_scnr.png"),
+            "definition": "pilot plus refined lower-SNR regenerated cases; refined seed/trial groups are explicit in the case manifest",
         }
     write_json(out_dir / "baseline_v2_manifest.json", manifest)
     print(json.dumps({"cases": len(features), "rows": len(rows), "failures": len(failures), "output": str(out_dir)}, ensure_ascii=False, indent=2))
