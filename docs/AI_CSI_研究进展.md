@@ -6,6 +6,12 @@
 已完成 Current–Oracle 的两类场景回放、单因素替换、leave-one-error-out 归因、
 新增指标、传统 baseline 矩阵和后续方法建议。AI 仍未训练。
 
+当前主线已进入 Baseline V2：90 个 screen cases（9 个因素 × 2 个水平 × 5
+seeds）和 35 个独立物理 velocity cases（7 个速度点 × 5 seeds）均已在 CPU 离线
+链路实际完成；另有 5-seed、7 阈值点的 ROC 运行，共 420 个 ROC point，AI 仍未训练。
+正式更密 sweep 的配置已经准备，但不把未运行的矩阵
+写成已完成实验。
+
 ## 已完成事项
 
 | 阶段 | 状态 | 证据 |
@@ -19,8 +25,11 @@
 | 失配归因与 AI 建议 | 完成 | [`AI_CSI_02_Current_Oracle实验报告.md`](AI_CSI_02_Current_Oracle实验报告.md)、[`AI_CSI_03_后续AI方法建议.md`](AI_CSI_03_后续AI方法建议.md) |
 | 传统 baseline 方法矩阵 | 完成 | [`AI_CSI_04_Baseline方法与实现说明.md`](AI_CSI_04_Baseline方法与实现说明.md)、[`AI_CSI_05_Baseline实验报告.md`](AI_CSI_05_Baseline实验报告.md) |
 | Baseline 不足与 Physics-AI 接口 | 完成 | [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](AI_CSI_06_Baseline不足与Physics_AI方向分析.md) |
+| Baseline V2 物理 steering、协方差政策、多 seed screen、velocity/MDV、Pd/ROC/Pareto | 完成（CPU 离线） | [`AI_CSI_07_Baseline_V2审计与实验报告.md`](AI_CSI_07_Baseline_V2审计与实验报告.md) |
 
-## 当前实验事实
+## V1 历史实验事实
+
+以下数字属于此前的 V1 单 seed/7 场景记录，保留用于历史回归，不是当前 V2 的验收标准。
 
 - 两类场景目标均为 `row_truth=60`、`expected_bin=2200`、`af_total_truth=-53.2469 Hz`；
   动态 CSI 支撑为行 42–88。
@@ -30,6 +39,27 @@
   定义的可回收正差距均为 0 dB。
 - 负差距不是把结果修剪成“Oracle 更好”，而是记录了当前非线性最小幅度算子
   与背景-only 线性复权之间的真实性能/统计权衡。
+
+## V2 当前实验事实
+
+- V2 screen 产出 1080 行（90 cases × 12 methods），0 case failure；每个因素水平
+  都有 5 个独立 seed。production replay 180 行与 scientific controlled 900 行
+  分开汇总。
+- steering sanity 的目标 angle/Doppler scan 峰值为 3°/335.182 Hz；空间和时空
+  distortionless 误差分别约 `5.6e-17`、`2.2e-16`，杂波脊陷波 `-59.79 dB`，
+  单目标复增益误差 `2.4e-16`，4° 扰动增益 `-9.89 dB`。
+- screen 全方法平均 SCNR improvement：Current scientific controlled `13.244 dB`，
+  Phase-only `10.421 dB`，Row complex LS/Wiener `11.028 dB`；physical adaptive
+  方法在全 screen 平均为负（Corrected JDL `-0.510 dB`、local DL-SMI/MVDR
+  `-0.868 dB`），这是真实结果，不做正值截断或门限掩盖。
+- velocity mode 实际完成 35 cases、420 行、0 failures；MDV 使用预先固定的
+- 单 case 只保留二值 `target_detected`；经验 Pd 只在 5-seed 聚合层计算，并保存
+  Wilson 95% CI、成功数和 trial 数。velocity MDV 使用预先固定的 seed-mean
+  `Pd >= 0.5` 判据和真实重生成速度 grid，结果见独立 velocity manifest 与
+  `baseline_v2_mdv_summary.csv`。在 0 m/s 已满足阈值的方法不能解读为已证明“无盲速”。
+- 独立 ROC 使用 `--mode roc`，5 个重新生成的 seed × 7 个 threshold scale，结果在
+  `outputs/ai_csi_baseline_v2_roc/`；screen 已保存 Pd–SCNR、三类 Pareto、输入
+  feature diagnostics 和 exploratory light predictor，均不构成 AI 训练。
 
 ## Baseline 实验事实
 
@@ -47,8 +77,8 @@
 
 ## 可复现入口
 
-源码构建此前已完成并记录在 baseline manifest；当前 `build/` 中间目录已清理，
-需要复现时重新执行：
+源码构建已完成并记录在 V2 manifest；当前 `build/` 保留可复现实验所需的
+`simulate_stage2_statistical` Release 目标，需要复现时可执行：
 
 ```text
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
@@ -88,6 +118,28 @@ python3 scripts/run_baseline_benchmark.py
 汇报结果和图表见 [`AI_CSI_05_Baseline实验报告.md`](AI_CSI_05_Baseline实验报告.md)。
 完整 CSV/PNG/JSON 在 `outputs/ai_csi_baseline/`。
 
+## Baseline V2 复现入口
+
+```text
+python3 -m py_compile scripts/run_baseline_v2.py
+python3 scripts/run_baseline_v2.py --mode sanity --out outputs/ai_csi_baseline_v2
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode screen --workers 2 --out outputs/ai_csi_baseline_v2
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode velocity --workers 2 \
+  --out outputs/ai_csi_baseline_v2_velocity
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode roc --workers 2 \
+  --out outputs/ai_csi_baseline_v2_roc
+```
+
+主 V2 交付物为 `baseline_v2_summary.csv`、`baseline_v2_sweep_summary.csv`、
+`baseline_v2_feature_diagnostics.csv`、`baseline_v2_feature_correlations.csv`、
+`baseline_v2_feature_light_predictor.csv`、`baseline_v2_mdv_summary.csv`、
+sanity/Pd/Pareto/feature/heatmap/velocity PNG 和 manifest；velocity 目录保留完整的
+regenerated-velocity 汇总，ROC 目录保留 `baseline_v2_roc_points.csv`、
+`baseline_v2_roc_summary.csv` 和 `baseline_v2_pfa_roc.png`。原始 BIN 默认逐 case 删除。
+
 历史原始 BIN、仿真报告和逐案例中间回放目录已在记录输入大小与 SHA-256 后按授权
 清理；输入身份见 `outputs/ai_csi_oracle/raw_input_inventory.json`。Git 只跟踪上述
 紧凑交付物，避免把大体量原始数据复制进版本历史。
@@ -96,12 +148,12 @@ python3 scripts/run_baseline_benchmark.py
 
 本机 `nvcc`、CMake、FFTW3 和 Python 分析环境可用，Stage2 仿真目标已成功构建；
 但 `nvidia-smi` 无法与 NVIDIA 驱动通信。因此当前 CSV/PNG 是对源码算子顺序的
-CPU 离线回放，不宣称已完成 CUDA 生产执行，也不把一个 seed/单周期结果外推为
-统计泛化结论。
+CPU 离线回放，不宣称已完成 CUDA 生产执行。V2 screen/velocity 已有多 seed，
+但仍是单波位、单周期研究输入，不能外推为生产统计泛化结论。
 
 ## 下一步（需另行进入第二阶段）
 
-补充跨 seed/场景统计后，再评估小型“物理模型 + 残差学习”方案。第一候选是
+formal 配置矩阵完成后，再评估小型“物理模型 + 残差学习”方案。第一候选是
 学习分数 delay、复权幅度残差和行级置信度/门控；物理融合、P38、支撑、CSI
 算子、CFAR、聚类和跟踪链保持不变。未经新的研究授权，不进入训练或端到端
 RD 网络实现。

@@ -43,10 +43,13 @@ tests/                      工程测试
 docs/                       数学模型、实验报告和后续 AI 建议
 outputs/ai_csi_oracle/      小型 CSV/PNG/JSON 研究交付物
 outputs/ai_csi_baseline/   7 场景 × 6 方法的传统 baseline 交付物
+outputs/ai_csi_baseline_v2/ Baseline V2 多 seed screen 与 sanity 交付物
+outputs/ai_csi_baseline_v2_velocity/ 物理重生成 velocity/MDV 交付物
+outputs/ai_csi_baseline_v2_roc/ 独立多 seed CFAR ROC 交付物
 ```
 
-原始 BIN、构建目录、缓存和逐案例中间结果已按清理策略移除；需要复核时按本页
-复现入口重新生成，不把大体量数据复制进 Git 历史。
+V1 原始 BIN 和逐案例中间结果已按清理策略移除；当前 V2 为复现 Stage2 保留
+`build/` Release 目标，但不保留逐 case BIN，不把大体量数据复制进 Git 历史。
 
 ## 环境要求
 
@@ -112,6 +115,41 @@ python3 scripts/run_baseline_benchmark.py
 [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)。
 完整紧凑产物在 `outputs/ai_csi_baseline/`，原始 BIN 和临时矩阵默认逐场景清理。
 
+## Baseline V2（当前主线）
+
+Baseline V2 明确区分 production replay 与 scientific controlled baseline；后者的
+P38、协方差和自适应权重只使用 paired C+N background。四通道 steering 使用当前
+几何、载频、beam side 和 Doppler ridge 推导；包含 diagonally-loaded SMI/MVDR、
+shrinkage SMI/MVDR、physical JDL、MNEC 和明确标注为 approximate academic reference
+的 SA-MNEC。当前不训练 AI。
+
+先运行 steering sanity，再运行 90-case、9 因素、每点 5 seed 的 screen：
+
+```bash
+python3 scripts/run_baseline_v2.py --mode sanity --out outputs/ai_csi_baseline_v2
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode screen --workers 2 --out outputs/ai_csi_baseline_v2
+```
+
+正式 sweep 的更密配置见
+[`configs/research/ai_csi_baseline_v2_suite.json`](configs/research/ai_csi_baseline_v2_suite.json)。
+物理 velocity/MDV 使用独立输出目录，35 cases、7 个速度点、每点 5 seed：
+
+```bash
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode velocity --workers 2 \
+  --out outputs/ai_csi_baseline_v2_velocity
+OPENBLAS_NUM_THREADS=1 OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 \
+  python3 scripts/run_baseline_v2.py --mode roc --workers 2 \
+  --out outputs/ai_csi_baseline_v2_roc
+```
+
+V2 审计报告见 [`AI_CSI_07_Baseline_V2审计与实验报告.md`](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)。
+单 case 只保存二值 `target_detected`；经验 Pd 在 seed/trial 聚合层生成并带 Wilson
+95% CI。主汇总在 `outputs/ai_csi_baseline_v2/`；MDV 原始曲线和阈值汇总在
+`outputs/ai_csi_baseline_v2_velocity/`，ROC 点/汇总/图在
+`outputs/ai_csi_baseline_v2_roc/`，不使用 RD `np.roll` 代替真实速度。
+
 ## 研究文档
 
 - [当前对消数学模型](docs/AI_CSI_01_当前对消数学模型.md)
@@ -120,6 +158,7 @@ python3 scripts/run_baseline_benchmark.py
 - [Baseline 方法与实现说明](docs/AI_CSI_04_Baseline方法与实现说明.md)
 - [Baseline 实验报告](docs/AI_CSI_05_Baseline实验报告.md)
 - [Baseline 不足与 Physics-AI 方向分析](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)
+- [Baseline V2 审计与实验报告](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)
 - [研究进展](docs/AI_CSI_研究进展.md)
 - [Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
 

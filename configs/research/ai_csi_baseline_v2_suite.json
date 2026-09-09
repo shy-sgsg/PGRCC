@@ -1,0 +1,68 @@
+{
+  "base_config": "configs/research/ai_csi_stage2_typical_1beam.json",
+  "output_root": "outputs/ai_csi_baseline_v2/cases",
+  "base_case": {
+    "case_id": "baseline_v2",
+    "label": "Baseline V2 controlled single-target case",
+    "seed": 20260981,
+    "use_paired_background": true,
+    "target_id": "B2_TARGET",
+    "target_snr_db": 10.0,
+    "texture_sigma": 0.4,
+    "azimuth_subcell_count": 9,
+    "motion": {"ve_mps": -0.5, "vn_mps": 0.5},
+    "impairments": {
+      "enabled": false,
+      "channel_amp_mismatch_db": 0.0,
+      "channel_fixed_phase_mismatch_deg": 0.0,
+      "channel_phase_jitter_std_deg": 0.0,
+      "channel_drop_probability": 0.0
+    }
+  },
+  "method_config": {
+    "range_block_size": 256,
+    "local_training_half_width": 256,
+    "cut_guard_bins": 4,
+    "diagonal_loading_fraction": 0.01
+  },
+  "screen": {
+    "seeds": [20260981, 20260982, 20260983, 20260984, 20260985],
+    "single_factor_sweeps": {
+      "texture_sigma": [0.4, 1.1],
+      "azimuth_subcell_count": [5, 17],
+      "channel_amp_mismatch_db": [0.0, 2.5],
+      "channel_fixed_phase_mismatch_deg": [0.0, 18.0],
+      "channel_phase_jitter_std_deg": [0.0, 3.0],
+      "valid_sample_fraction": [1.0, 0.4],
+      "target_snr_db": [-6.0, 10.0],
+      "target_radial_speed_mps": [0.0, 4.0],
+      "support_edge_radial_speed_mps": [1.8, 2.2]
+    }
+  },
+  "formal": {
+    "seeds": [20261001, 20261002, 20261003, 20261004, 20261005, 20261006, 20261007, 20261008, 20261009, 20261010],
+    "single_factor_sweeps": {
+      "texture_sigma": [0.2, 0.4, 0.8, 1.1, 1.5],
+      "azimuth_subcell_count": [3, 5, 9, 17, 25],
+      "channel_amp_mismatch_db": [0.0, 0.75, 1.5, 2.5, 4.0],
+      "channel_fixed_phase_mismatch_deg": [0.0, 6.0, 12.0, 18.0, 30.0],
+      "channel_phase_jitter_std_deg": [0.0, 1.0, 2.0, 3.0, 6.0],
+      "valid_sample_fraction": [1.0, 0.8, 0.6, 0.4, 0.2],
+      "target_snr_db": [-10.0, -6.0, 0.0, 10.0, 18.0],
+      "target_radial_speed_mps": [0.0, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0],
+      "support_edge_radial_speed_mps": [1.6, 1.8, 2.0, 2.2, 2.4]
+    }
+  },
+  "velocity_sweep": {
+    "seeds": [20261021, 20261022, 20261023, 20261024, 20261025],
+    "levels": [-4.0, -2.0, -1.0, 0.0, 1.0, 2.0, 4.0],
+    "mdv_pd_threshold": 0.5
+  },
+  "roc_sweep": {
+    "seeds": [20261031, 20261032, 20261033, 20261034, 20261035],
+    "single_factor_sweeps": {
+      "target_snr_db": [10.0]
+    },
+    "threshold_scales": [0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 5.0]
+  }
+}

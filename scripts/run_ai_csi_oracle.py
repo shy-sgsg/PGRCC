@@ -638,7 +638,10 @@ def go_cfar(
     truth_row: int,
     truth_col: int,
     p: Params,
+    threshold_scale: float = 1.0,
 ) -> Dict[str, float]:
+    if not math.isfinite(float(threshold_scale)) or float(threshold_scale) <= 0.0:
+        raise ValueError(f"threshold_scale must be finite and positive, got {threshold_scale!r}")
     power = np.abs(detect) ** 2
     h, w = power.shape
     g, b = p.cfar_guard, p.cfar_background
@@ -667,7 +670,7 @@ def go_cfar(
     bottom = rect(rows + radius + g + 1, rows + 2 * radius, cols, cols + 2 * radius) / ((2 * radius + 1) * b)
     noise_level = np.maximum.reduce((left, right, top, bottom))
     alpha = go_alpha(p.cfar_pfa, g, b)
-    threshold = alpha * noise_level
+    threshold = float(threshold_scale) * alpha * noise_level
     cut_power = power[:, radius : w - radius]
     hits = cut_power > threshold
     target_rows = slice(max(0, truth_row - 2), min(h, truth_row + 3))

@@ -1,0 +1,65 @@
+{
+  "target_angle_deg": 3.0,
+  "target_relative_doppler_hz": 335.18200109774665,
+  "clutter_angle_deg": 0.0,
+  "clutter_relative_doppler_hz": 0.0,
+  "target_gain_complex": {
+    "real": 1.0,
+    "imag": -5.551115123125783e-17
+  },
+  "clutter_gain_dB": -59.79025209049435,
+  "single_target_recovered_complex": {
+    "real": 1.2892151891838641,
+    "imag": 1.1081174107366123
+  },
+  "perturbations_deg": [
+    0.0,
+    0.5,
+    1.0,
+    2.0,
+    4.0
+  ],
+  "perturb_gain_dB": [
+    0.0,
+    -0.09173727140945857,
+    -0.7373656600268674,
+    -4.196581642636767,
+    -9.886087747643582
+  ],
+  "scan_peak_angle_deg": 3.0,
+  "scan_peak_relative_doppler_hz": 335.18200109774665,
+  "checks": [
+    {
+      "test": "spatial_distortionless",
+      "value": 5.551115123125783e-17,
+      "threshold": 1e-08,
+      "passed": true
+    },
+    {
+      "test": "space_time_distortionless",
+      "value": 2.220446049250313e-16,
+      "threshold": 1e-08,
+      "passed": true
+    },
+    {
+      "test": "clutter_ridge_notch_dB",
+      "value": -59.79025209049435,
+      "threshold": -3.0,
+      "passed": true
+    },
+    {
+      "test": "single_target_complex_gain_error",
+      "value": 2.43136403575711e-16,
+      "threshold": 1e-08,
+      "passed": true
+    },
+    {
+      "test": "perturbation_4deg_gain_dB",
+      "value": -9.886087747643582,
+      "threshold": -0.5,
+      "passed": true
+    }
+  ],
+  "all_pass": true,
+  "steering_definition": "common-transmit receive path difference using configured four-channel phase centres, carrier phase sign, beam side and clutter Doppler ridge"
+}
