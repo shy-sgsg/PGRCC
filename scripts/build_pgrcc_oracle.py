@@ -1576,6 +1576,13 @@ def main() -> int:
         "forbidden_inference_features": config.get("provenance", {}).get("forbidden_inference_features", []),
         "target_truth_policy": "target truth and paired C+N are evaluation/label only; never inference feature",
         "frozen_benchmark_outputs": config.get("provenance", {}).get("frozen_benchmark_outputs", []),
+        "metric_definitions": {
+            "screen_background_pfa": "local region cells against the current-map GO-CFAR threshold; used for cheap Pareto screening",
+            "screen_target_cfar_margin": "local target ROI against the current-map GO-CFAR threshold",
+            "exact_background_Pfa": "full-map GO-CFAR recomputed on each representative candidate",
+            "exact_target_cfar_margin": "full-map candidate target ROI against its freshly recomputed GO-CFAR threshold",
+            "exact_representatives": "Current plus max-SCNR, min-tail, min-background-Pfa and max-margin representatives per case",
+        },
         "identity_test": identity_test,
         "go_no_go": {
             "decision": "GO_PGRCC_V1" if go else "NO_GO_ORACLE_NOT_SUFFICIENT",
