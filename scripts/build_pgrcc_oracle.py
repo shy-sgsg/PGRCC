@@ -820,8 +820,53 @@ def process_regions(
                     -finite(item.get("delta_residual_p95_dB")),
                 ),
             )
+            diagnostic_best_target = max(
+                diagnostic_candidates,
+                key=lambda item: (
+                    finite(item.get("delta_target_preservation_dB")),
+                    finite(item.get("delta_detection_margin_dB")),
+                    -finite(item.get("delta_residual_p95_dB")),
+                ),
+            )
+            diagnostic_best_tail = min(
+                diagnostic_candidates,
+                key=lambda item: (
+                    finite(item.get("delta_residual_p95_dB")),
+                    finite(item.get("delta_residual_cvar95_dB")),
+                    -finite(item.get("delta_scnr_dB")),
+                ),
+            )
+            diagnostic_best_cvar = min(
+                diagnostic_candidates,
+                key=lambda item: (
+                    finite(item.get("delta_residual_cvar95_dB")),
+                    finite(item.get("delta_residual_p95_dB")),
+                    -finite(item.get("delta_scnr_dB")),
+                ),
+            )
+            diagnostic_best_pfa = min(
+                diagnostic_candidates,
+                key=lambda item: (
+                    finite(item.get("delta_background_pfa")),
+                    finite(item.get("delta_residual_p95_dB")),
+                    -finite(item.get("delta_scnr_dB")),
+                ),
+            )
+            diagnostic_best_margin = max(
+                diagnostic_candidates,
+                key=lambda item: (
+                    finite(item.get("delta_detection_margin_dB")),
+                    finite(item.get("delta_target_preservation_dB")),
+                    -finite(item.get("delta_residual_p95_dB")),
+                ),
+            )
         else:
             diagnostic_best_scnr = current_candidate
+            diagnostic_best_target = current_candidate
+            diagnostic_best_tail = current_candidate
+            diagnostic_best_cvar = current_candidate
+            diagnostic_best_pfa = current_candidate
+            diagnostic_best_margin = current_candidate
         primary = select_primary(front, policy)
         for item in front:
             item["expanded_search"] = bool(expanded)
@@ -900,6 +945,11 @@ def process_regions(
             "diagnostic_best_scnr_delta_residual_cvar95_dB": finite(diagnostic_best_scnr.get("delta_residual_cvar95_dB")),
             "diagnostic_best_scnr_delta_background_pfa": finite(diagnostic_best_scnr.get("delta_background_pfa")),
             "diagnostic_best_scnr_delta_detection_margin_dB": finite(diagnostic_best_scnr.get("delta_detection_margin_dB")),
+            "diagnostic_max_target_preservation_dB": finite(diagnostic_best_target.get("delta_target_preservation_dB")),
+            "diagnostic_min_residual_p95_dB": finite(diagnostic_best_tail.get("delta_residual_p95_dB")),
+            "diagnostic_min_residual_cvar95_dB": finite(diagnostic_best_cvar.get("delta_residual_cvar95_dB")),
+            "diagnostic_min_background_pfa": finite(diagnostic_best_pfa.get("delta_background_pfa")),
+            "diagnostic_max_detection_margin_dB": finite(diagnostic_best_margin.get("delta_detection_margin_dB")),
             "current_scnr_improvement_dB": finite(primary.get("current_scnr_improvement_dB")),
             "current_target_loss_dB": finite(primary.get("current_target_loss_dB")),
             "current_residual_p95_dB": finite(primary.get("current_residual_p95_dB")),
@@ -987,6 +1037,11 @@ def summary_rows(region_map: Sequence[Mapping[str, object]]) -> List[Dict[str, o
         "diagnostic_best_scnr_delta_residual_cvar95_dB",
         "diagnostic_best_scnr_delta_background_pfa",
         "diagnostic_best_scnr_delta_detection_margin_dB",
+        "diagnostic_max_target_preservation_dB",
+        "diagnostic_min_residual_p95_dB",
+        "diagnostic_min_residual_cvar95_dB",
+        "diagnostic_min_background_pfa",
+        "diagnostic_max_detection_margin_dB",
     )
     for (scope, group), rows in sorted(groups.items()):
         worthwhile = [bool(row.get("adaptive_worthwhile", False)) for row in rows]
@@ -999,6 +1054,8 @@ def summary_rows(region_map: Sequence[Mapping[str, object]]) -> List[Dict[str, o
             "adaptive_worthwhile_count": int(sum(worthwhile)),
             "adaptive_worthwhile_fraction": float(np.mean(worthwhile)) if worthwhile else math.nan,
             "current_pareto_optimal_fraction": float(np.mean([bool(row.get("current_pareto_optimal", False)) for row in rows])) if rows else math.nan,
+            "diagnostic_best_scnr_positive_fraction": float(np.mean([finite(row.get("diagnostic_best_scnr_gain_dB")) > 0.0 for row in rows])) if rows else math.nan,
+            "diagnostic_best_scnr_gt_025db_fraction": float(np.mean([finite(row.get("diagnostic_best_scnr_gain_dB")) >= 0.25 for row in rows])) if rows else math.nan,
             "primary_expert_mode": max(
                 (str(row.get("primary_expert", "")) for row in rows),
                 key=lambda value: sum(str(row.get("primary_expert", "")) == value for row in rows),

@@ -156,3 +156,12 @@ outputs/ai_csi_baseline_v21_mixed_stress/generated_configs/
 !outputs/ai_csi_baseline_v21_formal/*.png
 outputs/ai_csi_baseline_v21_formal/cases/
 outputs/ai_csi_baseline_v21_formal/generated_configs/
+
+# PGRCC Oracle audit: preserve large/failed/pilot workspaces locally; track
+# only compact final evidence from outputs/pgrcc_oracle/ after the audit.
+outputs/pgrcc_oracle*/
+!outputs/pgrcc_oracle/
+!outputs/pgrcc_oracle/*.csv
+!outputs/pgrcc_oracle/*.json
+!outputs/pgrcc_oracle/*.png
+outputs/pgrcc_oracle/cases/
