@@ -12,6 +12,12 @@ seeds）和 35 个独立物理 velocity cases（7 个速度点 × 5 seeds）均�
 正式更密 sweep 的配置已经准备，但不把未运行的矩阵
 写成已完成实验。
 
+V2.1 冻结后已完成 PGRCC-v1 Oracle Headroom Audit：16 个新 scene/seed、3472
+个 local region、7409 条 Pareto 候选和 80 条 full-map GO-CFAR 代表性 exact
+复核均已实际运行，0 case failure。严格多指标 worthwhile region 为 0%，manifest
+结论为 `NO_GO_ORACLE_NOT_SUFFICIENT`，因此当前不构造训练集、不训练 PGRCC-v1；
+详见 [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)。
+
 ## 已完成事项
 
 | 阶段 | 状态 | 证据 |
@@ -26,6 +32,7 @@ seeds）和 35 个独立物理 velocity cases（7 个速度点 × 5 seeds）均�
 | 传统 baseline 方法矩阵 | 完成 | [`AI_CSI_04_Baseline方法与实现说明.md`](AI_CSI_04_Baseline方法与实现说明.md)、[`AI_CSI_05_Baseline实验报告.md`](AI_CSI_05_Baseline实验报告.md) |
 | Baseline 不足与 Physics-AI 接口 | 完成 | [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](AI_CSI_06_Baseline不足与Physics_AI方向分析.md) |
 | Baseline V2 物理 steering、协方差政策、多 seed screen、velocity/MDV、Pd/ROC/Pareto | 完成（CPU 离线） | [`AI_CSI_07_Baseline_V2审计与实验报告.md`](AI_CSI_07_Baseline_V2审计与实验报告.md) |
+| PGRCC-v1 Oracle Headroom Audit | 完成，No-Go；未进入训练 | [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)、`outputs/pgrcc_oracle/oracle_audit_manifest.json` |
 
 ## V1 历史实验事实
 

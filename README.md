@@ -52,6 +52,7 @@ outputs/ai_csi_baseline_v21_final_screen/ 最终提交下的 90-case screen 交�
 outputs/ai_csi_baseline_v21_final_velocity/ 最终提交下的 signed velocity/MDV 交付物
 outputs/ai_csi_baseline_v21_final_roc/ 最终提交下的独立 ROC 交付物
 outputs/ai_csi_baseline_v21_formal/ 正式 470-case 单因素矩阵交付物
+outputs/pgrcc_oracle/       PGRCC-v1 bounded residual Oracle headroom 审计交付物
 ```
 
 V1 原始 BIN 和逐案例中间结果已按清理策略移除；当前 V2 为复现 Stage2 保留
@@ -171,6 +172,22 @@ V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
 正式矩阵在 `outputs/ai_csi_baseline_v21_formal/`，transition ROC 点/汇总/图在
 `outputs/ai_csi_baseline_v21_transition/`，不使用 RD `np.roll` 代替真实速度。
 
+## PGRCC-v1 Oracle 门禁
+
+V2.1 冻结后先运行 Oracle Headroom Audit，不直接训练网络：
+
+```bash
+python3 -m py_compile scripts/build_pgrcc_oracle.py
+python3 scripts/build_pgrcc_oracle.py \
+  --config configs/research/pgrcc_oracle_audit.json \
+  --out outputs/pgrcc_oracle
+```
+
+当前 16-case、3472-region 审计结论为 `NO_GO_ORACLE_NOT_SUFFICIENT`：严格多指标
+worthwhile region 为 0%，因此没有生成训练数据或训练 PGRCC-v1。完整判定、exact
+GO-CFAR 代表性复核和后续路线边界见
+[`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](docs/AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)。
+
 ## 研究文档
 
 - [当前对消数学模型](docs/AI_CSI_01_当前对消数学模型.md)
@@ -181,6 +198,7 @@ V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
 - [Baseline 不足与 Physics-AI 方向分析](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)
 - [Baseline V2 审计与实验报告](docs/AI_CSI_07_Baseline_V2审计与实验报告.md)
 - [Baseline V2.1 物理修正与最终能力边界](docs/AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md)
+- [PGRCC-v1 Oracle 与数据集设计报告](docs/AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)
 - [研究进展](docs/AI_CSI_研究进展.md)
 - [Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
 
