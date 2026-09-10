@@ -19,14 +19,16 @@ V2.1 冻结后已完成 PGRCC-v1 Oracle Headroom Audit：16 个新 scene/seed、
 详见 [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)。
 
 2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
-物理假设审计和 M1/M2/M3 model-mismatch challenge 的 3-seed 扩展；仍未训练 AI。新的阅读顺序为：
+物理假设审计和 M1/M2/M3 model-mismatch challenge 的 3-seed 扩展；仍未训练 AI。formal
+challenge/control/diagnostic/oracle manifest 已记录实验代码提交
+`09bbd624c063126a97ea02196394ea62d3b4c4a6` 与最终 `worktree_dirty=false`。新的阅读顺序为：
 [`AI_CSI_11_PhaseFix迁移与历史影响审计.md`](AI_CSI_11_PhaseFix迁移与历史影响审计.md) →
 [`AI_CSI_12_PhaseCorrected_Current基线报告.md`](AI_CSI_12_PhaseCorrected_Current基线报告.md) →
 [`AI_CSI_13_修复后CSI残余纹理诊断.md`](AI_CSI_13_修复后CSI残余纹理诊断.md) →
 [`AI_CSI_14_Stage2物理假设审计.md`](AI_CSI_14_Stage2物理假设审计.md) →
 [`AI_CSI_15_ModelMismatch_Challenge报告.md`](AI_CSI_15_ModelMismatch_Challenge报告.md)。
-当前首轮 failure map 为 `outputs/ai_csi_model_mismatch/failure_map.csv`，3-seed 补充为
-`outputs/ai_csi_model_mismatch_multiseed/failure_map_multiseed.csv`；M1/M2/M3 强档
+当前 formal failure map 为 `outputs/ai_csi_model_mismatch_formal_clean/failure_map.csv`，3-seed 补充为
+`outputs/ai_csi_model_mismatch_multiseed_formal_clean/failure_map_multiseed.csv`；M1/M2/M3 强档
 分别存在 deterministic mechanism Oracle；随后已对 36 个 Current variant 补跑 72 个
 paired target-only/negative-control CUDA 运行，failure map 已有 Pd/Pfa/target-loss
 三类指标，但总体仍保持 AI No-Go。
@@ -46,7 +48,7 @@ paired target-only/negative-control CUDA 运行，failure map 已有 Pd/Pfa/targ
 | Baseline 不足与 Physics-AI 接口 | 完成 | [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](AI_CSI_06_Baseline不足与Physics_AI方向分析.md) |
 | Baseline V2 物理 steering、协方差政策、多 seed screen、velocity/MDV、Pd/ROC/Pareto | 完成（CPU 离线） | [`AI_CSI_07_Baseline_V2审计与实验报告.md`](AI_CSI_07_Baseline_V2审计与实验报告.md) |
 | PGRCC-v1 Oracle Headroom Audit | 完成，No-Go；未进入训练 | [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)、`outputs/pgrcc_oracle/oracle_audit_manifest.json` |
-| M1/M2/M3 paired controls | 完成，36 target-only + 36 negative-control，未训练 AI | `outputs/ai_csi_model_mismatch_metric_controls/metrics_manifest.json`、`failure_map.csv` |
+| M1/M2/M3 paired controls | 完成，36 target-only + 36 negative-control，未训练 AI | `outputs/ai_csi_model_mismatch_metric_controls_formal_clean/manifest.json`、`outputs/ai_csi_model_mismatch_formal_clean/failure_map.csv` |
 
 ## V1 历史实验事实
 
