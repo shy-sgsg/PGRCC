@@ -151,6 +151,73 @@ class JointPhysicsCalibrationTests(unittest.TestCase):
             xml.write_text("<root><fs>60</fs></root>", encoding="utf-8")
             self.assertEqual(joint.xml_frequency_hz(xml, "fs", 60.0e6), 60.0e6)
 
+    def test_selective_delay_and_phase_gates_are_independent(self) -> None:
+        null = [summary_observables(delay_ns=0.01 * index,
+                                    phase_slope=0.001 * index)["summary"]
+                for index in range(1, 8)]
+        gate = joint.calibrate_null_gate(null, "unit-selective-null")
+        bad_phase = summary_observables(
+            delay_ns=2.0, phase_slope=0.2, phase_confidence=0.0)
+        state = joint.classify_selective_state(bad_phase, gate, "P1")
+        self.assertFalse(state["global_veto"])
+        self.assertTrue(state["delay_active"])
+        self.assertFalse(state["phase_active"])
+        self.assertEqual(state["delay_state"], joint.ACTIVE)
+        self.assertEqual(state["phase_state"], joint.UNCERTAIN)
+        self.assertEqual(
+            joint.selective_correction_decision(
+                "J5_Selective_Physics_Calibration", bad_phase, gate)["branch"],
+            "D1P0")
+
+        bad_delay = summary_observables(
+            delay_ns=2.0, phase_slope=0.2, delay_confidence=0.0)
+        state = joint.classify_selective_state(bad_delay, gate, "P1")
+        self.assertFalse(state["global_veto"])
+        self.assertFalse(state["delay_active"])
+        self.assertTrue(state["phase_active"])
+        self.assertEqual(
+            joint.selective_correction_decision(
+                "J5_Selective_Physics_Calibration", bad_delay, gate)["branch"],
+            "D0P1")
+
+        no_mismatch = summary_observables()
+        self.assertEqual(
+            joint.selective_correction_decision(
+                "J5_Selective_Physics_Calibration", no_mismatch, gate)["branch"],
+            "D0P0")
+        veto = summary_observables(coherence=0.0, delay_ns=2.0, phase_slope=0.2)
+        veto_state = joint.classify_selective_state(veto, gate, "P1")
+        self.assertTrue(veto_state["global_veto"])
+        self.assertFalse(veto_state["delay_active"])
+        self.assertFalse(veto_state["phase_active"])
+
+    def test_j6_joint_surface_identity_and_mixed_surface(self) -> None:
+        rng = np.random.default_rng(77)
+        pulses, samples = 32, 128
+        fs_hz = 60.0e6
+        frequency = np.fft.fftfreq(samples, d=1.0 / fs_hz)
+        positive = frequency > 0.0
+        spectrum1 = (rng.normal(size=(pulses, samples)) +
+                     1j * rng.normal(size=(pulses, samples)))
+        identity = joint.estimate_joint_phase_surface_from_spectra(
+            spectrum1, spectrum1, frequency, positive, 1300.0)
+        self.assertAlmostEqual(identity["tau_ns"], 0.0, places=8)
+        self.assertAlmostEqual(identity["beta1_deg_per_pulse"], 0.0, places=8)
+        self.assertAlmostEqual(identity["beta2_deg_per_pulse2"], 0.0, places=8)
+        self.assertGreater(identity["residual_coherence_global"], 0.999)
+
+        pulse = np.arange(pulses, dtype=np.float64)[:, None]
+        model = (0.4 + 2.0 * np.pi * 6.0e-9 * frequency[None, :] +
+                 np.deg2rad(0.12) * pulse + np.deg2rad(0.003) * pulse ** 2)
+        spectrum2 = spectrum1 * np.exp(-1j * model)
+        mixed = joint.estimate_joint_phase_surface_from_spectra(
+            spectrum1, spectrum2, frequency, positive, 1300.0)
+        self.assertAlmostEqual(mixed["tau_ns"], 6.0, places=5)
+        self.assertAlmostEqual(mixed["beta1_deg_per_pulse"], 0.12, places=5)
+        self.assertAlmostEqual(mixed["beta2_deg_per_pulse2"], 0.003, places=5)
+        self.assertLess(mixed["rmse_rad"], 1.0e-8)
+        self.assertGreater(mixed["residual_coherence_global"], 0.999)
+
 
 if __name__ == "__main__":
     unittest.main()
