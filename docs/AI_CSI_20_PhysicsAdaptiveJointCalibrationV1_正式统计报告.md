@@ -2,10 +2,10 @@
 
 ## 技术摘要
 
-本报告记录 Physics-Adaptive Joint Calibration V1 的正式 CUDA 矩阵结果。结论是：**J3/J4 尚未证明可以替代 Current，也没有进入 AI 训练；预注册 gate 返回 `REOPEN_CANDIDATE`，仅表示存在稳定但很小的 deterministic residual gap 候选，下一步应继续做物理估计器与状态门控诊断。**
+本报告记录 Physics-Adaptive Joint Calibration V1 的正式 CUDA 矩阵结果。结论是：**J3/J4 尚未证明可以替代 Current，也没有进入 AI 训练；预注册 gate 返回 `REOPEN_CANDIDATE`，但 deterministic recovery 很小、remaining Oracle gap 很大，当前主要受 global fallback/gating 混杂影响，下一步必须先做物理估计器与状态门控诊断。**
 
 - 使用生产 Stage2 simulator、生产 GMTI_core 和 raw observable estimator，完成 24 个 calibration、8 个 validation、32 个 held-out test 场景，共 64 场；无 AI 训练（`ai_training=false`）。
-- 每个场景生成一次 zero-impairment C+N background，并复用于 exact target-off/target-on；9 个代表场景另有 target-only 输出。test 含 8 个机制族，包含 M1、M2、M3 及其组合。
+- 每个场景生成一次 zero-impairment C+N background，并复用于 exact target-off/target-on；9 个代表场景另有 target-only 输出。test 含 7 个 non-zero mechanism family：M1、M2、M3 及其组合。
 - held-out test 的固定阈值在 calibration negative controls 上冻结。Pfa=0.001 时，Current/J3/J4 的经验 Pfa 分别为 `0.006045/0.006070/0.006050`，均高于名义值，且 J3/J4 相对 Current 有轻微回归；Pfa=0.01 同样有回归。
 - test target 的 causal Pd 在 Pfa=0.001 对 J0–J4 均为 `0.90`，paired causal Pd 均为 `0.85`；J1/J3/J4 的 median target preservation 约 `-0.0018 dB`，J0/J2 为 `0.5464 dB`。
 - 30 个含 M1/M2 的 validation+test scene 的 Oracle recovery ratio：J3 median `0.00`、bootstrap 95% CI `[0.00, 0.0260]`；J4 median `0.00`、CI `[0.00, 0.0261]`。因此不满足 `>=0.80` 的 AI GO 条件。
@@ -22,7 +22,7 @@
 
 sampling 使用确定性的分层 Latin hypercube；没有随机 row split。每个场景的 target-off、target-on 和 target-only（若存在）共享同一个确定性背景目录，因此 target contamination 定义为 **target-on estimator − exact paired target-off estimator**。test target contamination 文件包含 8 条 multi-target 记录，说明多目标场景确实被覆盖。
 
-test 机制族计数为：M1 5、M2 5、M3 5、M1+M2 5、M1+M3 4、M2+M3 4、M1+M2+M3 4。
+test 机制族计数为：M1 5、M2 5、M3 5、M1+M2 5、M1+M3 4、M2+M3 4、M1+M2+M3 4。V1 test 不包含 held-out zero family，因此不能用于最终 false-activation 泛化结论；calibration/validation 的 zero 只用于 null 与冻结阈值检查。
 
 ### 1.2 方法定义
 
