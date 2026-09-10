@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "source_commit": "09bbd624c063126a97ea02196394ea62d3b4c4a6",
+  "worktree_dirty": false,
+  "input_source": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/h0_gate_ab/gate_false/config.xml",
+  "rows": [
+    {
+      "gate": "false",
+      "config": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/h0_gate_ab_formal_clean/gate_false/config.xml",
+      "result": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/h0_gate_ab_formal_clean/gate_false/result",
+      "command": [
+        "/tmp/pgrcc_formal_clean_09bbd62/build/GMTI_core",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/h0_gate_ab_formal_clean/gate_false/config.xml",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on"
+      ],
+      "exit_code": 0
+    },
+    {
+      "gate": "true",
+      "config": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/h0_gate_ab_formal_clean/gate_true/config.xml",
+      "result": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/h0_gate_ab_formal_clean/gate_true/result",
+      "command": [
+        "/tmp/pgrcc_formal_clean_09bbd62/build/GMTI_core",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/h0_gate_ab_formal_clean/gate_true/config.xml",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "definitions": {
+    "gate_false": "legacy split path",
+    "gate_true": "row coherence gate; rho<0.5 bypasses CSI subtraction"
+  },
+  "provenance_refresh": {
+    "final_clean_worktree_checked_at": "2026-09-10",
+    "final_clean_worktree": true,
+    "runtime_harness_aliases_removed": true,
+    "original_manifest_worktree_dirty_observation": true,
+    "note": "Formal outputs were routed through temporary untracked aliases in a separate clean worktree because the result roots are external; aliases were removed before this final clean-source provenance check. No tracked source files were changed.",
+    "formal_experiment_code_commit": "09bbd624c063126a97ea02196394ea62d3b4c4a6",
+    "final_repository_head_after_test_fix": "0b6f7e7",
+    "post_run_commit_scope": "0b6f7e7 test-only path fix in tests/test_background_reuse_validation.py; 4fcc139 docs-only progress navigation update; no C++/CUDA or experiment runner code changed",
+    "final_repository_head_after_delivery": "4fcc13928a89a175d2cca187cec87777d8915a58"
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/target_only",
+  "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/strong_motion",
+  "mode": "target_only",
+  "metrics": {
+    "mode": "target_only",
+    "status": "measured",
+    "target_count": 1,
+    "target_loss_dB": -30.551876429939906,
+    "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+    "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+    "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_134006_914432/csi_roi_manifest.csv",
+    "targets": [
+      {
+        "target_id": "MISMATCH_B01_S000_R00",
+        "row": 64,
+        "col": 160,
+        "truth_af_hz": -1315.24806122,
+        "axis_af_hz": -15.225726127624512,
+        "wrap_order": 1,
+        "roi_row_start": 62,
+        "roi_row_end": 66,
+        "roi_col_start": 158,
+        "roi_col_end": 162,
+        "roi_cells": 25,
+        "target_power_before": 157150.70950683593,
+        "target_power_after": 138.397645948492,
+        "target_loss_dB": -30.551876429939906,
+        "status": "measured"
+      }
+    ]
+  }
+}

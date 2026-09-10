@@ -1,0 +1,2421 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "control_count": 72,
+  "failed_count": 0,
+  "failures": [],
+  "results": [
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/moderate/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/moderate",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004959858851084813,
+        "hit_cells": 2575,
+        "clusters": 52,
+        "selected": 52,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/moderate/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/moderate/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133730_200696/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/moderate/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/moderate",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -18.67924879424497,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/moderate/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/moderate/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133727_071516/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 94246.33246704102,
+            "target_power_after": 1277.4372602748872,
+            "target_loss_dB": -18.67924879424497,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/strong/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/strong",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004139315212031558,
+        "hit_cells": 2149,
+        "clusters": 30,
+        "selected": 30,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/strong/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/strong/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133734_416398/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/strong/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/strong",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -9.69660022435175,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/strong/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/strong/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133732_233259/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 57154.9164645195,
+            "target_power_after": 6129.055752587132,
+            "target_loss_dB": -9.69660022435175,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/weak/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/weak",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004803839990138067,
+        "hit_cells": 2494,
+        "clusters": 61,
+        "selected": 61,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/weak/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/weak/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133738_879064/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/weak/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/weak",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -25.02798972756998,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/weak/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/weak/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133736_412649/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 109899.51534667969,
+            "target_power_after": 345.3001797655225,
+            "target_loss_dB": -25.02798972756998,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/zero/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/zero",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004859698594674556,
+        "hit_cells": 2523,
+        "clusters": 64,
+        "selected": 64,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/zero/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/zero/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133743_173675/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/zero/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m1_seed2026091011/M1_fractional_channel_delay/zero",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -35.40806474402768,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/zero/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m1_rerun/M1_fractional_channel_delay/zero/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133740_922449/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 124186.94468261719,
+            "target_power_after": 35.74945851325989,
+            "target_loss_dB": -35.40806474402768,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/moderate/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/moderate",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004749907544378699,
+        "hit_cells": 2466,
+        "clusters": 55,
+        "selected": 55,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/moderate/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/moderate/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133747_755537/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/moderate/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/moderate",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -28.76297371296903,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/moderate/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/moderate/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133745_241076/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 116906.24153320312,
+            "target_power_after": 155.43196129739283,
+            "target_loss_dB": -28.76297371296903,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/strong/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/strong",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004239475468441814,
+        "hit_cells": 2201,
+        "clusters": 45,
+        "selected": 45,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/strong/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/strong/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133752_302457/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/strong/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/strong",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -21.614393136127052,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/strong/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/strong/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133749_849701/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 105128.13952636719,
+            "target_power_after": 724.9026127505302,
+            "target_loss_dB": -21.614393136127052,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/weak/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/weak",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.00482117541913215,
+        "hit_cells": 2503,
+        "clusters": 59,
+        "selected": 59,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/weak/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/weak/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133756_799086/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/weak/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/weak",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -34.46404458840588,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/weak/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/weak/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133754_309510/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 122542.08626464843,
+            "target_power_after": 43.84103627204895,
+            "target_loss_dB": -34.46404458840588,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/zero/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/zero",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004859698594674556,
+        "hit_cells": 2523,
+        "clusters": 64,
+        "selected": 64,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/zero/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/zero/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133801_029940/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/zero/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m2_seed2026091011/M2_pulse_varying_differential_phase/zero",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -35.40806474402768,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/zero/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m2/M2_pulse_varying_differential_phase/zero/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133758_783825/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 124186.94468261719,
+            "target_power_after": 35.74945851325989,
+            "target_loss_dB": -35.40806474402768,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/moderate_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/moderate_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.0038850622534516766,
+        "hit_cells": 2017,
+        "clusters": 3,
+        "selected": 3,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/moderate_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/moderate_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133805_086850/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/moderate_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/moderate_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -38.18059909765225,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/moderate_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/moderate_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133803_072871/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.22121810913086,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 129249.10276855469,
+            "target_power_after": 19.65022950977087,
+            "target_loss_dB": -38.18059909765225,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/static_regression/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/static_regression",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004859698594674556,
+        "hit_cells": 2523,
+        "clusters": 64,
+        "selected": 64,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/static_regression/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/static_regression/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133808_999201/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/static_regression/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/static_regression",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -35.40806474402768,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/static_regression/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/static_regression/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133806_789253/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.226113319396973,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 124186.94468261719,
+            "target_power_after": 35.74945851325989,
+            "target_loss_dB": -35.40806474402768,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/strong_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/strong_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004374306582840237,
+        "hit_cells": 2271,
+        "clusters": 5,
+        "selected": 5,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/strong_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/strong_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133813_274531/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/strong_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/strong_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -34.285340241787964,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/strong_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/strong_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133811_084514/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.221893310546875,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 123811.92323486328,
+            "target_power_after": 46.15602985486388,
+            "target_loss_dB": -34.285340241787964,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/weak_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/weak_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.003931290064102564,
+        "hit_cells": 2041,
+        "clusters": 10,
+        "selected": 10,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/weak_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/weak_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133817_192856/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/weak_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/weak_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -37.97162536292595,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/weak_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_m3/M3_internal_clutter_motion/weak_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133815_058244/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.223603248596191,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 144227.2903027344,
+            "target_power_after": 23.008319946527482,
+            "target_loss_dB": -37.97162536292595,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/moderate/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004274146326429981,
+        "hit_cells": 2219,
+        "clusters": 46,
+        "selected": 46,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/moderate/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/moderate/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133821_864092/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/moderate/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -18.431358763291005,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/moderate/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/moderate/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133819_041848/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 100418.61608398438,
+            "target_power_after": 1441.0476964735985,
+            "target_loss_dB": -18.431358763291005,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/strong/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/strong",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.003813794378698225,
+        "hit_cells": 1980,
+        "clusters": 24,
+        "selected": 24,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/strong/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/strong/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133827_908292/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/strong/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/strong",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -9.629980411859286,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/strong/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/strong/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133824_318408/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 61046.21999771118,
+            "target_power_after": 6647.536586532593,
+            "target_loss_dB": -9.629980411859286,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/weak/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/weak",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.00445713141025641,
+        "hit_cells": 2314,
+        "clusters": 56,
+        "selected": 56,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/weak/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/weak/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133832_549170/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/weak/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/weak",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -24.643834495340897,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/weak/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/weak/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133829_723855/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 117024.99596679688,
+            "target_power_after": 401.6938524383306,
+            "target_loss_dB": -24.643834495340897,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/zero/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/zero",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004462909886587771,
+        "hit_cells": 2317,
+        "clusters": 68,
+        "selected": 68,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/zero/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/zero/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133837_407691/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/zero/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/zero",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -36.995054750167775,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/zero/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M1_fractional_channel_delay/zero/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133834_838029/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 132365.56110839843,
+            "target_power_after": 26.44049186706543,
+            "target_loss_dB": -36.995054750167775,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/moderate/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/moderate",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004437869822485207,
+        "hit_cells": 2304,
+        "clusters": 59,
+        "selected": 59,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/moderate/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/moderate/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133845_663530/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/moderate/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/moderate",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -31.3749170207959,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/moderate/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/moderate/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133841_491301/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 124459.20625,
+            "target_power_after": 90.6849723303318,
+            "target_loss_dB": -31.3749170207959,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/strong/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/strong",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.00384461291913215,
+        "hit_cells": 1996,
+        "clusters": 45,
+        "selected": 45,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/strong/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/strong/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133854_994229/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/strong/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/strong",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -24.718072080892874,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/strong/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/strong/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133851_665504/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 111831.16477539063,
+            "target_power_after": 377.3598062181473,
+            "target_loss_dB": -24.718072080892874,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/weak/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/weak",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.0044937284270216964,
+        "hit_cells": 2333,
+        "clusters": 66,
+        "selected": 66,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/weak/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/weak/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133858_953755/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/weak/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/weak",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -36.12454945912825,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/weak/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/weak/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133856_947254/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 130570.76604003906,
+            "target_power_after": 31.870656250715257,
+            "target_loss_dB": -36.12454945912825,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/zero/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/zero",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004462909886587771,
+        "hit_cells": 2317,
+        "clusters": 68,
+        "selected": 68,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/zero/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/zero/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133903_274731/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/zero/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/zero",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -36.995054750167775,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/zero/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M2_pulse_varying_differential_phase/zero/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133901_006014/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 132365.56110839843,
+            "target_power_after": 26.44049186706543,
+            "target_loss_dB": -36.995054750167775,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/moderate_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.003704003328402367,
+        "hit_cells": 1923,
+        "clusters": 6,
+        "selected": 6,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133907_597647/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/moderate_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -39.05918576781157,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133905_355743/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.22428035736084,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 129600.83454589844,
+            "target_power_after": 16.094934786111118,
+            "target_loss_dB": -39.05918576781157,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/static_regression/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/static_regression",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004462909886587771,
+        "hit_cells": 2317,
+        "clusters": 68,
+        "selected": 68,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/static_regression/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/static_regression/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133911_669109/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/static_regression/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/static_regression",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -36.995054750167775,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/static_regression/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/static_regression/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133909_364650/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.220207214355469,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 132365.56110839843,
+            "target_power_after": 26.44049186706543,
+            "target_loss_dB": -36.995054750167775,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/strong_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/strong_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004316521819526627,
+        "hit_cells": 2241,
+        "clusters": 6,
+        "selected": 6,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/strong_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/strong_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133916_025581/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/strong_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/strong_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -38.22343959570917,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/strong_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/strong_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133913_690906/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.22326374053955,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 138455.87812011718,
+            "target_power_after": 20.84334604382515,
+            "target_loss_dB": -38.22343959570917,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/weak_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/weak_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.003950551651873767,
+        "hit_cells": 2051,
+        "clusters": 1,
+        "selected": 1,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/weak_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/weak_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133919_805928/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/weak_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/weak_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -38.26832656424305,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/weak_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/weak_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133917_748359/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.223913192749023,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 126722.5711328125,
+            "target_power_after": 18.880840328484773,
+            "target_loss_dB": -38.26832656424305,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/moderate/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/moderate",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004316521819526627,
+        "hit_cells": 2241,
+        "clusters": 41,
+        "selected": 41,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/moderate/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/moderate/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133924_716899/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/moderate/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/moderate",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -18.350472161160468,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/moderate/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/moderate/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133921_695414/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 106131.18278564453,
+            "target_power_after": 1551.6572256863117,
+            "target_loss_dB": -18.350472161160468,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/strong/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/strong",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.003715560281065089,
+        "hit_cells": 1929,
+        "clusters": 22,
+        "selected": 22,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/strong/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/strong/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133928_807008/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/strong/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/strong",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -9.542433461381448,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/strong/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/strong/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133926_716664/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 64486.787289505,
+            "target_power_after": 7165.184783477784,
+            "target_loss_dB": -9.542433461381448,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/weak/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/weak",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004449426775147929,
+        "hit_cells": 2310,
+        "clusters": 56,
+        "selected": 56,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/weak/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/weak/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133933_320698/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/weak/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/weak",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -24.582819088904895,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/weak/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/weak/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133930_704132/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 123718.38234863282,
+            "target_power_after": 430.6776393967867,
+            "target_loss_dB": -24.582819088904895,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/zero/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/zero",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004430165187376726,
+        "hit_cells": 2300,
+        "clusters": 59,
+        "selected": 59,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/zero/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/zero/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133937_431003/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/zero/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/zero",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -36.28887332521893,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/zero/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M1_fractional_channel_delay/zero/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133935_311328/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 139880.64208984375,
+            "target_power_after": 32.875342392921446,
+            "target_loss_dB": -36.28887332521893,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/moderate/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/moderate",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004416682075936883,
+        "hit_cells": 2293,
+        "clusters": 58,
+        "selected": 58,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/moderate/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/moderate/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133941_589458/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/moderate/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/moderate",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -30.957335953757283,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/moderate/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/moderate/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133939_443743/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 131475.84086914064,
+            "target_power_after": 105.46597251653671,
+            "target_loss_dB": -30.957335953757283,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/strong/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/strong",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004006410256410256,
+        "hit_cells": 2080,
+        "clusters": 43,
+        "selected": 43,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/strong/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/strong/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133945_723777/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/strong/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/strong",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -24.328274789960084,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/strong/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/strong/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133943_741846/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 117995.73902832031,
+            "target_power_after": 435.55083000183106,
+            "target_loss_dB": -24.328274789960084,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/weak/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/weak",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004443648298816568,
+        "hit_cells": 2307,
+        "clusters": 57,
+        "selected": 57,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/weak/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/weak/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133949_917105/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/weak/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/weak",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -35.51898920815282,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/weak/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/weak/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133947_747738/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 137984.56483398436,
+            "target_power_after": 38.71966466903687,
+            "target_loss_dB": -35.51898920815282,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/zero/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/zero",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004430165187376726,
+        "hit_cells": 2300,
+        "clusters": 59,
+        "selected": 59,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/zero/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/zero/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133954_099948/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/zero/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/zero",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -36.28887332521893,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/zero/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M2_pulse_varying_differential_phase/zero/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133951_987969/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 139880.64208984375,
+            "target_power_after": 32.875342392921446,
+            "target_loss_dB": -36.28887332521893,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/moderate_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/moderate_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.0038869884122287967,
+        "hit_cells": 2018,
+        "clusters": 5,
+        "selected": 5,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/moderate_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/moderate_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133959_828789/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/moderate_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/moderate_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -34.447686074626944,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/moderate_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/moderate_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_133956_202809/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.223332405090332,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 163719.44540527344,
+            "target_power_after": 58.79381714522839,
+            "target_loss_dB": -34.447686074626944,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/static_regression/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/static_regression",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004430165187376726,
+        "hit_cells": 2300,
+        "clusters": 59,
+        "selected": 59,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/static_regression/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/static_regression/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_134004_807727/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/static_regression/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/static_regression",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -36.28887332521893,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/static_regression/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/static_regression/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_134002_645831/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.218488693237305,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 139880.64208984375,
+            "target_power_after": 32.875342392921446,
+            "target_loss_dB": -36.28887332521893,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/strong_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.0045187684911242604,
+        "hit_cells": 2346,
+        "clusters": 8,
+        "selected": 8,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_134009_944784/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/strong_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -30.551876429939906,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/strong_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_134006_914432/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.225726127624512,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 157150.70950683593,
+            "target_power_after": 138.397645948492,
+            "target_loss_dB": -30.551876429939906,
+            "status": "measured"
+          }
+        ]
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/weak_motion/negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/weak_motion",
+      "mode": "negative_control",
+      "metrics": {
+        "mode": "negative_control",
+        "status": "measured",
+        "Pfa": 0.004052638067061144,
+        "hit_cells": 2104,
+        "clusters": 6,
+        "selected": 6,
+        "configured_pf": 1e-06,
+        "cfar_geometry": {
+          "rows": 128,
+          "cols": 4096,
+          "guard_cells": 4,
+          "background_cells": 16,
+          "doppler_circular": true,
+          "exclude_row_start": -1,
+          "exclude_row_end": -1,
+          "csi_detection_band_mode": "dynamic",
+          "branch_count": 1,
+          "valid_doppler_rows": 128,
+          "valid_range_cells_per_row": 4056,
+          "valid_cfar_test_cells": 519168,
+          "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+        },
+        "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+        "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/weak_motion/negative_control/gmticore.log",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/weak_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_134018_481664/csi_roi_manifest.csv"
+      }
+    },
+    {
+      "schema_version": 1,
+      "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/weak_motion/target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/weak_motion",
+      "mode": "target_only",
+      "metrics": {
+        "mode": "target_only",
+        "status": "measured",
+        "target_count": 1,
+        "target_loss_dB": -37.57712758799238,
+        "definition": "10log10(mean target-only after ROI power / mean target-only before ROI power); negative means target power loss",
+        "source_truth": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/weak_motion/target_only/stage2/truth/truth_targets_by_beam.csv",
+        "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091013/M3_internal_clutter_motion/weak_motion/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_134014_785934/csi_roi_manifest.csv",
+        "targets": [
+          {
+            "target_id": "MISMATCH_B01_S000_R00",
+            "row": 64,
+            "col": 160,
+            "truth_af_hz": -1315.24806122,
+            "axis_af_hz": -15.22510051727295,
+            "wrap_order": 1,
+            "roi_row_start": 62,
+            "roi_row_end": 66,
+            "roi_col_start": 158,
+            "roi_col_end": 162,
+            "roi_cells": 25,
+            "target_power_before": 152591.21687255858,
+            "target_power_after": 26.657337937951088,
+            "target_loss_dB": -37.57712758799238,
+            "status": "measured"
+          }
+        ]
+      }
+    }
+  ]
+}

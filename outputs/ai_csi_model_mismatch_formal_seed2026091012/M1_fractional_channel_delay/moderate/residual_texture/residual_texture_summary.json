@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "input_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/stage2/algorithm_result/period_0000/csi_metrics/20260910_133508_725192/csi_roi_manifest.csv",
+  "input_identity": {
+    "case_id": "temp_config_stage2_period_0000",
+    "run_id": "20260910_133508_725192",
+    "result_id": "GMTI01",
+    "period_id": 0,
+    "beam_id": 1,
+    "shape": [
+      128,
+      4096
+    ]
+  },
+  "definitions": {
+    "phase_residual": "angle(F1 * conj(exp(+j*(p38_k*fa+p38_b)) * F2))",
+    "row_coherence": "abs(sum(F1*conj(F2))) / sqrt(sum(|F1|^2)*sum(|F2|^2)) over production range support",
+    "coherent_csi_rows": "rho >= 0.5",
+    "h0_bypass_rows": "rho < 0.5",
+    "support_outside_rows": "rows outside [45,83]",
+    "valid_clutter_cells": "active support, finite, min channel power between configured 5th and 99th percentiles",
+    "slow_time_phase": "IFFT-derived diagnostic from production F1 and P38-corrected F2; raw pre-Doppler pulses are not exported by this tap"
+  },
+  "thresholds": {
+    "coherence_gate": 0.5,
+    "energy_percentile": 5.0,
+    "strong_percentile": 99.0,
+    "energy_floor_min_power": 2.1621262202177243,
+    "strong_ceiling_min_power": 1097845.5564820701,
+    "slow_time_energy_floor": 0.029720710940092997,
+    "slow_time_strong_ceiling": 9650.203954508872
+  },
+  "row_classification": {
+    "active_rows": 39,
+    "coherent_csi_rows": 39,
+    "h0_bypass_rows": 0,
+    "support_outside_rows": 89,
+    "coherence_gate_pass_fraction": 1.0,
+    "coherence_gate_bypass_fraction": 0.0,
+    "rho_min": 0.8580646418872157,
+    "rho_median": 0.9703573524035076,
+    "rho_max": 0.9799040531178227
+  },
+  "phase_residual": {
+    "summary": {
+      "n": 150121,
+      "circular_mean_rad": -0.008493143876627472,
+      "circular_std_rad": 0.27881509838607904,
+      "rmse_rad": 0.30360119421389514,
+      "p50_abs_rad": 0.17225195179108913,
+      "p90_abs_rad": 0.8475681992033418,
+      "p95_abs_rad": 1.3389818617947173,
+      "resultant_length": 0.9618767745118961
+    },
+    "signature": "nonlinear_or_mixed_trend",
+    "by_row_class": {
+      "coherent_csi": {
+        "phase_residual": {
+          "n": 150121,
+          "circular_mean_rad": -0.008493143876627472,
+          "circular_std_rad": 0.27881509838607904,
+          "rmse_rad": 0.30360119421389514,
+          "p50_abs_rad": 0.17225195179108913,
+          "p90_abs_rad": 0.8475681992033418,
+          "p95_abs_rad": 1.3389818617947173,
+          "resultant_length": 0.9618767745118961
+        },
+        "amplitude_residual_db": {
+          "n": 150121,
+          "median": 2.1247844980329083,
+          "mean": 2.046684507823395,
+          "std": 3.8356840963880936,
+          "cv": 1.8740901718837621,
+          "p90": 6.2018504550313995,
+          "p95": 7.898097183342722
+        },
+        "min_amplitude_equalization_ratio": {
+          "n": 150121,
+          "median": 0.7364821146731233,
+          "mean": 0.7130131260759291,
+          "std": 0.18261253065046223,
+          "cv": 0.25611298832133483,
+          "p90": 0.9359441887450336,
+          "p95": 0.9671862325152171
+        }
+      },
+      "h0_bypass": {
+        "phase_residual": {
+          "n": 0,
+          "circular_mean_rad": null,
+          "circular_std_rad": null,
+          "rmse_rad": null,
+          "p50_abs_rad": null,
+          "p90_abs_rad": null,
+          "p95_abs_rad": null,
+          "resultant_length": null
+        },
+        "amplitude_residual_db": {
+          "n": 0,
+          "median": null,
+          "mean": null,
+          "std": null,
+          "cv": null,
+          "p90": null,
+          "p95": null
+        },
+        "min_amplitude_equalization_ratio": {
+          "n": 0,
+          "median": null,
+          "mean": null,
+          "std": null,
+          "cv": null,
+          "p90": null,
+          "p95": null
+        }
+      },
+      "support_outside": {
+        "phase_residual": {
+          "n": 0,
+          "circular_mean_rad": null,
+          "circular_std_rad": null,
+          "rmse_rad": null,
+          "p50_abs_rad": null,
+          "p90_abs_rad": null,
+          "p95_abs_rad": null,
+          "resultant_length": null
+        },
+        "amplitude_residual_db": {
+          "n": 0,
+          "median": null,
+          "mean": null,
+          "std": null,
+          "cv": null,
+          "p90": null,
+          "p95": null
+        },
+        "min_amplitude_equalization_ratio": {
+          "n": 0,
+          "median": null,
+          "mean": null,
+          "std": null,
+          "cv": null,
+          "p90": null,
+          "p95": null
+        }
+      }
+    },
+    "vs_doppler_linear_fit": {
+      "n": 39,
+      "slope": 0.00029559926520885934,
+      "intercept": -0.008861764866052746,
+      "r2": 0.5397504331411869,
+      "residual_std": 0.031200970167981696
+    },
+    "vs_range_frequency_linear_fit": {
+      "n": 64,
+      "slope": -7.152165404264976e-10,
+      "intercept": -0.00709322533962242,
+      "r2": 0.04077240701816609,
+      "residual_std": 0.0262909882184709,
+      "delta_tau_ns": -0.11383024778996148
+    }
+  },
+  "amplitude_residual_db": {
+    "n": 150121,
+    "median": 2.1247844980329083,
+    "mean": 2.046684507823395,
+    "std": 3.8356840963880936,
+    "cv": 1.8740901718837621,
+    "p90": 6.2018504550313995,
+    "p95": 7.898097183342722
+  },
+  "amplitude_ratio_linear": {
+    "n": 150121,
+    "median": 1.277142110550471,
+    "mean": 1.402003726255221,
+    "std": 0.8705175032510135,
+    "cv": 0.6209074823111731,
+    "p90": 2.0421729659384287,
+    "p95": 2.482589185245593
+  },
+  "min_amplitude_equalization_ratio": {
+    "n": 150121,
+    "median": 0.7364821146731233,
+    "mean": 0.7130131260759291,
+    "std": 0.18261253065046223,
+    "cv": 0.25611298832133483,
+    "p90": 0.9359441887450336,
+    "p95": 0.9671862325152171
+  },
+  "slow_time_phase": {
+    "fit_vs_pulse": {
+      "n": 126,
+      "slope": -3.274107787513431e-05,
+      "intercept": -0.0011066018854865673,
+      "r2": 0.014678961960587489,
+      "residual_std": 0.009756643176245207
+    }
+  },
+  "artifacts": {
+    "phase_residual_map": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/phase_residual_map.npy",
+    "amplitude_residual_db_map": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/amplitude_residual_db_map.npy",
+    "coherence_gate_row_map": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/coherence_gate_row_map.npy",
+    "coherence_block_map": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/coherence_block_map.npy",
+    "coherence_gate_rows": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/coherence_gate_rows.csv",
+    "residual_by_row_class": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/residual_by_row_class.csv",
+    "phase_residual_vs_doppler": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/phase_residual_vs_doppler.csv",
+    "phase_residual_vs_range": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/phase_residual_vs_range.csv",
+    "amplitude_residual_vs_doppler": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/amplitude_residual_vs_doppler.csv",
+    "amplitude_residual_vs_range": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/amplitude_residual_vs_range.csv",
+    "coherence_vs_doppler": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/coherence_vs_doppler.csv",
+    "coherence_vs_range": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/coherence_vs_range.csv",
+    "pulse_phase_residual": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M1_fractional_channel_delay/moderate/residual_texture/pulse_phase_residual.csv"
+  }
+}

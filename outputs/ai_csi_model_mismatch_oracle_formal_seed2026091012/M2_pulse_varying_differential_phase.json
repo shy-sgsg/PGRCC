@@ -1,0 +1,38 @@
+{
+  "family": "M2_pulse_varying_differential_phase",
+  "mechanism": "pulse_varying_differential_phase",
+  "oracle": "inverse_known_phase_trajectory_on_raw_channel_2",
+  "variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/strong",
+  "status": "pass",
+  "gmticore_exit_code": 0,
+  "input_truth_not_used_by_estimator": true,
+  "transform": {
+    "source": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M2_pulse_varying_differential_phase/strong/stage2/data/stage2_statistical_newprotocol_period_0000.bin",
+    "target": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091012/M2_pulse_varying_differential_phase/stage2/data/oracle_corrected_period_0000.bin",
+    "packet_count": 128,
+    "pulse_len": 11840,
+    "sample_shift": 0.0,
+    "delay_ns": 0.0,
+    "phase_drift_deg_per_pulse": 0.5,
+    "operation": "dephase_then_inverse_fractional_shift_channel_2"
+  },
+  "audit_exit_code": 0,
+  "current": {
+    "cancellation_db": 20.9192022401485,
+    "coherence": 0.996056030993494,
+    "phase_rmse_rad": 0.0955201384663031,
+    "phase_p95_rad": 1.4095786998028
+  },
+  "oracle_metrics": {
+    "cancellation_db": 24.3406943710023,
+    "coherence": 0.998166553201804,
+    "phase_rmse_rad": 0.0628577057322435,
+    "phase_p95_rad": 1.05327163677292
+  },
+  "delta_cancellation_db": 3.4214921308537996,
+  "delta_phase_rmse_rad": -0.032662432734059596,
+  "delta_coherence": 0.002110522208309984,
+  "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091012/M2_pulse_varying_differential_phase/stage2/algorithm_result/period_0000/csi_metrics/20260910_134323_802609/csi_roi_manifest.csv",
+  "residual_summary": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091012/M2_pulse_varying_differential_phase/residual_texture/residual_texture_summary.json",
+  "headroom_interpretation": "positive cancellation delta and lower phase RMSE support a recoverable calibration-model component"
+}

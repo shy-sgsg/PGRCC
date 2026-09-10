@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "source_commit": "09bbd624c063126a97ea02196394ea62d3b4c4a6",
+  "worktree_dirty": false,
+  "seed_count": 3,
+  "seeds": [
+    2026091011,
+    2026091012,
+    2026091013
+  ],
+  "record_count": 36,
+  "oracle_record_count": 9,
+  "input_roots": [
+    "/tmp/pgrcc_formal_clean_09bbd62/outputs/ai_csi_model_mismatch_m1_rerun",
+    "/tmp/pgrcc_formal_clean_09bbd62/outputs/ai_csi_model_mismatch_m2",
+    "/tmp/pgrcc_formal_clean_09bbd62/outputs/ai_csi_model_mismatch_m3",
+    "/tmp/pgrcc_formal_clean_09bbd62/outputs/ai_csi_model_mismatch_seed2026091012",
+    "/tmp/pgrcc_formal_clean_09bbd62/outputs/ai_csi_model_mismatch_seed2026091013"
+  ],
+  "controls_root": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean",
+  "diagnostic_override_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_p38_cfar_diagnostics_formal_clean/production_diagnostic_metrics.csv",
+  "diagnostic_override_rows": 36,
+  "outputs": {
+    "by_seed": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_multiseed_formal_clean/model_mismatch_by_seed.csv",
+    "failure_map": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_multiseed_formal_clean/failure_map_multiseed.csv",
+    "oracle_by_seed": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_multiseed_formal_clean/mechanism_oracle_by_seed.csv",
+    "oracle_summary": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_multiseed_formal_clean/mechanism_oracle_summary_multiseed.csv"
+  },
+  "definitions": {
+    "mean": "arithmetic mean over independent seed records",
+    "std_population": "population standard deviation over those records",
+    "baseline_regression_rate": "fraction of zero/static rows whose raw SHA matches that run's baseline",
+    "Pd": "positive-run production detection snapshot matched one-to-one to visible truth with the repository localization matcher; detection target_*_truth diagnostic columns are not used as item positions",
+    "target_loss": "target-only production control: 10log10(mean after ROI power / mean before ROI power), negative means target power loss",
+    "Pfa": "negative-control production run with targets disabled: CFAR hit cells / valid CFAR test cells reconstructed from CUDA cfar_detect_kernel geometry; configured pf is not substituted",
+    "P38_inlier_ratio": "mean production diagnostic p38_raw_inlier_ratio or p38_refit_inlier_ratio over detections",
+    "cfar_margin": "mean production diagnostic 10log10(power_map / CFAR threshold_map) over detections",
+    "M3_phase_rmse": "not compared as a recovery objective; M3 headroom is interpreted through cancellation and coherence"
+  },
+  "provenance_refresh": {
+    "final_clean_worktree_checked_at": "2026-09-10",
+    "final_clean_worktree": true,
+    "runtime_harness_aliases_removed": true,
+    "original_manifest_worktree_dirty_observation": true,
+    "note": "Formal outputs were routed through temporary untracked aliases in a separate clean worktree because the result roots are external; aliases were removed before this final clean-source provenance check. No tracked source files were changed.",
+    "formal_experiment_code_commit": "09bbd624c063126a97ea02196394ea62d3b4c4a6",
+    "final_repository_head_after_test_fix": "0b6f7e7",
+    "post_run_commit_scope": "0b6f7e7 test-only path fix in tests/test_background_reuse_validation.py; 4fcc139 docs-only progress navigation update; no C++/CUDA or experiment runner code changed",
+    "final_repository_head_after_delivery": "4fcc13928a89a175d2cca187cec87777d8915a58"
+  }
+}

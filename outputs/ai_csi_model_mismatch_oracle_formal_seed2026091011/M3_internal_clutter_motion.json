@@ -1,0 +1,27 @@
+{
+  "family": "M3_internal_clutter_motion",
+  "mechanism": "temporal_decorrelation",
+  "oracle": "perfect_phase_row_upper_bound_without_decorrelation_inversion",
+  "variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/strong_motion",
+  "status": "pass",
+  "input_truth_not_used_by_estimator": true,
+  "current": {
+    "cancellation_db": 8.29587797409602,
+    "coherence": 0.925975516187003,
+    "phase_rmse_rad": 0.400256571976991,
+    "phase_p95_rad": 1.83366853986872
+  },
+  "oracle_metrics": {
+    "cancellation_db": 8.569663283468339,
+    "coherence": 0.925975516187003,
+    "row_coherence_median": 0.8991978797399317,
+    "phase_rmse_rad": 0.5875621919535935,
+    "bypass_fraction": 0.0
+  },
+  "delta_cancellation_db": 0.27378530937231815,
+  "delta_phase_rmse_rad": 0.1873056199766025,
+  "delta_coherence": 0.0,
+  "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_m3_seed2026091011/M3_internal_clutter_motion/strong_motion/stage2/algorithm_result/period_0000/csi_metrics/20260910_133443_475118/csi_roi_manifest.csv",
+  "oracle_artifacts": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091011/M3_internal_clutter_motion",
+  "headroom_interpretation": "row-wise complex-LS phase improves cancellation only within this small headroom; the remaining residual is consistent with temporal decorrelation rather than a recoverable single phase model"
+}

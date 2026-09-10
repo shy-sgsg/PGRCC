@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "method_name": "Current CSI (phase-corrected + H0 coherence gate)",
+  "status": "formal_scalar_not_frozen",
+  "gain_db": null,
+  "gain_definition": "configured target_snr_db to paired production GO output_scnr_det_out_db offset",
+  "decision": "Do not replace the historical calibration with a scalar. The current formal compact-statistical calibration has large within-seed and between-seed spread; retain the raw paired records and use the calibrated output axis directly for later analyses.",
+  "formal_compact_statistical": {
+    "profile": "compact_statistical",
+    "waveform": "PGRCC current 11840-sample raw LFM, 128 pulses, 4-channel float32 new protocol",
+    "gate_enable": true,
+    "gate_threshold": 0.5,
+    "phase_reuse_fix": true,
+    "seeds": [2026091006, 2026091007],
+    "replicas_per_configured_snr": 3,
+    "configured_snr_db": [0.0, 6.0, 12.0, 18.0, 24.0],
+    "sample_count": 30,
+    "all_samples": {
+      "mean_offset_db": 29.957000418474383,
+      "median_offset_db": 33.69158350534512,
+      "sample_std_db": 12.493868967298788,
+      "min_offset_db": -10.326866272540371,
+      "max_offset_db": 41.807615724544235
+    },
+    "both_production_hit_samples": {
+      "sample_count": 29,
+      "mean_offset_db": 31.346099269888683,
+      "median_offset_db": 33.71594847081709,
+      "sample_std_db": 10.085452576534,
+      "min_offset_db": 6.4365029615224,
+      "max_offset_db": 41.807615724544235,
+      "filter": "unit_go_cfar_exact_cut_hit=1 and unit_go_cfar_resolution_hit=1"
+    },
+    "by_seed": {
+      "2026091006": {
+        "sample_count": 15,
+        "mean_offset_db": 27.777101773070846,
+        "median_offset_db": 33.5080473649253,
+        "sample_std_db": 13.441730130438337,
+        "min_offset_db": -10.326866272540371,
+        "max_offset_db": 39.63225009339309
+      },
+      "2026091007": {
+        "sample_count": 15,
+        "mean_offset_db": 32.13689906387792,
+        "median_offset_db": 37.46305883436191,
+        "sample_std_db": 11.510013726156888,
+        "min_offset_db": 6.4365029615224,
+        "max_offset_db": 41.807615724544235
+      }
+    },
+    "artifacts": [
+      {
+        "seed": 2026091006,
+        "scenario": "outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091006/scenario.json",
+        "samples": "outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091006/run/go_paired_output_scnr_samples.csv",
+        "scenario_sha256": "15a4dacaa9ad3bbfbb66e9a528b1dd8f00c98f97745e2822f8140c61d0ebd836",
+        "samples_sha256": "5abca203f89e42e5589f603ff00e94f66a11dd78ed0d48dfdba65cd6adeb3206"
+      },
+      {
+        "seed": 2026091007,
+        "scenario": "outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091007/scenario.json",
+        "samples": "outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091007/run/go_paired_output_scnr_samples.csv",
+        "scenario_sha256": "977ad660e54827aaf66cef6d2f898014a7f4b58757d2ccb9afda522f1b05360f",
+        "samples_sha256": "caeb7fabdab48ce5ab067659a6ad1ee9640b52a9a9f78e55dedaea9af0e3832d"
+      }
+    ]
+  },
+  "isolated_target_only_reference": {
+    "profile": "target_only",
+    "status": "isolated_reference_only",
+    "reason_not_formal": "04_make_compact_scenario.py defines target_only as controlled smoke/isolation, not the formal compact-statistical background.",
+    "seeds": [2026091004, 2026091005],
+    "sample_count": 10,
+    "mean_offset_db": 13.871715544947108,
+    "sample_std_db": 0.14508470357108644,
+    "min_offset_db": 13.642126609409434,
+    "max_offset_db": 14.182509939504007,
+    "summary_artifacts": [
+      {
+        "seed": 2026091004,
+        "summary": "outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091004/run/go_paired_output_scnr_summary.csv",
+        "sha256": "d89c5827271984264e1b21ed2275c585a0aaad3fe985ddfe9f1acd104f53254d"
+      },
+      {
+        "seed": 2026091005,
+        "summary": "outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091005/run/go_paired_output_scnr_summary.csv",
+        "sha256": "f70b6672bf7c672a9d4b10998b51110c72137df569b910bcf154ffbba224e8b1"
+      }
+    ]
+  },
+  "commands": [
+    "python3 scripts/gmti_scnr_eval/04_make_compact_scenario.py --output-dir outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091006 --seed 2026091006 --beam-count 1 --target-beams 1 --scnr-grid '0,6,12,18,24' --replicas 3 --period-count 1 --background-profile compact_statistical --case-id phase_corrected_current_calibration_s2026091006",
+    "python3 scripts/gmti_scnr_eval/04_calibrate_go_output_scnr.py --base-scenario outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091006/scenario.json --output-dir outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091006/run --build-dir build --diagnostic-beams 1 --pfa 1e-6 --cfar-guard 4 --cfar-background 16 --replicas-per-scnr 3",
+    "python3 scripts/gmti_scnr_eval/04_make_compact_scenario.py --output-dir outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091007 --seed 2026091007 --beam-count 1 --target-beams 1 --scnr-grid '0,6,12,18,24' --replicas 3 --period-count 1 --background-profile compact_statistical --case-id phase_corrected_current_calibration_s2026091007",
+    "python3 scripts/gmti_scnr_eval/04_calibrate_go_output_scnr.py --base-scenario outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091007/scenario.json --output-dir outputs/ai_csi_phase_corrected_baseline/calibration_seed_2026091007/run --build-dir build --diagnostic-beams 1 --pfa 1e-6 --cfar-guard 4 --cfar-background 16 --replicas-per-scnr 3"
+  ],
+  "historical_calibration_policy": "Historical calibration files remain unchanged and must not be mixed with this manifest. The source-project 21.3086164 dB value is not a PGRCC result."
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "control_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/negative_control",
+  "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091012/M3_internal_clutter_motion/moderate_motion",
+  "mode": "negative_control",
+  "metrics": {
+    "mode": "negative_control",
+    "status": "measured",
+    "Pfa": 0.003704003328402367,
+    "hit_cells": 1923,
+    "clusters": 6,
+    "selected": 6,
+    "configured_pf": 1e-06,
+    "cfar_geometry": {
+      "rows": 128,
+      "cols": 4096,
+      "guard_cells": 4,
+      "background_cells": 16,
+      "doppler_circular": true,
+      "exclude_row_start": -1,
+      "exclude_row_end": -1,
+      "csi_detection_band_mode": "dynamic",
+      "branch_count": 1,
+      "valid_doppler_rows": 128,
+      "valid_range_cells_per_row": 4056,
+      "valid_cfar_test_cells": 519168,
+      "denominator_definition": "CUDA cfar_detect_kernel valid geometry cells after row exclusions; dynamic/full/union use cut_band_mode=0; split sums in/out branch evaluations"
+    },
+    "definition": "negative-control empirical Pfa = production CFAR hit cells / valid CFAR test cells; configured pf is reported separately",
+    "source_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/negative_control/gmticore.log",
+    "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_metric_controls_formal_clean/outputs/ai_csi_model_mismatch_seed2026091012/M3_internal_clutter_motion/moderate_motion/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_133907_597647/csi_roi_manifest.csv"
+  }
+}

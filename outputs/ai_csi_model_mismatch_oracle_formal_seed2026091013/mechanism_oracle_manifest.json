@@ -1,0 +1,133 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "source_commit": "09bbd624c063126a97ea02196394ea62d3b4c4a6",
+  "worktree_dirty": false,
+  "run_root": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013",
+  "family_selection": [
+    "M1_fractional_channel_delay",
+    "M2_pulse_varying_differential_phase",
+    "M3_internal_clutter_motion"
+  ],
+  "cases": [
+    {
+      "family": "M1_fractional_channel_delay",
+      "mechanism": "fractional_channel_delay",
+      "oracle": "inverse_known_fractional_delay_on_raw_channel_2",
+      "variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/strong",
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "input_truth_not_used_by_estimator": true,
+      "transform": {
+        "source": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M1_fractional_channel_delay/strong/stage2/data/stage2_statistical_newprotocol_period_0000.bin",
+        "target": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091013/M1_fractional_channel_delay/stage2/data/oracle_corrected_period_0000.bin",
+        "packet_count": 128,
+        "pulse_len": 11840,
+        "sample_shift": 0.5000000000000001,
+        "delay_ns": 8.333333333333334,
+        "phase_drift_deg_per_pulse": 0.0,
+        "operation": "dephase_then_inverse_fractional_shift_channel_2"
+      },
+      "audit_exit_code": 0,
+      "current": {
+        "cancellation_db": 13.4561876308099,
+        "coherence": 0.977440080667083,
+        "phase_rmse_rad": 0.247193086045667,
+        "phase_p95_rad": 2.83211300085529
+      },
+      "oracle_metrics": {
+        "cancellation_db": 19.967029918539,
+        "coherence": 0.994967299481127,
+        "phase_rmse_rad": 0.110104268984575,
+        "phase_p95_rad": 1.65824879991279
+      },
+      "delta_cancellation_db": 6.510842287729101,
+      "delta_phase_rmse_rad": -0.137088817061092,
+      "delta_coherence": 0.017527218814044065,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091013/M1_fractional_channel_delay/stage2/algorithm_result/period_0000/csi_metrics/20260910_134335_196489/csi_roi_manifest.csv",
+      "residual_summary": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091013/M1_fractional_channel_delay/residual_texture/residual_texture_summary.json",
+      "headroom_interpretation": "positive cancellation delta and lower phase RMSE support a recoverable calibration-model component"
+    },
+    {
+      "family": "M2_pulse_varying_differential_phase",
+      "mechanism": "pulse_varying_differential_phase",
+      "oracle": "inverse_known_phase_trajectory_on_raw_channel_2",
+      "variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/strong",
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "input_truth_not_used_by_estimator": true,
+      "transform": {
+        "source": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M2_pulse_varying_differential_phase/strong/stage2/data/stage2_statistical_newprotocol_period_0000.bin",
+        "target": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091013/M2_pulse_varying_differential_phase/stage2/data/oracle_corrected_period_0000.bin",
+        "packet_count": 128,
+        "pulse_len": 11840,
+        "sample_shift": 0.0,
+        "delay_ns": 0.0,
+        "phase_drift_deg_per_pulse": 0.5,
+        "operation": "dephase_then_inverse_fractional_shift_channel_2"
+      },
+      "audit_exit_code": 0,
+      "current": {
+        "cancellation_db": 21.0723112703469,
+        "coherence": 0.996249034245221,
+        "phase_rmse_rad": 0.0938745636419812,
+        "phase_p95_rad": 1.49246644160162
+      },
+      "oracle_metrics": {
+        "cancellation_db": 24.9165266823386,
+        "coherence": 0.998393184742105,
+        "phase_rmse_rad": 0.0597100117880216,
+        "phase_p95_rad": 1.13498238715619
+      },
+      "delta_cancellation_db": 3.844215411991698,
+      "delta_phase_rmse_rad": -0.0341645518539596,
+      "delta_coherence": 0.0021441504968839897,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091013/M2_pulse_varying_differential_phase/stage2/algorithm_result/period_0000/csi_metrics/20260910_134336_865799/csi_roi_manifest.csv",
+      "residual_summary": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091013/M2_pulse_varying_differential_phase/residual_texture/residual_texture_summary.json",
+      "headroom_interpretation": "positive cancellation delta and lower phase RMSE support a recoverable calibration-model component"
+    },
+    {
+      "family": "M3_internal_clutter_motion",
+      "mechanism": "temporal_decorrelation",
+      "oracle": "perfect_phase_row_upper_bound_without_decorrelation_inversion",
+      "variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/strong_motion",
+      "status": "pass",
+      "input_truth_not_used_by_estimator": true,
+      "current": {
+        "cancellation_db": 8.62597108276007,
+        "coherence": 0.931393200839012,
+        "phase_rmse_rad": 0.384584620508983,
+        "phase_p95_rad": 1.84621953862085
+      },
+      "oracle_metrics": {
+        "cancellation_db": 8.883823308610557,
+        "coherence": 0.931393200839012,
+        "row_coherence_median": 0.8936882102626135,
+        "phase_rmse_rad": 0.5800606931536632,
+        "bypass_fraction": 0.0
+      },
+      "delta_cancellation_db": 0.2578522258504865,
+      "delta_phase_rmse_rad": 0.19547607264468014,
+      "delta_coherence": 0.0,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_formal_seed2026091013/M3_internal_clutter_motion/strong_motion/stage2/algorithm_result/period_0000/csi_metrics/20260910_133649_588360/csi_roi_manifest.csv",
+      "oracle_artifacts": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/ai_csi_model_mismatch_oracle_formal_seed2026091013/M3_internal_clutter_motion",
+      "headroom_interpretation": "row-wise complex-LS phase improves cancellation only within this small headroom; the remaining residual is consistent with temporal decorrelation rather than a recoverable single phase model"
+    }
+  ],
+  "interpretation": {
+    "M1": "raw inverse fractional-delay replay; production GMTI is rerun",
+    "M2": "raw inverse phase trajectory replay; production GMTI is rerun",
+    "M3": "row-wise phase upper bound only; temporal decorrelation itself is not inverted"
+  },
+  "provenance_refresh": {
+    "final_clean_worktree_checked_at": "2026-09-10",
+    "final_clean_worktree": true,
+    "runtime_harness_aliases_removed": true,
+    "original_manifest_worktree_dirty_observation": true,
+    "note": "Formal outputs were routed through temporary untracked aliases in a separate clean worktree because the result roots are external; aliases were removed before this final clean-source provenance check. No tracked source files were changed.",
+    "formal_experiment_code_commit": "09bbd624c063126a97ea02196394ea62d3b4c4a6",
+    "final_repository_head_after_test_fix": "0b6f7e7",
+    "post_run_commit_scope": "0b6f7e7 test-only path fix in tests/test_background_reuse_validation.py; 4fcc139 docs-only progress navigation update; no C++/CUDA or experiment runner code changed",
+    "final_repository_head_after_delivery": "4fcc13928a89a175d2cca187cec87777d8915a58"
+  }
+}

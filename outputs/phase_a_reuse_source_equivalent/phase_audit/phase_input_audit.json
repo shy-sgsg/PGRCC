@@ -1,0 +1,141 @@
+{
+  "scenario": "/home/shy/AIR/SAR+AI/project/PGRCC/configs/research/stage2_phase_a_reuse_source_equivalent.json",
+  "source_background": "/home/shy/AIR/小长/GMTI程序/GMTI/GMTI_algorithm/GMTI_APX15_CUDA_latest/outputs/gmti_91mps_100targets_3period_scnr20_20260901_textured_paired/background_empty/data/stage2_statistical_newprotocol_period_0000.bin",
+  "before": "/home/shy/AIR/小长/GMTI程序/GMTI/GMTI_algorithm/GMTI_APX15_CUDA_latest/outputs/csi_target_preserve_20260909/working/stage2/strong_in_support/data/stage2_statistical_newprotocol_period_0000.bin",
+  "after": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/phase_a_reuse_source_equivalent/data/stage2_statistical_newprotocol_period_0000.bin",
+  "sha256": {
+    "source_background": "0c4fc1ce225ac95ec0885a5e4cea47c0007b972bef97b38c98ed1663e8bae449",
+    "before": "62bd9133c346cf59cc09fe23ca406ee89ce4a0ee9245990ab6cfce6fb98d1687",
+    "after": "428fced1c4f2e7df0558a4f1be16a42d3f3c124b49ab27cd8b915765a418e933"
+  },
+  "packet_bytes": 209152,
+  "samples_per_prt": 13056,
+  "pulses_per_beam": 128,
+  "channels": 4,
+  "requested_beam_1based": 15,
+  "requested_theta_deg": -1.0,
+  "source_requested_beam_first_packet": 1792,
+  "output_requested_beam_first_packet": 0,
+  "source_beam1_header": {
+    "packet_index": 0,
+    "magic_head": 6510615555426900570,
+    "version": 9,
+    "prt_len": 209152,
+    "utc": 0.0,
+    "prt_counter": 0,
+    "theta_deg": -29.0,
+    "magic_tail": 6582955728264977243
+  },
+  "source_requested_beam_header": {
+    "packet_index": 1792,
+    "magic_head": 6510615555426900570,
+    "version": 9,
+    "prt_len": 209152,
+    "utc": 1.378461480140686,
+    "prt_counter": 1792,
+    "theta_deg": -1.0,
+    "magic_tail": 6582955728264977243
+  },
+  "before_first_header": {
+    "packet_index": 0,
+    "magic_head": 6510615555426900570,
+    "version": 9,
+    "prt_len": 209152,
+    "utc": 0.0,
+    "prt_counter": 0,
+    "theta_deg": -29.0,
+    "magic_tail": 6582955728264977243
+  },
+  "after_first_header": {
+    "packet_index": 0,
+    "magic_head": 6510615555426900570,
+    "version": 9,
+    "prt_len": 209152,
+    "utc": 1.378461480140686,
+    "prt_counter": 0,
+    "theta_deg": -1.0,
+    "magic_tail": 6582955728264977243
+  },
+  "range_window": [
+    1250,
+    1750
+  ],
+  "ideal_phase_model": {
+    "formula": "wrap(2*pi*d_chan*sin(theta)/lambda) for current left-looking geometry",
+    "wavelength_m": 0.0182,
+    "requested_beam_phase_deg": -58.68611395394238,
+    "source_beam1_phase_deg": 169.76105719363574
+  },
+  "rows": [
+    {
+      "kind": "source_requested_beam",
+      "first_theta_deg": -1.0,
+      "first_utc": 1.378461480140686,
+      "first_prt_counter": 1792,
+      "raw_pair_coherence": 0.8742016981526642,
+      "raw_pair_phase_deg": -59.33364240289993,
+      "range_pair_coherence": 0.8741401624848082,
+      "range_pair_phase_deg": -59.12222044102434
+    },
+    {
+      "kind": "before_output",
+      "first_theta_deg": -29.0,
+      "first_utc": 0.0,
+      "first_prt_counter": 0,
+      "raw_pair_coherence": 0.882556599451924,
+      "raw_pair_phase_deg": 174.54154698418003,
+      "range_pair_coherence": 0.8845575794257736,
+      "range_pair_phase_deg": 174.54175915976427
+    },
+    {
+      "kind": "after_output",
+      "first_theta_deg": -1.0,
+      "first_utc": 1.378461480140686,
+      "first_prt_counter": 0,
+      "raw_pair_coherence": 0.8757770697121661,
+      "raw_pair_phase_deg": -59.32599896861553,
+      "range_pair_coherence": 0.875730712110662,
+      "range_pair_phase_deg": -59.08947328726423
+    },
+    {
+      "kind": "before_vs_source_beam1_payload",
+      "ch1_coherence": 0.9935804453455451,
+      "ch1_phase_deg": -0.07586013279460686,
+      "ch1_rmse": 448.9329807795565,
+      "ch2_coherence": 0.9936252195924578,
+      "ch2_phase_deg": 0.0012785001582130706,
+      "ch2_rmse": 448.93332746202685,
+      "ch3_coherence": 0.993580822475072,
+      "ch3_phase_deg": -0.07621795290793229,
+      "ch3_rmse": 448.93881838529654,
+      "ch4_coherence": 0.9936242300501241,
+      "ch4_phase_deg": 0.0015413373764123957,
+      "ch4_rmse": 448.93592381859236
+    },
+    {
+      "kind": "after_vs_source_requested_beam_payload",
+      "ch1_coherence": 0.9939244385824879,
+      "ch1_phase_deg": -0.0022451860496668754,
+      "ch1_rmse": 426.6449555800892,
+      "ch2_coherence": 0.9939281428684801,
+      "ch2_phase_deg": 0.0025420412443410917,
+      "ch2_rmse": 426.6424061478792,
+      "ch3_coherence": 0.9939242462708059,
+      "ch3_phase_deg": -0.0018727999758394213,
+      "ch3_rmse": 426.64175913794304,
+      "ch4_coherence": 0.9939288327390251,
+      "ch4_phase_deg": 0.0024730459069942936,
+      "ch4_rmse": 426.6424024676091
+    },
+    {
+      "kind": "before_minus_source_requested_target_window",
+      "coherence": 0.4146423969619607,
+      "phase_deg": -121.1990941222092
+    },
+    {
+      "kind": "after_minus_source_requested_target_window",
+      "coherence": 0.9999995683224479,
+      "phase_deg": -58.63643156267692
+    }
+  ]
+}
