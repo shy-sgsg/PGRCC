@@ -188,6 +188,11 @@ def estimate_observables_from_arrays(
             "shape": [int(x1.shape[0]), int(x1.shape[1])],
             "fs_hz": float(fs_hz),
             "prf_hz": float(prf_hz),
+            # A discrete record has a finite unambiguous delay window.  This
+            # bound is derived from the measured sample count and sample rate;
+            # it is not an injected mismatch value.
+            "max_supported_delay_ns": float(
+                0.5 * x1.shape[1] / fs_hz * 1.0e9),
             "support_percentile": float(raw_support_percentile),
             "cross_spectrum": "sum_pulses(FFT(channel1)*conj(FFT(channel2)))",
             "truth_used_in_estimator": False,
@@ -311,6 +316,10 @@ def classify_state(
     phase_conf = finite(phase.get("confidence"), 0.0)
     delay_rmse = finite(delay.get("rmse_rad"))
     phase_rmse = finite(phase.get("rmse_rad"))
+    delay_estimate = finite(delay.get("delta_tau_ns"))
+    max_supported_delay = finite(
+        observables["summary"].get("input", {}).get("max_supported_delay_ns"),
+        math.inf)
     phase_conf_threshold = float(thresholds.get(
         "confidence_phase_p2" if phase_method == "P2" else "confidence_phase",
         thresholds["confidence_phase"]))
@@ -326,11 +335,13 @@ def classify_state(
         reasons.append("phase_confidence_below_null_floor")
     if not math.isfinite(delay_rmse) or delay_rmse > float(thresholds["max_rmse_tau_rad"]):
         reasons.append("delay_fit_residual_above_null_envelope")
+    if math.isfinite(delay_estimate) and abs(delay_estimate) > max_supported_delay:
+        reasons.append("delay_outside_unambiguous_raw_window")
     if not math.isfinite(phase_rmse) or phase_rmse > phase_rmse_threshold:
         reasons.append("phase_fit_residual_above_null_envelope")
     state = CALIBRATABLE if not reasons else UNCERTAIN
     delay_active = (state == CALIBRATABLE and
-                    abs(finite(delay.get("delta_tau_ns"))) > float(thresholds["epsilon_tau_ns"]) and
+                    abs(delay_estimate) > float(thresholds["epsilon_tau_ns"]) and
                     delay_conf >= float(thresholds["confidence_tau"]))
     phase_active = (state == CALIBRATABLE and
                     abs(finite(phase.get("slope_deg_per_pulse"))) > phase_deadband and

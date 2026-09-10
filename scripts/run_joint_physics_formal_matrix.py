@@ -719,13 +719,20 @@ def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
 
 def cleanup_scene(scene: dict[str, Any]) -> None:
     root = Path(scene["scene_root"])
-    for name in ("_background_generator", "background", "target_on/stage2",
-                 "target_off/stage2", "target_only/stage2", "oracle"):
+    for name in ("_background_generator", "background", "oracle"):
         target = root / name
         if target.exists():
             shutil.rmtree(target)
+    # Production and joint replays nest their runtime products below
+    # target_{on,off,only}/stage2 and joint/<role>/<method>/stage2.  Remove
+    # every exact stage2 runtime directory while retaining compact manifests,
+    # summaries, observables and scenario specs at the scene root.
+    for stage2 in sorted(root.rglob("stage2"), reverse=True):
+        if stage2.is_dir():
+            shutil.rmtree(stage2)
     for path in root.rglob("*"):
-        if path.is_file() and path.suffix.lower() in {".bin", ".npy", ".log", ".xml"}:
+        if path.is_file() and path.suffix.lower() in {
+                ".bin", ".npy", ".log", ".xml", ".f32", ".png"}:
             path.unlink()
 
 

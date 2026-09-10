@@ -43,6 +43,7 @@ def summary_observables(
             "phase_p1": phase,
             "phase_p2": phase,
             "coherence": {"pulse_median": coherence},
+            "input": {"max_supported_delay_ns": 100.0},
         },
         "phase_p1_correction": np.zeros(8),
         "phase_p2_correction": np.zeros(8),
@@ -90,6 +91,11 @@ class JointPhysicsCalibrationTests(unittest.TestCase):
         decision = joint.correction_decision("J4_D3_P2_joint", decorrelated, gate)
         self.assertTrue(decision["fallback"])
         self.assertEqual(decision["fallback_reason"], "state_decorrelated")
+
+        out_of_window = summary_observables(delay_ns=1000.0)
+        state = joint.classify_state(out_of_window, gate)
+        self.assertEqual(state["state"], joint.UNCERTAIN)
+        self.assertIn("delay_outside_unambiguous_raw_window", state["reasons"])
 
     def test_phase_order_is_explicit_and_no_truth_is_needed(self) -> None:
         calls: list[str] = []
