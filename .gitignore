@@ -200,3 +200,17 @@ outputs/physics_ai_gate/**/logs/
 !outputs/joint_gate_failure_audit/
 !outputs/joint_gate_failure_audit/*.csv
 !outputs/joint_gate_failure_audit/*.json
+
+# Selective physics V2: keep only compact screen/formal evidence; scene
+# runtime trees are removed by the runner before delivery.
+!outputs/physics_adaptive_selective_v2_screen/
+!outputs/physics_adaptive_selective_v2_screen/*.csv
+!outputs/physics_adaptive_selective_v2_screen/*.json
+outputs/physics_adaptive_selective_v2_screen/scenes/
+!outputs/physics_adaptive_selective_v2_formal/
+!outputs/physics_adaptive_selective_v2_formal/*.csv
+!outputs/physics_adaptive_selective_v2_formal/*.json
+outputs/physics_adaptive_selective_v2_formal/scenes/
+!outputs/production_cfar_formal/
+!outputs/production_cfar_formal/*.csv
+!outputs/production_cfar_formal/*.json

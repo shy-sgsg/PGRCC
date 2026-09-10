@@ -205,6 +205,10 @@ Routing Oracle；两者分别为 `NO_GO_COMPLEX_WEIGHT_RESIDUAL` 和
 - [Baseline V2.1 物理修正与最终能力边界](docs/AI_CSI_08_Baseline_V2.1物理修正与最终能力边界.md)
 - [PGRCC-v1 Oracle 与数据集设计报告](docs/AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)
 - [PGRCC V1.1 与 Support Routing Oracle 审计报告](docs/AI_CSI_10_PGRCC_V1.1与Support_Routing审计报告.md)
+- [Joint Gate 失效归因审计](docs/AI_CSI_21_JointGate失效归因审计.md)
+- [Selective Physics Calibration V2](docs/AI_CSI_22_SelectivePhysicsCalibrationV2.md)
+- [Production CFAR 与泛化统计](docs/AI_CSI_23_ProductionCFAR与泛化统计.md)
+- [Physics-AI Final Gate](docs/AI_CSI_24_PhysicsAI_FinalGate.md)
 - [研究进展](docs/AI_CSI_研究进展.md)
 - [Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
 

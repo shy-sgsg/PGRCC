@@ -48,6 +48,16 @@ median 均为 0、95% bootstrap 上界约 0.026，且 held-out Pfa=0.001/0.01 �
 `outputs/physics_adaptive_joint_v1_formal/`；本轮 raw BIN/NPY/log/PNG 的清理记录在
 `outputs/cleanup_manifest_20260910.json`。
 
+随后完成了 selective Physics Calibration V2 的 targeted CUDA screen：12 个 null
+场景、24 个 `M1/M2/M1+M2/M3/M1+M3/M2+M3/M1+M2+M3/zero` 组合×强度 screen 场景，
+实际运行 J0–J6、生产 GO-CFAR 和 scene-block bootstrap；J5 四分支均出现，J6
+出现 D0P0/D1P0，screen 规则输出 `REOPEN_PHYSICS_AI`，但这不是 Test-V2 最终 gate。
+screen source commit 为 `451dfed`，仍未训练 AI。V2 的失效归因、方法说明、生产
+CFAR/泛化统计和最终 gate 分别见 [`AI_CSI_21_JointGate失效归因审计.md`](AI_CSI_21_JointGate失效归因审计.md)、
+[`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、
+[`AI_CSI_23_ProductionCFAR与泛化统计.md`](AI_CSI_23_ProductionCFAR与泛化统计.md)、
+[`AI_CSI_24_PhysicsAI_FinalGate.md`](AI_CSI_24_PhysicsAI_FinalGate.md)。
+
 ## 已完成事项
 
 | 阶段 | 状态 | 证据 |
@@ -65,6 +75,7 @@ median 均为 0、95% bootstrap 上界约 0.026，且 held-out Pfa=0.001/0.01 �
 | PGRCC-v1 Oracle Headroom Audit | 完成，No-Go；未进入训练 | [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)、`outputs/pgrcc_oracle/oracle_audit_manifest.json` |
 | M1/M2/M3 paired controls | 完成，36 target-only + 36 negative-control，未训练 AI | `outputs/ai_csi_model_mismatch_metric_controls_formal_clean/manifest.json`、`outputs/ai_csi_model_mismatch_formal_clean/failure_map.csv` |
 | Physics-Adaptive Joint Calibration V1 正式矩阵 | 完成，24/8/32 场景；gate=`REOPEN_CANDIDATE`，仍不训练 AI | [`AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md`](AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md)、`outputs/physics_adaptive_joint_v1_formal/formal_matrix_manifest.json` |
+| Selective Physics Calibration V2 targeted CUDA screen | 完成，12 null + 24 screen；仅为定向筛查，非最终 Test-V2 | [`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、`outputs/physics_adaptive_selective_v2_screen/formal_matrix_manifest.json` |
 
 ## V1 历史实验事实
 

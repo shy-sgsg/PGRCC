@@ -14,6 +14,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import run_joint_physics_calibration as joint  # noqa: E402
+import run_joint_physics_selective_v2 as selective_v2  # noqa: E402
 from run_joint_physics_formal_matrix import validate_clean_provenance  # noqa: E402
 from estimate_channel_delay import estimate_from_raw_time_arrays  # noqa: E402
 from estimate_temporal_phase import estimate_from_slow_time  # noqa: E402
@@ -217,6 +218,29 @@ class JointPhysicsCalibrationTests(unittest.TestCase):
         self.assertAlmostEqual(mixed["beta2_deg_per_pulse2"], 0.003, places=5)
         self.assertLess(mixed["rmse_rad"], 1.0e-8)
         self.assertGreater(mixed["residual_coherence_global"], 0.999)
+
+    def test_v2_design_is_balanced_and_bootstrap_is_scene_blocked(self) -> None:
+        specs = selective_v2.design_specs("formal")
+        self.assertEqual(len(specs), 128)
+        test_specs = [item for item in specs if item["split"] == "test"]
+        self.assertEqual(len(test_specs), 64)
+        for family in selective_v2.FAMILIES:
+            self.assertEqual(sum(item["label"] == family for item in test_specs), 8)
+        self.assertEqual(
+            {item["scan_min_deg"] for item in test_specs},
+            set(selective_v2.ANGLE_GRID_DEG),
+        )
+        self.assertGreater(len({(item["texture_sigma"], item["rho"])
+                                for item in test_specs}), 32)
+        rows = [
+            {"scene_id": "s0", "method": "J5", "status": "measured", "pfa": 0.1},
+            {"scene_id": "s1", "method": "J5", "status": "measured", "pfa": 0.2},
+            {"scene_id": "s2", "method": "J5", "status": "measured", "pfa": 0.3},
+        ]
+        summary = selective_v2.bootstrap_scene(rows, "pfa", "J5", iterations=100)
+        self.assertEqual(summary["bootstrap_unit"], "scene")
+        self.assertEqual(summary["scene_count"], 3)
+        self.assertEqual(len(summary["bootstrap_ci95"]), 2)
 
 
 if __name__ == "__main__":
