@@ -28,6 +28,19 @@ def write_csv(path: Path, rows: list[dict]) -> None:
 
 
 class GmtiV16MetricTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        required = (
+            "evaluate_output_scnr.py",
+            "evaluate_range_coverage.py",
+        )
+        missing = [name for name in required if not (TOOLS / name).is_file()]
+        if missing:
+            raise unittest.SkipTest(
+                "legacy v1.6 evaluator tools are absent after compact-output cleanup: "
+                + ", ".join(missing)
+            )
+
     def test_output_scnr_is_measured_from_target_local_background(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

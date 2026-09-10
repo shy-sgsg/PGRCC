@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "truth_used_in_estimator": false,
+  "case": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m1_seed2026091011/M1_fractional_channel_delay/strong",
+  "source_estimator_summary": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m1_seed2026091011/estimator_raw/M1_004/channel_delay_summary.json",
+  "correction": "zero-padded FFT frequency-domain phase ramp",
+  "rows": [
+    {
+      "method": "D1_ordinary_LS",
+      "estimated_delay_ns": 8.239193698437536,
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "current_cancellation_db": 13.3731448061932,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m1_seed2026091011/estimated_correction_raw/D1_ordinary_LS/stage2/algorithm_result/period_0000/csi_metrics/20260910_165251_503027/csi_roi_manifest.csv",
+      "estimated_cancellation_db": 22.6279688462152,
+      "headroom_gain_db_vs_current": 9.254824040022001,
+      "current_coherence": 0.97705488590825,
+      "estimated_coherence": 0.997271292807686,
+      "current_phase_rmse_rad": 0.241208050593399,
+      "estimated_phase_rmse_rad": 0.0778691728052337
+    },
+    {
+      "method": "D2_weighted_LS",
+      "estimated_delay_ns": 8.29203666860095,
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "current_cancellation_db": 13.3731448061932,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m1_seed2026091011/estimated_correction_raw/D2_weighted_LS/stage2/algorithm_result/period_0000/csi_metrics/20260910_165254_413542/csi_roi_manifest.csv",
+      "estimated_cancellation_db": 22.6437557440015,
+      "headroom_gain_db_vs_current": 9.2706109378083,
+      "current_coherence": 0.97705488590825,
+      "estimated_coherence": 0.997281135019865,
+      "current_phase_rmse_rad": 0.241208050593399,
+      "estimated_phase_rmse_rad": 0.0777776229663865
+    },
+    {
+      "method": "D3_Huber_weighted_LS",
+      "estimated_delay_ns": 8.309471584682711,
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "current_cancellation_db": 13.3731448061932,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m1_seed2026091011/estimated_correction_raw/D3_Huber_weighted_LS/stage2/algorithm_result/period_0000/csi_metrics/20260910_165256_972982/csi_roi_manifest.csv",
+      "estimated_cancellation_db": 22.6486036812294,
+      "headroom_gain_db_vs_current": 9.2754588750362,
+      "current_coherence": 0.97705488590825,
+      "estimated_coherence": 0.9972841491277,
+      "current_phase_rmse_rad": 0.241208050593399,
+      "estimated_phase_rmse_rad": 0.0777508445986122
+    }
+  ]
+}

@@ -340,6 +340,7 @@ add_executable(simulate_stage2_statistical
   simulator/stage2_statistical_sim/stage2_config.cpp
   simulator/stage2_statistical_sim/stage2_scene_generator.cpp
   simulator/stage2_statistical_sim/stage2_lfm_forward.cpp
+  simulator/stage2_statistical_sim/stage2_temporal_clutter.cpp
   simulator/stage2_statistical_sim/stage2_validator.cpp
   simulator/common/SimulationGeometry.cpp
   simulator/target_injection/target_common.cpp
@@ -357,6 +358,11 @@ add_executable(simulate_stage2_statistical
   src/xml/tinyxml.cpp
   src/xml/tinyxmlerror.cpp
   src/xml/tinyxmlparser.cpp
+)
+
+add_executable(stage2_temporal_clutter_selftest
+  tests/stage2_temporal_clutter_selftest.cpp
+  simulator/stage2_statistical_sim/stage2_temporal_clutter.cpp
 )
 
 add_executable(dump_newprotocol_header
@@ -771,6 +777,10 @@ target_include_directories(simulate_stage2_statistical PRIVATE
   ${CMAKE_SOURCE_DIR}/simulator/common
 )
 target_link_libraries(simulate_stage2_statistical PRIVATE ${FFTW3_TARGET})
+configure_non_cuda_tool(stage2_temporal_clutter_selftest)
+target_include_directories(stage2_temporal_clutter_selftest PRIVATE
+  ${CMAKE_SOURCE_DIR}/simulator/stage2_statistical_sim
+)
 configure_non_cuda_tool(dump_newprotocol_header)
 configure_gmti_target(simulate_stage3_sar_scene)
 target_include_directories(simulate_stage3_sar_scene PRIVATE
@@ -850,6 +860,7 @@ if(BUILD_TESTING)
   add_test(NAME beam_visibility_selftest COMMAND beam_visibility_selftest)
   add_test(NAME truth_writer_midpoint_selftest COMMAND truth_writer_midpoint_selftest)
   add_test(NAME new_protocol_layout_selftest COMMAND new_protocol_layout_selftest)
+  add_test(NAME stage2_temporal_clutter_selftest COMMAND stage2_temporal_clutter_selftest)
   add_test(NAME mechanical_scan_selftest COMMAND mechanical_scan_selftest)
   add_test(NAME mechanical_phase_center_selftest COMMAND mechanical_phase_center_selftest)
   add_test(NAME shm_echo_input_selftest COMMAND shm_echo_input_selftest)

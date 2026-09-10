@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "source_commit": "3dc9b9c34863d196da9703643426d97fa2819dd8",
+  "worktree_dirty": true,
+  "design_count": 12,
+  "completed": 12,
+  "estimator_pass_count": 12,
+  "resource_checks": [
+    {"stage": "before_first_mixed_case", "memory_available_gib": 5.4, "swap_used_gib": 4.0, "gpu_memory_used_mib": 1276, "gpu_memory_total_mib": 4096, "gpu_temperature_c": 49, "gpu_pstate": "P5", "gpu_power_w": 6.66, "gpu_utilization_pct": 28},
+    {"stage": "before_remaining_mixed_cases", "memory_available_gib": 3.7, "swap_used_gib": 4.0, "gpu_memory_used_mib": 825, "gpu_memory_total_mib": 4096, "gpu_temperature_c": 49, "gpu_pstate": "P5", "gpu_power_w": 6.55, "gpu_utilization_pct": 26},
+    {"stage": "before_correction_replays", "memory_available_gib": 5.0, "swap_used_gib": 4.0, "gpu_memory_used_mib": 1029, "gpu_memory_total_mib": 4096, "gpu_temperature_c": 51, "gpu_pstate": "P0", "gpu_power_w": 12.61, "gpu_utilization_pct": 12},
+    {"stage": "before_mixed_causal_controls", "memory_available_gib": 4.2, "swap_used_gib": 0.0, "gpu_memory_used_mib": 794, "gpu_memory_total_mib": 4096, "gpu_temperature_c": 50, "gpu_pstate": "P5", "gpu_power_w": 7.73, "gpu_utilization_pct": 38}
+  ],
+  "design": [
+    {
+      "id": "m1m2_ood_a",
+      "label": "M1+M2",
+      "seed": 2026091021,
+      "delay_ns": 2.083333333333333,
+      "phase_deg": 0.05,
+      "rho": 1.0,
+      "squint_deg": -0.55,
+      "range_bin": 192,
+      "snr_db": 3.0,
+      "ve_mps": -20.0,
+      "vn_mps": 9.0,
+      "texture_sigma": 0.35
+    },
+    {
+      "id": "m1m2_ood_b",
+      "label": "M1+M2",
+      "seed": 2026091022,
+      "delay_ns": 8.333333333333334,
+      "phase_deg": 0.5,
+      "rho": 1.0,
+      "squint_deg": 0.55,
+      "range_bin": 768,
+      "snr_db": -3.0,
+      "ve_mps": -6.0,
+      "vn_mps": 16.0,
+      "texture_sigma": 0.55
+    },
+    {
+      "id": "m1m2_ood_c",
+      "label": "M1+M2",
+      "seed": 2026091023,
+      "delay_ns": 4.166666666666667,
+      "phase_deg": 0.2,
+      "rho": 1.0,
+      "squint_deg": 0.25,
+      "range_bin": 1280,
+      "snr_db": 0.0,
+      "ve_mps": -12.0,
+      "vn_mps": 4.0,
+      "texture_sigma": 0.4
+    },
+    {
+      "id": "m1m3_ood_a",
+      "label": "M1+M3",
+      "seed": 2026091024,
+      "delay_ns": 2.083333333333333,
+      "phase_deg": 0.0,
+      "rho": 0.99,
+      "squint_deg": -0.45,
+      "range_bin": 256,
+      "snr_db": 3.0,
+      "ve_mps": -18.0,
+      "vn_mps": 7.0,
+      "texture_sigma": 0.35
+    },
+    {
+      "id": "m1m3_ood_b",
+      "label": "M1+M3",
+      "seed": 2026091025,
+      "delay_ns": 8.333333333333334,
+      "phase_deg": 0.0,
+      "rho": 0.8,
+      "squint_deg": 0.45,
+      "range_bin": 896,
+      "snr_db": -3.0,
+      "ve_mps": -8.0,
+      "vn_mps": 14.0,
+      "texture_sigma": 0.55
+    },
+    {
+      "id": "m1m3_ood_c",
+      "label": "M1+M3",
+      "seed": 2026091026,
+      "delay_ns": 4.166666666666667,
+      "phase_deg": 0.0,
+      "rho": 0.95,
+      "squint_deg": 0.2,
+      "range_bin": 1408,
+      "snr_db": 0.0,
+      "ve_mps": -12.0,
+      "vn_mps": 4.0,
+      "texture_sigma": 0.4
+    },
+    {
+      "id": "m2m3_ood_a",
+      "label": "M2+M3",
+      "seed": 2026091027,
+      "delay_ns": 0.0,
+      "phase_deg": 0.05,
+      "rho": 0.99,
+      "squint_deg": -0.4,
+      "range_bin": 320,
+      "snr_db": 3.0,
+      "ve_mps": -20.0,
+      "vn_mps": 9.0,
+      "texture_sigma": 0.35
+    },
+    {
+      "id": "m2m3_ood_b",
+      "label": "M2+M3",
+      "seed": 2026091028,
+      "delay_ns": 0.0,
+      "phase_deg": 0.5,
+      "rho": 0.8,
+      "squint_deg": 0.4,
+      "range_bin": 1024,
+      "snr_db": -3.0,
+      "ve_mps": -6.0,
+      "vn_mps": 16.0,
+      "texture_sigma": 0.55
+    },
+    {
+      "id": "m2m3_ood_c",
+      "label": "M2+M3",
+      "seed": 2026091029,
+      "delay_ns": 0.0,
+      "phase_deg": 0.2,
+      "rho": 0.95,
+      "squint_deg": 0.2,
+      "range_bin": 1536,
+      "snr_db": 0.0,
+      "ve_mps": -12.0,
+      "vn_mps": 4.0,
+      "texture_sigma": 0.4
+    },
+    {
+      "id": "all_ood_a",
+      "label": "M1+M2+M3",
+      "seed": 2026091030,
+      "delay_ns": 2.083333333333333,
+      "phase_deg": 0.05,
+      "rho": 0.99,
+      "squint_deg": -0.35,
+      "range_bin": 448,
+      "snr_db": 3.0,
+      "ve_mps": -18.0,
+      "vn_mps": 7.0,
+      "texture_sigma": 0.35
+    },
+    {
+      "id": "all_ood_b",
+      "label": "M1+M2+M3",
+      "seed": 2026091031,
+      "delay_ns": 4.166666666666667,
+      "phase_deg": 0.2,
+      "rho": 0.95,
+      "squint_deg": 0.35,
+      "range_bin": 1152,
+      "snr_db": -3.0,
+      "ve_mps": -8.0,
+      "vn_mps": 14.0,
+      "texture_sigma": 0.55
+    },
+    {
+      "id": "all_ood_c",
+      "label": "M1+M2+M3",
+      "seed": 2026091032,
+      "delay_ns": 8.333333333333334,
+      "phase_deg": 0.2,
+      "rho": 0.95,
+      "squint_deg": 0.2,
+      "range_bin": 1664,
+      "snr_db": 0.0,
+      "ve_mps": -12.0,
+      "vn_mps": 4.0,
+      "texture_sigma": 0.4
+    }
+  ],
+  "confusion_matrix": [
+    {
+      "actual_mechanism": "M1+M2",
+      "predicted_diagnosis": "delay_like",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M2",
+      "predicted_diagnosis": "phase_drift_like",
+      "count": 2
+    },
+    {
+      "actual_mechanism": "M1+M2+M3",
+      "predicted_diagnosis": "delay_like",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M2+M3",
+      "predicted_diagnosis": "phase_drift_like",
+      "count": 2
+    },
+    {
+      "actual_mechanism": "M1+M3",
+      "predicted_diagnosis": "decorrelation_like",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M3",
+      "predicted_diagnosis": "delay_like",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M3",
+      "predicted_diagnosis": "unknown_mixed",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M2+M3",
+      "predicted_diagnosis": "phase_drift_like",
+      "count": 3
+    }
+  ],
+  "cleanup_note": "raw BIN/NPY/log/PNG are retained until the audit is reviewed, then can be removed by the explicit cleanup command"
+}

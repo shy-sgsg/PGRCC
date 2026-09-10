@@ -14,7 +14,6 @@
 #include <cstring>
 #include <limits>
 #include <sstream>
-#include <unordered_map>
 
 namespace gmti {
 namespace stage2 {
@@ -411,75 +410,6 @@ const GlobalSurfaceGrid &globalSurfaceGrid(
     return grid;
 }
 
-struct TemporalClutterState {
-    std::complex<double> value;
-    uint64_t last_pulse = 0;
-    bool initialized = false;
-};
-
-struct TemporalClutterStateStore {
-    uint64_t model_key = 0;
-    std::unordered_map<uint64_t, TemporalClutterState> states;
-};
-
-uint64_t temporalCellKey(int64_t grid_x, int64_t grid_y)
-{
-    return mix64(static_cast<uint64_t>(grid_x) ^
-                 (mix64(static_cast<uint64_t>(grid_y)) + 0x9e3779b97f4a7c15ULL));
-}
-
-std::complex<double> temporalInnovation(uint64_t seed,
-                                        int64_t grid_x,
-                                        int64_t grid_y,
-                                        uint64_t pulse_index)
-{
-    const uint64_t time_salt = mix64(pulse_index + 0x517cc1b727220a95ULL);
-    const double real = hashGaussianCell(
-        seed ^ time_salt, grid_x, grid_y, 0x243f6a8885a308d3ULL,
-        0x13198a2e03707344ULL);
-    const double imag = hashGaussianCell(
-        seed ^ mix64(time_salt), grid_x, grid_y, 0xa4093822299f31d0ULL,
-        0x082efa98ec4e6c89ULL);
-    return std::complex<double>(real, imag) / std::sqrt(2.0);
-}
-
-std::complex<double> temporalReflectivity(
-    const GlobalSurfaceCell &cell,
-    uint64_t random_seed,
-    uint64_t pulse_index,
-    double rho)
-{
-    if (!(rho < 1.0)) return cell.reflectivity;
-
-    static thread_local TemporalClutterStateStore store;
-    const uint64_t rho_key = static_cast<uint64_t>(std::llround(rho * 1.0e12));
-    const uint64_t model_key = mix64(static_cast<uint64_t>(random_seed)) ^
-                               mix64(rho_key + 0x9e3779b97f4a7c15ULL);
-    if (store.model_key != model_key) {
-        store.model_key = model_key;
-        store.states.clear();
-    }
-
-    const uint64_t key = temporalCellKey(cell.grid_x, cell.grid_y);
-    TemporalClutterState &state = store.states[key];
-    const double base_abs = std::abs(cell.reflectivity);
-    const double innovation_scale = std::sqrt(std::max(0.0, 1.0 - rho * rho));
-    if (!state.initialized || pulse_index < state.last_pulse) {
-        state.value = base_abs * temporalInnovation(
-            random_seed, cell.grid_x, cell.grid_y, 0);
-        state.last_pulse = 0;
-        state.initialized = true;
-    }
-    for (uint64_t t = state.last_pulse + 1; t <= pulse_index; ++t) {
-        state.value = rho * state.value +
-            base_abs * innovation_scale * temporalInnovation(
-                random_seed, cell.grid_x, cell.grid_y, t);
-        if (t == std::numeric_limits<uint64_t>::max()) break;
-    }
-    state.last_pulse = pulse_index;
-    return state.value;
-}
-
 uint64_t surfacePulseIndex(const gmti::target_injection::RadarConfig &radar,
                            int period_id,
                            int beam_id,
@@ -766,6 +696,19 @@ bool addContinuousAreaClutter(std::vector<uint8_t> &packet,
     const std::size_t channel_count = static_cast<std::size_t>(std::max(2, radar.new_protocol_channel_count));
     const std::string iq_type = radar.iq_data_type.empty() ? "float32" : radar.iq_data_type;
     const double lambda = kC / radar.fc_hz;
+    const int ctdr_lag_pulses = temporalCtdrLagPulses(
+        radar.d_chan_m, radar.prf_hz, global.platform_speed_mps);
+    if (!stats.temporal_clutter.configured) {
+        stats.temporal_clutter.configure(
+            scene.area.temporal_correlation_rho,
+            ctdr_lag_pulses,
+            radar.prf_hz > 0.0 ? 1.0 / radar.prf_hz
+                               : std::numeric_limits<double>::quiet_NaN());
+    }
+    static thread_local TemporalClutterProcess temporal_process;
+    temporal_process.configure(
+        random_seed, scene.area.temporal_correlation_rho,
+        ctdr_lag_pulses, &stats.temporal_clutter);
     (void)reference_period_id;
     const double theta_cmd_deg = std::isfinite(servo_azimuth_override_deg)
         ? servo_azimuth_override_deg
@@ -852,6 +795,10 @@ bool addContinuousAreaClutter(std::vector<uint8_t> &packet,
             // the Stage2 clutter contract and cannot be removed by the
             // narrowband CSI phase compensation path.
             const double common_range_sample = g.range_sample_float;
+            const std::complex<double> clutter_reflectivity =
+                temporal_process.sample(
+                    cell.grid_x, cell.grid_y, temporal_pulse_index,
+                    std::abs(cell.reflectivity), stats.temporal_clutter);
             for (std::size_t ch = 0; ch < channel_count; ++ch) {
                 const int channel_1based = static_cast<int>(ch + 1);
                 if (!std::isfinite(common_range_sample) ||
@@ -861,9 +808,6 @@ bool addContinuousAreaClutter(std::vector<uint8_t> &packet,
                 }
                 const double phase = gmti::target_injection::receiveChannelPhaseRad(
                     radar, global, g, channel_1based, lambda);
-                const std::complex<double> clutter_reflectivity =
-                    temporalReflectivity(cell, random_seed, temporal_pulse_index,
-                                         scene.area.temporal_correlation_rho);
                 const std::complex<double> echo = amp_scale * clutter_reflectivity *
                     std::exp(std::complex<double>(0.0, phase));
                 const std::complex<float> value(

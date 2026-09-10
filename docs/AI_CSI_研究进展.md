@@ -33,6 +33,16 @@ challenge/control/diagnostic/oracle manifest 已记录实验代码提交
 paired target-only/negative-control CUDA 运行，failure map 已有 Pd/Pfa/target-loss
 三类指标，但总体仍保持 AI No-Go。
 
+本轮继续工作已补充：M3 修正后的正式四档 temporal diagnostics、raw fast-time M1/M2
+observable estimator、12 个 mixed/OOD CUDA production case、mechanism feature/confusion
+table，以及四个代表 mixed 场景的 causal/fixed-Pfa paired audit。新增报告阅读顺序为
+[`AI_CSI_16_M3_Decorrelation模型修正与上界审计.md`](AI_CSI_16_M3_Decorrelation模型修正与上界审计.md)
+→ [`AI_CSI_18_M1M2物理参数估计器报告.md`](AI_CSI_18_M1M2物理参数估计器报告.md)
+→ [`AI_CSI_17_CausalDetection与FixedPfa评价.md`](AI_CSI_17_CausalDetection与FixedPfa评价.md)
+→ [`AI_CSI_19_PhysicsAI_GoNoGo报告.md`](AI_CSI_19_PhysicsAI_GoNoGo报告.md)。当前结论仍为
+`NO_GO_AI_FOR_NOW`，没有训练 AI；本轮 raw BIN/NPY/log/PNG 的清理记录在
+`outputs/cleanup_manifest_20260910.json`。
+
 ## 已完成事项
 
 | 阶段 | 状态 | 证据 |

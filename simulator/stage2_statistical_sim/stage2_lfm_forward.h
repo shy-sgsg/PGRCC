@@ -2,6 +2,7 @@
 
 #include "stage2_config.h"
 #include "stage2_scatterer.h"
+#include "stage2_temporal_clutter.h"
 
 #include "../target_injection/lfm_echo_generator.h"
 
@@ -26,6 +27,7 @@ struct Stage2Stats {
     uint64_t noise_samples = 0;
     bool has_nan = false;
     bool has_inf = false;
+    TemporalClutterDiagnostics temporal_clutter;
 };
 
 void addScatterersToPacket(std::vector<uint8_t> &packet,

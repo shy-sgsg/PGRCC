@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "truth_used_in_estimator": false,
+  "case": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong",
+  "source_estimator_summary": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/estimator_raw/M2_004/temporal_phase_summary.json",
+  "trajectory_artifact": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/estimator_raw/M2_004/temporal_phase_trajectory.csv",
+  "phase_sign_convention": "estimated observed angle(F1*conj(F2)) negated to correct channel 2",
+  "correction": "per-pulse frequency-domain phase de-rotation",
+  "rows": [
+    {
+      "method": "P1_robust_constant_linear",
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "current_cancellation_db": 21.4076708670262,
+      "estimated_phase_slope_deg_per_pulse": 0.49238369975494806,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/estimated_correction_raw/P1_robust_constant_linear/stage2/algorithm_result/period_0000/csi_metrics/20260910_165425_979296/csi_roi_manifest.csv",
+      "estimated_cancellation_db": 25.2963808204681,
+      "headroom_gain_db_vs_current": 3.8887099534419,
+      "current_coherence": 0.996447650231412,
+      "estimated_coherence": 0.998523168333006,
+      "current_phase_rmse_rad": 0.0904247580078701,
+      "estimated_phase_rmse_rad": 0.0560267128968827
+    },
+    {
+      "method": "P2_robust_quadratic",
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "current_cancellation_db": 21.4076708670262,
+      "estimated_phase_slope_deg_per_pulse": 0.49297400845628037,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/estimated_correction_raw/P2_robust_quadratic/stage2/algorithm_result/period_0000/csi_metrics/20260910_165428_320440/csi_roi_manifest.csv",
+      "estimated_cancellation_db": 25.2620289875583,
+      "headroom_gain_db_vs_current": 3.8543581205320976,
+      "current_coherence": 0.996447650231412,
+      "estimated_coherence": 0.998512421668992,
+      "current_phase_rmse_rad": 0.0904247580078701,
+      "estimated_phase_rmse_rad": 0.0562600300639861
+    },
+    {
+      "method": "P3_smooth_spline_Kalman_like",
+      "status": "pass",
+      "gmticore_exit_code": 0,
+      "current_cancellation_db": 21.4076708670262,
+      "estimated_phase_slope_deg_per_pulse": 0.4926026738276328,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/estimated_correction_raw/P3_smooth_spline_Kalman_like/stage2/algorithm_result/period_0000/csi_metrics/20260910_165430_514570/csi_roi_manifest.csv",
+      "estimated_cancellation_db": 25.1181245450354,
+      "headroom_gain_db_vs_current": 3.7104536780091983,
+      "current_coherence": 0.996447650231412,
+      "estimated_coherence": 0.998461287178832,
+      "current_phase_rmse_rad": 0.0904247580078701,
+      "estimated_phase_rmse_rad": 0.0572340808239489
+    }
+  ]
+}

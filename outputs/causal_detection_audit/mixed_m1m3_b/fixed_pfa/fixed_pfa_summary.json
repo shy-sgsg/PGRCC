@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "method": "Current",
+  "negative_score_source": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/mixed_m1m3_b/outputs/mechanism_mixed_design/cases/m1m3_ood_b/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_173614_097639/period000_beam001_after_power.npy",
+  "positive_score_source": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_mixed_design/cases/m1m3_ood_b/stage2/algorithm_result/period_0000/csi_metrics/20260910_171706_163617/period000_beam001_after_power.npy",
+  "target_only_score_source": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/mixed_m1m3_b/outputs/mechanism_mixed_design/cases/m1m3_ood_b/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_173610_965112/period000_beam001_after_power.npy",
+  "target_roi": {
+    "row": 102,
+    "col": 896,
+    "half_doppler_bins": 2,
+    "half_range_bins": 2
+  },
+  "paired_causal_definition": "positive target ROI reaches the calibrated threshold while the same target-off ROI remains below it",
+  "rows": [
+    {
+      "method": "Current",
+      "requested_pfa": 0.01,
+      "threshold": 449221.875,
+      "empirical_pfa": 0.010000228881835938,
+      "causal_pd": 1.0,
+      "paired_causal_hit": true,
+      "positive_roi_peak_power": 1305795.5,
+      "negative_roi_peak_power": 384.47003173828125,
+      "negative_score_cell_count": 524288,
+      "target_only_roi_peak_power": 1039741.3125,
+      "target_loss_db_vs_target_only_peak": 0.9894986728713523,
+      "scnr_db_vs_negative_peak": -18.540839998526444,
+      "pfa_calibration_status": "measured_from_negative_control_map"
+    },
+    {
+      "method": "Current",
+      "requested_pfa": 0.001,
+      "threshold": 3238305.0,
+      "empirical_pfa": 0.0010013580322265625,
+      "causal_pd": 0.0,
+      "paired_causal_hit": false,
+      "positive_roi_peak_power": 1305795.5,
+      "negative_roi_peak_power": 384.47003173828125,
+      "negative_score_cell_count": 524288,
+      "target_only_roi_peak_power": 1039741.3125,
+      "target_loss_db_vs_target_only_peak": 0.9894986728713523,
+      "scnr_db_vs_negative_peak": -18.540839998526444,
+      "pfa_calibration_status": "measured_from_negative_control_map"
+    },
+    {
+      "method": "Current",
+      "requested_pfa": 0.0001,
+      "threshold": 11968185.0,
+      "empirical_pfa": 0.0001010894775390625,
+      "causal_pd": 0.0,
+      "paired_causal_hit": false,
+      "positive_roi_peak_power": 1305795.5,
+      "negative_roi_peak_power": 384.47003173828125,
+      "negative_score_cell_count": 524288,
+      "target_only_roi_peak_power": 1039741.3125,
+      "target_loss_db_vs_target_only_peak": 0.9894986728713523,
+      "scnr_db_vs_negative_peak": -18.540839998526444,
+      "pfa_calibration_status": "measured_from_negative_control_map"
+    }
+  ],
+  "ai_training": false
+}

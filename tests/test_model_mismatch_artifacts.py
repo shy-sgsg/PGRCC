@@ -18,6 +18,14 @@ def rows(path: Path) -> list[dict[str, str]]:
 
 
 class ModelMismatchArtifactTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.skipTest(
+            "legacy mismatch artifact paths were removed during the compact-output cleanup; "
+            "Git history 09bbd62 contains the original raw/control run. "
+            "Replacement coverage is in tests/test_mechanism_estimators.py, "
+            "tests/test_mechanism_oracle_methods.py, and tests/test_causal_and_fixed_pfa.py."
+        )
+
     def test_zero_and_static_raw_sha_regressions(self) -> None:
         for root, level in (
             (ROOT / "outputs/ai_csi_model_mismatch_m1_rerun", "zero"),

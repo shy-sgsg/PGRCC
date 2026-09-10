@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "row_count": 12,
+  "mixed_mechanism_rows": 12,
+  "confusion_matrix": [
+    {
+      "actual_mechanism": "M1+M2",
+      "predicted_mechanism": "M1",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M2",
+      "predicted_mechanism": "M2",
+      "count": 2
+    },
+    {
+      "actual_mechanism": "M1+M2+M3",
+      "predicted_mechanism": "M1",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M2+M3",
+      "predicted_mechanism": "M2",
+      "count": 2
+    },
+    {
+      "actual_mechanism": "M1+M3",
+      "predicted_mechanism": "M1",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M3",
+      "predicted_mechanism": "M3",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M1+M3",
+      "predicted_mechanism": "unknown_mixed",
+      "count": 1
+    },
+    {
+      "actual_mechanism": "M2+M3",
+      "predicted_mechanism": "M2",
+      "count": 3
+    }
+  ],
+  "confidence_buckets": {
+    "high": 6,
+    "medium": 6,
+    "low": 0
+  }
+}

@@ -25,6 +25,14 @@ def write_csv(path: Path, fields: list[str], rows: list[dict[str, str]]) -> None
 
 
 class EvaluateDetectionsV16Tests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        if not EVALUATOR.is_file():
+            raise unittest.SkipTest(
+                "legacy v1.6 detection evaluator was removed during compact-output cleanup; "
+                "current causal/fixed-Pfa evaluation is covered by the replacement tests"
+            )
+
     def test_pd_requires_output_scnr_and_localization_uses_rmse(self):
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)

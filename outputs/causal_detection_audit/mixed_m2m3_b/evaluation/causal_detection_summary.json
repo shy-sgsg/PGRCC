@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "paired_design": "A=S+C+N, B=C+N, optional C=S-only",
+  "truth_used_only_for_evaluation": true,
+  "target_on": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_mixed_design/cases/m2m3_ood_b",
+  "target_off": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/mixed_m2m3_b/outputs/mechanism_mixed_design/cases/m2m3_ood_b/negative_control",
+  "target_only": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/mixed_m2m3_b/outputs/mechanism_mixed_design/cases/m2m3_ood_b/target_only",
+  "target_count": 1,
+  "legacy_hit_count": 0,
+  "causal_hit_count": 0,
+  "records": [
+    {
+      "target_id": "MISMATCH_B01_S000_R00",
+      "target_row": 124,
+      "target_col": 1024,
+      "on_peak_power": 2587967.75,
+      "off_peak_power": 68.17170715332031,
+      "delta_peak_power_after": 2587899.5782928467,
+      "on_before_peak_power": 2524780.0,
+      "off_before_peak_power": 68.17170715332031,
+      "delta_peak_power_before": 2524711.8282928467,
+      "delta_peak_power_after_db": 45.793546903423305,
+      "target_increment_after_status": "continuous_delta_not_linear_S_only_claim",
+      "target_increment_before_status": "continuous_delta_not_linear_S_only_claim",
+      "legacy_hit": false,
+      "causal_hit": false,
+      "on_detection_count_in_roi": 0,
+      "off_detection_count_in_roi": 0,
+      "off_roi_not_equal_or_stronger": true,
+      "on_roi": {
+        "peak_power": 2587967.75,
+        "mean_power": 118786.50385772705,
+        "roi_cells": 25,
+        "row_start": 122,
+        "row_end": 126,
+        "col_start": 1022,
+        "col_end": 1026
+      },
+      "off_roi": {
+        "peak_power": 68.17170715332031,
+        "mean_power": 25.82908857345581,
+        "roi_cells": 25,
+        "row_start": 122,
+        "row_end": 126,
+        "col_start": 1022,
+        "col_end": 1026
+      },
+      "target_only_roi": {
+        "after": {
+          "peak_power": 2613344.5,
+          "mean_power": 119656.32313930511,
+          "roi_cells": 25,
+          "row_start": 122,
+          "row_end": 126,
+          "col_start": 1022,
+          "col_end": 1026
+        },
+        "before": {
+          "peak_power": 2541693.0,
+          "mean_power": 116083.8546085739,
+          "roi_cells": 25,
+          "row_start": 122,
+          "row_end": 126,
+          "col_start": 1022,
+          "col_end": 1026
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "causal_hit": "target-on ROI has a production detection and target-off ROI peak is strictly weaker",
+    "target_increment": "continuous on-minus-off ROI power delta; not interpreted as linear S-only power"
+  }
+}

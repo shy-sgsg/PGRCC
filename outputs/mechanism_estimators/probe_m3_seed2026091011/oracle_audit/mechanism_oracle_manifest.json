@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "source_commit": "3dc9b9c34863d196da9703643426d97fa2819dd8",
+  "worktree_dirty": true,
+  "run_root": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m3_seed2026091011",
+  "family_selection": [
+    "M3_internal_clutter_motion"
+  ],
+  "cases": [
+    {
+      "family": "M3_internal_clutter_motion",
+      "mechanism": "temporal_decorrelation",
+      "oracle": "row_phase_current_amplitude_oracle",
+      "variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m3_seed2026091011/M3_internal_clutter_motion/strong_motion",
+      "status": "pass",
+      "input_truth_not_used_by_estimator": true,
+      "current": {
+        "cancellation_db": 8.26965819075299,
+        "coherence": 0.925526632007741,
+        "phase_rmse_rad": 0.401562642670976,
+        "phase_p95_rad": 1.8620193100724
+      },
+      "oracle_metrics": {
+        "cancellation_db": 8.547607055339533,
+        "coherence": 0.925526632007741,
+        "row_coherence_median": 0.8992084907846305,
+        "phase_rmse_rad": 0.5957380415059662,
+        "bypass_fraction": 0.0
+      },
+      "oracle_methods": [
+        {
+          "method": "O1_Current",
+          "cancellation_db": 4.885095060146334,
+          "phase_rmse_rad": NaN,
+          "coherence": NaN,
+          "headroom_gain_db_vs_current": 0.0,
+          "target_preservation_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "pfa_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "valid_cell_count": 150121
+        },
+        {
+          "method": "O2_row_phase_current_amplitude_oracle",
+          "cancellation_db": 5.159679284229205,
+          "phase_rmse_rad": 0.5880049574401054,
+          "coherence": 0.789576423946291,
+          "headroom_gain_db_vs_current": 0.2745842240828713,
+          "target_preservation_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "pfa_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "valid_cell_count": 150121
+        },
+        {
+          "method": "O3_row_complex_scalar_LS",
+          "cancellation_db": 3.1233369134420848,
+          "phase_rmse_rad": 0.5880049574401054,
+          "coherence": 0.7902964477975054,
+          "headroom_gain_db_vs_current": -1.7617581467042491,
+          "target_preservation_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "pfa_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "valid_cell_count": 150121
+        },
+        {
+          "method": "O4_range_block_complex_LS",
+          "cancellation_db": 4.304028390297105,
+          "phase_rmse_rad": 0.5099898956407753,
+          "coherence": 0.8449479609351889,
+          "headroom_gain_db_vs_current": -0.5810666698492293,
+          "target_preservation_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "pfa_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "valid_cell_count": 150121
+        },
+        {
+          "method": "O5_short_Wiener_LMMSE",
+          "cancellation_db": 3.8543029454695588,
+          "phase_rmse_rad": 0.519957259021569,
+          "coherence": 0.8263342704207736,
+          "headroom_gain_db_vs_current": -1.0307921146767751,
+          "target_preservation_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "pfa_status": "not_evaluable_from_F1_F2_clutter_tap",
+          "valid_cell_count": 150121
+        }
+      ],
+      "delta_cancellation_db": 0.2779488645865431,
+      "delta_phase_rmse_rad": 0.1941753988349902,
+      "delta_coherence": 0.0,
+      "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m3_seed2026091011/M3_internal_clutter_motion/strong_motion/stage2/algorithm_result/period_0000/csi_metrics/20260910_164215_691075/csi_roi_manifest.csv",
+      "oracle_artifacts": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m3_seed2026091011/oracle_audit/M3_internal_clutter_motion",
+      "headroom_interpretation": "row-wise complex-LS phase improves cancellation only within this small headroom; the remaining residual is consistent with temporal decorrelation rather than a recoverable single phase model"
+    }
+  ],
+  "interpretation": {
+    "M1": "raw inverse fractional-delay replay; production GMTI is rerun",
+    "M2": "raw inverse phase trajectory replay; production GMTI is rerun",
+    "M3": "row-wise phase upper bound only; temporal decorrelation itself is not inverted"
+  }
+}

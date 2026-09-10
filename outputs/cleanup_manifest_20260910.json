@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-10",
+  "scope": [
+    "outputs/mechanism_estimators/probe_m1_seed2026091011",
+    "outputs/mechanism_estimators/probe_m2_seed2026091011",
+    "outputs/mechanism_estimators/probe_m3_seed2026091011",
+    "outputs/causal_detection_audit/m1_strong",
+    "outputs/causal_detection_audit/m2_strong",
+    "outputs/causal_detection_audit/m3_strong",
+    "outputs/mechanism_mixed_design",
+    "outputs/causal_detection_audit/mixed_m1m2_b",
+    "outputs/causal_detection_audit/mixed_m1m3_b",
+    "outputs/causal_detection_audit/mixed_m2m3_b",
+    "outputs/causal_detection_audit/mixed_all_b",
+    "outputs/csi_residual_texture/probe_seed_2026091010",
+    "outputs/phase_a_workspace_3period",
+    "outputs/coherent_gate_ab",
+    "outputs/h0_gate_ab"
+  ],
+  "retained": [
+    "JSON/CSV/MD summaries and manifests",
+    "scenario and generated XML configuration records",
+    "runtime/configuration and detection TXT records",
+    "fixed-Pfa, causal, estimator, oracle and M3 O1-O5 compact results"
+  ],
+  "deleted_patterns": ["*.bin", "*.npy", "*.log", "*.png", "*.f32"],
+  "deleted_reason": "These are raw or reproducible intermediate arrays/logs/images after the compact audit summaries were written; they are not required for the retained conclusions.",
+  "measured_before": {
+    "mechanism_estimators": "1.7G",
+    "causal_detection_audit": "464M"
+  },
+  "measured_after": {
+    "probe_m1": "7.5M",
+    "probe_m2": "6.0M",
+    "probe_m3": "3.6M",
+    "causal_m1": "1.5M",
+    "causal_m2": "1.8M",
+    "causal_m3": "1.2M",
+    "mixed_design": "11M",
+    "mixed_causal_m1m2": "1.9M",
+    "mixed_causal_m1m3": "1.3M",
+    "mixed_causal_m2m3": "1.9M",
+    "mixed_causal_all": "1.2M",
+    "csi_residual_texture": "124K",
+    "outputs_total": "89M",
+    "remaining_deleted_pattern_files": 0
+  },
+  "user_requested_cleanup": true,
+  "ai_training": false
+}

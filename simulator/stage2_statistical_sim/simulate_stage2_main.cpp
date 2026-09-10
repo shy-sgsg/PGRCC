@@ -556,6 +556,29 @@ void writeScenarioResolved(const Stage2RunConfig &run,
     out << "      \"spatial_cell_m\": " << run.cfg.scene.area.spatial_cell_m << ",\n";
     out << "      \"temporal_correlation_rho\": "
         << run.cfg.scene.area.temporal_correlation_rho << ",\n";
+    const int ctdr_lag_pulses = temporalCtdrLagPulses(
+        run.cfg.radar.d_chan_m, run.cfg.radar.prf_hz,
+        run.cfg.platform_speed_mps);
+    const double correlation_time_ms =
+        run.cfg.scene.area.temporal_correlation_rho > 0.0 &&
+        run.cfg.scene.area.temporal_correlation_rho < 1.0 &&
+        run.cfg.radar.prf_hz > 0.0
+            ? -1000.0 / run.cfg.radar.prf_hz /
+                  std::log(run.cfg.scene.area.temporal_correlation_rho)
+            : std::numeric_limits<double>::quiet_NaN();
+    const double rho_at_ctdr_lag =
+        std::pow(run.cfg.scene.area.temporal_correlation_rho,
+                 static_cast<double>(ctdr_lag_pulses));
+    out << "      \"rho_requested\": "
+        << run.cfg.scene.area.temporal_correlation_rho << ",\n";
+    out << "      \"rho_at_CTDR_lag_theoretical\": ";
+    if (std::isfinite(rho_at_ctdr_lag)) out << rho_at_ctdr_lag;
+    else out << "null";
+    out << ",\n      \"ctdr_lag_pulses\": " << ctdr_lag_pulses << ",\n";
+    out << "      \"correlation_time_ms\": ";
+    if (std::isfinite(correlation_time_ms)) out << correlation_time_ms;
+    else out << "null";
+    out << ",\n";
     out << "      \"azimuth_subcell_count\": "
         << run.cfg.scene.area.azimuth_subcell_count << "\n";
     out << "    },\n";
@@ -1479,6 +1502,13 @@ int generateStage2Data(const Stage2RunConfig &run)
                                     "stage2_simulation_report.md"),
                            cfg, scene_opt, scatterers, stats, elapsed,
                            output_is_precompressed, err)) {
+        std::cerr << "[stage2][ERR] " << err << "\n";
+        return 1;
+    }
+    if (!writeTemporalClutterDiagnostics(
+            joinPath(joinPath(run.output_dir, "reports"),
+                     "temporal_clutter_diagnostics.json"),
+            stats.temporal_clutter, err)) {
         std::cerr << "[stage2][ERR] " << err << "\n";
         return 1;
     }

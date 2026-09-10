@@ -2,7 +2,20 @@
 
 #include "../target_injection/target_common.h"
 
+#include <cmath>
 #include <fstream>
+#include <iomanip>
+#include <limits>
+
+namespace {
+
+void writeJsonNumber(std::ofstream &out, double value)
+{
+    if (std::isfinite(value)) out << std::setprecision(12) << value;
+    else out << "null";
+}
+
+} // namespace
 
 namespace gmti {
 namespace stage2 {
@@ -59,6 +72,25 @@ bool writeStage2Report(const std::string &path,
     out << "- area_scatterers: " << area << "\n";
     out << "- area_temporal_correlation_rho: "
         << cfg.scene.area.temporal_correlation_rho << "\n";
+    out << "- area_rho_lag1_measured: ";
+    writeJsonNumber(out, stats.temporal_clutter.lagCorrelation(
+        stats.temporal_clutter.lag1));
+    out << "\n";
+    out << "- area_rho_at_CTDR_lag: ";
+    writeJsonNumber(out, stats.temporal_clutter.lagCorrelation(
+        stats.temporal_clutter.ctdr_lag));
+    out << "\n";
+    out << "- area_ctdr_lag_pulses: "
+        << stats.temporal_clutter.ctdr_lag_pulses << "\n";
+    out << "- area_correlation_time_ms: ";
+    writeJsonNumber(out, stats.temporal_clutter.correlationTimeMs());
+    out << "\n";
+    out << "- area_mean_power_measured: ";
+    writeJsonNumber(out, stats.temporal_clutter.meanPower());
+    out << "\n";
+    out << "- area_power_cv_measured: ";
+    writeJsonNumber(out, stats.temporal_clutter.powerCv());
+    out << "\n";
     out << "- strong_scatterers: " << strong << "\n";
     out << "- line_scatterers: " << line << "\n";
     out << "- single_or_other_scatterers: " << single << "\n";
@@ -90,6 +122,45 @@ bool writeStage2Report(const std::string &path,
     out << "- 第一版平台模型为 ideal_straight，真实 POS/姿态尚未接入。\n";
     out << "- LFM rect 延迟采用 `0 <= dt < Tr`，仍需用算法脉压结果标定峰值固定偏移。\n";
     out << "- 检测评价和航迹评价文件已预留，当前尚未自动解析 GMTI 检测输出。\n";
+    return true;
+}
+
+bool writeTemporalClutterDiagnostics(
+    const std::string &path,
+    const TemporalClutterDiagnostics &diagnostics,
+    std::string &err)
+{
+    std::ofstream out(path.c_str());
+    if (!out) {
+        err = "failed to write temporal clutter diagnostics";
+        return false;
+    }
+    out << std::setprecision(12);
+    out << "{\n";
+    out << "  \"rho_requested\": ";
+    writeJsonNumber(out, diagnostics.rho_requested);
+    out << ",\n  \"rho_lag1_measured\": ";
+    writeJsonNumber(out, diagnostics.lagCorrelation(diagnostics.lag1));
+    out << ",\n  \"rho_at_CTDR_lag\": ";
+    writeJsonNumber(out, diagnostics.lagCorrelation(diagnostics.ctdr_lag));
+    out << ",\n  \"ctdr_lag_pulses\": "
+        << diagnostics.ctdr_lag_pulses << ",\n";
+    out << "  \"correlation_time_ms\": ";
+    writeJsonNumber(out, diagnostics.correlationTimeMs());
+    out << ",\n  \"pri_sec\": ";
+    writeJsonNumber(out, diagnostics.pri_sec);
+    out << ",\n  \"sample_count\": " << diagnostics.sample_count << ",\n";
+    out << "  \"lag1_pair_count\": " << diagnostics.lag1.pair_count << ",\n";
+    out << "  \"ctdr_lag_pair_count\": " << diagnostics.ctdr_lag.pair_count << ",\n";
+    out << "  \"mean_power\": ";
+    writeJsonNumber(out, diagnostics.meanPower());
+    out << ",\n  \"power_cv\": ";
+    writeJsonNumber(out, diagnostics.powerCv());
+    out << "\n}\n";
+    if (!out) {
+        err = "failed while writing temporal clutter diagnostics";
+        return false;
+    }
     return true;
 }
 

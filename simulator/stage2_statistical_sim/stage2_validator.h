@@ -16,5 +16,9 @@ bool writeStage2Report(const std::string &path,
                        bool output_is_precompressed,
                        std::string &err);
 
+bool writeTemporalClutterDiagnostics(const std::string &path,
+                                     const TemporalClutterDiagnostics &diagnostics,
+                                     std::string &err);
+
 } // namespace stage2
 } // namespace gmti

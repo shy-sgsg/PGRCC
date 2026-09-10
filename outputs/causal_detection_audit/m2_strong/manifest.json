@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "ai_training": false,
+  "source_commit": "3dc9b9c34863d196da9703643426d97fa2819dd8",
+  "worktree_dirty": true,
+  "case_count": 1,
+  "modes": [
+    "target_only",
+    "negative_control"
+  ],
+  "resource_snapshot_before": {
+    "captured_at_utc": "2026-09-10T08:57:20.425638+00:00",
+    "host": "shy-Lenovo-Legion-R70002021",
+    "nvidia_smi": "Thu Sep 10 16:57:20 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.173.02             Driver Version: 580.173.02     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    Off |   00000000:01:00.0  On |                  N/A |\n| N/A   55C    P3             13W /   40W |    1477MiB /   4096MiB |     19%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            4187      G   /usr/bin/gnome-shell                    507MiB |\n|    0   N/A  N/A            4410      G   /usr/bin/clash-verge                      1MiB |\n|    0   N/A  N/A            4667      G   /usr/bin/Xwayland                         7MiB |\n|    0   N/A  N/A            4669    C+G   ...exec/xdg-desktop-portal-gnome          5MiB |\n|    0   N/A  N/A            7101    C+G   /usr/bin/nautilus                        50MiB |\n|    0   N/A  N/A           23919    C+G   /usr/bin/resources                       29MiB |\n|    0   N/A  N/A          863530    C+G   ...rack-uuid=3190708988185955192        170MiB |\n|    0   N/A  N/A          975798      G   .../8803/usr/lib/firefox/firefox        446MiB |\n+-----------------------------------------------------------------------------------------+",
+    "free_h": "total        used        free      shared  buff/cache   available\nMem:            14Gi        10Gi       1.0Gi       592Mi       3.7Gi       4.2Gi\nSwap:          4.0Gi       4.0Gi       208Ki",
+    "df_h_workspace": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme1n1p4  464G  379G   62G  87% /"
+  },
+  "resource_snapshot_after": {
+    "captured_at_utc": "2026-09-10T08:57:27.472695+00:00",
+    "host": "shy-Lenovo-Legion-R70002021",
+    "nvidia_smi": "Thu Sep 10 16:57:27 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.173.02             Driver Version: 580.173.02     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    Off |   00000000:01:00.0  On |                  N/A |\n| N/A   55C    P0             15W /   40W |    1477MiB /   4096MiB |     12%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            4187      G   /usr/bin/gnome-shell                    507MiB |\n|    0   N/A  N/A            4410      G   /usr/bin/clash-verge                      1MiB |\n|    0   N/A  N/A            4667      G   /usr/bin/Xwayland                         7MiB |\n|    0   N/A  N/A            4669    C+G   ...exec/xdg-desktop-portal-gnome          5MiB |\n|    0   N/A  N/A            7101    C+G   /usr/bin/nautilus                        50MiB |\n|    0   N/A  N/A           23919    C+G   /usr/bin/resources                       29MiB |\n|    0   N/A  N/A          863530    C+G   ...rack-uuid=3190708988185955192        170MiB |\n|    0   N/A  N/A          975798      G   .../8803/usr/lib/firefox/firefox        446MiB |\n+-----------------------------------------------------------------------------------------+",
+    "free_h": "total        used        free      shared  buff/cache   available\nMem:            14Gi        11Gi       494Mi       592Mi       3.8Gi       3.8Gi\nSwap:          4.0Gi       4.0Gi       244Ki",
+    "df_h_workspace": "Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme1n1p4  464G  379G   62G  87% /"
+  },
+  "status_counts": {
+    "pass": 2
+  },
+  "rows": [
+    {
+      "schema_version": 1,
+      "mode": "target_only",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong",
+      "scenario": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/target_only/scenario.json",
+      "simulate_exit_code": 0,
+      "gmticore_exit_code": 0,
+      "status": "pass",
+      "csi_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/target_only/stage2/algorithm_result/period_0000/csi_metrics/20260910_165722_252258/csi_roi_manifest.csv",
+      "gmticore_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/target_only/gmticore.log",
+      "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/target_only/stage2/algorithm_result/period_0000/run_manifest.json"
+    },
+    {
+      "schema_version": 1,
+      "mode": "negative_control",
+      "source_variant": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong",
+      "scenario": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/negative_control/scenario.json",
+      "simulate_exit_code": 0,
+      "gmticore_exit_code": 0,
+      "status": "pass",
+      "csi_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/negative_control/stage2/algorithm_result/period_0000/csi_metrics/20260910_165725_853803/csi_roi_manifest.csv",
+      "gmticore_log": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/negative_control/gmticore.log",
+      "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/causal_detection_audit/m2_strong/outputs/mechanism_estimators/probe_m2_seed2026091011/M2_pulse_varying_differential_phase/strong/negative_control/stage2/algorithm_result/period_0000/run_manifest.json"
+    }
+  ],
+  "definitions": {
+    "target_only": "scene.signal_only=true; target amplitude is still normalized from the same generated background packet, and target loss is 10log10(target-only after ROI power / before ROI power)",
+    "negative_control": "all targets disabled with the same seed and mismatch; Pfa is CFAR hit cells divided by valid CFAR test cells from the production kernel geometry",
+    "production_chain": "each control is processed by the production simulate_stage2_statistical and GMTI_core binaries with runtime diagnostics enabled"
+  }
+}

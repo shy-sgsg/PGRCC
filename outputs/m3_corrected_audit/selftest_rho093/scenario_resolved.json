@@ -1,0 +1,116 @@
+{
+  "case_id": "stage2_temporal_clutter_regression_rho093",
+  "output_dir": "outputs/m3_corrected_audit/selftest_rho093",
+  "scene_role": "target_plus_background",
+  "paired_background_output_dir": "",
+  "background_input_dir": "",
+  "background_input_scale": 1,
+  "scene_mode": "full",
+  "output_signal_domain_requested": "raw_lfm",
+  "beam_index_base": 1,
+  "scan_mode": "electronic",
+  "mechanical_scan": {
+    "scan_start_deg": -60,
+    "scan_end_deg": 60,
+    "scan_speed_deg_s": 20,
+    "scan_direction": "forward",
+    "cpi_pulse_count": 130,
+    "cpi_step_pulse": 130,
+    "phase_center_rotation_enable": true,
+    "phase_center_mount_angle_deg": 0,
+    "phase_center_rotation_sign": 1
+  },
+  "waveform": {
+    "new_protocol_channel_count": 2,
+    "iq_data_type": "float32",
+    "pulse_len": 512,
+    "acquired_pulse_len": 512,
+    "pulse_num": 8,
+    "prf_hz": 1300
+  },
+  "four_channel_phase_center_mode": "physical",
+  "scene": {
+    "mode": "full",
+    "signal_only": false,
+    "range_min_m": 73200,
+    "range_max_m": 74400,
+    "azimuth_min_deg": -0.5,
+    "azimuth_max_deg": 0.5,
+    "ground_z_m": 0,
+    "clutter_amplitude_scale": 1,
+    "single_point": {
+      "range_m": 85000,
+      "beam_id": -1,
+      "expected_bin": -1,
+      "azimuth_deg": 0,
+      "amplitude": 1
+    },
+    "area_clutter": {
+      "enabled": true,
+      "model": "continuous_texture",
+      "scatterer_count": 0,
+      "mean_power": 0.1,
+      "texture_sigma": 0,
+      "spatial_cell_m": 30,
+      "temporal_correlation_rho": 0.93,
+      "rho_requested": 0.93,
+      "rho_at_CTDR_lag_theoretical": 0.8649,
+      "ctdr_lag_pulses": 2,
+      "correlation_time_ms": 10.5997440452,
+      "azimuth_subcell_count": 3
+    },
+    "strong_scatterers": {
+      "enabled": false,
+      "count": 0,
+      "rcs_db_min": 10,
+      "rcs_db_max": 30
+    },
+    "line_scatterers": {
+      "enabled": false,
+      "line_count": 0,
+      "points_per_line": 0,
+      "rcs_db": 12
+    },
+    "thermal_noise": {
+      "enabled": false,
+      "noise_power": 0,
+      "include_target_only": false
+    }
+  },
+  "simulation_subset": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 1,
+    "beam_count": 1
+  },
+  "random": {
+    "seed": 20260910,
+    "period_start": 0,
+    "period_count": 1,
+    "target_reference_period": -1
+  },
+  "scan": {
+    "scan_min_deg": 0,
+    "scan_step_deg": 2,
+    "beam_count": 1
+  },
+  "targets": [
+    {
+      "target_id": "disabled_validation_placeholder",
+      "enabled": false,
+      "init_type": "beam_bin_azimuth_offset",
+      "beam_id": 1,
+      "expected_bin": 128,
+      "theta_cmd_deg": 0,
+      "azimuth_deg": 0,
+      "azimuth_offset_deg": 0,
+      "motion_type": "static",
+      "ve_mps": 0,
+      "vn_mps": 0,
+      "amplitude_type": "snr_db",
+      "snr_db": 0,
+      "snr_db_by_period": [],
+      "visibility_type": "gaussian"
+    }
+  ]
+}

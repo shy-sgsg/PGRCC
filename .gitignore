@@ -49,6 +49,8 @@ CTestTestfile.cmake
 *.out
 *.app
 *.bin
+*.npy
+*.f32
 *.elf
 *.hex
 *.pyc
@@ -165,3 +167,31 @@ outputs/pgrcc_oracle*/
 !outputs/pgrcc_oracle/*.json
 !outputs/pgrcc_oracle/*.png
 outputs/pgrcc_oracle/cases/
+
+# Physics-only CSI audit roots: retain compact summaries at the root of each
+# audit, while generated packet/config/truth/raw-array material stays local.
+outputs/m3_corrected_audit/**/data/
+outputs/m3_corrected_audit/**/config/
+outputs/m3_corrected_audit/**/truth/
+outputs/m3_corrected_audit/**/debug/
+outputs/m3_corrected_audit/**/logs/
+outputs/causal_detection_audit/**/data/
+outputs/causal_detection_audit/**/config/
+outputs/causal_detection_audit/**/truth/
+outputs/causal_detection_audit/**/debug/
+outputs/causal_detection_audit/**/logs/
+outputs/mechanism_estimators/**/data/
+outputs/mechanism_estimators/**/config/
+outputs/mechanism_estimators/**/truth/
+outputs/mechanism_estimators/**/debug/
+outputs/mechanism_estimators/**/logs/
+outputs/mechanism_mixed_stress/**/data/
+outputs/mechanism_mixed_stress/**/config/
+outputs/mechanism_mixed_stress/**/truth/
+outputs/mechanism_mixed_stress/**/debug/
+outputs/mechanism_mixed_stress/**/logs/
+outputs/physics_ai_gate/**/data/
+outputs/physics_ai_gate/**/config/
+outputs/physics_ai_gate/**/truth/
+outputs/physics_ai_gate/**/debug/
+outputs/physics_ai_gate/**/logs/
