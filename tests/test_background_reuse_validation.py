@@ -177,7 +177,7 @@ class BackgroundReuseValidationTests(unittest.TestCase):
         values: dict[str, dict[str, float]] = {}
         for gate in ("false", "true"):
             summary = next(
-                (ROOT / "outputs/coherent_gate_ab" / gate / "result/csi_metrics").glob(
+                (ROOT / "outputs/coherent_gate_ab" / f"gate_{gate}" / "result/csi_metrics").glob(
                     "*/csi_metric_tap_summary.csv"
                 )
             )
