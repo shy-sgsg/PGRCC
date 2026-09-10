@@ -145,6 +145,12 @@ class JointPhysicsCalibrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_clean_provenance({"source_commit": "abc123", "worktree_dirty": True})
 
+    def test_xml_frequency_units_are_converted_at_the_boundary(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            xml = Path(tmp) / "config.xml"
+            xml.write_text("<root><fs>60</fs></root>", encoding="utf-8")
+            self.assertEqual(joint.xml_frequency_hz(xml, "fs", 60.0e6), 60.0e6)
+
 
 if __name__ == "__main__":
     unittest.main()

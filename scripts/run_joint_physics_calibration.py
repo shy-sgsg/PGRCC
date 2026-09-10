@@ -45,7 +45,7 @@ from run_mechanism_aware_oracle import (  # noqa: E402
     run_logged,
     single_manifest,
     summary_metrics,
-    xml_float,
+    xml_frequency_hz,
     xml_int,
 )
 
@@ -411,7 +411,7 @@ def case_observables(case: Path, prf_hz: float, support_percentile: float) -> tu
     raw = raw_input(case)
     pulse_len = xml_int(xml, "pulse_len", 11840)
     channel_count = xml_int(xml, "new_protocol_channel_count", 4)
-    fs_hz = xml_float(xml, "fs", 60.0e6)
+    fs_hz = xml_frequency_hz(xml, "fs", 60.0e6)
     x1, x2 = load_raw_channels(raw, pulse_len, channel_count, 1, 2)
     return raw, xml, estimate_observables_from_arrays(
         x1, x2, fs_hz, prf_hz, support_percentile)
@@ -543,7 +543,8 @@ def replay_method(
                 delay_path, xml_int(source_xml, "pulse_len", 11840),
                 xml_int(source_xml, "new_protocol_channel_count", 4), 1, 2)
             corrected_obs = estimate_observables_from_arrays(
-                corrected_x1, corrected_x2, xml_float(source_xml, "fs", 60.0e6),
+                corrected_x1, corrected_x2,
+                xml_frequency_hz(source_xml, "fs", 60.0e6),
                 prf_hz, support_percentile)
             intermediate["after_delay"] = compact_observables(corrected_obs)
             phase_method = "P2" if method == "J4_D3_P2_joint" else "P1"
