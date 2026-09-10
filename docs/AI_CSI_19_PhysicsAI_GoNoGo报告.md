@@ -7,6 +7,14 @@
 显式物理 correction 和 Current 生产链已经提供足够的可解释证据；同时 mixed/OOD
 诊断仍不稳定，尚未证明有一个清晰、可预测且必须由 AI 填补的 residual gap。
 
+2026-09-10 的 Physics-Adaptive Joint Calibration V1 正式矩阵已对这一结论做了独立的
+24/8/32 calibration/validation/held-out test 检查。预注册 gate 返回
+`REOPEN_CANDIDATE`，含义是 J3/J4 存在需要继续调查的 CI 有界 residual gap 候选，
+不是 AI GO：J3/J4 的 Oracle recovery median 均为 0，95% bootstrap 上界分别约为
+0.0260/0.0261，且 held-out fixed-Pfa 在名义 0.001 和 0.01 处有轻微回归。因此当前
+决策仍是 `NO_GO_AI_FOR_NOW`，不构造训练集、不训练模型；正式数字见
+[`AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md`](AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md)。
+
 ## 已完成证据
 
 1. **M3 模型与 floor**：AR(1) 初始化已修正；rho=0.99/0.95/0.8 的实测 lag-1

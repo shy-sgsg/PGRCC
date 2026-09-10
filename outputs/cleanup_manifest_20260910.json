@@ -59,5 +59,24 @@
     "retained": "tracked compact summaries/manifests and all source/input records",
     "deleted_reason": "old pilot and repeated case-level intermediate artifacts were no longer required after compact audit evidence; formal V1 will write a separate /tmp output root",
     "remaining_untracked_output_files_after_cleanup": 0
+  },
+  "formal_v1_cleanup_20260910": {
+    "deleted_exact_paths": [
+      "/tmp/pgrcc_units_smoke_20260910",
+      "/tmp/pgrcc_joint_formal_v1",
+      "/tmp/pgrcc_joint_formal_v1_retry",
+      "/tmp/pgrcc_joint_formal_v1_final",
+      "/tmp/pgrcc_joint_formal_v1_units_final"
+    ],
+    "measured_before": {
+      "/tmp/pgrcc_units_smoke_20260910": "140M",
+      "/tmp/pgrcc_joint_formal_v1": "28K",
+      "/tmp/pgrcc_joint_formal_v1_retry": "45M",
+      "/tmp/pgrcc_joint_formal_v1_final": "5.7M",
+      "/tmp/pgrcc_joint_formal_v1_units_final": "6.0M"
+    },
+    "retained": "outputs/physics_adaptive_joint_v1_formal compact manifest, gate, CSV evidence and formal reports",
+    "deleted_reason": "smoke output, failed or superseded formal runs, and the raw-free temporary formal root were no longer needed after compact evidence was copied and independently validated",
+    "remaining_raw_like_files_in_retained_formal_output": 0
   }
 }

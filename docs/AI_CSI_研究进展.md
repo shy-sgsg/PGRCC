@@ -39,8 +39,13 @@ table，以及四个代表 mixed 场景的 causal/fixed-Pfa paired audit。新�
 [`AI_CSI_16_M3_Decorrelation模型修正与上界审计.md`](AI_CSI_16_M3_Decorrelation模型修正与上界审计.md)
 → [`AI_CSI_18_M1M2物理参数估计器报告.md`](AI_CSI_18_M1M2物理参数估计器报告.md)
 → [`AI_CSI_17_CausalDetection与FixedPfa评价.md`](AI_CSI_17_CausalDetection与FixedPfa评价.md)
-→ [`AI_CSI_19_PhysicsAI_GoNoGo报告.md`](AI_CSI_19_PhysicsAI_GoNoGo报告.md)。当前结论仍为
-`NO_GO_AI_FOR_NOW`，没有训练 AI；本轮 raw BIN/NPY/log/PNG 的清理记录在
+→ [`AI_CSI_19_PhysicsAI_GoNoGo报告.md`](AI_CSI_19_PhysicsAI_GoNoGo报告.md)。随后已完成
+Physics-Adaptive Joint Calibration V1 的 24/8/32 正式 CUDA 矩阵，新增阅读入口为
+[`AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md`](AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md)。
+V1 的预注册 gate 为 `REOPEN_CANDIDATE`，但这不是 AI GO：J3/J4 Oracle recovery
+median 均为 0、95% bootstrap 上界约 0.026，且 held-out Pfa=0.001/0.01 存在轻微回归；
+当前仍为 `NO_GO_AI_FOR_NOW`，没有训练 AI。正式 compact evidence 保存在
+`outputs/physics_adaptive_joint_v1_formal/`；本轮 raw BIN/NPY/log/PNG 的清理记录在
 `outputs/cleanup_manifest_20260910.json`。
 
 ## 已完成事项
@@ -59,6 +64,7 @@ table，以及四个代表 mixed 场景的 causal/fixed-Pfa paired audit。新�
 | Baseline V2 物理 steering、协方差政策、多 seed screen、velocity/MDV、Pd/ROC/Pareto | 完成（CPU 离线） | [`AI_CSI_07_Baseline_V2审计与实验报告.md`](AI_CSI_07_Baseline_V2审计与实验报告.md) |
 | PGRCC-v1 Oracle Headroom Audit | 完成，No-Go；未进入训练 | [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)、`outputs/pgrcc_oracle/oracle_audit_manifest.json` |
 | M1/M2/M3 paired controls | 完成，36 target-only + 36 negative-control，未训练 AI | `outputs/ai_csi_model_mismatch_metric_controls_formal_clean/manifest.json`、`outputs/ai_csi_model_mismatch_formal_clean/failure_map.csv` |
+| Physics-Adaptive Joint Calibration V1 正式矩阵 | 完成，24/8/32 场景；gate=`REOPEN_CANDIDATE`，仍不训练 AI | [`AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md`](AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md)、`outputs/physics_adaptive_joint_v1_formal/formal_matrix_manifest.json` |
 
 ## V1 历史实验事实
 
