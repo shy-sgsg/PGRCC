@@ -741,6 +741,7 @@ bool relocateFusionDetections(const FusionGroupContext &ctx,
             rec.lon = lng;
             rec.utc = m.utc_mid;
             rec.amplitude = d.amplitude;
+            rec.cfar_margin_db = d.cfar_margin_db;
             rec.radial_velocity_mps = motion.v_radial;
             rec.phase_rad = d.phase;
             rec.range_phase_correction_rad = motion.range_phase_correction;
@@ -792,6 +793,7 @@ bool relocateFusionDetections(const FusionGroupContext &ctx,
             rec.p38_raw_k = m.p38_raw_k;
             rec.p38_raw_b = m.p38_raw_b;
             rec.p38_raw_rmse = m.p38_raw_rmse;
+            rec.p38_raw_inlier_ratio = m.p38_raw_inlier_ratio;
             rec.p38_pre_k = m.p38_pre_k;
             rec.p38_pre_b = m.p38_pre_b;
             rec.p38_pre_rmse = m.p38_pre_rmse;

@@ -34,6 +34,7 @@ struct FusionBeamMeta {
     double p38_raw_k = std::numeric_limits<double>::quiet_NaN();
     double p38_raw_b = std::numeric_limits<double>::quiet_NaN();
     double p38_raw_rmse = std::numeric_limits<double>::quiet_NaN();
+    double p38_raw_inlier_ratio = std::numeric_limits<double>::quiet_NaN();
     double p38_pre_k = std::numeric_limits<double>::quiet_NaN();
     double p38_pre_b = std::numeric_limits<double>::quiet_NaN();
     double p38_pre_rmse = std::numeric_limits<double>::quiet_NaN();
@@ -75,6 +76,7 @@ struct DetectionRaw {
     double af_motion = 0.0;
     double af_geometry = 0.0;
     double phase = 0.0;
+    double cfar_margin_db = std::numeric_limits<double>::quiet_NaN();
     // phi_fit[pcol] that was applied to F2 before this corrected phase was
     // measured.  Exact CTDR restores raw phase as phase + this value.
     double range_phase_correction = std::numeric_limits<double>::quiet_NaN();

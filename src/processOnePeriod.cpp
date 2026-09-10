@@ -2787,32 +2787,39 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
         } else if (union_csi_detection_band) {
             std::vector<float> dynamic_hits, full_hits;
             std::vector<float> dynamic_power, full_power;
+            std::vector<float> dynamic_threshold, full_threshold;
             std::vector<std::complex<float>> dynamic_complex, full_complex;
             const bool dump_complex = pcProfileDopplerRow(periodIdx) >= 0;
             const bool dynamic_ok = dpca_cfar2_fast_cuda(
                 CSI_out, dynamic_band_st, dynamic_band_ed,
                 cfg.pf, c_num, cfar_bnum, cfg.cfar_type, cfg,
                 dynamic_hits, &dynamic_power,
-                dump_complex ? &dynamic_complex : nullptr);
+                dump_complex ? &dynamic_complex : nullptr,
+                nullptr, true, 0, 0, &dynamic_threshold);
             const bool full_ok = dpca_cfar2_fast_cuda(
                 CSI_out, 0, effectivePulseNum(cfg) - 1,
                 cfg.pf, c_num, cfar_bnum, cfg.cfar_type, cfg,
                 full_hits, &full_power,
-                dump_complex ? &full_complex : nullptr);
+                dump_complex ? &full_complex : nullptr,
+                nullptr, true, 0, 0, &full_threshold);
             cfarSuccess1 = dynamic_ok && full_ok &&
                            dynamic_hits.size() == full_hits.size() &&
                            dynamic_power.size() == full_power.size() &&
+                           dynamic_threshold.size() == full_threshold.size() &&
                            (!dump_complex ||
                             (dynamic_complex.size() == dynamic_power.size() &&
                              full_complex.size() == full_power.size()));
             if (cfarSuccess1) {
                 mydata.resize(dynamic_hits.size());
                 power_map.resize(dynamic_power.size());
+                threshold_map.resize(dynamic_threshold.size());
                 if (dump_complex) detection_complex_map.resize(dynamic_power.size());
                 for (size_t i = 0; i < mydata.size(); ++i) {
                     mydata[i] = std::max(dynamic_hits[i], full_hits[i]);
                     const bool use_dynamic = dynamic_power[i] >= full_power[i];
                     power_map[i] = use_dynamic ? dynamic_power[i] : full_power[i];
+                    threshold_map[i] = use_dynamic
+                        ? dynamic_threshold[i] : full_threshold[i];
                     if (dump_complex) {
                         detection_complex_map[i] = use_dynamic
                             ? dynamic_complex[i] : full_complex[i];
@@ -2833,7 +2840,8 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
                 need_host_maps ? &power_map : nullptr,
                 pcProfileDopplerRow(periodIdx) >= 0 ? &detection_complex_map : nullptr,
                 cfg.runtime_diagnostics_enabled ? &gpu_cfar_hit_count : nullptr,
-                need_host_maps);
+                need_host_maps, 0, 0,
+                need_host_maps ? &threshold_map : nullptr);
             gpu_cfar_resident = cfarSuccess1;
         }
         if (!cfarSuccess1)
@@ -3475,6 +3483,14 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
         rec.range_bin = c;
         rec.row = r;
         rec.col = c;
+        if (off < power_map.size() && off < threshold_map.size()) {
+            const double power = static_cast<double>(power_map[off]);
+            const double threshold = static_cast<double>(threshold_map[off]);
+            if (std::isfinite(power) && power > 0.0 &&
+                std::isfinite(threshold) && threshold > 0.0) {
+                rec.cfar_margin_db = 10.0 * std::log10(power / threshold);
+            }
+        }
         rec.range_m = Rg;
         rec.theta_cmd_deg = theta_sq;
         rec.theta_true_deg = theta_deg;
@@ -3534,6 +3550,7 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
         rec.p38_raw_k = p_38_raw[0];
         rec.p38_raw_b = p_38_raw[1];
         rec.p38_raw_rmse = p38_raw_metrics.rmse;
+        rec.p38_raw_inlier_ratio = p38_raw_metrics.inlier_ratio;
         rec.p38_pre_k = p_38[0];
         rec.p38_pre_b = p_38[1];
         rec.p38_pre_rmse = p38_pre_metrics.rmse;
@@ -4348,32 +4365,39 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
         } else if (union_csi_detection_band) {
             std::vector<float> dynamic_hits, full_hits;
             std::vector<float> dynamic_power, full_power;
+            std::vector<float> dynamic_threshold, full_threshold;
             std::vector<std::complex<float>> dynamic_complex, full_complex;
             const bool dump_complex = pcProfileDopplerRow(periodIdx) >= 0;
             const bool dynamic_ok = dpca_cfar2_fast_cuda(
                 CSI_out, dynamic_band_st, dynamic_band_ed,
                 cfg.pf, cfg.cfar_guard_cells, cfg.cfar_background_cells,
                 cfg.cfar_type, cfg, dynamic_hits, &dynamic_power,
-                dump_complex ? &dynamic_complex : nullptr);
+                dump_complex ? &dynamic_complex : nullptr,
+                nullptr, true, 0, 0, &dynamic_threshold);
             const bool full_ok = dpca_cfar2_fast_cuda(
                 CSI_out, 0, effectivePulseNum(cfg) - 1,
                 cfg.pf, cfg.cfar_guard_cells, cfg.cfar_background_cells,
                 cfg.cfar_type, cfg, full_hits, &full_power,
-                dump_complex ? &full_complex : nullptr);
+                dump_complex ? &full_complex : nullptr,
+                nullptr, true, 0, 0, &full_threshold);
             cfar_ok = dynamic_ok && full_ok &&
                       dynamic_hits.size() == full_hits.size() &&
                       dynamic_power.size() == full_power.size() &&
+                      dynamic_threshold.size() == full_threshold.size() &&
                       (!dump_complex ||
                        (dynamic_complex.size() == dynamic_power.size() &&
                         full_complex.size() == full_power.size()));
             if (cfar_ok) {
                 mydata.resize(dynamic_hits.size());
                 power_map.resize(dynamic_power.size());
+                threshold_map.resize(dynamic_threshold.size());
                 if (dump_complex) detection_complex_map.resize(dynamic_power.size());
                 for (size_t i = 0; i < mydata.size(); ++i) {
                     mydata[i] = std::max(dynamic_hits[i], full_hits[i]);
                     const bool use_dynamic = dynamic_power[i] >= full_power[i];
                     power_map[i] = use_dynamic ? dynamic_power[i] : full_power[i];
+                    threshold_map[i] = use_dynamic
+                        ? dynamic_threshold[i] : full_threshold[i];
                     if (dump_complex) {
                         detection_complex_map[i] = use_dynamic
                             ? dynamic_complex[i] : full_complex[i];
@@ -4394,7 +4418,8 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                 mydata, need_host_maps ? &power_map : nullptr,
                 pcProfileDopplerRow(periodIdx) >= 0 ? &detection_complex_map : nullptr,
                 cfg.runtime_diagnostics_enabled ? &gpu_cfar_hit_count : nullptr,
-                need_host_maps);
+                need_host_maps, 0, 0,
+                need_host_maps ? &threshold_map : nullptr);
             gpu_cfar_resident = cfar_ok;
         }
         if (!cfar_ok) {
@@ -4678,6 +4703,7 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
     beamMeta.p38_raw_k = p_38_raw[0];
     beamMeta.p38_raw_b = p_38_raw[1];
     beamMeta.p38_raw_rmse = p38_raw_metrics.rmse;
+    beamMeta.p38_raw_inlier_ratio = p38_raw_metrics.inlier_ratio;
     beamMeta.p38_pre_k = p_38[0];
     beamMeta.p38_pre_b = p_38[1];
     beamMeta.p38_pre_rmse = p38_pre_metrics.rmse;
@@ -4759,7 +4785,8 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             d.af_phase = af_phase;
             d.af_total = af_total;
             d.af_geometry = af_phase;
-            d.phase = dphi;
+        d.phase = dphi;
+            d.cfar_margin_db = std::numeric_limits<double>::quiet_NaN();
             d.range_phase_correction =
                 (c >= 0 && c < static_cast<int>(phase_map_rg_correction.size()))
                     ? static_cast<double>(phase_map_rg_correction[static_cast<size_t>(c)])
@@ -4769,8 +4796,15 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                 : ((i < selected_cfar_power.size())
                        ? static_cast<double>(selected_cfar_power[i])
                        : ((off < refined_mydata.size())
-                              ? static_cast<double>(refined_mydata[off]) : 0.0));
+                       ? static_cast<double>(refined_mydata[off]) : 0.0));
             d.amplitude = det_power > 0.0 ? std::sqrt(det_power) : 0.0;
+            if (off < threshold_map.size()) {
+                const double threshold = static_cast<double>(threshold_map[off]);
+                if (std::isfinite(det_power) && det_power > 0.0 &&
+                    std::isfinite(threshold) && threshold > 0.0) {
+                    d.cfar_margin_db = 10.0 * std::log10(det_power / threshold);
+                }
+            }
             d.utc_mid = beamMeta.utc_mid;
             raw.push_back(d);
         }

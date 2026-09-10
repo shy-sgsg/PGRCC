@@ -18,6 +18,10 @@ struct AreaClutterConfig {
     double mean_power = 1.0;
     double texture_sigma = 0.4;
     double spatial_cell_m = 30.0;
+    // Slow-time correlation of the continuous surface reflectivity.  rho=1
+    // is a strict static-clutter regression; rho<1 enables the Stage2
+    // surface-level temporal-decorrelation challenge model.
+    double temporal_correlation_rho = 1.0;
     // Mid-point quadrature samples across one commanded beam width.  More than
     // one subcell is required for a continuous surface to occupy a Doppler
     // interval instead of collapsing onto the beam-centre Doppler row.

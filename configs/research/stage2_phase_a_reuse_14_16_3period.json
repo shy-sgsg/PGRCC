@@ -1,0 +1,76 @@
+{
+  "case_id": "stage2_phase_a_reuse_14_16_3period",
+  "output_dir": "outputs/phase_a_reuse_14_16_3period",
+  "scene_mode": "full",
+  "truth_output": true,
+  "waveform": {
+    "fc_ghz": 16.472113076923076,
+    "bandwidth_mhz": 80.0,
+    "fs_mhz": 60.0,
+    "tr_us": 150.0,
+    "prf_hz": 1300.0,
+    "pulse_len": 13056,
+    "acquired_pulse_len": 13032,
+    "pulse_num": 128,
+    "d_chan_m": 0.17,
+    "iq_data_type": "int16",
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2
+  },
+  "range_processing": {
+    "range_fft_len": 16384,
+    "range_crop_start": 0,
+    "range_crop_len": 4032,
+    "sample_delay_us": 488.0
+  },
+  "channel_geometry": {
+    "channel_1": {"name": "left_upper", "x_m": -0.085, "y_m": 0.0, "z_m": 0.085},
+    "channel_2": {"name": "right_upper", "x_m": 0.085, "y_m": 0.0, "z_m": 0.085},
+    "channel_3": {"name": "left_lower", "x_m": -0.085, "y_m": 0.0, "z_m": -0.085},
+    "channel_4": {"name": "right_lower", "x_m": 0.085, "y_m": 0.0, "z_m": -0.085}
+  },
+  "scan": {
+    "scan_min_deg": -29.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 30,
+    "beam_width_deg": 1.818712409063691,
+    "beam_index_base": 1
+  },
+  "random": {
+    "period_start": 0,
+    "period_count": 3,
+    "beam_start": 14,
+    "beam_count": 3,
+    "random_seed": 20260831
+  },
+  "scene": {
+    "mode": "full",
+    "output_signal_domain": "raw_lfm",
+    "range_min_m": 73149.359752,
+    "range_max_m": 83222.3863408,
+    "azimuth_min_deg": -31.0,
+    "azimuth_max_deg": 31.0,
+    "area_clutter": {"enabled": false},
+    "strong_scatterers": {"enabled": false},
+    "line_scatterers": {"enabled": false},
+    "thermal_noise": {"enabled": false}
+  },
+  "background_input_dir": "/home/shy/AIR/小长/GMTI程序/GMTI/GMTI_algorithm/GMTI_APX15_CUDA_latest/outputs/gmti_91mps_100targets_3period_scnr20_20260901_textured_paired/background_empty",
+  "background_input_scale": 1.0,
+  "targets": [
+    {
+      "target_id": "PHASE_A_B15",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 15,
+        "expected_bin": 1500,
+        "azimuth_offset_deg": 0.0
+      },
+      "motion": {"type": "static"},
+      "amplitude": {"type": "snr_db", "snr_db": 20.0},
+      "visibility": {"type": "hard_gate", "single_beam_only": true}
+    }
+  ]
+}

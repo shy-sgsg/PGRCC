@@ -18,6 +18,19 @@ V2.1 冻结后已完成 PGRCC-v1 Oracle Headroom Audit：16 个新 scene/seed、
 结论为 `NO_GO_ORACLE_NOT_SUFFICIENT`，因此当前不构造训练集、不训练 PGRCC-v1；
 详见 [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)。
 
+2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
+物理假设审计和 M1/M2/M3 model-mismatch challenge 的 3-seed 扩展；仍未训练 AI。新的阅读顺序为：
+[`AI_CSI_11_PhaseFix迁移与历史影响审计.md`](AI_CSI_11_PhaseFix迁移与历史影响审计.md) →
+[`AI_CSI_12_PhaseCorrected_Current基线报告.md`](AI_CSI_12_PhaseCorrected_Current基线报告.md) →
+[`AI_CSI_13_修复后CSI残余纹理诊断.md`](AI_CSI_13_修复后CSI残余纹理诊断.md) →
+[`AI_CSI_14_Stage2物理假设审计.md`](AI_CSI_14_Stage2物理假设审计.md) →
+[`AI_CSI_15_ModelMismatch_Challenge报告.md`](AI_CSI_15_ModelMismatch_Challenge报告.md)。
+当前首轮 failure map 为 `outputs/ai_csi_model_mismatch/failure_map.csv`，3-seed 补充为
+`outputs/ai_csi_model_mismatch_multiseed/failure_map_multiseed.csv`；M1/M2/M3 强档
+分别存在 deterministic mechanism Oracle；随后已对 36 个 Current variant 补跑 72 个
+paired target-only/negative-control CUDA 运行，failure map 已有 Pd/Pfa/target-loss
+三类指标，但总体仍保持 AI No-Go。
+
 ## 已完成事项
 
 | 阶段 | 状态 | 证据 |
@@ -33,6 +46,7 @@ V2.1 冻结后已完成 PGRCC-v1 Oracle Headroom Audit：16 个新 scene/seed、
 | Baseline 不足与 Physics-AI 接口 | 完成 | [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](AI_CSI_06_Baseline不足与Physics_AI方向分析.md) |
 | Baseline V2 物理 steering、协方差政策、多 seed screen、velocity/MDV、Pd/ROC/Pareto | 完成（CPU 离线） | [`AI_CSI_07_Baseline_V2审计与实验报告.md`](AI_CSI_07_Baseline_V2审计与实验报告.md) |
 | PGRCC-v1 Oracle Headroom Audit | 完成，No-Go；未进入训练 | [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)、`outputs/pgrcc_oracle/oracle_audit_manifest.json` |
+| M1/M2/M3 paired controls | 完成，36 target-only + 36 negative-control，未训练 AI | `outputs/ai_csi_model_mismatch_metric_controls/metrics_manifest.json`、`failure_map.csv` |
 
 ## V1 历史实验事实
 
@@ -153,10 +167,12 @@ regenerated-velocity 汇总，ROC 目录保留 `baseline_v2_roc_points.csv`、
 
 ## 证据边界
 
-本机 `nvcc`、CMake、FFTW3 和 Python 分析环境可用，Stage2 仿真目标已成功构建；
-但 `nvidia-smi` 无法与 NVIDIA 驱动通信。因此当前 CSV/PNG 是对源码算子顺序的
-CPU 离线回放，不宣称已完成 CUDA 生产执行。V2 screen/velocity 已有多 seed，
-但仍是单波位、单周期研究输入，不能外推为生产统计泛化结论。
+历史 V2 screen/velocity/ROC 记录仍是 CPU 离线回放，不能与本轮 CUDA 证据混算；
+本轮 Phase A 和 M1/M2/M3 challenge 使用 RTX 3050 Laptop GPU（driver 580.173.02、
+CUDA 13.0）实际运行。新的 challenge 仍是单波位、单周期 compact 输入，不能外推为
+生产统计泛化结论；3-seed 正例和 paired controls 已在该 compact 场景形成可追溯的
+Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU gate 语义另有
+`csi_gate_cpu_selftest` 直接回归，当前全量 CTest 为 17/17 通过。
 
 ## 下一步（需另行进入第二阶段）
 

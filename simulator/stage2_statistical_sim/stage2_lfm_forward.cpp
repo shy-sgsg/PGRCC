@@ -14,6 +14,7 @@
 #include <cstring>
 #include <limits>
 #include <sstream>
+#include <unordered_map>
 
 namespace gmti {
 namespace stage2 {
@@ -228,6 +229,8 @@ struct GlobalSurfaceCell {
     double area_sqrt_weight = 1.0;
     double theta_deg = 0.0;
     double slant_range_m = 0.0;
+    int64_t grid_x = 0;
+    int64_t grid_y = 0;
 };
 
 struct GlobalSurfaceGrid {
@@ -251,6 +254,7 @@ std::string surfaceGridKey(const gmti::target_injection::RadarConfig &radar,
        << scene.azimuth_min_deg << '|' << scene.azimuth_max_deg << '|'
        << scene.ground_z_m << '|' << scene.area.mean_power << '|'
        << scene.area.texture_sigma << '|' << scene.area.spatial_cell_m << '|'
+       << scene.area.temporal_correlation_rho << '|'
        << scene.area.azimuth_subcell_count << '|'
        << global.platform_height_m << '|' << global.platform_speed_mps << '|'
        << reference_time_sec;
@@ -377,6 +381,8 @@ const GlobalSurfaceGrid &globalSurfaceGrid(
             GlobalSurfaceCell cell;
             cell.theta_deg = theta_deg;
             cell.slant_range_m = std::hypot(ground_range, height_delta);
+            cell.grid_x = ix;
+            cell.grid_y = iy;
             const gmti::sim_geometry::LocalPoint local =
                 gmti::sim_geometry::enuToLocal(
                     gmti::sim_geometry::ENUPoint(e, n, scene.ground_z_m),
@@ -403,6 +409,94 @@ const GlobalSurfaceGrid &globalSurfaceGrid(
         }
     }
     return grid;
+}
+
+struct TemporalClutterState {
+    std::complex<double> value;
+    uint64_t last_pulse = 0;
+    bool initialized = false;
+};
+
+struct TemporalClutterStateStore {
+    uint64_t model_key = 0;
+    std::unordered_map<uint64_t, TemporalClutterState> states;
+};
+
+uint64_t temporalCellKey(int64_t grid_x, int64_t grid_y)
+{
+    return mix64(static_cast<uint64_t>(grid_x) ^
+                 (mix64(static_cast<uint64_t>(grid_y)) + 0x9e3779b97f4a7c15ULL));
+}
+
+std::complex<double> temporalInnovation(uint64_t seed,
+                                        int64_t grid_x,
+                                        int64_t grid_y,
+                                        uint64_t pulse_index)
+{
+    const uint64_t time_salt = mix64(pulse_index + 0x517cc1b727220a95ULL);
+    const double real = hashGaussianCell(
+        seed ^ time_salt, grid_x, grid_y, 0x243f6a8885a308d3ULL,
+        0x13198a2e03707344ULL);
+    const double imag = hashGaussianCell(
+        seed ^ mix64(time_salt), grid_x, grid_y, 0xa4093822299f31d0ULL,
+        0x082efa98ec4e6c89ULL);
+    return std::complex<double>(real, imag) / std::sqrt(2.0);
+}
+
+std::complex<double> temporalReflectivity(
+    const GlobalSurfaceCell &cell,
+    uint64_t random_seed,
+    uint64_t pulse_index,
+    double rho)
+{
+    if (!(rho < 1.0)) return cell.reflectivity;
+
+    static thread_local TemporalClutterStateStore store;
+    const uint64_t rho_key = static_cast<uint64_t>(std::llround(rho * 1.0e12));
+    const uint64_t model_key = mix64(static_cast<uint64_t>(random_seed)) ^
+                               mix64(rho_key + 0x9e3779b97f4a7c15ULL);
+    if (store.model_key != model_key) {
+        store.model_key = model_key;
+        store.states.clear();
+    }
+
+    const uint64_t key = temporalCellKey(cell.grid_x, cell.grid_y);
+    TemporalClutterState &state = store.states[key];
+    const double base_abs = std::abs(cell.reflectivity);
+    const double innovation_scale = std::sqrt(std::max(0.0, 1.0 - rho * rho));
+    if (!state.initialized || pulse_index < state.last_pulse) {
+        state.value = base_abs * temporalInnovation(
+            random_seed, cell.grid_x, cell.grid_y, 0);
+        state.last_pulse = 0;
+        state.initialized = true;
+    }
+    for (uint64_t t = state.last_pulse + 1; t <= pulse_index; ++t) {
+        state.value = rho * state.value +
+            base_abs * innovation_scale * temporalInnovation(
+                random_seed, cell.grid_x, cell.grid_y, t);
+        if (t == std::numeric_limits<uint64_t>::max()) break;
+    }
+    state.last_pulse = pulse_index;
+    return state.value;
+}
+
+uint64_t surfacePulseIndex(const gmti::target_injection::RadarConfig &radar,
+                           int period_id,
+                           int beam_id,
+                           int pulse_id,
+                           bool mechanical_mode)
+{
+    const uint64_t period = static_cast<uint64_t>(std::max(0, period_id));
+    const uint64_t pulses_per_period = mechanical_mode
+        ? static_cast<uint64_t>(std::max(1, radar.pulse_num))
+        : static_cast<uint64_t>(std::max(1, radar.beam_count)) *
+          static_cast<uint64_t>(std::max(1, radar.pulse_num));
+    const uint64_t within_period = mechanical_mode
+        ? static_cast<uint64_t>(std::max(0, pulse_id))
+        : static_cast<uint64_t>(std::max(0, beam_id)) *
+              static_cast<uint64_t>(std::max(1, radar.pulse_num)) +
+          static_cast<uint64_t>(std::max(0, pulse_id));
+    return period * pulses_per_period + within_period;
 }
 
 int nextPowerOfTwo(int n)
@@ -695,6 +789,10 @@ bool addContinuousAreaClutter(std::vector<uint8_t> &packet,
     int injected = 0;
     const double packet_time_sec = std::isfinite(time_override_sec)
         ? time_override_sec : pulseTimeSec(radar, period_id, beam_id, pulse_id);
+    const bool mechanical_mode = std::isfinite(time_override_sec) &&
+                                 std::isfinite(servo_azimuth_override_deg);
+    const uint64_t temporal_pulse_index = surfacePulseIndex(
+        radar, period_id, beam_id, pulse_id, mechanical_mode);
     const PlatformState current_platform =
         evaluatePlatformState(global, packet_time_sec);
     const double platform_displacement_m =
@@ -763,7 +861,10 @@ bool addContinuousAreaClutter(std::vector<uint8_t> &packet,
                 }
                 const double phase = gmti::target_injection::receiveChannelPhaseRad(
                     radar, global, g, channel_1based, lambda);
-                const std::complex<double> echo = amp_scale * cell.reflectivity *
+                const std::complex<double> clutter_reflectivity =
+                    temporalReflectivity(cell, random_seed, temporal_pulse_index,
+                                         scene.area.temporal_correlation_rho);
+                const std::complex<double> echo = amp_scale * clutter_reflectivity *
                     std::exp(std::complex<double>(0.0, phase));
                 const std::complex<float> value(
                     static_cast<float>(echo.real()), static_cast<float>(echo.imag()));

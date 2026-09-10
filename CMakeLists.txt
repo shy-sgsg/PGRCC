@@ -517,6 +517,13 @@ add_executable(shm_echo_input_selftest
   src/mechanical_scan.cpp
 )
 
+if(NOT USE_COREX)
+  add_executable(csi_gate_cpu_selftest
+    tests/csi_gate_cpu_selftest.cpp
+    src/clutter_CSI.cpp
+  )
+endif()
+
 add_executable(shm_echo_producer
   src/tools/shm_echo_producer.cpp
 )
@@ -804,6 +811,13 @@ configure_non_cuda_tool(shm_echo_input_selftest)
 target_include_directories(shm_echo_input_selftest PRIVATE
   ${CMAKE_SOURCE_DIR}/shmdemo/demo
 )
+if(NOT USE_COREX)
+  configure_non_cuda_tool(csi_gate_cpu_selftest)
+  target_link_libraries(csi_gate_cpu_selftest PRIVATE
+    CUDA::cudart
+    CUDA::cufft
+  )
+endif()
 configure_non_cuda_tool(shm_echo_producer)
 target_include_directories(shm_echo_producer PRIVATE
   ${CMAKE_SOURCE_DIR}/shmdemo/demo
@@ -839,4 +853,7 @@ if(BUILD_TESTING)
   add_test(NAME mechanical_scan_selftest COMMAND mechanical_scan_selftest)
   add_test(NAME mechanical_phase_center_selftest COMMAND mechanical_phase_center_selftest)
   add_test(NAME shm_echo_input_selftest COMMAND shm_echo_input_selftest)
+  if(NOT USE_COREX)
+    add_test(NAME csi_gate_cpu_selftest COMMAND csi_gate_cpu_selftest)
+  endif()
 endif()

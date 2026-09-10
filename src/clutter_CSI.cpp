@@ -202,6 +202,55 @@ bool GMTIProcessor::clutter_cancel_38_paper_1(
     }
 
     prosig_38.assign(total, std::complex<float>(0.0f, 0.0f));
+    std::vector<double> legacy_row_coherence;
+    if (cfg.csi_row_coherence_gate_enable) {
+        legacy_row_coherence.assign(Na, 1.0);
+#ifdef _OPENMP
+        #pragma omp parallel for schedule(static)
+#endif
+        for (int row = az_st; row <= az_ed; ++row) {
+            const std::size_t off = static_cast<std::size_t>(row) * Nr;
+            double cross_re = 0.0;
+            double cross_im = 0.0;
+            double energy_1 = 0.0;
+            double energy_2 = 0.0;
+            for (int c = rg_st; c <= rg_ed; ++c) {
+                const auto& a = F1f[off + static_cast<std::size_t>(c)];
+                const auto& b = F2f[off + static_cast<std::size_t>(c)];
+                const double ar = static_cast<double>(a.real());
+                const double ai = static_cast<double>(a.imag());
+                const double br = static_cast<double>(b.real());
+                const double bi = static_cast<double>(b.imag());
+                cross_re += ar * br + ai * bi;
+                cross_im += ai * br - ar * bi;
+                energy_1 += ar * ar + ai * ai;
+                energy_2 += br * br + bi * bi;
+            }
+            const double denominator = energy_1 * energy_2;
+            legacy_row_coherence[static_cast<std::size_t>(row)] =
+                denominator > 0.0 && std::isfinite(denominator)
+                    ? std::min(1.0, std::sqrt(std::max(
+                          0.0, (cross_re * cross_re + cross_im * cross_im) /
+                              denominator)))
+                    : 0.0;
+        }
+        if (cfg.runtime_diagnostics_enabled || cfg.csi_metrics_enable) {
+            std::size_t gated_rows = 0U;
+            double coherence_sum = 0.0;
+            for (int row = az_st; row <= az_ed; ++row) {
+                const double value = legacy_row_coherence[static_cast<std::size_t>(row)];
+                coherence_sum += value;
+                gated_rows += value < cfg.csi_row_coherence_min ? 1U : 0U;
+            }
+            const int row_count = az_ed - az_st + 1;
+            std::cout << "[CSI][LEGACY-GATE] rows=" << row_count
+                      << " gated_rows=" << gated_rows
+                      << " coherence_mean="
+                      << (row_count > 0 ? coherence_sum / row_count : 0.0)
+                      << " min=" << cfg.csi_row_coherence_min
+                      << std::endl;
+        }
+    }
 #ifdef _OPENMP
     #pragma omp parallel for schedule(static)
 #endif
@@ -283,6 +332,12 @@ bool GMTIProcessor::clutter_cancel_38_paper_1(
         const float sn = static_cast<float>(std::sin(phi));
         const std::complex<float> az_fai(cs, sn);
         const size_t off = r * Nr;
+        if (!legacy_row_coherence.empty() &&
+            legacy_row_coherence[r] < cfg.csi_row_coherence_min) {
+            std::copy_n(F1f.begin() + static_cast<std::ptrdiff_t>(off),
+                        Nr, prosig_38.begin() + static_cast<std::ptrdiff_t>(off));
+            continue;
+        }
         for (size_t c = 0; c < Nr; ++c) {
             const auto &a = F1f[off + c];
             const auto b2 = az_fai * F2f[off + c];

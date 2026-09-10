@@ -737,6 +737,9 @@ __global__ void clutter_cancel_kernel(
     float k,
     float b,
     int bypass_enable,
+    const float* coherence,
+    int coherence_gate_enable,
+    float coherence_min,
     gmti::trig_lut_device::TrigLutConfig trig_cfg)
 {
     size_t idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -745,6 +748,15 @@ __global__ void clutter_cancel_kernel(
 
     int r = static_cast<int>(idx / Nr);
     if (r < az_st || r > az_ed) {
+        out[idx] = F1[idx];
+        return;
+    }
+    // The historical min-magnitude equalizer is nonlinear.  Applying it to
+    // an incoherent row changes the H0 noise law and produces long CFAR tails.
+    // Keep such rows linear (channel 1 only), while retaining the legacy
+    // operation on rows that contain coherent stationary clutter.
+    if (coherence_gate_enable && coherence != nullptr &&
+        coherence[r] < coherence_min) {
         out[idx] = F1[idx];
         return;
     }
@@ -3666,6 +3678,45 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
         }
         CUDA_CHECK(cudaGetLastError());
     } else {
+        float* d_legacy_coherence = nullptr;
+        const bool legacy_coherence_gate = cfg.csi_row_coherence_gate_enable;
+        if (legacy_coherence_gate) {
+            if (!ensureCsiRowWorkspace(Na)) return false;
+            const int row_blocks = (static_cast<int>(Na) + threads - 1) / threads;
+            compute_row_complex_ls_kernel<<<row_blocks, threads, 0, stream_compute_>>>(
+                (const cuFloatComplex*)gpu_ptrs_.t1,
+                (const cuFloatComplex*)gpu_ptrs_.t2,
+                d_csi_alpha_,
+                d_csi_coherence_,
+                static_cast<int>(Na),
+                static_cast<int>(Nr),
+                rg_st,
+                rg_ed);
+            CUDA_CHECK(cudaGetLastError());
+            d_legacy_coherence = d_csi_coherence_;
+            if (cfg.runtime_diagnostics_enabled || cfg.csi_metrics_enable) {
+                std::vector<float> coherence_host(Na, 0.0f);
+                CUDA_CHECK(cudaMemcpyAsync(
+                    coherence_host.data(), d_legacy_coherence,
+                    Na * sizeof(float), cudaMemcpyDeviceToHost, stream_compute_));
+                CUDA_CHECK(cudaStreamSynchronize(stream_compute_));
+                std::size_t gated_rows = 0U;
+                double coherence_sum = 0.0;
+                for (int row = az_st; row <= az_ed; ++row) {
+                    const float value = coherence_host[static_cast<std::size_t>(row)];
+                    coherence_sum += static_cast<double>(value);
+                    gated_rows += value < static_cast<float>(cfg.csi_row_coherence_min)
+                        ? 1U : 0U;
+                }
+                const int row_count = az_ed - az_st + 1;
+                std::cout << "[CSI][LEGACY-GATE] rows=" << row_count
+                          << " gated_rows=" << gated_rows
+                          << " coherence_mean="
+                          << (row_count > 0 ? coherence_sum / row_count : 0.0)
+                          << " min=" << cfg.csi_row_coherence_min
+                          << std::endl;
+            }
+        }
         clutter_cancel_kernel<<<blocks, threads, 0, stream_compute_>>>(
             (const cuFloatComplex*)gpu_ptrs_.t1,
             (const cuFloatComplex*)gpu_ptrs_.t2,
@@ -3678,6 +3729,9 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
             p_38[0],
             p_38[1],
             cfg.csi_bypass_enable ? 1 : 0,
+            d_legacy_coherence,
+            legacy_coherence_gate ? 1 : 0,
+            static_cast<float>(cfg.csi_row_coherence_min),
             trig_cfg);
     }
     CUDA_CHECK(cudaGetLastError());

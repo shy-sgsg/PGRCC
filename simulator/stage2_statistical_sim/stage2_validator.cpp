@@ -57,6 +57,8 @@ bool writeStage2Report(const std::string &path,
     out << "- random_seed: " << cfg.sim.random_seed << "\n";
     out << "- area_model: " << cfg.scene.area.model << "\n";
     out << "- area_scatterers: " << area << "\n";
+    out << "- area_temporal_correlation_rho: "
+        << cfg.scene.area.temporal_correlation_rho << "\n";
     out << "- strong_scatterers: " << strong << "\n";
     out << "- line_scatterers: " << line << "\n";
     out << "- single_or_other_scatterers: " << single << "\n";

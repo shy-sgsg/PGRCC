@@ -446,8 +446,8 @@ struct Config {
     std::string csi_cancellation_mode = "legacy_min_magnitude";
     // 当某一多普勒行没有足够的跨通道相干分量时，不执行非线性的逐像素
     // 最小幅度均衡/相减，直接保留通道1。这样无杂波行仍保持高斯噪声统计，
-    // 同时全局 CSI 仍对相干杂波行生效。默认关闭以保持旧 XML 的结果兼容。
-    bool csi_row_coherence_gate_enable = false;
+    // 同时全局 CSI 仍对相干杂波行生效。默认开启；显式 false 可复现 legacy path。
+    bool csi_row_coherence_gate_enable = true;
     double csi_row_coherence_min = 0.50;
     // 部分对消增益。用于 row_phase_ls_linear 和
     // row_phase_ls_min_magnitude，范围 [0,1]；1 表示全量相位对消。
@@ -752,6 +752,7 @@ struct GMTIOutput {
         double p38_raw_k = std::numeric_limits<double>::quiet_NaN();
         double p38_raw_b = std::numeric_limits<double>::quiet_NaN();
         double p38_raw_rmse = std::numeric_limits<double>::quiet_NaN();
+        double p38_raw_inlier_ratio = std::numeric_limits<double>::quiet_NaN();
         double p38_pre_k = std::numeric_limits<double>::quiet_NaN();
         double p38_pre_b = std::numeric_limits<double>::quiet_NaN();
         double p38_pre_rmse = std::numeric_limits<double>::quiet_NaN();
@@ -761,6 +762,9 @@ struct GMTIOutput {
         int p38_refit_sample_count = 0;
         double p38_refit_inlier_ratio = std::numeric_limits<double>::quiet_NaN();
         int p38_refit_valid = 0;
+        // Per-candidate production CFAR peak margin, in dB.  It is populated
+        // when the diagnostics path downloads the power/threshold maps.
+        double cfar_margin_db = std::numeric_limits<double>::quiet_NaN();
         double p38_used_k = std::numeric_limits<double>::quiet_NaN();
         double p38_used_b = std::numeric_limits<double>::quiet_NaN();
         std::string p38_used_source;

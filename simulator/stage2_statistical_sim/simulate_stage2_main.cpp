@@ -84,6 +84,173 @@ std::string periodDataFile(const std::string &output_dir, int period_id)
         "stage2_statistical_newprotocol_period_" + periodTag(period_id) + ".bin");
 }
 
+// A reusable background file may contain a full electronic scan while the
+// target run intentionally emits only a contiguous beam subset.  Reading it
+// as one sequential stream silently pairs the requested target geometry with
+// the first source beam (and leaves that source beam's header in the output).
+// Build an explicit source-group index from the protocol angle field so every
+// copied packet has the same physical beam as the target injection.
+struct ReusableBackgroundBeam {
+    // Source electronic beam-group index in the complete background file,
+    // zero-based.  Keep it explicit in the audit CSV; source_first_packet is
+    // the byte-layout identity but is not a semantic beam identifier.
+    std::uint64_t source_group = 0U;
+    std::uint64_t first_packet = 0U;
+    double source_theta_deg = std::numeric_limits<double>::quiet_NaN();
+    std::uint32_t source_first_prt_counter = 0U;
+};
+
+bool buildReusableBackgroundBeamIndex(
+    const std::string &path,
+    const RadarConfig &radar,
+    int beam_begin,
+    int beam_end,
+    std::vector<ReusableBackgroundBeam> &selected,
+    std::string &err)
+{
+    selected.clear();
+    if (beam_begin < 0 || beam_end <= beam_begin) {
+        err = "invalid requested electronic beam subset for reusable background";
+        return false;
+    }
+    const std::size_t channel_count = static_cast<std::size_t>(
+        std::max(2, radar.new_protocol_channel_count));
+    const std::string iq_type = radar.iq_data_type.empty()
+        ? "float32" : radar.iq_data_type;
+    const std::uint64_t packet_bytes = static_cast<std::uint64_t>(
+        gmti::new_protocol::packetBytes(
+            static_cast<std::size_t>(radar.pulse_len), channel_count, iq_type));
+    const std::uint64_t pulses_per_beam =
+        static_cast<std::uint64_t>(std::max(1, radar.pulse_num));
+    if (packet_bytes < gmti::new_protocol::kHeaderBytes ||
+        pulses_per_beam == 0U) {
+        err = "invalid reusable background packet layout";
+        return false;
+    }
+
+    std::ifstream probe(path.c_str(), std::ios::binary | std::ios::ate);
+    if (!probe) {
+        err = "failed to open reusable background input: " + path;
+        return false;
+    }
+    const std::streamoff file_size = probe.tellg();
+    if (file_size <= 0 ||
+        static_cast<std::uint64_t>(file_size) % packet_bytes != 0U) {
+        err = "reusable background size is not an integral PRT count: " + path;
+        return false;
+    }
+    const std::uint64_t packet_count =
+        static_cast<std::uint64_t>(file_size) / packet_bytes;
+    const std::uint64_t source_beam_count = packet_count / pulses_per_beam;
+    if (source_beam_count == 0U || packet_count % pulses_per_beam != 0U) {
+        err = "reusable background does not contain complete electronic beam groups: " + path;
+        return false;
+    }
+
+    const double theta_step = radar.scan_step_deg;
+    const double theta_tolerance = std::max(0.011, 0.25 * std::abs(theta_step));
+    std::vector<double> source_theta(static_cast<std::size_t>(source_beam_count),
+                                     std::numeric_limits<double>::quiet_NaN());
+    std::vector<std::uint32_t> source_counter(
+        static_cast<std::size_t>(source_beam_count), 0U);
+    std::vector<uint8_t> header(gmti::new_protocol::kHeaderBytes, 0U);
+    for (std::uint64_t group = 0U; group < source_beam_count; ++group) {
+        const std::uint64_t first_packet = group * pulses_per_beam;
+        for (std::uint64_t pulse = 0U; pulse < pulses_per_beam; ++pulse) {
+            const std::uint64_t packet_index = first_packet + pulse;
+            const std::uint64_t byte_offset = packet_index * packet_bytes;
+            probe.clear();
+            probe.seekg(static_cast<std::streamoff>(byte_offset), std::ios::beg);
+            probe.read(reinterpret_cast<char *>(header.data()),
+                       static_cast<std::streamsize>(header.size()));
+            if (!probe || gmti::new_protocol::loadU32LE(
+                    header.data() + gmti::new_protocol::kOffPrtLen) != packet_bytes) {
+                err = "invalid reusable background PRT header at packet " +
+                      std::to_string(packet_index) + ": " + path;
+                return false;
+            }
+            const gmti::new_protocol::HeaderSample hs =
+                gmti::new_protocol::readHeaderSample(header.data());
+            if (!std::isfinite(hs.theta_cmd_deg)) {
+                err = "reusable background header has non-finite beam angle at group " +
+                      std::to_string(group) + ": " + path;
+                return false;
+            }
+            if (pulse == 0U) {
+                source_theta[static_cast<std::size_t>(group)] = hs.theta_cmd_deg;
+                source_counter[static_cast<std::size_t>(group)] = hs.prt_counter;
+            } else if (std::abs(hs.theta_cmd_deg -
+                                source_theta[static_cast<std::size_t>(group)]) >
+                       theta_tolerance) {
+                err = "reusable background beam group has inconsistent theta headers at group " +
+                      std::to_string(group) + ": " + path;
+                return false;
+            }
+        }
+        for (std::uint64_t prior = 0U; prior < group; ++prior) {
+            if (std::abs(source_theta[static_cast<std::size_t>(prior)] -
+                         source_theta[static_cast<std::size_t>(group)]) <=
+                theta_tolerance) {
+                err = "reusable background has duplicate beam theta headers at groups " +
+                      std::to_string(prior) + " and " + std::to_string(group) +
+                      ": " + path;
+                return false;
+            }
+        }
+    }
+
+    std::vector<uint8_t> used(static_cast<std::size_t>(source_beam_count), 0U);
+    for (int beam = beam_begin; beam < beam_end; ++beam) {
+        const double requested_theta = radar.scan_min_deg +
+            radar.scan_step_deg * static_cast<double>(beam);
+        if (beam > beam_begin) {
+            const double previous_theta = radar.scan_min_deg +
+                radar.scan_step_deg * static_cast<double>(beam - 1);
+            if (std::abs(previous_theta - requested_theta) <= theta_tolerance) {
+                err = "requested reusable background beams have duplicate theta headers";
+                return false;
+            }
+        }
+        std::size_t best = 0U;
+        double best_error = std::numeric_limits<double>::infinity();
+        for (std::size_t group = 0U; group < source_theta.size(); ++group) {
+            if (used[group]) {
+                continue;
+            }
+            const double error_deg = std::abs(source_theta[group] - requested_theta);
+            if (error_deg < best_error) {
+                best_error = error_deg;
+                best = group;
+            }
+        }
+        if (!std::isfinite(best_error) || best_error > theta_tolerance) {
+            err = "reusable background has no beam header matching requested beam " +
+                  std::to_string(beam + 1) + " (theta=" +
+            std::to_string(requested_theta) + " deg)";
+            return false;
+        }
+        used[best] = 1U;
+        ReusableBackgroundBeam entry;
+        entry.source_group = static_cast<std::uint64_t>(best);
+        entry.first_packet = static_cast<std::uint64_t>(best) * pulses_per_beam;
+        entry.source_theta_deg = source_theta[best];
+        entry.source_first_prt_counter = source_counter[best];
+        selected.push_back(entry);
+    }
+    return true;
+}
+
+void rewriteReusableBackgroundPrtCounter(
+    std::vector<uint8_t> &packet, std::uint32_t prt_counter)
+{
+    if (packet.size() < gmti::new_protocol::kHeaderBytes) return;
+    gmti::new_protocol::storeU32LE(
+        packet.data() + gmti::new_protocol::kOffPrtCounter, prt_counter);
+    // A legacy consumer also reads this low-byte compatibility field.
+    packet[gmti::new_protocol::kOffPrtLowByte] =
+        static_cast<uint8_t>(prt_counter & 0xffU);
+}
+
 void zeroFpgaPadding(std::vector<uint8_t> &packet,
                      const RadarConfig &radar,
                      int acquired_pulse_len)
@@ -387,6 +554,8 @@ void writeScenarioResolved(const Stage2RunConfig &run,
     out << "      \"mean_power\": " << run.cfg.scene.area.mean_power << ",\n";
     out << "      \"texture_sigma\": " << run.cfg.scene.area.texture_sigma << ",\n";
     out << "      \"spatial_cell_m\": " << run.cfg.scene.area.spatial_cell_m << ",\n";
+    out << "      \"temporal_correlation_rho\": "
+        << run.cfg.scene.area.temporal_correlation_rho << ",\n";
     out << "      \"azimuth_subcell_count\": "
         << run.cfg.scene.area.azimuth_subcell_count << "\n";
     out << "    },\n";
@@ -720,6 +889,70 @@ int generateStage2Data(const Stage2RunConfig &run)
                 return 1;
             }
         }
+
+        std::vector<ReusableBackgroundBeam> reusable_beams;
+        if (reuse_background && !mechanical_mode) {
+            if (!buildReusableBackgroundBeamIndex(
+                    background_input_file, cfg.radar, beam_begin, beam_end,
+                    reusable_beams, err)) {
+                std::cerr << "[stage2][ERR] " << err << "\n";
+                return 1;
+            }
+            if (reusable_beams.size() !=
+                    static_cast<std::size_t>(std::max(0, beam_end - beam_begin))) {
+                std::cerr << "[stage2][ERR] reusable background beam index size mismatch\n";
+                return 1;
+            }
+        }
+
+        std::ofstream reusable_mapping;
+        if (reuse_background && !mechanical_mode) {
+            const std::string mapping_path = joinPath(
+                joinPath(run.output_dir, "reports"),
+                "background_reuse_mapping.csv");
+            reusable_mapping.open(mapping_path.c_str(), std::ios::out |
+                                  (pp == 0 ? std::ios::trunc : std::ios::app));
+            if (!reusable_mapping) {
+                std::cerr << "[stage2][ERR] failed to open background reuse mapping: "
+                          << mapping_path << "\n";
+                return 1;
+            }
+            if (pp == 0) {
+                reusable_mapping
+                    << "period_id,requested_beam_id,requested_theta_deg,"
+                       "source_group,source_first_packet,source_theta_deg,"
+                       "output_first_packet,output_first_counter,"
+                       "source_first_prt_counter,output_first_prt_counter,"
+                       "theta_error_deg,mapping_status\n";
+            }
+            for (int beam = beam_begin; beam < beam_end; ++beam) {
+                const ReusableBackgroundBeam &entry = reusable_beams[
+                    static_cast<std::size_t>(beam - beam_begin)];
+                const double requested_theta = cfg.radar.scan_min_deg +
+                    cfg.radar.scan_step_deg * static_cast<double>(beam);
+                const uint64_t output_first_packet =
+                    static_cast<uint64_t>(beam - beam_begin) *
+                        static_cast<uint64_t>(period_pulse_count);
+                const uint64_t output_first_prt_counter =
+                    static_cast<uint64_t>(prt_counter) +
+                    static_cast<uint64_t>(beam - beam_begin) *
+                        static_cast<uint64_t>(period_pulse_count);
+                reusable_mapping << period_id << ',' << (beam + 1) << ','
+                    << std::setprecision(17) << requested_theta << ','
+                    << entry.source_group << ',' << entry.first_packet << ','
+                    << entry.source_theta_deg << ','
+                    << output_first_packet << ',' << output_first_prt_counter << ','
+                    << entry.source_first_prt_counter << ','
+                    << output_first_prt_counter << ','
+                    << std::abs(entry.source_theta_deg - requested_theta) << ','
+                    << "matched\n";
+                std::cout << "[stage2][background-reuse] period=" << period_id
+                          << " requested_beam=" << (beam + 1)
+                          << " source_first_packet=" << entry.first_packet
+                          << " source_theta=" << entry.source_theta_deg
+                          << " requested_theta=" << requested_theta << '\n';
+            }
+        }
         if (write_paired_background) {
             background_out.open(background_data_file.c_str(),
                                 std::ios::binary | std::ios::trunc);
@@ -749,6 +982,21 @@ int generateStage2Data(const Stage2RunConfig &run)
         const int loop_beam_begin = mechanical_mode ? 0 : beam_begin;
         const int loop_beam_end = mechanical_mode ? 1 : beam_end;
         for (int b = loop_beam_begin; b < loop_beam_end; ++b) {
+            if (reuse_background && !mechanical_mode) {
+                const std::size_t selected_index =
+                    static_cast<std::size_t>(b - beam_begin);
+                const std::uint64_t source_packet =
+                    reusable_beams[selected_index].first_packet;
+                background_in.clear();
+                background_in.seekg(static_cast<std::streamoff>(
+                    source_packet * static_cast<std::uint64_t>(packet_bytes)),
+                    std::ios::beg);
+                if (!background_in) {
+                    std::cerr << "[stage2][ERR] failed to seek reusable background beam "
+                              << (b + 1) << " in " << background_input_file << "\n";
+                    return 1;
+                }
+            }
             for (int m = 0; m < period_pulse_count; ++m) {
                 const double t = mechanical_mode
                     ? mechanicalPulseTime(cfg, period_id, m)
@@ -768,6 +1016,12 @@ int generateStage2Data(const Stage2RunConfig &run)
                                   << " beam=" << b
                                   << " pulse=" << m << "\n";
                         return 1;
+                    }
+                    // Preserve the source packet's physical header fields;
+                    // only the output transport counter (and its legacy
+                    // low-byte compatibility field) belongs to this run.
+                    if (!mechanical_mode) {
+                        rewriteReusableBackgroundPrtCounter(packet, prt_counter);
                     }
                     if (!scalePacketPayload(
                             packet, cfg.radar, run.background_input_scale, err)) {

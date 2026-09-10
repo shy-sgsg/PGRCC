@@ -397,6 +397,10 @@ bool writeCsiMetricsTap(const Config& cfg,
     std::vector<float> after_power(total);
     std::vector<float> channel1_power(total);
     std::vector<float> channel2_power(total);
+    std::vector<float> channel1_real(total);
+    std::vector<float> channel1_imag(total);
+    std::vector<float> channel2_real(total);
+    std::vector<float> channel2_imag(total);
     std::vector<float> csi_after_real(total);
     std::vector<float> csi_after_imag(total);
     std::vector<float> ctdr_channel1_real(total);
@@ -443,6 +447,11 @@ bool writeCsiMetricsTap(const Config& cfg,
         // 同一真值单元分别估计两路相位观测的有效 SCNR，而不会参与检测。
         channel1_power[i] = std::norm(channel1[i]);
         channel2_power[i] = std::norm(channel2[i]);
+        // 仅供 Phase-C 残差审计重建当前对齐后的 F1/F2；不参与生产路径。
+        channel1_real[i] = channel1[i].real();
+        channel1_imag[i] = channel1[i].imag();
+        channel2_real[i] = channel2[i].real();
+        channel2_imag[i] = channel2[i].imag();
         const int row = static_cast<int>(i / static_cast<std::size_t>(cols));
         const bool in_csi_band = full_csi_detection_band ||
             (row >= detector_csi_band_st && row <= detector_csi_band_ed);
@@ -495,6 +504,10 @@ bool writeCsiMetricsTap(const Config& cfg,
     std::string after_path;
     std::string channel1_path;
     std::string channel2_path;
+    std::string channel1_real_path;
+    std::string channel1_imag_path;
+    std::string channel2_real_path;
+    std::string channel2_imag_path;
     std::string after_real_path;
     std::string after_imag_path;
     std::string ctdr_channel1_real_path;
@@ -517,6 +530,10 @@ bool writeCsiMetricsTap(const Config& cfg,
             before_path = joinPath(tap_dir, stem.str() + "_before_power.npy");
             channel1_path = joinPath(tap_dir, stem.str() + "_channel1_power.npy");
             channel2_path = joinPath(tap_dir, stem.str() + "_channel2_power.npy");
+            channel1_real_path = joinPath(tap_dir, stem.str() + "_channel1_real.npy");
+            channel1_imag_path = joinPath(tap_dir, stem.str() + "_channel1_imag.npy");
+            channel2_real_path = joinPath(tap_dir, stem.str() + "_channel2_real.npy");
+            channel2_imag_path = joinPath(tap_dir, stem.str() + "_channel2_imag.npy");
             after_real_path = joinPath(tap_dir, stem.str() + "_after_real.npy");
             after_imag_path = joinPath(tap_dir, stem.str() + "_after_imag.npy");
             ctdr_channel1_real_path = joinPath(tap_dir, stem.str() + "_ctdr_channel1_real.npy");
@@ -535,6 +552,18 @@ bool writeCsiMetricsTap(const Config& cfg,
                                  static_cast<std::size_t>(rows),
                                  static_cast<std::size_t>(cols), error) ||
                 !writeNpyFloat32(channel2_path, channel2_power,
+                                 static_cast<std::size_t>(rows),
+                                 static_cast<std::size_t>(cols), error) ||
+                !writeNpyFloat32(channel1_real_path, channel1_real,
+                                 static_cast<std::size_t>(rows),
+                                 static_cast<std::size_t>(cols), error) ||
+                !writeNpyFloat32(channel1_imag_path, channel1_imag,
+                                 static_cast<std::size_t>(rows),
+                                 static_cast<std::size_t>(cols), error) ||
+                !writeNpyFloat32(channel2_real_path, channel2_real,
+                                 static_cast<std::size_t>(rows),
+                                 static_cast<std::size_t>(cols), error) ||
+                !writeNpyFloat32(channel2_imag_path, channel2_imag,
                                  static_cast<std::size_t>(rows),
                                  static_cast<std::size_t>(cols), error) ||
                 !writeNpyFloat32(after_real_path, csi_after_real,
@@ -588,6 +617,8 @@ bool writeCsiMetricsTap(const Config& cfg,
                     "alignment_mode,"
                     "p38_k_rad_per_hz,p38_b_rad,before_power_path,after_power_path,"
                     "channel1_power_path,channel2_power_path,"
+                    "channel1_real_path,channel1_imag_path,"
+                    "channel2_real_path,channel2_imag_path,"
                     "after_real_path,after_imag_path,"
                     "ctdr_channel1_real_path,ctdr_channel1_imag_path,"
                     "ctdr_channel2_real_path,ctdr_channel2_imag_path,"
@@ -613,6 +644,8 @@ bool writeCsiMetricsTap(const Config& cfg,
              << std::setprecision(15) << csi_phase_fit[0] << ',' << csi_phase_fit[1] << ','
              << csvEscape(before_path) << ',' << csvEscape(after_path) << ','
              << csvEscape(channel1_path) << ',' << csvEscape(channel2_path) << ','
+             << csvEscape(channel1_real_path) << ',' << csvEscape(channel1_imag_path) << ','
+             << csvEscape(channel2_real_path) << ',' << csvEscape(channel2_imag_path) << ','
              << csvEscape(after_real_path) << ',' << csvEscape(after_imag_path) << ','
              << csvEscape(ctdr_channel1_real_path) << ',' << csvEscape(ctdr_channel1_imag_path) << ','
              << csvEscape(ctdr_channel2_real_path) << ',' << csvEscape(ctdr_channel2_imag_path) << ','

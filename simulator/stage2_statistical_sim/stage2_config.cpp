@@ -759,6 +759,8 @@ bool loadStage2Config(const std::string &path, Stage2Config &cfg, std::string &e
     cfg.scene.area.mean_power = jsonDouble(area, "mean_power", cfg.scene.area.mean_power);
     cfg.scene.area.texture_sigma = jsonDouble(area, "texture_sigma", cfg.scene.area.texture_sigma);
     cfg.scene.area.spatial_cell_m = jsonDouble(area, "spatial_cell_m", cfg.scene.area.spatial_cell_m);
+    cfg.scene.area.temporal_correlation_rho = jsonDouble(
+        area, "temporal_correlation_rho", cfg.scene.area.temporal_correlation_rho);
     cfg.scene.area.azimuth_subcell_count =
         jsonInt(area, "azimuth_subcell_count", cfg.scene.area.azimuth_subcell_count);
     const std::string strong = sectionObject(scene, "strong_scatterers");
@@ -864,7 +866,7 @@ bool writeDefaultStage2Config(const std::string &path, std::string &err)
         "    \"range_min_m\": 82800.0, \"range_max_m\": 93000.0,\n"
         "    \"azimuth_min_deg\": -60.0, \"azimuth_max_deg\": 60.0, \"ground_z_m\": 0.0,\n"
         "    \"clutter_amplitude_scale\": 1.0,\n"
-        "    \"area_clutter\": {\"enabled\": true, \"model\": \"rayleigh_lognormal_texture\", \"scatterer_count\": 1000, \"mean_power\": 1.0, \"texture_sigma\": 0.4, \"spatial_cell_m\": 30.0, \"azimuth_subcell_count\": 9},\n"
+        "    \"area_clutter\": {\"enabled\": true, \"model\": \"rayleigh_lognormal_texture\", \"scatterer_count\": 1000, \"mean_power\": 1.0, \"texture_sigma\": 0.4, \"spatial_cell_m\": 30.0, \"temporal_correlation_rho\": 1.0, \"azimuth_subcell_count\": 9},\n"
         "    \"strong_scatterers\": {\"enabled\": true, \"count\": 20, \"rcs_db_min\": 10.0, \"rcs_db_max\": 30.0},\n"
         "    \"line_scatterers\": {\"enabled\": true, \"line_count\": 1, \"points_per_line\": 50, \"rcs_db\": 12.0},\n"
         "    \"thermal_noise\": {\"enabled\": true, \"noise_power\": 0.01, \"include_target_only\": false}\n"
@@ -1283,6 +1285,8 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
                 jsonDouble(area, "texture_sigma", cfg.scene.area.texture_sigma);
             cfg.scene.area.spatial_cell_m =
                 jsonDouble(area, "spatial_cell_m", cfg.scene.area.spatial_cell_m);
+            cfg.scene.area.temporal_correlation_rho = jsonDouble(
+                area, "temporal_correlation_rho", cfg.scene.area.temporal_correlation_rho);
             cfg.scene.area.azimuth_subcell_count =
                 jsonInt(area, "azimuth_subcell_count", cfg.scene.area.azimuth_subcell_count);
         }
@@ -1462,6 +1466,12 @@ bool validateStage2RunConfig(const Stage2RunConfig &run, std::string &err)
     if (run.cfg.scene.area.azimuth_subcell_count < 1 ||
         run.cfg.scene.area.azimuth_subcell_count > 257) {
         err = "area_clutter.azimuth_subcell_count must be in [1,257]";
+        return false;
+    }
+    if (!std::isfinite(run.cfg.scene.area.temporal_correlation_rho) ||
+        run.cfg.scene.area.temporal_correlation_rho < 0.0 ||
+        run.cfg.scene.area.temporal_correlation_rho > 1.0) {
+        err = "area_clutter.temporal_correlation_rho must be in [0,1]";
         return false;
     }
     if (run.cfg.sim.beam_start_1based < 1 ||

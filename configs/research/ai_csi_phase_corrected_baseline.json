@@ -1,0 +1,63 @@
+{
+  "case_id": "ai_csi_phase_corrected_current_baseline",
+  "method_name": "Current CSI (phase-corrected + H0 coherence gate)",
+  "status": "frozen_algorithm_definition_calibration_scalar_not_frozen",
+  "ai_training": false,
+  "phase_definition": {
+    "reuse_source": "physical beam theta lookup in the source full-scan background, not stream offset",
+    "cross_channel_complex_product": "F1 * conj(F2)",
+    "phase_estimate": "arg(sum(F1 * conj(F2)))",
+    "correction": "F2 *= exp(+j * phi)",
+    "sign_flip": false
+  },
+  "h0_gate": {
+    "enabled": true,
+    "coherence_definition": "row-level complex coherence over the valid support",
+    "threshold_rho": 0.5,
+    "rho_below_threshold": "channel-1 bypass; skip min-amplitude equalization and CSI subtraction",
+    "rho_at_or_above_threshold": "normal Current CSI path"
+  },
+  "workspace": {
+    "persistent_stride_policy": "preserve the largest allocated single-buffer byte size across cropped initcuFFTPlans calls",
+    "known_failure_guard": "packed new-protocol input must fit the persistent CUDA workspace"
+  },
+  "calibration": {
+    "manifest": "outputs/ai_csi_phase_corrected_baseline/calibration_phase_corrected_gate.json",
+    "formal_scalar": null,
+    "interpretation": "use paired output SCNR records and do not apply a single historical gain_db"
+  },
+  "validated_production_runs": [
+    {
+      "case": "single_beam_source_equivalent",
+      "config": "outputs/phase_a_reuse_source_equivalent/config/temp_config_stage2_period_0000.xml",
+      "result": "outputs/phase_a_reuse_source_equivalent/algorithm_result/period_0000",
+      "observed": "rho=0.99325982, phase RMSE=0.11680659 rad, CSI cancellation=18.697901 dB"
+    },
+    {
+      "case": "three_beam_source_equivalent",
+      "config": "outputs/phase_a_reuse_14_16_3period/config/temp_config_stage2_period_0000.xml",
+      "result": "outputs/phase_a_reuse_14_16_3period/algorithm_result/period_0000",
+      "observed": "beam14 rho=0.9941032 / 19.237249 dB; beam15 rho=0.99325982 / 18.697901 dB; beam16 rho=0.97625727 / 13.233184 dB"
+    },
+    {
+      "case": "h0_gate_ab",
+      "configs": [
+        "outputs/h0_gate_ab/gate_false/config.xml",
+        "outputs/h0_gate_ab/gate_true/config.xml"
+      ],
+      "observed": "pure-noise A/B: gate=true bypassed 75/75 rows and removed false-gate split in-band hits"
+    },
+    {
+      "case": "same_process_three_period_workspace",
+      "config": "outputs/phase_a_workspace_3period/config.xml",
+      "observed": "three consecutive cycles completed without CUDA workspace overflow"
+    }
+  ],
+  "reproducibility": {
+    "source_workspace": "/home/shy/AIR/小长/GMTI程序/GMTI/GMTI_algorithm/GMTI_APX15_CUDA_latest",
+    "target_workspace": "/home/shy/AIR/SAR+AI/project/PGRCC",
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "driver": "580.173.02",
+    "cuda": "13.0"
+  }
+}

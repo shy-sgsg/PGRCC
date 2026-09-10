@@ -206,6 +206,11 @@ bool GMTIProcessor::initcuFFTPlans(const Config &cfg) {
         const std::size_t packed_slot_bytes = (packed_bytes + 3U) / 4U;
         single_buf_bytes = std::max(single_buf_bytes, packed_slot_bytes);
     }
+    // processOnePeriod() may temporarily shrink cfg.pulse_len after raw pulse
+    // compression.  Keep the largest packed-input stride for the lifetime of
+    // this worker; otherwise a later period can exceed the persistent staging
+    // slot and silently fall back from CUDA.
+    single_buf_bytes = std::max(single_buf_bytes, gpu_single_buffer_bytes_);
     size_t needed_bytes = 7 * single_buf_bytes + Nr * sizeof(cudacd); // 7 个主缓冲区 + 距离向相位校正中间结果
     gpu_single_buffer_bytes_ = single_buf_bytes;
 

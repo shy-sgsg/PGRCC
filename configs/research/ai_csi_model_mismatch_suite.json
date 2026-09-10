@@ -1,0 +1,156 @@
+{
+  "schema_version": 1,
+  "suite_id": "ai_csi_model_mismatch_m1_m2_m3",
+  "status": "first_round_only_no_ai_training",
+  "base_scenario": {
+    "case_id": "ai_csi_mismatch_baseline",
+    "output_dir": "outputs/ai_csi_model_mismatch/baseline",
+    "scan_mode": "electronic",
+    "scene_mode": "full",
+    "truth_output": true,
+    "waveform": {
+      "fc_ghz": 16.472113076923076,
+      "bandwidth_mhz": 50.0,
+      "fs_mhz": 60.0,
+      "tr_us": 130.0,
+      "prf_hz": 1300.0,
+      "pulse_len": 11840,
+      "acquired_pulse_len": 11820,
+      "pulse_num": 128,
+      "d_chan_m": 0.17,
+      "iq_data_type": "float32",
+      "new_protocol_channel_count": 4,
+      "new_protocol_read_channel_1": 1,
+      "new_protocol_read_channel_2": 2
+    },
+    "range_processing": {
+      "range_fft_len": 12288,
+      "range_crop_start": 3864,
+      "range_crop_len": 4096,
+      "sample_delay_us": 488.0
+    },
+    "scan": {
+      "scan_min_deg": 0.0,
+      "scan_step_deg": 2.0,
+      "beam_count": 1,
+      "beam_width_deg": 1.81871,
+      "beam_index_base": 1
+    },
+    "platform": {
+      "speed_mps": 60.0,
+      "height_m": 6000.0,
+      "origin_lat_deg": 40.4512107203,
+      "origin_lon_deg": 116.985931582,
+      "origin_alt_m": 6000.0,
+      "projection_ref_lon_deg": 117.0,
+      "squint_side": 1
+    },
+    "channel_geometry": {
+      "channel_1": {"name": "left_a", "x_m": -0.085, "y_m": 0.0, "z_m": 0.085},
+      "channel_2": {"name": "right_a", "x_m": 0.085, "y_m": 0.0, "z_m": 0.085},
+      "channel_3": {"name": "left_b", "x_m": -0.085, "y_m": 0.0, "z_m": -0.085},
+      "channel_4": {"name": "right_b", "x_m": 0.085, "y_m": 0.0, "z_m": -0.085}
+    },
+    "random": {
+      "period_start": 0,
+      "period_count": 1,
+      "beam_start": 1,
+      "beam_count": 1,
+      "random_seed": 2026091011,
+      "four_channel_phase_center_mode": "physical"
+    },
+    "scene": {
+      "mode": "full",
+      "signal_only": false,
+      "output_signal_domain": "raw_lfm",
+      "range_min_m": 82800.0,
+      "range_max_m": 93000.0,
+      "azimuth_min_deg": -60.0,
+      "azimuth_max_deg": 60.0,
+      "ground_z_m": 0.0,
+      "clutter_amplitude_scale": 1.0,
+      "area_clutter": {
+        "enabled": true,
+        "model": "continuous_texture",
+        "scatterer_count": 0,
+        "mean_power": 1.0,
+        "texture_sigma": 0.4,
+        "spatial_cell_m": 300.0,
+        "temporal_correlation_rho": 1.0,
+        "azimuth_subcell_count": 3
+      },
+      "strong_scatterers": {"enabled": false, "count": 0},
+      "line_scatterers": {"enabled": false, "line_count": 0, "points_per_line": 0},
+      "thermal_noise": {"enabled": true, "noise_power": 0.01, "include_target_only": false}
+    },
+    "channel_impairments": {
+      "enabled": false,
+      "channel_time_delay_ns": 0.0,
+      "per_pulse_phase_drift_deg": 0.0,
+      "channel_phase_jitter_std_deg": 0.0,
+      "per_beam_phase_bias_deg": 0.0
+    },
+    "targets": [
+      {
+        "target_id": "MISMATCH_B01_S000_R00",
+        "enabled": true,
+        "init": {"type": "beam_bin_azimuth_offset", "beam_id": 1, "expected_bin": 160, "azimuth_offset_deg": 0.0},
+        "motion": {"type": "enu_velocity", "ve_mps": -12.0, "vn_mps": 9.0},
+        "amplitude": {"type": "snr_db", "snr_db": 0.0},
+        "visibility": {"type": "hard_gate", "single_beam_only": true}
+      }
+    ]
+  },
+  "production_baseline": {
+    "name": "Phase-Corrected + H0-gated Current",
+    "csi_row_coherence_gate_enable": true,
+    "csi_row_coherence_min": 0.5,
+    "ai_training": false
+  },
+  "families": [
+    {
+      "id": "M1_fractional_channel_delay",
+      "kind": "channel_time_delay_ns",
+      "json_path": "channel_impairments.channel_time_delay_ns",
+      "sanity": "raw fast-time cross-spectrum phase slope",
+      "levels": [
+        {"name": "zero", "value": 0.0},
+        {"name": "weak", "value": 2.083333333333333},
+        {"name": "moderate", "value": 4.166666666666667},
+        {"name": "strong", "value": 8.333333333333334}
+      ]
+    },
+    {
+      "id": "M2_pulse_varying_differential_phase",
+      "kind": "per_pulse_phase_drift_deg",
+      "json_path": "channel_impairments.per_pulse_phase_drift_deg",
+      "sanity": "channel_impairment_truth relative_phase_deg versus pulse_id",
+      "levels": [
+        {"name": "zero", "value": 0.0},
+        {"name": "weak", "value": 0.05},
+        {"name": "moderate", "value": 0.2},
+        {"name": "strong", "value": 0.5}
+      ]
+    },
+    {
+      "id": "M3_internal_clutter_motion",
+      "kind": "temporal_correlation_rho",
+      "json_path": "scene.area_clutter.temporal_correlation_rho",
+      "sanity": "surface-level AR(1) rho_t=1 strict static regression and rho_t<1 measured gate response",
+      "levels": [
+        {"name": "static_regression", "value": 1.0},
+        {"name": "weak_motion", "value": 0.99},
+        {"name": "moderate_motion", "value": 0.95},
+        {"name": "strong_motion", "value": 0.8}
+      ]
+    }
+  ],
+  "forbidden_as_mismatch": [
+    "wrong source beam",
+    "wrong theta header",
+    "wrong UTC",
+    "wrong PRT mapping",
+    "wrong complex multiply sign",
+    "CUDA workspace overflow"
+  ]
+}
