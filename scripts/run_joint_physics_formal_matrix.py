@@ -186,6 +186,8 @@ def scenario_for_spec(base: dict[str, Any], spec: dict[str, Any], output_dir: Pa
     scenario["output_dir"] = str((output_dir / "stage2").resolve())
     scenario.pop("paired_background_output_dir", None)
     if background_input is not None:
+        # As with paired_background_output_dir, this is the simulator run
+        # root, not its nested ``stage2`` output directory.
         scenario["background_input_dir"] = str(background_input.resolve())
     else:
         scenario.pop("background_input_dir", None)
@@ -227,7 +229,10 @@ def background_scenario(base: dict[str, Any], spec: dict[str, Any], full_dir: Pa
                         paired_dir: Path) -> dict[str, Any]:
     scenario = scenario_for_spec(base, spec, full_dir, None, "background")
     scenario["case_id"] = f"{spec['scene_id']}_background"
-    scenario["paired_background_output_dir"] = str((paired_dir / "stage2").resolve())
+    # Stage2's paired/background paths are run roots; the simulator appends
+    # config/data/truth/... itself.  Passing ``.../stage2`` would require a
+    # non-existent parent and fails during truth-directory creation.
+    scenario["paired_background_output_dir"] = str(paired_dir.resolve())
     scenario["channel_impairments"] = copy.deepcopy(base["channel_impairments"])
     scenario["channel_impairments"]["enabled"] = False
     scenario["channel_impairments"]["channel_time_delay_ns"] = 0.0
@@ -290,7 +295,7 @@ def run_scene(spec: dict[str, Any], base: dict[str, Any], root: Path,
     result: dict[str, Any] = {"spec": spec, "background": bg_result, "roles": {}}
     if bg_result["status"] != "pass":
         return result
-    background_input = background / "stage2"
+    background_input = background
     for role, target_only in (("target_off", False), ("target_on", False)):
         role_root = scene / role
         role_scenario = scenario_for_spec(
