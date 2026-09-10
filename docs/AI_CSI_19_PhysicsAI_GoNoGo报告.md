@@ -10,8 +10,10 @@
 ## 已完成证据
 
 1. **M3 模型与 floor**：AR(1) 初始化已修正；rho=0.99/0.95/0.8 的实测 lag-1
-   分别为 0.987858/0.950564/0.801862。strong M3 的 O2 上界只有 +0.2746 dB，
-   O3/O4/O5 相对 Current 反而为负；后验 O1–O5 fixed-Pfa diagnostic 没有 causal hit。
+   分别为 0.987858/0.950564/0.801862。strong M3 的 O1–O5 机制感知诊断 oracle
+   候选中，最佳观测到的诊断 headroom 只有 +0.2746 dB；O3/O4/O5 相对 Current
+   反而为负。它们不是数学上界或生产收益证明；后验 O1–O5 fixed-Pfa diagnostic
+   没有 causal hit。
 2. **M1/M2 可观测估计**：strong M1 D3=`8.3095 ns`（truth 8.3333 ns），strong
    M2 P1=`−0.4924 deg/pulse`（期望观测 −0.5）；独立生产 replay 分别达到约
    99.93% M1 known-Oracle gain 和同量级 M2 Oracle gain。

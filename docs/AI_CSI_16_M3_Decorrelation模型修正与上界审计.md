@@ -1,4 +1,4 @@
-# AI_CSI_16：M3 去相关模型修正与上界审计
+# AI_CSI_16：M3 去相关模型修正与诊断 oracle 候选审计
 
 ## 结论
 
@@ -28,7 +28,11 @@ Var(innovation) = base_abs^2 * (1-rho^2)
 每个 level 的原始诊断位于 `M3_internal_clutter_motion/<level>/stage2/reports/`；
 清理后保留 JSON/CSV/MD/XML/TXT，raw BIN、NPY、log 和 PNG 已删除。
 
-## O1–O5 上界
+## O1–O5 机制感知诊断 oracle 候选
+
+下表是基于已测 F1/F2 tap 的机制感知诊断 oracle 候选，不是可部署生产校正器，也不是
+数学意义上的性能上界或支配关系。表中只能称为本次输入、代码和评价口径下的
+**best observed diagnostic headroom**；不同输入、窗口、Pfa 或目标保护口径不能外推。
 
 | 方法 | 定义 | strong cancellation | 相对 O1 |
 |---|---|---:|---:|
@@ -42,6 +46,10 @@ Var(innovation) = base_abs^2 * (1-rho^2)
 O2–O5 只使用已测 F1/F2 tap；其 residual score 不是生产 detector，原始结果明确标记
 `target_preservation_status=not_evaluable_from_F1_F2_clutter_tap` 和
 `pfa_status=not_evaluable_from_F1_F2_clutter_tap`。
+
+因此 O1–O5 的排序不代表任意场景下的最优性；M3 的主要结论仍是
+Type-II decorrelation-dominated failure：当 CSI 内部去相关主导时，单纯依赖静态
+通道复权不能据此宣称存在可回收的生产收益。
 
 另有一个显式标注的后验诊断器
 `scripts/evaluate_m3_oracle_fixed_pfa.py`，只在 paired positive/negative 的

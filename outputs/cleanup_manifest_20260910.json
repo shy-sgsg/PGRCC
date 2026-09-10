@@ -47,5 +47,17 @@
     "remaining_deleted_pattern_files": 0
   },
   "user_requested_cleanup": true,
-  "ai_training": false
+  "ai_training": false,
+  "followup_cleanup_20260910": {
+    "deleted_untracked_file_count": 710,
+    "targets": [
+      "outputs/causal_detection_audit",
+      "outputs/mechanism_estimators",
+      "outputs/mechanism_mixed_design/cases",
+      "outputs/m3_corrected_audit/selftest_rho093"
+    ],
+    "retained": "tracked compact summaries/manifests and all source/input records",
+    "deleted_reason": "old pilot and repeated case-level intermediate artifacts were no longer required after compact audit evidence; formal V1 will write a separate /tmp output root",
+    "remaining_untracked_output_files_after_cleanup": 0
+  }
 }
