@@ -2,10 +2,12 @@
 
 ## 当前判定
 
-本阶段仍是 `ai_training=false`。fresh Test-V2 formal 已完成，但最终 gate 为
-**`UNRESOLVED`**：J5/J6 均有 0.5 dB material recovery，却没有同时满足 target
-preservation 无回归条件。因此当前既不能判 `NO_GO_AI_M1_M2`，也不能判
-`REOPEN_PHYSICS_AI`；没有任何训练授权。
+本阶段仍是 `ai_training=false`。fresh Test-V2 formal 已完成，但其 target-on/
+target-only peak preservation 指标受 residual background 和 target-only 自校准影响，
+且 recovery aggregate 混合了 validation/test 与 target-on/off，因此只能作为
+development evidence。Final Gate 保持 **`UNRESOLVED`**，不把当前约 0.2 dB
+差异直接宣称为真实目标损伤，也不授权任何训练；下一步必须完成 target-transfer
+与 test-only statistical protocol。
 
 ## 最终 gate 规则
 
@@ -26,11 +28,12 @@ preservation 无回归条件。因此当前既不能判 `NO_GO_AI_M1_M2`，也�
 ## Formal 判定证据
 
 原始 CUDA 运行来自 `669df38` 的 clean worktree；摘要修正来自 `1445f3f`，没有重新
-运行。held-out Test-V2 的 Current target preservation 中位数为 `+0.19479 dB`，
-J5 为 `+0.00032 dB`，J6 为 `-0.00978 dB`；对应 material recovery median
-分别为 `0.8426` 和 `1.0249`。J5 的 Pfa mean 为 `0.0083910`，J6 为 `0.0083717`，
-Current 为 `0.0083844`；causal Pd 三者均为 `0.1389`。因此阻塞项是 preservation
-regression，而不是缺失 formal 实验。
+运行。历史 V2 aggregate 的 J5/J6 material recovery median 为 `0.8426/1.0249`，
+但它混合了 role 和 split，不能作为纯 held-out Test-V2 recovery。Phase A 的严格
+重算只保留 `split=test AND role=target_off`，结果与 paired CFAR 见
+[`AI_CSI_25_V2FinalGate方法学审计.md`](AI_CSI_25_V2FinalGate方法学审计.md)。
+当前 gate 的正确含义是“V2 证据不足以确认最终安全性”，不是已经证明 target
+transfer regression 的物理根因。
 
 ## 当前证据
 
