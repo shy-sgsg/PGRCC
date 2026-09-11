@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "analysis": "J6 tail risk and deterministic J7 safe expert selector",
+  "source_commit": "e40d31402ba8af1568bebc0501ebf23a418451c9",
+  "formal_source_commit": "669df38de2fbb1664d3db25d2d1d1e63beb5adfc",
+  "formal_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/physics_adaptive_selective_v2_formal",
+  "ai_training": 0,
+  "strict_filter": "split=test AND role=target_off",
+  "strict_tail_row_count": 96,
+  "tail_stats": {
+    "J5_Selective_Physics_Calibration": {
+      "count": 48,
+      "mean": 0.061114838039900005,
+      "median": 0.00038345836300468505,
+      "p05": -0.03439609934915753,
+      "p10": -0.012585523378954197,
+      "p90": 0.2624919305421259,
+      "min": -0.6324271506811998,
+      "cvar5": -0.24795347182301639,
+      "fraction_lt_neg_0_1": 0.020833333333333332,
+      "fraction_lt_neg_0_5": 0.020833333333333332,
+      "fraction_lt_neg_1_0": 0.0
+    },
+    "J6_Joint_Phase_Surface": {
+      "count": 48,
+      "mean": -0.21230685583977807,
+      "median": 0.0,
+      "p05": -0.11388698332564201,
+      "p10": 0.0,
+      "p90": 0.46758934438828087,
+      "min": -16.2851011028398,
+      "cvar5": -5.639702907897511,
+      "fraction_lt_neg_0_1": 0.0625,
+      "fraction_lt_neg_0_5": 0.020833333333333332,
+      "fraction_lt_neg_1_0": 0.020833333333333332
+    }
+  },
+  "selector": {
+    "selected_profile": "strict",
+    "thresholds": {
+      "name": "strict",
+      "joint_confidence_min": 0.8,
+      "joint_rmse_max": 0.45,
+      "residual_coherence_min": 0.9,
+      "raw_coherence_min": 0.82,
+      "support_fraction_min": 0.49,
+      "delay_disagreement_max_ns": 0.5,
+      "phase_disagreement_max_deg_per_pulse": 0.15,
+      "delay_confidence_min": 0.1,
+      "phase_confidence_min": 0.1,
+      "delay_signal_min_ns": 0.5,
+      "phase_signal_min": 0.06,
+      "delay_extrapolation_ratio_max": 0.5
+    },
+    "fit_splits": [
+      "calibration",
+      "validation"
+    ],
+    "evaluation_split": "test",
+    "feature_names": [
+      "joint_confidence",
+      "joint_rmse_rad",
+      "residual_coherence",
+      "tau_ns",
+      "beta1_deg_per_pulse",
+      "beta2_deg_per_pulse2",
+      "d3_j6_delay_disagreement_ns",
+      "p1_j6_phase_disagreement_deg_per_pulse",
+      "raw_coherence",
+      "support_fraction",
+      "delay_confidence",
+      "phase_confidence",
+      "phase_signal",
+      "delay_signal",
+      "delay_extrapolation_ratio"
+    ],
+    "truth_fields_in_selector_input": 0,
+    "selection_rule": "quality/decorrelation/inconsistency/extrapolation veto -> Current; high-confidence phase or mixed -> J6; high-confidence delay -> J5; weak/zero signal -> Current",
+    "fit_result": [
+      {
+        "profile": "identity",
+        "safe_for_fit": 1,
+        "scene_count": 64,
+        "selected_count": 0,
+        "selection_rate": 0.0,
+        "selected_mean_gain_db": null,
+        "selected_p05_gain_db": null,
+        "selected_min_gain_db": null,
+        "selected_fraction_lt_neg_0_1": null,
+        "selected_fraction_lt_neg_0_5": null,
+        "selected_fraction_lt_neg_1_0": null
+      },
+      {
+        "profile": "loose",
+        "safe_for_fit": 1,
+        "scene_count": 64,
+        "selected_count": 31,
+        "selection_rate": 0.484375,
+        "selected_mean_gain_db": -0.009369300522994594,
+        "selected_p05_gain_db": -0.1624805004262555,
+        "selected_min_gain_db": -0.3562544001665202,
+        "selected_fraction_lt_neg_0_1": 0.06451612903225806,
+        "selected_fraction_lt_neg_0_5": 0.0,
+        "selected_fraction_lt_neg_1_0": 0.0
+      },
+      {
+        "profile": "balanced",
+        "safe_for_fit": 1,
+        "scene_count": 64,
+        "selected_count": 20,
+        "selection_rate": 0.3125,
+        "selected_mean_gain_db": -0.013695074489230042,
+        "selected_p05_gain_db": -0.014322407355034254,
+        "selected_min_gain_db": -0.27320445326704057,
+        "selected_fraction_lt_neg_0_1": 0.05,
+        "selected_fraction_lt_neg_0_5": 0.0,
+        "selected_fraction_lt_neg_1_0": 0.0
+      },
+      {
+        "profile": "strict",
+        "safe_for_fit": 1,
+        "scene_count": 64,
+        "selected_count": 5,
+        "selection_rate": 0.078125,
+        "selected_mean_gain_db": 0.0,
+        "selected_p05_gain_db": 0.0,
+        "selected_min_gain_db": 0.0,
+        "selected_fraction_lt_neg_0_1": 0.0,
+        "selected_fraction_lt_neg_0_5": 0.0,
+        "selected_fraction_lt_neg_1_0": 0.0
+      },
+      {
+        "profile": "very_strict",
+        "safe_for_fit": 1,
+        "scene_count": 64,
+        "selected_count": 0,
+        "selection_rate": 0.0,
+        "selected_mean_gain_db": null,
+        "selected_p05_gain_db": null,
+        "selected_min_gain_db": null,
+        "selected_fraction_lt_neg_0_1": null,
+        "selected_fraction_lt_neg_0_5": null,
+        "selected_fraction_lt_neg_1_0": null
+      }
+    ],
+    "test_result": {
+      "profile": "strict",
+      "scene_count": 64,
+      "selected_count": 9,
+      "selection_rate": 0.140625,
+      "method_counts": {
+        "J0_Current": 55,
+        "J6_Joint_Phase_Surface": 8,
+        "J5_Selective_Physics_Calibration": 1
+      },
+      "all_scene_stats": {
+        "count": 64,
+        "mean": -0.0028345678523212653,
+        "median": 0.0,
+        "p05": 0.0,
+        "p10": 0.0,
+        "p90": 0.0,
+        "min": -0.46237655719334025,
+        "cvar5": -0.12035175688716504,
+        "fraction_lt_neg_0_1": 0.015625,
+        "fraction_lt_neg_0_5": 0.0,
+        "fraction_lt_neg_1_0": 0.0
+      },
+      "selected_scene_stats": {
+        "count": 9,
+        "mean": -0.020156926949840108,
+        "median": 0.0,
+        "p05": -0.2850381224581321,
+        "p10": -0.10769968772292396,
+        "p90": 0.05999893700001989,
+        "min": -0.46237655719334025,
+        "cvar5": -0.46237655719334025,
+        "fraction_lt_neg_0_1": 0.1111111111111111,
+        "fraction_lt_neg_0_5": 0.0,
+        "fraction_lt_neg_1_0": 0.0
+      },
+      "safe_for_fit": 1
+    }
+  },
+  "stratification": [
+    "family",
+    "branch",
+    "angle",
+    "range",
+    "snr",
+    "radial_velocity",
+    "clutter_ridge",
+    "texture",
+    "rho"
+  ],
+  "outputs": {
+    "j6_tail_risk_rows": "j6_tail_risk_rows.csv",
+    "j6_tail_risk_stratified": "j6_tail_risk_stratified.csv",
+    "inference_visible_features": "inference_visible_features.csv",
+    "j7_profile_selection": "j7_profile_selection.csv",
+    "j7_selector_test_eval": "j7_selector_test_eval.csv",
+    "j7_selector_test_strict_recovery_eval": "j7_selector_test_strict_recovery_eval.csv"
+  }
+}
