@@ -482,12 +482,26 @@ def ai_gate(recovery: list[dict[str, Any]], cfar_rows: list[dict[str, Any]],
                           if row.get("split") == "test" and row.get("method") == method]
         pd_no_regression = (bool(current_hits) and bool(candidate_hits) and
                             np.mean(candidate_hits) >= np.mean(current_hits))
-        no_regression = pfa_no_regression and pd_no_regression
+        def preservation_median(method_name: str) -> float:
+            values = [finite(row.get("target_preservation_db")) for row in target_rows
+                      if row.get("split") == "test" and row.get("method") == method_name]
+            values = [value for value in values if math.isfinite(value)]
+            return float(np.median(values)) if values else math.nan
+        current_preservation = preservation_median("J0_Current")
+        candidate_preservation = preservation_median(method)
+        preservation_no_regression = (
+            math.isfinite(current_preservation) and
+            math.isfinite(candidate_preservation) and
+            candidate_preservation >= current_preservation)
+        no_regression = pfa_no_regression and pd_no_regression and preservation_no_regression
         details[method] = {
             "material_active": active_material,
             "material_recovery_ratio_median": material_ratio,
             "production_cfar_no_pfa_regression": pfa_no_regression,
             "production_pd_no_regression": pd_no_regression,
+            "target_preservation_db_current_median": current_preservation,
+            "target_preservation_db_candidate_median": candidate_preservation,
+            "target_preservation_no_regression": preservation_no_regression,
             "no_regression": no_regression,
             "training": False,
         }
