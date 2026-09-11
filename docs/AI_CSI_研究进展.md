@@ -58,6 +58,17 @@ CFAR/泛化统计和最终 gate 分别见 [`AI_CSI_21_JointGate失效归因审�
 [`AI_CSI_23_ProductionCFAR与泛化统计.md`](AI_CSI_23_ProductionCFAR与泛化统计.md)、
 [`AI_CSI_24_PhysicsAI_FinalGate.md`](AI_CSI_24_PhysicsAI_FinalGate.md)。
 
+随后已完成 fresh Test-V2 formal：48 null、16 validation、64 held-out test，8 个
+test family 各 8 个；J0–J6、evaluation-only Oracle、生产 GO-CFAR、scene-block
+bootstrap、0.5/1 dB recovery 和 fallback opportunity cost 均已实际运行。原始 CUDA
+运行来自 `669df38` 的 clean worktree，formal 结果在完整逐场景记录上由 `1445f3f`
+重算 gate 摘要；当前 `ai_training=false`，最终 gate=`UNRESOLVED`。J5/J6 的 0.5 dB
+material recovery median 分别为 `0.8426/1.0249`，但 target preservation median
+从 Current 的 `+0.19479 dB` 回落至 `+0.00032/-0.00978 dB`，因此不能进入 NO_GO
+或 REOPEN，仍不训练 AI。formal 紧凑证据保存在
+`outputs/physics_adaptive_selective_v2_formal/`，生产 CFAR 副本在
+`outputs/production_cfar_formal/`；raw runtime 中间文件已清理。
+
 ## 已完成事项
 
 | 阶段 | 状态 | 证据 |
@@ -76,6 +87,8 @@ CFAR/泛化统计和最终 gate 分别见 [`AI_CSI_21_JointGate失效归因审�
 | M1/M2/M3 paired controls | 完成，36 target-only + 36 negative-control，未训练 AI | `outputs/ai_csi_model_mismatch_metric_controls_formal_clean/manifest.json`、`outputs/ai_csi_model_mismatch_formal_clean/failure_map.csv` |
 | Physics-Adaptive Joint Calibration V1 正式矩阵 | 完成，24/8/32 场景；gate=`REOPEN_CANDIDATE`，仍不训练 AI | [`AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md`](AI_CSI_20_PhysicsAdaptiveJointCalibrationV1_正式统计报告.md)、`outputs/physics_adaptive_joint_v1_formal/formal_matrix_manifest.json` |
 | Selective Physics Calibration V2 targeted CUDA screen | 完成，12 null + 24 screen；仅为定向筛查，非最终 Test-V2 | [`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、`outputs/physics_adaptive_selective_v2_screen/formal_matrix_manifest.json` |
+| Selective Physics Calibration V2 formal Test-V2 | 完成，48/16/64 场景；gate=`UNRESOLVED`，target preservation 回归，仍不训练 AI | [`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、[`AI_CSI_24_PhysicsAI_FinalGate.md`](AI_CSI_24_PhysicsAI_FinalGate.md)、`outputs/physics_adaptive_selective_v2_formal/formal_matrix_manifest.json` |
+| Production CFAR formal 泛化统计 | 完成，1792 条 production CFAR 记录，held-out scene-block bootstrap | [`AI_CSI_23_ProductionCFAR与泛化统计.md`](AI_CSI_23_ProductionCFAR与泛化统计.md)、`outputs/production_cfar_formal/production_cfar_rows.csv` |
 
 ## V1 历史实验事实
 
@@ -197,15 +210,15 @@ regenerated-velocity 汇总，ROC 目录保留 `baseline_v2_roc_points.csv`、
 ## 证据边界
 
 历史 V2 screen/velocity/ROC 记录仍是 CPU 离线回放，不能与本轮 CUDA 证据混算；
-本轮 Phase A 和 M1/M2/M3 challenge 使用 RTX 3050 Laptop GPU（driver 580.173.02、
-CUDA 13.0）实际运行。新的 challenge 仍是单波位、单周期 compact 输入，不能外推为
+本轮 Phase A、M1/M2/M3 challenge 和 V2 formal 使用 RTX 3050 Laptop GPU（driver
+580.173.02、CUDA 13.0）实际运行。新的 challenge 仍是单波位、单周期 compact 输入，不能外推为
 生产统计泛化结论；3-seed 正例和 paired controls 已在该 compact 场景形成可追溯的
 Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU gate 语义另有
-`csi_gate_cpu_selftest` 直接回归，当前全量 CTest 为 17/17 通过。
+`csi_gate_cpu_selftest` 直接回归，当前全量 CTest 为 18/18 通过。
 
 ## 下一步（需另行进入第二阶段）
 
-formal 配置矩阵完成后，再评估小型“物理模型 + 残差学习”方案。第一候选是
+若后续重新授权，再评估小型“物理模型 + 残差学习”方案。第一候选是
 学习分数 delay、复权幅度残差和行级置信度/门控；物理融合、P38、支撑、CSI
 算子、CFAR、聚类和跟踪链保持不变。未经新的研究授权，不进入训练或端到端
 RD 网络实现。

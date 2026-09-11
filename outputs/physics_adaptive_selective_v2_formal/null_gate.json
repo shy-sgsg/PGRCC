@@ -1,0 +1,48 @@
+{
+  "schema_version": 2,
+  "calibration_set_id": "physics_selective_v2_formal_null_48",
+  "source": "zero-mismatch C+N raw-observable null population only",
+  "ai_training": false,
+  "quantiles": {
+    "deadband": 0.99,
+    "confidence": 0.05,
+    "decorrelation": 0.01
+  },
+  "sample_count": 48,
+  "thresholds": {
+    "epsilon_tau_ns": 0.7137073593768256,
+    "epsilon_phase_deg_per_pulse": 0.05933809918649128,
+    "epsilon_phase_p2_deg_per_pulse": 0.05708849136669464,
+    "confidence_tau": 9.14992676634141e-05,
+    "confidence_phase": 0.0005075155933259468,
+    "confidence_phase_p2": 0.010863708078438096,
+    "max_rmse_tau_rad": 0.08174025997439521,
+    "max_rmse_phase_rad": 0.14205429592814903,
+    "max_rmse_phase_p2_rad": 0.13977436387252568,
+    "decorrelation_pulse_coherence": 0.8210819620628214,
+    "residual_coherence_p1_pulse_floor": 0.8211027407809235,
+    "residual_coherence_p2_pulse_floor": 0.821102740780924,
+    "residual_coherence_joint_pulse_floor": 0.8900507577748306,
+    "confidence_joint": 0.7807651111714125,
+    "epsilon_phase_surface_deg_per_pulse": 0.23578936287474625
+  },
+  "null_summary": {
+    "delay_abs_min_ns": 0.010222036988599104,
+    "delay_abs_max_ns": 0.7572504154199374,
+    "phase_abs_min_deg_per_pulse": 0.000842956920740174,
+    "phase_abs_max_deg_per_pulse": 0.06405030742292665,
+    "pulse_coherence_min": 0.8154258245042714,
+    "pulse_coherence_max": 0.9050489475364848
+  },
+  "selective_calibration": {
+    "purpose": "false-activation/decorrelation floors only; positive mismatch quality is frozen separately from calibration+validation",
+    "available_fields": [
+      "confidence_joint",
+      "epsilon_phase_surface_deg_per_pulse",
+      "residual_coherence_joint_pulse_floor",
+      "residual_coherence_p1_pulse_floor",
+      "residual_coherence_p2_pulse_floor"
+    ],
+    "null_rmse_not_positive_gate": true
+  }
+}
