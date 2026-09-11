@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "case_id": "physics_ai_final_gate_v3",
+  "status": "frozen_before_cuda_run",
+  "ai_training": false,
+  "scene_count": 64,
+  "design": {
+    "layout": "8 mechanism families x 8 SNR levels",
+    "families": [
+      "zero",
+      "M1",
+      "M2",
+      "M3",
+      "M1+M2",
+      "M1+M3",
+      "M2+M3",
+      "M1+M2+M3"
+    ],
+    "snr_db": [10, 12, 14, 16, 18, 20, 22, 24],
+    "seed_namespace": 2026120000,
+    "seed_policy": "2026120000 + level*8 + family_index; disjoint from V2 and Phase-B audit seeds",
+    "multi_target": false,
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S-only"
+    },
+    "primary_correction_source": "target_off",
+    "same_background_for_paired_roles": true
+  },
+  "methods": [
+    "J0_Current",
+    "J5_Selective_Physics_Calibration",
+    "J6_Joint_Phase_Surface",
+    "J7_Deterministic_Safe_Expert_Selector",
+    "Oracle_Safe_Lambda_0_EvaluationOnly"
+  ],
+  "j7_selector": {
+    "profile": "strict",
+    "fit_source": "frozen Phase-C calibration+validation only",
+    "test_v3_thresholds": {
+      "joint_confidence_min": 0.8,
+      "joint_rmse_max": 0.45,
+      "residual_coherence_min": 0.9,
+      "raw_coherence_min": 0.82,
+      "support_fraction_min": 0.49,
+      "delay_disagreement_max_ns": 0.5,
+      "phase_disagreement_max_deg_per_pulse": 0.15,
+      "delay_confidence_min": 0.1,
+      "phase_confidence_min": 0.1,
+      "delay_signal_min_ns": 0.5,
+      "phase_signal_min": 0.06,
+      "delay_extrapolation_ratio_max": 0.5
+    },
+    "truth_fields_in_input": false
+  },
+  "target_safe_oracle": {
+    "evaluation_only": true,
+    "safe_lambda_j5": 0.0,
+    "safe_lambda_j6": 0.0,
+    "lambda_grid": [0, 0.25, 0.5, 0.75, 1],
+    "nonzero_lambda_safe_headroom_not_established": true
+  },
+  "final_gate_guardrails": {
+    "causal_transfer_floor_db": -0.25,
+    "paired_pd_no_loss": true,
+    "target_off_pfa_delta_max": 0.0,
+    "target_off_false_clusters_delta_max": 0.0,
+    "ai_training_must_remain_false": true
+  },
+  "outputs": {
+    "directory": "outputs/physics_ai_final_gate_v3",
+    "raw_scene_cleanup": true,
+    "retain": "compact transfer/detection/CFAR/selector summaries, manifests, resource snapshots"
+  }
+}
