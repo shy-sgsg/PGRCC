@@ -736,11 +736,11 @@ def main() -> int:
     write_csv(output / "deployment_calibration_check.csv", deployment_rows_all)
     write_csv(output / "scene_summary.csv", [
         {
-            "split": item["scene"]["spec"]["split"],
-            "scene_id": item["scene"]["spec"]["scene_id"],
-            "family": item["scene"]["spec"]["label"],
-            "snr_db": item["scene"]["spec"]["snr_db"],
-            "status": item["scene"]["status"],
+            "split": item["spec"]["split"],
+            "scene_id": item["spec"]["scene_id"],
+            "family": item["spec"]["label"],
+            "snr_db": item["spec"]["snr_db"],
+            "status": item["status"],
         }
         for item in scene_rows
     ])
