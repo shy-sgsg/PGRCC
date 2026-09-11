@@ -413,6 +413,10 @@ def recovery_rows(scene_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
                     "current_cancellation_db": current,
                     "deterministic_cancellation_db": cancellation(row),
                     "oracle_cancellation_db": oracle,
+                    "fallback_opportunity_cost_db": (
+                        v1.recovery_metrics(current, cancellation(row), oracle)
+                        .get("recoverable_headroom_db")
+                        if bool(row.get("fallback")) else 0.0),
                     **v1.recovery_metrics(current, cancellation(row), oracle),
                 })
     return output
@@ -428,8 +432,12 @@ def recovery_summary(rows: list[dict[str, Any]], material_headroom_db: float = 0
         material_active = [row for row in material if row.get("active")]
         ratios = [finite(row.get("recovery_ratio")) for row in material_active]
         ratios = [value for value in ratios if math.isfinite(value)]
-        costs = [finite(row.get("recoverable_headroom_db")) for row in items if row.get("fallback")]
-        costs = [value for value in costs if math.isfinite(value)]
+        all_fallback_costs = [finite(row.get("fallback_opportunity_cost_db"))
+                              for row in items if row.get("fallback")]
+        all_fallback_costs = [value for value in all_fallback_costs if math.isfinite(value)]
+        material_costs = [finite(row.get("fallback_opportunity_cost_db"))
+                          for row in material if row.get("fallback")]
+        material_costs = [value for value in material_costs if math.isfinite(value)]
         gains = [finite(row.get("deterministic_gain_db")) for row in finite_rows]
         gains = [value for value in gains if math.isfinite(value)]
         output.append({
@@ -441,8 +449,12 @@ def recovery_summary(rows: list[dict[str, Any]], material_headroom_db: float = 0
             "material_active_count": len(material_active),
             "material_recovery_ratio_median": float(np.median(ratios)) if ratios else math.nan,
             "material_recovery_ratio_min": float(np.min(ratios)) if ratios else math.nan,
-            "material_fallback_opportunity_cost_db_sum": float(np.sum(costs)) if costs else 0.0,
-            "material_fallback_count": len(costs),
+            "fallback_opportunity_cost_db_sum": float(np.sum(all_fallback_costs))
+            if all_fallback_costs else 0.0,
+            "fallback_count": len(all_fallback_costs),
+            "material_fallback_opportunity_cost_db_sum": float(np.sum(material_costs))
+            if material_costs else 0.0,
+            "material_fallback_count": len(material_costs),
         })
     return output
 
