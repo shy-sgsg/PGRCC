@@ -1,0 +1,826 @@
+{
+  "schema_version": 1,
+  "analysis": "Target-Safe Physics Oracle",
+  "source_commit": "a44c55a5fc786bca899eb1d9745b510e069b85c4",
+  "worktree_dirty": 1,
+  "ai_training": 0,
+  "evaluation_only": 1,
+  "formal_source_commit": "669df38de2fbb1664d3db25d2d1d1e63beb5adfc",
+  "design": {
+    "scene_count": 12,
+    "snr_values_db": [
+      14.0,
+      16.0
+    ],
+    "families": [
+      "M1",
+      "M2",
+      "M1+M2",
+      "M1+M3",
+      "M2+M3",
+      "M1+M2+M3"
+    ],
+    "seed_namespace": "2026111000 audit replay",
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S-only"
+    },
+    "same_seed_geometry_mismatch": 1,
+    "primary_calibration_source": "target_off",
+    "not_used_for_threshold_fit": 1
+  },
+  "lambda_values": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "lambda_definition": "scale frozen OFF-derived estimated delay and phase correction; lambda=0 is Current identity and lambda=1 is full frozen replay",
+  "constraints": {
+    "causal_transfer_floor_db": -0.25,
+    "paired_causal_pd": "no loss overall and at every SNR point",
+    "pfa": "target-off mean delta <= 0 versus Current",
+    "false_clusters": "target-off mean delta <= 0 versus Current"
+  },
+  "identity_checks": {
+    "lambda_zero_equals_current": 1,
+    "lambda_one_equals_full_frozen_plan": 1
+  },
+  "safe_lambdas": {
+    "J5_Selective_Physics_Calibration": [
+      0.0
+    ],
+    "J6_Joint_Phase_Surface": [
+      0.0
+    ]
+  },
+  "best_safe_lambda": {
+    "J5_Selective_Physics_Calibration": 0.0,
+    "J6_Joint_Phase_Surface": 0.0
+  },
+  "counts": {
+    "scene_count": 12,
+    "transfer_rows": 132,
+    "detection_rows": 132,
+    "cfar_rows": 264
+  },
+  "outputs": {
+    "oracle_transfer_rows": "oracle_transfer_rows.csv",
+    "oracle_detection_rows": "oracle_detection_rows.csv",
+    "oracle_cfar_rows": "oracle_cfar_rows.csv",
+    "oracle_summary": "oracle_summary.csv",
+    "oracle_constraints": "oracle_constraints.csv"
+  },
+  "cleanup": {
+    "raw_scene_cleanup": 1,
+    "retained": "compact transfer, detection, CFAR, summary, constraints, manifest, resource snapshots"
+  },
+  "scene_records": [
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_000",
+        "split": "target_safe_oracle",
+        "label": "M1",
+        "seed": 2026111000,
+        "squint_deg": -0.25,
+        "scan_min_deg": -20.0,
+        "look_angle_deg": -80.0,
+        "range_bin": 350,
+        "snr_db": 14.0,
+        "ve_mps": -19.81031768622291,
+        "vn_mps": -8.692025838141749,
+        "texture_sigma": 0.25,
+        "rho": 0.82,
+        "delay_ns": 6.0,
+        "phase_deg": 0.0,
+        "multi_target": 0,
+        "near_clutter_ridge": 1,
+        "high_speed_target": 1
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D1P0",
+          "apply_delay": 1,
+          "apply_phase": 0,
+          "estimated_delay_ns": 5.7647705413425685,
+          "estimated_phase_slope_deg_per_pulse": -0.0032483643941931496,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D1P0",
+          "apply_delay": 1,
+          "apply_phase": 0,
+          "estimated_delay_ns": 4.557735936589327,
+          "estimated_phase_slope_deg_per_pulse": 0.003132147025273775,
+          "estimated_beta2_deg_per_pulse2": -1.221010331168598e-05,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_001",
+        "split": "target_safe_oracle",
+        "label": "M2",
+        "seed": 2026111001,
+        "squint_deg": 0.0,
+        "scan_min_deg": -10.0,
+        "look_angle_deg": -70.0,
+        "range_bin": 487,
+        "snr_db": 14.0,
+        "ve_mps": -11.621782686195292,
+        "vn_mps": -8.540150302825548,
+        "texture_sigma": 0.35,
+        "rho": 0.86,
+        "delay_ns": 0.0,
+        "phase_deg": 0.47,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 0
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D0P1",
+          "apply_delay": 0,
+          "apply_phase": 1,
+          "estimated_delay_ns": 0.06633081753323664,
+          "estimated_phase_slope_deg_per_pulse": -0.46432697000530554,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D0P1",
+          "apply_delay": 0,
+          "apply_phase": 1,
+          "estimated_delay_ns": -0.012898934216554123,
+          "estimated_phase_slope_deg_per_pulse": -0.5677735142291641,
+          "estimated_beta2_deg_per_pulse2": 0.0008289308343266004,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_002",
+        "split": "target_safe_oracle",
+        "label": "M1+M2",
+        "seed": 2026111002,
+        "squint_deg": 0.25,
+        "scan_min_deg": 0.0,
+        "look_angle_deg": -60.0,
+        "range_bin": 624,
+        "snr_db": 14.0,
+        "ve_mps": -6.000000000000002,
+        "vn_mps": -10.392304845413264,
+        "texture_sigma": 0.45,
+        "rho": 0.8999999999999999,
+        "delay_ns": 8.4,
+        "phase_deg": 0.59,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 0
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 8.351228070956145,
+          "estimated_phase_slope_deg_per_pulse": -0.6131156842982681,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 8.325062875198048,
+          "estimated_phase_slope_deg_per_pulse": -0.5292518727036294,
+          "estimated_beta2_deg_per_pulse2": -0.0006545588925982156,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_003",
+        "split": "target_safe_oracle",
+        "label": "M1+M3",
+        "seed": 2026111003,
+        "squint_deg": -0.25,
+        "scan_min_deg": 10.0,
+        "look_angle_deg": -50.0,
+        "range_bin": 761,
+        "snr_db": 14.0,
+        "ve_mps": -1.5850957712866487,
+        "vn_mps": -14.334834194920052,
+        "texture_sigma": 0.55,
+        "rho": 0.76,
+        "delay_ns": 9.6,
+        "phase_deg": 0.0,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 0
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 9.561634515947091,
+          "estimated_phase_slope_deg_per_pulse": -0.030544453366240044,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 10.35606284433288,
+          "estimated_phase_slope_deg_per_pulse": 0.05053267580085318,
+          "estimated_beta2_deg_per_pulse2": -0.0006597121272206176,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_004",
+        "split": "target_safe_oracle",
+        "label": "M2+M3",
+        "seed": 2026111004,
+        "squint_deg": 0.0,
+        "scan_min_deg": 20.0,
+        "look_angle_deg": -40.0,
+        "range_bin": 898,
+        "snr_db": 14.0,
+        "ve_mps": 2.377643656929971,
+        "vn_mps": -21.502251292380073,
+        "texture_sigma": 0.25,
+        "rho": 0.52,
+        "delay_ns": 0.0,
+        "phase_deg": 0.35,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 1
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D0P1",
+          "apply_delay": 0,
+          "apply_phase": 1,
+          "estimated_delay_ns": -0.01826074067148099,
+          "estimated_phase_slope_deg_per_pulse": -0.3459434703121334,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D0P1",
+          "apply_delay": 0,
+          "apply_phase": 1,
+          "estimated_delay_ns": 0.04190204906851897,
+          "estimated_phase_slope_deg_per_pulse": -0.3244073171337705,
+          "estimated_beta2_deg_per_pulse2": -0.0001876785995019623,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_005",
+        "split": "target_safe_oracle",
+        "label": "M1+M2+M3",
+        "seed": 2026111005,
+        "squint_deg": 0.25,
+        "scan_min_deg": -20.0,
+        "look_angle_deg": -80.0,
+        "range_bin": 1035,
+        "snr_db": 14.0,
+        "ve_mps": -19.81031768622291,
+        "vn_mps": -8.692025838141749,
+        "texture_sigma": 0.35,
+        "rho": 0.6,
+        "delay_ns": 7.2,
+        "phase_deg": 0.47,
+        "multi_target": 0,
+        "near_clutter_ridge": 1,
+        "high_speed_target": 1
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D1P1",
+          "apply_delay": 1,
+          "apply_phase": 1,
+          "estimated_delay_ns": 7.003662728805136,
+          "estimated_phase_slope_deg_per_pulse": -0.4764165815490607,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D1P1",
+          "apply_delay": 1,
+          "apply_phase": 1,
+          "estimated_delay_ns": 6.3625432500404155,
+          "estimated_phase_slope_deg_per_pulse": -0.48851619384183714,
+          "estimated_beta2_deg_per_pulse2": 8.829231626579482e-05,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_006",
+        "split": "target_safe_oracle",
+        "label": "M1",
+        "seed": 2026111006,
+        "squint_deg": -0.25,
+        "scan_min_deg": -10.0,
+        "look_angle_deg": -70.0,
+        "range_bin": 1172,
+        "snr_db": 16.0,
+        "ve_mps": -8.885621539589941,
+        "vn_mps": -1.0226093365382827,
+        "texture_sigma": 0.45,
+        "rho": 0.8999999999999999,
+        "delay_ns": 8.4,
+        "phase_deg": 0.0,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 0
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 8.086902595198323,
+          "estimated_phase_slope_deg_per_pulse": -0.005550727414098857,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 8.327120242621628,
+          "estimated_phase_slope_deg_per_pulse": -0.05097000741467378,
+          "estimated_beta2_deg_per_pulse2": 0.0003151121128029403,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_007",
+        "split": "target_safe_oracle",
+        "label": "M2",
+        "seed": 2026111007,
+        "squint_deg": 0.0,
+        "scan_min_deg": 0.0,
+        "look_angle_deg": -60.0,
+        "range_bin": 1309,
+        "snr_db": 16.0,
+        "ve_mps": -2.0000000000000004,
+        "vn_mps": -3.4641016151377544,
+        "texture_sigma": 0.55,
+        "rho": 0.94,
+        "delay_ns": 0.0,
+        "phase_deg": 0.71,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 0
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D1P1",
+          "apply_delay": 1,
+          "apply_phase": 1,
+          "estimated_delay_ns": -0.7147416023591473,
+          "estimated_phase_slope_deg_per_pulse": -0.7271059516986171,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D1P1",
+          "apply_delay": 1,
+          "apply_phase": 1,
+          "estimated_delay_ns": -0.001593450333606502,
+          "estimated_phase_slope_deg_per_pulse": -0.7198250214927177,
+          "estimated_beta2_deg_per_pulse2": -8.167401688123577e-05,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_008",
+        "split": "target_safe_oracle",
+        "label": "M1+M2",
+        "seed": 2026111008,
+        "squint_deg": 0.25,
+        "scan_min_deg": 10.0,
+        "look_angle_deg": -50.0,
+        "range_bin": 1446,
+        "snr_db": 16.0,
+        "ve_mps": 3.5572051062056667,
+        "vn_mps": -8.206478649968227,
+        "texture_sigma": 0.25,
+        "rho": 0.82,
+        "delay_ns": 6.0,
+        "phase_deg": 0.35,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 0
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D1P1",
+          "apply_delay": 1,
+          "apply_phase": 1,
+          "estimated_delay_ns": 5.9329866068344055,
+          "estimated_phase_slope_deg_per_pulse": -0.36007840408201114,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D1P1",
+          "apply_delay": 1,
+          "apply_phase": 1,
+          "estimated_delay_ns": 4.5057864561796315,
+          "estimated_phase_slope_deg_per_pulse": -0.4294644452812116,
+          "estimated_beta2_deg_per_pulse2": 0.0006156286882583914,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_009",
+        "split": "target_safe_oracle",
+        "label": "M1+M3",
+        "seed": 2026111009,
+        "squint_deg": -0.25,
+        "scan_min_deg": 20.0,
+        "look_angle_deg": -40.0,
+        "range_bin": 1583,
+        "snr_db": 16.0,
+        "ve_mps": 8.505999201881796,
+        "vn_mps": -16.359950414887763,
+        "texture_sigma": 0.35,
+        "rho": 0.6,
+        "delay_ns": 7.2,
+        "phase_deg": 0.0,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 1
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D1P0",
+          "apply_delay": 1,
+          "apply_phase": 0,
+          "estimated_delay_ns": 7.18224815354117,
+          "estimated_phase_slope_deg_per_pulse": 0.011408717572985866,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D1P0",
+          "apply_delay": 1,
+          "apply_phase": 0,
+          "estimated_delay_ns": 6.3932172995144,
+          "estimated_phase_slope_deg_per_pulse": -0.03615638641891786,
+          "estimated_beta2_deg_per_pulse2": 0.00035724762630785057,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_010",
+        "split": "target_safe_oracle",
+        "label": "M2+M3",
+        "seed": 2026111010,
+        "squint_deg": 0.0,
+        "scan_min_deg": -20.0,
+        "look_angle_deg": -80.0,
+        "range_bin": 470,
+        "snr_db": 16.0,
+        "ve_mps": -18.421132264887465,
+        "vn_mps": -0.8135638140440844,
+        "texture_sigma": 0.45,
+        "rho": 0.68,
+        "delay_ns": 0.0,
+        "phase_deg": 0.59,
+        "multi_target": 0,
+        "near_clutter_ridge": 1,
+        "high_speed_target": 1
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D0P1",
+          "apply_delay": 0,
+          "apply_phase": 1,
+          "estimated_delay_ns": 0.0753938635284092,
+          "estimated_phase_slope_deg_per_pulse": -0.5816055150825806,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D0P1",
+          "apply_delay": 0,
+          "apply_phase": 1,
+          "estimated_delay_ns": 0.06358249046139725,
+          "estimated_phase_slope_deg_per_pulse": -0.6190072512335636,
+          "estimated_beta2_deg_per_pulse2": 0.0003054435506372688,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    },
+    {
+      "spec": {
+        "scene_id": "target_safe_oracle_011",
+        "split": "target_safe_oracle",
+        "label": "M1+M2+M3",
+        "seed": 2026111011,
+        "squint_deg": 0.25,
+        "scan_min_deg": -10.0,
+        "look_angle_deg": -70.0,
+        "range_bin": 607,
+        "snr_db": 16.0,
+        "ve_mps": -8.885621539589941,
+        "vn_mps": -1.0226093365382827,
+        "texture_sigma": 0.55,
+        "rho": 0.76,
+        "delay_ns": 9.6,
+        "phase_deg": 0.71,
+        "multi_target": 0,
+        "near_clutter_ridge": 0,
+        "high_speed_target": 0
+      },
+      "status": "pass",
+      "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
+      "plans": [
+        {
+          "method": "J5_Selective_Physics_Calibration",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 9.7465051936932,
+          "estimated_phase_slope_deg_per_pulse": -0.7200117082915841,
+          "estimated_beta2_deg_per_pulse2": null,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        },
+        {
+          "method": "J6_Joint_Phase_Surface",
+          "source_role": "target_off",
+          "branch": "D0P0",
+          "apply_delay": 0,
+          "apply_phase": 0,
+          "estimated_delay_ns": 10.53653372375232,
+          "estimated_phase_slope_deg_per_pulse": -0.6959863632765677,
+          "estimated_beta2_deg_per_pulse2": -0.0001320639021426314,
+          "truth_used_in_estimator": 0,
+          "lambda_values": [
+            0.0,
+            0.25,
+            0.5,
+            0.75,
+            1.0
+          ]
+        }
+      ]
+    }
+  ]
+}

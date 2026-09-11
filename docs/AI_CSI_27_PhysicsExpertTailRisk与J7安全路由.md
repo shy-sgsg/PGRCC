@@ -70,3 +70,43 @@ Target-Safe Oracle，且 AI 训练继续关闭。
 `outputs/physics_expert_tail_risk/` 保留紧凑的 tail rows、分层汇总、inference-visible
 features、profile selection、test eval 和 manifest；没有产生或保留 raw BIN/NPY/F32/XML/
 log/PNG 中间产物。
+
+## Phase D Target-Safe Oracle 实际结果
+
+复现命令：
+
+    python3 scripts/evaluate_target_safe_oracle.py \
+      --output-dir outputs/target_safe_oracle \
+      --build-dir build \
+      --formal-dir outputs/physics_adaptive_selective_v2_formal
+
+这是 evaluation-only 的 12-scene paired replay，覆盖 transition 附近的 14/16 dB、
+六个 mismatch family；每个 scene 使用同一 OFF/ON/TO 背景和 OFF-derived frozen
+参数，按 `{0,0.25,0.5,0.75,1}` 缩放 estimated delay/phase correction。lambda=0
+与 Current identity 相同，lambda=1 是完整 frozen correction replay。不会用该结果
+拟合 J7，也不进入 AI 训练。
+
+安全约束预先固定为：每个 target 的 `L_causal >= −0.25 dB`、总体及每个 SNR
+点 paired causal Pd 不低于 Current、target-off mean Pfa delta≤0、target-off mean
+false-cluster delta≤0。实际 Current baseline 为 paired Pd=`3/12=0.25`、Pfa
+`0.0083863`、false clusters `29.1667`。
+
+| 方法 | lambda | `L_causal` min (dB) | paired Pd | ΔPfa | Δfalse clusters | safe |
+|---|---:|---:|---:|---:|---:|---:|
+| J5 | 0 | 0.000 | 0.25 | 0 | 0 | 是 |
+| J5 | 0.25 | −10.633 | 0.25 | +3.26e−5 | +1.75 | 否 |
+| J5 | 0.50 | −10.899 | 0.25 | +1.78e−5 | +2.00 | 否 |
+| J5 | 0.75 | −10.167 | 0.25 | +1.64e−5 | +1.75 | 否 |
+| J5 | 1 | −9.263 | 0.25 | +2.41e−5 | +2.08 | 否 |
+| J6 | 0 | 0.000 | 0.25 | 0 | 0 | 是 |
+| J6 | 0.25 | −10.812 | 0.25 | +3.93e−5 | +1.83 | 否 |
+| J6 | 0.50 | −4.810 | 0.25 | +3.26e−5 | +1.33 | 否 |
+| J6 | 0.75 | −8.649 | 0.25 | +1.62e−5 | +2.00 | 否 |
+| J6 | 1 | −9.479 | 0.25 | +3.58e−5 | +2.33 | 否 |
+
+因此 Phase D 的 physics-only safe headroom 为 J5=`0`、J6=`0`；非零 correction
+strength 在本次 paired audit 上不能通过目标保护与背景 guardrail。结果支持
+`Current-only` 的保守路由，不支持把 lambda 作为可部署增益，也不支持开放 AI。
+
+证据位于 `outputs/target_safe_oracle/`，包括逐 lambda compact transfer/detection/
+CFAR、summary、constraints、manifest 和资源快照；per-scene raw 中间结果已删除。
