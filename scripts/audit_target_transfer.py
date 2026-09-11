@@ -54,6 +54,10 @@ METHODS = ("J0_Current", "J5_Selective_Physics_Calibration",
            "J6_Joint_Phase_Surface")
 DEFAULT_SNR_SCREEN = (-2.0, 2.0)
 DEFAULT_SNR_AUDIT = (-2.0, 0.0, 2.0, 4.0)
+SEED_NAMESPACE = {
+    "snr-screen": 2026110000,
+    "audit": 2026111000,
+}
 EPS = 1.0e-12
 
 
@@ -131,6 +135,7 @@ def design_specs(mode: str, snr_values: tuple[float, ...]) -> list[dict[str, Any
         split = "target_transfer"
     else:
         raise ValueError(f"unknown mode: {mode}")
+    seed_base = SEED_NAMESPACE[mode]
     specs: list[dict[str, Any]] = []
     for index in range(count):
         family = FAMILIES[index % len(FAMILIES)]
@@ -148,7 +153,7 @@ def design_specs(mode: str, snr_values: tuple[float, ...]) -> list[dict[str, Any
             "scene_id": f"{split}_{index:03d}",
             "split": split,
             "label": family,
-            "seed": 2026110000 + index,
+            "seed": seed_base + index,
             "squint_deg": float((-0.25, 0.0, 0.25)[index % 3]),
             "scan_min_deg": look_angle,
             "look_angle_deg": -60.0 + look_angle,
@@ -758,7 +763,7 @@ def main() -> int:
             "scene_count": len(specs),
             "families": list(FAMILIES),
             "snr_values_db": list(snr_values),
-            "fresh_seed_namespace": "2026110000",
+            "fresh_seed_namespace": str(min(spec["seed"] for spec in specs)),
             "roles": {
                 "OFF": "C+N",
                 "ON": "S+C+N",

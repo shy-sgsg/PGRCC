@@ -67,11 +67,14 @@ raw runtime 在每个 scene 完成 compact extraction 后删除，只保留 CSV/
 | `snr_screen` | +2 dB | 1 / 6 | 1 / 6 | 1 / 6 |
 | `snr_screen_4_8` | +4 dB | 0 / 6 | 0 / 6 | 0 / 6 |
 | `snr_screen_4_8` | +8 dB | 1 / 6 | 1 / 6 | 1 / 6 |
+| `snr_screen_10_14` | +10 dB | 1 / 6 | 1 / 6 | 0 / 6 |
+| `snr_screen_10_14` | +14 dB | 3 / 6 | 3 / 6 | 3 / 6 |
 
-因此当前已观测到的最高点为 +8 dB、`1/6 = 0.1667`，仍略低于预设的
-Current Pd≈0.2–0.8 transition；不能据此直接进入 24-scene audit，还需一个
-更高 SNR screen 定位 transition。两轮结果都没有检测到 OFF-only 命中，且三种
-方法在这些 screen 上的 paired hit 计数一致；这只是筛选证据，不是目标保护结论。
+因此 +14 dB 已定位到预设的 Current Pd≈0.2–0.8 transition（`3/6=0.5`）。
+正式 24-scene audit 将使用独立的 audit seed namespace 和围绕 transition 的
+`10,12,14,16 dB` 四个 SNR 点；不会复用上述 screen 的 scene seed。三轮 screen
+都没有检测到 OFF-only 命中，且除 +10 dB 的 J6 外三种方法的 paired hit 计数
+一致；这只是筛选证据，不是目标保护结论。
 
-两轮目录均无 `.bin/.npy/.f32/.log/.xml/.png` 残留。manifest、资源快照及紧凑
+三轮目录均无 `.bin/.npy/.f32/.log/.xml/.png` 残留。manifest、资源快照及紧凑
 CSV 是当前保留的高价值证据；运行时产生的 per-scene 原始树已逐场景删除。

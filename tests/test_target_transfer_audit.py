@@ -49,8 +49,14 @@ class TargetTransferAuditTests(unittest.TestCase):
         self.assertEqual({spec["label"] for spec in specs},
                          {"M1", "M2", "M1+M2", "M1+M3", "M2+M3", "M1+M2+M3"})
         self.assertEqual(len({spec["seed"] for spec in specs}), 24)
-        self.assertTrue(all(spec["seed"] >= 2026110000 for spec in specs))
+        self.assertTrue(all(spec["seed"] >= 2026111000 for spec in specs))
         self.assertTrue(all(spec["multi_target"] is False for spec in specs))
+
+    def test_screen_and_audit_use_disjoint_seed_namespaces(self) -> None:
+        screen = design_specs("snr-screen", (-2.0, 2.0))
+        audit = design_specs("audit", (10.0, 12.0, 14.0, 16.0))
+        self.assertTrue({spec["seed"] for spec in screen}.isdisjoint(
+            {spec["seed"] for spec in audit}))
 
 
 if __name__ == "__main__":
