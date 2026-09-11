@@ -2,18 +2,20 @@
 
 ## 当前判定
 
-本阶段仍是 `ai_training=false`。fresh Test-V2 formal 已完成，但其 target-on/
-target-only peak preservation 指标受 residual background 和 target-only 自校准影响，
-且 recovery aggregate 混合了 validation/test 与 target-on/off，因此只能作为
-development evidence。Final Gate 保持 **`UNRESOLVED`**，不把当前约 0.2 dB
-差异直接宣称为真实目标损伤，也不授权任何训练；下一步必须完成 target-transfer
-与 test-only statistical protocol。
+全流程仍是 `ai_training=false`。Phase B 的 paired Target Transfer、Phase C 的
+J6 tail/J7 audit、Phase D 的 Target-Safe Oracle 和 fresh Test-V3 已完成。正式
+Test-V3 final gate 当前判定为 **`FINAL_NO_GO_AI`**：J7 虽然保持 paired causal
+Pd 不低于 Current，但 causal target-transfer floor、target-off Pfa 和
+false-cluster guardrail 未同时通过。Oracle 的 safe lambda 只有 identity `0`，
+不是专家增益。该判定不授权任何 AI 训练或部署。
 
 ## 最终 gate 规则
 
 `NO_GO_AI_M1_M2`：若 J5/J6 在 material Oracle headroom（主阈值 0.5 dB，并报告 1 dB sensitivity）上有稳定的 deterministic recovery，同时 production Pfa、false clusters、causal Pd 和 target preservation 相对 Current 没有回归，则继续不训练 AI，并把确定性物理校准作为结论。
 
-`REOPEN_PHYSICS_AI`：只有当 J5/J6 在 fresh Test-V2 中真实激活、上述生产指标无回归、但 material recovery 仍不足且 residual gap 可重复时才输出。这个标签只允许重新审查物理估计器和门控定义，**不授权训练**。
+`REOPEN_AI_ROUTER`：只有当 fresh Test-V3 的非 identity J7 路由同时满足目标
+传递、paired Pd 和背景 guardrails，且只是剩余 residual gap 需要路由复审时才可
+考虑。这个标签只允许重新审查路由/物理定义，**不授权训练**。本次未触发。
 
 任何方法如果只在 Oracle 或机制标签帮助下有效、只改善 score-map diagnostic、或无法通过 held-out zero 的 false activation 检查，都不能进入 AI gate。
 
@@ -43,3 +45,6 @@ screen 的 compact manifest 在 `outputs/physics_adaptive_selective_v2_screen/fo
 held-out gate 指标为 `heldout_test_metrics.csv`，recovery 和 fallback 证据为
 `recovery_summary_0_5db.csv` / `recovery_summary_1db.csv`，生产 CFAR 逐行及 bootstrap
 证据为 `production_cfar_rows.csv` / `production_cfar_bootstrap_test.csv`。
+
+最终 Test-V3 的完整判定、逐方法 guardrail、J7 selector 计数和限制见
+[`AI_CSI_28_PhysicsAI最终GoNoGo.md`](AI_CSI_28_PhysicsAI最终GoNoGo.md)。
