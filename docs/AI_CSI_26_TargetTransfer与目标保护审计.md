@@ -54,3 +54,24 @@ raw runtime 在每个 scene 完成 compact extraction 后删除，只保留 CSV/
 输出目录，不与 final Test-V3 混用。
 
 当前阶段仍为 ai_training=false；target-transfer 结果完成前不进入 AI 讨论。
+
+## SNR screen 实际结果
+
+已完成两轮互相独立的 12-scene CUDA screen，方法均为 J0/J5/J6，且每个 SNR
+点包含 6 个 scene、覆盖六个 mismatch family。严格 paired causal hit 定义仍为
+`on_hit AND NOT off_hit`。
+
+| 输出目录 | SNR | Current paired causal hits / targets | J5 | J6 |
+|---|---:|---:|---:|---:|
+| `snr_screen` | -2 dB | 0 / 6 | 0 / 6 | 0 / 6 |
+| `snr_screen` | +2 dB | 1 / 6 | 1 / 6 | 1 / 6 |
+| `snr_screen_4_8` | +4 dB | 0 / 6 | 0 / 6 | 0 / 6 |
+| `snr_screen_4_8` | +8 dB | 1 / 6 | 1 / 6 | 1 / 6 |
+
+因此当前已观测到的最高点为 +8 dB、`1/6 = 0.1667`，仍略低于预设的
+Current Pd≈0.2–0.8 transition；不能据此直接进入 24-scene audit，还需一个
+更高 SNR screen 定位 transition。两轮结果都没有检测到 OFF-only 命中，且三种
+方法在这些 screen 上的 paired hit 计数一致；这只是筛选证据，不是目标保护结论。
+
+两轮目录均无 `.bin/.npy/.f32/.log/.xml/.png` 残留。manifest、资源快照及紧凑
+CSV 是当前保留的高价值证据；运行时产生的 per-scene 原始树已逐场景删除。
