@@ -395,11 +395,20 @@ def recovery_rows(scene_records: list[dict[str, Any]]) -> list[dict[str, Any]]:
             oracle = cancellation(methods.get("Oracle_Known_Joint"))
             for method in V2_METHODS:
                 row = methods.get(method, {})
+                if method == "J1_D3_delay_only":
+                    active = bool(row.get("delay_active"))
+                elif method == "J2_P1_phase_only":
+                    active = bool(row.get("phase_active"))
+                elif method == "J0_Current":
+                    active = False
+                else:
+                    active = bool(row.get("delay_active") or row.get("phase_active"))
+                active = active and not bool(row.get("fallback"))
                 output.append({
                     "split": scene["spec"]["split"], "scene_id": scene["spec"]["scene_id"],
                     "actual_mechanism": scene["spec"]["label"], "role": role,
                     "method": method, "branch": row.get("branch"),
-                    "active": bool(row.get("delay_active") or row.get("phase_active")),
+                    "active": active,
                     "fallback": bool(row.get("fallback")),
                     "current_cancellation_db": current,
                     "deterministic_cancellation_db": cancellation(row),
@@ -446,17 +455,19 @@ def ai_gate(recovery: list[dict[str, Any]], cfar_rows: list[dict[str, Any]],
         active_material = summary["material_active_count"] > 0
         material_ratio = finite(summary["material_recovery_ratio_median"])
         current_pfa = [finite(row.get("pfa")) for row in cfar_rows
-                       if row.get("method") == "J0_Current" and row.get("role") == "target_off"]
+                       if row.get("split") == "test" and
+                       row.get("method") == "J0_Current" and row.get("role") == "target_off"]
         candidate_pfa = [finite(row.get("pfa")) for row in cfar_rows
-                         if row.get("method") == method and row.get("role") == "target_off"]
+                         if row.get("split") == "test" and
+                         row.get("method") == method and row.get("role") == "target_off"]
         current_pfa = [value for value in current_pfa if math.isfinite(value)]
         candidate_pfa = [value for value in candidate_pfa if math.isfinite(value)]
         pfa_no_regression = (bool(current_pfa) and bool(candidate_pfa) and
                              float(np.mean(candidate_pfa)) <= float(np.mean(current_pfa)))
         current_hits = [bool(row.get("legacy_hit")) for row in target_rows
-                        if row.get("method") == "J0_Current"]
+                        if row.get("split") == "test" and row.get("method") == "J0_Current"]
         candidate_hits = [bool(row.get("legacy_hit")) for row in target_rows
-                          if row.get("method") == method]
+                          if row.get("split") == "test" and row.get("method") == method]
         pd_no_regression = (bool(current_hits) and bool(candidate_hits) and
                             np.mean(candidate_hits) >= np.mean(current_hits))
         no_regression = pfa_no_regression and pd_no_regression
