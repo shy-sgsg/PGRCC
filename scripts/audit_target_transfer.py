@@ -390,11 +390,12 @@ def role_complex_stats(root: Path, center: dict[str, Any],
 
 def transfer_rows_for_method(
     spec: dict[str, Any], method: str, roots: dict[str, Path],
+    reference_on_root: Path,
 ) -> list[dict[str, Any]]:
     on_manifest_path, on_manifest = load_manifest_row(roots["target_on"])
     on_map = load_complex_map(
         on_manifest_path, on_manifest["after_real_path"], on_manifest["after_imag_path"])
-    centers = target_centers(roots["target_on"], on_manifest_path,
+    centers = target_centers(reference_on_root, on_manifest_path,
                              on_manifest, on_map.shape)
     half_rows = int(on_manifest.get("target_half_doppler_bins", 2))
     half_cols = int(on_manifest.get("target_half_range_bins", 2))
@@ -591,14 +592,16 @@ def run_one_scene(spec: dict[str, Any], base: dict[str, Any], output: Path,
                 original_roots[role], plans[f"{method}_off"],
                 scene_root / "frozen_off" / method / role, build_dir)["root"])
     raw_current_rows = transfer_rows_for_method(
-        spec, "J0_Current", fixed_roots["J0_Current"])
+        spec, "J0_Current", fixed_roots["J0_Current"],
+        original_roots["target_on"])
     current_rows = {row["target_id"]: row for row in raw_current_rows}
     transfer_rows: list[dict[str, Any]] = []
     for method in METHODS:
         raw_rows = (
             raw_current_rows
             if method == "J0_Current"
-            else transfer_rows_for_method(spec, method, fixed_roots[method])
+            else transfer_rows_for_method(
+                spec, method, fixed_roots[method], original_roots["target_on"])
         )
         transfer_rows.extend(enrich_transfer_rows(raw_rows, current_rows))
     # Build exact paired hit rows from the production detection CSVs. These
