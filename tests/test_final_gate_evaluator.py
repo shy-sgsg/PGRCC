@@ -84,6 +84,20 @@ class FinalGateEvaluatorTests(unittest.TestCase):
             {"status": "proven", "safe_oracle_headroom_db": 0.5}, CONFIG)
         self.assertEqual(result["decision"], "NO_GO_AI")
 
+    def test_v3_development_evidence_cannot_force_final_no_go(self) -> None:
+        methods = [{
+            "method": J5,
+            "method_passes_physics_gate": True,
+            "L_causal_mean_dB": 0.5,
+        }]
+        config = dict(CONFIG, test_v3_development_only=True)
+        result = classify_final_gate(
+            methods, True,
+            {"status": "proven", "safe_oracle_headroom_db": 0.5}, config)
+        self.assertEqual(result["decision"], "REOPEN_AI_ROUTER")
+        self.assertEqual(result["deterministic_evidence_status"],
+                         "not_used_for_final_gate")
+
 
 if __name__ == "__main__":
     unittest.main()

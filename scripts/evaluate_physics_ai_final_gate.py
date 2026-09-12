@@ -234,14 +234,16 @@ def classify_final_gate(method_results: list[dict[str, Any]],
     min_headroom = float(oracle_config["safe_oracle_headroom_min_db"])
     min_deterministic_gain = float(
         oracle_config["deterministic_solved_min_gain_db"])
+    test_v3_development_only = bool(config.get("test_v3_development_only", False))
     deterministic_solved: list[str] = []
-    for row in method_results:
-        if row["method"] not in (J5, J6, J7):
-            continue
-        gain = finite(row.get("L_causal_mean_dB"))
-        if (row["method_passes_physics_gate"] and math.isfinite(gain)
-                and gain > min_deterministic_gain and leakage_ok):
-            deterministic_solved.append(row["method"])
+    if not test_v3_development_only:
+        for row in method_results:
+            if row["method"] not in (J5, J6, J7):
+                continue
+            gain = finite(row.get("L_causal_mean_dB"))
+            if (row["method_passes_physics_gate"] and math.isfinite(gain)
+                    and gain > min_deterministic_gain and leakage_ok):
+                deterministic_solved.append(row["method"])
     headroom = finite(oracle_evidence.get("safe_oracle_headroom_db"))
     oracle_has_headroom = (
         oracle_evidence.get("status") == "proven"
@@ -266,6 +268,10 @@ def classify_final_gate(method_results: list[dict[str, Any]],
         "safe_oracle_headroom_db": headroom if math.isfinite(headroom) else None,
         "safe_oracle_headroom_min_db": min_headroom,
         "deterministic_solved_min_gain_db": min_deterministic_gain,
+        "test_v3_development_only": test_v3_development_only,
+        "deterministic_evidence_status": (
+            "not_used_for_final_gate" if test_v3_development_only
+            else "evaluated"),
         "j7_safety_alone_can_reopen": False,
     }
 
@@ -305,16 +311,23 @@ def evaluate(output_dir: Path, config_path: Path) -> dict[str, Any]:
         method_results, leakage_ok, oracle_evidence, config)
     decision = classification["decision"]
     reasons = []
+    development_diagnostics = []
+    diagnostic_reasons = []
     if not j7["causal_transfer_ok"]:
-        reasons.append("J7 causal target transfer floor failed")
+        diagnostic_reasons.append("J7 causal target transfer floor failed")
     if not j7["pfa_acceptable"]:
-        reasons.append("J7 target-off Pfa regressed")
+        diagnostic_reasons.append("J7 target-off Pfa regressed")
     if not j7["false_clusters_acceptable"]:
-        reasons.append("J7 target-off false clusters regressed")
+        diagnostic_reasons.append("J7 target-off false clusters regressed")
     if not j7["paired_pd_no_loss_overall"] or not j7["paired_pd_no_loss_by_snr"]:
-        reasons.append("J7 paired causal Pd no-loss condition failed")
+        diagnostic_reasons.append("J7 paired causal Pd no-loss condition failed")
     if not leakage_ok:
-        reasons.append("J7 inference feature schema contains forbidden fields")
+        diagnostic_reasons.append("J7 inference feature schema contains forbidden fields")
+    if config.get("test_v3_development_only", False):
+        development_diagnostics.extend(diagnostic_reasons)
+        reasons.append("Test-V3 metrics are development evidence and are excluded from the final gate")
+    else:
+        reasons.extend(diagnostic_reasons)
     reasons.append(classification["reason"])
     selector_counts: dict[str, int] = {}
     for row in selector_rows:
@@ -330,6 +343,9 @@ def evaluate(output_dir: Path, config_path: Path) -> dict[str, Any]:
         "decision": decision,
         "decision_reasons": reasons,
         "decision_classification": classification,
+        "test_v3_development_only": bool(
+            config.get("test_v3_development_only", False)),
+        "development_diagnostics": development_diagnostics,
         "j7_selector_counts": selector_counts,
         "j7_inference_feature_leakage_ok": leakage_ok,
         "j7_forbidden_feature_columns": forbidden_columns,

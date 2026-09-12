@@ -35,6 +35,11 @@ deterministic_solved_methods = []
 恢复该余量”，不是训练或部署授权。J7 安全本身不能触发重开；在任何 AI 工作前仍须
 保持 `ai_training=false` 并重新建立冻结的 router 验证证据。
 
+当前配置明确 `test_v3_development_only=true`：Test-V3 的 J5/J6/J7 指标仍保留为
+development diagnostics，但不参与最终分类或 gate reasons。最终分类只使用已证明的
+Target-Safe Oracle headroom 与独立的 deterministic evidence 状态；当前没有后者，
+所以不是把 Test-V3 的目标指标当作 AI 重开依据。
+
 ## 运行身份、限制与证据
 
 该实验是 12-scene 定向开发审计，不是 Test-V3 全矩阵。运行 source commit 为
@@ -47,4 +52,3 @@ dirty 是输出写入造成的正常状态。manifest 中曾因布尔序列化�
 - scene 选择：[oracle_scene_selection.csv](../outputs/target_safe_oracle_v2/oracle_scene_selection.csv)
 - 候选指标：[oracle_candidate_metrics.csv](../outputs/target_safe_oracle_v2/oracle_candidate_metrics.csv)
 - 最终门禁：[physics_ai_final_gate_decision.json](../outputs/physics_ai_final_gate_v3/physics_ai_final_gate_decision.json)
-

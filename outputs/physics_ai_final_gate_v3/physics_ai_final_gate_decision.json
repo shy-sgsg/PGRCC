@@ -7,9 +7,7 @@
   "ai_training": false,
   "decision": "REOPEN_AI_ROUTER",
   "decision_reasons": [
-    "J7 causal target transfer floor failed",
-    "J7 target-off Pfa regressed",
-    "J7 target-off false clusters regressed",
+    "Test-V3 metrics are development evidence and are excluded from the final gate",
     "safe oracle has measurable residual headroom, but no deterministic method recovered it"
   ],
   "decision_classification": {
@@ -20,8 +18,16 @@
     "safe_oracle_headroom_db": 0.06654153824785329,
     "safe_oracle_headroom_min_db": 0.0,
     "deterministic_solved_min_gain_db": 0.0,
+    "test_v3_development_only": true,
+    "deterministic_evidence_status": "not_used_for_final_gate",
     "j7_safety_alone_can_reopen": false
   },
+  "test_v3_development_only": true,
+  "development_diagnostics": [
+    "J7 causal target transfer floor failed",
+    "J7 target-off Pfa regressed",
+    "J7 target-off false clusters regressed"
+  ],
   "j7_selector_counts": {
     "J0_Current": 53,
     "J6_Joint_Phase_Surface": 11

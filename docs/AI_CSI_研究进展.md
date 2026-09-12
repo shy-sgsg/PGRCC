@@ -72,7 +72,8 @@ material recovery median 分别为 `0.8426/1.0249`，但 target preservation med
 2026-09-12 的后续审计完成了 Target-Safe Oracle v2、失败机制审计和 J8
 Clutter-Support-Only 定向 CUDA replay。Oracle 在 12 个 development scenes 上得到
 `safe_oracle_headroom_db=+0.0665415 dB`，但 J5/J6/J7 尚未恢复该余量；修正后的最终
-门禁为 `REOPEN_AI_ROUTER`，这不是 AI 训练或部署授权。四个代表失败 scene 的机制审计
+门禁为 `REOPEN_AI_ROUTER`（Test-V3 仅保留 development diagnostics，不参与最终 gate），
+这不是 AI 训练或部署授权。四个代表失败 scene 的机制审计
 显示 phase surface 近线性，`test_v3_010` 的 J6 target-only transfer 为 `−0.348 dB`
 并标记为疑似过校正。J8 三场景六候选均未通过目标安全约束，因此仍保持
 `ai_training=false`。推荐阅读顺序为 [`AI_CSI_29_TargetSafeOracle_v2审计.md`](AI_CSI_29_TargetSafeOracle_v2审计.md)
