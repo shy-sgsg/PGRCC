@@ -8,5 +8,11 @@
   "support_definition": "measured OFF pulse-frequency cross-spectrum magnitude",
   "outside_support_policy": "preserve Current/un calibrated channel-2 spectrum",
   "edge_policy": "linear soft blend across the percentile guard band",
+  "safety": {
+    "causal_transfer_floor_db": -0.25,
+    "require_current_detected_targets_preserved": true,
+    "target_off_pfa_delta_max": 0.0,
+    "target_off_false_clusters_delta_max": 0.0
+  },
   "targeted_cases": ["fast_target", "support_edge_target", "slow_near_ridge_target"]
 }

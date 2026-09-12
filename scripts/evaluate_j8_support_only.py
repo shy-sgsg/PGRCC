@@ -72,6 +72,12 @@ def json_safe(value: Any) -> Any:
     return value
 
 
+def truthy(value: Any) -> bool:
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "y"}
+    return bool(value)
+
+
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fields: list[str] = []
@@ -175,6 +181,7 @@ def run_one_scene(
     spec: dict[str, Any], base: dict[str, Any], output: Path, build_dir: Path,
     gate: dict[str, Any], positive_gate: dict[str, Any],
     support_percentile: float, edge_guard_percentile: float,
+    safety: Mapping[str, Any],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     scene = formal.run_scene(spec, base, output, build_dir, True)
     if scene.get("status") != "pass":
@@ -226,6 +233,16 @@ def run_one_scene(
             row["edge_guard_percentile"] = edge_guard_percentile
             cfar_rows.append(row)
     current_metrics = summary_metrics(single_manifest(roots[CURRENT]["target_off"]))
+    current_target_rows = [row for row in transfer_rows if row["method"] == CURRENT]
+    current_detected_targets = {
+        str(row["target_id"]) for row in current_target_rows if truthy(row.get("on_hit"))
+    }
+    causal_floor = finite(safety.get("causal_transfer_floor_db"), -0.25)
+    pfa_delta_max = finite(safety.get("target_off_pfa_delta_max"), 0.0)
+    cluster_delta_max = finite(
+        safety.get("target_off_false_clusters_delta_max"), 0.0)
+    preserve_current = truthy(
+        safety.get("require_current_detected_targets_preserved", True))
     method_metrics: list[dict[str, Any]] = []
     for method in J8_METHODS:
         metrics = summary_metrics(single_manifest(roots[method]["target_off"]))
@@ -244,6 +261,26 @@ def run_one_scene(
         clusters = float(np.mean([finite(row.get("false_clusters")) for row in off]))
         current_clusters = float(np.mean(
             [finite(row.get("false_clusters")) for row in current_off]))
+        candidate_detected_targets = {
+            str(row["target_id"]) for row in rows if truthy(row.get("on_hit"))
+        }
+        lost_current_targets = sorted(
+            current_detected_targets - candidate_detected_targets)
+        causal_transfer_ok = bool(
+            lcausal.size and float(np.min(lcausal)) >= causal_floor)
+        target_preservation_ok = not preserve_current or not lost_current_targets
+        pfa_ok = math.isfinite(pfa - current_pfa) and pfa - current_pfa <= pfa_delta_max
+        clusters_ok = (math.isfinite(clusters - current_clusters)
+                       and clusters - current_clusters <= cluster_delta_max)
+        safety_failures = []
+        if not causal_transfer_ok:
+            safety_failures.append("causal_transfer_floor")
+        if not target_preservation_ok:
+            safety_failures.append("current_target_lost")
+        if not pfa_ok:
+            safety_failures.append("target_off_pfa_delta")
+        if not clusters_ok:
+            safety_failures.append("target_off_false_clusters_delta")
         method_metrics.append({
             "split": spec["split"], "scene_id": spec["scene_id"],
             "case_role": spec["j8_case_role"], "method": method,
@@ -256,6 +293,18 @@ def run_one_scene(
             "L_target_only_min_dB": float(np.min(target_loss)) if target_loss.size else math.nan,
             "off_pfa_delta_vs_current": pfa - current_pfa,
             "off_false_clusters_delta_vs_current": clusters - current_clusters,
+            "current_detected_target_count": len(current_detected_targets),
+            "candidate_detected_target_count": len(candidate_detected_targets),
+            "current_detected_targets_lost": len(lost_current_targets),
+            "causal_transfer_ok": causal_transfer_ok,
+            "target_preservation_ok": target_preservation_ok,
+            "target_off_pfa_ok": pfa_ok,
+            "target_off_false_clusters_ok": clusters_ok,
+            "safe": not safety_failures,
+            "safety_failures": ",".join(safety_failures),
+            "causal_transfer_floor_db": causal_floor,
+            "target_off_pfa_delta_max": pfa_delta_max,
+            "target_off_false_clusters_delta_max": cluster_delta_max,
             "support_percentile": support_percentile,
             "edge_guard_percentile": edge_guard_percentile,
             "zero_correction_identity": all(
@@ -314,7 +363,8 @@ def main() -> int:
         tr, cfar, compact = run_one_scene(
             spec, base, output, args.build_dir.resolve(), gate, positive_gate,
             float(config["support_percentile"]),
-            float(config["edge_guard_percentile"]))
+            float(config["edge_guard_percentile"]),
+            config["safety"])
         transfer_rows.extend(tr)
         cfar_rows.extend(cfar)
         scene_records.append(compact)
@@ -355,6 +405,7 @@ def main() -> int:
         },
         "support_percentile": config["support_percentile"],
         "edge_guard_percentile": config["edge_guard_percentile"],
+        "safety": config["safety"],
         "counts": {"scene_count": len(scene_records),
                    "transfer_rows": len(transfer_rows),
                    "cfar_rows": len(cfar_rows),
