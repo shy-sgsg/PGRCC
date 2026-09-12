@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-12",
+  "user_requested_cleanup": true,
+  "scope": ["outputs/**/stage2/** except tracked csi_metric_tap_summary.csv"],
+  "measured_before": {
+    "outputs_du_h": "107M",
+    "stage2_directory_count": 219,
+    "stage2_file_count": 1718,
+    "stage2_du_kib": 31864,
+    "raw_bin_npy_f32_log_count": 0
+  },
+  "deleted": {
+    "stage2_directories": 70,
+    "stage2_files": 1569,
+    "reason": "可由已保留 compact CSV/manifest/审计报告重建的运行时派生结果；不包含源码或原始输入"
+  },
+  "retained": [
+    "compact CSV/JSON summaries and manifests",
+    "failure maps and target-transfer/mechanism audit evidence",
+    "configuration, provenance and resource snapshots",
+    "149 tracked csi_metric_tap_summary.csv diagnostic records",
+    "high-value PNG figures and all source/input records",
+    "AI_CSI_29/30/31 reports and prior cleanup manifests"
+  ],
+  "measured_after": {
+    "outputs_du_h": "80M",
+    "remaining_stage2_directories": 149,
+    "remaining_stage2_files": 149,
+    "remaining_stage2_bytes": 290007,
+    "remaining_raw_bin_npy_f32_log_count": 0
+  },
+  "ai_training": false
+}
