@@ -2,33 +2,43 @@
   "schema_version": 1,
   "date": "2026-09-12",
   "user_requested_cleanup": true,
-  "scope": ["outputs/**/stage2/** except tracked csi_metric_tap_summary.csv"],
+  "scope": [
+    "outputs/**/stage2/** except tracked csi_metric_tap_summary.csv",
+    "outputs/ai_csi_baseline_v21_formal/*.png"
+  ],
   "measured_before": {
     "outputs_du_h": "107M",
     "stage2_directory_count": 219,
     "stage2_file_count": 1718,
     "stage2_du_kib": 31864,
-    "raw_bin_npy_f32_log_count": 0
+    "raw_bin_npy_f32_log_count": 0,
+    "formal_png_count": 10,
+    "formal_png_bytes": 8802809
   },
   "deleted": {
     "stage2_directories": 70,
     "stage2_files": 1569,
-    "reason": "可由已保留 compact CSV/manifest/审计报告重建的运行时派生结果；不包含源码或原始输入"
+    "reason": "可由已保留 compact CSV/manifest/审计报告重建的运行时派生结果；不包含源码或原始输入",
+    "formal_png_files": 10,
+    "formal_png_bytes": 8802809,
+    "formal_png_reason": "指标已提取到 compact summaries，formal 输出保持 compact-only"
   },
   "retained": [
     "compact CSV/JSON summaries and manifests",
     "failure maps and target-transfer/mechanism audit evidence",
     "configuration, provenance and resource snapshots",
     "149 tracked csi_metric_tap_summary.csv diagnostic records",
-    "high-value PNG figures and all source/input records",
+    "high-value non-formal figures and all source/input records; formal raw PNG removed",
     "AI_CSI_29/30/31 reports and prior cleanup manifests"
   ],
   "measured_after": {
-    "outputs_du_h": "80M",
+    "outputs_du_h": "71M",
     "remaining_stage2_directories": 149,
     "remaining_stage2_files": 149,
     "remaining_stage2_bytes": 290007,
-    "remaining_raw_bin_npy_f32_log_count": 0
+    "remaining_raw_bin_npy_f32_log_count": 0,
+    "remaining_formal_png_count": 0,
+    "remaining_formal_xml_count": 0
   },
   "ai_training": false
 }

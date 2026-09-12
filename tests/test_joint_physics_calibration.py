@@ -169,6 +169,19 @@ class JointPhysicsCalibrationTests(unittest.TestCase):
             edge_guard_percentile=25.0)
         self.assertTrue(np.array_equal(identity, current))
 
+    def test_j8_zero_correction_is_bitwise_raw_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source = root / "current.bin"
+            target = root / "zero_correction.bin"
+            source_bytes = bytes(range(256)) * 3 + b"PGRCC-J8"
+            source.write_bytes(source_bytes)
+            steps = joint.apply_support_only_raw_correction(
+                source, target, root / "unused.xml", None, None)
+            self.assertEqual(target.read_bytes(), source_bytes)
+            self.assertEqual(steps, [{"kind": "identity",
+                                     "bitwise_equal_to_source": True}])
+
     def test_selective_delay_and_phase_gates_are_independent(self) -> None:
         null = [summary_observables(delay_ns=0.01 * index,
                                     phase_slope=0.001 * index)["summary"]
