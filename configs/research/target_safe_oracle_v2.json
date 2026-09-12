@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "case_id": "target_safe_oracle_v2",
+  "ai_training": false,
+  "evaluation_only": true,
+  "scene_count": 12,
+  "candidate_lambdas": [0.25, 0.5, 0.75, 1.0],
+  "safety": {
+    "causal_transfer_floor_db": -0.25,
+    "require_current_detected_targets_preserved": true,
+    "target_off_pfa_delta_max": 0.0,
+    "target_off_false_clusters_delta_max": 0.0
+  },
+  "selection": {
+    "objective": "maximize target-off clutter cancellation_db independently per scene",
+    "baseline": "J0_Current",
+    "headroom_definition": "mean over scenes of selected cancellation_db minus Current cancellation_db, lower-bounded by the Current identity baseline"
+  },
+  "roles": {
+    "OFF": "C+N",
+    "ON": "S+C+N",
+    "TO": "S-only"
+  },
+  "retention": {
+    "raw_scene_cleanup": true,
+    "retain": "compact candidate metrics, transfer/detection/CFAR rows, per-scene selection, provenance and resource snapshots"
+  }
+}

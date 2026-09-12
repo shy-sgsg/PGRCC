@@ -46,7 +46,10 @@ from evaluate_global_fixed_pfa import (  # noqa: E402
     evaluate_frozen_scores,
     recovery_metrics,
 )
-from experiment_provenance import git_provenance  # noqa: E402
+from experiment_provenance import (  # noqa: E402
+    run_provenance_post,
+    run_provenance_start,
+)
 from run_joint_physics_calibration import (  # noqa: E402
     METHODS,
     apply_raw_correction,
@@ -750,7 +753,12 @@ def main() -> int:
     for binary in ("simulate_stage2_statistical", "GMTI_core"):
         if not (build_dir / binary).is_file():
             raise SystemExit(f"missing build product: {build_dir / binary}")
-    provenance = git_provenance(ROOT)
+    suite_path = args.suite.resolve()
+    provenance_start = run_provenance_start(ROOT, (suite_path,))
+    provenance = {
+        "source_commit": provenance_start["source_commit"],
+        "worktree_dirty": provenance_start["source_worktree_dirty_before"],
+    }
     try:
         validate_clean_provenance(provenance)
     except ValueError as exc:
@@ -762,7 +770,7 @@ def main() -> int:
     if output.exists() and any(output.iterdir()):
         raise SystemExit(f"formal output directory must be empty: {output}")
     output.mkdir(parents=True, exist_ok=True)
-    base = json.loads(args.suite.resolve().read_text(encoding="utf-8"))["base_scenario"]
+    base = json.loads(suite_path.read_text(encoding="utf-8"))["base_scenario"]
     base = copy.deepcopy(base)
     specs = design_specs()
     for spec in specs:
@@ -859,6 +867,7 @@ def main() -> int:
     write_csv(output / "heldout_target_rows.csv", test_targets)
     write_csv(output / "validation_target_rows.csv", validation_targets)
     write_csv(output / "recovery_summary.csv", recovery_rows)
+    provenance_post = run_provenance_post(ROOT, provenance_start)
     summary = {
         "schema_version": 1,
         "method_version": "Physics-Adaptive Joint Calibration V1",
@@ -866,6 +875,10 @@ def main() -> int:
         "ai_training": False,
         "formal_command": " ".join([sys.executable, *sys.argv]),
         "source_commit_required": provenance["source_commit"],
+        "source_worktree_dirty_before": provenance_start[
+            "source_worktree_dirty_before"],
+        "provenance_start": provenance_start,
+        "provenance_post": provenance_post,
         "design": {
             "scene_count": len(scene_records),
             "calibration_count": len(split_specs["calibration"]),
@@ -930,6 +943,12 @@ def main() -> int:
     (output / "formal_matrix_manifest.json").write_text(
         json.dumps(json_safe(summary), ensure_ascii=False, indent=2, allow_nan=False) + "\n",
         encoding="utf-8")
+    (output / "provenance_start.json").write_text(
+        json.dumps(json_safe(provenance_start), ensure_ascii=False, indent=2,
+                   allow_nan=False) + "\n", encoding="utf-8")
+    (output / "provenance_post.json").write_text(
+        json.dumps(json_safe(provenance_post), ensure_ascii=False, indent=2,
+                   allow_nan=False) + "\n", encoding="utf-8")
     print(json.dumps(json_safe({
         "output_dir": str(output), "scene_count": len(scene_records),
         "test_target_rows": len(test_targets), "ai_training": False,

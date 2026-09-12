@@ -36,6 +36,7 @@
     "Oracle_Safe_Lambda_0_EvaluationOnly"
   ],
   "j7_selector": {
+    "variant": "J7.1_complexity_aware",
     "profile": "strict",
     "fit_source": "frozen Phase-C calibration+validation only",
     "test_v3_thresholds": {
@@ -54,12 +55,25 @@
     },
     "truth_fields_in_input": false
   },
+  "j7_1_selector": {
+    "beta2_abs_min_deg_per_pulse2": 0.005,
+    "joint_vs_p1_residual_coherence_gain_min": 0.02,
+    "truth_fields_in_input": false,
+    "policy": "J6 requires both nonlinear beta2 evidence and joint-vs-P1 residual-coherence gain; otherwise prefer J5/P1"
+  },
   "target_safe_oracle": {
     "evaluation_only": true,
-    "safe_lambda_j5": 0.0,
-    "safe_lambda_j6": 0.0,
+    "result_manifest": "outputs/target_safe_oracle_v2/target_safe_oracle_v2_manifest.json",
+    "safe_oracle_headroom_min_db": 0.0,
+    "deterministic_solved_min_gain_db": 0.0,
     "lambda_grid": [0, 0.25, 0.5, 0.75, 1],
-    "nonzero_lambda_safe_headroom_not_established": true
+    "nonzero_lambda_safe_headroom_not_established": true,
+    "safety": {
+      "causal_transfer_floor_db": -0.25,
+      "require_current_detected_targets_preserved": true,
+      "target_off_pfa_delta_max": 0.0,
+      "target_off_false_clusters_delta_max": 0.0
+    }
   },
   "final_gate_guardrails": {
     "causal_transfer_floor_db": -0.25,

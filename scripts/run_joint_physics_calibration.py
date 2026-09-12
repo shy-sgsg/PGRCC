@@ -935,6 +935,140 @@ def apply_raw_correction(
                 path.unlink()
 
 
+def support_blend_weights(
+    support_measure: np.ndarray,
+    support_percentile: float = 80.0,
+    edge_guard_percentile: float = 5.0,
+) -> tuple[np.ndarray, dict[str, float]]:
+    """Build a soft support mask from measured clutter cross-spectrum energy.
+
+    The high-support region receives the frozen correction, the low-support
+    region remains Current, and the percentile band between them is a soft
+    guard at the support edge.  The mask is derived from OFF-observable
+    channel data only; it is not a target or mechanism label.
+    """
+    measure = np.asarray(support_measure, dtype=np.float64)
+    if measure.ndim != 2 or not np.any(np.isfinite(measure)):
+        raise ValueError("support measure must be a finite 2-D array")
+    if not 0.0 < support_percentile <= 100.0:
+        raise ValueError("support_percentile must be in (0, 100]")
+    if not 0.0 <= edge_guard_percentile < support_percentile:
+        raise ValueError("edge_guard_percentile must be in [0, support_percentile)")
+    finite_values = measure[np.isfinite(measure)]
+    low_q = max(0.0, support_percentile - edge_guard_percentile)
+    edge_value = float(np.percentile(finite_values, low_q))
+    support_value = float(np.percentile(finite_values, support_percentile))
+    if support_value <= edge_value:
+        weights = (measure >= support_value).astype(np.float64)
+    else:
+        weights = np.clip(
+            (measure - edge_value) / (support_value - edge_value), 0.0, 1.0)
+    weights[~np.isfinite(measure)] = 0.0
+    return weights, {
+        "support_percentile": float(support_percentile),
+        "edge_guard_percentile": float(edge_guard_percentile),
+        "edge_measure": edge_value,
+        "support_measure": support_value,
+        "support_weight_fraction": float(np.mean(weights > 0.0)),
+        "full_weight_fraction": float(np.mean(weights >= 1.0)),
+    }
+
+
+def support_only_corrected_spectrum(
+    spectrum_current: np.ndarray,
+    spectrum_corrected: np.ndarray,
+    support_measure: np.ndarray,
+    support_percentile: float = 80.0,
+    edge_guard_percentile: float = 5.0,
+) -> tuple[np.ndarray, dict[str, float]]:
+    """Blend a correction into CSI only inside measured clutter support."""
+    current = np.asarray(spectrum_current, dtype=np.complex128)
+    corrected = np.asarray(spectrum_corrected, dtype=np.complex128)
+    if current.shape != corrected.shape or current.ndim != 2:
+        raise ValueError("current/corrected spectra must be equal-shape 2-D arrays")
+    measure = np.asarray(support_measure, dtype=np.float64)
+    if measure.shape != current.shape:
+        raise ValueError("support measure shape must match the spectrum")
+    weights, metadata = support_blend_weights(
+        measure, support_percentile, edge_guard_percentile)
+    result = current + weights * (corrected - current)
+    return result, metadata
+
+
+def apply_support_only_raw_correction(
+    source: Path,
+    target: Path,
+    xml: Path,
+    delay_ns: float | None,
+    phase_deg_by_pulse: np.ndarray | None,
+    support_percentile: float = 80.0,
+    edge_guard_percentile: float = 5.0,
+) -> list[dict[str, Any]]:
+    """Apply J8 support-only correction to raw channel 2.
+
+    Correction is performed in the measured pulse-frequency CSI domain.  The
+    support mask is frozen from the uncorrected channel-1/channel-2
+    cross-spectrum; outside it, channel 2 is exactly the Current spectrum.
+    With no nonzero correction, the source bytes are copied unchanged.
+    """
+    phase = (None if phase_deg_by_pulse is None else
+             np.asarray(phase_deg_by_pulse, dtype=np.float64))
+    if phase is not None and phase.ndim != 1:
+        raise ValueError("phase correction trajectory must be one-dimensional")
+    delay_active = delay_ns is not None and math.isfinite(float(delay_ns)) and abs(float(delay_ns)) > 0.0
+    phase_active = phase is not None and np.any(np.isfinite(phase) & (np.abs(phase) > 0.0))
+    if not delay_active and not phase_active:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(source, target)
+        return [{"kind": "identity", "bitwise_equal_to_source": True}]
+
+    pulse_len = xml_int(xml, "pulse_len", 11840)
+    channel_count = xml_int(xml, "new_protocol_channel_count", 4)
+    fs_hz = xml_frequency_hz(xml, "fs", 60.0e6)
+    bytes_per_packet = 256 + pulse_len * channel_count * 2 * 4
+    raw = np.fromfile(source, dtype=np.uint8)
+    if raw.size == 0 or raw.size % bytes_per_packet != 0:
+        raise ValueError(f"raw file is not complete float32 packets: {source}")
+    packets = raw.reshape((-1, bytes_per_packet))
+    payload = packets[:, 256:]
+    values = payload.view("<f4").reshape((-1, pulse_len, channel_count, 2))
+    channel1 = (values[:, :, 0, 0].astype(np.float64) +
+                1j * values[:, :, 0, 1].astype(np.float64))
+    channel2 = (values[:, :, 1, 0].astype(np.float64) +
+                1j * values[:, :, 1, 1].astype(np.float64))
+    spectrum1 = np.fft.fft(channel1, axis=1)
+    spectrum2 = np.fft.fft(channel2, axis=1)
+    frequency_hz = np.fft.fftfreq(pulse_len, d=1.0 / fs_hz)
+    support_measure = np.abs(spectrum1 * np.conj(spectrum2))
+    corrected = spectrum2.copy()
+    steps: list[dict[str, Any]] = []
+    support_metadata: dict[str, float] | None = None
+    if delay_active:
+        full = corrected * np.exp(
+            1j * 2.0 * np.pi * frequency_hz[None, :] *
+            (float(delay_ns) * 1.0e-9))
+        corrected, support_metadata = support_only_corrected_spectrum(
+            corrected, full, support_measure, support_percentile,
+            edge_guard_percentile)
+        steps.append({"kind": "support_only_delay", "delay_ns": float(delay_ns)})
+    if phase_active:
+        if phase.size != channel2.shape[0]:
+            raise ValueError("phase correction trajectory length does not match pulse count")
+        full = corrected * np.exp(-1j * np.deg2rad(phase)[:, None])
+        corrected, support_metadata = support_only_corrected_spectrum(
+            corrected, full, support_measure, support_percentile,
+            edge_guard_percentile)
+        steps.append({"kind": "support_only_phase"})
+    time_corrected = np.fft.ifft(corrected, axis=1)
+    values[:, :, 1, 0] = time_corrected.real.astype(np.float32)
+    values[:, :, 1, 1] = time_corrected.imag.astype(np.float32)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    raw.tofile(target)
+    for step in steps:
+        step["support"] = support_metadata
+    return steps
+
+
 def current_metrics(case: Path) -> tuple[Path, dict[str, float]]:
     manifest = single_manifest(case.resolve())
     return manifest, summary_metrics(manifest)

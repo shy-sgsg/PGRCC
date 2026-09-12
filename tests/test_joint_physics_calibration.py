@@ -152,6 +152,23 @@ class JointPhysicsCalibrationTests(unittest.TestCase):
             xml.write_text("<root><fs>60</fs></root>", encoding="utf-8")
             self.assertEqual(joint.xml_frequency_hz(xml, "fs", 60.0e6), 60.0e6)
 
+    def test_j8_support_blend_keeps_current_outside_support_and_identity_exact(self) -> None:
+        current = np.ones((2, 4), dtype=np.complex128)
+        corrected = np.full((2, 4), 3.0 + 2.0j, dtype=np.complex128)
+        measure = np.asarray([[0.0, 1.0, 2.0, 3.0],
+                              [4.0, 5.0, 6.0, 7.0]])
+        blended, metadata = joint.support_only_corrected_spectrum(
+            current, corrected, measure, support_percentile=75.0,
+            edge_guard_percentile=25.0)
+        self.assertTrue(np.all(np.isfinite(blended)))
+        self.assertGreater(metadata["support_weight_fraction"], 0.0)
+        self.assertLess(metadata["support_weight_fraction"], 1.0)
+        self.assertTrue(np.all(np.abs(blended - current) >= 0.0))
+        identity, _ = joint.support_only_corrected_spectrum(
+            current, current, measure, support_percentile=75.0,
+            edge_guard_percentile=25.0)
+        self.assertTrue(np.array_equal(identity, current))
+
     def test_selective_delay_and_phase_gates_are_independent(self) -> None:
         null = [summary_observables(delay_ns=0.01 * index,
                                     phase_slope=0.001 * index)["summary"]

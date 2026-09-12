@@ -29,13 +29,19 @@ import audit_target_transfer as transfer  # noqa: E402
 import run_joint_physics_formal_matrix as formal  # noqa: E402
 import run_joint_physics_calibration as calibration  # noqa: E402
 import run_joint_physics_selective_v2 as selective_v2  # noqa: E402
-from experiment_provenance import git_provenance  # noqa: E402
+from experiment_provenance import (  # noqa: E402
+    run_provenance_post,
+    run_provenance_start,
+)
 from safe_expert_selector import (  # noqa: E402
+    COMPLEXITY_FEATURE_NAMES,
+    ComplexitySelectorThresholds,
     FEATURE_NAMES,
     J5,
     J6,
     SELECTOR_PROFILES,
     extract_inference_features,
+    select_complexity_aware_expert_with_reason,
     select_safe_expert_with_reason,
 )
 
@@ -150,6 +156,7 @@ def method_roots_for_scene(
         spec: dict[str, Any], base: dict[str, Any], output: Path,
         build_dir: Path, gate: dict[str, Any], positive_gate: dict[str, Any],
         thresholds: Any,
+        complexity_thresholds: ComplexitySelectorThresholds | None = None,
 ) -> tuple[dict[str, dict[str, Path]], dict[str, Any], dict[str, float], dict[str, str], dict[str, Any]]:
     scene = formal.run_scene(spec, base, output, build_dir, True)
     if scene.get("status") != "pass":
@@ -172,7 +179,11 @@ def method_roots_for_scene(
                 original[role], plans[method],
                 scene_root / "frozen" / method / role, build_dir)["root"])
     features = selector_features_for_root(original["target_off"])
-    selected, reason = select_safe_expert_with_reason(features, thresholds)
+    if complexity_thresholds is None:
+        selected, reason = select_safe_expert_with_reason(features, thresholds)
+    else:
+        selected, reason = select_complexity_aware_expert_with_reason(
+            features, thresholds, complexity_thresholds)
     roots[J7] = dict(roots.get(selected, roots[CURRENT]))
     roots[ORACLE] = dict(original)
     selector_row = {
@@ -310,15 +321,27 @@ def main() -> int:
     config = json.loads(args.config.resolve().read_text(encoding="utf-8"))
     if config.get("ai_training") is not False:
         raise RuntimeError("Test-V3 requires ai_training=false")
+    formal_dir = args.formal_dir.resolve()
+    gate_path = formal_dir / "null_gate.json"
+    positive_gate_path = formal_dir / "positive_quality_gate.json"
+    provenance_start = run_provenance_start(
+        ROOT, (args.config.resolve(), gate_path, positive_gate_path))
+    if provenance_start["source_worktree_dirty_before"] is not False:
+        raise SystemExit("Test-V3 requires a clean source worktree at start")
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    formal_dir = args.formal_dir.resolve()
-    gate = json.loads((formal_dir / "null_gate.json").read_text(encoding="utf-8"))
-    positive_gate = json.loads(
-        (formal_dir / "positive_quality_gate.json").read_text(encoding="utf-8"))
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    positive_gate = json.loads(positive_gate_path.read_text(encoding="utf-8"))
     base = formal.base_scenario()
     specs = design_specs()
     thresholds = SELECTOR_PROFILES[config["j7_selector"]["profile"]]
+    complexity_config = config["j7_1_selector"]
+    complexity_thresholds = ComplexitySelectorThresholds(
+        beta2_abs_min_deg_per_pulse2=float(
+            complexity_config["beta2_abs_min_deg_per_pulse2"]),
+        joint_vs_p1_residual_coherence_gain_min=float(
+            complexity_config["joint_vs_p1_residual_coherence_gain_min"]),
+    )
     before = resource_snapshot()
     all_transfer: list[dict[str, Any]] = []
     all_detection: list[dict[str, Any]] = []
@@ -330,7 +353,7 @@ def main() -> int:
         scene_output = output / "scenes" / spec["scene_id"]
         roots, plans, features, selector_row, compact = method_roots_for_scene(
             spec, base, scene_output, args.build_dir.resolve(), gate, positive_gate,
-            thresholds)
+            thresholds, complexity_thresholds)
         transfer_rows, detection_rows, cfar_rows = build_rows(
             spec, roots, scene_output)
         all_transfer.extend(transfer_rows)
@@ -363,10 +386,16 @@ def main() -> int:
         for item in scene_records
     ])
     summary = summary_rows(all_transfer, all_detection, all_cfar)
+    provenance_post = run_provenance_post(ROOT, provenance_start)
     manifest = {
         "schema_version": 1,
         "analysis": "Physics-AI Final Gate Test-V3",
-        **git_provenance(ROOT),
+        "source_commit": provenance_start["source_commit"],
+        "source_worktree_dirty_before": provenance_start[
+            "source_worktree_dirty_before"],
+        "worktree_dirty": provenance_post["source_worktree_dirty_after"],
+        "provenance_start": provenance_start,
+        "provenance_post": provenance_post,
         "ai_training": False,
         "config_path": str(args.config.resolve()),
         "config": config,
@@ -386,9 +415,11 @@ def main() -> int:
         "methods": [CURRENT, J5, J6, J7, ORACLE],
         "selector": {
             "profile": config["j7_selector"]["profile"],
-            "feature_names": list(FEATURE_NAMES),
+            "variant": config["j7_selector"].get("variant", "J7"),
+            "feature_names": list(FEATURE_NAMES) + list(COMPLEXITY_FEATURE_NAMES),
             "truth_fields_in_input": False,
             "threshold_source": "Phase-C frozen calibration+validation",
+            "complexity_thresholds": config.get("j7_1_selector"),
         },
         "oracle": {
             "evaluation_only": True,
@@ -423,6 +454,12 @@ def main() -> int:
         encoding="utf-8")
     (output / "resource_snapshot_after.json").write_text(
         json.dumps(json_safe(resource_snapshot()), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8")
+    (output / "provenance_start.json").write_text(
+        json.dumps(json_safe(provenance_start), ensure_ascii=False, indent=2) + "\n",
+        encoding="utf-8")
+    (output / "provenance_post.json").write_text(
+        json.dumps(json_safe(provenance_post), ensure_ascii=False, indent=2) + "\n",
         encoding="utf-8")
     (output / "physics_ai_final_gate_v3_manifest.json").write_text(
         json.dumps(json_safe(manifest), ensure_ascii=False, indent=2) + "\n",

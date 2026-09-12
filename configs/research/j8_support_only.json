@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "case_id": "j8_support_only_targeted",
+  "ai_training": false,
+  "evaluation_only": true,
+  "support_percentile": 80.0,
+  "edge_guard_percentile": 5.0,
+  "support_definition": "measured OFF pulse-frequency cross-spectrum magnitude",
+  "outside_support_policy": "preserve Current/un calibrated channel-2 spectrum",
+  "edge_policy": "linear soft blend across the percentile guard band",
+  "targeted_cases": ["fast_target", "support_edge_target", "slow_near_ridge_target"]
+}

@@ -1,10 +1,13 @@
 import unittest
 
 from scripts.safe_expert_selector import (
+    ComplexitySelectorThresholds,
     CURRENT,
     J5,
     J6,
     SELECTOR_PROFILES,
+    select_complexity_aware_expert,
+    select_complexity_aware_expert_with_reason,
     select_safe_expert,
     select_safe_expert_with_reason,
 )
@@ -27,6 +30,8 @@ def good_features() -> dict[str, float]:
         "phase_signal": 0.0,
         "delay_signal": 0.0,
         "delay_extrapolation_ratio": 0.01,
+        "abs_beta2_deg_per_pulse2": 0.0,
+        "joint_vs_p1_residual_coherence_gain": 0.0,
     }
 
 
@@ -59,6 +64,35 @@ class SafeExpertSelectorTests(unittest.TestCase):
         features.update({"phase_confidence": 0.50, "phase_signal": 0.20})
         self.assertEqual(select_safe_expert(features,
                                              SELECTOR_PROFILES["balanced"]), J6)
+
+    def test_j71_linear_phase_prefers_j5(self) -> None:
+        features = good_features()
+        features.update({"phase_confidence": 0.50, "phase_signal": 0.20,
+                         "abs_beta2_deg_per_pulse2": 0.001,
+                         "joint_vs_p1_residual_coherence_gain": 0.30})
+        thresholds = ComplexitySelectorThresholds(0.005, 0.02)
+        self.assertEqual(select_complexity_aware_expert(
+            features, SELECTOR_PROFILES["balanced"], thresholds), J5)
+
+    def test_j71_nonlinear_surface_requires_both_evidence_fields(self) -> None:
+        features = good_features()
+        features.update({"phase_confidence": 0.50, "phase_signal": 0.20,
+                         "abs_beta2_deg_per_pulse2": 0.01,
+                         "joint_vs_p1_residual_coherence_gain": 0.05})
+        thresholds = ComplexitySelectorThresholds(0.005, 0.02)
+        method, reason = select_complexity_aware_expert_with_reason(
+            features, SELECTOR_PROFILES["balanced"], thresholds)
+        self.assertEqual(method, J6)
+        self.assertIn("nonlinear", reason)
+
+    def test_j71_insufficient_joint_gain_does_not_select_j6(self) -> None:
+        features = good_features()
+        features.update({"phase_confidence": 0.50, "phase_signal": 0.20,
+                         "abs_beta2_deg_per_pulse2": 0.01,
+                         "joint_vs_p1_residual_coherence_gain": 0.01})
+        thresholds = ComplexitySelectorThresholds(0.005, 0.02)
+        self.assertEqual(select_complexity_aware_expert(
+            features, SELECTOR_PROFILES["balanced"], thresholds), J5)
 
 
 if __name__ == "__main__":

@@ -30,14 +30,18 @@ sys.path.insert(0, str(ROOT / "scripts"))
 import audit_target_transfer as transfer  # noqa: E402
 import run_joint_physics_formal_matrix as formal  # noqa: E402
 import run_joint_physics_selective_v2 as selective_v2  # noqa: E402
-from experiment_provenance import git_provenance  # noqa: E402
+from experiment_provenance import (  # noqa: E402
+    git_provenance,
+    run_provenance_post,
+    run_provenance_start,
+)
 
 
 METHODS = ("J0_Current", "J5_Selective_Physics_Calibration",
            "J6_Joint_Phase_Surface")
 EXPERT_METHODS = METHODS[1:]
 LAMBDAS = (0.0, 0.25, 0.5, 0.75, 1.0)
-CAUSAL_TRANSFER_FLOOR_DB = -0.25
+EXPERT_LAMBDAS = (0.25, 0.5, 0.75, 1.0)
 
 
 def write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
@@ -137,11 +141,27 @@ def variant_detection_rows(rows: list[dict[str, Any]],
             for row in rows]
 
 
+def select_safe_candidate(candidate_rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Select the highest-cancellation safe candidate for one scene."""
+    safe_candidates = [row for row in candidate_rows if bool(row.get("safe"))]
+    safe_candidates.sort(
+        key=lambda row: (finite(row.get("cancellation_db"), -math.inf),
+                         -float(row.get("lambda", 0.0))), reverse=True)
+    if safe_candidates:
+        return safe_candidates[0]
+    current = [row for row in candidate_rows if row.get("method") == "J0_Current"]
+    if len(current) != 1:
+        raise ValueError("one Current identity candidate is required")
+    return current[0]
+
+
 def run_one_scene(spec: dict[str, Any], base: dict[str, Any], output: Path,
                   build_dir: Path, gate: dict[str, Any],
-                  positive_gate: dict[str, Any]) -> tuple[
+                  positive_gate: dict[str, Any],
+                  safety: Mapping[str, Any]) -> tuple[
                       list[dict[str, Any]], list[dict[str, Any]],
-                      list[dict[str, Any]], dict[str, Any]]:
+                      list[dict[str, Any]], list[dict[str, Any]],
+                      dict[str, Any]]:
     scene = formal.run_scene(spec, base, output, build_dir, True)
     if scene.get("status") != "pass":
         raise RuntimeError(f"scene failed: {spec['scene_id']} {scene}")
@@ -170,6 +190,7 @@ def run_one_scene(spec: dict[str, Any], base: dict[str, Any], output: Path,
     transfer_rows: list[dict[str, Any]] = []
     detection_rows: list[dict[str, Any]] = []
     cfar_rows: list[dict[str, Any]] = []
+    metrics_by_candidate: dict[tuple[str, float], dict[str, Any]] = {}
     plan_records: list[dict[str, Any]] = []
 
     def emit_variant(method: str, lambda_value: float,
@@ -187,12 +208,20 @@ def run_one_scene(spec: dict[str, Any], base: dict[str, Any], output: Path,
                 roots[role], spec["split"], spec["scene_id"], role, method)
             row["lambda"] = lambda_value
             cfar_rows.append(row)
+        off_manifest = transfer.single_manifest(roots["target_off"])
+        metrics = transfer.summary_metrics(off_manifest)
+        metrics_by_candidate[(method, float(lambda_value))] = {
+            "cancellation_db": finite(metrics.get("cancellation_db")),
+            "residual_p95_rad": finite(metrics.get("phase_p95_rad")),
+            "coherence": finite(metrics.get("coherence")),
+            "phase_rmse_rad": finite(metrics.get("phase_rmse_rad")),
+        }
 
     # Current and lambda=0 are the same identity replay. Keep one baseline row
     # and one lambda=0 row for each expert so the identity assertion is visible.
     emit_variant("J0_Current", 0.0, original_roots)
     for method in EXPERT_METHODS:
-        for lambda_value in LAMBDAS:
+        for lambda_value in EXPERT_LAMBDAS:
             scaled = scale_frozen_plan(plans[method], lambda_value)
             roots: dict[str, Path] = {}
             if lambda_value == 0.0 or plans[method].get("fallback"):
@@ -216,17 +245,113 @@ def run_one_scene(spec: dict[str, Any], base: dict[str, Any], output: Path,
             "estimated_beta2_deg_per_pulse2": plans[method].get(
                 "estimated_beta2_deg_per_pulse2"),
             "truth_used_in_estimator": False,
-            "lambda_values": list(LAMBDAS),
+            "lambda_values": list(EXPERT_LAMBDAS),
         })
+    current_metrics = metrics_by_candidate[("J0_Current", 0.0)]
+    current_transfer = group(transfer_rows, "J0_Current", 0.0)
+    current_detection = group(detection_rows, "J0_Current", 0.0)
+    current_off = [row for row in group(cfar_rows, "J0_Current", 0.0)
+                   if row.get("role") == "target_off"]
+    current_on_by_target = {
+        str(row.get("target_id")): bool(row.get("on_hit"))
+        for row in current_detection
+    }
+    current_pfa = finite(np.mean(finite_values(current_off, "pfa")))
+    current_clusters = finite(np.mean(
+        finite_values(current_off, "false_clusters")))
+    candidate_rows: list[dict[str, Any]] = []
+    candidates = [("J0_Current", 0.0),
+                  *[(method, lambda_value) for method in EXPERT_METHODS
+                    for lambda_value in EXPERT_LAMBDAS]]
+    for method, lambda_value in candidates:
+        candidate_transfer = group(transfer_rows, method, lambda_value)
+        candidate_detection = group(detection_rows, method, lambda_value)
+        candidate_off = [row for row in group(cfar_rows, method, lambda_value)
+                         if row.get("role") == "target_off"]
+        candidate_metrics = metrics_by_candidate[(method, float(lambda_value))]
+        lcausal = finite_values(candidate_transfer, "L_causal_dB")
+        target_count = len(candidate_transfer)
+        current_detected_lost = sum(
+            current_hit and not bool(next(
+                (row.get("on_hit") for row in candidate_detection
+                 if str(row.get("target_id")) == target_id), False))
+            for target_id, current_hit in current_on_by_target.items())
+        pfa = finite(np.mean(finite_values(candidate_off, "pfa")))
+        clusters = finite(np.mean(
+            finite_values(candidate_off, "false_clusters")))
+        pfa_delta = pfa - current_pfa
+        clusters_delta = clusters - current_clusters
+        causal_ok = bool(lcausal.size and
+                         float(np.min(lcausal)) >= float(
+                             safety["causal_transfer_floor_db"]))
+        target_preservation_ok = (
+            not bool(safety["require_current_detected_targets_preserved"])
+            or current_detected_lost == 0)
+        pfa_ok = (math.isfinite(pfa_delta) and
+                  pfa_delta <= float(safety["target_off_pfa_delta_max"]))
+        clusters_ok = (math.isfinite(clusters_delta) and
+                       clusters_delta <= float(
+                           safety["target_off_false_clusters_delta_max"]))
+        safe = bool(causal_ok and target_preservation_ok and pfa_ok and clusters_ok)
+        cancellation = candidate_metrics["cancellation_db"]
+        current_cancellation = current_metrics["cancellation_db"]
+        scnr_gain = (cancellation - current_cancellation
+                     if math.isfinite(cancellation)
+                     and math.isfinite(current_cancellation) else math.nan)
+        candidate_rows.append({
+            "split": spec["split"], "scene_id": spec["scene_id"],
+            "family": spec["label"], "snr_db": spec["snr_db"],
+            "method": method, "lambda": lambda_value,
+            "cancellation_db": cancellation,
+            "scnr_gain_db_vs_current": scnr_gain,
+            "residual_p95_rad": candidate_metrics["residual_p95_rad"],
+            "coherence": candidate_metrics["coherence"],
+            "phase_rmse_rad": candidate_metrics["phase_rmse_rad"],
+            "L_causal_min_dB": (float(np.min(lcausal))
+                                 if lcausal.size else math.nan),
+            "L_causal_mean_dB": (float(np.mean(lcausal))
+                                  if lcausal.size else math.nan),
+            "paired_hit_count": sum(bool(row.get("paired_causal_hit"))
+                                   for row in candidate_detection),
+            "on_hit_count": sum(bool(row.get("on_hit"))
+                                for row in candidate_detection),
+            "off_hit_count": sum(bool(row.get("off_hit"))
+                                 for row in candidate_detection),
+            "target_count": target_count,
+            "current_detected_targets_lost": current_detected_lost,
+            "target_preservation_ok": target_preservation_ok,
+            "off_pfa": pfa,
+            "off_pfa_delta_vs_current": pfa_delta,
+            "off_false_clusters": clusters,
+            "off_false_clusters_delta_vs_current": clusters_delta,
+            "causal_transfer_floor_db": float(
+                safety["causal_transfer_floor_db"]),
+            "causal_transfer_ok": causal_ok,
+            "pfa_acceptable": pfa_ok,
+            "false_clusters_acceptable": clusters_ok,
+            "safe": safe,
+        })
+    selected = select_safe_candidate(candidate_rows)
+    safe_candidates = [row for row in candidate_rows if row["safe"]]
+    selection = {
+        "split": spec["split"], "scene_id": spec["scene_id"],
+        "selected_method": selected["method"],
+        "selected_lambda": selected["lambda"],
+        "safe_oracle_headroom_db": max(
+            0.0, finite(selected.get("scnr_gain_db_vs_current"), 0.0)),
+        "safe_candidate_count": len(safe_candidates),
+        "selection_definition": "per-scene safe candidate with highest clutter cancellation_db; Current is always a safe identity baseline",
+    }
     compact = {
         "spec": spec,
         "status": scene["status"],
         "exact_pairing": "same deterministic background_input_dir for OFF/ON/TO",
         "plans": plan_records,
+        "selection": selection,
     }
     if scene_root.exists():
         shutil.rmtree(scene_root)
-    return transfer_rows, detection_rows, cfar_rows, compact
+    return transfer_rows, detection_rows, cfar_rows, candidate_rows, compact
 
 
 def group(rows: list[dict[str, Any]], method: str, lambda_value: float,
@@ -282,7 +407,8 @@ def summary_row(transfer_rows: list[dict[str, Any]],
 
 def constraint_rows(summary: list[dict[str, Any]],
                     detection_rows: list[dict[str, Any]],
-                    cfar_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+                    cfar_rows: list[dict[str, Any]],
+                    safety: Mapping[str, Any]) -> list[dict[str, Any]]:
     current = next(row for row in summary
                    if row["method"] == "J0_Current")
     current_det = group(detection_rows, "J0_Current", 0.0)
@@ -306,18 +432,20 @@ def constraint_rows(summary: list[dict[str, Any]],
                                for item in det if str(item.get("snr_db")) == snr]))
             for snr in current_by_snr
         }
-        transfer_floor = row["L_causal_min_dB"] >= CAUSAL_TRANSFER_FLOOR_DB
+        transfer_floor = row["L_causal_min_dB"] >= float(
+            safety["causal_transfer_floor_db"])
         pd_overall = row["paired_causal_pd"] >= current["paired_causal_pd"]
         pd_by_snr = all(candidate_by_snr[snr] >= current_by_snr[snr]
                          for snr in current_by_snr)
         pfa_delta = row["off_pfa_mean"] - current_pfa
         cluster_delta = row["off_false_clusters_mean"] - current_clusters
-        pfa_ok = pfa_delta <= 0.0
-        clusters_ok = cluster_delta <= 0.0
+        pfa_ok = pfa_delta <= float(safety["target_off_pfa_delta_max"])
+        clusters_ok = cluster_delta <= float(
+            safety["target_off_false_clusters_delta_max"])
         output.append({
             "method": row["method"],
             "lambda": row["lambda"],
-            "causal_transfer_floor_db": CAUSAL_TRANSFER_FLOOR_DB,
+            "causal_transfer_floor_db": float(safety["causal_transfer_floor_db"]),
             "L_causal_min_dB": row["L_causal_min_dB"],
             "causal_transfer_ok": transfer_floor,
             "paired_pd": row["paired_causal_pd"],
@@ -334,125 +462,183 @@ def constraint_rows(summary: list[dict[str, Any]],
     return output
 
 
+def aggregate_candidate_rows(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Aggregate per-scene candidates without replacing the scene evidence."""
+    output: list[dict[str, Any]] = []
+    keys = sorted({(str(row["method"]), float(row["lambda"])) for row in rows})
+    for method, lambda_value in keys:
+        selected = [row for row in rows if row["method"] == method
+                    and math.isclose(float(row["lambda"]), lambda_value)]
+        def values(field: str) -> np.ndarray:
+            return finite_values(selected, field)
+        lcausal = values("L_causal_min_dB")
+        gain = values("scnr_gain_db_vs_current")
+        cancellation = values("cancellation_db")
+        output.append({
+            "method": method,
+            "lambda": lambda_value,
+            "scene_count": len(selected),
+            "safe_scene_count": sum(bool(row["safe"]) for row in selected),
+            "safe_scene_fraction": (float(np.mean([bool(row["safe"]) for row in selected]))
+                                     if selected else math.nan),
+            "cancellation_db_mean": (float(np.mean(cancellation))
+                                      if cancellation.size else math.nan),
+            "scnr_gain_db_vs_current_mean": (float(np.mean(gain))
+                                              if gain.size else math.nan),
+            "L_causal_min_p05_dB": (float(np.percentile(lcausal, 5))
+                                     if lcausal.size else math.nan),
+            "L_causal_min_worst_dB": (float(np.min(lcausal))
+                                       if lcausal.size else math.nan),
+            "paired_hit_count": sum(int(row["paired_hit_count"]) for row in selected),
+            "target_count": sum(int(row["target_count"]) for row in selected),
+        })
+    return output
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path,
-                        default=ROOT / "outputs/target_safe_oracle")
+                        default=ROOT / "outputs/target_safe_oracle_v2")
+    parser.add_argument("--config", type=Path,
+                        default=ROOT / "configs/research/target_safe_oracle_v2.json")
     parser.add_argument("--build-dir", type=Path, default=ROOT / "build")
     parser.add_argument("--formal-dir", type=Path,
                         default=ROOT / "outputs/physics_adaptive_selective_v2_formal")
     args = parser.parse_args()
     output = args.output_dir.resolve()
-    output.mkdir(parents=True, exist_ok=True)
+    config_path = args.config.resolve()
     formal_dir = args.formal_dir.resolve()
-    gate = json.loads((formal_dir / "null_gate.json").read_text(encoding="utf-8"))
-    positive_gate = json.loads(
-        (formal_dir / "positive_quality_gate.json").read_text(encoding="utf-8"))
+    oracle_config = json.loads(config_path.read_text(encoding="utf-8"))
+    if oracle_config.get("ai_training") is not False:
+        raise RuntimeError("Target-Safe Oracle requires ai_training=false")
+    gate_path = formal_dir / "null_gate.json"
+    positive_gate_path = formal_dir / "positive_quality_gate.json"
+    provenance_start = run_provenance_start(
+        ROOT, (config_path, gate_path, positive_gate_path))
+    if provenance_start["source_worktree_dirty_before"] is not False:
+        raise SystemExit("Target-Safe Oracle requires a clean source worktree at start")
+    if output.exists() and any(output.iterdir()):
+        raise SystemExit(f"output directory must be empty: {output}")
+    output.mkdir(parents=True, exist_ok=True)
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    positive_gate = json.loads(positive_gate_path.read_text(encoding="utf-8"))
+    safety = oracle_config["safety"]
     base = formal.base_scenario()
     specs = make_specs()
     before = resource_snapshot()
+    if not before["nvidia_smi"] or "NVIDIA-SMI has failed" in before["nvidia_smi"]:
+        raise SystemExit("Target-Safe Oracle requires a visible CUDA device")
     transfer_rows: list[dict[str, Any]] = []
     detection_rows: list[dict[str, Any]] = []
     cfar_rows: list[dict[str, Any]] = []
+    candidate_rows: list[dict[str, Any]] = []
     scene_records: list[dict[str, Any]] = []
     for index, spec in enumerate(specs, 1):
-        print(f"[target-safe-oracle] {index}/{len(specs)} {spec['scene_id']}",
+        print(f"[target-safe-oracle-v2] {index}/{len(specs)} {spec['scene_id']}",
               flush=True)
-        tr, det, cfar, compact = run_one_scene(
-            spec, base, output, args.build_dir.resolve(), gate, positive_gate)
+        tr, det, cfar, candidates, compact = run_one_scene(
+            spec, base, output, args.build_dir.resolve(), gate, positive_gate,
+            safety)
         transfer_rows.extend(tr)
         detection_rows.extend(det)
         cfar_rows.extend(cfar)
+        candidate_rows.extend(candidates)
         scene_records.append(compact)
 
+    selected_rows = [record["selection"] for record in scene_records]
+    headroom_values = finite_values(selected_rows, "safe_oracle_headroom_db")
+    safe_oracle_headroom = (float(np.mean(headroom_values))
+                            if headroom_values.size else 0.0)
+    summary = aggregate_candidate_rows(candidate_rows)
     write_csv(output / "oracle_transfer_rows.csv", transfer_rows)
     write_csv(output / "oracle_detection_rows.csv", detection_rows)
     write_csv(output / "oracle_cfar_rows.csv", cfar_rows)
-    summary = [
-        summary_row(transfer_rows, detection_rows, cfar_rows, "J0_Current", 0.0),
-        *[summary_row(transfer_rows, detection_rows, cfar_rows, method, lambda_value)
-          for method in EXPERT_METHODS for lambda_value in LAMBDAS],
-    ]
-    constraints = constraint_rows(summary, detection_rows, cfar_rows)
+    write_csv(output / "oracle_candidate_metrics.csv", candidate_rows)
+    write_csv(output / "oracle_scene_selection.csv", selected_rows)
     write_csv(output / "oracle_summary.csv", summary)
-    write_csv(output / "oracle_constraints.csv", constraints)
-    safe_lambdas = {
-        method: [row["lambda"] for row in constraints
-                 if row["method"] == method and row["safe"]]
-        for method in EXPERT_METHODS
-    }
-    best_safe = {
-        method: (max(values) if values else None)
-        for method, values in safe_lambdas.items()
-    }
-    provenance = git_provenance(ROOT)
+    (output / "resource_snapshot_before.json").write_text(
+        json.dumps(json_safe(before), ensure_ascii=False, indent=2,
+                   allow_nan=False) + "\n", encoding="utf-8")
+    after = resource_snapshot()
+    (output / "resource_snapshot_after.json").write_text(
+        json.dumps(json_safe(after), ensure_ascii=False, indent=2,
+                   allow_nan=False) + "\n", encoding="utf-8")
+    provenance_post = run_provenance_post(ROOT, provenance_start)
+    (output / "provenance_start.json").write_text(
+        json.dumps(json_safe(provenance_start), ensure_ascii=False, indent=2,
+                   allow_nan=False) + "\n", encoding="utf-8")
+    (output / "provenance_post.json").write_text(
+        json.dumps(json_safe(provenance_post), ensure_ascii=False, indent=2,
+                   allow_nan=False) + "\n", encoding="utf-8")
+    formal_manifest = formal_dir / "formal_matrix_manifest.json"
+    formal_source_commit = (json.loads(formal_manifest.read_text(encoding="utf-8"))
+                            .get("source_commit") if formal_manifest.is_file() else None)
     manifest = {
-        "schema_version": 1,
-        "analysis": "Target-Safe Physics Oracle",
-        **provenance,
+        "schema_version": 2,
+        "analysis": "Per-scene Target-Safe Physics Oracle",
+        "source_commit": provenance_start["source_commit"],
+        "source_worktree_dirty_before": provenance_start[
+            "source_worktree_dirty_before"],
+        "worktree_dirty": provenance_post["source_worktree_dirty_after"],
+        "provenance_start": provenance_start,
+        "provenance_post": provenance_post,
         "ai_training": False,
         "evaluation_only": True,
-        "formal_source_commit": json.loads(
-            (formal_dir / "formal_matrix_manifest.json").read_text(
-                encoding="utf-8")).get("source_commit"),
+        "formal_source_commit": formal_source_commit,
+        "safe_oracle_headroom_db": safe_oracle_headroom,
         "design": {
             "scene_count": len(specs),
-            "snr_values_db": [14.0, 16.0],
+            "snr_values_db": sorted({float(spec["snr_db"]) for spec in specs}),
             "families": list(transfer.FAMILIES),
-            "seed_namespace": "2026111000 audit replay",
+            "seed_namespace": "2026111000 audit replay, targeted 12-scene development set",
             "roles": {"OFF": "C+N", "ON": "S+C+N", "TO": "S-only"},
             "same_seed_geometry_mismatch": True,
             "primary_calibration_source": "target_off",
             "not_used_for_threshold_fit": True,
+            "candidate_policy": "Current plus J5/J6 lambda in {0.25,0.5,0.75,1}; select independently per scene",
         },
-        "lambda_values": list(LAMBDAS),
+        "lambda_values": {"J5": list(EXPERT_LAMBDAS), "J6": list(EXPERT_LAMBDAS)},
         "lambda_definition": (
             "scale frozen OFF-derived estimated delay and phase correction; "
-            "lambda=0 is Current identity and lambda=1 is full frozen replay"),
-        "constraints": {
-            "causal_transfer_floor_db": CAUSAL_TRANSFER_FLOOR_DB,
-            "paired_causal_pd": "no loss overall and at every SNR point",
-            "pfa": "target-off mean delta <= 0 versus Current",
-            "false_clusters": "target-off mean delta <= 0 versus Current",
-        },
+            "Current is the explicit identity baseline"),
+        "constraints": safety,
         "identity_checks": {
-            "lambda_zero_equals_current": True,
+            "current_is_explicit_baseline": True,
+            "lambda_zero_expert_not_used_as_candidate": True,
             "lambda_one_equals_full_frozen_plan": True,
         },
-        "safe_lambdas": safe_lambdas,
-        "best_safe_lambda": best_safe,
         "counts": {
             "scene_count": len(scene_records),
             "transfer_rows": len(transfer_rows),
             "detection_rows": len(detection_rows),
             "cfar_rows": len(cfar_rows),
+            "candidate_rows": len(candidate_rows),
         },
         "outputs": {
             "oracle_transfer_rows": "oracle_transfer_rows.csv",
             "oracle_detection_rows": "oracle_detection_rows.csv",
             "oracle_cfar_rows": "oracle_cfar_rows.csv",
+            "oracle_candidate_metrics": "oracle_candidate_metrics.csv",
+            "oracle_scene_selection": "oracle_scene_selection.csv",
             "oracle_summary": "oracle_summary.csv",
-            "oracle_constraints": "oracle_constraints.csv",
         },
         "cleanup": {
             "raw_scene_cleanup": True,
-            "retained": "compact transfer, detection, CFAR, summary, constraints, manifest, resource snapshots",
+            "retained": "compact candidate metrics, transfer/detection/CFAR rows, per-scene selection, provenance and resource snapshots",
         },
         "scene_records": scene_records,
     }
-    (output / "resource_snapshot_before.json").write_text(
-        json.dumps(json_safe(before), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8")
-    (output / "resource_snapshot_after.json").write_text(
-        json.dumps(json_safe(resource_snapshot()), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8")
-    (output / "target_safe_oracle_manifest.json").write_text(
-        json.dumps(json_safe(manifest), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8")
+    (output / "target_safe_oracle_v2_manifest.json").write_text(
+        json.dumps(json_safe(manifest), ensure_ascii=False, indent=2,
+                   allow_nan=False) + "\n", encoding="utf-8")
     print(json.dumps(json_safe({
         "output_dir": str(output),
         "scene_count": len(scene_records),
-        "best_safe_lambda": best_safe,
+        "safe_oracle_headroom_db": safe_oracle_headroom,
+        "selected_methods": {
+            method: sum(row["selected_method"] == method for row in selected_rows)
+            for method in ("J0_Current", *EXPERT_METHODS)
+        },
         "ai_training": False,
     }), ensure_ascii=False))
     return 0

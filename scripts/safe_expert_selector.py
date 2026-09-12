@@ -35,6 +35,14 @@ FEATURE_NAMES = (
     "delay_extrapolation_ratio",
 )
 
+# J7.1 uses these two additional inference-visible summaries only for the
+# complexity decision.  They are deliberately not part of the legacy J7
+# quality-veto vector, so existing frozen J7 callers remain compatible.
+COMPLEXITY_FEATURE_NAMES = (
+    "abs_beta2_deg_per_pulse2",
+    "joint_vs_p1_residual_coherence_gain",
+)
+
 QUALITY_FEATURES = (
     "joint_confidence",
     "joint_rmse_rad",
@@ -64,6 +72,14 @@ class SelectorThresholds:
     delay_signal_min_ns: float
     phase_signal_min: float
     delay_extrapolation_ratio_max: float
+
+
+@dataclass(frozen=True)
+class ComplexitySelectorThresholds:
+    """Frozen J7.1 evidence thresholds for choosing a nonlinear surface."""
+
+    beta2_abs_min_deg_per_pulse2: float
+    joint_vs_p1_residual_coherence_gain_min: float
 
 
 # These profiles are fixed before looking at Test-V2.  Profile selection is
@@ -133,6 +149,8 @@ def extract_inference_features(observables: Mapping[str, Any]) -> dict[str, floa
                     if math.isfinite(beta1) and math.isfinite(beta2)
                     else math.nan)
     delay_signal = abs(_finite(delay.get("delta_tau_ns")))
+    residual_p1 = _finite(coherence.get("residual_p1_global"))
+    residual_joint = _finite(coherence.get("residual_joint_global"))
     return {
         "joint_confidence": _finite(joint.get("confidence")),
         "joint_rmse_rad": _finite(joint.get("rmse_rad")),
@@ -153,6 +171,11 @@ def extract_inference_features(observables: Mapping[str, Any]) -> dict[str, floa
         "phase_signal": phase_signal,
         "delay_signal": delay_signal,
         "delay_extrapolation_ratio": extrapolation,
+        "abs_beta2_deg_per_pulse2": abs(beta2),
+        "joint_vs_p1_residual_coherence_gain": (
+            residual_joint - residual_p1
+            if math.isfinite(residual_joint) and math.isfinite(residual_p1)
+            else math.nan),
     }
 
 
@@ -209,3 +232,46 @@ def select_safe_expert_with_reason(
 def select_safe_expert(features: Mapping[str, Any],
                        thresholds: SelectorThresholds) -> str:
     return select_safe_expert_with_reason(features, thresholds)[0]
+
+
+def select_complexity_aware_expert_with_reason(
+        features: Mapping[str, Any],
+        thresholds: SelectorThresholds,
+        complexity: ComplexitySelectorThresholds,
+) -> tuple[str, str]:
+    """J7.1: prefer linear P1/J5; permit J6 only for measured nonlinearity.
+
+    Both ``|beta2|`` and the residual-coherence improvement of the joint
+    surface over P1 must clear frozen thresholds.  No target truth, mechanism
+    label, or post-hoc target metric is accepted by this function.
+    """
+    veto = _quality_veto(features, thresholds)
+    if veto is not None:
+        return CURRENT, veto
+    beta2 = _finite(features.get("abs_beta2_deg_per_pulse2"))
+    joint_gain = _finite(features.get("joint_vs_p1_residual_coherence_gain"))
+    nonlinear = (
+        math.isfinite(beta2)
+        and math.isfinite(joint_gain)
+        and beta2 >= complexity.beta2_abs_min_deg_per_pulse2
+        and joint_gain >= complexity.joint_vs_p1_residual_coherence_gain_min)
+    delay_signal = (
+        features["delay_confidence"] >= thresholds.delay_confidence_min
+        and features["delay_signal"] >= thresholds.delay_signal_min_ns)
+    phase_signal = (
+        features["phase_confidence"] >= thresholds.phase_confidence_min
+        and features["phase_signal"] >= thresholds.phase_signal_min)
+    if nonlinear and (phase_signal or delay_signal):
+        return J6, "nonlinear_surface_supported_by_beta2_and_joint_gain"
+    if phase_signal or delay_signal:
+        return J5, "linear_or_insufficient_nonlinear_evidence_prefers_p1"
+    return CURRENT, "zero_or_weak_signal"
+
+
+def select_complexity_aware_expert(
+        features: Mapping[str, Any],
+        thresholds: SelectorThresholds,
+        complexity: ComplexitySelectorThresholds,
+) -> str:
+    return select_complexity_aware_expert_with_reason(
+        features, thresholds, complexity)[0]

@@ -110,7 +110,12 @@ def cfar_delta(cfar_rows: list[dict[str, str]], method: str,
 def evaluate_method(transfer_rows: list[dict[str, str]],
                     detection_rows: list[dict[str, str]],
                     cfar_rows: list[dict[str, str]], method: str,
-                    causal_floor_db: float) -> dict[str, Any]:
+                    guardrails: Mapping[str, Any]) -> dict[str, Any]:
+    """Evaluate one method using only numeric guardrails from JSON config."""
+    causal_floor_db = float(guardrails["causal_transfer_floor_db"])
+    pd_no_loss_required = bool(guardrails["paired_pd_no_loss"])
+    pfa_delta_max = float(guardrails["target_off_pfa_delta_max"])
+    cluster_delta_max = float(guardrails["target_off_false_clusters_delta_max"])
     transfer = method_rows(transfer_rows, method)
     detection = method_rows(detection_rows, method)
     baseline_pd = float(np.mean([
@@ -128,9 +133,10 @@ def evaluate_method(transfer_rows: list[dict[str, str]],
     causal = stats(transfer, "L_causal_dB")
     target_only = stats(transfer, "L_target_only_dB")
     causal_ok = causal["min"] is not None and causal["min"] >= causal_floor_db
-    pd_overall_ok = pd >= baseline_pd
-    pfa_ok = math.isfinite(pfa_delta) and pfa_delta <= 0.0
-    cluster_ok = math.isfinite(cluster_delta) and cluster_delta <= 0.0
+    pd_overall_ok = (not pd_no_loss_required) or pd >= baseline_pd
+    pd_by_snr_ok = (not pd_no_loss_required) or pd_by_snr_ok
+    pfa_ok = math.isfinite(pfa_delta) and pfa_delta <= pfa_delta_max
+    cluster_ok = math.isfinite(cluster_delta) and cluster_delta <= cluster_delta_max
     return {
         "method": method,
         "target_count": len(transfer),
@@ -149,11 +155,118 @@ def evaluate_method(transfer_rows: list[dict[str, str]],
         "pfa_delta_vs_current": pfa_delta,
         "false_clusters_delta_vs_current": cluster_delta,
         "causal_transfer_floor_db": causal_floor_db,
+        "target_off_pfa_delta_max": pfa_delta_max,
+        "target_off_false_clusters_delta_max": cluster_delta_max,
+        "paired_pd_no_loss_required": pd_no_loss_required,
         "causal_transfer_ok": causal_ok,
         "pfa_acceptable": pfa_ok,
         "false_clusters_acceptable": cluster_ok,
         "method_passes_physics_gate": bool(
             causal_ok and pd_overall_ok and pd_by_snr_ok and pfa_ok and cluster_ok),
+    }
+
+
+def _resolve_from_config(path_value: str | None, config_path: Path) -> Path | None:
+    if not path_value:
+        return None
+    path = Path(path_value)
+    if not path.is_absolute():
+        path = ROOT / path
+    return path.resolve()
+
+
+def load_safe_oracle_evidence(config: Mapping[str, Any], config_path: Path) -> dict[str, Any]:
+    """Load the per-scene safe-oracle result without treating absence as proof."""
+    oracle_config = config.get("target_safe_oracle", {})
+    manifest_path = _resolve_from_config(
+        oracle_config.get("result_manifest"), config_path)
+    if manifest_path is None or not manifest_path.is_file():
+        return {
+            "status": "not_proven",
+            "reason": "target-safe oracle manifest is missing",
+            "manifest": str(manifest_path) if manifest_path else None,
+            "safe_oracle_headroom_db": None,
+        }
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    start = manifest.get("provenance_start", {})
+    dirty_before = start.get("source_worktree_dirty_before",
+                             manifest.get("source_worktree_dirty_before"))
+    headroom = finite(manifest.get("safe_oracle_headroom_db"))
+    configured_min = float(oracle_config["safe_oracle_headroom_min_db"])
+    if dirty_before is not False:
+        return {
+            "status": "not_proven",
+            "reason": "target-safe oracle source_worktree_dirty_before is not false",
+            "manifest": str(manifest_path),
+            "safe_oracle_headroom_db": headroom,
+            "source_worktree_dirty_before": dirty_before,
+        }
+    if not math.isfinite(headroom):
+        return {
+            "status": "not_proven",
+            "reason": "target-safe oracle did not publish finite headroom",
+            "manifest": str(manifest_path),
+            "safe_oracle_headroom_db": None,
+            "source_worktree_dirty_before": dirty_before,
+        }
+    return {
+        "status": "proven",
+        "reason": "per-scene safe-oracle replay published finite headroom",
+        "manifest": str(manifest_path),
+        "safe_oracle_headroom_db": headroom,
+        "safe_oracle_headroom_min_db": configured_min,
+        "source_worktree_dirty_before": dirty_before,
+        "scene_count": manifest.get("counts", {}).get("scene_count"),
+    }
+
+
+def classify_final_gate(method_results: list[dict[str, Any]],
+                        leakage_ok: bool,
+                        oracle_evidence: Mapping[str, Any],
+                        config: Mapping[str, Any]) -> dict[str, Any]:
+    """Classify the three explicit final-gate states.
+
+    A safe J7 result alone never reopens AI.  Reopening requires a finite,
+    positive per-scene Safe Oracle headroom and failure of deterministic
+    recovery to capture that headroom.
+    """
+    oracle_config = config["target_safe_oracle"]
+    min_headroom = float(oracle_config["safe_oracle_headroom_min_db"])
+    min_deterministic_gain = float(
+        oracle_config["deterministic_solved_min_gain_db"])
+    deterministic_solved: list[str] = []
+    for row in method_results:
+        if row["method"] not in (J5, J6, J7):
+            continue
+        gain = finite(row.get("L_causal_mean_dB"))
+        if (row["method_passes_physics_gate"] and math.isfinite(gain)
+                and gain > min_deterministic_gain and leakage_ok):
+            deterministic_solved.append(row["method"])
+    headroom = finite(oracle_evidence.get("safe_oracle_headroom_db"))
+    oracle_has_headroom = (
+        oracle_evidence.get("status") == "proven"
+        and math.isfinite(headroom)
+        and headroom > min_headroom)
+    if deterministic_solved:
+        decision = "NO_GO_AI"
+        reason = "deterministic physics method recovered measurable safe headroom"
+    elif not oracle_has_headroom:
+        decision = "FINAL_NO_GO_AI"
+        reason = ("safe oracle has no measurable headroom or its evidence is "
+                  "not proven")
+    else:
+        decision = "REOPEN_AI_ROUTER"
+        reason = ("safe oracle has measurable residual headroom, but no "
+                  "deterministic method recovered it")
+    return {
+        "decision": decision,
+        "reason": reason,
+        "deterministic_solved_methods": deterministic_solved,
+        "safe_oracle_has_headroom": oracle_has_headroom,
+        "safe_oracle_headroom_db": headroom if math.isfinite(headroom) else None,
+        "safe_oracle_headroom_min_db": min_headroom,
+        "deterministic_solved_min_gain_db": min_deterministic_gain,
+        "j7_safety_alone_can_reopen": False,
     }
 
 
@@ -166,9 +279,9 @@ def evaluate(output_dir: Path, config_path: Path) -> dict[str, Any]:
     detection_rows = read_csv(output_dir / "v3_detection_rows.csv")
     cfar_rows = read_csv(output_dir / "v3_cfar_rows.csv")
     selector_rows = read_csv(output_dir / "v3_inference_visible_features.csv")
-    causal_floor = float(config["final_gate_guardrails"]["causal_transfer_floor_db"])
+    guardrails = config["final_gate_guardrails"]
     method_results = [evaluate_method(
-        transfer_rows, detection_rows, cfar_rows, method, causal_floor)
+        transfer_rows, detection_rows, cfar_rows, method, guardrails)
         for method in METHODS]
     allowed_feature_columns = {
         "split", "scene_id", "selected_method", "selection_reason",
@@ -179,15 +292,18 @@ def evaluate(output_dir: Path, config_path: Path) -> dict[str, Any]:
         "d3_j6_delay_disagreement_ns",
         "p1_j6_phase_disagreement_deg_per_pulse", "phase_signal", "delay_signal",
         "delay_extrapolation_ratio",
+        "abs_beta2_deg_per_pulse2",
+        "joint_vs_p1_residual_coherence_gain",
+        "complexity_route_reason",
     }
     feature_columns = set(selector_rows[0]) if selector_rows else set()
     forbidden_columns = sorted(feature_columns - allowed_feature_columns)
     leakage_ok = not forbidden_columns and config["j7_selector"]["truth_fields_in_input"] is False
     j7 = next(row for row in method_results if row["method"] == J7)
-    nontrivial_pass = any(
-        row["method"] in (J5, J6, J7) and row["method_passes_physics_gate"]
-        for row in method_results)
-    decision = "REOPEN_AI_ROUTER" if nontrivial_pass and leakage_ok else "FINAL_NO_GO_AI"
+    oracle_evidence = load_safe_oracle_evidence(config, config_path)
+    classification = classify_final_gate(
+        method_results, leakage_ok, oracle_evidence, config)
+    decision = classification["decision"]
     reasons = []
     if not j7["causal_transfer_ok"]:
         reasons.append("J7 causal target transfer floor failed")
@@ -199,8 +315,7 @@ def evaluate(output_dir: Path, config_path: Path) -> dict[str, Any]:
         reasons.append("J7 paired causal Pd no-loss condition failed")
     if not leakage_ok:
         reasons.append("J7 inference feature schema contains forbidden fields")
-    if not reasons:
-        reasons.append("J7 passed frozen physics guardrails; residual AI value requires router review")
+    reasons.append(classification["reason"])
     selector_counts: dict[str, int] = {}
     for row in selector_rows:
         method = row["selected_method"]
@@ -214,11 +329,13 @@ def evaluate(output_dir: Path, config_path: Path) -> dict[str, Any]:
         "ai_training": False,
         "decision": decision,
         "decision_reasons": reasons,
+        "decision_classification": classification,
         "j7_selector_counts": selector_counts,
         "j7_inference_feature_leakage_ok": leakage_ok,
         "j7_forbidden_feature_columns": forbidden_columns,
         "method_results": method_results,
         "guardrails": config["final_gate_guardrails"],
+        "target_safe_oracle": oracle_evidence,
         "limitations": [
             "Test-V3 is a physics-only gate and does not authorize AI training.",
             "Oracle_Safe_Lambda_0 is an identity evaluation baseline, not a gain claim.",
