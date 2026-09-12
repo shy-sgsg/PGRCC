@@ -147,6 +147,7 @@ def run_one_scene(
     spec: dict[str, Any], base: dict[str, Any], output: Path, build_dir: Path,
     gate: dict[str, Any], positive_gate: dict[str, Any],
     beta2_threshold: float, joint_gain_threshold: float,
+    overcorrection_target_loss_floor_db: float,
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]:
     scene = formal.run_scene(spec, base, output, build_dir, True)
     if scene.get("status") != "pass":
@@ -250,13 +251,16 @@ def run_one_scene(
         j6_target["target_coherence_after"] - j5_target["target_coherence_after"])
     mechanism_row["j6_target_theoretical_attenuation_db"] = j6_target[
         "target_theoretical_csi_attenuation_db"]
+    mechanism_row["j5_target_only_transfer_db"] = j5_target[
+        "L_target_only_mean_dB"]
+    mechanism_row["j6_target_only_transfer_db"] = j6_target[
+        "L_target_only_mean_dB"]
     mechanism_row["nearly_linear_phase"] = (
         mechanism_row["j6_beta2_abs"] < beta2_threshold)
     mechanism_row["j6_overcorrection_suspected"] = bool(
-        mechanism_row["nearly_linear_phase"] and (
-            mechanism_row["off_joint_minus_p1_residual_coherence_gain"] <
-            joint_gain_threshold or
-            mechanism_row["j6_target_coherence_minus_j5"] < 0.0))
+        mechanism_row["nearly_linear_phase"] and
+        mechanism_row["j6_target_only_transfer_db"] <
+        overcorrection_target_loss_floor_db)
     compact = {
         "spec": spec,
         "status": scene["status"],
@@ -309,7 +313,8 @@ def main() -> int:
         tr, target, compact = run_one_scene(
             spec, base, output, args.build_dir.resolve(), gate, positive_gate,
             float(config["beta2_abs_min_deg_per_pulse2"]),
-            float(config["joint_vs_p1_residual_coherence_gain_min"]))
+            float(config["joint_vs_p1_residual_coherence_gain_min"]),
+            float(config["overcorrection_target_loss_floor_db"]))
         transfer_rows.extend(tr)
         target_rows.extend(target)
         mechanism_rows.append(compact["mechanism_row"])
@@ -347,7 +352,7 @@ def main() -> int:
             "comparison": "target-only differential phase surface minus OFF clutter correction surface",
             "coherence": "target channel global coherence before/after frozen correction",
             "theoretical_csi_attenuation": "spectral target-only power ratio under frozen correction",
-            "overcorrection_rule": "nearly linear beta2 plus insufficient joint gain or J6 coherence below J5",
+            "overcorrection_rule": "nearly linear beta2 plus J6 target-only transfer below configured loss floor; target metrics are post-hoc diagnostics only",
         },
         "counts": {"scene_count": len(scene_records),
                    "transfer_rows": len(transfer_rows),
