@@ -57,10 +57,10 @@ def json_safe(value: Any) -> Any:
     if isinstance(value, (np.floating, float)):
         result = float(value)
         return result if math.isfinite(result) else None
-    if isinstance(value, (np.integer, int)):
-        return int(value)
     if isinstance(value, (np.bool_, bool)):
         return bool(value)
+    if isinstance(value, (np.integer, int)):
+        return int(value)
     return value
 
 

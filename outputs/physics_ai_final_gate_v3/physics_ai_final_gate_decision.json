@@ -4,18 +4,29 @@
   "source_commit": "3a11d03588b53cedb8abc4a64d39f671b1cea5e4",
   "v3_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/physics_ai_final_gate_v3/physics_ai_final_gate_v3_manifest.json",
   "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/configs/research/physics_ai_final_gate_v3.json",
-  "ai_training": 0,
-  "decision": "FINAL_NO_GO_AI",
+  "ai_training": false,
+  "decision": "REOPEN_AI_ROUTER",
   "decision_reasons": [
     "J7 causal target transfer floor failed",
     "J7 target-off Pfa regressed",
-    "J7 target-off false clusters regressed"
+    "J7 target-off false clusters regressed",
+    "safe oracle has measurable residual headroom, but no deterministic method recovered it"
   ],
+  "decision_classification": {
+    "decision": "REOPEN_AI_ROUTER",
+    "reason": "safe oracle has measurable residual headroom, but no deterministic method recovered it",
+    "deterministic_solved_methods": [],
+    "safe_oracle_has_headroom": true,
+    "safe_oracle_headroom_db": 0.06654153824785329,
+    "safe_oracle_headroom_min_db": 0.0,
+    "deterministic_solved_min_gain_db": 0.0,
+    "j7_safety_alone_can_reopen": false
+  },
   "j7_selector_counts": {
     "J0_Current": 53,
     "J6_Joint_Phase_Surface": 11
   },
-  "j7_inference_feature_leakage_ok": 1,
+  "j7_inference_feature_leakage_ok": true,
   "j7_forbidden_feature_columns": [],
   "method_results": [
     {
@@ -29,8 +40,8 @@
       "L_target_only_p05_dB": -0.07742975819750347,
       "paired_causal_pd": 0.59375,
       "current_paired_causal_pd": 0.546875,
-      "paired_pd_no_loss_overall": 1,
-      "paired_pd_no_loss_by_snr": 1,
+      "paired_pd_no_loss_overall": true,
+      "paired_pd_no_loss_by_snr": true,
       "paired_pd_by_snr": {
         "10.0": 0.25,
         "12.0": 0.625,
@@ -54,10 +65,13 @@
       "pfa_delta_vs_current": 1.7937353611932895e-05,
       "false_clusters_delta_vs_current": 1.765625,
       "causal_transfer_floor_db": -0.25,
-      "causal_transfer_ok": 0,
-      "pfa_acceptable": 0,
-      "false_clusters_acceptable": 0,
-      "method_passes_physics_gate": 0
+      "target_off_pfa_delta_max": 0.0,
+      "target_off_false_clusters_delta_max": 0.0,
+      "paired_pd_no_loss_required": true,
+      "causal_transfer_ok": false,
+      "pfa_acceptable": false,
+      "false_clusters_acceptable": false,
+      "method_passes_physics_gate": false
     },
     {
       "method": "J6_Joint_Phase_Surface",
@@ -70,8 +84,8 @@
       "L_target_only_p05_dB": -1.665958976114903,
       "paired_causal_pd": 0.578125,
       "current_paired_causal_pd": 0.546875,
-      "paired_pd_no_loss_overall": 1,
-      "paired_pd_no_loss_by_snr": 1,
+      "paired_pd_no_loss_overall": true,
+      "paired_pd_no_loss_by_snr": true,
       "paired_pd_by_snr": {
         "10.0": 0.25,
         "12.0": 0.625,
@@ -95,10 +109,13 @@
       "pfa_delta_vs_current": -5.357129098865817e-06,
       "false_clusters_delta_vs_current": 2.984375,
       "causal_transfer_floor_db": -0.25,
-      "causal_transfer_ok": 0,
-      "pfa_acceptable": 1,
-      "false_clusters_acceptable": 0,
-      "method_passes_physics_gate": 0
+      "target_off_pfa_delta_max": 0.0,
+      "target_off_false_clusters_delta_max": 0.0,
+      "paired_pd_no_loss_required": true,
+      "causal_transfer_ok": false,
+      "pfa_acceptable": true,
+      "false_clusters_acceptable": false,
+      "method_passes_physics_gate": false
     },
     {
       "method": "J7_Deterministic_Safe_Expert_Selector",
@@ -111,8 +128,8 @@
       "L_target_only_p05_dB": 0.0,
       "paired_causal_pd": 0.546875,
       "current_paired_causal_pd": 0.546875,
-      "paired_pd_no_loss_overall": 1,
-      "paired_pd_no_loss_by_snr": 1,
+      "paired_pd_no_loss_overall": true,
+      "paired_pd_no_loss_by_snr": true,
       "paired_pd_by_snr": {
         "10.0": 0.25,
         "12.0": 0.625,
@@ -136,10 +153,13 @@
       "pfa_delta_vs_current": 2.8501130655202197e-05,
       "false_clusters_delta_vs_current": 1.28125,
       "causal_transfer_floor_db": -0.25,
-      "causal_transfer_ok": 0,
-      "pfa_acceptable": 0,
-      "false_clusters_acceptable": 0,
-      "method_passes_physics_gate": 0
+      "target_off_pfa_delta_max": 0.0,
+      "target_off_false_clusters_delta_max": 0.0,
+      "paired_pd_no_loss_required": true,
+      "causal_transfer_ok": false,
+      "pfa_acceptable": false,
+      "false_clusters_acceptable": false,
+      "method_passes_physics_gate": false
     },
     {
       "method": "Oracle_Safe_Lambda_0_EvaluationOnly",
@@ -152,8 +172,8 @@
       "L_target_only_p05_dB": 0.0,
       "paired_causal_pd": 0.546875,
       "current_paired_causal_pd": 0.546875,
-      "paired_pd_no_loss_overall": 1,
-      "paired_pd_no_loss_by_snr": 1,
+      "paired_pd_no_loss_overall": true,
+      "paired_pd_no_loss_by_snr": true,
       "paired_pd_by_snr": {
         "10.0": 0.25,
         "12.0": 0.625,
@@ -177,18 +197,30 @@
       "pfa_delta_vs_current": 0.0,
       "false_clusters_delta_vs_current": 0.0,
       "causal_transfer_floor_db": -0.25,
-      "causal_transfer_ok": 1,
-      "pfa_acceptable": 1,
-      "false_clusters_acceptable": 1,
-      "method_passes_physics_gate": 1
+      "target_off_pfa_delta_max": 0.0,
+      "target_off_false_clusters_delta_max": 0.0,
+      "paired_pd_no_loss_required": true,
+      "causal_transfer_ok": true,
+      "pfa_acceptable": true,
+      "false_clusters_acceptable": true,
+      "method_passes_physics_gate": true
     }
   ],
   "guardrails": {
     "causal_transfer_floor_db": -0.25,
-    "paired_pd_no_loss": 1,
+    "paired_pd_no_loss": true,
     "target_off_pfa_delta_max": 0.0,
     "target_off_false_clusters_delta_max": 0.0,
-    "ai_training_must_remain_false": 1
+    "ai_training_must_remain_false": true
+  },
+  "target_safe_oracle": {
+    "status": "proven",
+    "reason": "per-scene safe-oracle replay published finite headroom",
+    "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/target_safe_oracle_v2/target_safe_oracle_v2_manifest.json",
+    "safe_oracle_headroom_db": 0.06654153824785329,
+    "safe_oracle_headroom_min_db": 0.0,
+    "source_worktree_dirty_before": false,
+    "scene_count": 12
   },
   "limitations": [
     "Test-V3 is a physics-only gate and does not authorize AI training.",
