@@ -40,5 +40,40 @@
     "remaining_formal_png_count": 0,
     "remaining_formal_xml_count": 0
   },
+  "follow_up_cleanup": {
+    "date": "2026-09-12",
+    "scope": [
+      "ignored generated files under outputs/coherent_gate_ab and outputs/h0_gate_ab except compact CSI/ROI summaries and run manifests",
+      "ignored per-case estimator and residual-texture files under outputs/mechanism_estimators except compact oracle summaries",
+      "ignored per-case files under outputs/mechanism_mixed_design/cases",
+      "placeholder detection/tracking CSVs under outputs/phase_a_reuse_14_16_3period/reports",
+      "ignored runtime/debug files under outputs/phase_a_workspace_3period except compact CSI/ROI summaries"
+    ],
+    "measured_before": {
+      "outputs_du_h": "71M",
+      "candidate_file_count": 404,
+      "candidate_bytes": 4247817
+    },
+    "deleted": {
+      "file_count": 404,
+      "bytes": 4247817,
+      "reason": "已由 compact CSV/JSON/MD、manifest 和文档直接引用的高价值证据覆盖；删除重复的运行时派生、逐案例纹理图表、调试跟踪和占位评价结果。"
+    },
+    "retained": [
+      "coherent/H0 A/B config.xml、run_manifest.json、CSI metric summary 和 ROI manifest",
+      "mechanism estimator manifests、feature/phase/mismatch compact summaries 和 oracle summaries",
+      "mechanism mixed-design root compact evidence and stress aggregate",
+      "phase reuse mapping、generation statistics、simulation report 和 compact CSI summary",
+      "phase workspace compact CSI/ROI records",
+      "csi_residual_texture 的诊断 maps 和 summary（报告明确引用）",
+      "源码、配置、输入和所有已跟踪文件"
+    ],
+    "measured_after": {
+      "outputs_du_h": "66M",
+      "candidate_file_count": 0,
+      "git_status": "clean",
+      "raw_bin_npy_f32_log_count": 0
+    }
+  },
   "ai_training": false
 }
