@@ -80,11 +80,14 @@ Clutter-Support-Only 定向 CUDA replay。Oracle 在 12 个 development scenes �
 → [`AI_CSI_30_TargetSafeFailureMechanism审计.md`](AI_CSI_30_TargetSafeFailureMechanism审计.md)
 → [`AI_CSI_31_J8ClutterSupportOnly审计.md`](AI_CSI_31_J8ClutterSupportOnly审计.md)。
 
-当前主线已明确切换为 `REOPEN_ROUTER_RESEARCH`：新增 Router Opportunity gate、
-冻结的六个 compact action、统一 resource preflight、32-scene paired Builder、
-equal-family Materiality evaluator 和 observable-only Learnability audit 的代码与
-单元测试已经完成，但尚未启动新的 32-scene CUDA formal，因此 materiality 和
-learnability 尚无正式结果。新的阅读顺序为 [`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)
+当前主线已明确切换为 `REOPEN_ROUTER_RESEARCH`：Router Opportunity gate、冻结的六个
+compact action、统一 resource preflight、32-scene paired Builder 和 equal-family
+Materiality evaluator 已完成实际运行。2026-09-13 的 32-scene 结果为
+`NO_GO_AI_ROUTER_VALUE`：equal-family mean safe headroom `0.0047138 dB`，
+`P(headroom >= 0.10 dB)=0.03125`，触发预注册 early-stop，不扩展 64/96，
+也不启动 observable-only Learnability audit 或 AI training。紧凑证据在
+`outputs/router_opportunity_v1/`；新的阅读顺序为
+[`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)
 → [`AI_CSI_33_RouterLearnability审计.md`](AI_CSI_33_RouterLearnability审计.md)。
 
 ## 已完成事项

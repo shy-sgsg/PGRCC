@@ -101,8 +101,34 @@ scene 全部属于 M2-containing，M2-containing 的 raw headroom share 为 1.0�
 4/5（0.8）由 `J6_Joint_Phase_Surface` 选中。这个结果支持“先审查 phase/M2 机制”的
 研究动机，但不能替代新 seed namespace 下的 32-scene formal。
 
+## 32-scene 实际结果
+
+2026-09-13 在 clean source commit `24fc6824e477fafdc4fb59f464780f421ed7f6cd`
+上实际完成 32 个 CUDA scene（8 个 family 各 4 个），生成 192 个 action candidate
+rows、32 个 scene selection、32 个 inference-visible feature rows，并逐场清理 raw/runtime。
+Builder manifest 记录 `source_worktree_dirty_before=false`、`scene_manifest_rows=32`、
+`raw_scene_cleanup=true`；运行后的 dirty 状态来自 compact 输出本身，未生成 raw BIN/NPY/F32/log。
+
+Materiality evaluator 的当前结论为 **`NO_GO_AI_ROUTER_VALUE`**，并触发预注册的
+32-scene early-stop，不扩展至 64/96，也不进入 Learnability Audit：
+
+| 指标 | 实际结果 |
+|---|---:|
+| equal-family mean safe headroom | 0.0047138 dB |
+| median / p10 / p90 | 0 / 0 / 0.0034096 dB |
+| bootstrap 95% CI | [0.0002131, 0.0125069] dB |
+| positive opportunity rate (`headroom > 0`) | 4/32 = 0.125 |
+| P(headroom ≥ 0.05 / 0.10 / 0.25 dB) | 0.03125 / 0.03125 / 0 |
+| selected Current A0 | 28/32 = 0.875 |
+| selected non-Current action | A2/J5 λ=1.0，4/32 = 0.125 |
+
+因此当前状态仍为 `REOPEN_ROUTER_RESEARCH`、`ai_training=false`；没有训练 AI/MLP，
+也没有创建训练授权配置。完整 compact 证据位于
+`outputs/router_opportunity_v1/`，核心入口是
+`router_materiality_summary.json`、`router_opportunity_v1_manifest.json` 和
+`scene_manifests/`。
+
 ## 证据与限制
 
-本文件记录实现和复现入口，不代替实际实验结果。只有当前输出目录中的 manifest、
-compact CSV、resource preflight、provenance 和本次命令可以支持正式结论。没有实际
-运行 32-scene CUDA 前，不得把 materiality 写成已通过。
+本文件记录实现、实际结果和复现入口；结论仅适用于当前 seed namespace、配置、
+设备和 32-scene development design。V2 的失效归因、方法说明、生产
