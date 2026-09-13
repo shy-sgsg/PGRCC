@@ -50,7 +50,7 @@ Expected: only pre-existing untracked experiment outputs are listed; no tracked 
 
 Use the exact status labels `implemented`, `run`, `design_only`, and `not_run` and link each claim to a concrete artifact. Do not change historical numbers.
 
-- [ ] **Step 3: Refresh inventory provenance**
+- [x] **Step 3: Refresh inventory provenance**
 
 Set `source_commit` to the final source commit when the implementation is complete, record the exact pilot command and artifact paths, and keep `preexisting_untracked_outputs_preserved` unchanged.
 
