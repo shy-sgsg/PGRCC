@@ -80,6 +80,13 @@ Clutter-Support-Only 定向 CUDA replay。Oracle 在 12 个 development scenes �
 → [`AI_CSI_30_TargetSafeFailureMechanism审计.md`](AI_CSI_30_TargetSafeFailureMechanism审计.md)
 → [`AI_CSI_31_J8ClutterSupportOnly审计.md`](AI_CSI_31_J8ClutterSupportOnly审计.md)。
 
+当前主线已明确切换为 `REOPEN_ROUTER_RESEARCH`：新增 Router Opportunity gate、
+冻结的六个 compact action、统一 resource preflight、32-scene paired Builder、
+equal-family Materiality evaluator 和 observable-only Learnability audit 的代码与
+单元测试已经完成，但尚未启动新的 32-scene CUDA formal，因此 materiality 和
+learnability 尚无正式结果。新的阅读顺序为 [`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)
+→ [`AI_CSI_33_RouterLearnability审计.md`](AI_CSI_33_RouterLearnability审计.md)。
+
 ## 已完成事项
 
 | 阶段 | 状态 | 证据 |
@@ -100,6 +107,7 @@ Clutter-Support-Only 定向 CUDA replay。Oracle 在 12 个 development scenes �
 | Selective Physics Calibration V2 targeted CUDA screen | 完成，12 null + 24 screen；仅为定向筛查，非最终 Test-V2 | [`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、`outputs/physics_adaptive_selective_v2_screen/formal_matrix_manifest.json` |
 | Selective Physics Calibration V2 formal Test-V2 | 完成，48/16/64 场景；gate=`UNRESOLVED`，target preservation 回归，仍不训练 AI | [`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、[`AI_CSI_24_PhysicsAI_FinalGate.md`](AI_CSI_24_PhysicsAI_FinalGate.md)、`outputs/physics_adaptive_selective_v2_formal/formal_matrix_manifest.json` |
 | Production CFAR formal 泛化统计 | 完成，1792 条 production CFAR 记录，held-out scene-block bootstrap | [`AI_CSI_23_ProductionCFAR与泛化统计.md`](AI_CSI_23_ProductionCFAR与泛化统计.md)、`outputs/production_cfar_formal/production_cfar_rows.csv` |
+| Router Opportunity 研究基础设施 | 完成代码与单元测试；32-scene CUDA、Materiality 结果和 Learnability 结果待运行 | [`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)、[`AI_CSI_33_RouterLearnability审计.md`](AI_CSI_33_RouterLearnability审计.md) |
 
 ## V1 历史实验事实
 

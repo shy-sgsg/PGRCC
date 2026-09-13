@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "case_id": "physics_ai_router_gate_v1",
+  "status": "development_gate",
+  "ai_training": false,
+  "router_state": "REOPEN_ROUTER_RESEARCH",
+  "training_state": "GO_AI_ROUTER_TRAINING",
+  "material_safe_headroom_primary_db": 0.10,
+  "sensitivity_db": [0.05, 0.10, 0.25],
+  "test_v3_development_only": true,
+  "j8": {
+    "decision": "NO_GO_CURRENT_J8_IMPLEMENTATION",
+    "scope": "pulse-frequency percentile support J8 remains frozen and is outside the Router mainline"
+  },
+  "action_space": {
+    "frozen": true,
+    "freeze_reason": "development-derived action pruning; policy frozen before new Opportunity scenes.",
+    "current_identity_baseline": "A0",
+    "actions": [
+      {"id": "A0", "method": "J0_Current", "lambda": 0.0, "identity": true},
+      {"id": "A1", "method": "J5_Selective_Physics_Calibration", "lambda": 0.5, "identity": false},
+      {"id": "A2", "method": "J5_Selective_Physics_Calibration", "lambda": 1.0, "identity": false},
+      {"id": "A3", "method": "J6_Joint_Phase_Surface", "lambda": 0.5, "identity": false},
+      {"id": "A4", "method": "J6_Joint_Phase_Surface", "lambda": 0.75, "identity": false},
+      {"id": "A5", "method": "J6_Joint_Phase_Surface", "lambda": 1.0, "identity": false}
+    ]
+  },
+  "safety": {
+    "causal_transfer_floor_db": -0.25,
+    "require_current_detected_targets_preserved": true,
+    "target_off_pfa_delta_max": 0.0,
+    "target_off_false_clusters_delta_max": 0.0
+  },
+  "roles": {
+    "OFF": "C+N",
+    "ON": "S+C+N",
+    "TO": "S-only"
+  },
+  "training_authorization": {
+    "research_gate": "REOPEN_ROUTER_RESEARCH",
+    "training_gate": "GO_AI_ROUTER_TRAINING",
+    "requires_materiality_gate": true,
+    "requires_observable_only_learnability": true,
+    "requires_simple_selector_not_recovering_most_safe_oracle_headroom": true,
+    "mlp_forbidden_before_training_gate": true
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "schema_version": 1,
+  "case_id": "router_opportunity_v1",
+  "status": "development_only",
+  "ai_training": false,
+  "scene_count": 32,
+  "max_scene_count": 96,
+  "seed_namespace": 2026140000,
+  "seed_policy": "fresh Router Opportunity namespace; disjoint from V2, Test-V3, Target-Safe Oracle v2, and J8 namespaces",
+  "forbidden_seed_namespaces": [2026111000, 2026120000, 2026130000, 2026700000],
+  "design": {
+    "families": [
+      "zero",
+      "M1",
+      "M2",
+      "M3",
+      "M1+M2",
+      "M1+M3",
+      "M2+M3",
+      "M1+M2+M3"
+    ],
+    "scenes_per_family": 4,
+    "assignment": "family labels are independently permuted over LHS rows; final summaries use equal-family weighting",
+    "sampler": "latin_hypercube",
+    "lhs_seed": 2026140711,
+    "environment_axes": {
+      "scan_min_deg": [-20.0, 20.0],
+      "squint_deg": [-0.40, 0.40],
+      "range_bin": [180, 1580],
+      "snr_db": [-5.0, 24.0],
+      "radial_velocity_mps": [-45.0, 45.0],
+      "texture_sigma": [0.15, 1.05],
+      "rho": [0.45, 0.95],
+      "delay_ns": [1.0, 11.0],
+      "phase_deg": [0.03, 0.68]
+    },
+    "mechanism_parameters": "delay_ns is applied only to M1 scenes, phase_deg only to M2 scenes, and rho is applied to M3 scenes; their sampled values remain independent of the other axes",
+    "multi_target": false,
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S-only"
+    },
+    "primary_correction_source": "OFF",
+    "same_seed_geometry_clutter_noise_mismatch": true
+  },
+  "safety": {
+    "causal_transfer_floor_db": -0.25,
+    "require_current_detected_targets_preserved": true,
+    "target_off_pfa_delta_max": 0.0,
+    "target_off_false_clusters_delta_max": 0.0
+  },
+  "resource_preflight": {
+    "require_gpu": true,
+    "min_gpu_count": 1,
+    "min_mem_available_gib": 4.0,
+    "max_swap_used_fraction": null,
+    "min_gpu_free_gib": 2.0,
+    "min_disk_free_gib": 10.0
+  },
+  "materiality": {
+    "primary_threshold_db": 0.10,
+    "sensitivity_db": [0.05, 0.10, 0.25],
+    "positive_threshold_db": 0.0,
+    "bootstrap_iterations": 4000,
+    "bootstrap_seed": 2026140991,
+    "early_stop": {
+      "mean_safe_headroom_lt_db": 0.05,
+      "p_headroom_ge_0_10_max": 0.10,
+      "decision": "NO_GO_AI_ROUTER_VALUE"
+    }
+  },
+  "learnability": {
+    "material_label_threshold_db": 0.10,
+    "low_confidence_abstain_threshold": 0.60,
+    "safe_action_precision_min": 0.80,
+    "unsafe_activation_rate_max": 0.10,
+    "catastrophic_target_loss_activation_rate_max": 0.0,
+    "captured_safe_headroom_fraction_min": 0.10,
+    "simple_selector_headroom_fraction_max": 0.80,
+    "j71_action_map": {
+      "J0_Current": "A0",
+      "J5_Selective_Physics_Calibration": "A1",
+      "J6_Joint_Phase_Surface": "A4"
+    }
+  },
+  "forbidden_feature_inputs": [
+    "mechanism_truth",
+    "true_delay",
+    "true_phase",
+    "true_rho",
+    "target_truth",
+    "L_causal",
+    "safe",
+    "oracle_action",
+    "oracle_gain",
+    "Pd_result"
+  ],
+  "outputs": {
+    "directory": "outputs/router_opportunity_v1",
+    "raw_scene_cleanup": true,
+    "retain": "compact per-action metrics, inference-visible OFF features, scene metadata, selection, manifests, preflight, and provenance"
+  }
+}
