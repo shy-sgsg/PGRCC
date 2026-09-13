@@ -1,5 +1,7 @@
 # AI_CSI_19：Physics-AI Go/No-Go
 
+> 研究主线更新（2026-09-13）：这是历史阶段性 Physics-AI 门禁。`NO_GO_AI_FOR_NOW` 保留其原始含义：当时不训练/部署候选 AI，并优先验证 deterministic correction；它不等于未知 INS、伺服、平台运动、通道同步和基线误差研究 No-Go。本文的 Oracle recovery 按已知误差校正上限解读。
+
 ## 当前结论
 
 当前结论为 **`NO_GO_AI_FOR_NOW`**：不启动训练，不把 AI 引入 PGRCC-v2。这个结论

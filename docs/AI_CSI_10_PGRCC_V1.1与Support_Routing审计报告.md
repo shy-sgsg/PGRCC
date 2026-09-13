@@ -1,5 +1,7 @@
 # PGRCC V1.1 与 Support Routing Oracle 审计报告
 
+> 研究主线更新（2026-09-13）：本文记录历史 bounded residual 与 Support Routing 门禁。其 No-Go 只关闭当时的数据集/路由入口，不关闭未知系统误差估计、通道自校准或四通道 STAP；Oracle 均按 evaluation-only 已知误差校正上限理解。
+
 日期：2026-09-09。源码工作树在运行时为 dirty；运行时 manifest 保存了具体状态和
 `source_commit`。本报告只记录本次 V1.1 与条件性 Support Routing 审计，不回写或改变
 V2.1 冻结 benchmark。

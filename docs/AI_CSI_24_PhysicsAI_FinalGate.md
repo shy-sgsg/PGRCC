@@ -1,5 +1,7 @@
 # AI-CSI-24：Physics-AI Final Gate
 
+> 研究主线更新（2026-09-13）：本文是历史 Final Gate。`FINAL_NO_GO_AI` 关闭的是当时 J5/J6/J7/Router 及其训练授权，不关闭未知系统误差的观测、自校准和四通道 STAP/Current 端到端比较。Oracle/safe lambda 只作 evaluation-only 已知误差校正上限。
+
 ## 当前判定
 
 全流程仍是 `ai_training=false`。Phase B 的 paired Target Transfer、Phase C 的

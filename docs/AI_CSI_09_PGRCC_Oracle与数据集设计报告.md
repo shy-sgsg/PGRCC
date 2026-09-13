@@ -1,5 +1,7 @@
 # PGRCC-v1 Oracle Headroom Audit 与数据集门禁报告
 
+> 研究主线更新（2026-09-13）：本文的 Oracle 是 evaluation-only 的已知误差校正上限，不能理解为运行时真值接口。`NO_GO_ORACLE_NOT_SUFFICIENT` 关闭的是当时 bounded residual 数据集/训练入口；它不否定从真实多通道回波估计 INS、伺服、平台运动或通道误差的当前研究方向。
+
 ## 结论
 
 本阶段停在 Oracle Headroom Audit，未进入数据集构造和 AI 训练。

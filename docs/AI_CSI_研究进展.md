@@ -1,22 +1,27 @@
-# 物理模型驱动的智能 GMTI 杂波对消：第一阶段进展
+# 物理模型驱动的智能 GMTI 杂波对消：历史基线与下一阶段
 
 ## 当前状态
 
-第一阶段已完成，当前没有训练 AI，也没有实现端到端 clutter-free RD 网络。
-已完成 Current–Oracle 的两类场景回放、单因素替换、leave-one-error-out 归因、
-新增指标、传统 baseline 矩阵和后续方法建议。AI 仍未训练。
+当前主线已从“理想/当前链路上的 AI 候选”转为
+`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`：
 
-当前主线已进入 Baseline V2：90 个 screen cases（9 个因素 × 2 个水平 × 5
-seeds）和 35 个独立物理 velocity cases（7 个速度点 × 5 seeds）均已在 CPU 离线
-链路实际完成；另有 5-seed、7 阈值点的 ROC 运行，共 420 个 ROC point，AI 仍未训练。
-正式更密 sweep 的配置已经准备，但不把未运行的矩阵
-写成已完成实验。
+```text
+真实系统未知误差 → 多通道回波观测 → 误差/状态参数估计
+→ 物理模型修正与通道自校准 → 恢复杂波相干性
+→ CSI / 四通道 STAP → CFAR / Pd / Pfa / 目标保持
+```
 
-V2.1 冻结后已完成 PGRCC-v1 Oracle Headroom Audit：16 个新 scene/seed、3472
-个 local region、7409 条 Pareto 候选和 80 条 full-map GO-CFAR 代表性 exact
-复核均已实际运行，0 case failure。严格多指标 worthwhile region 为 0%，manifest
-结论为 `NO_GO_ORACLE_NOT_SUFFICIENT`，因此当前不构造训练集、不训练 PGRCC-v1；
-详见 [`AI_CSI_09_PGRCC_Oracle与数据集设计报告.md`](AI_CSI_09_PGRCC_Oracle与数据集设计报告.md)。
+本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量的设计和首个
+基线几何误差 pilot 方案；尚未完成正式 pilot，也没有训练 AI。机器可读证据在
+`outputs/system_error_inventory/`，详细边界见
+[`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+
+当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
+四通道 STAP 保留四个空间自由度。历史报告中 strict 组与四通道 academic reference
+不混排，只表示信息条件审计，不表示二者不能端到端比较。
+
+以下 V1/V2、Physics-AI 和 Router 结果均保留为历史证据；不要把旧阶段的主线标题、
+Oracle 术语或 Router 状态当作当前待办。
 
 2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
 物理假设审计和 M1/M2/M3 model-mismatch challenge 的 3-seed 扩展；仍未训练 AI。formal
@@ -80,17 +85,17 @@ Clutter-Support-Only 定向 CUDA replay。Oracle 在 12 个 development scenes �
 → [`AI_CSI_30_TargetSafeFailureMechanism审计.md`](AI_CSI_30_TargetSafeFailureMechanism审计.md)
 → [`AI_CSI_31_J8ClutterSupportOnly审计.md`](AI_CSI_31_J8ClutterSupportOnly审计.md)。
 
-当前主线已明确切换为 `REOPEN_ROUTER_RESEARCH`：Router Opportunity gate、冻结的六个
-compact action、统一 resource preflight、32-scene paired Builder 和 equal-family
-Materiality evaluator 已完成实际运行。2026-09-13 的 32-scene 结果为
-`NO_GO_AI_ROUTER_VALUE`：equal-family mean safe headroom `0.0047138 dB`，
-`P(headroom >= 0.10 dB)=0.03125`，触发预注册 early-stop，不扩展 64/96，
-也不启动 observable-only Learnability audit 或 AI training。紧凑证据在
-`outputs/router_opportunity_v1/`；新的阅读顺序为
+Router Opportunity 是已结束的历史分支，不是当前主线。2026-09-13 的 32-scene
+结果为 `NO_GO_AI_ROUTER_VALUE`：equal-family mean safe headroom `0.0047138 dB`，
+`P(headroom >= 0.10 dB)=0.03125`，触发预注册 early-stop，不扩展 64/96，也不启动
+observable-only Learnability audit 或 AI training。该结论只说明 Current/J5/J6
+Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运动、通道同步和基线几何
+误差的观测、自校准或 Physics-AI 后续可能性。紧凑证据保留在
+`outputs/router_opportunity_v1/`；历史阅读顺序为
 [`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)
 → [`AI_CSI_33_RouterLearnability审计.md`](AI_CSI_33_RouterLearnability审计.md)。
 
-## 已完成事项
+## 历史阶段已完成事项
 
 | 阶段 | 状态 | 证据 |
 |---|---|---|
@@ -110,7 +115,17 @@ Materiality evaluator 已完成实际运行。2026-09-13 的 32-scene 结果为
 | Selective Physics Calibration V2 targeted CUDA screen | 完成，12 null + 24 screen；仅为定向筛查，非最终 Test-V2 | [`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、`outputs/physics_adaptive_selective_v2_screen/formal_matrix_manifest.json` |
 | Selective Physics Calibration V2 formal Test-V2 | 完成，48/16/64 场景；gate=`UNRESOLVED`，target preservation 回归，仍不训练 AI | [`AI_CSI_22_SelectivePhysicsCalibrationV2.md`](AI_CSI_22_SelectivePhysicsCalibrationV2.md)、[`AI_CSI_24_PhysicsAI_FinalGate.md`](AI_CSI_24_PhysicsAI_FinalGate.md)、`outputs/physics_adaptive_selective_v2_formal/formal_matrix_manifest.json` |
 | Production CFAR formal 泛化统计 | 完成，1792 条 production CFAR 记录，held-out scene-block bootstrap | [`AI_CSI_23_ProductionCFAR与泛化统计.md`](AI_CSI_23_ProductionCFAR与泛化统计.md)、`outputs/production_cfar_formal/production_cfar_rows.csv` |
-| Router Opportunity 研究基础设施 | 完成代码与单元测试；32-scene CUDA、Materiality 结果和 Learnability 结果待运行 | [`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)、[`AI_CSI_33_RouterLearnability审计.md`](AI_CSI_33_RouterLearnability审计.md) |
+| Router Opportunity 研究基础设施 | 历史分支已完成 32-scene CUDA/Materiality；因 `NO_GO_AI_ROUTER_VALUE` 停止扩展，未启动 Learnability | [`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)、[`AI_CSI_33_RouterLearnability审计.md`](AI_CSI_33_RouterLearnability审计.md) |
+
+## 当前阶段启动清单
+
+| 项目 | 当前状态 | 证据/下一步 |
+|---|---|---|
+| 真实系统误差参数盘点 | 已完成代码审计初版 | [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)、`outputs/system_error_inventory/parameter_inventory.csv` |
+| 误差传播与可辨识性 | 已完成第一版关系和边界；待小规模数值验证 | `outputs/system_error_inventory/propagation_map.csv`；优先实现六对互谱观测 |
+| Current 与四通道 STAP 比较口径 | 已纠正 framing；正式矩阵未运行 | 端到端能力层 + 信息量匹配层，不能用历史“不混排”代替比较 |
+| 首个基线几何误差 pilot | 设计完成，尚未运行 | 当前注入器只扰动 selected read channels（默认 1/2），需先补齐四通道/多波位接口 |
+| AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
 
@@ -238,9 +253,10 @@ regenerated-velocity 汇总，ROC 目录保留 `baseline_v2_roc_points.csv`、
 Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU gate 语义另有
 `csi_gate_cpu_selftest` 直接回归，当前全量 CTest 为 18/18 通过。
 
-## 下一步（需另行进入第二阶段）
+## 下一步（当前第二阶段）
 
-若后续重新授权，再评估小型“物理模型 + 残差学习”方案。第一候选是
-学习分数 delay、复权幅度残差和行级置信度/门控；物理融合、P38、支撑、CSI
-算子、CFAR、聚类和跟踪链保持不变。未经新的研究授权，不进入训练或端到端
-RD 网络实现。
+先完成 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)
+中的六对多通道观测、基线几何误差忠实注入和四条件 pilot，再接入 Current CSI 与
+四通道 STAP 的端到端/信息量匹配比较。平台速度、姿态和伺服误差必须先建立独立的
+true/report state。当前不训练 MLP、Router、RD image-to-image 或通用复权残差；只有
+确定性估计出现稳定、可量化且难以解析的残差后，才重新评估 Physics-AI。

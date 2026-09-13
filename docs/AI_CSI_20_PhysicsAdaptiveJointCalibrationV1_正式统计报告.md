@@ -1,5 +1,7 @@
 # Physics-Adaptive Joint Calibration V1 正式统计报告
 
+> 研究主线更新（2026-09-13）：本文是历史 deterministic joint calibration 结果。它支持先做机制级误差估计和状态门控，但不把 `REOPEN_CANDIDATE` 当成 AI 训练授权；当前阶段先扩展到真实 INS/伺服/平台/通道误差的来源、可观测性和自校准。
+
 ## 技术摘要
 
 本报告记录 Physics-Adaptive Joint Calibration V1 的正式 CUDA 矩阵结果。结论是：**J3/J4 尚未证明可以替代 Current，也没有进入 AI 训练；预注册 gate 返回 `REOPEN_CANDIDATE`，但 deterministic recovery 很小、remaining Oracle gap 很大，当前主要受 global fallback/gating 混杂影响，下一步必须先做物理估计器与状态门控诊断。**

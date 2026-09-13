@@ -1,5 +1,7 @@
 # AI-CSI-31：J8 Clutter-Support-Only Calibration 审计
 
+> 研究主线更新（2026-09-13）：J8 是当前实现下被排除的特定方法分支，不是对未知系统误差、杂波时间统计或四通道 STAP 主线的否定。本文数字和失败原因保持历史原样。
+
 ## 设计
 
 J8 只在 OFF-derived 的 clutter support 内校准，support domain 为 pulse-frequency
@@ -41,4 +43,3 @@ support 边界造成的 target transfer/cluster 回归，再扩大矩阵。
 运行过程删除了每场 raw scene runtime，保留紧凑 metrics、CFAR/transfer、manifest、
 资源快照和 provenance。首轮未含显式 safe 字段的 72 KiB 结果仍作为独立失败基线保留在
 `outputs/j8_support_only_targeted/`，避免覆盖审计现场。
-

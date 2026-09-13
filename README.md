@@ -1,12 +1,70 @@
 # PGRCC
 
-物理模型驱动的智能 GMTI 杂波对消研究仓库。
+真实系统未知误差驱动的多通道 GMTI 杂波抑制研究仓库。
 
-本仓库是在原 GMTI 工程副本上开展的第一阶段研究，重点是先厘清当前 CSI
-对消链路，并用 Current–Oracle 实验定位性能差距与失配来源。第一阶段不训练
-AI，也不实现端到端 `clutter-free RD` 网络。
+## Research Question
 
-## 第一阶段已完成
+真实 airborne GMTI 中的 INS、平台运动、伺服/波束指向、通道时延、幅相、时钟同步、
+基线几何和杂波时间统计可能并不准确或并不完全可用。这些未知误差会破坏跨通道
+杂波相干性，降低 CSI/STAP 的杂波抑制和目标保持能力。本仓库当前研究主线是：
+
+```text
+真实系统未知误差 → 多通道回波观测 → 未知误差/状态参数估计
+→ 物理模型修正与通道自校准 → 恢复相干性
+→ CSI / 四通道 STAP → CFAR / Pd / Pfa / 目标保持
+```
+
+AI 不是目标本身。当前阶段 `ai_training=false`，先做误差建模、可观测性、确定性
+校准和端到端验证；只有确定性方法存在稳定且可量化的残差时，才重新评估 Physics-AI。
+
+## Current Production Chain
+
+Current 的生产定义是：
+
+```text
+4-channel raw IQ
+  → channel-pair fusion: (1,3), (2,4)
+  → F1/F2
+  → pulse compression
+  → CTDR
+  → DBS/Doppler
+  → range phase correction
+  → P38 phase model
+  → CSI
+  → production GO-CFAR
+```
+
+F1/F2 在 Current CSI 之前完成。四通道 STAP 保留四个空间自由度，因此二者应做
+端到端比较；同时提供信息量匹配层，用于区分算法提升与融合/空间自由度提升。
+
+## 当前阶段状态
+
+- 下一阶段名称：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`。
+- 已完成本轮代码审计、误差参数清单、传播关系和首个 pilot 设计；当前没有声称完成
+  正式 pilot 或大规模 CUDA 矩阵。
+- 首个 pilot 暂选“基线几何误差的多波位观测”，但现有注入器默认只扰动选定读入
+  通道（1/2），不是完整四通道阵列几何误差，详见 [阶段文档](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+- `NO_GO_AI_ROUTER_VALUE` 只关闭 Current/J5/J6 Router 的安全平均材料性，不关闭
+  Physics-AI 或未知系统误差估计主线。
+
+## Research Directions
+
+- **A — Current / two-channel CSI**：保留生产 F1/F2 融合和 Current CSI，作为生产兼容基线。
+- **B — Four-channel adaptive / STAP**：直接使用四通道原始 IQ，保留四个空间自由度，
+  与 A 做端到端能力比较，并另做信息量匹配比较。
+- **C — Unknown system error / self-calibration**：从多通道回波估计 INS、平台运动、
+  伺服/波束、通道同步、幅相和基线等未知量，修正物理模型和通道参数。
+- **D — Target-safe clutter suppression**：除 SCNR/杂波抑制外，检查 target transfer、
+  Pd、Pfa、目标保持和虚警簇。
+- **E — Physics-AI only when needed**：仅在确定性估计已经暴露稳定、可量化且难以解析的
+  残差后，评估 AI 估计器/残差/置信度；AI 不直接输出清洗后的 RD 图。
+
+明确排除的分支：通用 complex-weight residual AI；Current/J5/J6 Router 的
+`NO_GO_AI_ROUTER_VALUE` 分支；当前实现下的 pulse-frequency J8 分支；以及为追逐
+0.0047 dB 差异而扩张训练或图像到图像网络。这里排除的是对应方法，不是未知系统误差
+建模、自校准或四通道 STAP 主线。
+
+## 第一阶段历史基线
 
 - 还原当前 CSI 数学模型：四路协议 IQ 先融合为两路等效通道，再进行 CTDR
   对齐、P38 相位建模、距离向相位校正、动态杂波支撑和 CSI 对消。
@@ -26,9 +84,11 @@ AI，也不实现端到端 `clutter-free RD` 网络。
 | Typical | 21.632 dB | 16.761 dB | -4.871 dB |
 | Non-ideal | 19.666 dB | 14.333 dB | -5.333 dB |
 
-这里的 Oracle All 是背景-only 线性复权对照，不是无条件性能上界。结果表明后续
-更适合采用“物理模型保留 + 残差学习 + 置信度门控”，重点学习分数延迟、复权
-残差和支撑可信度，而不是直接输出一幅清洗后的 RD 图。
+这里的 Oracle All 是背景-only 线性复权对照，不是无条件性能上界；当前统一称为
+历史的 `Known-error correction upper bound / 已知误差校正上限`。这些数字保留为
+第一阶段证据，不直接推出需要训练 AI。新实验应使用 Ideal、Current+unknown-error、
+Known-error correction 和 Estimated-error correction 四个条件，分别计算可恢复空间、
+实际恢复量和 recovery ratio。
 
 ## 目录
 
@@ -41,6 +101,7 @@ simulator/                  Stage2 仿真器
 scripts/                    分析、评估和复现实验脚本
 tests/                      工程测试
 docs/                       数学模型、实验报告和后续 AI 建议
+docs/AI_CSI_33_真实系统误差参数与可观测性分析.md  下一阶段误差参数、传播和 pilot 设计
 outputs/ai_csi_oracle/      小型 CSV/PNG/JSON 研究交付物
 outputs/ai_csi_baseline/   7 场景 × 6 方法的传统 baseline 交付物
 outputs/ai_csi_baseline_v2/ Baseline V2 历史 screen 与 sanity 交付物
@@ -53,6 +114,7 @@ outputs/ai_csi_baseline_v21_final_velocity/ 最终提交下的 signed velocity/M
 outputs/ai_csi_baseline_v21_final_roc/ 最终提交下的独立 ROC 交付物
 outputs/ai_csi_baseline_v21_formal/ 正式 470-case 单因素矩阵交付物
 outputs/pgrcc_oracle/       PGRCC-v1 bounded residual Oracle headroom 审计交付物
+outputs/system_error_inventory/  真实系统误差清单、传播图和审计 manifest
 ```
 
 V1 原始 BIN 和逐案例中间结果已按清理策略移除；当前 V2 为复现 Stage2 保留
@@ -104,10 +166,12 @@ python3 scripts/run_ai_csi_oracle_suite.py
 - `outputs/ai_csi_oracle/mismatch_contribution.png`
 - `outputs/ai_csi_oracle/ca_target_loss_pd.png`
 
-## 复现传统 Baseline 矩阵
+## 复现历史传统 Baseline 矩阵
 
 Baseline 先于 AI 训练执行，分为同一 F1/F2 输入的 strict 组和原始四通道
-space-time academic reference 组；两组不混排。覆盖理想/均匀、非均匀杂波、
+space-time academic reference 组；历史报告中两组不混排。这里的“不混排”是信息条件
+审计，不是禁止四通道 STAP 与两通道 Current CSI 做端到端比较。当前主线要求同时保留
+端到端能力层和信息量匹配层。覆盖理想/均匀、非均匀杂波、
 通道幅相误差、有效样本不足、低 SCNR、近杂波脊和支撑边缘目标。Oracle/背景
 训练权重只使用 clutter+noise，目标 truth 仅用于评价。
 
@@ -123,9 +187,9 @@ python3 scripts/run_baseline_benchmark.py
 [`AI_CSI_06_Baseline不足与Physics_AI方向分析.md`](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)。
 完整紧凑产物在 `outputs/ai_csi_baseline/`，原始 BIN 和临时矩阵默认逐场景清理。
 
-## Baseline V2.1（当前主线）
+## Baseline V2.1（历史基线）
 
-Baseline V2.1 明确区分 production replay 与 scientific controlled baseline；后者的
+Baseline V2.1 是历史基线，明确区分 production replay 与 scientific controlled baseline；后者的
 P38、协方差和自适应权重只使用 paired C+N background。四通道 steering 使用当前
 配置的 beam-center、按 range block 推导的几何路径和显式 Doppler temporal response；
 clutter ridge 只作诊断特征，不作为目标空间角。包含 diagonally-loaded SMI/MVDR、
@@ -172,7 +236,28 @@ V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
 正式矩阵在 `outputs/ai_csi_baseline_v21_formal/`，transition ROC 点/汇总/图在
 `outputs/ai_csi_baseline_v21_transition/`，不使用 RD `np.roll` 代替真实速度。
 
-## PGRCC-v1 Oracle 门禁
+## 下一阶段：真实系统未知误差建模与可观测性分析
+
+阶段文档：[AI_CSI_33_真实系统误差参数与可观测性分析](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+当前工作顺序是：
+
+1. 盘点平台速度/位置、roll/pitch/yaw、伺服指向、通道时延、固定相位、相位漂移、
+   增益、时钟、基线几何、载频和杂波时间去相干；
+2. 沿模拟器和生产代码建立误差传播、六对紧凑观测量
+   `C13,C24,C12,C14,C23,C34` 及可辨识性分析；
+3. 设计 B0 Current、B1 校准两通道 CSI、B2 四通道 STAP、B3 校准+STAP 的公平比较；
+4. 对首个多波位基线几何 pilot 使用 Ideal、Current+unknown、Known-error correction
+   upper bound、Estimated-error correction 四个条件；
+5. 最终用 coherence、CSI/STAP 抑制、target transfer、Pd、Pfa 和目标保持评价。
+
+当前清单和传播图位于 `outputs/system_error_inventory/`。本轮为设计和代码审计态，
+没有把 pilot 设计写成已运行结果，也没有启动大规模 CUDA 或 AI 训练。
+
+## 历史 Physics-AI / Oracle 门禁（已封存）
+
+本节命令和数字只用于复现历史门禁。文中的 Oracle 统一按“已知误差校正上限”理解，
+不代表运行时可读取 truth；`NO_GO_AI_FOR_NOW`、`FINAL_NO_GO_AI` 和下列 residual/
+routing no-go 也不关闭当前未知系统误差估计方向。
 
 V2.1 冻结后先运行 Oracle Headroom Audit，不直接训练网络：
 
@@ -195,9 +280,12 @@ Routing Oracle；两者分别为 `NO_GO_COMPLEX_WEIGHT_RESIDUAL` 和
 
 ## 研究文档
 
+- [研究主线重构与历史结果重新解释](docs/AI_CSI_研究主线重构与历史结果重新解释.md)
+- [真实系统误差参数与可观测性分析](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)
+- [研究进展](docs/AI_CSI_研究进展.md)
 - [当前对消数学模型](docs/AI_CSI_01_当前对消数学模型.md)
 - [Current–Oracle 实验报告](docs/AI_CSI_02_Current_Oracle实验报告.md)
-- [后续 AI 方法建议](docs/AI_CSI_03_后续AI方法建议.md)
+- [后续 AI 方法建议（历史候选，非当前主线）](docs/AI_CSI_03_后续AI方法建议.md)
 - [Baseline 方法与实现说明](docs/AI_CSI_04_Baseline方法与实现说明.md)
 - [Baseline 实验报告](docs/AI_CSI_05_Baseline实验报告.md)
 - [Baseline 不足与 Physics-AI 方向分析](docs/AI_CSI_06_Baseline不足与Physics_AI方向分析.md)
@@ -209,8 +297,11 @@ Routing Oracle；两者分别为 `NO_GO_COMPLEX_WEIGHT_RESIDUAL` 和
 - [Selective Physics Calibration V2](docs/AI_CSI_22_SelectivePhysicsCalibrationV2.md)
 - [Production CFAR 与泛化统计](docs/AI_CSI_23_ProductionCFAR与泛化统计.md)
 - [Physics-AI Final Gate](docs/AI_CSI_24_PhysicsAI_FinalGate.md)
-- [研究进展](docs/AI_CSI_研究进展.md)
-- [Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
+- [Physics-AI 最终 Go/No-Go（历史）](docs/AI_CSI_28_PhysicsAI最终GoNoGo.md)
+- [Router Opportunity 与 Materiality（历史）](docs/AI_CSI_32_RouterOpportunity与Materiality审计.md)
+- [误差参数清单](outputs/system_error_inventory/parameter_inventory.csv)
+- [误差传播图](outputs/system_error_inventory/propagation_map.csv)
+- [历史 Oracle 分析清单](outputs/ai_csi_oracle/oracle_analysis_manifest.json)
 
 ## Git
 

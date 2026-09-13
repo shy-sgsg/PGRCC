@@ -1,5 +1,7 @@
 # AI-CSI-32：Router Opportunity 与 Materiality 审计
 
+> 研究主线更新（2026-09-13）：本文只审计 Current/J5/J6 Router 的安全平均材料性。文中 `REOPEN_ROUTER_RESEARCH` 是该历史审计的冻结状态；32-scene 结果 `NO_GO_AI_ROUTER_VALUE` 只关闭 Router 分支，不关闭未知系统误差估计、物理自校准、四通道 STAP 或未来合适的 Physics-AI。
+
 ## 当前门禁
 
 本阶段只研究“安全 action 相对 Current 是否存在足够大的可利用余量”，不训练

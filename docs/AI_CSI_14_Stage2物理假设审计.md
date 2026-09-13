@@ -1,5 +1,7 @@
 # Stage2 物理假设审计
 
+> 研究主线更新（2026-09-13）：本文的 Stage2 假设审计现在作为未知系统误差阶段的输入。文中“假设满足”只描述当前模拟器/生产模型边界，不等于真实设备无误差；下一步正是把这些假设拆成可注入、可观测和可校准的参数。
+
 审计范围：`simulator/stage2_statistical_sim/stage2_lfm_forward.cpp`、`stage2_config.cpp/.h`、`simulate_stage2_main.cpp`、`stage2_validator.cpp`，以及 `simulator/target_injection/channel_impairments.cpp`。
 
 ## F1≈alpha F2 的必要条件

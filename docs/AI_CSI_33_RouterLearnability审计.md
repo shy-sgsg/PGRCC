@@ -1,5 +1,7 @@
 # AI-CSI-33：Router Learnability 审计
 
+> 研究主线更新（2026-09-13）：本文是 Router 分支的历史前置审计说明。由于 Materiality 已为 `NO_GO_AI_ROUTER_VALUE`，该 learnability 路径不进入当前主线；请转读 [真实系统误差参数与可观测性分析](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+
 ## 前置条件
 
 只有 Router Materiality Gate 通过后，才可运行 learnability audit。脚本只读取

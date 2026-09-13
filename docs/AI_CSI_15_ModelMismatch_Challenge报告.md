@@ -1,5 +1,7 @@
 # Model-Mismatch Challenge 与机制 Oracle 报告
 
+> 研究主线更新（2026-09-13）：本文的 M1/M2/M3 是历史受控误差机制证据。文中的机制 Oracle 统一理解为已知误差校正上限；M1/M2 支持“部分未知误差可由回波观测估计”的命题，M3 说明杂波时间去相干不能由相位修正自动恢复。它们不构成 AI 必要性的证明，也不替代下一阶段的真实系统误差联合建模。
+
 日期：2026-09-10。全程未训练 AI。所有 challenge 的 zero/static 档都与独立 Current baseline 做 raw BIN SHA 回归。formal challenge 的实验代码提交为 `09bbd624c063126a97ea02196394ea62d3b4c4a6`；最终仓库 `0b6f7e7` 只包含测试路径修复，不改变 C++/CUDA 或实验 runner。
 
 ## 运行范围

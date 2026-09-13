@@ -1,5 +1,7 @@
 # AI-CSI-28：Physics-AI 最终 Go/No-Go
 
+> 研究主线更新（2026-09-13）：本文结论 `FINAL_NO_GO_AI` 是当时 Physics-AI 路由/训练分支的阶段性关闭，不是整个未知系统误差研究的关闭。Oracle identity 和 safe-lambda 仍按 evaluation-only 的已知误差校正上限理解；当前先回到真实误差参数、回波观测和确定性校准。
+
 ## 最终结论
 
 **`FINAL_NO_GO_AI`**。
