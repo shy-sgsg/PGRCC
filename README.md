@@ -263,7 +263,7 @@ CSI/STAP 大规模 CUDA 矩阵或 AI 训练。
 cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target simulate_stage2_statistical -j4
 python3 scripts/run_unknown_system_error_pilot.py \
-  --output-root outputs/unknown_system_error_pilot_20260913_v5
+  --output-root /tmp/pgrcc_unknown_system_error_pilot_repro
 ```
 
 运行器拒绝覆盖非空输出目录；产物 manifest 会记录四个条件、命令、输入哈希、估计

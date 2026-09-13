@@ -169,7 +169,7 @@ Run:
 
 ```bash
 python3 scripts/run_unknown_system_error_pilot.py \
-  --output-root outputs/unknown_system_error_pilot_20260913_v5
+  --output-root /tmp/pgrcc_unknown_system_error_pilot_repro
 ```
 
 Expected: exit 0 with four condition summaries, no truth access by the estimated estimator, finite observable fits, and compact outputs. If the environment cannot provide CUDA, record the probe failure and do not claim a CUDA result; the bounded raw-IQ pilot may still run on the CPU simulator.
