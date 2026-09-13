@@ -11,9 +11,9 @@
 → CSI / 四通道 STAP → CFAR / Pd / Pfa / 目标保持
 ```
 
-本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量的设计和首个
-基线几何误差 pilot 方案；尚未完成正式 pilot，也没有训练 AI。机器可读证据在
-`outputs/system_error_inventory/`，详细边界见
+本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量实现和首个
+基线几何误差 raw-IQ pilot；尚未完成生产 CSI/STAP 正式矩阵，也没有训练 AI。机器可读证据在
+`outputs/system_error_inventory/` 和 `outputs/unknown_system_error_pilot_20260913_v5/`，详细边界见
 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
 
 当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
@@ -122,9 +122,9 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | 项目 | 当前状态 | 证据/下一步 |
 |---|---|---|
 | 真实系统误差参数盘点 | 已完成代码审计初版 | [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)、`outputs/system_error_inventory/parameter_inventory.csv` |
-| 误差传播与可辨识性 | 已完成第一版关系和边界；待小规模数值验证 | `outputs/system_error_inventory/propagation_map.csv`；优先实现六对互谱观测 |
+| 误差传播与可辨识性 | 第一版关系已审计；基线几何已完成小规模数值验证 | `outputs/system_error_inventory/propagation_map.csv`、`outputs/unknown_system_error_pilot_20260913_v5/calibration_phase_difference.json` |
 | Current 与四通道 STAP 比较口径 | 已纠正 framing；正式矩阵未运行 | 端到端能力层 + 信息量匹配层，不能用历史“不混排”代替比较 |
-| 首个基线几何误差 pilot | 设计完成，尚未运行 | 当前注入器只扰动 selected read channels（默认 1/2），需先补齐四通道/多波位接口 |
+| 首个基线几何误差 pilot | `run`：raw-IQ 四条件已完成；生产层未运行 | `outputs/unknown_system_error_pilot_20260913_v5/manifest.json`；估计误差 `0.009999999925 m`，恢复比 `0.9999999991` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
@@ -255,8 +255,9 @@ Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU 
 
 ## 下一步（当前第二阶段）
 
-先完成 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)
-中的六对多通道观测、基线几何误差忠实注入和四条件 pilot，再接入 Current CSI 与
-四通道 STAP 的端到端/信息量匹配比较。平台速度、姿态和伺服误差必须先建立独立的
-true/report state。当前不训练 MLP、Router、RD image-to-image 或通用复权残差；只有
-确定性估计出现稳定、可量化且难以解析的残差后，才重新评估 Physics-AI。
+下一步接入 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)
+中定义的 B0 Current、B1 校准两通道 CSI、B2 四通道 STAP、B3 校准四通道 STAP，做
+端到端能力层和信息量匹配层比较，并补齐生产 GO-CFAR 的 Pd/Pfa、目标因果传递、虚警簇
+和 PIPE 目标保持。平台速度、姿态和伺服误差必须先建立独立的 true/report state。当前
+不训练 MLP、Router、RD image-to-image 或通用复权残差；只有确定性估计出现稳定、可量化
+且难以解析的残差后，才重新评估 Physics-AI。

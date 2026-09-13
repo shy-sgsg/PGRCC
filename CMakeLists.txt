@@ -463,6 +463,15 @@ add_executable(channel_calibration_selftest
   tests/channel_calibration_selftest.cpp
 )
 
+add_executable(channel_impairments_selftest
+  tests/channel_impairments_selftest.cpp
+  simulator/target_injection/channel_impairments.cpp
+)
+target_include_directories(channel_impairments_selftest PRIVATE
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/simulator/target_injection
+)
+
 add_executable(velocity_ambiguity_sweep
   src/tools/velocity_ambiguity_sweep.cpp
 )
@@ -853,6 +862,7 @@ if(BUILD_TESTING)
   add_test(NAME motion_comp_ctdr_selftest COMMAND motion_comp_ctdr_selftest)
   add_test(NAME velocity_ambiguity_selftest COMMAND velocity_ambiguity_selftest)
   add_test(NAME channel_calibration_selftest COMMAND channel_calibration_selftest)
+  add_test(NAME channel_impairments_selftest COMMAND channel_impairments_selftest)
   add_test(NAME p38_phase_fit_selftest COMMAND p38_phase_fit_selftest)
   add_test(NAME imu_interpolation_selftest COMMAND imu_interpolation_selftest)
   add_test(NAME trig_lut_selftest COMMAND trig_lut_selftest)

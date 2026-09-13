@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "artifact": "unknown_system_error_inventory",
+  "generated_at": "2026-09-13",
+  "source_commit": "8be2c89",
+  "source_worktree_tracked_dirty_before": false,
+  "preexisting_untracked_outputs_preserved": [
+    "outputs/router_opportunity_v1/"
+  ],
+  "method": "source audit plus a bounded deterministic four-channel raw-IQ baseline-error pilot; no AI training",
+  "ai_training": false,
+  "formal_cuda_matrix_run": false,
+  "pilot_status": "run",
+  "recommended_first_pilot": "baseline_geometry_error_multibeam",
+  "recommended_first_pilot_reason": "baseline_error_m already has a first-order angle-dependent phase injection and a known-error inverse model candidate; velocity and servo require a separate true-versus-reported state before faithful injection",
+  "pilot_command": "python3 scripts/run_unknown_system_error_pilot.py --output-root outputs/unknown_system_error_pilot_20260913_v5",
+  "pilot_manifest": "outputs/unknown_system_error_pilot_20260913_v5/manifest.json",
+  "pilot_result": {
+    "truth_baseline_error_m": 0.01,
+    "estimated_baseline_error_m": 0.009999999925366381,
+    "absolute_estimation_error_m": 7.463361872961372e-11,
+    "current_phase_residual_rad": 0.2004197259272836,
+    "known_phase_residual_rad": 9.87159533444741e-09,
+    "estimated_phase_residual_rad": 1.0053458540610316e-08,
+    "recovery_ratio": 0.9999999990925883
+  },
+  "known_limitations": [
+    "pilot baseline_error_m injection applies the audited common right-phase-center rotation to channels 2/4; it is not a complete independent four-channel attitude/geometry model",
+    "current stage2 platform_speed_mps drives both true kinematics and emitted metadata, so velocity error is not a faithful unknown-report mismatch",
+    "current radar geometry sets theta_true_deg equal to theta_cmd_deg, so servo/beam pointing error has no independent truth path",
+    "the new six-pair observable analyzer is an offline raw-IQ interface; it is not yet a production runtime estimator",
+    "production B0/B1/B2/B3 CSI/STAP, CFAR Pd/Pfa, target causal transfer and CUDA performance were not run in this pilot"
+  ],
+  "files": [
+    "parameter_inventory.csv",
+    "propagation_map.csv",
+    "manifest.json"
+  ]
+}

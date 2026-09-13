@@ -842,7 +842,8 @@ int generateStage2Data(const Stage2RunConfig &run)
         const std::string truth_dir = joinPath(run.output_dir, "truth");
         impairment_truth.open(joinPath(truth_dir, "channel_impairment_truth.csv").c_str());
         impairment_truth << "case_id,period_id,beam_id,pulse_id,applied,relative_gain,"
-            "relative_phase_deg,effective_shift_samples,sample_clock_error_ppm,"
+            "relative_phase_deg,baseline_phase_deg,baseline_affected_channel_count,"
+            "effective_shift_samples,sample_clock_error_ppm,"
             "added_noise_sigma_ch1,added_noise_sigma_ch2,channel_dropped,"
             "saturated_sample_count\n";
         std::ofstream manifest(joinPath(truth_dir, "channel_impairment_manifest.json").c_str());
@@ -1231,6 +1232,8 @@ int generateStage2Data(const Stage2RunConfig &run)
                         << std::setprecision(17)
                         << impairment.relative_gain << ','
                         << impairment.relative_phase_deg << ','
+                        << impairment.baseline_phase_deg << ','
+                        << impairment.baseline_affected_channel_count << ','
                         << impairment.effective_shift_samples << ','
                         << impairment.sample_clock_error_ppm << ','
                         << impairment.added_noise_sigma_ch1 << ','

@@ -40,10 +40,11 @@ F1/F2 在 Current CSI 之前完成。四通道 STAP 保留四个空间自由度�
 ## 当前阶段状态
 
 - 下一阶段名称：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`。
-- 已完成本轮代码审计、误差参数清单、传播关系和首个 pilot 设计；当前没有声称完成
-  正式 pilot 或大规模 CUDA 矩阵。
-- 首个 pilot 暂选“基线几何误差的多波位观测”，但现有注入器默认只扰动选定读入
-  通道（1/2），不是完整四通道阵列几何误差，详见 [阶段文档](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+- 已完成本轮代码审计、误差参数清单、传播关系和一个有界 raw-IQ pilot；没有声称
+  完成正式 CSI/STAP CUDA 矩阵。
+- pilot 暂选“基线几何误差的多波位观测”。四通道包中的 `baseline_error_m` 现在
+  明确作用于右侧相位中心通道 2/4，其他既有通道损伤仍保持选定读入通道语义；完整
+  的独立四通道姿态/几何误差模型仍是后续工作，详见 [阶段文档](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)。
 - `NO_GO_AI_ROUTER_VALUE` 只关闭 Current/J5/J6 Router 的安全平均材料性，不关闭
   Physics-AI 或未知系统误差估计主线。
 
@@ -102,6 +103,8 @@ scripts/                    分析、评估和复现实验脚本
 tests/                      工程测试
 docs/                       数学模型、实验报告和后续 AI 建议
 docs/AI_CSI_33_真实系统误差参数与可观测性分析.md  下一阶段误差参数、传播和 pilot 设计
+configs/research/unknown_system_error_baseline_pilot.json  有界四通道基线误差 pilot 配置
+outputs/unknown_system_error_pilot_20260913_v5/  raw-IQ pilot 的紧凑观测与审计产物（raw BIN 本地保留，不入 Git）
 outputs/ai_csi_oracle/      小型 CSV/PNG/JSON 研究交付物
 outputs/ai_csi_baseline/   7 场景 × 6 方法的传统 baseline 交付物
 outputs/ai_csi_baseline_v2/ Baseline V2 历史 screen 与 sanity 交付物
@@ -250,8 +253,21 @@ V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
    upper bound、Estimated-error correction 四个条件；
 5. 最终用 coherence、CSI/STAP 抑制、target transfer、Pd、Pfa 和目标保持评价。
 
-当前清单和传播图位于 `outputs/system_error_inventory/`。本轮为设计和代码审计态，
-没有把 pilot 设计写成已运行结果，也没有启动大规模 CUDA 或 AI 训练。
+当前清单和传播图位于 `outputs/system_error_inventory/`；有界 pilot 的 manifest 和
+六对观测位于 `outputs/unknown_system_error_pilot_20260913_v5/`。本轮未启动生产
+CSI/STAP 大规模 CUDA 矩阵或 AI 训练。
+
+有界 raw-IQ pilot 的最短复现入口：
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target simulate_stage2_statistical -j4
+python3 scripts/run_unknown_system_error_pilot.py \
+  --output-root outputs/unknown_system_error_pilot_20260913_v5
+```
+
+运行器拒绝覆盖非空输出目录；产物 manifest 会记录四个条件、命令、输入哈希、估计
+误差和未运行的生产层。raw BIN 约 7 MB/条件，用于本地审计，未纳入 Git 提交。
 
 ## 历史 Physics-AI / Oracle 门禁（已封存）
 

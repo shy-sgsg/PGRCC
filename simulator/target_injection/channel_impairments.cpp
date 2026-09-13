@@ -154,11 +154,23 @@ ChannelImpairmentRealization applyChannelImpairments(
     const int n_samples = radar.pulse_len;
     std::vector<std::complex<float>> v1(static_cast<std::size_t>(n_samples));
     std::vector<std::complex<float>> v2(static_cast<std::size_t>(n_samples));
+    const bool four_channel_baseline =
+        channelCount(radar) == 4U && cfg.baseline_error_m != 0.0;
+    std::vector<std::complex<float>> v3;
+    std::vector<std::complex<float>> v4;
+    if (four_channel_baseline) {
+        v3.resize(static_cast<std::size_t>(n_samples));
+        v4.resize(static_cast<std::size_t>(n_samples));
+    }
     double mean_power1 = 0.0;
     double mean_power2 = 0.0;
     for (int n = 0; n < n_samples; ++n) {
         v1[static_cast<std::size_t>(n)] = loadCh(packet, radar, n, ch1);
         v2[static_cast<std::size_t>(n)] = loadCh(packet, radar, n, ch2);
+        if (four_channel_baseline) {
+            v3[static_cast<std::size_t>(n)] = loadCh(packet, radar, n, 3);
+            v4[static_cast<std::size_t>(n)] = loadCh(packet, radar, n, 4);
+        }
         mean_power1 += std::norm(v1[static_cast<std::size_t>(n)]);
         mean_power2 += std::norm(v2[static_cast<std::size_t>(n)]);
     }
@@ -178,6 +190,8 @@ ChannelImpairmentRealization applyChannelImpairments(
         baseline_phase_deg = 360.0 * cfg.baseline_error_m *
             std::sin(theta_cmd_deg * kPiLocal / 180.0) / lambda;
     }
+    out.baseline_phase_deg = baseline_phase_deg;
+    out.baseline_affected_channel_count = four_channel_baseline ? 2 : 0;
     out.relative_phase_deg = cfg.channel_fixed_phase_mismatch_deg + jitter_deg +
         cfg.per_pulse_phase_drift_deg * static_cast<double>(pulse_id) +
         beam_bias_deg + baseline_phase_deg;
@@ -199,6 +213,10 @@ ChannelImpairmentRealization applyChannelImpairments(
     const std::complex<float> relative_gain_phase(
         static_cast<float>(out.relative_gain * std::cos(phase_rad)),
         static_cast<float>(out.relative_gain * std::sin(phase_rad)));
+    const double baseline_phase_rad = baseline_phase_deg * kPiLocal / 180.0;
+    const std::complex<float> baseline_phase(
+        static_cast<float>(std::cos(baseline_phase_rad)),
+        static_cast<float>(std::sin(baseline_phase_rad)));
     for (int n = 0; n < n_samples; ++n) {
         std::complex<float> a = v1[static_cast<std::size_t>(n)];
         const double source = static_cast<double>(n) - out.effective_shift_samples -
@@ -223,6 +241,14 @@ ChannelImpairmentRealization applyChannelImpairments(
                           out.saturated_sample_count);
         storeCh(packet, radar, n, ch1, a);
         storeCh(packet, radar, n, ch2, b);
+        if (four_channel_baseline) {
+            std::complex<float> c = v3[static_cast<std::size_t>(n)];
+            std::complex<float> d = v4[static_cast<std::size_t>(n)] * baseline_phase;
+            d = clipMagnitude(d, cfg.channel_saturation_level,
+                              out.saturated_sample_count);
+            storeCh(packet, radar, n, 3, c);
+            storeCh(packet, radar, n, 4, d);
+        }
     }
     out.applied = true;
     return out;

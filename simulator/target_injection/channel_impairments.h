@@ -36,6 +36,11 @@ struct ChannelImpairmentRealization {
     int pulse_id = 0;
     double relative_gain = 1.0;
     double relative_phase_deg = 0.0;
+    // For a four-channel baseline pilot, the same angle-dependent phase is
+    // applied to right phase centers (channels 2 and 4).  Keep it separate
+    // from relative_phase_deg so the truth CSV can audit channel coverage.
+    double baseline_phase_deg = 0.0;
+    int baseline_affected_channel_count = 0;
     double effective_shift_samples = 0.0;
     double sample_clock_error_ppm = 0.0;
     double added_noise_sigma_ch1 = 0.0;

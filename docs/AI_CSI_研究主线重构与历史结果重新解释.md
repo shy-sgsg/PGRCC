@@ -146,25 +146,37 @@ Current/J5/J6 路由这一支：其安全平均材料性不足。该结论不关
 ### 4.11 下一阶段：真实系统未知误差联合估计
 
 下一阶段先建立参数清单、传播图、观测量和可辨识性分析，再选择一个当前模拟器和
-生产模型都能明确对接的首个 pilot。当前推荐从“基线几何误差的多波位观测”开始，
-但必须披露现有注入器只对所选读入通道（默认通道 1/2）施加一阶相位扰动，因此它
-不是完整四通道阵列几何误差的最终模型。
+生产模型都能明确对接的首个 pilot。本轮选择基线几何误差的多波位观测；四通道包中
+该误差按右侧相位中心通道 2/4 的一阶相位模型注入，其他既有损伤仍保持选定读入通道
+语义，因此它是可审计的 raw-IQ 观测 pilot，不是完整四通道姿态/几何误差最终模型。
 
 ## 5. 下一阶段交付与当前状态
 
 阶段名：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`。
 
-本轮已启动的非大规模工作：
+本轮已完成的非大规模工作：
 
 - [真实系统误差参数与可观测性分析](AI_CSI_33_真实系统误差参数与可观测性分析.md)：
   参数盘点、代码来源、传播关系、候选观测量、可辨识性和首个 pilot 设计；
 - [`outputs/system_error_inventory/`](../outputs/system_error_inventory/)：CSV 清单、
   误差传播图和 manifest；
+- `scripts/analyze_four_channel_observables.py`：流式读取四通道协议 IQ，输出六对
+  `C13,C24,C12,C14,C23,C34`、相干度、闭合相位和多波位相位拟合；
+- [`outputs/unknown_system_error_pilot_20260913_v5/`](../outputs/unknown_system_error_pilot_20260913_v5/)：
+  四条件 raw-IQ pilot 的配置、日志、观测 CSV/JSON、校准拟合和恢复指标；
 - 本仓库长期 [AGENTS.md](../AGENTS.md) 已加入主线、比较和 AI 边界。
 
-当前没有声称完成正式 pilot。原因是现有脚本的时延/慢时间估计主要是 1/2 通道、
-现有基线误差注入也不是完整四通道独立阵列误差，且速度/伺服角尚无真值—上报值分离。
-在这些接口补齐并通过小规模可复现回放前，不启动大规模 CUDA 矩阵，也不训练模型。
+该 pilot 实际使用一个固定种子、一个 period、7 个命令角和每波位 8 个脉冲。它验证
+了 raw-IQ 六对观测、四通道基线注入和确定性逆校正；生产 B0/B1/B2/B3 CSI/STAP、
+CFAR/Pd/Pfa、目标因果保持、CUDA 性能矩阵仍是 `design_only/not_run`。速度、姿态和
+伺服角仍需独立 true/report state；本轮没有训练模型。
+
+pilot 的核心结果是：`baseline_error_m=0.01 m` 时，OFF 多波位六对观测的确定性拟合
+得到 `0.009999999925 m`；ON 数据相对 Ideal 的平均相位残差从
+`0.2004197259 rad`（Current+unknown-error）降至 `9.87e-9 rad`（Known-error
+correction upper bound）和 `1.01e-8 rad`（Estimated-error correction），相位
+恢复比为 `0.9999999991`。这些是 raw-IQ 相位指标，不是 CSI/STAP 或检测性能结论；
+完整命令、哈希和限制见 pilot `manifest.json`。
 
 ## 6. 推荐阅读顺序
 

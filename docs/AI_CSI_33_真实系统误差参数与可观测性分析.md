@@ -2,8 +2,9 @@
 
 > 阶段：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`
 >
-> 审计日期：2026-09-13；源码基线：`8be2c89`；本文件是代码审计与 pilot 设计，
-> 不是已经完成的 CUDA 正式实验报告。
+> 审计日期：2026-09-13；本文件覆盖源码审计、实现的 raw-IQ pilot 和后续正式比较设计；
+> 它不是已经完成的 CUDA/生产 CSI-STAP 正式实验报告。pilot 产物见
+> `outputs/unknown_system_error_pilot_20260913_v5/`。
 
 ## 1. 研究目标和判定边界
 
@@ -50,9 +51,11 @@ relative_phase_deg
     + per_beam_bias + baseline_phase
 ```
 
-这是一阶、角度相关的基线误差相位模型。当前 `applyChannelImpairments` 使用
-`new_protocol_read_channel_1/2`（默认 1/2）作为被变换的读入通道，因此该入口目前
-不是完整的四通道独立阵列几何误差注入；这一限制已写入 pilot 边界。
+这是一阶、角度相关的基线误差相位模型。对四通道协议包，当前实现将这一个基线误差
+明确作用于右侧相位中心通道 2/4，并在 truth 诊断中记录相位和受影响通道数；两通道
+输入仍保持原有通道 1/2 兼容行为。幅相、时延、漂移等其他既有损伤仍使用
+`new_protocol_read_channel_1/2` 选定通道，因此这不是完整的独立四通道姿态/几何误差
+模型，而是本 pilot 可追溯的基线相位注入。
 
 ### 2.2 平台、姿态和伺服角的当前假设
 
@@ -75,8 +78,10 @@ relative_phase_deg
 - `include/config_structs.hpp:171-195` 定义读入通道、四通道融合、通道偏移和速度来源；
 - `src/dbs/NewProtocolReader.cpp:209-222` 读取通道配置，四通道有效路径为
   `(ch1+ch3)/(ch2+ch4)`，并在 `:698-797` 继续做四通道相位/数据处理；
-- `scripts/estimate_channel_delay.py` 和 `scripts/estimate_temporal_phase.py` 主要
-  使用通道 1/2 的互谱，尚无统一的 `C13/C24/C12/C14/C23/C34` 六对观测接口；
+- `scripts/estimate_channel_delay.py` 和 `scripts/estimate_temporal_phase.py` 仍主要
+  使用通道 1/2 的互谱；本轮新增 `scripts/analyze_four_channel_observables.py`，统一
+  输出 `C13/C24/C12/C14/C23/C34` 六对观测，但它是离线 raw-IQ 分析器，不是生产运行时
+  estimator；
 - `scripts/analyze_four_channel_phase_truth.py` 是基于 truth 的四通道相位残差分析，
   不是运行时的未知误差估计器；
 - `configs/research/ai_csi_model_mismatch_suite.json` 已有时延、逐脉冲相位漂移和
@@ -158,13 +163,13 @@ C13, C24, C12, C14, C23, C34
 | 相位漂移 vs 杂波去相干 | 需要逐脉冲相位轨迹、相干幅度和多 pair 交叉验证 | 不能只看一个平均 coherence |
 | 平台速度 vs P38/目标径向速度 | 需要 header/position-delta/几何先验和跨波位/跨脉冲结构 | 当前生产可记录来源，但模拟器未分离真值与上报值 |
 | 伺服角 vs yaw/基线投影 | 需要 servo/header 与多通道空间相位的联合观测 | 当前没有独立真实伺服角注入 |
-| 四通道几何误差 | 需要六 pair 和已知阵列 offset；单独 1/2 pair 只能给局部证据 | 当前脚本未统一实现 |
+| 四通道几何误差 | 需要六 pair 和已知阵列 offset；单独 1/2 pair 只能给局部证据 | 已实现离线六-pair 接口；运行时自校准仍未接入 |
 
 ## 6. 首个 pilot：基线几何误差的多波位观测
 
 ### 6.1 选择理由
 
-首个 pilot 暂选 `baseline_error_m`，理由是它已经有配置、真值记录和明确的一阶物理
+首个 pilot 选择 `baseline_error_m`，理由是它已经有配置、真值记录和明确的一阶物理
 相位关系，并且能直接检验“多波位回波能否把角度相关几何误差从固定相位中分离”。
 相比之下：
 
@@ -209,14 +214,15 @@ clutter+noise，target protection、steering 来源、CFAR、Pd/Pfa 和目标传
 
 1. 用现有 Stage2 四通道 raw IQ 生成多个命令角/波位，记录每波位 header、geometry、
    通道配置和注入 manifest；单波位不能作为基线误差可辨识性结论。
-2. 对每个波位和频率支持计算六对互谱 `C13,C24,C12,C14,C23,C34`，同时输出幅度、
-   相位、相干系数、有效样本数和质量标志。
-3. 对每个 pair 先估计频率不变的相位统计，再按 `sin(theta_b)` 做稳健斜率拟合；将
+2. `scripts/analyze_four_channel_observables.py` 流式读取协议包，对每个波位/频率支持
+   计算六对 `C13,C24,C12,C14,C23,C34`，输出幅度、相位、相干系数、有效样本数和闭合相位。
+3. 对每个 pair 先估计频率不变的相位统计，再按 `sin(theta_b)` 做加权斜率拟合；将
    固定相位、角度零点、通道 gain 和低 coherence 作为 nuisance/质量控制项。
-4. 用 pair 闭合相位和四通道 offset 约束检查估计是否符合单一几何误差模型；若只在
-   1/2 pair 上成立，必须标成“局部 pair 证据”，不能宣称完整四通道自校准。
-5. 只把估计出的参数和置信度写入校准接口，再运行 Current CSI 和四通道 STAP；保留
-   逐字段来源、估计残差和失败/fallback 状态。
+4. 当前 pilot 使用匹配的 Ideal/No-error OFF 文件作为标定参考，分别检查四个水平 pair
+   的相位差是否服从同一个 `sin(theta)` 模型；Estimated 分支只消费 raw OFF 文件和
+   六-pair 拟合，不读取 `truth/` 文件或目标 truth。
+5. 后续正式链路才把估计参数和置信度写入校准接口，再运行 Current CSI 和四通道 STAP；
+   保留逐字段来源、估计残差和失败/fallback 状态。
 
 ### 6.5 评价指标
 
@@ -229,26 +235,38 @@ clutter+noise，target protection、steering 来源、CFAR、Pd/Pfa 和目标传
 - `Known − Current`、`Estimated − Current` 和 recovery ratio；
 - 估计失败率、质量门限、fallback 次数及 OFF/ON 数据隔离。
 
-### 6.6 当前 pilot 状态和阻塞项
+### 6.6 当前 pilot 状态和剩余阻塞项
 
-截至本次审计，pilot 仍是设计态，没有把“文件存在”或“配置可解析”写成实验通过。
-可复用的基础包括 `channel_impairments.cpp` 的注入入口、Stage2 raw IQ、四通道生产
-配置和已有 1/2 通道时延/慢时间估计脚本；缺口是：
+有界 raw-IQ pilot 已运行，证据位于
+[`outputs/unknown_system_error_pilot_20260913_v5/`](../outputs/unknown_system_error_pilot_20260913_v5/)。
+它实际使用一个固定种子、1 个 period、7 个命令角、8 个脉冲/波位和 4 通道 float32
+协议包。四个条件和结果如下：
 
-1. 多波位四通道观测输出和六 pair 统一接口；
-2. 把当前只作用于所选读入通道 1/2 的基线扰动扩展或明确建模为可审计的四通道几何
-   误差；
-3. 基线误差确定性校正函数及 estimated-only 估计器；
-4. 同一场景接入 Current CSI、四通道 STAP 和生产 CFAR 的四条件评价。
+| 条件 | 实际证据 | 平均相位残差（相对 Ideal，rad） |
+|---|---|---:|
+| Ideal/No-error | Stage2 target-on，无基线扰动 | 0 |
+| Current+unknown-error | Stage2 target-on，`baseline_error_m=0.01 m` | 0.2004197259 |
+| Known-error correction upper bound | 用配置真值反向旋转通道 2/4 | 9.8716e-9 |
+| Estimated-error correction | OFF 六-pair 拟合后反向旋转通道 2/4 | 1.0053e-8 |
 
-因此本轮不启动大规模 CUDA，也不创建一个只看单波位、只看通道 1/2 的伪 pilot。上述
-缺口已经成为下一步最短实现路径。
+OFF 多波位拟合得到 `0.009999999925 m`，绝对估计误差约 `7.5e-11 m`；按
+`Known − Current`、`Estimated − Current` 计算的相位恢复比为 `0.9999999991`。由于
+这是纯相位注入，原始 pair coherence 本身几乎不变（约 `0.01417115`），所以该
+结果只证明观测/估计/逆相位链在受控输入上的闭环，不证明 CSI/STAP 对消改善。
+
+仍未完成且不能由本 pilot 代替的部分：
+
+1. 同一场景接入生产 B0 Current、B1 校准两通道 CSI、B2 四通道 STAP、B3 校准四通道
+   STAP 的端到端和信息量匹配比较；
+2. 生产 GO-CFAR 的 Pd、Pfa、虚警簇、目标因果传递和跟踪/PIPE 目标保持；
+3. 平台速度、roll/pitch/yaw、伺服真实角与上报角的独立注入和估计；
+4. CUDA 设备运行、性能统计和多场景统计泛化。
 
 ## 7. 后续阶段顺序
 
 1. 完成六 pair compact observable 的只读分析和质量字段；
 2. 补齐基线误差的四通道/多波位忠实注入与已知误差校正；
-3. 做小规模四条件 CPU/最小 CUDA 回放，先验证相位模型和闭合相位；
+3. 在已有 raw-IQ pilot 之上做小规模四条件 CPU/最小 CUDA 回放，先验证相位模型和闭合相位；
 4. 接入 Current CSI 与四通道 STAP 的端到端及信息量匹配比较；
 5. 扩展到平台速度/姿态/伺服真值—上报误差，最后再判断确定性估计是否不足；
 6. 只有第 5 步之后仍存在稳定、可量化且难以解析的残差，才评估 Physics-AI。
@@ -260,6 +278,11 @@ clutter+noise，target protection、steering 来源、CFAR、Pd/Pfa 和目标传
 - 生成说明：[`outputs/system_error_inventory/manifest.json`](../outputs/system_error_inventory/manifest.json)
 - 生产四通道融合：`include/config_structs.hpp`、`src/dbs/NewProtocolReader.cpp`
 - 模拟器误差入口：`simulator/target_injection/channel_impairments.{h,cpp}`
+- 六对 raw-IQ 观测器：`scripts/analyze_four_channel_observables.py`
+- pilot 配置/运行器：`configs/research/unknown_system_error_baseline_pilot.json`、
+  `scripts/run_unknown_system_error_pilot.py`
+- pilot manifest 和结果：`outputs/unknown_system_error_pilot_20260913_v5/manifest.json`、
+  `condition_metrics.json`、`calibration_phase_difference.json`
 - 运动与定位模型：`include/motion_comp.hpp`、`include/ctdr_phase_model.hpp`、
   `src/processOnePeriod.cpp`
 - 历史时延/相位估计：`scripts/estimate_channel_delay.py`、
