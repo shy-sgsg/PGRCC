@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import unittest
 from pathlib import Path
 
@@ -18,6 +19,14 @@ class ClutterOnlyServoPilotTests(unittest.TestCase):
     def test_json_safe_preserves_boolean_configuration_values(self) -> None:
         self.assertIs(PILOT._json_safe(True), True)
         self.assertIs(PILOT._json_safe(False), False)
+
+    def test_skip_core_template_is_explicitly_compact(self) -> None:
+        template = json.loads(PILOT.TEMPLATE.read_text(encoding="utf-8"))
+        config = PILOT._prepare_template(template, compact_input=True)
+        self.assertEqual(config["waveform"]["pulse_len"], 4096)
+        self.assertEqual(config["waveform"]["pulse_num"], 8)
+        self.assertEqual(config["range_processing"]["range_fft_len"], 4096)
+        self.assertFalse(config["truth_output"])
 
     def test_branch_contract_separates_estimation_and_evaluation_sources(self) -> None:
         contract = PILOT.branch_contract()

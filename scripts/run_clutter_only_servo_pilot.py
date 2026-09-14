@@ -233,9 +233,22 @@ def _parse_int_list(values: Sequence[str], name: str) -> list[int]:
     return result
 
 
-def _prepare_template(template: Mapping[str, object]) -> dict[str, object]:
+def _prepare_template(
+    template: Mapping[str, object],
+    compact_input: bool = False,
+) -> dict[str, object]:
     config = target_assisted._prepare_template(template)
     config["truth_output"] = False
+    if compact_input:
+        waveform = config.get("waveform")
+        range_processing = config.get("range_processing")
+        if not isinstance(waveform, dict) or not isinstance(range_processing, dict):
+            raise ValueError("prepared waveform/range_processing must be objects")
+        # Skip-core estimator matrices do not need the production INS aperture
+        # or large raw pulse.  Keep this explicit and manifest it so the
+        # compact input cannot be mistaken for a production Core run.
+        waveform.update({"pulse_len": 4096, "pulse_num": 8})
+        range_processing.update({"range_fft_len": 4096, "range_crop_len": 2048})
     return config
 
 
@@ -604,7 +617,10 @@ def run_pilot(
     gpu = target_assisted._probe_gpu()
     if not skip_core and int(gpu["returncode"]) != 0:
         raise RuntimeError("nvidia-smi failed; refusing to claim a CUDA servo pilot")
-    template = _prepare_template(json.loads(TEMPLATE.read_text(encoding="utf-8")))
+    template = _prepare_template(
+        json.loads(TEMPLATE.read_text(encoding="utf-8")),
+        compact_input=skip_core,
+    )
     _write_json(output_root / "prepared_template.json", template)
     case_records: list[dict[str, object]] = []
     estimate_rows: list[dict[str, object]] = []
@@ -849,6 +865,7 @@ def run_pilot(
             "gpu_probe_before_run": gpu,
             "working_directory": str(ROOT),
             "core_skipped": skip_core,
+            "compact_estimator_input": skip_core,
         },
         "counts": {
             "case_count": len(case_records),
