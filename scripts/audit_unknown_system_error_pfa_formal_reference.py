@@ -78,7 +78,8 @@ def _outliers(
     mask: np.ndarray,
     count: int = 12,
 ) -> list[dict[str, float | int]]:
-    ratio = power / np.maximum(threshold, np.finfo(np.float64).tiny)
+    with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
+        ratio = power / np.maximum(threshold, np.finfo(np.float64).tiny)
     selected = np.flatnonzero(mask & np.isfinite(ratio))
     if selected.size == 0:
         return []
