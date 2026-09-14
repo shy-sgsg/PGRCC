@@ -1,0 +1,680 @@
+{
+  "schema": "four_channel_observables_v1",
+  "input": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/raw/estimated_correction/period_0000.bin",
+    "size_bytes": 7354368,
+    "sha256": "3432cc70819a25eb1bd002446cd09bb56370c8a8394949550642f6040a64a9a2",
+    "pulse_len": 4096,
+    "channel_count": 4,
+    "iq_data_type": "float32",
+    "fc_hz": 16000000000.0,
+    "pulses_per_beam": 8,
+    "channel_x_m": [
+      -0.085,
+      0.085,
+      -0.085,
+      0.085
+    ],
+    "channel_positions_m": [
+      [
+        -0.085,
+        0.0,
+        0.0
+      ],
+      [
+        0.085,
+        0.0,
+        0.0
+      ],
+      [
+        -0.085,
+        0.0,
+        0.0
+      ],
+      [
+        0.085,
+        0.0,
+        0.0
+      ]
+    ]
+  },
+  "packet_count": 56,
+  "sample_count_total": 229376,
+  "beam_count": 7,
+  "pairs": {
+    "C13": {
+      "packet_count_with_power": 56,
+      "mean_coherence": 0.013730143068469923,
+      "mean_abs_phase_rad": null
+    },
+    "C24": {
+      "packet_count_with_power": 56,
+      "mean_coherence": 0.014394409852415706,
+      "mean_abs_phase_rad": null
+    },
+    "C12": {
+      "packet_count_with_power": 56,
+      "mean_coherence": 0.01357392243576839,
+      "mean_abs_phase_rad": 1.450939237204304
+    },
+    "C14": {
+      "packet_count_with_power": 56,
+      "mean_coherence": 0.014570281212502237,
+      "mean_abs_phase_rad": 1.524031519181244
+    },
+    "C23": {
+      "packet_count_with_power": 56,
+      "mean_coherence": 0.015068836475261348,
+      "mean_abs_phase_rad": 1.4049204684849848
+    },
+    "C34": {
+      "packet_count_with_power": 56,
+      "mean_coherence": 0.013689309934378946,
+      "mean_abs_phase_rad": 1.577346097757191
+    }
+  },
+  "angle_phase_fit_by_pair": {
+    "C13": {
+      "fit_status": "fit",
+      "n_beams": 7,
+      "slope_rad_per_sin_theta": 10.873006423015276,
+      "intercept_rad": -0.22483956386395845,
+      "rmse_rad": 0.9305399019195062,
+      "r2": 0.39887340329820853,
+      "confidence": {
+        "status": "quality_fields_only",
+        "n_beams": 7,
+        "weight_sum": 229376.0,
+        "rmse_rad": 0.9305399019195062,
+        "r2": 0.39887340329820853,
+        "not_a_calibrated_probability": true
+      }
+    },
+    "C24": {
+      "fit_status": "fit",
+      "n_beams": 7,
+      "slope_rad_per_sin_theta": 26.971710638276186,
+      "intercept_rad": -0.3558726843877605,
+      "rmse_rad": 0.972828078559166,
+      "r2": 0.7888428249373405,
+      "confidence": {
+        "status": "quality_fields_only",
+        "n_beams": 7,
+        "weight_sum": 229376.0,
+        "rmse_rad": 0.972828078559166,
+        "r2": 0.7888428249373405,
+        "not_a_calibrated_probability": true
+      }
+    },
+    "C12": {
+      "fit_status": "fit",
+      "n_beams": 7,
+      "slope_rad_per_sin_theta": -6.0110753434240465,
+      "intercept_rad": 0.5988083202253474,
+      "rmse_rad": 1.3319193525140085,
+      "r2": 0.09007304829080776,
+      "confidence": {
+        "status": "quality_fields_only",
+        "n_beams": 7,
+        "weight_sum": 229376.0,
+        "rmse_rad": 1.3319193525140085,
+        "r2": 0.09007304829080776,
+        "not_a_calibrated_probability": true
+      }
+    },
+    "C14": {
+      "fit_status": "fit",
+      "n_beams": 7,
+      "slope_rad_per_sin_theta": 27.162942937104862,
+      "intercept_rad": 1.0898022692178704,
+      "rmse_rad": 1.2556433362743218,
+      "r2": 0.6945976315126806,
+      "confidence": {
+        "status": "quality_fields_only",
+        "n_beams": 7,
+        "weight_sum": 229376.0,
+        "rmse_rad": 1.2556433362743218,
+        "r2": 0.6945976315126806,
+        "not_a_calibrated_probability": true
+      }
+    },
+    "C23": {
+      "fit_status": "fit",
+      "n_beams": 7,
+      "slope_rad_per_sin_theta": 6.765719801537474,
+      "intercept_rad": -0.8339157025414724,
+      "rmse_rad": 0.7315510678890702,
+      "r2": 0.2936349604062575,
+      "confidence": {
+        "status": "quality_fields_only",
+        "n_beams": 7,
+        "weight_sum": 229376.0,
+        "rmse_rad": 0.7315510678890702,
+        "r2": 0.2936349604062575,
+        "not_a_calibrated_probability": true
+      }
+    },
+    "C34": {
+      "fit_status": "fit",
+      "n_beams": 7,
+      "slope_rad_per_sin_theta": 31.83834481701692,
+      "intercept_rad": -1.6837307938829407,
+      "rmse_rad": 0.6090366826162235,
+      "r2": 0.9299803607744421,
+      "confidence": {
+        "status": "quality_fields_only",
+        "n_beams": 7,
+        "weight_sum": 229376.0,
+        "rmse_rad": 0.6090366826162235,
+        "r2": 0.9299803607744421,
+        "not_a_calibrated_probability": true
+      }
+    }
+  },
+  "beam_rows": [
+    {
+      "beam_index": 0,
+      "theta_cmd_deg": -6.0,
+      "pair": "C12",
+      "effective_sample_count": 32768,
+      "cross_real": -0.1831980303037562,
+      "cross_imag": -0.13120293412164472,
+      "cross_magnitude": 0.22533470267427655,
+      "phase_rad": -2.5200893577883603,
+      "right_minus_left_phase_rad": 2.5200893577883603,
+      "coherence": 0.006879255675758888
+    },
+    {
+      "beam_index": 0,
+      "theta_cmd_deg": -6.0,
+      "pair": "C13",
+      "effective_sample_count": 32768,
+      "cross_real": -0.044386423756220164,
+      "cross_imag": -0.08342441202587962,
+      "cross_magnitude": 0.0944975509509663,
+      "phase_rad": -2.0597583330568896,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.0028985821310549354
+    },
+    {
+      "beam_index": 0,
+      "theta_cmd_deg": -6.0,
+      "pair": "C14",
+      "effective_sample_count": 32768,
+      "cross_real": 0.10695002806046106,
+      "cross_imag": 0.07645639863105326,
+      "cross_magnitude": 0.13146820677929677,
+      "phase_rad": 0.6206426572942875,
+      "right_minus_left_phase_rad": -0.6206426572942875,
+      "coherence": 0.004006044833685006
+    },
+    {
+      "beam_index": 0,
+      "theta_cmd_deg": -6.0,
+      "pair": "C23",
+      "effective_sample_count": 32768,
+      "cross_real": -0.19827443297578526,
+      "cross_imag": -0.18114300388114815,
+      "cross_magnitude": 0.2685619828400044,
+      "phase_rad": -2.401315772775441,
+      "right_minus_left_phase_rad": -2.401315772775441,
+      "coherence": 0.008220534472881437
+    },
+    {
+      "beam_index": 0,
+      "theta_cmd_deg": -6.0,
+      "pair": "C24",
+      "effective_sample_count": 32768,
+      "cross_real": -0.19281174244417063,
+      "cross_imag": -0.030222472339008256,
+      "cross_magnitude": 0.19516599565149484,
+      "phase_rad": -2.9861117541394537,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.005934575789760507
+    },
+    {
+      "beam_index": 0,
+      "theta_cmd_deg": -6.0,
+      "pair": "C34",
+      "effective_sample_count": 32768,
+      "cross_real": 0.01508870206749894,
+      "cross_imag": -0.10536423780222996,
+      "cross_magnitude": 0.10643914476228476,
+      "phase_rad": -1.4285582363471272,
+      "right_minus_left_phase_rad": 1.4285582363471272,
+      "coherence": 0.003251910559621209
+    },
+    {
+      "beam_index": 1,
+      "theta_cmd_deg": -4.0,
+      "pair": "C12",
+      "effective_sample_count": 32768,
+      "cross_real": 0.06395618163537625,
+      "cross_imag": -0.010383328358135727,
+      "cross_magnitude": 0.0647935697208458,
+      "phase_rad": -0.1609464040455636,
+      "right_minus_left_phase_rad": 0.1609464040455636,
+      "coherence": 0.0019655595764877134
+    },
+    {
+      "beam_index": 1,
+      "theta_cmd_deg": -4.0,
+      "pair": "C13",
+      "effective_sample_count": 32768,
+      "cross_real": 0.03415682647037907,
+      "cross_imag": -0.03943694360660705,
+      "cross_magnitude": 0.05217241910778427,
+      "phase_rad": -0.8570222292523445,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.0015894503550947002
+    },
+    {
+      "beam_index": 1,
+      "theta_cmd_deg": -4.0,
+      "pair": "C14",
+      "effective_sample_count": 32768,
+      "cross_real": -0.1820430402582508,
+      "cross_imag": 0.04337795749926423,
+      "cross_magnitude": 0.18713982928087514,
+      "phase_rad": 2.907670773942883,
+      "right_minus_left_phase_rad": -2.907670773942883,
+      "coherence": 0.0056741504684499795
+    },
+    {
+      "beam_index": 1,
+      "theta_cmd_deg": -4.0,
+      "pair": "C23",
+      "effective_sample_count": 32768,
+      "cross_real": 0.11988814191397817,
+      "cross_imag": -0.18266757657313604,
+      "cross_magnitude": 0.2184962473423484,
+      "phase_rad": -0.989991972202898,
+      "right_minus_left_phase_rad": -0.989991972202898,
+      "coherence": 0.006665454005544193
+    },
+    {
+      "beam_index": 1,
+      "theta_cmd_deg": -4.0,
+      "pair": "C24",
+      "effective_sample_count": 32768,
+      "cross_real": 0.05340966568319198,
+      "cross_imag": -0.169823896683426,
+      "cross_magnitude": 0.17802457210490155,
+      "phase_rad": -1.2660901643929094,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.005404982973328402
+    },
+    {
+      "beam_index": 1,
+      "theta_cmd_deg": -4.0,
+      "pair": "C34",
+      "effective_sample_count": 32768,
+      "cross_real": 0.03881045218187382,
+      "cross_imag": -0.15088296270221854,
+      "cross_magnitude": 0.15579447882502315,
+      "phase_rad": -1.319031906134132,
+      "right_minus_left_phase_rad": 1.319031906134132,
+      "coherence": 0.004750268207673212
+    },
+    {
+      "beam_index": 2,
+      "theta_cmd_deg": -2.0,
+      "pair": "C12",
+      "effective_sample_count": 32768,
+      "cross_real": 0.10772636741868064,
+      "cross_imag": -0.24881150067968077,
+      "cross_magnitude": 0.2711312101321044,
+      "phase_rad": -1.1621996712470597,
+      "right_minus_left_phase_rad": 1.1621996712470597,
+      "coherence": 0.008249128306513169
+    },
+    {
+      "beam_index": 2,
+      "theta_cmd_deg": -2.0,
+      "pair": "C13",
+      "effective_sample_count": 32768,
+      "cross_real": 0.09177717016341963,
+      "cross_imag": 0.028373861368977387,
+      "cross_magnitude": 0.09606313013946209,
+      "phase_rad": 0.29983944734722834,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.0029270306108564515
+    },
+    {
+      "beam_index": 2,
+      "theta_cmd_deg": -2.0,
+      "pair": "C14",
+      "effective_sample_count": 32768,
+      "cross_real": 0.33477037732456,
+      "cross_imag": 0.016822875792654082,
+      "cross_magnitude": 0.33519280225560233,
+      "phase_rad": 0.05020974860866583,
+      "right_minus_left_phase_rad": -0.05020974860866583,
+      "coherence": 0.010217523510870942
+    },
+    {
+      "beam_index": 2,
+      "theta_cmd_deg": -2.0,
+      "pair": "C23",
+      "effective_sample_count": 32768,
+      "cross_real": 0.16158258640175427,
+      "cross_imag": 0.01686096051642901,
+      "cross_magnitude": 0.16245991572636298,
+      "phase_rad": 0.10397258590188069,
+      "right_minus_left_phase_rad": 0.10397258590188069,
+      "coherence": 0.004973578281949107
+    },
+    {
+      "beam_index": 2,
+      "theta_cmd_deg": -2.0,
+      "pair": "C24",
+      "effective_sample_count": 32768,
+      "cross_real": -0.1113231841842865,
+      "cross_imag": -0.03256724903856134,
+      "cross_magnitude": 0.11598912469222383,
+      "phase_rad": -2.856987541488047,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.003552388342358456
+    },
+    {
+      "beam_index": 2,
+      "theta_cmd_deg": -2.0,
+      "pair": "C34",
+      "effective_sample_count": 32768,
+      "cross_real": -0.16895307468958004,
+      "cross_imag": 0.2868114256671155,
+      "cross_magnitude": 0.33287525492332126,
+      "phase_rad": 2.1031430612535464,
+      "right_minus_left_phase_rad": -2.1031430612535464,
+      "coherence": 0.010210021617435304
+    },
+    {
+      "beam_index": 3,
+      "theta_cmd_deg": 0.0,
+      "pair": "C12",
+      "effective_sample_count": 32768,
+      "cross_real": 0.0271367459551181,
+      "cross_imag": 0.15398585761496295,
+      "cross_magnitude": 0.15635871362494724,
+      "phase_rad": 1.3963586041772202,
+      "right_minus_left_phase_rad": -1.3963586041772202,
+      "coherence": 0.004763045569640279
+    },
+    {
+      "beam_index": 3,
+      "theta_cmd_deg": 0.0,
+      "pair": "C13",
+      "effective_sample_count": 32768,
+      "cross_real": 0.10792080849241097,
+      "cross_imag": -0.35232682153923756,
+      "cross_magnitude": 0.368484857330118,
+      "phase_rad": -1.2735617324917885,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.011285950425851104
+    },
+    {
+      "beam_index": 3,
+      "theta_cmd_deg": 0.0,
+      "pair": "C14",
+      "effective_sample_count": 32768,
+      "cross_real": 0.0007291561784229725,
+      "cross_imag": -0.10526674908146659,
+      "cross_magnitude": 0.1052692743915003,
+      "phase_rad": -1.563869690192886,
+      "right_minus_left_phase_rad": 1.563869690192886,
+      "coherence": 0.003206007673592033
+    },
+    {
+      "beam_index": 3,
+      "theta_cmd_deg": 0.0,
+      "pair": "C23",
+      "effective_sample_count": 32768,
+      "cross_real": 0.03955300199298815,
+      "cross_imag": -0.18642336511663332,
+      "cross_magnitude": 0.1905731120280794,
+      "phase_rad": -1.3617289731990685,
+      "right_minus_left_phase_rad": -1.3617289731990685,
+      "coherence": 0.0058016731216108145
+    },
+    {
+      "beam_index": 3,
+      "theta_cmd_deg": 0.0,
+      "pair": "C24",
+      "effective_sample_count": 32768,
+      "cross_real": 0.2347073671322722,
+      "cross_imag": -0.15930963116127717,
+      "cross_magnitude": 0.2836672465529029,
+      "phase_rad": -0.596327252226071,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.008587075049787654
+    },
+    {
+      "beam_index": 3,
+      "theta_cmd_deg": 0.0,
+      "pair": "C34",
+      "effective_sample_count": 32768,
+      "cross_real": 0.07311025211638562,
+      "cross_imag": 0.14046261554354958,
+      "cross_magnitude": 0.1583504194179999,
+      "phase_rad": 1.0908865593931116,
+      "right_minus_left_phase_rad": -1.0908865593931116,
+      "coherence": 0.0048196014731042465
+    },
+    {
+      "beam_index": 4,
+      "theta_cmd_deg": 2.0,
+      "pair": "C12",
+      "effective_sample_count": 32768,
+      "cross_real": 0.300263705380615,
+      "cross_imag": 0.06399404803115709,
+      "cross_magnitude": 0.3070073793124699,
+      "phase_rad": 0.20998441529887976,
+      "right_minus_left_phase_rad": -0.20998441529887976,
+      "coherence": 0.009394932548763465
+    },
+    {
+      "beam_index": 4,
+      "theta_cmd_deg": 2.0,
+      "pair": "C13",
+      "effective_sample_count": 32768,
+      "cross_real": 0.06413559008947123,
+      "cross_imag": 0.1934859479691987,
+      "cross_magnitude": 0.20383862729537833,
+      "phase_rad": 1.250719969862234,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.006202087350874585
+    },
+    {
+      "beam_index": 4,
+      "theta_cmd_deg": 2.0,
+      "pair": "C14",
+      "effective_sample_count": 32768,
+      "cross_real": -0.05515508396259307,
+      "cross_imag": 0.07093554843922108,
+      "cross_magnitude": 0.08985507954085718,
+      "phase_rad": 2.2316900738937915,
+      "right_minus_left_phase_rad": -2.2316900738937915,
+      "coherence": 0.002751000958585086
+    },
+    {
+      "beam_index": 4,
+      "theta_cmd_deg": 2.0,
+      "pair": "C23",
+      "effective_sample_count": 32768,
+      "cross_real": 0.02435909014619908,
+      "cross_imag": -0.02370647973248588,
+      "cross_magnitude": 0.03399062303132169,
+      "phase_rad": -0.7718214947509855,
+      "right_minus_left_phase_rad": -0.7718214947509855,
+      "coherence": 0.001035788009221891
+    },
+    {
+      "beam_index": 4,
+      "theta_cmd_deg": 2.0,
+      "pair": "C24",
+      "effective_sample_count": 32768,
+      "cross_real": -0.01756927052900467,
+      "cross_imag": 0.18288891680590474,
+      "cross_magnitude": 0.18373087698413268,
+      "phase_rad": 1.6665676941203504,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.0056336598070738444
+    },
+    {
+      "beam_index": 4,
+      "theta_cmd_deg": 2.0,
+      "pair": "C34",
+      "effective_sample_count": 32768,
+      "cross_real": 0.08979196858525496,
+      "cross_imag": 0.11475146600329793,
+      "cross_magnitude": 0.14570688580956445,
+      "phase_rad": 0.9068232711790231,
+      "right_minus_left_phase_rad": -0.9068232711790231,
+      "coherence": 0.00444216910127327
+    },
+    {
+      "beam_index": 5,
+      "theta_cmd_deg": 4.0,
+      "pair": "C12",
+      "effective_sample_count": 32768,
+      "cross_real": -0.05302018585877816,
+      "cross_imag": -0.04114784217930423,
+      "cross_magnitude": 0.06711397041236875,
+      "phase_rad": -2.4816089509455272,
+      "right_minus_left_phase_rad": 2.4816089509455272,
+      "coherence": 0.0020478347326619616
+    },
+    {
+      "beam_index": 5,
+      "theta_cmd_deg": 4.0,
+      "pair": "C13",
+      "effective_sample_count": 32768,
+      "cross_real": 0.008923933636160328,
+      "cross_imag": 0.0637849436457816,
+      "cross_magnitude": 0.06440617693543166,
+      "phase_rad": 1.431792005807697,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.0019717769223321843
+    },
+    {
+      "beam_index": 5,
+      "theta_cmd_deg": 4.0,
+      "pair": "C14",
+      "effective_sample_count": 32768,
+      "cross_real": -0.099435955652532,
+      "cross_imag": -0.19167801200935938,
+      "cross_magnitude": 0.21593510498386415,
+      "phase_rad": -2.049343452052713,
+      "right_minus_left_phase_rad": 2.049343452052713,
+      "coherence": 0.006626794044214855
+    },
+    {
+      "beam_index": 5,
+      "theta_cmd_deg": 4.0,
+      "pair": "C23",
+      "effective_sample_count": 32768,
+      "cross_real": 0.14566926486578763,
+      "cross_imag": 0.0710998645856101,
+      "cross_magnitude": 0.16209480395938386,
+      "phase_rad": 0.45407514158381285,
+      "right_minus_left_phase_rad": 0.4540751415838128,
+      "coherence": 0.004931883331010803
+    },
+    {
+      "beam_index": 5,
+      "theta_cmd_deg": 4.0,
+      "pair": "C24",
+      "effective_sample_count": 32768,
+      "cross_real": 0.11880256451141669,
+      "cross_imag": 0.041120228783607715,
+      "cross_magnitude": 0.1257176302262557,
+      "phase_rad": 0.3332162196810625,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.0038343331946097663
+    },
+    {
+      "beam_index": 5,
+      "theta_cmd_deg": 4.0,
+      "pair": "C34",
+      "effective_sample_count": 32768,
+      "cross_real": 0.05444563283921562,
+      "cross_imag": -0.08793982846341294,
+      "cross_magnitude": 0.10342988139525815,
+      "phase_rad": -1.0164338225802605,
+      "right_minus_left_phase_rad": 1.0164338225802605,
+      "coherence": 0.003165103936439456
+    },
+    {
+      "beam_index": 6,
+      "theta_cmd_deg": 6.0,
+      "pair": "C12",
+      "effective_sample_count": 32768,
+      "cross_real": 0.15227524917867927,
+      "cross_imag": 0.0885761063287495,
+      "cross_magnitude": 0.17616321444839383,
+      "phase_rad": 0.5268431229729786,
+      "right_minus_left_phase_rad": -0.5268431229729786,
+      "coherence": 0.005382916472101484
+    },
+    {
+      "beam_index": 6,
+      "theta_cmd_deg": 6.0,
+      "pair": "C13",
+      "effective_sample_count": 32768,
+      "cross_real": 0.031176352655239756,
+      "cross_imag": -0.01194484104586592,
+      "cross_magnitude": 0.03338628749194612,
+      "phase_rad": -0.3658860752638463,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.0010151663783034956
+    },
+    {
+      "beam_index": 6,
+      "theta_cmd_deg": 6.0,
+      "pair": "C14",
+      "effective_sample_count": 32768,
+      "cross_real": -0.14362137315819454,
+      "cross_imag": 0.06086406753355949,
+      "cross_magnitude": 0.1559856837808363,
+      "phase_rad": 2.740754618340049,
+      "right_minus_left_phase_rad": -2.740754618340049,
+      "coherence": 0.0047459655853272316
+    },
+    {
+      "beam_index": 6,
+      "theta_cmd_deg": 6.0,
+      "pair": "C23",
+      "effective_sample_count": 32768,
+      "cross_real": 0.13424991112097714,
+      "cross_imag": -0.1593234337223767,
+      "cross_magnitude": 0.20834345482658875,
+      "phase_rad": -0.870599432347608,
+      "right_minus_left_phase_rad": -0.870599432347608,
+      "coherence": 0.006380570622330219
+    },
+    {
+      "beam_index": 6,
+      "theta_cmd_deg": 6.0,
+      "pair": "C24",
+      "effective_sample_count": 32768,
+      "cross_real": -0.1406007775954396,
+      "cross_imag": -0.010286559745700224,
+      "cross_magnitude": 0.14097656532858263,
+      "phase_rad": -3.068561299448842,
+      "right_minus_left_phase_rad": null,
+      "coherence": 0.004320135122058913
+    },
+    {
+      "beam_index": 6,
+      "theta_cmd_deg": 6.0,
+      "pair": "C34",
+      "effective_sample_count": 32768,
+      "cross_real": 0.048014762377144936,
+      "cross_imag": -0.09846315966665788,
+      "cross_magnitude": 0.10954638842826109,
+      "phase_rad": -1.1170839839427542,
+      "right_minus_left_phase_rad": 1.1170839839427542,
+      "coherence": 0.003340528271611144
+    }
+  ]
+}

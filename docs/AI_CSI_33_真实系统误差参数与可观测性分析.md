@@ -2,9 +2,14 @@
 
 > 阶段：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`
 >
-> 审计日期：2026-09-13；本文件覆盖源码审计、实现的 raw-IQ pilot 和后续正式比较设计；
-> 它不是已经完成的 CUDA/生产 CSI-STAP 正式实验报告。pilot 产物见
-> `outputs/unknown_system_error_pilot_20260913_v5/`。
+> 审计日期：2026-09-14；本文件覆盖源码审计、Phase0–5 实现和实际运行证据。
+> Phase0 是 paired-reference baseline-phase sanity pilot；Phase1–3 是 blind
+> true-geometry estimator/matrix；Phase4 已完成 B0/B1/B1K 生产 CUDA CSI/CFAR 和
+> B2/B3/B3K 离线 STAP reference。B2/B3 仍不是生产 CUDA 四通道 STAP。旧 pilot
+> 产物见 `outputs/unknown_system_error_pilot_20260913_v5/`，本轮产物见
+> `outputs/unknown_system_error_pilot_20260914_clean/`、
+> `outputs/unknown_system_error_geometry_matrix_20260914_v2/` 和
+> `outputs/unknown_system_error_end_to_end_20260914/`。
 
 ## 1. 研究目标和判定边界
 
@@ -41,7 +46,7 @@
 `simulator/stage2_statistical_sim/stage2_config.cpp:187-207`，注入发生在
 `simulator/stage2_statistical_sim/simulate_stage2_main.cpp` 调用目标注入后、协议写出前。
 
-其中 `baseline_error_m` 的当前实现是：
+其中历史 `baseline_error_m` 的 legacy 回归注入是：
 
 ```text
 baseline_phase_deg
@@ -51,11 +56,13 @@ relative_phase_deg
     + per_beam_bias + baseline_phase
 ```
 
-这是一阶、角度相关的基线误差相位模型。对四通道协议包，当前实现将这一个基线误差
-明确作用于右侧相位中心通道 2/4，并在 truth 诊断中记录相位和受影响通道数；两通道
-输入仍保持原有通道 1/2 兼容行为。幅相、时延、漂移等其他既有损伤仍使用
-`new_protocol_read_channel_1/2` 选定通道，因此这不是完整的独立四通道姿态/几何误差
-模型，而是本 pilot 可追溯的基线相位注入。
+这是一阶、角度相关的基线误差相位模型，仅保留为显式
+`group_baseline_error_legacy_pilot` 回归模式。新的物理 four-channel geometry 模式
+使用 `channel_geometry.mode=true_channel_positions`：echo generator 读取 true
+channel positions，报告/处理链保留 reported positions；`reported_channel_positions`
+模式则两者一致。幅相、时延、漂移等其他既有损伤仍使用
+`new_protocol_read_channel_1/2` 选定通道，因此本阶段只把“通道位置 true/report 分离”
+做成真实几何误差，不把所有系统误差假装已经建模。
 
 ### 2.2 平台、姿态和伺服角的当前假设
 
@@ -161,9 +168,9 @@ C13, C24, C12, C14, C23, C34
 | 固定相位 vs 单波位基线误差 | 需要多波位角度变化，或独立几何参考 | 单波位混淆 |
 | 时延 vs 固定相位 | 需要频率维互谱斜率 | 时延有候选观测，已有 1/2 通道估计器 |
 | 相位漂移 vs 杂波去相干 | 需要逐脉冲相位轨迹、相干幅度和多 pair 交叉验证 | 不能只看一个平均 coherence |
-| 平台速度 vs P38/目标径向速度 | 需要 header/position-delta/几何先验和跨波位/跨脉冲结构 | 当前生产可记录来源，但模拟器未分离真值与上报值 |
+| 平台速度 vs P38/目标径向速度 | 需要 header/position-delta/几何先验和跨波位/跨脉冲结构 | 当前 pilot 只使用 velocity header 作为 nominal metadata，true/report velocity 尚未分离 |
 | 伺服角 vs yaw/基线投影 | 需要 servo/header 与多通道空间相位的联合观测 | 当前没有独立真实伺服角注入 |
-| 四通道几何误差 | 需要六 pair 和已知阵列 offset；单独 1/2 pair 只能给局部证据 | 已实现离线六-pair 接口；运行时自校准仍未接入 |
+| 四通道几何误差 | 需要六 pair 和已知阵列 offset；单独 1/2 pair 只能给局部证据 | 已实现 true/report geometry、离线六-pair blind fit 和生产前 raw-IQ correction |
 
 ## 6. 首个 pilot：基线几何误差的多波位观测
 
@@ -216,13 +223,16 @@ clutter+noise，target protection、steering 来源、CFAR、Pd/Pfa 和目标传
    通道配置和注入 manifest；单波位不能作为基线误差可辨识性结论。
 2. `scripts/analyze_four_channel_observables.py` 流式读取协议包，对每个波位/频率支持
    计算六对 `C13,C24,C12,C14,C23,C34`，输出幅度、相位、相干系数、有效样本数和闭合相位。
-3. 对每个 pair 先估计频率不变的相位统计，再按 `sin(theta_b)` 做加权斜率拟合；将
-   固定相位、角度零点、通道 gain 和低 coherence 作为 nuisance/质量控制项。
-4. 当前 pilot 使用匹配的 Ideal/No-error OFF 文件作为标定参考，分别检查四个水平 pair
-   的相位差是否服从同一个 `sin(theta)` 模型；Estimated 分支只消费 raw OFF 文件和
-   六-pair 拟合，不读取 `truth/` 文件或目标 truth。
-5. 后续正式链路才把估计参数和置信度写入校准接口，再运行 Current CSI 和四通道 STAP；
-   保留逐字段来源、估计残差和失败/fallback 状态。
+3. 对每个 pair 先估计频率不变的相位统计，再按
+   `phi_obs - phi_nominal = projection*delta_d + delta_phi_pair` 做加权 circular
+   fit；固定相位是每 pair nuisance，垂直 pair 用作 control fit，水平 pair 提供
+   `delta_d` 信息。
+4. Phase1 blind estimator 只消费一份 unknown-off 四通道 IQ、reported/nominal
+   geometry 和过滤后的 waveform/platform/beam metadata；不消费 ideal、truth、known
+   或 future metrics。六-pair 模式要求公共 fit，单 pair `C12` 仅用于对照并显式记录。
+5. Phase4 把估计值作为 raw-IQ 物理相位修正输入，再运行生产 Current CSI/GO-CFAR；
+   B2/B3/B3K 使用同一 raw 条件的离线 JDL-3x4 conventional STAP reference。每条结果
+   保留逐字段来源、估计残差、失败/fallback、输入 SHA-256 和 runtime。
 
 ### 6.5 评价指标
 
@@ -235,7 +245,7 @@ clutter+noise，target protection、steering 来源、CFAR、Pd/Pfa 和目标传
 - `Known − Current`、`Estimated − Current` 和 recovery ratio；
 - 估计失败率、质量门限、fallback 次数及 OFF/ON 数据隔离。
 
-### 6.6 当前 pilot 状态和剩余阻塞项
+### 6.6 Phase0 paired-reference sanity 状态
 
 有界 raw-IQ pilot 已运行，证据位于
 [`outputs/unknown_system_error_pilot_20260913_v5/`](../outputs/unknown_system_error_pilot_20260913_v5/)。
@@ -254,15 +264,95 @@ OFF 多波位拟合得到 `0.009999999925 m`，绝对估计误差约 `7.5e-11 m`
 这是纯相位注入，原始 pair coherence 本身几乎不变（约 `0.01417115`），所以该
 结果只证明观测/估计/逆相位链在受控输入上的闭环，不证明 CSI/STAP 对消改善。
 
-仍未完成且不能由本 pilot 代替的部分：
+该结果已在 clean archive `/tmp/pgrcc_clean_823ebae` 重跑，manifest 标记
+`operational_blind=false`、`estimator_mode=paired_ideal_reference`；因此只能作为
+Phase0 的 baseline-phase sanity，不能作为线上估计器或 CSI/STAP 结果。
 
-1. 同一场景接入生产 B0 Current、B1 校准两通道 CSI、B2 四通道 STAP、B3 校准四通道
-   STAP 的端到端和信息量匹配比较；
-2. 生产 GO-CFAR 的 Pd、Pfa、虚警簇、目标因果传递和跟踪/PIPE 目标保持；
-3. 平台速度、roll/pitch/yaw、伺服真实角与上报角的独立注入和估计；
-4. CUDA 设备运行、性能统计和多场景统计泛化。
+## 7. Phase1–5 实际运行结果（2026-09-14）
 
-## 7. 后续阶段顺序
+### 7.1 Phase1/2 blind estimator 与 true/report geometry
+
+Phase2 的 true geometry fixture 让通道 2/4 的 true `x` 相对 reported `x` 增加
+`delta_d`，处理端只读取 reported geometry。Phase1 的 estimator 输入契约由
+`estimator_allowed_metadata.json` 和 manifest 记录，禁止读取 ideal/truth/known/future
+字段。三速度 E2E calibration 的 unknown-off 输入仅得到
+`estimated_delta_d=0.00265 m`，外部评价真值为 `0.00250 m`；四个水平 pair 的估计范围
+为 2.635–2.660 mm，最大 pair 间差 0.025 mm，global phase RMSE 0.007436 rad，
+closure residual mean 0.000297 rad、P95 0.000685 rad。
+
+### 7.2 Phase3 blind matrix
+
+矩阵覆盖 9 个水平 `[0, ±1, ±2.5, ±5, ±10] mm`、3 个 seed、至少 7 个指定角度，
+固定幅相/噪声/纹理 nuisance；每个 case 都用单独 unknown-off raw IQ，并在运行后删除
+临时 raw，仅保留 hash、配置、日志、estimator JSON 和汇总 CSV。27/27 case 的六-pair
+和 C12 single-pair 都 fit，无 failure/fallback。下表单位为 mm；CI 是 4000 次
+percentile bootstrap 的估计均值 95% CI。
+
+| true delta | six mean | six CI95 | six bias | six RMSE | single RMSE |
+|---:|---:|---:|---:|---:|---:|
+| 0 | 0.1592 | [0.1475, 0.1650] | 0.1592 | 0.1594 | 0.1756 |
+| +1 | 1.1583 | [1.1450, 1.1650] | 0.1583 | 0.1586 | 0.1741 |
+| −1 | −0.8425 | [−0.8550, −0.8350] | 0.1575 | 0.1578 | 0.1756 |
+| +2.5 | 2.6617 | [2.6475, 2.6700] | 0.1617 | 0.1620 | 0.1758 |
+| −2.5 | −2.3442 | [−2.3550, −2.3350] | 0.1558 | 0.1561 | 0.1722 |
+| +5 | 5.1625 | [5.1475, 5.1725] | 0.1625 | 0.1629 | 0.1776 |
+| −5 | −4.8458 | [−4.8575, −4.8375] | 0.1542 | 0.1544 | 0.1722 |
+| +10 | 10.1692 | [10.1550, 10.1825] | 0.1692 | 0.1695 | 0.1812 |
+| −10 | −9.8508 | [−9.8600, −9.8400] | 0.1492 | 0.1494 | 0.1670 |
+
+跨全部 27 case，six-pair 绝对误差均值/最大值为 0.1586/0.1825 mm，single-pair
+为 0.1739/0.2050 mm；six-pair phase residual RMSE 均值 0.006332 rad，closure
+mean absolute residual 0.000282 rad，pair consistency 均值/最大值为 0.0378/0.0650 mm。
+零误差 case 仍稳定返回约 0.16 mm，而不是静默伪造零值；这属于当前受控 fixture 的
+系统偏置，不能写成“无偏估计”。
+
+### 7.3 Phase4 端到端 CUDA/离线 reference
+
+正式 E2E 覆盖 3 个 moving-target velocity：`(-3,2)`、`(-6,4)`、`(-12,8) m/s`。
+生产 B0/B1/B1K 各运行 on/off/target-only 三种 split，共 27 行；退出码、CSI manifest
+和 P4 evaluation 均完整。下表为三速度均值；生产 Pfa 是 target-off 有效 CUT 上
+`hit_cells / (active_rows × dynamic-band-valid-CUTs)`，不是把配置 `pf=1e-6` 当作实测值。
+
+| 条件 | CA dB | coherence | RMSE rad | target-on Pd | target-off Pfa | main runtime ms |
+|---|---:|---:|---:|---:|---:|---:|
+| B0 Current | 3.1225 | 0.875813 | 0.576723 | 0/3 | 0.002204 | 911 |
+| B1 blind estimated Current | 3.1208 | 0.875668 | 0.576985 | 3/3 | 0.002202 | 862 |
+| B1K known-error upper bound Current | 3.1207 | 0.875667 | 0.576985 | 3/3 | 0.002204 | 886 |
+
+target-only transfer 的目标匹配结果为 B0 `0/3`、B1 `3/3`、B1K `3/3`；这证明的是
+本受控 moving-target fixture 的目标迁移差异，不等价于完整跟踪/PIPE 目标保持。
+
+四通道 STAP 使用仓库既有的离线 `JDL-3x4 reduced STAP` scientific reference，
+不是生产 CUDA STAP。三速度均值如下：
+
+| 条件 | SCNR improvement dB | target loss dB | residual P95 power | residual P99 power | Pd | background Pfa |
+|---|---:|---:|---:|---:|---:|---:|
+| B2 uncalibrated 4ch STAP | −0.3467 | −0.3701 | 4.3788 | 7.2913 | 3/3 | 0.000248 |
+| B3 blind 4ch STAP | −0.3426 | −0.3333 | 4.3834 | 7.3449 | 3/3 | 0.000266 |
+| B3K known-error 4ch STAP | −0.3437 | −0.3376 | 4.3826 | 7.3391 | 3/3 | 0.000265 |
+
+按 `Known−Current`、`Estimated−Current` 记录的 recovery rows 在
+`recovery_metrics.csv`；B3 相对 B2 的 SCNR 和 target-loss 略有改善，但 residual
+P95/P99 与 background Pfa 略变差，因此不能把 B3 概括为全面提升。生产 B1 相对 B0
+的 CSI 数值恢复量很小，而 target-on Pd 在该 fixture 中从 0/3 到 3/3；两者必须分开
+解释。
+
+### 7.4 运行边界与下一步
+
+本轮 E2E 运行的 raw/production 结果 manifest 记录的是源码 commit `3e0183e` 加 dirty
+worktree（计时修补已包含在该运行源码中）；实现随后收敛并提交为 `823ebae`，Phase0
+clean rerun 已用该 commit 复核 provenance。正式 E2E 使用 RTX 3050、driver
+580.173.02、CUDA 13.0，P8、51°C、6W/80W；runtime 使用 `main_total` timing scope。
+
+仍未完成且不能由本阶段替代的部分：
+
+1. B2/B3/B3K 的生产 CUDA 四通道 STAP 和信息量匹配正式矩阵；
+2. TrackManager/PIPE 的 causal target retention，以及多场景、多周期统计泛化；
+3. servo/beam-pointing、平台速度/姿态的独立 true/report state 与 Phase6 估计；
+4. 只有确定性估计残差稳定且难以解析后，才重新评估 Physics-AI；当前 `ai_training=false`，
+   不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
+
+## 8. 后续阶段顺序
 
 1. 完成六 pair compact observable 的只读分析和质量字段；
 2. 补齐基线误差的四通道/多波位忠实注入与已知误差校正；
@@ -271,7 +361,7 @@ OFF 多波位拟合得到 `0.009999999925 m`，绝对估计误差约 `7.5e-11 m`
 5. 扩展到平台速度/姿态/伺服真值—上报误差，最后再判断确定性估计是否不足；
 6. 只有第 5 步之后仍存在稳定、可量化且难以解析的残差，才评估 Physics-AI。
 
-## 8. 证据入口
+## 9. 证据入口
 
 - 机器可读参数清单：[`outputs/system_error_inventory/parameter_inventory.csv`](../outputs/system_error_inventory/parameter_inventory.csv)
 - 传播关系：[`outputs/system_error_inventory/propagation_map.csv`](../outputs/system_error_inventory/propagation_map.csv)
@@ -283,6 +373,12 @@ OFF 多波位拟合得到 `0.009999999925 m`，绝对估计误差约 `7.5e-11 m`
   `scripts/run_unknown_system_error_pilot.py`
 - pilot manifest 和结果：`outputs/unknown_system_error_pilot_20260913_v5/manifest.json`、
   `condition_metrics.json`、`calibration_phase_difference.json`
+- Phase3 blind matrix：`outputs/unknown_system_error_geometry_matrix_20260914_v2/manifest.json`、
+  `matrix_summary.csv`、`single_pair_vs_six_pair.csv`
+- Phase4 E2E：`outputs/unknown_system_error_end_to_end_20260914/manifest.json`、
+  `production_metrics.csv`、`offline_stap_metrics.csv`、`recovery_metrics.csv`、
+  `target_only_transfer.csv`、`target_off_false_cluster_metrics.csv`
+- Phase0 clean rerun：`outputs/unknown_system_error_pilot_20260914_clean/manifest.json`
 - 运动与定位模型：`include/motion_comp.hpp`、`include/ctdr_phase_model.hpp`、
   `src/processOnePeriod.cpp`
 - 历史时延/相位估计：`scripts/estimate_channel_delay.py`、

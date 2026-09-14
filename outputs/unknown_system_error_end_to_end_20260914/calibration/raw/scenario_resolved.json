@@ -1,0 +1,154 @@
+{
+  "case_id": "unknown_system_error_end_to_end_calibration",
+  "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_end_to_end_20260914/calibration/raw",
+  "scene_role": "target_plus_background",
+  "paired_background_output_dir": "",
+  "background_input_dir": "",
+  "background_input_scale": 1,
+  "scene_mode": "full",
+  "output_signal_domain_requested": "range_compressed",
+  "beam_index_base": 1,
+  "scan_mode": "electronic",
+  "mechanical_scan": {
+    "scan_start_deg": -60,
+    "scan_end_deg": 60,
+    "scan_speed_deg_s": 20,
+    "scan_direction": "forward",
+    "cpi_pulse_count": 130,
+    "cpi_step_pulse": 130,
+    "phase_center_rotation_enable": true,
+    "phase_center_mount_angle_deg": 0,
+    "phase_center_rotation_sign": 1
+  },
+  "waveform": {
+    "new_protocol_channel_count": 4,
+    "iq_data_type": "float32",
+    "fc_hz": 16000000000,
+    "bandwidth_hz": 50000000,
+    "fs_hz": 60000000,
+    "tr_sec": 2e-05,
+    "pulse_len": 8192,
+    "acquired_pulse_len": 8192,
+    "pulse_num": 4,
+    "prf_hz": 1300,
+    "sample_delay_sec": 0
+  },
+  "platform": {
+    "speed_mps": 60,
+    "height_m": 6000,
+    "squint_side": 1
+  },
+  "simulation_geometry": {
+    "geometry_config_name": "algorithm_axis_x_north",
+    "local_x_axis": "north",
+    "local_y_axis": "east",
+    "platform_heading_source": "fixed_angle",
+    "platform_heading_deg": 90,
+    "beam_theta_offset_deg": 0,
+    "range_geometry": "algorithm",
+    "use_ground_range_for_position": true,
+    "squint_side": 1
+  },
+  "carrier_phase_sign": -1,
+  "four_channel_phase_center_mode": "physical",
+  "channel_geometry": {
+    "mode": "true_channel_positions",
+    "reported_channel_positions": [
+      {"channel": 1, "x_m": -0.085, "y_m": 0, "z_m": 0.085},
+      {"channel": 2, "x_m": 0.085, "y_m": 0, "z_m": 0.085},
+      {"channel": 3, "x_m": -0.085, "y_m": 0, "z_m": -0.085},
+      {"channel": 4, "x_m": 0.085, "y_m": 0, "z_m": -0.085}
+    ],
+    "true_channel_positions": [
+      {"channel": 1, "x_m": -0.085, "y_m": 0, "z_m": 0.085},
+      {"channel": 2, "x_m": 0.0875, "y_m": 0, "z_m": 0.085},
+      {"channel": 3, "x_m": -0.085, "y_m": 0, "z_m": -0.085},
+      {"channel": 4, "x_m": 0.0875, "y_m": 0, "z_m": -0.085}
+    ]
+  },
+  "scene": {
+    "mode": "full",
+    "signal_only": false,
+    "range_min_m": 8500,
+    "range_max_m": 10000,
+    "azimuth_min_deg": -22,
+    "azimuth_max_deg": 22,
+    "ground_z_m": 0,
+    "clutter_amplitude_scale": 1,
+    "single_point": {
+      "range_m": 85000,
+      "beam_id": -1,
+      "expected_bin": -1,
+      "azimuth_deg": 0,
+      "amplitude": 1
+    },
+    "area_clutter": {
+      "enabled": true,
+      "model": "beam_center_clutter",
+      "scatterer_count": 0,
+      "mean_power": 2,
+      "texture_sigma": 0.1,
+      "spatial_cell_m": 60,
+      "temporal_correlation_rho": 1,
+      "rho_requested": 1,
+      "rho_at_CTDR_lag_theoretical": 1,
+      "ctdr_lag_pulses": 2,
+      "correlation_time_ms": null,
+      "azimuth_subcell_count": 5,
+      "calibration_range_m": 9000
+    },
+    "strong_scatterers": {
+      "enabled": false,
+      "count": 0,
+      "rcs_db_min": 10,
+      "rcs_db_max": 30
+    },
+    "line_scatterers": {
+      "enabled": false,
+      "line_count": 0,
+      "points_per_line": 0,
+      "rcs_db": 12
+    },
+    "thermal_noise": {
+      "enabled": true,
+      "noise_power": 0.0001,
+      "include_target_only": false
+    }
+  },
+  "simulation_subset": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 1,
+    "beam_count": 9
+  },
+  "random": {
+    "seed": 404,
+    "period_start": 0,
+    "period_count": 1,
+    "target_reference_period": -1
+  },
+  "scan": {
+    "scan_min_deg": -20,
+    "scan_step_deg": 5,
+    "beam_count": 9
+  },
+  "targets": [
+    {
+      "target_id": "DISABLED_ESTIMATOR_TARGET",
+      "enabled": false,
+      "init_type": "beam_bin_azimuth_offset",
+      "beam_id": 5,
+      "expected_bin": 3500,
+      "theta_cmd_deg": 0,
+      "azimuth_deg": null,
+      "azimuth_offset_deg": null,
+      "motion_type": "static",
+      "ve_mps": 0,
+      "vn_mps": 0,
+      "amplitude_type": "snr_db",
+      "snr_db": 0,
+      "snr_db_by_period": [],
+      "visibility_type": "hard_gate"
+    }
+  ]
+}

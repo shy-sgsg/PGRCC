@@ -11,9 +11,11 @@
 → CSI / 四通道 STAP → CFAR / Pd / Pfa / 目标保持
 ```
 
-本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量实现和首个
-基线几何误差 raw-IQ pilot；尚未完成生产 CSI/STAP 正式矩阵，也没有训练 AI。机器可读证据在
-`outputs/system_error_inventory/` 和 `outputs/unknown_system_error_pilot_20260913_v5/`，详细边界见
+本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量、true/report 几何、
+unknown-only blind estimator、27-case matrix，以及 B0/B1/B1K 生产 CUDA CSI/CFAR
+和 B2/B3/B3K 离线 STAP reference；没有训练 AI。机器可读证据在
+`outputs/system_error_inventory/`、`outputs/unknown_system_error_geometry_matrix_20260914_v2/`
+和 `outputs/unknown_system_error_end_to_end_20260914/`，详细边界见
 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
 
 当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
@@ -22,6 +24,24 @@
 
 以下 V1/V2、Physics-AI 和 Router 结果均保留为历史证据；不要把旧阶段的主线标题、
 Oracle 术语或 Router 状态当作当前待办。
+
+## 2026-09-14 当前阶段实际证据
+
+- Phase0 clean archive paired-reference baseline-phase sanity 已运行：源码 `823ebae`、
+  `worktree_dirty_before=false`，10 mm 基线估计误差约 `7.46e-11 m`，恢复比
+  `0.9999999991`；manifest 明确 `operational_blind=false`。
+- Phase1/2 unknown-only estimator 使用单份 unknown-off 四通道 IQ、reported geometry
+  和过滤后的 nominal metadata；三速度 E2E calibration 估计 `2.65 mm`，外部评价真值
+  `2.50 mm`，四个水平 pair 间最大差 `0.025 mm`，global phase RMSE `0.007436 rad`。
+- Phase3 覆盖 `[0, ±1, ±2.5, ±5, ±10] mm × 3 seeds`，27/27 six-pair 和 C12
+  single-pair 均 fit，无 failure/fallback。six-pair 全部 case 的绝对误差均值/最大值
+  为 `0.1586/0.1825 mm`；single-pair 为 `0.1739/0.2050 mm`。
+- Phase4 三个 moving-target velocity `(-3,2),(-6,4),(-12,8) m/s` 已完成 27 条
+  生产行和 9 条离线 STAP 行。B0 target-on Pd=`0/3`，B1 blind 和 B1K known 均为
+  `3/3`；target-off 经验 Pfa 约 `0.00217–0.00224`，不能替换成配置 `1e-6`。
+- B2/B3/B3K 是离线 `JDL-3x4 reduced STAP` scientific reference，不是生产 CUDA
+  四通道 STAP；TrackManager/PIPE、servo/beam 和平台速度 true/report state 仍是后续项。
+- 本阶段 `ai_training=false`；不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
 物理假设审计和 M1/M2/M3 model-mismatch challenge 的 3-seed 扩展；仍未训练 AI。formal
@@ -123,8 +143,12 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 |---|---|---|
 | 真实系统误差参数盘点 | 已完成代码审计初版 | [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)、`outputs/system_error_inventory/parameter_inventory.csv` |
 | 误差传播与可辨识性 | 第一版关系已审计；基线几何已完成小规模数值验证 | `outputs/system_error_inventory/propagation_map.csv`、`outputs/unknown_system_error_pilot_20260913_v5/calibration_phase_difference.json` |
-| Current 与四通道 STAP 比较口径 | 已纠正 framing；正式矩阵未运行 | 端到端能力层 + 信息量匹配层，不能用历史“不混排”代替比较 |
-| 首个基线几何误差 pilot | `run`：raw-IQ 四条件已完成；生产层未运行 | `outputs/unknown_system_error_pilot_20260913_v5/manifest.json`；估计误差 `0.009999999925 m`，恢复比 `0.9999999991` |
+| Current 与四通道 STAP 比较口径 | 已实现并运行能力层；信息量匹配层仍待补 | `outputs/unknown_system_error_end_to_end_20260914/manifest.json`、`offline_stap_metrics.csv` |
+| Phase0 paired-reference baseline-phase sanity | `run`，明确非 blind/online | `outputs/unknown_system_error_pilot_20260914_clean/manifest.json`；估计误差 `0.009999999925 m`，恢复比 `0.9999999991` |
+| Phase1/2 true/report geometry + blind estimator | `run`，单参数 baseline geometry | `outputs/unknown_system_error_end_to_end_20260914/calibration/unknown_only_estimator.json` |
+| Phase3 blind geometry matrix | `run`，27/27 fit、无 fallback | `outputs/unknown_system_error_geometry_matrix_20260914_v2/matrix_summary.csv`、`single_pair_vs_six_pair.csv` |
+| Phase4 production CSI/CFAR + offline STAP | `run`，B0/B1/B1K CUDA；B2/B3/B3K offline reference | `outputs/unknown_system_error_end_to_end_20260914/production_metrics.csv`、`offline_stap_metrics.csv` |
+| Phase5 recovery/Pd/Pfa/target transfer | `run`，受控 moving-target fixture | `recovery_metrics.csv`、`target_only_transfer.csv`、`target_off_false_cluster_metrics.csv` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实

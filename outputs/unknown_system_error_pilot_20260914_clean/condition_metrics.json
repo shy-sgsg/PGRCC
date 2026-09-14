@@ -1,0 +1,38 @@
+{
+  "conditions": [
+    {
+      "condition": "Ideal/No-error",
+      "condition_id": "ideal_on",
+      "phase_residual_to_ideal_rad": 0.0,
+      "mean_pair_coherence": 0.014171150480806824,
+      "packet_count": 56
+    },
+    {
+      "condition": "Current+unknown-error",
+      "condition_id": "current_unknown",
+      "phase_residual_to_ideal_rad": 0.2004197259272836,
+      "mean_pair_coherence": 0.014171150496029523,
+      "packet_count": 56
+    },
+    {
+      "condition": "Known-error correction upper bound",
+      "condition_id": "known_correction",
+      "phase_residual_to_ideal_rad": 9.87159533444741e-09,
+      "mean_pair_coherence": 0.014171150498883357,
+      "packet_count": 56
+    },
+    {
+      "condition": "Estimated-error correction",
+      "condition_id": "estimated_correction",
+      "phase_residual_to_ideal_rad": 1.0053458540610316e-08,
+      "mean_pair_coherence": 0.014171150496466091,
+      "packet_count": 56
+    }
+  ],
+  "recovery": {
+    "metric": "phase_residual_to_ideal_rad (lower is better)",
+    "recoverable_space_known_minus_current": 0.20041971605568826,
+    "actual_recovered_estimated_minus_current": 0.20041971587382507,
+    "recovery_ratio": 0.9999999990925883
+  }
+}

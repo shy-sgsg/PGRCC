@@ -40,11 +40,16 @@ F1/F2 在 Current CSI 之前完成。四通道 STAP 保留四个空间自由度�
 ## 当前阶段状态
 
 - 下一阶段名称：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`。
-- 已完成本轮代码审计、误差参数清单、传播关系和一个有界 raw-IQ pilot；没有声称
-  完成正式 CSI/STAP CUDA 矩阵。
-- pilot 暂选“基线几何误差的多波位观测”。四通道包中的 `baseline_error_m` 现在
-  明确作用于右侧相位中心通道 2/4，其他既有通道损伤仍保持选定读入通道语义；完整
-  的独立四通道姿态/几何误差模型仍是后续工作，详见 [阶段文档](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+- 已完成 Phase0 paired-reference sanity、Phase1 unknown-only blind estimator、Phase2
+  true/reported four-channel geometry、Phase3 27-case blind matrix，以及 Phase4
+  B0/B1/B1K 生产 CUDA CSI/CFAR 和 B2/B3/B3K 离线 STAP reference；完整结果和限制见
+  [阶段文档](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+- 历史 `baseline_error_m` 仅保留为 `group_baseline_error_legacy_pilot` regression
+  mode；真实几何 pilot 使用 `channel_geometry.mode=true_channel_positions`，echo
+  读取 true positions，处理端保留 reported positions。
+- 当前 E2E 是受控 one-beam/beam-center-clutter moving-target pilot；B2/B3/B3K 是离线
+  scientific reference，不宣称生产 CUDA 四通道 STAP。TrackManager/PIPE、servo/beam
+  和平台速度 true/report state 仍未完成。
 - `NO_GO_AI_ROUTER_VALUE` 只关闭 Current/J5/J6 Router 的安全平均材料性，不关闭
   Physics-AI 或未知系统误差估计主线。
 
@@ -104,7 +109,14 @@ tests/                      工程测试
 docs/                       数学模型、实验报告和后续 AI 建议
 docs/AI_CSI_33_真实系统误差参数与可观测性分析.md  下一阶段误差参数、传播和 pilot 设计
 configs/research/unknown_system_error_baseline_pilot.json  有界四通道基线误差 pilot 配置
+configs/research/unknown_system_error_true_geometry_pilot.json  true/report geometry 与 blind matrix 配置
+configs/research/unknown_system_error_end_to_end_pilot.json  生产 CSI/CFAR 与离线 STAP E2E 配置
+scripts/run_unknown_system_error_matrix.py  Phase3 unknown-only 几何估计矩阵
+scripts/run_unknown_system_error_end_to_end.py  Phase4 B0/B1/B1K/B2/B3/B3K E2E runner
 outputs/unknown_system_error_pilot_20260913_v5/  raw-IQ pilot 的紧凑观测与审计产物（raw BIN 本地保留，不入 Git）
+outputs/unknown_system_error_geometry_matrix_20260914_v2/  27-case blind matrix 紧凑汇总
+outputs/unknown_system_error_end_to_end_20260914/  三速度 E2E 的生产/离线指标和 provenance
+outputs/unknown_system_error_pilot_20260914_clean/  clean archive Phase0 provenance
 outputs/ai_csi_oracle/      小型 CSV/PNG/JSON 研究交付物
 outputs/ai_csi_baseline/   7 场景 × 6 方法的传统 baseline 交付物
 outputs/ai_csi_baseline_v2/ Baseline V2 历史 screen 与 sanity 交付物
@@ -242,20 +254,23 @@ V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
 ## 下一阶段：真实系统未知误差建模与可观测性分析
 
 阶段文档：[AI_CSI_33_真实系统误差参数与可观测性分析](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)。
-当前工作顺序是：
+当前已完成并正在沿以下顺序推进：
 
 1. 盘点平台速度/位置、roll/pitch/yaw、伺服指向、通道时延、固定相位、相位漂移、
    增益、时钟、基线几何、载频和杂波时间去相干；
 2. 沿模拟器和生产代码建立误差传播、六对紧凑观测量
    `C13,C24,C12,C14,C23,C34` 及可辨识性分析；
-3. 设计 B0 Current、B1 校准两通道 CSI、B2 四通道 STAP、B3 校准+STAP 的公平比较；
-4. 对首个多波位基线几何 pilot 使用 Ideal、Current+unknown、Known-error correction
-   upper bound、Estimated-error correction 四个条件；
-5. 最终用 coherence、CSI/STAP 抑制、target transfer、Pd、Pfa 和目标保持评价。
+3. 已实现 B0 Current、B1 blind/known 两通道 CSI、B2 四通道 STAP、B3 blind/known
+   四通道 STAP 的公平比较接口；
+4. 已完成 9 个几何误差水平 × 3 个 seed 的 unknown-only blind matrix；
+5. 已完成三速度 moving-target 的 production GO-CFAR Pd/Pfa、target-only transfer、
+   B2/B3 离线 reference 和 `Known−Current`/`Estimated−Current` recovery 记录。
 
-当前清单和传播图位于 `outputs/system_error_inventory/`；有界 pilot 的 manifest 和
-六对观测位于 `outputs/unknown_system_error_pilot_20260913_v5/`。本轮未启动生产
-CSI/STAP 大规模 CUDA 矩阵或 AI 训练。
+当前清单和传播图位于 `outputs/system_error_inventory/`；Phase0/3/4 的 manifest 和
+六对观测分别位于 `outputs/unknown_system_error_pilot_20260914_clean/`、
+`outputs/unknown_system_error_geometry_matrix_20260914_v2/` 和
+`outputs/unknown_system_error_end_to_end_20260914/`。本轮没有训练 AI，也没有把
+离线 B2/B3 reference 写成生产 CUDA 四通道 STAP。
 
 有界 raw-IQ pilot 的最短复现入口：
 
@@ -264,10 +279,18 @@ cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
 cmake --build build --target simulate_stage2_statistical -j4
 python3 scripts/run_unknown_system_error_pilot.py \
   --output-root /tmp/pgrcc_unknown_system_error_pilot_repro
+
+python3 scripts/run_unknown_system_error_matrix.py \
+  --output-root /tmp/pgrcc_unknown_system_error_geometry_matrix_repro
+
+python3 scripts/run_unknown_system_error_end_to_end.py \
+  --output-root /tmp/pgrcc_unknown_system_error_end_to_end_repro
 ```
 
-运行器拒绝覆盖非空输出目录；产物 manifest 会记录四个条件、命令、输入哈希、估计
-误差和未运行的生产层。raw BIN 约 7 MB/条件，用于本地审计，未纳入 Git 提交。
+运行器拒绝覆盖非空输出目录；Phase0 manifest 会记录 paired-reference 的非 blind
+边界，Phase3 会记录 27 个 case 的配置/hash/fit/fallback/CI，Phase4 会记录生产
+CSI/CFAR、离线 STAP、P4、target-only transfer、Pfa 定义、runtime 和 GPU provenance。
+Phase4 需要真实 CUDA 设备；raw BIN 只用于本地审计，不纳入 Git 提交。
 
 ## 历史 Physics-AI / Oracle 门禁（已封存）
 

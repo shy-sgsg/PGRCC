@@ -1,0 +1,158 @@
+{
+  "schema": "unknown_system_error_paired_reference_baseline_phase_sanity_pilot_v1",
+  "status": "paired_reference_baseline_phase_sanity_pilot_completed",
+  "estimator_mode": "paired_ideal_reference",
+  "operational_blind": false,
+  "worktree_dirty_before": false,
+  "source": {
+    "source_commit_before_run": "823ebae",
+    "worktree_status_before_run": "",
+    "worktree_dirty_before": false,
+    "template": "/tmp/pgrcc_clean_823ebae/configs/research/unknown_system_error_baseline_pilot.json",
+    "template_sha256": "87e327d113779788a084053af2118b5d302aff909f3a07d8a0309de24c292c49",
+    "simulator": "/home/shy/AIR/SAR+AI/project/PGRCC/build/simulate_stage2_statistical",
+    "analyzer": "/tmp/pgrcc_clean_823ebae/scripts/analyze_four_channel_observables.py"
+  },
+  "execution": {
+    "working_directory": "/tmp/pgrcc_clean_823ebae",
+    "python": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 16:09:02) [GCC 11.2.0]",
+    "platform": "Linux-7.0.0-31-generic-x86_64-with-glibc2.43",
+    "device_validation": "not_applicable: CPU Stage2 raw-IQ pilot; no CUDA result claimed",
+    "commands": {
+      "ideal_off": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/build/simulate_stage2_statistical",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/configs/ideal_off.run.json"
+      ],
+      "unknown_off": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/build/simulate_stage2_statistical",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/configs/unknown_off.run.json"
+      ],
+      "ideal_on": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/build/simulate_stage2_statistical",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/configs/ideal_on.run.json"
+      ],
+      "current_unknown": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/build/simulate_stage2_statistical",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/configs/current_unknown.run.json"
+      ]
+    }
+  },
+  "layout": {
+    "pulse_len": 4096,
+    "channel_count": 4,
+    "iq_data_type": "float32",
+    "fc_hz": 16000000000.0,
+    "pulses_per_beam": 8
+  },
+  "error_model": {
+    "parameter": "baseline_error_m",
+    "truth_value_m": 0.01,
+    "applied_to_channels": [
+      2,
+      4
+    ],
+    "phase_model": "2*pi*baseline_error_m*sin(theta_cmd_deg)/wavelength",
+    "estimator_mode": "paired_ideal_reference",
+    "estimator": "paired no-error reference + six-pair horizontal phase fit",
+    "operational_blind": false,
+    "truth_used_in_estimator": false,
+    "estimated_value_m": 0.009999999925366381,
+    "absolute_estimation_error_m": 7.463361872961372e-11
+  },
+  "raw_files": {
+    "ideal_off": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/raw/ideal_off/data/stage2_statistical_newprotocol_period_0000.bin",
+      "size_bytes": 7354368,
+      "sha256": "3fe9f9d959cc0d81f7fc763c006e7cd6830c596d49942693ce6e21a6e4907b6f",
+      "retained_locally": true,
+      "included_in_git_commit": false
+    },
+    "unknown_off": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/raw/unknown_off/data/stage2_statistical_newprotocol_period_0000.bin",
+      "size_bytes": 7354368,
+      "sha256": "8e6e45a57b932c40dc1623cdff1717accef9d6a742ef9745fb2ea17c804a9c9c",
+      "retained_locally": true,
+      "included_in_git_commit": false
+    },
+    "ideal_on": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/raw/ideal_on/data/stage2_statistical_newprotocol_period_0000.bin",
+      "size_bytes": 7354368,
+      "sha256": "a368dbc5850a0b2d47c9ce94ed804f354bdfb427ade131eda2a95fe876a4b207",
+      "retained_locally": true,
+      "included_in_git_commit": false
+    },
+    "current_unknown": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/raw/current_unknown/data/stage2_statistical_newprotocol_period_0000.bin",
+      "size_bytes": 7354368,
+      "sha256": "7f5043a0f8b1f85763c06a448795c65fdbd05e98c099e8b2df62f2f8dde2cac7",
+      "retained_locally": true,
+      "included_in_git_commit": false
+    },
+    "known_correction": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/raw/known_correction/period_0000.bin",
+      "size_bytes": 7354368,
+      "sha256": "d027b4ade2815f2935252c60a75fdc49ee8b9989c9b564e0638a2496a46de9a0",
+      "retained_locally": true,
+      "included_in_git_commit": false
+    },
+    "estimated_correction": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/outputs/unknown_system_error_pilot_20260914_clean/raw/estimated_correction/period_0000.bin",
+      "size_bytes": 7354368,
+      "sha256": "3432cc70819a25eb1bd002446cd09bb56370c8a8394949550642f6040a64a9a2",
+      "retained_locally": true,
+      "included_in_git_commit": false
+    }
+  },
+  "condition_metrics": [
+    {
+      "condition": "Ideal/No-error",
+      "condition_id": "ideal_on",
+      "phase_residual_to_ideal_rad": 0.0,
+      "mean_pair_coherence": 0.014171150480806824,
+      "packet_count": 56
+    },
+    {
+      "condition": "Current+unknown-error",
+      "condition_id": "current_unknown",
+      "phase_residual_to_ideal_rad": 0.2004197259272836,
+      "mean_pair_coherence": 0.014171150496029523,
+      "packet_count": 56
+    },
+    {
+      "condition": "Known-error correction upper bound",
+      "condition_id": "known_correction",
+      "phase_residual_to_ideal_rad": 9.87159533444741e-09,
+      "mean_pair_coherence": 0.014171150498883357,
+      "packet_count": 56
+    },
+    {
+      "condition": "Estimated-error correction",
+      "condition_id": "estimated_correction",
+      "phase_residual_to_ideal_rad": 1.0053458540610316e-08,
+      "mean_pair_coherence": 0.014171150496466091,
+      "packet_count": 56
+    }
+  ],
+  "recovery": {
+    "metric": "phase_residual_to_ideal_rad (lower is better)",
+    "recoverable_space_known_minus_current": 0.20041971605568826,
+    "actual_recovered_estimated_minus_current": 0.20041971587382507,
+    "recovery_ratio": 0.9999999990925883
+  },
+  "not_run": [
+    "production B0/B1/B2/B3 CSI/STAP end-to-end matrix",
+    "CFAR Pd/Pfa and false-cluster evaluation",
+    "track/PIPE causal target-retention evaluation",
+    "CUDA performance or device result"
+  ],
+  "limitations": [
+    "The pilot uses one deterministic period, seven commanded angles, and eight pulses per beam.",
+    "The estimator uses a matched no-error calibration reference; this is a paired-reference sanity pilot, not a blind or online operational estimator.",
+    "The phase correction is deterministic and restricted to the audited baseline-error injector.",
+    "Pure phase rotation does not change pair coherence by itself; end-to-end cancellation and detection remain pending."
+  ]
+}

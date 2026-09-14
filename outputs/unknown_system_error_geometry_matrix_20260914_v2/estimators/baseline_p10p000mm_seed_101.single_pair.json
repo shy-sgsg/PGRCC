@@ -1,0 +1,96 @@
+{
+  "schema": "unknown_only_baseline_estimator_v1",
+  "fit_status": "fit",
+  "operational_blind": true,
+  "packet_count": 36,
+  "pair_mode": "single_pair",
+  "single_pair": "C12",
+  "nominal_channel_positions_m": [
+    [
+      -0.085,
+      0.0,
+      0.085
+    ],
+    [
+      0.085,
+      0.0,
+      0.085
+    ],
+    [
+      -0.085,
+      0.0,
+      -0.085
+    ],
+    [
+      0.085,
+      0.0,
+      -0.085
+    ]
+  ],
+  "estimated_baseline_error_m": 0.010205,
+  "estimated_delta_phi_lr_rad": 0.1411948409894465,
+  "pair_intercepts_rad": {
+    "C12": -0.14119484098944654
+  },
+  "pair_fits": {
+    "C12": {
+      "fit_status": "fit",
+      "pair": "C12",
+      "observation_count": 36,
+      "inlier_count": 36,
+      "inlier_fraction": 1.0,
+      "estimated_delta_d_m": 0.010205,
+      "intercept_rad": -0.14119484098944654,
+      "resultant_length": 0.9999777999669176,
+      "rmse_rad": 0.0066633654205521505,
+      "weight_sum": 75.04928303093004,
+      "confidence": {
+        "status": "quality_fields_only",
+        "resultant_length": 0.9999777999669176,
+        "rmse_rad": 0.0066633654205521505,
+        "inlier_fraction": 1.0,
+        "not_a_calibrated_probability": true
+      }
+    }
+  },
+  "global_fit": {
+    "fit_status": "fit",
+    "estimated_delta_d_m": 0.010205,
+    "pair_intercepts_rad": {
+      "C12": -0.14119484098944654
+    },
+    "resultant_length": 0.9999777999669176,
+    "rmse_rad": 0.0066633654205521505,
+    "weight_sum": 75.04928303093004,
+    "observation_count": 36,
+    "inlier_count": 36,
+    "inlier_fraction": 1.0,
+    "confidence": {
+      "status": "quality_fields_only",
+      "resultant_length": 0.9999777999669176,
+      "rmse_rad": 0.0066633654205521505,
+      "inlier_fraction": 1.0,
+      "not_a_calibrated_probability": true
+    }
+  },
+  "cross_pair_consistency": {
+    "status": "quality_fields_only",
+    "pair_count": 1,
+    "median_delta_d_m": 0.010205,
+    "max_minus_min_delta_d_m": 0.0,
+    "not_a_calibrated_probability": true
+  },
+  "closure_phase_residual_rad": null,
+  "closure_phase_p95_rad": null,
+  "closure_observation_count": 0,
+  "observation_counts": {
+    "C12": 36
+  },
+  "model": {
+    "equation": "phi_obs - phi_nominal = projection*delta_d + delta_phi_pair",
+    "projection": "carrier_sign*2*pi/lambda*(right_j-right_i)*los_x",
+    "range_blocks": 32,
+    "uses_truth": false,
+    "uses_ideal_reference": false
+  }
+}
