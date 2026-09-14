@@ -212,7 +212,10 @@ def _prepare_template(template: Mapping[str, object]) -> dict[str, object]:
     # production range crop.  The target is at raw sample 3500 (~8.75 km).
     waveform.update({
         "pulse_len": 8192,
-        "pulse_num": 8,
+        # The production beam-quality gate needs a full INS update aperture;
+        # eight PRTs span only 6 ms and are shorter than the 25 Hz navigation
+        # update period.
+        "pulse_num": 130,
         "tr_us": 20.0,
         "new_protocol_channel_count": 4,
         "new_protocol_read_channel_1": 1,
@@ -590,6 +593,11 @@ def _read_cfar_summary(log_path: Path) -> dict[str, object]:
 
 
 def _read_core_metrics(result_root: Path, log_path: Path) -> dict[str, object]:
+    log_text = log_path.read_text(encoding="utf-8", errors="replace")
+    beam_error_lines = re.findall(r"\[fusion\]\[BEAM-ERR\].*", log_text)
+    scan_quality_failure_lines = re.findall(
+        r"\[fusion\]\[ERR\] scan beam quality gate failed.*", log_text
+    )
     detections = sorted(result_root.rglob("detection_results*.csv"))
     detection_count = None
     margin_count = 0
@@ -616,6 +624,11 @@ def _read_core_metrics(result_root: Path, log_path: Path) -> dict[str, object]:
         "cfar": _read_cfar_summary(log_path),
         "csi_summary": csi_row,
         "runtime_config": str(runtime[0]) if runtime else None,
+        "internal_beam_error_count": len(beam_error_lines),
+        "internal_scan_quality_failure_count": len(scan_quality_failure_lines),
+        "internal_quality_valid": not beam_error_lines and not scan_quality_failure_lines,
+        "internal_beam_error_examples": beam_error_lines[:3],
+        "internal_scan_quality_failure_examples": scan_quality_failure_lines[:3],
     }
 
 
@@ -653,6 +666,8 @@ def _run_core_branch(
     }
     if rc == 0:
         row.update(_read_core_metrics(branch_root, log_path))
+        if not row.get("internal_quality_valid", False):
+            row["status"] = "completed_with_internal_quality_failure"
     return row
 
 
@@ -669,6 +684,8 @@ def run_pilot(
     errors_deg: Sequence[float],
     seeds: Sequence[int],
     skip_core: bool = False,
+    source_commit_override: Optional[str] = None,
+    worktree_dirty_override: Optional[bool] = None,
 ) -> dict[str, object]:
     if output_root.exists() and any(output_root.iterdir()):
         raise RuntimeError(f"refusing to overwrite non-empty output: {output_root}")
@@ -693,7 +710,9 @@ def run_pilot(
     case_rows: list[dict[str, object]] = []
     estimate_rows: list[dict[str, object]] = []
     case_records: list[dict[str, object]] = []
-    for case_index, (error_deg, seed) in enumerate((item for item in ((e, s) for e in errors for s in seeds)), 1):
+    for case_index, (error_deg, seed) in enumerate(
+        ((error, seed) for error in errors for seed in seeds), 1
+    ):
         case_root = output_root / "cases" / f"case_{case_index:03d}_{_tag_error(error_deg)}_seed_{seed}"
         case_root.mkdir(parents=True, exist_ok=True)
         config = _case_config(template, case_root, error_deg, seed)
@@ -880,10 +899,17 @@ def run_pilot(
             row = _run_core_branch(case, branch, raw_path, core)
             row.update(branch_meta)
             core_rows.append(row)
-            if row["gmticore_exit_code"] != 0:
+            if row["status"] != "completed":
                 raise RuntimeError(f"GMTI_core failed for {case['case_id']} {branch}; see {row['log_path']}")
     _write_rows(output_root / "core_metrics.csv", core_rows)
     all_core_ok = skip_core or all(row.get("status") == "completed" for row in core_rows)
+    source_status = _git("status", "--short", "--untracked-files=all")
+    source_commit = source_commit_override or _git("rev-parse", "HEAD")
+    source_dirty = (
+        bool(source_status)
+        if worktree_dirty_override is None
+        else bool(worktree_dirty_override)
+    )
     manifest: dict[str, object] = {
         "schema": "unknown_system_error_servo_angle_pilot_v1",
         "status": "completed" if all_core_ok else "completed_with_failed_core",
@@ -929,9 +955,9 @@ def run_pilot(
         },
         "source": {
             "working_directory": str(ROOT),
-            "source_commit_before_run": _git("rev-parse", "HEAD"),
-            "worktree_status_before_run": _git("status", "--short", "--untracked-files=all"),
-            "worktree_dirty_before_run": bool(_git("status", "--short", "--untracked-files=all")),
+            "source_commit_before_run": source_commit,
+            "worktree_status_before_run": source_status,
+            "worktree_dirty_before_run": source_dirty,
             "template": str(TEMPLATE.resolve()),
             "template_sha256": _sha256(TEMPLATE),
             "simulator": str(simulator.resolve()),
@@ -1015,6 +1041,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--errors-deg", nargs="+", default=[str(value) for value in DEFAULT_ERRORS_DEG])
     parser.add_argument("--seeds", nargs="+", default=[str(value) for value in DEFAULT_SEEDS])
     parser.add_argument("--skip-core", action="store_true", help="generate and estimate only; never claim CUDA results")
+    parser.add_argument("--source-commit", default=None, help="override recorded source commit for clean-archive runs")
+    parser.add_argument(
+        "--worktree-dirty-before", choices=("true", "false"), default=None,
+        help="override recorded source dirty state for clean-archive runs",
+    )
     args = parser.parse_args(argv)
     errors = _parse_float_list(args.errors_deg, "errors-deg")
     seeds = _parse_int_list(args.seeds, "seeds")
@@ -1025,6 +1056,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         errors,
         seeds,
         skip_core=args.skip_core,
+        source_commit_override=args.source_commit,
+        worktree_dirty_override=(
+            None if args.worktree_dirty_before is None
+            else args.worktree_dirty_before == "true"
+        ),
     )
     print(json.dumps({
         "status": manifest["status"],
