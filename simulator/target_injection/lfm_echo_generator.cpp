@@ -238,7 +238,13 @@ Vec3 receiveChannelOffsetLocal(const RadarConfig &radar,
 {
     if (channel_1based >= 1 &&
         static_cast<std::size_t>(channel_1based) <= radar.channel_offsets_local_m.size()) {
-        return radar.channel_offsets_local_m[static_cast<std::size_t>(channel_1based - 1)];
+        const std::size_t index = static_cast<std::size_t>(channel_1based - 1);
+        if (radar.channel_geometry_mode == "true_channel_positions" &&
+            radar.true_channel_offsets_local_m.size() ==
+                radar.channel_offsets_local_m.size()) {
+            return radar.true_channel_offsets_local_m[index];
+        }
+        return radar.channel_offsets_local_m[index];
     }
     if (!(radar.d_chan_m > 0.0)) {
         return Vec3(0.0, 0.0, 0.0);

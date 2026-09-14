@@ -40,6 +40,12 @@ struct RadarConfig {
     // track, y is east/cross-track and z is up.  An empty vector preserves
     // the legacy two-channel +/-d_chan_m/2 along-track geometry.
     std::vector<Vec3> channel_offsets_local_m;
+    // `channel_offsets_local_m` is the reported/nominal geometry consumed by
+    // generated processing XML.  In the explicit true-vs-reported mode the
+    // echo generator uses this separate physical geometry while the reported
+    // values remain unchanged for downstream processing.
+    std::string channel_geometry_mode = "reported_channel_positions";
+    std::vector<Vec3> true_channel_offsets_local_m;
     std::vector<std::string> channel_names;
     // Mechanical whole-platform/receive-array pose.  When enabled, each
     // explicit (or fallback) local channel offset is rotated about local z by

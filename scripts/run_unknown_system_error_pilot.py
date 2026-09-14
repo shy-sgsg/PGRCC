@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Run the compact deterministic four-condition unknown-error pilot.
+"""Run the paired-reference baseline-phase sanity pilot.
 
 The pilot is intentionally a raw-IQ observability experiment.  It exercises
 the production Stage2 packet generator and the four-channel baseline-error
 injector, then applies deterministic known/estimated phase corrections.  It
-does not run the production CSI/STAP/CFAR chain and therefore cannot be used
-as an end-to-end detection or tracking benchmark.
+uses a matched ideal reference for calibration and is therefore explicitly
+not a blind or online operational estimator.  It does not run the production
+CSI/STAP/CFAR chain and therefore cannot be used as an end-to-end detection
+or tracking benchmark.
 """
 
 from __future__ import annotations
@@ -38,10 +40,10 @@ REQUIRED_CONDITIONS = (
 )
 
 
-def _load_analyzer():
-    spec = importlib.util.spec_from_file_location("four_channel_observables", ANALYZER_PATH)
+def _load_analyzer(path: Path = ANALYZER_PATH):
+    spec = importlib.util.spec_from_file_location("four_channel_observables", path)
     if spec is None or spec.loader is None:
-        raise RuntimeError(f"cannot load {ANALYZER_PATH}")
+        raise RuntimeError(f"cannot load {path}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
@@ -294,15 +296,31 @@ def _write_rows(path: Path, rows: Iterable[Mapping[str, object]]) -> None:
         writer.writerows(rows)
 
 
-def run_pilot(output_root: Path) -> Dict[str, object]:
+def run_pilot(
+    output_root: Path,
+    source_commit_override: Optional[str] = None,
+    worktree_dirty_override: Optional[bool] = None,
+) -> Dict[str, object]:
     if output_root.exists() and any(output_root.iterdir()):
         raise RuntimeError(f"refusing to overwrite non-empty pilot output: {output_root}")
     output_root.mkdir(parents=True, exist_ok=True)
     with TEMPLATE_PATH.open("r", encoding="utf-8") as stream:
         template = json.load(stream)
     layout = _decode_layout(template)
-    source_commit = _git("rev-parse", "HEAD")
-    source_status = _git("status", "--short", "--untracked-files=all")
+    if source_commit_override is None:
+        source_commit = _git("rev-parse", "HEAD")
+    else:
+        source_commit = str(source_commit_override)
+    source_status = (
+        _git("status", "--short", "--untracked-files=all")
+        if (ROOT / ".git-real").exists()
+        else ""
+    )
+    worktree_dirty_before = (
+        bool(source_status)
+        if worktree_dirty_override is None
+        else bool(worktree_dirty_override)
+    )
 
     cases = (
         ("ideal_off", False, 0.0),
@@ -451,11 +469,15 @@ def run_pilot(output_root: Path) -> Dict[str, object]:
             "included_in_git_commit": False,
         }
     manifest = {
-        "schema": "unknown_system_error_baseline_pilot_v1",
-        "status": "raw_iq_pilot_completed",
+        "schema": "unknown_system_error_paired_reference_baseline_phase_sanity_pilot_v1",
+        "status": "paired_reference_baseline_phase_sanity_pilot_completed",
+        "estimator_mode": "paired_ideal_reference",
+        "operational_blind": False,
+        "worktree_dirty_before": worktree_dirty_before,
         "source": {
             "source_commit_before_run": source_commit,
             "worktree_status_before_run": source_status,
+            "worktree_dirty_before": worktree_dirty_before,
             "template": str(TEMPLATE_PATH),
             "template_sha256": _sha256(TEMPLATE_PATH),
             "simulator": str(SIMULATOR),
@@ -474,7 +496,9 @@ def run_pilot(output_root: Path) -> Dict[str, object]:
             "truth_value_m": BASELINE_ERROR_M,
             "applied_to_channels": [2, 4],
             "phase_model": "2*pi*baseline_error_m*sin(theta_cmd_deg)/wavelength",
+            "estimator_mode": "paired_ideal_reference",
             "estimator": "paired no-error reference + six-pair horizontal phase fit",
+            "operational_blind": False,
             "truth_used_in_estimator": False,
             "estimated_value_m": estimated_error_m,
             "absolute_estimation_error_m": abs(float(estimated_error_m) - BASELINE_ERROR_M),
@@ -490,7 +514,7 @@ def run_pilot(output_root: Path) -> Dict[str, object]:
         ],
         "limitations": [
             "The pilot uses one deterministic period, seven commanded angles, and eight pulses per beam.",
-            "The estimator uses a matched no-error calibration reference; it is not yet a blind operational estimator.",
+            "The estimator uses a matched no-error calibration reference; this is a paired-reference sanity pilot, not a blind or online operational estimator.",
             "The phase correction is deterministic and restricted to the audited baseline-error injector.",
             "Pure phase rotation does not change pair coherence by itself; end-to-end cancellation and detection remain pending.",
         ],
@@ -500,14 +524,52 @@ def run_pilot(output_root: Path) -> Dict[str, object]:
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
+    global ROOT, TEMPLATE_PATH, SIMULATOR, ANALYZER_PATH, OBS
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--output-root",
         type=Path,
         default=ROOT / "outputs/unknown_system_error_pilot_20260913",
     )
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=ROOT,
+        help="source tree containing the template and analyzer; supports a clean archive rerun",
+    )
+    parser.add_argument(
+        "--simulator",
+        type=Path,
+        default=None,
+        help="optional absolute/relative simulate_stage2_statistical executable",
+    )
+    parser.add_argument("--source-commit", default=None)
+    parser.add_argument(
+        "--worktree-dirty-before",
+        choices=("true", "false"),
+        default=None,
+        help="override provenance for a clean source archive without Git metadata",
+    )
     args = parser.parse_args(argv)
-    manifest = run_pilot(args.output_root.resolve())
+    ROOT = args.repo_root.resolve()
+    TEMPLATE_PATH = ROOT / "configs/research/unknown_system_error_baseline_pilot.json"
+    SIMULATOR = (
+        args.simulator.resolve()
+        if args.simulator is not None
+        else ROOT / "build/simulate_stage2_statistical"
+    )
+    ANALYZER_PATH = ROOT / "scripts/analyze_four_channel_observables.py"
+    OBS = _load_analyzer(ANALYZER_PATH)
+    dirty_override = (
+        None
+        if args.worktree_dirty_before is None
+        else args.worktree_dirty_before == "true"
+    )
+    manifest = run_pilot(
+        args.output_root.resolve(),
+        source_commit_override=args.source_commit,
+        worktree_dirty_override=dirty_override,
+    )
     print(
         json.dumps(
             {

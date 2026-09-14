@@ -472,6 +472,29 @@ target_include_directories(channel_impairments_selftest PRIVATE
   ${CMAKE_SOURCE_DIR}/simulator/target_injection
 )
 
+add_executable(channel_geometry_selftest
+  tests/channel_geometry_selftest.cpp
+  simulator/target_injection/target_common.cpp
+  simulator/target_injection/target_config.cpp
+  simulator/target_injection/target_motion_model.cpp
+  simulator/target_injection/radar_geometry.cpp
+  simulator/target_injection/beam_visibility.cpp
+  simulator/target_injection/channel_phase_model.cpp
+  simulator/target_injection/lfm_echo_generator.cpp
+  simulator/common/SimulationGeometry.cpp
+  src/trig_lut.cpp
+  src/trig_lut_host_only.cpp
+  src/xml/tinystr.cpp
+  src/xml/tinyxml.cpp
+  src/xml/tinyxmlerror.cpp
+  src/xml/tinyxmlparser.cpp
+)
+target_include_directories(channel_geometry_selftest PRIVATE
+  ${CMAKE_SOURCE_DIR}/include
+  ${CMAKE_SOURCE_DIR}/simulator/target_injection
+  ${CMAKE_SOURCE_DIR}/simulator/common
+)
+
 add_executable(velocity_ambiguity_sweep
   src/tools/velocity_ambiguity_sweep.cpp
 )
@@ -801,6 +824,7 @@ configure_non_cuda_tool(track_assignment_selftest)
 configure_non_cuda_tool(low_radial_velocity_filter_selftest)
 configure_non_cuda_tool(track_detection_eval)
 configure_non_cuda_tool(channel_calibration_selftest)
+configure_non_cuda_tool(channel_geometry_selftest)
 configure_non_cuda_tool(range_compression_window_selftest)
 configure_non_cuda_tool(motion_comp_ctdr_selftest)
 configure_non_cuda_tool(velocity_ambiguity_selftest)
@@ -863,6 +887,7 @@ if(BUILD_TESTING)
   add_test(NAME velocity_ambiguity_selftest COMMAND velocity_ambiguity_selftest)
   add_test(NAME channel_calibration_selftest COMMAND channel_calibration_selftest)
   add_test(NAME channel_impairments_selftest COMMAND channel_impairments_selftest)
+  add_test(NAME channel_geometry_selftest COMMAND channel_geometry_selftest)
   add_test(NAME p38_phase_fit_selftest COMMAND p38_phase_fit_selftest)
   add_test(NAME imu_interpolation_selftest COMMAND imu_interpolation_selftest)
   add_test(NAME trig_lut_selftest COMMAND trig_lut_selftest)

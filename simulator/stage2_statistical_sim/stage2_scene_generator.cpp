@@ -49,7 +49,8 @@ bool isContinuousAreaModel(const std::string &model)
     return model == "continuous_texture" ||
            model == "continuous_surface" ||
            model == "continuous_grid" ||
-           model == "grid_texture";
+           model == "grid_texture" ||
+           model == "beam_center_clutter";
 }
 
 gmti::sim_geometry::GeoPoint projectLocalPoint(const Stage2Config &cfg, const Vec3 &local)

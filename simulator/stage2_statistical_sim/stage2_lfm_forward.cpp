@@ -249,12 +249,14 @@ std::string surfaceGridKey(const gmti::target_injection::RadarConfig &radar,
     std::ostringstream os;
     os.precision(17);
     os << random_seed << '|' << radar.beam_width_deg << '|'
+       << radar.scan_min_deg << '|' << radar.scan_step_deg << '|'
        << scene.range_min_m << '|' << scene.range_max_m << '|'
        << scene.azimuth_min_deg << '|' << scene.azimuth_max_deg << '|'
        << scene.ground_z_m << '|' << scene.area.mean_power << '|'
        << scene.area.texture_sigma << '|' << scene.area.spatial_cell_m << '|'
        << scene.area.temporal_correlation_rho << '|'
        << scene.area.azimuth_subcell_count << '|'
+       << scene.area.model << '|' << scene.area.calibration_range_m << '|'
        << global.platform_height_m << '|' << global.platform_speed_mps << '|'
        << reference_time_sec;
     return os.str();
@@ -303,6 +305,39 @@ const GlobalSurfaceGrid &globalSurfaceGrid(
                 reference_platform.velocity.y,
                 reference_platform.velocity.z),
             global.geometry);
+
+    if (scene.area.model == "beam_center_clutter") {
+        if (!std::isfinite(scene.area.calibration_range_m) ||
+            scene.area.calibration_range_m <= 0.0) {
+            return grid;
+        }
+        const double amplitude = std::sqrt(
+            std::max(1.0e-12, scene.area.mean_power));
+        for (int beam = 0; beam < std::max(1, radar.beam_count); ++beam) {
+            const double theta = radar.scan_min_deg +
+                radar.scan_step_deg * static_cast<double>(beam);
+            if (theta < scene.azimuth_min_deg || theta >= scene.azimuth_max_deg) {
+                continue;
+            }
+            GlobalSurfaceCell cell;
+            cell.theta_deg = theta;
+            cell.grid_x = static_cast<int64_t>(beam);
+            cell.grid_y = 0;
+            cell.position = makeFixedGroundPoint(
+                global, reference_platform, scene.area.calibration_range_m,
+                theta, scene.ground_z_m);
+            cell.slant_range_m = norm(cell.position - reference_platform.position);
+            cell.area_sqrt_weight = 1.0;
+            cell.reflectivity = std::complex<double>(amplitude, 0.0);
+            const int ai = static_cast<int>(std::floor(
+                (theta - scene.azimuth_min_deg) / grid.azimuth_step_deg));
+            if (ai >= 0 && ai < az_count) {
+                grid.azimuth_bins[static_cast<std::size_t>(ai)].push_back(cell);
+            }
+        }
+        return grid;
+    }
+
     const double height_delta =
         reference_platform.position.z - scene.ground_z_m;
     const double nominal_ground_min_m = std::sqrt(std::max(
@@ -690,7 +725,8 @@ bool addContinuousAreaClutter(std::vector<uint8_t> &packet,
         scene.area.model == "continuous_texture" ||
         scene.area.model == "continuous_surface" ||
         scene.area.model == "continuous_grid" ||
-        scene.area.model == "grid_texture";
+        scene.area.model == "grid_texture" ||
+        scene.area.model == "beam_center_clutter";
     if (!continuous_mode) return true;
 
     const std::size_t channel_count = static_cast<std::size_t>(std::max(2, radar.new_protocol_channel_count));

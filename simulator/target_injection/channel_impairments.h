@@ -13,6 +13,10 @@ namespace target_injection {
 // zero is a strict bitwise bypass, even when enabled=true.
 struct ChannelImpairmentConfig {
     bool enabled = false;
+    // The legacy baseline phase injector is retained only as a regression
+    // mode.  Physical four-channel geometry errors use RadarConfig's
+    // true-vs-reported channel positions instead.
+    std::string baseline_error_mode = "group_baseline_error_legacy_pilot";
     double channel_amp_mismatch_db = 0.0;
     double channel_fixed_phase_mismatch_deg = 0.0;
     double channel_phase_jitter_std_deg = 0.0;

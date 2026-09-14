@@ -155,7 +155,9 @@ ChannelImpairmentRealization applyChannelImpairments(
     std::vector<std::complex<float>> v1(static_cast<std::size_t>(n_samples));
     std::vector<std::complex<float>> v2(static_cast<std::size_t>(n_samples));
     const bool four_channel_baseline =
-        channelCount(radar) == 4U && cfg.baseline_error_m != 0.0;
+        channelCount(radar) == 4U &&
+        cfg.baseline_error_mode == "group_baseline_error_legacy_pilot" &&
+        cfg.baseline_error_m != 0.0;
     std::vector<std::complex<float>> v3;
     std::vector<std::complex<float>> v4;
     if (four_channel_baseline) {
@@ -262,6 +264,7 @@ std::string channelImpairmentConfigJson(const ChannelImpairmentConfig &c)
        << "  \"status\": \"implemented\",\n"
        << "  \"injection_order\": \"after_echo_superposition_before_final_protocol_write\",\n"
        << "  \"enabled\": " << (c.enabled ? "true" : "false") << ",\n"
+       << "  \"baseline_error_mode\": \"" << c.baseline_error_mode << "\",\n"
        << "  \"strict_zero_bypass\": " << (channelImpairmentsAreZero(c) ? "true" : "false") << ",\n"
        << "  \"channel_amp_mismatch_db\": " << c.channel_amp_mismatch_db << ",\n"
        << "  \"channel_fixed_phase_mismatch_deg\": " << c.channel_fixed_phase_mismatch_deg << ",\n"

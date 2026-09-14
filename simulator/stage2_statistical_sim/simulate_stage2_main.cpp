@@ -425,7 +425,8 @@ bool isContinuousAreaModel(const std::string &model)
     return model == "continuous_texture" ||
            model == "continuous_surface" ||
            model == "continuous_grid" ||
-           model == "grid_texture";
+           model == "grid_texture" ||
+           model == "beam_center_clutter";
 }
 
 bool sceneModeIncludesAreaClutter(const std::string &scene_mode)
@@ -481,6 +482,10 @@ void writeScenarioResolved(const Stage2RunConfig &run,
 {
     std::ofstream out(joinPath(output_dir, "scenario_resolved.json").c_str());
     out << std::setprecision(12);
+    const auto writeJsonDouble = [&out](double value) {
+        if (std::isfinite(value)) out << value;
+        else out << "null";
+    };
     out << "{\n";
     out << "  \"case_id\": \"" << run.case_id << "\",\n";
     out << "  \"output_dir\": \"" << output_dir << "\",\n";
@@ -523,13 +528,80 @@ void writeScenarioResolved(const Stage2RunConfig &run,
     out << "    \"new_protocol_channel_count\": "
         << run.cfg.radar.new_protocol_channel_count << ",\n";
     out << "    \"iq_data_type\": \"" << run.cfg.radar.iq_data_type << "\",\n";
+    out << "    \"fc_hz\": ";
+    writeJsonDouble(run.cfg.radar.fc_hz);
+    out << ",\n";
+    out << "    \"bandwidth_hz\": ";
+    writeJsonDouble(run.cfg.radar.br_hz);
+    out << ",\n";
+    out << "    \"fs_hz\": ";
+    writeJsonDouble(run.cfg.radar.fs_hz);
+    out << ",\n";
+    out << "    \"tr_sec\": ";
+    writeJsonDouble(run.cfg.radar.tr_sec);
+    out << ",\n";
     out << "    \"pulse_len\": " << run.cfg.radar.pulse_len << ",\n";
     out << "    \"acquired_pulse_len\": " << run.cfg.acquired_pulse_len << ",\n";
     out << "    \"pulse_num\": " << run.cfg.radar.pulse_num << ",\n";
-    out << "    \"prf_hz\": " << run.cfg.radar.prf_hz << "\n";
+    out << "    \"prf_hz\": " << run.cfg.radar.prf_hz << ",\n";
+    out << "    \"sample_delay_sec\": ";
+    writeJsonDouble(run.cfg.radar.sample_delay_sec);
+    out << "\n";
     out << "  },\n";
+    out << "  \"platform\": {\n";
+    out << "    \"speed_mps\": ";
+    writeJsonDouble(run.cfg.platform_speed_mps);
+    out << ",\n    \"height_m\": ";
+    writeJsonDouble(run.cfg.platform_height_m);
+    out << ",\n    \"squint_side\": " << run.cfg.geometry.squint_side << "\n";
+    out << "  },\n";
+    out << "  \"simulation_geometry\": {\n";
+    out << "    \"geometry_config_name\": \""
+        << run.cfg.geometry.geometry_config_name << "\",\n";
+    out << "    \"local_x_axis\": \"" << run.cfg.geometry.local_x_axis << "\",\n";
+    out << "    \"local_y_axis\": \"" << run.cfg.geometry.local_y_axis << "\",\n";
+    out << "    \"platform_heading_source\": \""
+        << run.cfg.geometry.platform_heading_source << "\",\n";
+    out << "    \"platform_heading_deg\": ";
+    writeJsonDouble(run.cfg.geometry.platform_heading_deg);
+    out << ",\n    \"beam_theta_offset_deg\": ";
+    writeJsonDouble(run.cfg.geometry.beam_theta_offset_deg);
+    out << ",\n    \"range_geometry\": \"" << run.cfg.geometry.range_geometry << "\",\n";
+    out << "    \"use_ground_range_for_position\": "
+        << (run.cfg.geometry.use_ground_range_for_position ? "true" : "false") << ",\n";
+    out << "    \"squint_side\": " << run.cfg.geometry.squint_side << "\n";
+    out << "  },\n";
+    out << "  \"carrier_phase_sign\": " << run.cfg.sim.carrier_phase_sign << ",\n";
     out << "  \"four_channel_phase_center_mode\": \""
         << run.cfg.sim.four_channel_phase_center_mode << "\",\n";
+    out << "  \"channel_geometry\": {\n";
+    out << "    \"mode\": \""
+        << run.cfg.radar.channel_geometry_mode << "\",\n";
+    out << "    \"reported_channel_positions\": [\n";
+    for (std::size_t ch = 0; ch < run.cfg.radar.channel_offsets_local_m.size(); ++ch) {
+        const gmti::target_injection::Vec3 &p =
+            run.cfg.radar.channel_offsets_local_m[ch];
+        out << "      {\"channel\": " << (ch + 1)
+            << ", \"x_m\": " << p.x
+            << ", \"y_m\": " << p.y
+            << ", \"z_m\": " << p.z << "}";
+        out << (ch + 1 < run.cfg.radar.channel_offsets_local_m.size()
+                    ? ",\n" : "\n");
+    }
+    out << "    ],\n";
+    out << "    \"true_channel_positions\": [\n";
+    for (std::size_t ch = 0; ch < run.cfg.radar.true_channel_offsets_local_m.size(); ++ch) {
+        const gmti::target_injection::Vec3 &p =
+            run.cfg.radar.true_channel_offsets_local_m[ch];
+        out << "      {\"channel\": " << (ch + 1)
+            << ", \"x_m\": " << p.x
+            << ", \"y_m\": " << p.y
+            << ", \"z_m\": " << p.z << "}";
+        out << (ch + 1 < run.cfg.radar.true_channel_offsets_local_m.size()
+                    ? ",\n" : "\n");
+    }
+    out << "    ]\n";
+    out << "  },\n";
     out << "  \"scene\": {\n";
     out << "    \"mode\": \"" << run.scene_mode << "\",\n";
     out << "    \"signal_only\": "
@@ -541,11 +613,17 @@ void writeScenarioResolved(const Stage2RunConfig &run,
     out << "    \"ground_z_m\": " << run.cfg.scene.ground_z_m << ",\n";
     out << "    \"clutter_amplitude_scale\": " << run.cfg.scene.clutter_amplitude_scale << ",\n";
     out << "    \"single_point\": {\n";
-    out << "      \"range_m\": " << run.legacy_scene_options.single_scatterer_range_m << ",\n";
+    out << "      \"range_m\": ";
+    writeJsonDouble(run.legacy_scene_options.single_scatterer_range_m);
+    out << ",\n";
     out << "      \"beam_id\": " << run.legacy_scene_options.single_point_beam_id_1based << ",\n";
     out << "      \"expected_bin\": " << run.legacy_scene_options.single_point_expected_bin << ",\n";
-    out << "      \"azimuth_deg\": " << run.legacy_scene_options.single_scatterer_azimuth_deg << ",\n";
-    out << "      \"amplitude\": " << run.legacy_scene_options.single_scatterer_amplitude << "\n";
+    out << "      \"azimuth_deg\": ";
+    writeJsonDouble(run.legacy_scene_options.single_scatterer_azimuth_deg);
+    out << ",\n";
+    out << "      \"amplitude\": ";
+    writeJsonDouble(run.legacy_scene_options.single_scatterer_amplitude);
+    out << "\n";
     out << "    },\n";
     out << "    \"area_clutter\": {\n";
     out << "      \"enabled\": " << (run.cfg.scene.area.enabled ? "true" : "false") << ",\n";
@@ -580,7 +658,9 @@ void writeScenarioResolved(const Stage2RunConfig &run,
     else out << "null";
     out << ",\n";
     out << "      \"azimuth_subcell_count\": "
-        << run.cfg.scene.area.azimuth_subcell_count << "\n";
+        << run.cfg.scene.area.azimuth_subcell_count << ",\n";
+    out << "      \"calibration_range_m\": "
+        << run.cfg.scene.area.calibration_range_m << "\n";
     out << "    },\n";
     out << "    \"strong_scatterers\": {\n";
     out << "      \"enabled\": " << (run.cfg.scene.strong.enabled ? "true" : "false") << ",\n";
@@ -628,18 +708,30 @@ void writeScenarioResolved(const Stage2RunConfig &run,
         out << "      \"init_type\": \"" << t.init_type << "\",\n";
         out << "      \"beam_id\": " << t.beam_id << ",\n";
         out << "      \"expected_bin\": " << t.expected_bin << ",\n";
-        out << "      \"theta_cmd_deg\": " << t.theta_cmd_deg << ",\n";
-        out << "      \"azimuth_deg\": " << t.azimuth_deg << ",\n";
-        out << "      \"azimuth_offset_deg\": " << t.azimuth_offset_deg << ",\n";
+        out << "      \"theta_cmd_deg\": ";
+        writeJsonDouble(t.theta_cmd_deg);
+        out << ",\n";
+        out << "      \"azimuth_deg\": ";
+        writeJsonDouble(t.azimuth_deg);
+        out << ",\n";
+        out << "      \"azimuth_offset_deg\": ";
+        writeJsonDouble(t.azimuth_offset_deg);
+        out << ",\n";
         out << "      \"motion_type\": \"" << t.motion_type << "\",\n";
-        out << "      \"ve_mps\": " << t.ve_mps << ",\n";
-        out << "      \"vn_mps\": " << t.vn_mps << ",\n";
+        out << "      \"ve_mps\": ";
+        writeJsonDouble(t.ve_mps);
+        out << ",\n";
+        out << "      \"vn_mps\": ";
+        writeJsonDouble(t.vn_mps);
+        out << ",\n";
         out << "      \"amplitude_type\": \"" << t.amplitude_type << "\",\n";
-        out << "      \"snr_db\": " << t.snr_db << ",\n";
+        out << "      \"snr_db\": ";
+        writeJsonDouble(t.snr_db);
+        out << ",\n";
         out << "      \"snr_db_by_period\": [";
         for (size_t j = 0; j < t.snr_db_by_period.size(); ++j) {
             if (j) out << ", ";
-            out << t.snr_db_by_period[j];
+            writeJsonDouble(t.snr_db_by_period[j]);
         }
         out << "],\n";
         out << "      \"visibility_type\": \"" << t.visibility_type << "\"\n";

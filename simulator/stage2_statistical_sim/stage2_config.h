@@ -26,6 +26,9 @@ struct AreaClutterConfig {
     // one subcell is required for a continuous surface to occupy a Doppler
     // interval instead of collapsing onto the beam-centre Doppler row.
     int azimuth_subcell_count = 9;
+    // Deterministic beam-centre ground clutter is an identifiability fixture
+    // for the blind geometry estimator.  It is not a production scene model.
+    double calibration_range_m = 9000.0;
 };
 
 struct StrongScattererConfig {

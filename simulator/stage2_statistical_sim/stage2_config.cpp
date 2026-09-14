@@ -192,6 +192,8 @@ void parseChannelImpairments(
     if (obj.empty()) obj = sectionObject(txt, "impairments");
     if (obj.empty()) return;
     c.enabled = jsonBool(obj, "enabled", c.enabled);
+    c.baseline_error_mode = jsonString(
+        obj, "baseline_error_mode", c.baseline_error_mode);
     c.channel_amp_mismatch_db = jsonDouble(obj, "channel_amp_mismatch_db", c.channel_amp_mismatch_db);
     c.channel_fixed_phase_mismatch_deg = jsonDouble(obj, "channel_fixed_phase_mismatch_deg", c.channel_fixed_phase_mismatch_deg);
     c.channel_phase_jitter_std_deg = jsonDouble(obj, "channel_phase_jitter_std_deg", c.channel_phase_jitter_std_deg);
@@ -214,33 +216,128 @@ bool parseReceiveChannelGeometry(
     std::string &err)
 {
     const std::string geometry = sectionObject(txt, "channel_geometry");
-    if (geometry.empty()) {
+    const std::string reported_positions =
+        sectionObject(txt, "reported_channel_positions");
+    const std::string true_positions =
+        sectionObject(txt, "true_channel_positions");
+    if (geometry.empty() && reported_positions.empty()) {
         if (radar.new_protocol_channel_count > 2) {
             err = "channel_geometry is required when new_protocol_channel_count > 2";
             return false;
         }
         return true;
     }
+    const std::string geometry_mode = jsonString(
+        geometry, "mode",
+        !true_positions.empty() ? "true_channel_positions"
+                                : radar.channel_geometry_mode);
+    if (geometry_mode != "reported_channel_positions" &&
+        geometry_mode != "true_channel_positions") {
+        err = "channel_geometry.mode must be reported_channel_positions or true_channel_positions";
+        return false;
+    }
+    radar.channel_geometry_mode = geometry_mode;
     radar.channel_offsets_local_m.clear();
+    radar.true_channel_offsets_local_m.clear();
     radar.channel_names.clear();
-    for (int ch = 1; ch <= radar.new_protocol_channel_count; ++ch) {
-        const std::string key = "channel_" + std::to_string(ch);
-        const std::string obj = sectionObject(geometry, key);
-        if (obj.empty()) {
-            err = "channel_geometry." + key + " is required";
-            return false;
-        }
+
+    const auto positionObject = [](const std::string &obj,
+                                   const std::string &key) {
+        const std::string nested = sectionObject(obj, key);
+        return nested.empty() ? obj : nested;
+    };
+    const auto parsePosition = [&err](const std::string &obj,
+                                      const std::string &label,
+                                      gmti::target_injection::Vec3 &out) {
         const double missing = std::numeric_limits<double>::quiet_NaN();
         const double x = jsonDouble(obj, "x_m", missing);
         const double y = jsonDouble(obj, "y_m", missing);
         const double z = jsonDouble(obj, "z_m", missing);
         if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(z)) {
-            err = "channel_geometry." + key + " x_m/y_m/z_m must be finite";
+            err = label + " x_m/y_m/z_m must be finite";
             return false;
         }
-        radar.channel_names.push_back(jsonString(obj, "name", key));
-        radar.channel_offsets_local_m.push_back(
-            gmti::target_injection::Vec3(x, y, z));
+        out = gmti::target_injection::Vec3(x, y, z);
+        return true;
+    };
+    for (int ch = 1; ch <= radar.new_protocol_channel_count; ++ch) {
+        const std::string key = "channel_" + std::to_string(ch);
+        const std::string geometry_obj = sectionObject(geometry, key);
+        const std::string reported_obj = sectionObject(reported_positions, key);
+        const std::string true_obj = sectionObject(true_positions, key);
+        const std::string base_obj = !geometry_obj.empty()
+            ? geometry_obj : reported_obj;
+        if (base_obj.empty()) {
+            err = "channel_geometry." + key + " is required";
+            return false;
+        }
+        const std::string report_source = reported_obj.empty()
+            ? positionObject(base_obj, "reported")
+            : positionObject(reported_obj, "reported");
+        gmti::target_injection::Vec3 reported;
+        if (!parsePosition(report_source, "channel_geometry." + key + ".reported", reported)) {
+            return false;
+        }
+        radar.channel_names.push_back(jsonString(base_obj, "name", key));
+        radar.channel_offsets_local_m.push_back(reported);
+
+        std::string true_source;
+        if (!true_obj.empty()) {
+            true_source = positionObject(true_obj, "true");
+        } else {
+            true_source = sectionObject(base_obj, "true");
+        }
+        if (true_source.empty()) {
+            if (geometry_mode == "true_channel_positions") {
+                err = "channel_geometry." + key + ".true is required in true_channel_positions mode";
+                return false;
+            }
+            true_source = report_source;
+        }
+        gmti::target_injection::Vec3 truth;
+        if (!parsePosition(true_source, "channel_geometry." + key + ".true", truth)) {
+            return false;
+        }
+        radar.true_channel_offsets_local_m.push_back(truth);
+    }
+    return true;
+}
+
+bool validateChannelGeometryAndImpairments(
+    const Stage2Config &cfg,
+    std::string &err)
+{
+    if (cfg.radar.channel_geometry_mode != "reported_channel_positions" &&
+        cfg.radar.channel_geometry_mode != "true_channel_positions") {
+        err = "channel_geometry.mode must be reported_channel_positions or true_channel_positions";
+        return false;
+    }
+    const std::size_t channel_count = static_cast<std::size_t>(
+        std::max(2, cfg.radar.new_protocol_channel_count));
+    if (!cfg.radar.channel_offsets_local_m.empty() &&
+        cfg.radar.channel_offsets_local_m.size() != channel_count) {
+        err = "channel_geometry reported position count must match new_protocol_channel_count";
+        return false;
+    }
+    if (!cfg.radar.true_channel_offsets_local_m.empty() &&
+        cfg.radar.true_channel_offsets_local_m.size() != channel_count) {
+        err = "channel_geometry true position count must match new_protocol_channel_count";
+        return false;
+    }
+    if (cfg.radar.channel_geometry_mode == "true_channel_positions" &&
+        cfg.radar.true_channel_offsets_local_m.size() != channel_count) {
+        err = "true_channel_positions requires one true position per protocol channel";
+        return false;
+    }
+    if (cfg.impairments.baseline_error_mode !=
+        "group_baseline_error_legacy_pilot") {
+        err = "channel_impairments.baseline_error_mode must be group_baseline_error_legacy_pilot";
+        return false;
+    }
+    if (cfg.impairments.baseline_error_m != 0.0 &&
+        cfg.radar.channel_geometry_mode == "true_channel_positions") {
+        err = "baseline_error_m cannot be combined with true_channel_positions; use true channel coordinates";
+        return false;
     }
     return true;
 }
@@ -744,6 +841,12 @@ bool loadStage2Config(const std::string &path, Stage2Config &cfg, std::string &e
         }
         cfg.radar.channel_offsets_local_m[2] = cfg.radar.channel_offsets_local_m[0];
         cfg.radar.channel_offsets_local_m[3] = cfg.radar.channel_offsets_local_m[1];
+        if (cfg.radar.true_channel_offsets_local_m.size() == 4U) {
+            cfg.radar.true_channel_offsets_local_m[2] =
+                cfg.radar.true_channel_offsets_local_m[0];
+            cfg.radar.true_channel_offsets_local_m[3] =
+                cfg.radar.true_channel_offsets_local_m[1];
+        }
     }
 
     cfg.scene.range_min_m = jsonDouble(scene, "range_min_m", cfg.scene.range_min_m);
@@ -763,6 +866,8 @@ bool loadStage2Config(const std::string &path, Stage2Config &cfg, std::string &e
         area, "temporal_correlation_rho", cfg.scene.area.temporal_correlation_rho);
     cfg.scene.area.azimuth_subcell_count =
         jsonInt(area, "azimuth_subcell_count", cfg.scene.area.azimuth_subcell_count);
+    cfg.scene.area.calibration_range_m = jsonDouble(
+        area, "calibration_range_m", cfg.scene.area.calibration_range_m);
     const std::string strong = sectionObject(scene, "strong_scatterers");
     cfg.scene.strong.enabled = jsonBool(strong, "enabled", cfg.scene.strong.enabled);
     cfg.scene.strong.count = jsonInt(strong, "count", cfg.scene.strong.count);
@@ -785,6 +890,7 @@ bool loadStage2Config(const std::string &path, Stage2Config &cfg, std::string &e
         cfg.target.amplitude_mode = jsonString(targets, "amplitude_mode", cfg.target.amplitude_mode);
     }
     parseChannelImpairments(txt, cfg.impairments);
+    if (!validateChannelGeometryAndImpairments(cfg, err)) return false;
     if (cfg.sim.lfm_time_reference != "center" &&
         cfg.sim.lfm_time_reference != "start" &&
         cfg.sim.lfm_time_reference != "legacy_start") {
@@ -1219,6 +1325,46 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
         cfg.projection_ref_lon_deg = jsonDouble(platform, "projection_ref_lon_deg", cfg.projection_ref_lon_deg);
         cfg.geometry.squint_side = jsonInt(platform, "squint_side", cfg.geometry.squint_side);
     }
+    const std::string geometry = sectionObject(txt, "simulation_geometry");
+    if (!geometry.empty()) {
+        cfg.geometry.geometry_config_name = jsonString(
+            geometry, "geometry_config_name", cfg.geometry.geometry_config_name);
+        cfg.geometry.local_x_axis = jsonString(
+            geometry, "local_x_axis", cfg.geometry.local_x_axis);
+        cfg.geometry.local_y_axis = jsonString(
+            geometry, "local_y_axis", cfg.geometry.local_y_axis);
+        cfg.geometry.platform_heading_source = jsonString(
+            geometry, "platform_heading_source", cfg.geometry.platform_heading_source);
+        cfg.geometry.platform_heading_deg = jsonDouble(
+            geometry, "platform_heading_deg", cfg.geometry.platform_heading_deg);
+        cfg.geometry.beam_angle_reference = jsonString(
+            geometry, "beam_angle_reference", cfg.geometry.beam_angle_reference);
+        cfg.geometry.beam_zero_direction = jsonString(
+            geometry, "beam_zero_direction", cfg.geometry.beam_zero_direction);
+        cfg.geometry.beam_positive_direction = jsonString(
+            geometry, "beam_positive_direction", cfg.geometry.beam_positive_direction);
+        cfg.geometry.beam_theta_offset_deg = jsonDouble(
+            geometry, "beam_theta_offset_deg", cfg.geometry.beam_theta_offset_deg);
+        cfg.geometry.range_geometry = jsonString(
+            geometry, "range_geometry", cfg.geometry.range_geometry);
+        cfg.geometry.use_ground_range_for_position = jsonBool(
+            geometry, "use_ground_range_for_position",
+            cfg.geometry.use_ground_range_for_position);
+        cfg.geometry.platform_origin_lat_deg = jsonDouble(
+            geometry, "platform_origin_lat_deg", cfg.geometry.platform_origin_lat_deg);
+        cfg.geometry.platform_origin_lon_deg = jsonDouble(
+            geometry, "platform_origin_lon_deg", cfg.geometry.platform_origin_lon_deg);
+        cfg.geometry.platform_origin_alt_m = jsonDouble(
+            geometry, "platform_origin_alt_m", cfg.geometry.platform_origin_alt_m);
+        cfg.geometry.projection_ref_lon_deg = jsonDouble(
+            geometry, "projection_ref_lon_deg", cfg.geometry.projection_ref_lon_deg);
+        cfg.geometry.squint_side = jsonInt(
+            geometry, "squint_side", cfg.geometry.squint_side);
+        cfg.platform_origin_lat_deg = cfg.geometry.platform_origin_lat_deg;
+        cfg.platform_origin_lon_deg = cfg.geometry.platform_origin_lon_deg;
+        cfg.platform_origin_alt_m = cfg.geometry.platform_origin_alt_m;
+        cfg.projection_ref_lon_deg = cfg.geometry.projection_ref_lon_deg;
+    }
     const std::string random = sectionObject(txt, "random");
     if (!random.empty()) {
         cfg.sim.period_start = jsonInt(random, "period_start", cfg.sim.period_start);
@@ -1245,6 +1391,12 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
         }
         cfg.radar.channel_offsets_local_m[2] = cfg.radar.channel_offsets_local_m[0];
         cfg.radar.channel_offsets_local_m[3] = cfg.radar.channel_offsets_local_m[1];
+        if (cfg.radar.true_channel_offsets_local_m.size() == 4U) {
+            cfg.radar.true_channel_offsets_local_m[2] =
+                cfg.radar.true_channel_offsets_local_m[0];
+            cfg.radar.true_channel_offsets_local_m[3] =
+                cfg.radar.true_channel_offsets_local_m[1];
+        }
     }
     const std::string scene = sectionObject(txt, "scene");
     if (!scene.empty()) {
@@ -1289,6 +1441,8 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
                 area, "temporal_correlation_rho", cfg.scene.area.temporal_correlation_rho);
             cfg.scene.area.azimuth_subcell_count =
                 jsonInt(area, "azimuth_subcell_count", cfg.scene.area.azimuth_subcell_count);
+            cfg.scene.area.calibration_range_m = jsonDouble(
+                area, "calibration_range_m", cfg.scene.area.calibration_range_m);
         }
 
         const std::string strong = sectionObject(scene, "strong_scatterers");
@@ -1320,6 +1474,7 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
         }
     }
     parseChannelImpairments(txt, cfg.impairments);
+    if (!validateChannelGeometryAndImpairments(cfg, err)) return false;
     cfg.geometry.platform_origin_lat_deg = cfg.platform_origin_lat_deg;
     cfg.geometry.platform_origin_lon_deg = cfg.platform_origin_lon_deg;
     cfg.geometry.platform_origin_alt_m = cfg.platform_origin_alt_m;
@@ -1466,6 +1621,12 @@ bool validateStage2RunConfig(const Stage2RunConfig &run, std::string &err)
     if (run.cfg.scene.area.azimuth_subcell_count < 1 ||
         run.cfg.scene.area.azimuth_subcell_count > 257) {
         err = "area_clutter.azimuth_subcell_count must be in [1,257]";
+        return false;
+    }
+    if (run.cfg.scene.area.model == "beam_center_clutter" &&
+        (!std::isfinite(run.cfg.scene.area.calibration_range_m) ||
+         run.cfg.scene.area.calibration_range_m <= 0.0)) {
+        err = "area_clutter.calibration_range_m must be positive for beam_center_clutter";
         return false;
     }
     if (!std::isfinite(run.cfg.scene.area.temporal_correlation_rho) ||
