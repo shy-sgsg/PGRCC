@@ -440,6 +440,107 @@ def _nominal_los_unit(
     return los / norm
 
 
+def exact_receive_channel_path_length(
+    target_position_m: Sequence[float],
+    platform_position_m: Sequence[float],
+    channel_position_m: Sequence[float],
+) -> float:
+    """Return the exact two-way path used by the Stage2 echo model.
+
+    The transmitter is at ``platform_position_m`` and the receiver is at
+    ``platform_position_m + channel_position_m``.  This helper is explicitly
+    evaluation-only: the blind estimator above must continue to use reported
+    geometry and its nominal LOS model.
+    """
+
+    target = np.asarray(target_position_m, dtype=np.float64)
+    platform = np.asarray(platform_position_m, dtype=np.float64)
+    channel = np.asarray(channel_position_m, dtype=np.float64)
+    if (
+        target.shape != (3,)
+        or platform.shape != (3,)
+        or channel.shape != (3,)
+        or not np.all(np.isfinite(target))
+        or not np.all(np.isfinite(platform))
+        or not np.all(np.isfinite(channel))
+    ):
+        raise ValueError("target, platform, and channel positions must be finite 3-vectors")
+    transmit_range = float(np.linalg.norm(target - platform))
+    receive_range = float(np.linalg.norm(target - (platform + channel)))
+    path = transmit_range + receive_range
+    if not math.isfinite(path) or path <= 0.0:
+        raise ValueError("exact receive path must be positive and finite")
+    return path
+
+
+def exact_pair_phase_rad(
+    target_position_m: Sequence[float],
+    platform_position_m: Sequence[float],
+    channel_positions_m: Sequence[Sequence[float]],
+    i: int,
+    j: int,
+    fc_hz: float,
+    carrier_phase_sign: float = -1.0,
+) -> float:
+    """Return the exact pair phase ``phase_i - phase_j`` for evaluation."""
+
+    positions = _validate_channel_positions(channel_positions_m)
+    if i not in range(4) or j not in range(4) or i == j:
+        raise ValueError("i and j must be distinct channel indices in [0, 3]")
+    if not math.isfinite(fc_hz) or fc_hz <= 0.0:
+        raise ValueError("fc_hz must be positive and finite")
+    if not math.isfinite(carrier_phase_sign):
+        raise ValueError("carrier_phase_sign must be finite")
+    wavelength = C / float(fc_hz)
+    path_i = exact_receive_channel_path_length(
+        target_position_m, platform_position_m, positions[i]
+    )
+    path_j = exact_receive_channel_path_length(
+        target_position_m, platform_position_m, positions[j]
+    )
+    return _wrap_phase(
+        float(carrier_phase_sign) * 2.0 * math.pi * (path_i - path_j) / wavelength
+    )
+
+
+def nominal_pair_phase_rad(
+    theta_deg: float,
+    range_sample: float,
+    metadata: Mapping[str, object],
+    channel_positions_m: Sequence[Sequence[float]],
+    i: int,
+    j: int,
+    fc_hz: Optional[float] = None,
+) -> float:
+    """Return the blind nominal pair phase for an evaluation comparison."""
+
+    positions = _validate_channel_positions(channel_positions_m)
+    if i not in range(4) or j not in range(4) or i == j:
+        raise ValueError("i and j must be distinct channel indices in [0, 3]")
+    if fc_hz is None:
+        waveform = metadata.get("waveform", {})
+        fc_hz = float(
+            waveform.get("fc_hz", waveform.get("fc_ghz", 16.0) * 1.0e9)
+        )
+        if fc_hz < 1.0e6:
+            fc_hz *= 1.0e9
+    if not math.isfinite(float(fc_hz)) or float(fc_hz) <= 0.0:
+        raise ValueError("fc_hz must be positive and finite")
+    los = _nominal_los_unit(theta_deg, range_sample, metadata)
+    if not np.all(np.isfinite(los)):
+        raise ValueError("nominal LOS is not finite for the supplied theta/range")
+    carrier_phase_sign = float(metadata.get("carrier_phase_sign", -1.0))
+    if not math.isfinite(carrier_phase_sign):
+        raise ValueError("carrier_phase_sign must be finite")
+    return _wrap_phase(
+        carrier_phase_sign
+        * 2.0
+        * math.pi
+        * float(np.dot(los, positions[j] - positions[i]))
+        / (C / float(fc_hz))
+    )
+
+
 def _block_pair_observable(
     channels: np.ndarray,
     start: int,

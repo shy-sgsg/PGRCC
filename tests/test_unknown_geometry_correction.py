@@ -93,6 +93,35 @@ class UnknownGeometryCorrectionTests(unittest.TestCase):
                 float("nan"),
             )
 
+    def test_no_correction_deadband_falls_back_to_current(self) -> None:
+        decision = CORRECTION.decide_unknown_geometry_correction(
+            estimated_delta_m=0.00016,
+            uncertainty_m=0.00005,
+            deadband_m=0.00020,
+        )
+        self.assertEqual(decision["status"], "NO_CORRECTION_NEEDED")
+        self.assertEqual(decision["action"], "fallback_current")
+        self.assertEqual(decision["apply_delta_m"], 0.0)
+
+    def test_correction_decision_applies_only_above_threshold(self) -> None:
+        decision = CORRECTION.decide_unknown_geometry_correction(
+            estimated_delta_m=-0.0025,
+            uncertainty_m=0.0002,
+            deadband_m=0.0002,
+        )
+        self.assertEqual(decision["status"], "APPLY_ESTIMATED_CORRECTION")
+        self.assertEqual(decision["action"], "apply_estimate")
+        self.assertAlmostEqual(decision["apply_delta_m"], -0.0025)
+
+    def test_unidentifiable_estimate_falls_back(self) -> None:
+        decision = CORRECTION.decide_unknown_geometry_correction(
+            estimated_delta_m=None,
+            uncertainty_m=0.0002,
+            deadband_m=0.0002,
+        )
+        self.assertEqual(decision["status"], "FALLBACK_UNIDENTIFIABLE")
+        self.assertEqual(decision["action"], "fallback_current")
+
 
 if __name__ == "__main__":
     unittest.main()

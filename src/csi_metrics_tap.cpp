@@ -452,6 +452,12 @@ bool writeCsiMetricsTap(const Config& cfg,
         channel1_imag[i] = channel1[i].imag();
         channel2_real[i] = channel2[i].real();
         channel2_imag[i] = channel2[i].imag();
+        // Keep the actual CSI result separate from the detector-input view.
+        // In the split/dynamic production modes the latter intentionally
+        // falls back to channel2 outside the CSI support, so conflating the
+        // two makes a target transfer audit unable to see the post-CSI value.
+        csi_after_real[i] = csi_after[i].real();
+        csi_after_imag[i] = csi_after[i].imag();
         const int row = static_cast<int>(i / static_cast<std::size_t>(cols));
         const bool in_csi_band = full_csi_detection_band ||
             (row >= detector_csi_band_st && row <= detector_csi_band_ed);
@@ -464,8 +470,6 @@ bool writeCsiMetricsTap(const Config& cfg,
             detector_input[i] = in_csi_band ? csi_after[i] : channel2[i];
         }
         after_power[i] = std::norm(detector_input[i]);
-        csi_after_real[i] = detector_input[i].real();
-        csi_after_imag[i] = detector_input[i].imag();
         // This is the exact pre-CSI CTDR interferometric pair from which the
         // production raw phase map is captured.  It is a diagnostics-only
         // tap used to validate the phase/angle uncertainty model.
@@ -510,6 +514,8 @@ bool writeCsiMetricsTap(const Config& cfg,
     std::string channel2_imag_path;
     std::string after_real_path;
     std::string after_imag_path;
+    std::string csi_after_real_path;
+    std::string csi_after_imag_path;
     std::string ctdr_channel1_real_path;
     std::string ctdr_channel1_imag_path;
     std::string ctdr_channel2_real_path;
@@ -536,6 +542,8 @@ bool writeCsiMetricsTap(const Config& cfg,
             channel2_imag_path = joinPath(tap_dir, stem.str() + "_channel2_imag.npy");
             after_real_path = joinPath(tap_dir, stem.str() + "_after_real.npy");
             after_imag_path = joinPath(tap_dir, stem.str() + "_after_imag.npy");
+            csi_after_real_path = joinPath(tap_dir, stem.str() + "_csi_after_real.npy");
+            csi_after_imag_path = joinPath(tap_dir, stem.str() + "_csi_after_imag.npy");
             ctdr_channel1_real_path = joinPath(tap_dir, stem.str() + "_ctdr_channel1_real.npy");
             ctdr_channel1_imag_path = joinPath(tap_dir, stem.str() + "_ctdr_channel1_imag.npy");
             ctdr_channel2_real_path = joinPath(tap_dir, stem.str() + "_ctdr_channel2_real.npy");
@@ -570,6 +578,12 @@ bool writeCsiMetricsTap(const Config& cfg,
                                  static_cast<std::size_t>(rows),
                                  static_cast<std::size_t>(cols), error) ||
                 !writeNpyFloat32(after_imag_path, csi_after_imag,
+                                 static_cast<std::size_t>(rows),
+                                 static_cast<std::size_t>(cols), error) ||
+                !writeNpyFloat32(csi_after_real_path, csi_after_real,
+                                 static_cast<std::size_t>(rows),
+                                 static_cast<std::size_t>(cols), error) ||
+                !writeNpyFloat32(csi_after_imag_path, csi_after_imag,
                                  static_cast<std::size_t>(rows),
                                  static_cast<std::size_t>(cols), error) ||
                 !writeNpyFloat32(ctdr_channel1_real_path, ctdr_channel1_real,
@@ -620,6 +634,7 @@ bool writeCsiMetricsTap(const Config& cfg,
                     "channel1_real_path,channel1_imag_path,"
                     "channel2_real_path,channel2_imag_path,"
                     "after_real_path,after_imag_path,"
+                    "csi_after_real_path,csi_after_imag_path,"
                     "ctdr_channel1_real_path,ctdr_channel1_imag_path,"
                     "ctdr_channel2_real_path,ctdr_channel2_imag_path,"
                     "fa_axis_path,range_axis_path,phase_model_residual_path,"
@@ -647,6 +662,7 @@ bool writeCsiMetricsTap(const Config& cfg,
              << csvEscape(channel1_real_path) << ',' << csvEscape(channel1_imag_path) << ','
              << csvEscape(channel2_real_path) << ',' << csvEscape(channel2_imag_path) << ','
              << csvEscape(after_real_path) << ',' << csvEscape(after_imag_path) << ','
+             << csvEscape(csi_after_real_path) << ',' << csvEscape(csi_after_imag_path) << ','
              << csvEscape(ctdr_channel1_real_path) << ',' << csvEscape(ctdr_channel1_imag_path) << ','
              << csvEscape(ctdr_channel2_real_path) << ',' << csvEscape(ctdr_channel2_imag_path) << ','
              << csvEscape(fa_path) << ',' << csvEscape(range_path) << ','

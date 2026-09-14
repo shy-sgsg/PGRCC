@@ -48,6 +48,26 @@ class FourChannelObservableTests(unittest.TestCase):
         self.assertLess(fit["rmse_rad"], 1.0e-9)
         self.assertAlmostEqual(OBS.estimate_baseline_error(fit, fc_hz), delta_d, places=9)
 
+    def test_exact_pair_predictor_uses_two_way_receive_geometry(self) -> None:
+        positions = np.array(
+            [[-0.1, 0.0, 0.0], [0.1, 0.0, 0.0],
+             [-0.1, 0.0, 0.2], [0.1, 0.0, 0.2]],
+            dtype=np.float64,
+        )
+        target = np.array([0.0, 100.0, 10.0], dtype=np.float64)
+        platform = np.array([0.0, 0.0, 5.0], dtype=np.float64)
+        path_left = OBS.exact_receive_channel_path_length(target, platform, positions[0])
+        path_right = OBS.exact_receive_channel_path_length(target, platform, positions[1])
+        self.assertGreater(path_left, 0.0)
+        self.assertGreater(path_right, 0.0)
+        phase = OBS.exact_pair_phase_rad(
+            target, platform, positions, 0, 1, fc_hz=16.0e9, carrier_phase_sign=-1.0
+        )
+        expected = OBS._wrap_phase(
+            -2.0 * math.pi * (path_left - path_right) / (OBS.C / 16.0e9)
+        )
+        self.assertAlmostEqual(phase, expected, places=12)
+
     def test_single_angle_is_explicitly_underdetermined(self) -> None:
         fit = OBS.fit_angle_phase_model(np.array([30.0]), np.array([0.5]), np.array([1.0]))
         self.assertEqual(fit["fit_status"], "underdetermined")

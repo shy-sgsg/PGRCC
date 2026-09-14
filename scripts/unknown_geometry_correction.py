@@ -218,6 +218,49 @@ def _geometry_phase_error_vector(
     return carrier_phase_sign * 2.0 * math.pi / (C / fc_hz) * (-los_x * delta)
 
 
+def decide_unknown_geometry_correction(
+    estimated_delta_m: float | None,
+    uncertainty_m: float,
+    deadband_m: float,
+) -> dict[str, object]:
+    """Decide whether an estimate is large enough to leave Current.
+
+    ``deadband_m`` is an evaluation-calibrated minimum effect size and
+    ``uncertainty_m`` is the current estimate-quality allowance.  The larger
+    one is used as the no-action threshold.  This function does not alter IQ;
+    callers must route ``fallback_current`` to the uncorrected path.
+    """
+
+    uncertainty = _finite(uncertainty_m, "uncertainty_m")
+    deadband = _finite(deadband_m, "deadband_m")
+    if uncertainty < 0.0 or deadband < 0.0:
+        raise ValueError("uncertainty_m and deadband_m must be non-negative")
+    if estimated_delta_m is None:
+        return {
+            "schema": "unknown_geometry_correction_decision_v1",
+            "status": "FALLBACK_UNIDENTIFIABLE",
+            "action": "fallback_current",
+            "estimated_delta_m": None,
+            "uncertainty_m": uncertainty,
+            "deadband_m": deadband,
+            "effective_threshold_m": max(uncertainty, deadband),
+            "apply_delta_m": 0.0,
+        }
+    estimate = _finite(estimated_delta_m, "estimated_delta_m")
+    threshold = max(uncertainty, deadband)
+    no_correction = abs(estimate) <= threshold
+    return {
+        "schema": "unknown_geometry_correction_decision_v1",
+        "status": "NO_CORRECTION_NEEDED" if no_correction else "APPLY_ESTIMATED_CORRECTION",
+        "action": "fallback_current" if no_correction else "apply_estimate",
+        "estimated_delta_m": estimate,
+        "uncertainty_m": uncertainty,
+        "deadband_m": deadband,
+        "effective_threshold_m": threshold,
+        "apply_delta_m": 0.0 if no_correction else estimate,
+    }
+
+
 def _iq_dtype(iq_data_type: str) -> np.dtype:
     normalized = iq_data_type.lower()
     if normalized in {"int16", "iq_int16", "short", "s16", "i16"}:
@@ -350,6 +393,7 @@ def apply_unknown_geometry_correction(
 
 __all__ = [
     "apply_unknown_geometry_correction",
+    "decide_unknown_geometry_correction",
     "geometry_phase_error_rad",
     "nominal_los_unit",
 ]
