@@ -2,14 +2,19 @@
 
 > 阶段：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`
 >
-> 审计日期：2026-09-14；本文件覆盖源码审计、Phase0–5 实现和实际运行证据。
+> 审计日期：2026-09-14；本文件覆盖源码审计、Phase0–6 实现和实际运行证据。
 > Phase0 是 paired-reference baseline-phase sanity pilot；Phase1–3 是 blind
-> true-geometry estimator/matrix；Phase4 已完成 B0/B1/B1K 生产 CUDA CSI/CFAR 和
-> B2/B3/B3K 离线 STAP reference。B2/B3 仍不是生产 CUDA 四通道 STAP。旧 pilot
-> 产物见 `outputs/unknown_system_error_pilot_20260913_v5/`，本轮产物见
+> true-geometry estimator/matrix；Phase4–5 已完成 B0/B1/B1K 生产 CUDA CSI/CFAR、
+> B2/B3/B3K 离线 STAP reference、bias/Pfa/target-transfer 和信息量匹配审计；
+> Phase6 已启动独立 servo true/report pilot。B2/B3 仍不是生产 CUDA 四通道 STAP，
+> servo pilot 也不是 production online estimator。旧 pilot 产物见
+> `outputs/unknown_system_error_pilot_20260913_v5/`，本轮产物见
 > `outputs/unknown_system_error_pilot_20260914_clean/`、
-> `outputs/unknown_system_error_geometry_matrix_20260914_v2/` 和
-> `outputs/unknown_system_error_end_to_end_20260914/`。
+> `outputs/unknown_system_error_geometry_matrix_20260914_v2/`、
+> `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、
+> `outputs/unknown_system_error_end_to_end_20260914_formal_v4/`、
+> `outputs/unknown_system_error_pfa_audit_20260914_v8/` 和
+> `outputs/unknown_system_error_servo_pilot_20260914_v3/`。
 
 ## 1. 研究目标和判定边界
 
@@ -68,8 +73,11 @@ channel positions，报告/处理链保留 reported positions；`reported_channe
 
 - `simulator/target_injection/radar_geometry.cpp:18-23` 的
   `evaluatePlatformState` 用单一 `platform_speed_mps` 生成直线位置和速度；
-- 同文件 `:48-49` 直接令 `theta_true_deg = theta_cmd_deg`，没有独立的真实波束角与
-  上报/命令伺服角；
+- 当前 `simulator/stage2_statistical_sim/stage2_config.{h,cpp}` 和
+  `simulate_stage2_main.cpp` 已增加独立 `servo_angle_error`：
+  `theta_true_deg = theta_reported_deg + true_minus_reported_deg`；真实角驱动回波、
+  波束增益和 LOS，报告角写入协议/header 并供生产 processing/P38 使用。旧的
+  `theta_true_deg = theta_cmd_deg` 是默认关闭该开关时的兼容行为；
 - `simulator/stage2_statistical_sim/stage2_config.cpp:680` 解析的平台速度同时被
   目标几何、地表/杂波生成和输出链使用，当前没有独立的 true/report velocity；
 - 生产 `include/config_structs.hpp:169-195` 保留协议位置、速度、heading、servo 等
@@ -169,7 +177,7 @@ C13, C24, C12, C14, C23, C34
 | 时延 vs 固定相位 | 需要频率维互谱斜率 | 时延有候选观测，已有 1/2 通道估计器 |
 | 相位漂移 vs 杂波去相干 | 需要逐脉冲相位轨迹、相干幅度和多 pair 交叉验证 | 不能只看一个平均 coherence |
 | 平台速度 vs P38/目标径向速度 | 需要 header/position-delta/几何先验和跨波位/跨脉冲结构 | 当前 pilot 只使用 velocity header 作为 nominal metadata，true/report velocity 尚未分离 |
-| 伺服角 vs yaw/基线投影 | 需要 servo/header 与多通道空间相位的联合观测 | 当前没有独立真实伺服角注入 |
+| 伺服角 vs yaw/基线投影 | 需要 servo/header 与多通道空间相位的联合观测 | Phase6 已有 true/report 注入和 deterministic pilot；与 yaw/基线的联合可辨识性仍未完成 |
 | 四通道几何误差 | 需要六 pair 和已知阵列 offset；单独 1/2 pair 只能给局部证据 | 已实现 true/report geometry、离线六-pair blind fit 和生产前 raw-IQ correction |
 
 ## 6. 首个 pilot：基线几何误差的多波位观测
@@ -182,7 +190,8 @@ C13, C24, C12, C14, C23, C34
 
 - 平台速度误差虽然重要，但当前模拟器用同一个速度驱动真实运动、杂波和输出 header，
   需要先增加独立的 true/report state 才能做忠实 pilot；
-- 伺服/波束指向误差当前 `theta_true_deg = theta_cmd_deg`，也需要先增加独立真实角；
+- 伺服/波束指向误差曾使用 `theta_true_deg = theta_cmd_deg`；Phase6 已增加独立
+  true/report 角，并先以多波位、多 seed pilot 验证观测链；
 - 时延和慢时间漂移已有历史估计证据，适合作为校准链回归，不适合作为新的首个
   可观测性问题。
 
@@ -346,11 +355,43 @@ clean rerun 已用该 commit 复核 provenance。正式 E2E 使用 RTX 3050、dr
 
 仍未完成且不能由本阶段替代的部分：
 
-1. B2/B3/B3K 的生产 CUDA 四通道 STAP 和信息量匹配正式矩阵；
+1. B2/B3/B3K 的生产 CUDA 四通道 STAP；信息量匹配 baseline 已完成离线矩阵，但
+   `M3−M2/M1` 仍是包含算法和空间自由度的 composite delta，不能写成纯 DOF 增益；
 2. TrackManager/PIPE 的 causal target retention，以及多场景、多周期统计泛化；
-3. servo/beam-pointing、平台速度/姿态的独立 true/report state 与 Phase6 估计；
-4. 只有确定性估计残差稳定且难以解析后，才重新评估 Physics-AI；当前 `ai_training=false`，
+3. platform velocity/姿态的独立 true/report state 与 Phase6 后续估计；
+4. servo-specific Pd/Pfa 的专门 target-only/paired 评价；当前 servo Core 分支只作为
+   处理链有效性审计，不能替代上述性能结论；
+5. 只有确定性估计残差稳定且难以解析后，才重新评估 Physics-AI；当前 `ai_training=false`，
    不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
+
+### 7.5 Phase6 servo true/report pilot
+
+在 Phase3/4 clean-source formal 证据稳定后，新增
+`servo_angle_error.enabled` 和 `true_minus_reported_deg`。v3 formal 运行从 clean
+archive `0a3c7a1` 导出，记录的模拟器/Core SHA-256 分别为
+`dacd7af8de2ad7c975957a78f0bca2cf0fc0fe6dc5b4b5459b4865dbd7d91229` 和
+`a6eace827e54080fbbf574b510d3d4cc69eb172c431de48dd3963855ac5e3756`；运行前
+worktree dirty 为 false。GPU 是 RTX 3050 Laptop GPU，driver 580.173.02，CUDA 13.0，
+运行前查询为 P0、48°C、12.56 W、676/4096 MiB、28% GPU utilization。
+
+矩阵为 `0, ±0.05, ±0.1, ±0.2, ±0.5° × {101,202}`，5 个电子扫描波位；
+`theta_true` 驱动物理 echo/beam gain/LOS，`theta_reported` 写入协议 header 并供
+processing/P38 使用。18/18 Stage2 estimator 为 `fit`；估计误差的 mean bias、RMSE、
+mean absolute error、max absolute error 分别为 `−0.01079°`、`0.01385°`、`0.01133°`、
+`0.03561°`。两条零误差样本估计为 `−0.0143846°`、`−0.0052771°`，由零误差 sweep
+导出 `0.0143846°` deadband，均返回 `NO_CORRECTION_NEEDED`；其余 16 条返回
+`APPLY_ESTIMATED_CORRECTION`，无 `FALLBACK_UNIDENTIFIABLE`。
+
+54/54 production Core 分支 exit code 和内部 beam-quality gate 均有效，且 18/18
+known correction 副本的 payload byte/hash 不变；16 条 unknown correction 只在 header
+副本上修改，2 条 deadband fallback 直接复用 Current raw file。估计器不读取
+`servo_angle_truth.csv`，AI/Router 均未调用。v1/v2 失败现场也保留：分别暴露了过短
+INS aperture、缺少 clutter support 和 zero-range 几何奇异点，修正为 130 PRT、paired
+clutter 与 1 µs 正采样起点后才得到 v3 completed。
+
+该 pilot 仍是 deterministic offline estimator，不宣称 servo-specific Pd/Pfa、完整
+TrackManager/PIPE 保持或 online deployment；baseline geometry 与 servo 的联合混淆、
+platform velocity/姿态后续单独处理。
 
 ## 8. 后续阶段顺序
 
@@ -358,7 +399,8 @@ clean rerun 已用该 commit 复核 provenance。正式 E2E 使用 RTX 3050、dr
 2. 补齐基线误差的四通道/多波位忠实注入与已知误差校正；
 3. 在已有 raw-IQ pilot 之上做小规模四条件 CPU/最小 CUDA 回放，先验证相位模型和闭合相位；
 4. 接入 Current CSI 与四通道 STAP 的端到端及信息量匹配比较；
-5. 扩展到平台速度/姿态/伺服真值—上报误差，最后再判断确定性估计是否不足；
+5. servo true/report pilot 已启动；下一步单独扩展平台速度/姿态 true/report，最后再判断
+   确定性估计是否不足；
 6. 只有第 5 步之后仍存在稳定、可量化且难以解析的残差，才评估 Physics-AI。
 
 ## 9. 证据入口
@@ -383,3 +425,13 @@ clean rerun 已用该 commit 复核 provenance。正式 E2E 使用 RTX 3050、dr
   `src/processOnePeriod.cpp`
 - 历史时延/相位估计：`scripts/estimate_channel_delay.py`、
   `scripts/estimate_temporal_phase.py`
+- bias exact-path audit：`outputs/unknown_system_error_geometry_bias_audit_20260914_v1/`
+- deadband/sensitivity audit：`outputs/unknown_system_error_geometry_deadband_audit_20260914_v2/`
+- extended geometry formal matrix：`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`
+- causal target transfer：`outputs/unknown_system_error_target_transfer_audit_20260914_v2/`
+- empirical Pfa controls：`outputs/unknown_system_error_pfa_audit_20260914_v8/`、
+  `outputs/unknown_system_error_pfa_formal_reference_20260914_v2/`
+- information-matched baseline：`outputs/unknown_system_error_information_matched_baseline_20260914_v1/`，
+  以及其 `pairwise_postprocess_manifest.json`
+- servo true/report pilot：`outputs/unknown_system_error_servo_pilot_20260914_v3/manifest.json`、
+  `servo_estimates.csv`、`servo_decisions.csv`、`core_metrics.csv`

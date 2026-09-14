@@ -57,12 +57,12 @@ def _git(*args: str) -> str:
     result = subprocess.run(
         ["git", "--git-dir=.git-real", "--work-tree=.", *args],
         cwd=ROOT,
-        check=True,
+        check=False,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         text=True,
     )
-    return result.stdout.strip()
+    return result.stdout.strip() if result.returncode == 0 else ""
 
 
 def _sha256(path: Path) -> str:
@@ -153,6 +153,95 @@ def _delta_tag(delta_m: float) -> str:
     return f"{sign}{abs(delta_m) * 1000.0:.3f}mm".replace(".", "p")
 
 
+def _nuisance_float(
+    nuisance: Mapping[str, object], key: str, default: float
+) -> float:
+    value = _finite_float(nuisance.get(key, default))
+    if value is None:
+        raise ValueError(f"nuisance.{key} must be finite")
+    return value
+
+
+def apply_nuisance_config(
+    config: Mapping[str, object], nuisance: Mapping[str, object] | None = None
+) -> dict[str, object]:
+    """Apply an explicit one-factor nuisance profile to a matrix template."""
+
+    result = copy.deepcopy(config)
+    profile = dict(nuisance or {})
+    impairments = result.setdefault("channel_impairments", {})
+    if not isinstance(impairments, dict):
+        raise ValueError("channel_impairments must be an object")
+    impairments.update({
+        "enabled": True,
+        "baseline_error_m": 0.0,
+        "baseline_error_mode": "group_baseline_error_legacy_pilot",
+        "channel_amp_mismatch_db": _nuisance_float(
+            profile, "fixed_channel_amp_mismatch_db", AMP_MISMATCH_DB
+        ),
+        "channel_fixed_phase_mismatch_deg": _nuisance_float(
+            profile, "fixed_channel_phase_mismatch_deg", FIXED_PHASE_MISMATCH_DEG
+        ),
+        "channel_phase_jitter_std_deg": 0.0,
+        "per_pulse_phase_drift_deg": 0.0,
+    })
+
+    scene = result.setdefault("scene", {})
+    if not isinstance(scene, dict):
+        raise ValueError("scene must be an object")
+    area = scene.setdefault("area_clutter", {})
+    if not isinstance(area, dict):
+        raise ValueError("scene.area_clutter must be an object")
+    if "texture_sigma" in profile:
+        texture_sigma = _nuisance_float(profile, "texture_sigma", 0.0)
+        if texture_sigma < 0.0:
+            raise ValueError("nuisance.texture_sigma must be non-negative")
+        area["texture_sigma"] = texture_sigma
+    if "calibration_range_m" in profile:
+        calibration_range = _nuisance_float(profile, "calibration_range_m", 9000.0)
+        if calibration_range <= 0.0:
+            raise ValueError("nuisance.calibration_range_m must be positive")
+        area["calibration_range_m"] = calibration_range
+        old_min = _finite_float(scene.get("range_min_m"))
+        old_max = _finite_float(scene.get("range_max_m"))
+        half_width = 750.0
+        if old_min is not None and old_max is not None and old_max > old_min:
+            half_width = max(500.0, 0.5 * (old_max - old_min))
+        scene["range_min_m"] = calibration_range - half_width
+        scene["range_max_m"] = calibration_range + half_width
+    noise = scene.setdefault("thermal_noise", {})
+    if not isinstance(noise, dict):
+        raise ValueError("scene.thermal_noise must be an object")
+    if "noise_power" in profile:
+        noise_power = _nuisance_float(profile, "noise_power", 0.0)
+        if noise_power < 0.0:
+            raise ValueError("nuisance.noise_power must be non-negative")
+        noise["noise_power"] = noise_power
+
+    if "angle_span_deg" in profile:
+        span = _nuisance_float(profile, "angle_span_deg", 20.0)
+        if span <= 0.0:
+            raise ValueError("nuisance.angle_span_deg must be positive")
+        scan = result.setdefault("scan", {})
+        if not isinstance(scan, dict):
+            raise ValueError("scan must be an object")
+        step = abs(float(scan.get("scan_step_deg", 5.0)))
+        if step <= 0.0:
+            raise ValueError("scan_step_deg must be positive")
+        beam_count = int(round(2.0 * span / step)) + 1
+        if beam_count < 3:
+            raise ValueError("nuisance.angle_span_deg must produce at least 3 beams")
+        scan["scan_min_deg"] = -span
+        scan["beam_count"] = beam_count
+        random_cfg = result.setdefault("random", {})
+        if not isinstance(random_cfg, dict):
+            raise ValueError("random must be an object")
+        random_cfg["beam_count"] = beam_count
+        scene["azimuth_min_deg"] = -span - step
+        scene["azimuth_max_deg"] = span + step
+    return result
+
+
 def _make_case_config(
     template: Mapping[str, object],
     delta_m: float,
@@ -204,8 +293,12 @@ def _make_case_config(
         "enabled": True,
         "baseline_error_m": 0.0,
         "baseline_error_mode": "group_baseline_error_legacy_pilot",
-        "channel_amp_mismatch_db": AMP_MISMATCH_DB,
-        "channel_fixed_phase_mismatch_deg": FIXED_PHASE_MISMATCH_DEG,
+        "channel_amp_mismatch_db": float(
+            impairments.get("channel_amp_mismatch_db", AMP_MISMATCH_DB)
+        ),
+        "channel_fixed_phase_mismatch_deg": float(
+            impairments.get("channel_fixed_phase_mismatch_deg", FIXED_PHASE_MISMATCH_DEG)
+        ),
         "channel_phase_jitter_std_deg": 0.0,
         "per_pulse_phase_drift_deg": 0.0,
     })
@@ -470,6 +563,10 @@ def run_matrix(
     range_block_size: int = 32,
     bootstrap_resamples: int = 4000,
     estimator_range_half_width_samples: int = 1024,
+    nuisance: Mapping[str, object] | None = None,
+    required_angles: Sequence[float] = REQUIRED_ANGLES_DEG,
+    source_commit_override: Optional[str] = None,
+    worktree_dirty_override: Optional[bool] = None,
 ) -> dict[str, object]:
     if output_root.exists() and any(output_root.iterdir()):
         raise RuntimeError(f"refusing to overwrite non-empty matrix output: {output_root}")
@@ -482,18 +579,24 @@ def run_matrix(
     output_root.mkdir(parents=True, exist_ok=True)
     with template_path.open("r", encoding="utf-8") as stream:
         template = json.load(stream)
-    layout = _layout(template)
+    effective_template = apply_nuisance_config(template, nuisance)
+    layout = _layout(effective_template)
     range_start, range_end = _estimator_range_window(
-        template, estimator_range_half_width_samples, range_block_size
+        effective_template, estimator_range_half_width_samples, range_block_size
     )
     positions = OBS.load_channel_positions(template_path, source="reported")
-    angles = _angles(template)
-    missing_angles = [angle for angle in REQUIRED_ANGLES_DEG
+    angles = _angles(effective_template)
+    missing_angles = [angle for angle in required_angles
                       if not any(abs(angle - actual) <= 1.0e-9 for actual in angles)]
     if missing_angles:
         raise ValueError(f"template is missing required beam angles: {missing_angles}")
     source_status = _git("status", "--short", "--untracked-files=all")
-    source_commit = _git("rev-parse", "HEAD")
+    source_commit = source_commit_override or _git("rev-parse", "HEAD")
+    source_dirty = (
+        bool(source_status)
+        if worktree_dirty_override is None
+        else bool(worktree_dirty_override)
+    )
     rows: list[dict[str, object]] = []
     commands: list[list[str]] = []
     config_records: list[dict[str, object]] = []
@@ -512,7 +615,9 @@ def run_matrix(
                 case_id = f"baseline_{_delta_tag(delta_m)}_seed_{seed}"
                 case_dir = temp_parent / case_id
                 config_path = config_dir / f"{case_id}.json"
-                config = _make_case_config(template, delta_m, seed, case_id, case_dir)
+                config = _make_case_config(
+                    effective_template, delta_m, seed, case_id, case_dir
+                )
                 _write_json(config_path, config)
                 command = [str(simulator), "--config", str(config_path)]
                 commands.append(command)
@@ -664,7 +769,7 @@ def run_matrix(
         "ai_training": False,
         "source": {
             "source_commit_before_run": source_commit,
-            "worktree_dirty_before": bool(source_status),
+            "worktree_dirty_before": source_dirty,
             "worktree_status_before": source_status,
             "template": str(template_path.resolve()),
             "template_sha256": _sha256(template_path),
@@ -681,7 +786,7 @@ def run_matrix(
             "baseline_levels_m": [float(value) for value in levels_m],
             "seeds": [int(value) for value in seeds],
             "angles_deg": angles,
-            "required_angles_deg": list(REQUIRED_ANGLES_DEG),
+            "required_angles_deg": [float(value) for value in required_angles],
             "min_coherence": min_coherence,
             "range_block_size": range_block_size,
             "estimator_range_start": range_start,
@@ -689,8 +794,19 @@ def run_matrix(
             "estimator_range_half_width_samples": estimator_range_half_width_samples,
             "bootstrap_resamples": bootstrap_resamples,
             "nuisance": {
-                "fixed_channel_phase_mismatch_deg": FIXED_PHASE_MISMATCH_DEG,
-                "channel_amp_mismatch_db": AMP_MISMATCH_DB,
+                "fixed_channel_phase_mismatch_deg": float(
+                    effective_template["channel_impairments"]["channel_fixed_phase_mismatch_deg"]  # type: ignore[index]
+                ),
+                "channel_amp_mismatch_db": float(
+                    effective_template["channel_impairments"]["channel_amp_mismatch_db"]  # type: ignore[index]
+                ),
+                "noise_power": float(
+                    effective_template["scene"]["thermal_noise"]["noise_power"]  # type: ignore[index]
+                ),
+                "texture_sigma": float(
+                    effective_template["scene"]["area_clutter"]["texture_sigma"]  # type: ignore[index]
+                ),
+                "overrides": copy.deepcopy(dict(nuisance or {})),
                 "thermal_noise": True,
                 "clutter_texture_variation": True,
                 "phase_jitter_and_drift": 0.0,

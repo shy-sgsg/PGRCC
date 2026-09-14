@@ -60,6 +60,58 @@ class UnknownSystemErrorMatrixTests(unittest.TestCase):
         self.assertNotIn("targets", metadata)
         self.assertNotIn("channel_impairments", metadata)
 
+    def test_apply_nuisance_config_changes_only_requested_profile(self) -> None:
+        template = {
+            "channel_impairments": {
+                "enabled": False,
+                "channel_amp_mismatch_db": 0.35,
+                "channel_fixed_phase_mismatch_deg": 8.0,
+            },
+            "scene": {
+                "area_clutter": {"texture_sigma": 0.2},
+                "thermal_noise": {"noise_power": 0.001},
+                "range_min_m": 8250.0,
+                "range_max_m": 9750.0,
+            },
+            "scan": {
+                "scan_min_deg": -20.0,
+                "scan_step_deg": 5.0,
+                "beam_count": 9,
+            },
+            "random": {"beam_count": 9},
+        }
+        result = MATRIX.apply_nuisance_config(
+            template,
+            {"fixed_channel_phase_mismatch_deg": 16.0},
+        )
+        self.assertEqual(result["channel_impairments"]["channel_fixed_phase_mismatch_deg"], 16.0)
+        self.assertEqual(result["channel_impairments"]["channel_amp_mismatch_db"], 0.35)
+        self.assertEqual(result["scene"]["thermal_noise"]["noise_power"], 0.001)
+        self.assertEqual(template["channel_impairments"]["enabled"], False)
+
+    def test_apply_nuisance_config_updates_angle_span_and_calibration_window(self) -> None:
+        template = {
+            "channel_impairments": {},
+            "scene": {
+                "area_clutter": {},
+                "thermal_noise": {},
+                "range_min_m": 8250.0,
+                "range_max_m": 9750.0,
+            },
+            "scan": {"scan_min_deg": -20.0, "scan_step_deg": 5.0, "beam_count": 9},
+            "random": {"beam_count": 9},
+        }
+        result = MATRIX.apply_nuisance_config(
+            template,
+            {"angle_span_deg": 10.0, "calibration_range_m": 9600.0},
+        )
+        self.assertEqual(result["scan"]["scan_min_deg"], -10.0)
+        self.assertEqual(result["scan"]["beam_count"], 5)
+        self.assertEqual(result["random"]["beam_count"], 5)
+        self.assertEqual(result["scene"]["range_min_m"], 8850.0)
+        self.assertEqual(result["scene"]["range_max_m"], 10350.0)
+        self.assertEqual(result["scene"]["area_clutter"]["calibration_range_m"], 9600.0)
+
 
 if __name__ == "__main__":
     unittest.main()

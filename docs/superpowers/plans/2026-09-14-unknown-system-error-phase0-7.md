@@ -50,9 +50,10 @@ Known-error correction 仅是评价上限。AI、Router、通用复权残差和 
   - 保存 `Known−Current`、`Estimated−Current`、方向、recovery ratio、Pd、target-off
     Pfa、false clusters、runtime、输入 SHA-256 和 GPU provenance。
   - 结果汇总在 `outputs/unknown_system_error_end_to_end_20260914/`。
-- [ ] **Phase6 — servo/beam or platform-state extension**
-  - 只有 Phase3/4 证据稳定后才扩展。
-  - 需要独立 true/report servo angle 或 velocity state；本阶段不假装已实现。
+- [x] **Phase6 — servo/beam true/report pilot started**
+  - `servo_angle_error` 已将 `theta_true` 与 `theta_reported` 分离：前者驱动回波/波束增益/真实 LOS，后者写入协议 header 并进入生产处理/P38。
+  - clean-source formal pilot `outputs/unknown_system_error_servo_pilot_20260914_v3/` 完成 18 个误差×seed case、54 条生产 Core 分支；AI/Router 保持关闭。
+  - 当前仍是 deterministic offline pilot；platform velocity true/report、耦合 nuisance、TrackManager/PIPE 和 servo-specific Pd/Pfa 后置。
 - [x] **Phase7 — AI boundary**
   - `ai_training=false`；当前没有训练 MLP、Router、通用 `delta-alpha` 或
     image-to-image 网络。
@@ -93,8 +94,8 @@ manifest/CSV/JSON 保留可复现和审计所需信息。
 
 ## 当前未完成项
 
-1. 生产 CUDA 四通道 STAP 与信息量匹配矩阵；
+1. 生产 CUDA 四通道 STAP 与信息量匹配矩阵仍保持 offline scientific reference 边界；
 2. TrackManager/PIPE 的逐周期 `Confirmed + matched_this_frame` 目标保持验收；
-3. servo/beam/platform velocity 的独立 true/report state；
-4. 多场景、多周期和硬件负载稳定统计；
+3. platform velocity/姿态的独立 true/report state 与估计；
+4. 多场景、多周期和硬件负载稳定统计，以及 servo-specific Pd/Pfa；
 5. 在上述证据前不进入 AI 训练或 Router 分支。
