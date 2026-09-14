@@ -125,6 +125,66 @@ def _range_components(
     return ground, ground_z
 
 
+def _target_reference_platform_position(
+    packet_platform_position_m: np.ndarray,
+    metadata: Mapping[str, object],
+) -> np.ndarray:
+    """Resolve the reported platform state used to construct a fixed target.
+
+    Stage2's continuous beam-centre surface is generated once at the middle
+    beam/pulse of the reported scan and then observed from each packet
+    platform.  The optional explicit position is preferred; otherwise the
+    same state is derived from reported scan, waveform, and platform fields.
+    Metadata without scan context keeps the public helper's original
+    packet-platform behaviour, which is useful for a single instantaneous
+    geometry query.
+    """
+
+    explicit = metadata.get("reference_platform_position_m")
+    if explicit is not None:
+        return _vector(explicit, "reference_platform_position_m")  # type: ignore[arg-type]
+
+    scan = metadata.get("scan")
+    waveform = _section(metadata, "waveform")
+    platform = _section(metadata, "platform")
+    if not isinstance(scan, Mapping):
+        return packet_platform_position_m.copy()
+    try:
+        beam_count = int(scan["beam_count"])
+        pulse_num = int(waveform["pulse_num"])
+        prf_hz = _finite_scalar(waveform["prf_hz"], "waveform.prf_hz")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError(
+            "scan.beam_count, waveform.pulse_num, and waveform.prf_hz "
+            "are required to derive reference platform state"
+        ) from exc
+    if beam_count <= 0 or pulse_num <= 0 or prf_hz <= 0.0:
+        raise ValueError("reported scan and waveform counts must be positive")
+    random = metadata.get("random", {})
+    if not isinstance(random, Mapping):
+        raise ValueError("metadata.random must be an object")
+    period_start = int(random.get("period_start", metadata.get("period_start", 0)))
+    reference_sample = (
+        period_start * beam_count * pulse_num
+        + (beam_count // 2) * pulse_num
+        + (pulse_num // 2)
+    )
+    speed = _finite_scalar(
+        platform.get("speed_mps", metadata.get("platform_speed_mps", 0.0)),
+        "platform.speed_mps",
+    )
+    x0 = _finite_scalar(platform.get("position_x_m", 0.0), "platform.position_x_m")
+    y0 = _finite_scalar(platform.get("position_y_m", 0.0), "platform.position_y_m")
+    height = _finite_scalar(
+        platform.get("height_m", metadata.get("platform_height_m", packet_platform_position_m[2])),
+        "platform.height_m",
+    )
+    return np.asarray(
+        [x0 + speed * reference_sample / prf_hz, y0, height],
+        dtype=np.float64,
+    )
+
+
 def slant_range_from_sample_m(
     range_sample: float,
     metadata: Mapping[str, object],
@@ -213,16 +273,17 @@ def beam_target_position_m(
     """Return the target position implied by reported beam/range metadata."""
 
     platform = _vector(platform_position_m, "platform_position_m")
+    target_reference_platform = _target_reference_platform_position(platform, metadata)
     ground_range, ground_z = _range_components(
         slant_range_m,
-        float(platform[2]),
+        float(target_reference_platform[2]),
         metadata,
     )
     horizontal = _horizontal_look(theta_deg, metadata)
     target = np.asarray(
         [
-            platform[0] + horizontal[0] * ground_range,
-            platform[1] + horizontal[1] * ground_range,
+            target_reference_platform[0] + horizontal[0] * ground_range,
+            target_reference_platform[1] + horizontal[1] * ground_range,
             ground_z,
         ],
         dtype=np.float64,

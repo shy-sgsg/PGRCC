@@ -91,6 +91,25 @@ def test_reported_context_changes_target_position_without_hidden_global_state() 
     assert not np.allclose(near, far)
 
 
+def test_stage2_reference_platform_context_is_used_for_fixed_surface_targets() -> None:
+    metadata = {
+        **METADATA,
+        "platform": {**METADATA["platform"], "speed_mps": 60.0},
+        "waveform": {"prf_hz": 1300.0, "pulse_num": 4},
+        "scan": {"beam_count": 9},
+        "random": {"period_start": 0},
+    }
+    packet_platform = np.asarray([0.0, 0.0, 6000.0])
+    target = MODEL.beam_target_position_m(0.0, 9000.0, packet_platform, metadata)
+    reference_index = (9 // 2) * 4 + (4 // 2)
+    expected = packet_platform.copy()
+    expected[0] = 60.0 * reference_index / 1300.0
+    ground = np.sqrt(9000.0**2 - 6000.0**2)
+    expected[1] = -ground
+    expected[2] = 0.0
+    assert target == pytest.approx(expected)
+
+
 def test_exact_and_linear_comparison_reports_finite_sensitivity() -> None:
     comparison = MODEL.compare_exact_linear_phase(
         theta_deg=10.0,
