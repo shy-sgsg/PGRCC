@@ -122,6 +122,22 @@ class UnknownGeometryCorrectionTests(unittest.TestCase):
         self.assertEqual(decision["status"], "FALLBACK_UNIDENTIFIABLE")
         self.assertEqual(decision["action"], "fallback_current")
 
+    def test_deadband_is_derived_from_zero_sweep_floor_and_symmetric_sensitivity(self) -> None:
+        summary = CORRECTION.derive_deadband_from_sweep(
+            [
+                {"truth_delta_m": 0.0, "six_estimate_m": 0.00015},
+                {"truth_delta_m": 0.0, "six_estimate_m": 0.00016},
+                {"truth_delta_m": 0.0025, "six_estimate_m": 0.00265},
+                {"truth_delta_m": -0.0025, "six_estimate_m": -0.00235},
+                {"truth_delta_m": "bad", "six_estimate_m": 0.0},
+            ]
+        )
+        self.assertEqual(summary["zero_level_case_count"], 2)
+        self.assertAlmostEqual(summary["deadband_m"], 0.00016)
+        self.assertAlmostEqual(summary["symmetric_sensitivity_m_per_m"], 1.0)
+        self.assertTrue(summary["uses_truth"])
+        self.assertTrue(summary["evaluator_only"])
+
 
 if __name__ == "__main__":
     unittest.main()

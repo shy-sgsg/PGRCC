@@ -261,6 +261,60 @@ def decide_unknown_geometry_correction(
     }
 
 
+def derive_deadband_from_sweep(
+    rows: Sequence[Mapping[str, object]],
+    truth_key: str = "truth_delta_m",
+    estimate_key: str = "six_estimate_m",
+) -> dict[str, object]:
+    """Derive a no-action band from a truth-labelled baseline sweep.
+
+    The zero-error absolute estimate is the measured estimator/model floor.
+    Symmetric non-zero levels independently report local sensitivity, so the
+    band is tied to the sweep rather than an arbitrary subtraction constant.
+    This helper is evaluator-side; it is not called by the blind estimator.
+    """
+
+    grouped: dict[float, list[float]] = {}
+    for row in rows:
+        try:
+            truth = float(row[truth_key])
+            estimate = float(row[estimate_key])
+        except (KeyError, TypeError, ValueError):
+            continue
+        if not math.isfinite(truth) or not math.isfinite(estimate):
+            continue
+        grouped.setdefault(truth, []).append(estimate)
+    zero_values = grouped.get(0.0, [])
+    if not zero_values:
+        raise ValueError("baseline sweep must contain a finite zero-error level")
+    zero_errors = [abs(value) for value in zero_values]
+    slopes: list[float] = []
+    for level in sorted(grouped):
+        if level <= 0.0 or -level not in grouped:
+            continue
+        plus = sum(grouped[level]) / len(grouped[level])
+        minus = sum(grouped[-level]) / len(grouped[-level])
+        slope = (plus - minus) / (2.0 * level)
+        if math.isfinite(slope):
+            slopes.append(slope)
+    if not slopes:
+        raise ValueError("baseline sweep must contain at least one symmetric non-zero pair")
+    sensitivity = float(np.median(np.asarray(slopes, dtype=np.float64)))
+    deadband = float(max(zero_errors))
+    return {
+        "schema": "unknown_geometry_deadband_from_sweep_v1",
+        "zero_level_case_count": len(zero_values),
+        "zero_level_max_abs_error_m": deadband,
+        "zero_level_mean_abs_error_m": float(sum(zero_errors) / len(zero_errors)),
+        "symmetric_sensitivity_m_per_m": sensitivity,
+        "symmetric_sensitivity_values_m_per_m": slopes,
+        "deadband_m": deadband,
+        "derivation": "deadband=max(|estimate-truth|) at truth=0; sensitivity=median symmetric finite difference",
+        "uses_truth": True,
+        "evaluator_only": True,
+    }
+
+
 def _iq_dtype(iq_data_type: str) -> np.dtype:
     normalized = iq_data_type.lower()
     if normalized in {"int16", "iq_int16", "short", "s16", "i16"}:
@@ -394,6 +448,7 @@ def apply_unknown_geometry_correction(
 __all__ = [
     "apply_unknown_geometry_correction",
     "decide_unknown_geometry_correction",
+    "derive_deadband_from_sweep",
     "geometry_phase_error_rad",
     "nominal_los_unit",
 ]
