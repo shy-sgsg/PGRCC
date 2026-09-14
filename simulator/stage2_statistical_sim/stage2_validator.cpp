@@ -63,6 +63,11 @@ bool writeStage2Report(const std::string &path,
     out << "- scan_min_deg: " << cfg.radar.scan_min_deg << "\n";
     out << "- scan_step_deg: " << cfg.radar.scan_step_deg << "\n";
     out << "- beam_width_deg: " << cfg.radar.beam_width_deg << "\n\n";
+    out << "- scan_mode: " << cfg.scan_mode << "\n";
+    out << "- servo_angle_error_enabled: "
+        << (cfg.servo_angle_error.enabled ? "true" : "false") << "\n";
+    out << "- servo_true_minus_reported_deg: "
+        << cfg.servo_angle_error.true_minus_reported_deg << "\n\n";
     out << "- platform_height_m: " << cfg.platform_height_m << "\n";
     out << "- platform_speed_mps: " << cfg.platform_speed_mps << "\n\n";
     out << "## 场景配置\n\n";

@@ -173,6 +173,17 @@ void parseMechanicalScan(const std::string &txt, Stage2Config &cfg)
         cfg.mechanical_scan.phase_center_rotation_sign);
 }
 
+void parseServoAngleError(const std::string &txt, Stage2Config &cfg)
+{
+    const std::string servo = sectionObject(txt, "servo_angle_error");
+    if (servo.empty()) return;
+    cfg.servo_angle_error.enabled = jsonBool(
+        servo, "enabled", cfg.servo_angle_error.enabled);
+    cfg.servo_angle_error.true_minus_reported_deg = jsonDouble(
+        servo, "true_minus_reported_deg",
+        cfg.servo_angle_error.true_minus_reported_deg);
+}
+
 void bindMechanicalPhaseCenterPose(Stage2Config &cfg)
 {
     cfg.radar.phase_center_rotation_enable =
@@ -555,6 +566,12 @@ bool saveFromTemplate(const Stage2Config &cfg,
     setOrReplaceInt(p, "read_pulse_num", cfg.radar.pulse_num);
     setOrReplaceInt(p, "process_pulse_num", cfg.radar.pulse_num);
     writeMechanicalScanXml(p, cfg);
+    setOrReplaceInt(
+        p, "servo_angle_error_enabled",
+        cfg.servo_angle_error.enabled ? 1 : 0);
+    setOrReplaceDouble(
+        p, "servo_true_minus_reported_deg",
+        cfg.servo_angle_error.true_minus_reported_deg);
     const int file_first_beam = std::max(1, cfg.sim.beam_start_1based);
     const int file_beam_count = cfg.sim.beam_count > 0
         ? std::min(cfg.sim.beam_count, cfg.radar.beam_count - file_first_beam + 1)
@@ -770,6 +787,7 @@ bool loadStage2Config(const std::string &path, Stage2Config &cfg, std::string &e
     cfg.radar.beam_width_deg = jsonDouble(sys, "beam_width_deg", 2.28);
     cfg.radar.pulse_num = jsonInt(sys, "pulse_num", 130);
     parseMechanicalScan(txt, cfg);
+    parseServoAngleError(txt, cfg);
     cfg.radar.d_chan_m = jsonDouble(sys, "d_chan_m", 0.17);
     if (!parseReceiveChannelGeometry(txt, cfg.radar, err)) return false;
     bindMechanicalPhaseCenterPose(cfg);
@@ -901,6 +919,11 @@ bool loadStage2Config(const std::string &path, Stage2Config &cfg, std::string &e
         err = "scan_mode must be electronic or mechanical";
         return false;
     }
+    if (cfg.servo_angle_error.enabled &&
+        !std::isfinite(cfg.servo_angle_error.true_minus_reported_deg)) {
+        err = "servo_angle_error.true_minus_reported_deg must be finite";
+        return false;
+    }
     if (cfg.scan_mode == "mechanical") {
         const MechanicalScanStage2Config &m = cfg.mechanical_scan;
         if (!std::isfinite(m.scan_start_deg) || !std::isfinite(m.scan_end_deg) ||
@@ -930,6 +953,7 @@ bool writeDefaultStage2Config(const std::string &path, std::string &err)
         "{\n"
         "  \"scan_mode\": \"electronic\",\n"
         "  \"mechanical_scan\": {\"scan_start_deg\": -60.0, \"scan_end_deg\": 60.0, \"scan_speed_deg_s\": 20.0, \"scan_direction\": \"forward\", \"cpi_pulse_count\": 130, \"cpi_step_pulse\": 130, \"max_cpi_angle_span_deg\": 3.0, \"phase_center_rotation_enable\": true, \"phase_center_mount_angle_deg\": 0.0, \"phase_center_rotation_sign\": 1},\n"
+        "  \"servo_angle_error\": {\"enabled\": false, \"true_minus_reported_deg\": 0.0},\n"
         "  \"system\": {\n"
         "    \"fc_ghz\": 16.0, \"bandwidth_mhz\": 50.0, \"fs_mhz\": 60.0,\n"
         "    \"pulse_width_us\": 130.0, \"prf_hz\": 1300.0,\n"
@@ -1011,6 +1035,12 @@ bool writeStage2OutputConfig(const Stage2Config &cfg,
     setInt(p, "read_pulse_num", cfg.radar.pulse_num);
     setInt(p, "process_pulse_num", cfg.radar.pulse_num);
     writeMechanicalScanXml(p, cfg);
+    setOrReplaceInt(
+        p, "servo_angle_error_enabled",
+        cfg.servo_angle_error.enabled ? 1 : 0);
+    setOrReplaceDouble(
+        p, "servo_true_minus_reported_deg",
+        cfg.servo_angle_error.true_minus_reported_deg);
     const int file_first_beam = std::max(1, cfg.sim.beam_start_1based);
     const int file_beam_count = cfg.sim.beam_count > 0
         ? std::min(cfg.sim.beam_count, cfg.radar.beam_count - file_first_beam + 1)
@@ -1269,6 +1299,7 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
     }
     Stage2Config cfg;
     parseMechanicalScan(txt, cfg);
+    parseServoAngleError(txt, cfg);
 
     run.case_id = jsonString(txt, "case_id", "");
     run.output_dir = jsonString(txt, "output_dir", "");
@@ -1531,6 +1562,11 @@ bool validateStage2RunConfig(const Stage2RunConfig &run, std::string &err)
 {
     if (run.case_id.empty()) { err = "case_id is required"; return false; }
     if (run.output_dir.empty()) { err = "output_dir is required"; return false; }
+    if (run.cfg.servo_angle_error.enabled &&
+        !std::isfinite(run.cfg.servo_angle_error.true_minus_reported_deg)) {
+        err = "servo_angle_error.true_minus_reported_deg must be finite";
+        return false;
+    }
     if (!run.background_input_dir.empty()) {
         if (!std::isfinite(run.background_input_scale) ||
             !(run.background_input_scale > 0.0)) {

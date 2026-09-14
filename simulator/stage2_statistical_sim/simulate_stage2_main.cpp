@@ -69,6 +69,14 @@ double mechanicalPulseTime(const Stage2Config &cfg, int scan_id, int prt_id)
             static_cast<double>(prt_id)) / cfg.radar.prf_hz;
 }
 
+double trueServoAzimuth(const Stage2Config &cfg, double reported_deg)
+{
+    return reported_deg +
+           (cfg.servo_angle_error.enabled
+                ? cfg.servo_angle_error.true_minus_reported_deg
+                : 0.0);
+}
+
 
 std::string periodTag(int period_id)
 {
@@ -501,6 +509,12 @@ void writeScenarioResolved(const Stage2RunConfig &run,
         << run.output_signal_domain << "\",\n";
     out << "  \"beam_index_base\": " << run.beam_index_base << ",\n";
     out << "  \"scan_mode\": \"" << run.cfg.scan_mode << "\",\n";
+    out << "  \"servo_angle_error\": {\n";
+    out << "    \"enabled\": "
+        << (run.cfg.servo_angle_error.enabled ? "true" : "false") << ",\n";
+    out << "    \"true_minus_reported_deg\": "
+        << run.cfg.servo_angle_error.true_minus_reported_deg << "\n";
+    out << "  },\n";
     out << "  \"mechanical_scan\": {\n";
     out << "    \"scan_start_deg\": "
         << run.cfg.mechanical_scan.scan_start_deg << ",\n";
@@ -875,6 +889,20 @@ int generateStage2Data(const Stage2RunConfig &run)
                "saturation_component_count,has_nan,has_inf\n";
     }
 
+    std::ofstream servo_angle_truth;
+    if (cfg.servo_angle_error.enabled) {
+        servo_angle_truth.open(
+            joinPath(run.output_dir, "truth/servo_angle_truth.csv").c_str());
+        if (!servo_angle_truth) {
+            std::cerr << "[stage2][ERR] failed to open servo angle truth CSV\n";
+            return 1;
+        }
+        servo_angle_truth
+            << "period_id,beam_id_0based,beam_id_1based,pulse_id,prt_counter,"
+               "time_sec,theta_reported_deg,theta_true_deg,"
+               "true_minus_reported_deg,header_theta_deg,scan_mode\n";
+    }
+
     std::vector<std::string> period_data_files;
     std::vector<std::string> background_period_data_files;
 
@@ -1117,10 +1145,11 @@ int generateStage2Data(const Stage2RunConfig &run)
                 const double t = mechanical_mode
                     ? mechanicalPulseTime(cfg, period_id, m)
                     : pulseTimeSec(cfg.radar, period_id, b, m);
-                const double theta = mechanical_mode
+                const double theta_reported = mechanical_mode
                     ? mechanicalServoAzimuth(cfg, m)
                     : cfg.radar.scan_min_deg +
                           cfg.radar.scan_step_deg * static_cast<double>(b);
+                const double theta_true = trueServoAzimuth(cfg, theta_reported);
                 if (reuse_background) {
                     background_in.read(
                         reinterpret_cast<char *>(&packet[0]),
@@ -1147,7 +1176,8 @@ int generateStage2Data(const Stage2RunConfig &run)
                 } else {
                     if (mechanical_mode) {
                         fillMechanicalPacketHeader(
-                            packet, cfg.radar, global, prt_counter, t, theta, 0.0,
+                            packet, cfg.radar, global, prt_counter, t,
+                            theta_reported, 0.0,
                             0.5 * (cfg.mechanical_scan.scan_start_deg +
                                    cfg.mechanical_scan.scan_end_deg),
                             0.0, cfg.mechanical_scan.scan_speed_deg_s,
@@ -1155,7 +1185,8 @@ int generateStage2Data(const Stage2RunConfig &run)
                                      cfg.mechanical_scan.scan_start_deg));
                     } else {
                         fillZeroPacketHeader(
-                            packet, cfg.radar, global, prt_counter, t, theta);
+                            packet, cfg.radar, global, prt_counter, t,
+                            theta_reported);
                     }
 
                     if (continuous_area_active) {
@@ -1169,8 +1200,7 @@ int generateStage2Data(const Stage2RunConfig &run)
                                 period_id, b, m,
                                 continuous_area_raw_lfm, stats, err,
                                 mechanical_mode ? t : std::numeric_limits<double>::quiet_NaN(),
-                                mechanical_mode ? theta : std::numeric_limits<double>::quiet_NaN(),
-                                grid_reference_time)) {
+                                theta_true, grid_reference_time)) {
                             std::cerr << "[stage2][ERR] " << err << "\n";
                             return 1;
                         }
@@ -1185,7 +1215,7 @@ int generateStage2Data(const Stage2RunConfig &run)
                             period_id, b, m,
                             global.beam_gain_threshold, stats,
                             mechanical_mode ? t : std::numeric_limits<double>::quiet_NaN(),
-                            mechanical_mode ? theta : std::numeric_limits<double>::quiet_NaN());
+                            theta_true);
                     }
 
                     if (cfg.scene.noise.enabled &&
@@ -1265,8 +1295,8 @@ int generateStage2Data(const Stage2RunConfig &run)
                             packet, cfg.radar, global, period_target,
                             period_id, mechanical_mode ? -1 : b, m,
                             &target_background_packet,
-                            mechanical_mode ? t : std::numeric_limits<double>::quiet_NaN(),
-                            mechanical_mode ? theta : std::numeric_limits<double>::quiet_NaN(),
+                            t,
+                            theta_true,
                             !mechanical_mode,
                             mechanical_mode ? period_id : -1,
                         mechanical_mode ? m : -1,
@@ -1301,7 +1331,7 @@ int generateStage2Data(const Stage2RunConfig &run)
                             std::max(1.0e-300, pt.beam_gain));
                         mechanical_prt_truth
                             << pt.target_name << ',' << period_id << ',' << m << ','
-                            << std::setprecision(17) << t << ',' << theta << ",0,"
+                            << std::setprecision(17) << t << ',' << theta_true << ",0,"
                             << pt.geom.target_azimuth_deg << ','
                             << pt.geom.angle_error_deg << ',' << gain_db << ','
                             << pt.geom.range_m << ',' << pt.af_total_truth_hz << ','
@@ -1314,7 +1344,7 @@ int generateStage2Data(const Stage2RunConfig &run)
                 const ChannelImpairmentRealization impairment =
                     applyChannelImpairments(
                         packet, cfg.radar, cfg.impairments,
-                        period_id, b, m, theta,
+                        period_id, b, m, theta_reported,
                         cfg.sim.random_seed);
                 if (impairment_truth) {
                     impairment_truth
@@ -1332,6 +1362,18 @@ int generateStage2Data(const Stage2RunConfig &run)
                         << impairment.added_noise_sigma_ch2 << ','
                         << (impairment.channel_dropped ? 1 : 0) << ','
                         << impairment.saturated_sample_count << '\n';
+                }
+
+                if (servo_angle_truth) {
+                    const gmti::new_protocol::HeaderSample header =
+                        gmti::new_protocol::readHeaderSample(packet.data());
+                    servo_angle_truth
+                        << period_id << ',' << (mechanical_mode ? -1 : b) << ','
+                        << (mechanical_mode ? 0 : b + 1) << ',' << m << ','
+                        << prt_counter << ',' << std::setprecision(17) << t << ','
+                        << theta_reported << ',' << theta_true << ','
+                        << cfg.servo_angle_error.true_minus_reported_deg << ','
+                        << header.theta_cmd_deg << ',' << cfg.scan_mode << '\n';
                 }
 
                 zeroFpgaPadding(packet, cfg.radar, cfg.acquired_pulse_len);
@@ -1374,9 +1416,12 @@ int generateStage2Data(const Stage2RunConfig &run)
                             break;
                         }
                     }
-                    const double az_start = mechanicalServoAzimuth(cfg, start);
-                    const double az_center = mechanicalServoAzimuth(cfg, center);
-                    const double az_end = mechanicalServoAzimuth(cfg, end);
+                    const double az_start = trueServoAzimuth(
+                        cfg, mechanicalServoAzimuth(cfg, start));
+                    const double az_center = trueServoAzimuth(
+                        cfg, mechanicalServoAzimuth(cfg, center));
+                    const double az_end = trueServoAzimuth(
+                        cfg, mechanicalServoAzimuth(cfg, end));
                     mechanical_cpi_truth
                         << pt.target_name << ',' << period_id << ',' << window_id
                         << ',' << start << ',' << end << ','
@@ -1544,6 +1589,11 @@ int generateStage2Data(const Stage2RunConfig &run)
         std::ofstream log(joinPath(joinPath(run.output_dir, "logs"), "simulate_stage2.log").c_str());
         log << "case_id=" << run.case_id << "\n";
         log << "scene_mode=" << run.scene_mode << "\n";
+        log << "scan_mode=" << cfg.scan_mode << "\n";
+        log << "servo_angle_error_enabled="
+            << (cfg.servo_angle_error.enabled ? 1 : 0) << "\n";
+        log << "servo_true_minus_reported_deg="
+            << cfg.servo_angle_error.true_minus_reported_deg << "\n";
         log << "period_start=" << cfg.sim.period_start << "\n";
         log << "period_count=" << cfg.sim.period_count << "\n";
         log << "data_layout=one_file_per_period\n";

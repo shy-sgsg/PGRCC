@@ -105,6 +105,14 @@ struct MechanicalScanStage2Config {
     int phase_center_rotation_sign = 1;
 };
 
+// A deterministic servo pointing error for the true-vs-reported pilot.  The
+// physical echo path uses theta_true = theta_reported + offset, while the
+// protocol/header and downstream processor see theta_reported.
+struct ServoAngleErrorConfig {
+    bool enabled = false;
+    double true_minus_reported_deg = 0.0;
+};
+
 struct Stage2Config {
     gmti::target_injection::RadarConfig radar;
     // FPGA packet payload can be padded beyond the physically acquired DDC
@@ -124,6 +132,7 @@ struct Stage2Config {
     // mechanical mode each period is one continuous physical servo sweep.
     std::string scan_mode = "electronic";
     MechanicalScanStage2Config mechanical_scan;
+    ServoAngleErrorConfig servo_angle_error;
     gmti::target_injection::ChannelImpairmentConfig impairments;
 };
 
