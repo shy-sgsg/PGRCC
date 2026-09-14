@@ -15,6 +15,10 @@ SPEC.loader.exec_module(PILOT)
 
 
 class ClutterOnlyServoPilotTests(unittest.TestCase):
+    def test_json_safe_preserves_boolean_configuration_values(self) -> None:
+        self.assertIs(PILOT._json_safe(True), True)
+        self.assertIs(PILOT._json_safe(False), False)
+
     def test_branch_contract_separates_estimation_and_evaluation_sources(self) -> None:
         contract = PILOT.branch_contract()
         self.assertEqual(

@@ -175,10 +175,10 @@ def _json_safe(value: Any) -> Any:
     if isinstance(value, (np.floating, float)):
         number = float(value)
         return number if math.isfinite(number) else None
-    if isinstance(value, (np.integer, int)):
-        return int(value)
     if isinstance(value, (np.bool_, bool)):
         return bool(value)
+    if isinstance(value, (np.integer, int)):
+        return int(value)
     return value
 
 
