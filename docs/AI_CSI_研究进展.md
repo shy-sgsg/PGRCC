@@ -12,9 +12,9 @@
 ```
 
 本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量、true/report 几何、
-unknown-only blind estimator、几何扩展矩阵，以及 B0/B1/B1K 生产 CUDA CSI/CFAR、
+unknown-only geometry estimator、几何扩展矩阵，以及 B0/B1/B1K 生产 CUDA CSI/CFAR、
 目标因果传递、Pfa 分母审计、信息量匹配 baseline 和 B2/B3/B3K 离线 STAP reference；
-还启动了 servo true/report pilot，没有训练 AI。机器可读证据在
+还启动了 target-assisted servo calibration pilot，没有训练 AI。机器可读证据在
 `outputs/system_error_inventory/`、`outputs/unknown_system_error_geometry_matrix_20260914_v2/`
 、`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、
 `outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、
@@ -52,10 +52,12 @@ Oracle 术语或 Router 状态当作当前待办。
 - 信息量匹配离线矩阵已完成 M0 production/controlled Current、M1 adaptive two-channel、
   M2 pair-fused equivalent two-channel、M3 native four-channel composite baseline，
   并保存 pairwise attribution；M3 的结果仍标注为算法与空间自由度混合的 scientific reference。
-- servo/beam pilot 已完成 18 个 `0, ±0.05, ±0.1, ±0.2, ±0.5° × 2 seeds` Stage2
-  paired cases 和 54 条 Core 分支；true angle 驱动回波/增益/LOS，reported angle 驱动
-  header/processing，unknown-only six-pair estimator 的 mean bias/RMSE 为
-  `-0.0108°/0.0138°`，AI/Router 保持关闭。
+- target-assisted servo calibration pilot 已完成 18 个
+  `0, ±0.05, ±0.1, ±0.2, ±0.5° × 2 seeds` Stage2 paired cases 和 54 条 Core 分支；
+  true angle 驱动回波/增益/LOS，reported angle 驱动 header/processing。estimator 使用
+  paired ON-OFF target residual、六对 phase/coherence 和 nominal target/range hypothesis，
+  mean bias/RMSE 为 `-0.0108°/0.0138°`；该结果是 offline target-assisted calibration
+  pilot，不是 online 或 target-free 能力，AI/Router 保持关闭。
 - B2/B3/B3K 是离线 `JDL-3x4 reduced STAP` scientific reference，不是生产 CUDA
   四通道 STAP；TrackManager/PIPE、平台速度/姿态 true/report、servo-specific 多场景
   Pd/Pfa 仍是后续项。
@@ -167,7 +169,7 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase3 blind geometry matrix | `run`，27/27 fit、无 fallback | `outputs/unknown_system_error_geometry_matrix_20260914_v2/matrix_summary.csv`、`single_pair_vs_six_pair.csv` |
 | Phase4 production CSI/CFAR + offline STAP | `run`，B0/B1/B1K CUDA；B2/B3/B3K offline reference | `outputs/unknown_system_error_end_to_end_20260914/production_metrics.csv`、`offline_stap_metrics.csv` |
 | Phase5 recovery/Pd/Pfa/target transfer | `run`，受控 moving-target fixture | `recovery_metrics.csv`、`target_only_transfer.csv`、`target_off_false_cluster_metrics.csv` |
-| Phase6 geometry correction + nuisance + servo pilot | 几何扩展矩阵、deadband、nuisance sweep 与 servo true/report pilot 已运行；平台速度未开始 | `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、`outputs/unknown_system_error_servo_pilot_20260914_v3/` |
+| Phase6 geometry correction + nuisance + servo pilot | 几何扩展矩阵、deadband、nuisance sweep 与 target-assisted servo calibration pilot 已运行；平台速度未开始 | `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、`outputs/unknown_system_error_servo_pilot_20260914_v3/` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实

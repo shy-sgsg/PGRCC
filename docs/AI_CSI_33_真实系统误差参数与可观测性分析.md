@@ -6,8 +6,8 @@
 > Phase0 是 paired-reference baseline-phase sanity pilot；Phase1–3 是 blind
 > true-geometry estimator/matrix；Phase4–5 已完成 B0/B1/B1K 生产 CUDA CSI/CFAR、
 > B2/B3/B3K 离线 STAP reference、bias/Pfa/target-transfer 和信息量匹配审计；
-> Phase6 已启动独立 servo true/report pilot。B2/B3 仍不是生产 CUDA 四通道 STAP，
-> servo pilot 也不是 production online estimator。旧 pilot 产物见
+> Phase6 已启动独立 target-assisted servo calibration pilot。B2/B3 仍不是生产 CUDA
+> 四通道 STAP；该 servo pilot 也不是 production online estimator。旧 pilot 产物见
 > `outputs/unknown_system_error_pilot_20260913_v5/`，本轮产物见
 > `outputs/unknown_system_error_pilot_20260914_clean/`、
 > `outputs/unknown_system_error_geometry_matrix_20260914_v2/`、
@@ -384,7 +384,7 @@ Laptop GPU、driver 580.173.02、CUDA 13.0，约 50°C、P8、6W/80W；runtime �
 5. 只有确定性估计残差稳定且难以解析后，才重新评估 Physics-AI；当前 `ai_training=false`，
    不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
-### 7.5 Phase6 servo true/report pilot
+### 7.5 Phase6 target-assisted servo calibration pilot
 
 在 Phase3/4 clean-source formal 证据稳定后，新增
 `servo_angle_error.enabled` 和 `true_minus_reported_deg`。v3 formal 运行从 clean
@@ -402,6 +402,12 @@ mean absolute error、max absolute error 分别为 `−0.01079°`、`0.01385°`�
 导出 `0.0143846°` deadband，均返回 `NO_CORRECTION_NEEDED`；其余 16 条返回
 `APPLY_ESTIMATED_CORRECTION`，无 `FALLBACK_UNIDENTIFIABLE`。
 
+该 estimator 的信息条件是 target-assisted：拟合输入包含 paired ON-OFF target residual、
+六对 cross-channel phase/coherence、reported header beam angle 和 configured nominal
+target/range hypothesis。它不读取 `servo_angle_truth.csv` 或 known offset 来拟合 servo
+估计；这些字段只用于分离 invariant 与结果评价。因此这组数字不能解释为 target-free
+servo calibration 能力。
+
 54/54 production Core 分支 exit code 和内部 beam-quality gate 均有效，且 18/18
 known correction 副本的 payload byte/hash 不变；16 条 unknown correction 只在 header
 副本上修改，2 条 deadband fallback 直接复用 Current raw file。估计器不读取
@@ -409,9 +415,9 @@ known correction 副本的 payload byte/hash 不变；16 条 unknown correction 
 INS aperture、缺少 clutter support 和 zero-range 几何奇异点，修正为 130 PRT、paired
 clutter 与 1 µs 正采样起点后才得到 v3 completed。
 
-该 pilot 仍是 deterministic offline estimator，不宣称 servo-specific Pd/Pfa、完整
-TrackManager/PIPE 保持或 online deployment；baseline geometry 与 servo 的联合混淆、
-platform velocity/姿态后续单独处理。
+该 pilot 仍是 deterministic offline target-assisted calibration，不是 online deployment
+estimator；不宣称 servo-specific Pd/Pfa、完整 TrackManager/PIPE 保持或 target-free
+泛化。baseline geometry 与 servo 的联合混淆、platform velocity/姿态后续单独处理。
 
 ## 8. 后续阶段顺序
 
@@ -453,5 +459,8 @@ platform velocity/姿态后续单独处理。
   `outputs/unknown_system_error_pfa_formal_reference_20260914_v2/`
 - information-matched baseline：`outputs/unknown_system_error_information_matched_baseline_20260914_v1/`，
   以及其 `pairwise_postprocess_manifest.json`
-- servo true/report pilot：`outputs/unknown_system_error_servo_pilot_20260914_v3/manifest.json`、
+- target-assisted servo calibration pilot：canonical runner
+  `scripts/run_target_assisted_servo_calibration_pilot.py`（旧命令
+  `scripts/run_unknown_system_error_servo_pilot.py` 保持兼容），结果见
+  `outputs/unknown_system_error_servo_pilot_20260914_v3/manifest.json`、
   `servo_estimates.csv`、`servo_decisions.csv`、`core_metrics.csv`
