@@ -229,10 +229,10 @@ def _find_period_file(case_dir: Path) -> Path:
     return path
 
 
-def _run_stage2(config_path: Path, log_path: Path) -> tuple[int, float]:
-    if not SIMULATOR.is_file():
-        raise RuntimeError(f"missing simulator: {SIMULATOR}")
-    command = [str(SIMULATOR), "--config", str(config_path)]
+def _run_stage2(simulator: Path, config_path: Path, log_path: Path) -> tuple[int, float]:
+    if not simulator.is_file():
+        raise RuntimeError(f"missing simulator: {simulator}")
+    command = [str(simulator), "--config", str(config_path)]
     log_path.parent.mkdir(parents=True, exist_ok=True)
     start = time.perf_counter()
     with log_path.open("w", encoding="utf-8") as log:
@@ -524,7 +524,9 @@ def run_matrix(
                     "config_sha256": _sha256(config_path),
                 })
                 print(f"[matrix] {case_index}/{total} {case_id} start", flush=True)
-                rc, runtime_sec = _run_stage2(config_path, log_dir / f"{case_id}.log")
+                rc, runtime_sec = _run_stage2(
+                    simulator, config_path, log_dir / f"{case_id}.log"
+                )
                 base_row: dict[str, object] = {
                     "case_id": case_id,
                     "seed": seed,
