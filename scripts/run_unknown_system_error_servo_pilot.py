@@ -228,7 +228,10 @@ def _prepare_template(template: Mapping[str, object]) -> dict[str, object]:
         "range_fft_len": 8192,
         "range_crop_start": 0,
         "range_crop_len": 4096,
-        "sample_delay_us": 0.0,
+        # Geometry compensation requires a strictly positive range at bin 0;
+        # 1 us keeps the target in the compact 5--12 km scene while avoiding
+        # an undefined 1/range phase factor.
+        "sample_delay_us": 1.0,
     })
     random_cfg = config.setdefault("random", {})
     if not isinstance(random_cfg, dict):
