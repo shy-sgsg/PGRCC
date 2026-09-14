@@ -12,6 +12,7 @@
 > `outputs/unknown_system_error_pilot_20260914_clean/`、
 > `outputs/unknown_system_error_geometry_matrix_20260914_v2/`、
 > `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、
+> `outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、
 > `outputs/unknown_system_error_end_to_end_20260914_formal_v4/`、
 > `outputs/unknown_system_error_pfa_audit_20260914_v8/` 和
 > `outputs/unknown_system_error_servo_pilot_20260914_v3/`。
@@ -277,7 +278,7 @@ OFF 多波位拟合得到 `0.009999999925 m`，绝对估计误差约 `7.5e-11 m`
 `operational_blind=false`、`estimator_mode=paired_ideal_reference`；因此只能作为
 Phase0 的 baseline-phase sanity，不能作为线上估计器或 CSI/STAP 结果。
 
-## 7. Phase1–5 实际运行结果（2026-09-14）
+## 7. Phase1–6 实际运行结果（2026-09-14）
 
 ### 7.1 Phase1/2 blind estimator 与 true/report geometry
 
@@ -315,6 +316,25 @@ mean absolute residual 0.000282 rad，pair consistency 均值/最大值为 0.037
 零误差 case 仍稳定返回约 0.16 mm，而不是静默伪造零值；这属于当前受控 fixture 的
 系统偏置，不能写成“无偏估计”。
 
+扩展 formal matrix 改用 `[0, ±0.5, ±1, ±2.5, ±5, ±10] mm × 3 seeds`，共 33/33
+case fit，无 failure/fallback；各水平的结果和 4000 次 bootstrap CI 保存在
+`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`。零误差
+six-pair 平均估计 `0.15917 mm`，最大绝对误差 `0.16500 mm`；各非零水平的误差主要
+保持在约 `0.15–0.18 mm`，因此 deadband 取自独立 zero-baseline sensitivity audit，
+而不是事后把矩阵结果减去一个经验常数。
+
+独立 one-factor-at-a-time nuisance sweep 从 clean source `dfe7b67` 导出运行，固定
+三 seed、三 geometry level `[0, ±2.5] mm`，覆盖固定相位 `0/8/16°`、增益失配
+`0/0.35/0.70 dB`、噪声功率 `0.0001/0.001/0.01`、纹理标准差 `0/0.1/0.3`、角域
+半宽 `10/15/20°` 和标定距离 `8800/9000/9600 m`，共 18 profiles、162/162 case
+fit，无 failure/fallback。固定相位、增益和纹理在该 fixture 下保持约 `+0.159 mm`
+零点 bias；噪声功率升到 `0.01` 时零点 bias 降至约 `+0.055 mm`，但这是观测质量/随机
+误差敏感性，不能解释为校正；角域半宽 `10°` 的零点 bias 约 `+0.169 mm`；标定距离
+`8800/9600 m` 分别产生约 `−0.496/−0.300 mm` bias，而 `9000 m` 为约 `+0.159 mm`。
+因此距离/角域和噪声必须作为报告 nuisance 记录，不能把固定 fixture 的 `0.165 mm`
+deadband 直接外推到所有工作点。raw IQ 按 runner 策略在每个 nested matrix 后删除，
+保留配置、日志、raw SHA、估计 JSON、汇总 CSV 和 manifest。
+
 ### 7.3 Phase4 端到端 CUDA/离线 reference
 
 正式 E2E 覆盖 3 个 moving-target velocity：`(-3,2)`、`(-6,4)`、`(-12,8) m/s`。
@@ -348,10 +368,10 @@ P95/P99 与 background Pfa 略变差，因此不能把 B3 概括为全面提升�
 
 ### 7.4 运行边界与下一步
 
-本轮 E2E 运行的 raw/production 结果 manifest 记录的是源码 commit `3e0183e` 加 dirty
-worktree（计时修补已包含在该运行源码中）；实现随后收敛并提交为 `823ebae`，Phase0
-clean rerun 已用该 commit 复核 provenance。正式 E2E 使用 RTX 3050、driver
-580.173.02、CUDA 13.0，P8、51°C、6W/80W；runtime 使用 `main_total` timing scope。
+正式 E2E 使用 clean source commit `c580131`、`worktree_dirty_before=false`，RTX 3050
+Laptop GPU、driver 580.173.02、CUDA 13.0，约 50°C、P8、6W/80W；runtime 使用
+`main_total` timing scope。历史 exploratory 目录仍保留，但不与该 formal provenance
+混用。
 
 仍未完成且不能由本阶段替代的部分：
 
@@ -395,13 +415,12 @@ platform velocity/姿态后续单独处理。
 
 ## 8. 后续阶段顺序
 
-1. 完成六 pair compact observable 的只读分析和质量字段；
-2. 补齐基线误差的四通道/多波位忠实注入与已知误差校正；
-3. 在已有 raw-IQ pilot 之上做小规模四条件 CPU/最小 CUDA 回放，先验证相位模型和闭合相位；
-4. 接入 Current CSI 与四通道 STAP 的端到端及信息量匹配比较；
-5. servo true/report pilot 已启动；下一步单独扩展平台速度/姿态 true/report，最后再判断
-   确定性估计是否不足；
-6. 只有第 5 步之后仍存在稳定、可量化且难以解析的残差，才评估 Physics-AI。
+1. 保持已完成的六-pair observables、bias/deadband、nuisance 和目标/Pfa 审计可复现；
+2. 单独建立平台速度/姿态的 true/report state，再做与几何/servo 的耦合可辨识性 pilot；
+3. 扩展 servo-specific 多场景 Pd/Pfa、TrackManager/PIPE 目标保持和生产 CUDA 四通道
+   STAP 边界；
+4. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
+   `ai_training=false`，不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 ## 9. 证据入口
 
@@ -428,6 +447,7 @@ platform velocity/姿态后续单独处理。
 - bias exact-path audit：`outputs/unknown_system_error_geometry_bias_audit_20260914_v1/`
 - deadband/sensitivity audit：`outputs/unknown_system_error_geometry_deadband_audit_20260914_v2/`
 - extended geometry formal matrix：`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`
+- independent nuisance sweep：`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`
 - causal target transfer：`outputs/unknown_system_error_target_transfer_audit_20260914_v2/`
 - empirical Pfa controls：`outputs/unknown_system_error_pfa_audit_20260914_v8/`、
   `outputs/unknown_system_error_pfa_formal_reference_20260914_v2/`
