@@ -84,6 +84,17 @@ class ServoGmtiE2EContractTests(unittest.TestCase):
         signatures = [E2E.production_cfar_signature(settings) for _ in ("S0", "S1", "S1K", "Sassist")]
         self.assertEqual(len(set(signatures)), 1)
 
+    def test_internal_core_quality_failure_is_not_reported_as_completed(self) -> None:
+        self.assertEqual(E2E.pilot_status(True, []), "completed")
+        self.assertEqual(
+            E2E.pilot_status(False, [{"status": "completed"}]),
+            "completed",
+        )
+        self.assertEqual(
+            E2E.pilot_status(False, [{"status": "completed_with_internal_quality_failure"}]),
+            "completed_with_failed_core",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -126,6 +126,13 @@ def production_cfar_signature(settings: Mapping[str, object]) -> str:
     return json.dumps(_json_safe(settings), sort_keys=True, separators=(",", ":"))
 
 
+def pilot_status(skip_core: bool, core_rows: Sequence[Mapping[str, object]]) -> str:
+    """Classify completion without hiding an internal Core quality failure."""
+
+    core_success = skip_core or all(row.get("status") == "completed" for row in core_rows)
+    return "completed" if core_success else "completed_with_failed_core"
+
+
 def estimator_input_audit(
     branch: str,
     input_paths: Sequence[str | Path],
@@ -1063,7 +1070,7 @@ def run_pilot(
     source_status_after = _git("status", "--short", "--untracked-files=all")
     manifest: dict[str, object] = {
         "schema": "servo_gmti_moving_target_e2e_v1",
-        "status": "completed",
+        "status": pilot_status(skip_core, core_rows),
         "ai_training": False,
         "ai_router": False,
         "scene_contract": contract,
