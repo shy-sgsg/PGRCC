@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib.util
 import json
 import math
 import struct
@@ -21,7 +22,17 @@ from typing import Dict, Iterable, Iterator, List, Mapping, Optional, Sequence, 
 import numpy as np
 
 
-C = 299_792_458.0
+_GEOMETRY_MODEL_SPEC = importlib.util.spec_from_file_location(
+    "pgrcc_finite_range_geometry_model",
+    Path(__file__).with_name("finite_range_geometry_model.py"),
+)
+if _GEOMETRY_MODEL_SPEC is None or _GEOMETRY_MODEL_SPEC.loader is None:
+    raise RuntimeError("cannot load finite_range_geometry_model.py")
+GEOMETRY_MODEL = importlib.util.module_from_spec(_GEOMETRY_MODEL_SPEC)
+_GEOMETRY_MODEL_SPEC.loader.exec_module(GEOMETRY_MODEL)
+
+
+C = float(GEOMETRY_MODEL.C)
 HEADER_BYTES = 256
 # Kept only for backwards-compatible unit-level calls.  File analysis and
 # research runners must pass the reported geometry parsed from their config;
@@ -41,7 +52,7 @@ HORIZONTAL_PAIRS = ("C12", "C14", "C23", "C34")
 def _wrap_phase(value: float) -> float:
     """Return a phase in [-pi, pi]."""
 
-    return math.atan2(math.sin(value), math.cos(value))
+    return float(GEOMETRY_MODEL.wrap_phase(value))
 
 
 def _phase_or_none(value: complex) -> Optional[float]:
@@ -392,52 +403,25 @@ def _nominal_los_unit(
     range_sample: float,
     metadata: Mapping[str, object],
 ) -> np.ndarray:
-    waveform = metadata.get("waveform", {})
-    platform = metadata.get("platform", {})
-    geometry = metadata.get("simulation_geometry", {})
-    if "fs_hz" in waveform:
-        fs_hz = float(waveform["fs_hz"])
-    elif "fs_mhz" in waveform:
-        fs_hz = float(waveform["fs_mhz"]) * 1.0e6
-    else:
-        fs_hz = float(metadata.get("fs_hz", 60.0))
-    if "sample_delay_sec" in waveform:
-        sample_delay_sec = float(waveform["sample_delay_sec"])
-    elif "sample_delay_us" in metadata.get("range_processing", {}):
-        sample_delay_sec = float(
-            metadata["range_processing"]["sample_delay_us"]
-        ) * 1.0e-6
-    else:
-        sample_delay_sec = float(metadata.get("sample_delay_us", 0.0)) * 1.0e-6
-    slant_range = 0.5 * C * (float(range_sample) / fs_hz + sample_delay_sec)
-    if not math.isfinite(slant_range) or slant_range <= 0.0:
-        return np.full(3, np.nan, dtype=np.float64)
-    height = float(platform.get("height_m", metadata.get("platform_height_m", 6000.0)))
-    ground_z = float(metadata.get("scene", {}).get("ground_z_m", 0.0))
-    ground_range = slant_range
-    range_geometry = str(
-        geometry.get("range_geometry", metadata.get("range_geometry", "algorithm"))
-    )
-    use_ground = bool(
-        geometry.get("use_ground_range_for_position", True)
-    )
-    if use_ground and range_geometry != "slant":
-        ground_range = math.sqrt(
-            max(0.0, slant_range * slant_range - (height - ground_z) ** 2)
+    try:
+        slant_range = GEOMETRY_MODEL.slant_range_from_sample_m(
+            range_sample, metadata
         )
-    horizontal = _local_look_vector(theta_deg, metadata)
-    los = np.array(
-        [
-            horizontal[0] * ground_range / slant_range,
-            horizontal[1] * ground_range / slant_range,
-            (ground_z - height) / slant_range,
-        ],
-        dtype=np.float64,
-    )
-    norm = float(np.linalg.norm(los))
-    if norm <= 0.0 or not math.isfinite(norm):
+        platform = metadata.get("platform", {})
+        if not isinstance(platform, Mapping):
+            raise ValueError("metadata.platform must be an object")
+        height = float(platform.get("height_m", metadata.get("platform_height_m", 6000.0)))
+        return np.asarray(
+            GEOMETRY_MODEL.reported_los_unit(
+                theta_deg,
+                slant_range,
+                [0.0, 0.0, height],
+                metadata,
+            ),
+            dtype=np.float64,
+        )
+    except (TypeError, ValueError):
         return np.full(3, np.nan, dtype=np.float64)
-    return los / norm
 
 
 def exact_receive_channel_path_length(
@@ -453,24 +437,13 @@ def exact_receive_channel_path_length(
     geometry and its nominal LOS model.
     """
 
-    target = np.asarray(target_position_m, dtype=np.float64)
-    platform = np.asarray(platform_position_m, dtype=np.float64)
-    channel = np.asarray(channel_position_m, dtype=np.float64)
-    if (
-        target.shape != (3,)
-        or platform.shape != (3,)
-        or channel.shape != (3,)
-        or not np.all(np.isfinite(target))
-        or not np.all(np.isfinite(platform))
-        or not np.all(np.isfinite(channel))
-    ):
-        raise ValueError("target, platform, and channel positions must be finite 3-vectors")
-    transmit_range = float(np.linalg.norm(target - platform))
-    receive_range = float(np.linalg.norm(target - (platform + channel)))
-    path = transmit_range + receive_range
-    if not math.isfinite(path) or path <= 0.0:
-        raise ValueError("exact receive path must be positive and finite")
-    return path
+    return float(
+        GEOMETRY_MODEL.finite_range_channel_path_m(
+            target_position_m,
+            platform_position_m,
+            channel_position_m,
+        )
+    )
 
 
 def exact_pair_phase_rad(
@@ -492,14 +465,20 @@ def exact_pair_phase_rad(
     if not math.isfinite(carrier_phase_sign):
         raise ValueError("carrier_phase_sign must be finite")
     wavelength = C / float(fc_hz)
-    path_i = exact_receive_channel_path_length(
+    path_i = GEOMETRY_MODEL.finite_range_channel_path_m(
         target_position_m, platform_position_m, positions[i]
     )
-    path_j = exact_receive_channel_path_length(
+    path_j = GEOMETRY_MODEL.finite_range_channel_path_m(
         target_position_m, platform_position_m, positions[j]
     )
-    return _wrap_phase(
-        float(carrier_phase_sign) * 2.0 * math.pi * (path_i - path_j) / wavelength
+    return float(
+        GEOMETRY_MODEL.wrap_phase(
+            float(carrier_phase_sign)
+            * 2.0
+            * math.pi
+            * (path_i - path_j)
+            / wavelength
+        )
     )
 
 
@@ -526,18 +505,24 @@ def nominal_pair_phase_rad(
             fc_hz *= 1.0e9
     if not math.isfinite(float(fc_hz)) or float(fc_hz) <= 0.0:
         raise ValueError("fc_hz must be positive and finite")
-    los = _nominal_los_unit(theta_deg, range_sample, metadata)
-    if not np.all(np.isfinite(los)):
-        raise ValueError("nominal LOS is not finite for the supplied theta/range")
-    carrier_phase_sign = float(metadata.get("carrier_phase_sign", -1.0))
-    if not math.isfinite(carrier_phase_sign):
-        raise ValueError("carrier_phase_sign must be finite")
-    return _wrap_phase(
-        carrier_phase_sign
-        * 2.0
-        * math.pi
-        * float(np.dot(los, positions[j] - positions[i]))
-        / (C / float(fc_hz))
+    platform = metadata.get("platform", {})
+    if not isinstance(platform, Mapping):
+        raise ValueError("metadata.platform must be an object")
+    height = float(platform.get("height_m", metadata.get("platform_height_m", 6000.0)))
+    slant_range = GEOMETRY_MODEL.slant_range_from_sample_m(
+        range_sample, metadata
+    )
+    return float(
+        GEOMETRY_MODEL.linear_pair_phase_rad(
+            theta_deg,
+            slant_range,
+            [0.0, 0.0, height],
+            positions,
+            i,
+            j,
+            float(fc_hz),
+            metadata,
+        )
     )
 
 
