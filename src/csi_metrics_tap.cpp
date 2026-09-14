@@ -403,6 +403,8 @@ bool writeCsiMetricsTap(const Config& cfg,
     std::vector<float> channel2_imag(total);
     std::vector<float> csi_after_real(total);
     std::vector<float> csi_after_imag(total);
+    std::vector<float> detector_input_real(total);
+    std::vector<float> detector_input_imag(total);
     std::vector<float> ctdr_channel1_real(total);
     std::vector<float> ctdr_channel1_imag(total);
     std::vector<float> ctdr_channel2_real(total);
@@ -470,6 +472,8 @@ bool writeCsiMetricsTap(const Config& cfg,
             detector_input[i] = in_csi_band ? csi_after[i] : channel2[i];
         }
         after_power[i] = std::norm(detector_input[i]);
+        detector_input_real[i] = detector_input[i].real();
+        detector_input_imag[i] = detector_input[i].imag();
         // This is the exact pre-CSI CTDR interferometric pair from which the
         // production raw phase map is captured.  It is a diagnostics-only
         // tap used to validate the phase/angle uncertainty model.
@@ -574,10 +578,10 @@ bool writeCsiMetricsTap(const Config& cfg,
                 !writeNpyFloat32(channel2_imag_path, channel2_imag,
                                  static_cast<std::size_t>(rows),
                                  static_cast<std::size_t>(cols), error) ||
-                !writeNpyFloat32(after_real_path, csi_after_real,
+                !writeNpyFloat32(after_real_path, detector_input_real,
                                  static_cast<std::size_t>(rows),
                                  static_cast<std::size_t>(cols), error) ||
-                !writeNpyFloat32(after_imag_path, csi_after_imag,
+                !writeNpyFloat32(after_imag_path, detector_input_imag,
                                  static_cast<std::size_t>(rows),
                                  static_cast<std::size_t>(cols), error) ||
                 !writeNpyFloat32(csi_after_real_path, csi_after_real,
