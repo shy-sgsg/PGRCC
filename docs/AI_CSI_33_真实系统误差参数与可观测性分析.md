@@ -419,12 +419,55 @@ clutter 与 1 µs 正采样起点后才得到 v3 completed。
 estimator；不宣称 servo-specific Pd/Pfa、完整 TrackManager/PIPE 保持或 target-free
 泛化。baseline geometry 与 servo 的联合混淆、platform velocity/姿态后续单独处理。
 
+### 7.6 Phase6 target-free clutter-only servo formal
+
+为验证“只用目标自由的 C+N 多通道观测”是否足以支持伺服角估计，新增
+`scripts/estimate_clutter_only_servo.py` 与
+`scripts/run_clutter_only_servo_pilot.py`。S1 的 estimator 输入固定为 OFF raw
+文件和 reported context；代码审计拒绝 ON、ON-OFF 差分、target truth、known error
+和 servo truth。Sassist 保留为单独的 target-assisted 对照，S0/S1K 仅作评价分支。
+
+formal 命令为：
+
+```bash
+python3 scripts/run_clutter_only_servo_pilot.py \
+  --output outputs/clutter_only_servo_formal_compact_v2_20260914 \
+  --errors-deg 0,0.05,-0.05,0.1,-0.1,0.2,-0.2,0.5,-0.5 \
+  --seeds 101,202 --textures low_texture high_texture \
+  --ranges-m 7500,10000 --skip-core
+```
+
+该矩阵包含 72 个 Stage2 case、144 条估计行和 288 条决策行；所有 Stage2 exit code
+为 0。S1 的 72/72 行均为 `FALLBACK_MODEL_MISMATCH`，原因是 phase、Doppler ridge、
+P38 slope 和 multi-beam power 四个 feature family 未通过一致性 gate；因此没有一条
+S1 estimate 被用于校正，72/72 决策为 `KEEP_CURRENT`。其输入路径逐行为 OFF only，
+四个禁用信息标志均为 false，未产生 target-free 能力的正向 claim。
+
+Sassist 的 72/72 行均为 `VALID`，相对注入 `true_minus_reported_deg` 的 bias/RMSE/MAE
+分别为 `−0.00817°/0.06691°/0.04788°`。low/high texture 的 RMSE 分别为
+`0.03954°/0.08597°`，7.5/10 km 的 RMSE 分别为 `0.08147°/0.04813°`。这些数字
+只描述 paired ON-OFF target-assisted reference，不能转写为 S1 clutter-only 结果。
+
+formal estimator matrix 使用显式标记的 compact input（4096 samples、8 PRT、4096
+range crop），manifest 中 `core_skipped=true`、`compact_estimator_input=true`，所以
+不作为生产 Core 性能或 Pd/Pfa 证据。为验证修复后的生产链路，另跑了
+`outputs/clutter_only_servo_cuda_smoke_boolfix_20260914/`：2 cases × 4 branches 共
+8/8 `GMTI_core` 成功，内部 beam-quality gate 全部 valid；GPU 查询为 RTX 3050 Laptop
+GPU、driver 580.173.02、CUDA 13.0、P8、49°C、6.26 W/80 W。该 smoke 仍不含目标保持
+统计，Core 的 CFAR 配置字段出现 `pf=1e-6` 也不等于实测 Pfa 已达标。
+
+早期错误配置/中断目录保留为审计现场，但不进入上述结论：
+`clutter_only_servo_formal_20260914/`（boolean 配置序列化错误）、
+`clutter_only_servo_formal_v2_20260914/`（旧输入矩阵中断）、
+`clutter_only_servo_formal_compact_20260914/`（range crop 约束失败）。
+
 ## 8. 后续阶段顺序
 
 1. 保持已完成的六-pair observables、bias/deadband、nuisance 和目标/Pfa 审计可复现；
-2. 单独建立平台速度/姿态的 true/report state，再做与几何/servo 的耦合可辨识性 pilot；
-3. 扩展 servo-specific 多场景 Pd/Pfa、TrackManager/PIPE 目标保持和生产 CUDA 四通道
-   STAP 边界；
+2. 建立 moving-target 的 OFF-only servo E2E，再单独建立平台速度/姿态的 true/report
+   state，做与几何/servo 的耦合可辨识性 pilot；
+3. 完成 Pfa H0–H5 分母闭环、servo-specific 多场景 Pd/Pfa、TrackManager/PIPE 目标保持
+   和生产 CUDA 四通道 STAP 边界；
 4. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
    `ai_training=false`，不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
@@ -464,3 +507,8 @@ estimator；不宣称 servo-specific Pd/Pfa、完整 TrackManager/PIPE 保持或
   `scripts/run_unknown_system_error_servo_pilot.py` 保持兼容），结果见
   `outputs/unknown_system_error_servo_pilot_20260914_v3/manifest.json`、
   `servo_estimates.csv`、`servo_decisions.csv`、`core_metrics.csv`
+- target-free clutter-only servo formal：
+  `outputs/clutter_only_servo_formal_compact_v2_20260914/manifest.json`、
+  `servo_estimates.csv`、`servo_decisions.csv`、`aggregate_metrics.csv`；修复后 CUDA
+  smoke：`outputs/clutter_only_servo_cuda_smoke_boolfix_20260914/manifest.json`、
+  `core_metrics.csv`

@@ -19,7 +19,8 @@ unknown-only geometry estimator、几何扩展矩阵，以及 B0/B1/B1K 生产 C
 、`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、
 `outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、
 `outputs/unknown_system_error_end_to_end_20260914_formal_v4/` 和
-`outputs/unknown_system_error_servo_pilot_20260914_v3/`，详细边界见
+`outputs/unknown_system_error_servo_pilot_20260914_v3/`；clutter-only servo formal
+矩阵另见 `outputs/clutter_only_servo_formal_compact_v2_20260914/`，详细边界见
 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
 
 当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
@@ -58,6 +59,13 @@ Oracle 术语或 Router 状态当作当前待办。
   paired ON-OFF target residual、六对 phase/coherence 和 nominal target/range hypothesis，
   mean bias/RMSE 为 `-0.0108°/0.0138°`；该结果是 offline target-assisted calibration
   pilot，不是 online 或 target-free 能力，AI/Router 保持关闭。
+- target-free clutter-only servo formal 已完成 72 个 Stage2 case（9 个误差 × 2 seed
+  × 2 texture × 2 range），S1 全部 72/72 因 feature-family disagreement 触发
+  `FALLBACK_MODEL_MISMATCH` 并保持 Current；S1 的输入审计为 OFF C+N only，未使用
+  target truth、ON-OFF 差分、known error 或 servo truth。独立的 Sassist 72/72 为
+  `VALID`，bias/RMSE=`−0.00817°/0.06691°`，但它是 target-assisted 参考，不能归入
+  clutter-only 能力。formal 只跳过 Core 并使用显式 compact estimator input；修复后
+  2-case CUDA smoke 的四分支 8/8 Core 成功，均不构成生产性能或 Pd/Pfa 结论。
 - B2/B3/B3K 是离线 `JDL-3x4 reduced STAP` scientific reference，不是生产 CUDA
   四通道 STAP；TrackManager/PIPE、平台速度/姿态 true/report、servo-specific 多场景
   Pd/Pfa 仍是后续项。
@@ -169,7 +177,7 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase3 blind geometry matrix | `run`，27/27 fit、无 fallback | `outputs/unknown_system_error_geometry_matrix_20260914_v2/matrix_summary.csv`、`single_pair_vs_six_pair.csv` |
 | Phase4 production CSI/CFAR + offline STAP | `run`，B0/B1/B1K CUDA；B2/B3/B3K offline reference | `outputs/unknown_system_error_end_to_end_20260914/production_metrics.csv`、`offline_stap_metrics.csv` |
 | Phase5 recovery/Pd/Pfa/target transfer | `run`，受控 moving-target fixture | `recovery_metrics.csv`、`target_only_transfer.csv`、`target_off_false_cluster_metrics.csv` |
-| Phase6 geometry correction + nuisance + servo pilot | 几何扩展矩阵、deadband、nuisance sweep 与 target-assisted servo calibration pilot 已运行；平台速度未开始 | `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、`outputs/unknown_system_error_servo_pilot_20260914_v3/` |
+| Phase6 geometry correction + nuisance + servo pilot | 几何扩展矩阵、deadband、nuisance sweep、target-assisted pilot 与 target-free clutter-only formal 已运行；S1 当前全 fallback；平台速度未开始 | `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、`outputs/unknown_system_error_servo_pilot_20260914_v3/`、`outputs/clutter_only_servo_formal_compact_v2_20260914/` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
@@ -300,7 +308,8 @@ Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU 
 
 ## 下一步（当前第二阶段）
 
-下一步是补齐平台速度/姿态的独立 true/report state，并在不改变已冻结 baseline 的前提下
-扩展 servo-specific 多场景 Pd/Pfa、TrackManager/PIPE 目标保持和生产 CUDA 四通道 STAP
-边界。当前不训练 MLP、Router、RD image-to-image 或通用复权残差；只有确定性估计出现
+下一步是补齐 moving-target 的 OFF-only servo E2E、平台速度/姿态的独立 true/report state、
+Pfa H0–H5 分母闭环、TrackManager/PIPE 目标保持和生产 CUDA 四通道 STAP 边界。当前
+clutter-only S1 的模型失配仍是 fallback 证据，不进入在线部署；也不训练 MLP、Router、
+RD image-to-image 或通用复权残差；只有确定性估计出现
 稳定、可量化且难以解析的残差后，才重新评估 Physics-AI。
