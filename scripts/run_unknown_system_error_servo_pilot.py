@@ -245,7 +245,19 @@ def _prepare_template(template: Mapping[str, object]) -> dict[str, object]:
     area = scene.setdefault("area_clutter", {})
     if not isinstance(area, dict):
         raise ValueError("scene.area_clutter must be an object")
-    area.update({"enabled": False, "model": "continuous_texture"})
+    # Keep a deterministic, paired clutter background so the production
+    # Doppler-center/beam-quality path has valid range support.  The estimator
+    # still uses ON-OFF, so this background is not used as a servo truth source.
+    area.update({
+        "enabled": True,
+        "model": "continuous_texture",
+        "scatterer_count": 0,
+        "mean_power": 0.1,
+        "texture_sigma": 0.2,
+        "spatial_cell_m": 30.0,
+        "temporal_correlation_rho": 1.0,
+        "azimuth_subcell_count": 3,
+    })
     noise = scene.setdefault("thermal_noise", {})
     if not isinstance(noise, dict):
         raise ValueError("scene.thermal_noise must be an object")
@@ -994,7 +1006,7 @@ def run_pilot(
         "case_records": case_records,
         "limitations": [
             "This is a deterministic estimator pilot, not a production online servo estimator.",
-            "The pilot isolates servo pointing with no receiver geometry error and no area clutter; platform velocity and coupled nuisance matrix are pending.",
+            "The pilot isolates servo pointing with no receiver geometry error; a paired continuous-texture clutter background is enabled for the production beam-quality path. Platform velocity and coupled nuisance matrix are pending.",
             "The estimator uses paired target residuals and a configured nominal target/range hypothesis; it is not a blind scene-wide detector.",
             "No causal TrackManager/PIPE acceptance or servo-specific Pd/Pfa claim is made here.",
         ],
