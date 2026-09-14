@@ -248,7 +248,7 @@ def _prepare_template(
         # or large raw pulse.  Keep this explicit and manifest it so the
         # compact input cannot be mistaken for a production Core run.
         waveform.update({"pulse_len": 4096, "pulse_num": 8})
-        range_processing.update({"range_fft_len": 4096, "range_crop_len": 2048})
+        range_processing.update({"range_fft_len": 4096, "range_crop_len": 4096})
     return config
 
 

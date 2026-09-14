@@ -26,6 +26,7 @@ class ClutterOnlyServoPilotTests(unittest.TestCase):
         self.assertEqual(config["waveform"]["pulse_len"], 4096)
         self.assertEqual(config["waveform"]["pulse_num"], 8)
         self.assertEqual(config["range_processing"]["range_fft_len"], 4096)
+        self.assertEqual(config["range_processing"]["range_crop_len"], 4096)
         self.assertFalse(config["truth_output"])
 
     def test_branch_contract_separates_estimation_and_evaluation_sources(self) -> None:
