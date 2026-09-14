@@ -58,9 +58,13 @@ __global__ void propagate_labels_kernel(const int* labels_in, int* labels_out,
 __global__ void accumulate_stats_kernel(const float* mydata, const float* phase_map,
                                         const int* labels, int total,
                                         int* counts, float* sum_cos, float* sum_sin,
-                                        float* max_power, int* max_idx,
+                                        float* max_power,
                                         bool use_phase,
                                         gmti::trig_lut_device::TrigLutConfig trig_cfg);
+__global__ void select_max_idx_kernel(const float* mydata, const int* labels,
+                                      const float* max_power, int* max_idx,
+                                      int total);
+__global__ void init_max_idx_kernel(int* max_idx, int total);
 __global__ void compute_mean_phase_kernel(const int* counts, const float* sum_cos,
                                           const float* sum_sin, float* mean_phi, int total,
                                           gmti::trig_lut_device::TrigLutConfig trig_cfg);
@@ -585,7 +589,7 @@ __global__ void propagate_labels_kernel(const int* labels_in, int* labels_out,
 __global__ void accumulate_stats_kernel(const float* mydata, const float* phase_map,
                                         const int* labels, int total,
                                         int* counts, float* sum_cos, float* sum_sin,
-                                        float* max_power, int* max_idx,
+                                        float* max_power,
                                         bool use_phase,
                                         gmti::trig_lut_device::TrigLutConfig trig_cfg)
 {
@@ -604,10 +608,33 @@ __global__ void accumulate_stats_kernel(const float* mydata, const float* phase_
     }
 
     float p = mydata[idx];
-    float old = atomic_max_float(&max_power[label], p);
-    if (p > old) {
-        atomicExch(&max_idx[label], idx);
+    atomic_max_float(&max_power[label], p);
+}
+
+// Select the peak index only after max_power has been fully reduced.  Updating
+// max_power and max_idx in separate atomics in the same kernel lets a lower
+// power thread overwrite the index after a higher power thread wins the
+// maximum, producing a power/coordinate mismatch in the compact candidate.
+// The second pass makes the association deterministic and resolves equal-power
+// ties by the lowest linear index.
+__global__ void select_max_idx_kernel(const float* mydata, const int* labels,
+                                      const float* max_power, int* max_idx,
+                                      int total)
+{
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx >= total) return;
+
+    const int label = labels[idx];
+    if (label < 0 || label >= total) return;
+    if (mydata[idx] == max_power[label]) {
+        atomicMin(&max_idx[label], idx);
     }
+}
+
+__global__ void init_max_idx_kernel(int* max_idx, int total)
+{
+    const int idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < total) max_idx[idx] = total;
 }
 
 __global__ void compute_mean_phase_kernel(const int* counts, const float* sum_cos,
@@ -2837,7 +2864,8 @@ bool GMTIProcessor::cluster_filter_gap_phase_cuda(const std::vector<float> &myda
     CUDA_CHECK(cudaMemsetAsync(d_sum_sin, 0, total * sizeof(float), stream_compute_));
     CUDA_CHECK(cudaMemsetAsync(d_sum_sq, 0, total * sizeof(float), stream_compute_));
     CUDA_CHECK(cudaMemsetAsync(d_max_power, 0, total * sizeof(float), stream_compute_));
-    CUDA_CHECK(cudaMemsetAsync(d_max_idx, 0xff, total * sizeof(int), stream_compute_));
+    init_max_idx_kernel<<<blocks, threads, 0, stream_compute_>>>(d_max_idx, total);
+    CUDA_CHECK(cudaGetLastError());
 
     const gmti::trig_lut_device::TrigLutConfig trig_cfg =
         gmtiGetDeviceTrigLutConfig();
@@ -2850,9 +2878,12 @@ bool GMTIProcessor::cluster_filter_gap_phase_cuda(const std::vector<float> &myda
         d_sum_cos,
         d_sum_sin,
         d_max_power,
-        d_max_idx,
         use_phase,
         trig_cfg);
+    CUDA_CHECK(cudaGetLastError());
+
+    select_max_idx_kernel<<<blocks, threads, 0, stream_compute_>>>(
+        d_mydata, d_labels_a, d_max_power, d_max_idx, total);
     CUDA_CHECK(cudaGetLastError());
 
     if (use_phase) {
