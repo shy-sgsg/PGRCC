@@ -461,11 +461,47 @@ GPU、driver 580.173.02、CUDA 13.0、P8、49°C、6.26 W/80 W。该 smoke 仍�
 `clutter_only_servo_formal_v2_20260914/`（旧输入矩阵中断）、
 `clutter_only_servo_formal_compact_20260914/`（range crop 约束失败）。
 
+### 7.7 Phase7 moving-target servo E2E
+
+为把 target-free S1 的 OFF-only 约束带入移动目标链路，新增
+`scripts/run_servo_gmti_e2e.py`。场景合同包含 `target_free`、`slow_near_ridge`、
+`medium` 和 `fast`；OFF 固定为 C+N calibration input，ON 仅用于 target-bearing
+evaluation，TO 仅用于 causal target-transfer evaluation。S1 不能读取 ON、TO、target
+truth、nominal target metadata、known injected servo error 或 servo truth；Sassist
+另列为 target-assisted reference，不冒充 clutter-only 能力。
+
+formal 命令为：
+
+```bash
+python3 scripts/run_servo_gmti_e2e.py \
+  --scene target_free slow_near_ridge medium fast \
+  --errors-deg 0.2,-0.2 --seeds 101,202,303 \
+  --textures low_texture high_texture --ranges-m 7500,10000 \
+  --output outputs/servo_gmti_e2e_formal_compact_20260914 --skip-core
+```
+
+该矩阵完成 96 个 case、192 条估计、384 条决策，ON/TO Stage2 各 96/96 退出成功；
+`e2e_metrics.csv` 的 1152 条记录全部标为 `not_evaluated_core_skipped`。S1 的 96/96
+条估计均来自 OFF C+N 且通过输入审计，但全部因 phase/ridge/P38/power feature-family
+disagreement 返回 `FALLBACK_MODEL_MISMATCH` 并保持 Current。target-free 的 Sassist
+为 `NOT_APPLICABLE_TARGET_FREE`；slow/medium/fast 的 Sassist 是独立 target-assisted
+参考，bias/RMSE 分别为 `0.00131°/0.10923°`、`0.00135°/0.10938°`、
+`0.00143°/0.10970°`，不转写为 S1 结果。compact formal 不评价 Core、Pd、false-hit、
+target transfer 或 TrackManager/PIPE。
+
+另有代表性 CUDA smoke：
+`outputs/servo_gmti_e2e_cuda_smoke_20260914/`，1 个 slow-near-ridge case（0.2°、seed
+101、low texture、8.75 km）× 4 branches × OFF/ON/TO，共 12 行，全部 `GMTI_core`
+exit code 为 0，生产配置签名一致；OFF/ON 的 8 行内部质量有效，TO 的 4 行均因
+`[fusion][BEAM-ERR] beam=5 slot=4 stage=doppler_center` 和 `valid=4/5 required=5`
+质量门失败。P4 target match 为 0/4、target Pd 为 0，故该 smoke 不提供正向目标保持
+结论；Core 中出现 `pf=1e-6` 也不等价于实测 Pfa 达标。
+
 ## 8. 后续阶段顺序
 
 1. 保持已完成的六-pair observables、bias/deadband、nuisance 和目标/Pfa 审计可复现；
-2. 建立 moving-target 的 OFF-only servo E2E，再单独建立平台速度/姿态的 true/report
-   state，做与几何/servo 的耦合可辨识性 pilot；
+2. 补齐 moving-target E2E 的 production Core 多场景闭环，再单独建立平台速度/姿态的
+   true/report state，做与几何/servo 的耦合可辨识性 pilot；
 3. 完成 Pfa H0–H5 分母闭环、servo-specific 多场景 Pd/Pfa、TrackManager/PIPE 目标保持
    和生产 CUDA 四通道 STAP 边界；
 4. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
@@ -512,3 +548,8 @@ GPU、driver 580.173.02、CUDA 13.0、P8、49°C、6.26 W/80 W。该 smoke 仍�
   `servo_estimates.csv`、`servo_decisions.csv`、`aggregate_metrics.csv`；修复后 CUDA
   smoke：`outputs/clutter_only_servo_cuda_smoke_boolfix_20260914/manifest.json`、
   `core_metrics.csv`
+- moving-target servo E2E formal：
+  `outputs/servo_gmti_e2e_formal_compact_20260914/manifest.json`、`case_index.csv`、
+  `servo_estimates.csv`、`servo_decisions.csv`、`e2e_metrics.csv`、`aggregate_metrics.csv`；
+  representative CUDA smoke：`outputs/servo_gmti_e2e_cuda_smoke_20260914/manifest.json`、
+  `core_metrics.csv`、对应 `core/*/gmticore.log`

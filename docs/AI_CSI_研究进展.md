@@ -20,7 +20,8 @@ unknown-only geometry estimator、几何扩展矩阵，以及 B0/B1/B1K 生产 C
 `outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、
 `outputs/unknown_system_error_end_to_end_20260914_formal_v4/` 和
 `outputs/unknown_system_error_servo_pilot_20260914_v3/`；clutter-only servo formal
-矩阵另见 `outputs/clutter_only_servo_formal_compact_v2_20260914/`，详细边界见
+矩阵另见 `outputs/clutter_only_servo_formal_compact_v2_20260914/`，moving-target servo
+E2E 另见 `outputs/servo_gmti_e2e_formal_compact_20260914/`，详细边界见
 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
 
 当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
@@ -66,9 +67,18 @@ Oracle 术语或 Router 状态当作当前待办。
   `VALID`，bias/RMSE=`−0.00817°/0.06691°`，但它是 target-assisted 参考，不能归入
   clutter-only 能力。formal 只跳过 Core 并使用显式 compact estimator input；修复后
   2-case CUDA smoke 的四分支 8/8 Core 成功，均不构成生产性能或 Pd/Pfa 结论。
+- moving-target servo E2E formal 已完成 96 个 case（`target_free`、slow-near-ridge、medium、fast
+  × 2 error × 3 seed × 2 texture × 2 range），ON/TO Stage2 各 96/96 成功。S1 估计器的
+  96/96 条输入均为 OFF C+N，未使用 ON、TO、target truth、known servo error 或 servo truth；
+  四个含目标场景的 S1 仍全部 `FALLBACK_MODEL_MISMATCH`，target-free 的 Sassist 标为
+  `NOT_APPLICABLE_TARGET_FREE`。本轮为 compact estimator-only formal，Core 跳过，因此
+  e2e Pd、false-hit、target transfer 和 TrackManager/PIPE 均明确 `not_evaluated`。
+- moving-target 的代表性 CUDA smoke（slow-near-ridge、0.2°、seed 101、low texture、8.75 km）
+  的 12 个 Core 行均 exit 0，但 4 个 TO 行触发内部 beam-quality gate（4/5 < 0.95），只有
+  8/12 行内部质量有效；P4 target match 为 0/4，不能形成正向 Pd 或目标保持结论。
 - B2/B3/B3K 是离线 `JDL-3x4 reduced STAP` scientific reference，不是生产 CUDA
-  四通道 STAP；TrackManager/PIPE、平台速度/姿态 true/report、servo-specific 多场景
-  Pd/Pfa 仍是后续项。
+  四通道 STAP；TrackManager/PIPE、平台速度/姿态 true/report、Pfa H0–H5 和生产 CUDA
+  四通道 STAP 仍是后续项。
 - 本阶段 `ai_training=false`；不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
@@ -178,6 +188,7 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase4 production CSI/CFAR + offline STAP | `run`，B0/B1/B1K CUDA；B2/B3/B3K offline reference | `outputs/unknown_system_error_end_to_end_20260914/production_metrics.csv`、`offline_stap_metrics.csv` |
 | Phase5 recovery/Pd/Pfa/target transfer | `run`，受控 moving-target fixture | `recovery_metrics.csv`、`target_only_transfer.csv`、`target_off_false_cluster_metrics.csv` |
 | Phase6 geometry correction + nuisance + servo pilot | 几何扩展矩阵、deadband、nuisance sweep、target-assisted pilot 与 target-free clutter-only formal 已运行；S1 当前全 fallback；平台速度未开始 | `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、`outputs/unknown_system_error_servo_pilot_20260914_v3/`、`outputs/clutter_only_servo_formal_compact_v2_20260914/` |
+| Phase7 moving-target servo E2E | formal 96 cases 的 OFF-only 输入和 Stage2 角色链已运行；compact formal 跳过 Core；代表性 CUDA smoke 的 TO 内部质量 gate 失败，未形成 Pd/PIPE 正向结论 | `outputs/servo_gmti_e2e_formal_compact_20260914/`、`outputs/servo_gmti_e2e_cuda_smoke_20260914/` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
@@ -308,8 +319,9 @@ Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU 
 
 ## 下一步（当前第二阶段）
 
-下一步是补齐 moving-target 的 OFF-only servo E2E、平台速度/姿态的独立 true/report state、
-Pfa H0–H5 分母闭环、TrackManager/PIPE 目标保持和生产 CUDA 四通道 STAP 边界。当前
+下一步是补齐 moving-target E2E 的 production Core 多场景闭环，平台速度/姿态的独立
+true/report state、Pfa H0–H5 分母闭环、TrackManager/PIPE 目标保持和生产 CUDA 四通道
+STAP 边界。当前
 clutter-only S1 的模型失配仍是 fallback 证据，不进入在线部署；也不训练 MLP、Router、
 RD image-to-image 或通用复权残差；只有确定性估计出现
 稳定、可量化且难以解析的残差后，才重新评估 Physics-AI。
