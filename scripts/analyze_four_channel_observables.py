@@ -31,6 +31,15 @@ if _GEOMETRY_MODEL_SPEC is None or _GEOMETRY_MODEL_SPEC.loader is None:
 GEOMETRY_MODEL = importlib.util.module_from_spec(_GEOMETRY_MODEL_SPEC)
 _GEOMETRY_MODEL_SPEC.loader.exec_module(GEOMETRY_MODEL)
 
+_GEOMETRY_VALIDITY_SPEC = importlib.util.spec_from_file_location(
+    "pgrcc_unknown_geometry_model_validity",
+    Path(__file__).with_name("unknown_geometry_model_validity.py"),
+)
+if _GEOMETRY_VALIDITY_SPEC is None or _GEOMETRY_VALIDITY_SPEC.loader is None:
+    raise RuntimeError("cannot load unknown_geometry_model_validity.py")
+GEOMETRY_VALIDITY = importlib.util.module_from_spec(_GEOMETRY_VALIDITY_SPEC)
+_GEOMETRY_VALIDITY_SPEC.loader.exec_module(GEOMETRY_VALIDITY)
+
 
 C = float(GEOMETRY_MODEL.C)
 HEADER_BYTES = 256
@@ -1071,13 +1080,13 @@ def _geometry_delta_score(
     model: str,
 ) -> dict[str, object]:
     candidate = _baseline_candidate_positions(reported_positions, delta_m, metadata)
-    grouped: dict[tuple[int, int], list[tuple[float, float, float, float]]] = {}
+    grouped: dict[tuple[int, int], list[tuple[float, float, float, float, Mapping[str, object]]]] = {}
     for row in observations:
         prediction = _geometry_prediction(row, candidate, fc_hz, metadata, model)
         residual = _wrap_phase(float(row["observed_phase_rad"]) - prediction)
         key = (int(row["pair_i"]), int(row["pair_j"]))
         grouped.setdefault(key, []).append(
-            (residual, float(row["weight"]), float(row["theta_deg"]), prediction)
+            (residual, float(row["weight"]), float(row["theta_deg"]), prediction, row)
         )
     intercepts: dict[str, float] = {}
     diagnostics: list[dict[str, object]] = []
@@ -1087,10 +1096,10 @@ def _geometry_delta_score(
     residual_weights: list[float] = []
     for pair, values in sorted(grouped.items()):
         z = sum(weight * complex(math.cos(residual), math.sin(residual))
-                for residual, weight, _, _ in values)
+                for residual, weight, _, _, _ in values)
         intercept = _wrap_phase(float(math.atan2(z.imag, z.real)))
         intercepts[f"C{pair[0] + 1}{pair[1] + 1}"] = intercept
-        for residual, weight, theta, prediction in values:
+        for residual, weight, theta, prediction, row in values:
             after = _wrap_phase(residual - intercept)
             abs_after = abs(after)
             # A fixed phase scale is only the robust-loss transition.  It is
@@ -1105,8 +1114,13 @@ def _geometry_delta_score(
                     "theta_deg": theta,
                     "pair_i": pair[0],
                     "pair_j": pair[1],
+                    "slant_range_m": row.get("slant_range_m"),
+                    "beam_id": row.get("beam_id"),
+                    "pulse_index": row.get("pulse_index"),
+                    "observed_phase_rad": row.get("observed_phase_rad"),
                     "predicted_phase_rad": prediction,
                     "residual_rad": after,
+                    "weight": weight,
                 }
             )
     residual_array = np.asarray(residual_values, dtype=np.float64)
@@ -1122,6 +1136,24 @@ def _geometry_delta_score(
         "rmse_rad": rmse,
         "weight_sum": total_weight,
     }
+
+
+def _apply_geometry_validity_gate(
+    result: dict[str, object],
+    fit: Mapping[str, object],
+) -> dict[str, object]:
+    diagnostics = fit.get("diagnostics", [])
+    if not isinstance(diagnostics, Sequence):
+        diagnostics = []
+    validity = GEOMETRY_VALIDITY.validate_geometry_model(result, diagnostics)
+    result["model_validity"] = validity
+    result["correction_status"] = result.get("status")
+    result["validity_status"] = validity["status"]
+    if validity["status"] != "VALID":
+        result["status"] = validity["status"]
+        result["action"] = "fallback_current"
+        result["fallback_reason"] = "; ".join(validity["reasons"])
+    return result
 
 
 def estimate_unknown_geometry_from_observations(
@@ -1201,14 +1233,13 @@ def estimate_unknown_geometry_from_observations(
         plus = _geometry_prediction(row, plus_positions, float(fc_hz), metadata, fit_model)
         minus = _geometry_prediction(row, minus_positions, float(fc_hz), metadata, fit_model)
         sensitivities.append(_wrap_phase(plus - minus) / (2.0 * derivative_step))
-        if fit_model == "v2":
-            exact = plus
-            linear = _geometry_prediction(row, positions, float(fc_hz), metadata, "v1")
-            exact_linear_disagreements.append(abs(_wrap_phase(exact - linear)))
-        else:
-            exact = _geometry_prediction(row, positions, float(fc_hz), metadata, "v2")
-            linear = _geometry_prediction(row, positions, float(fc_hz), metadata, "v1")
-            exact_linear_disagreements.append(abs(_wrap_phase(exact - linear)))
+        # Compare the two geometry models at the same reported channel
+        # positions.  Using the fitted candidate here would mix a real
+        # estimated baseline error into the model-mismatch diagnostic and
+        # incorrectly reject otherwise valid non-zero cases.
+        exact = _geometry_prediction(row, positions, float(fc_hz), metadata, "v2")
+        linear = _geometry_prediction(row, positions, float(fc_hz), metadata, "v1")
+        exact_linear_disagreements.append(abs(_wrap_phase(exact - linear)))
     sensitivity_array = np.asarray(
         [abs(value) for value in sensitivities if math.isfinite(value) and abs(value) > 1.0e-12],
         dtype=np.float64,
@@ -1269,7 +1300,7 @@ def estimate_unknown_geometry_from_observations(
                 "exact_linear_disagreement_rad": disagreement,
             }
         )
-    return {
+    result = {
         "schema": "unknown_only_baseline_estimator_v2",
         "fit_status": "fit",
         "status": status,
@@ -1297,6 +1328,7 @@ def estimate_unknown_geometry_from_observations(
             "objective": "per-pair circular intercept plus deterministic Huber phase residual",
         },
     }
+    return _apply_geometry_validity_gate(result, fit)
 
 
 def estimate_unknown_baseline(

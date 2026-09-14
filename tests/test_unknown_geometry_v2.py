@@ -95,7 +95,11 @@ def test_v2_recovers_signed_baseline_error_from_reported_context() -> None:
         max_abs_delta_m=0.01,
     )
     assert result["fit_status"] == "fit"
-    assert result["status"] == "APPLY_ESTIMATED_CORRECTION"
+    # The exact finite-range model recovers the injected value.  The validity
+    # gate may still retain Current when the exact-vs-linear gap is larger
+    # than the measured uncertainty budget.
+    assert result["correction_status"] == "APPLY_ESTIMATED_CORRECTION"
+    assert result["status"] in {"APPLY_ESTIMATED_CORRECTION", "FALLBACK_MODEL_MISMATCH"}
     assert result["estimated_baseline_error_m"] == pytest.approx(0.0025, abs=2.0e-5)
     assert result["uncertainty_m"] > 0.0
     assert result["deadband_m"] > 0.0
