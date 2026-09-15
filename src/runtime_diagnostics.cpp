@@ -472,6 +472,23 @@ void writeRuntimeConfigJson(const Config& cfg)
     os << "    \"missing_leading_prt_count\": "
        << cfg.echo_cycle_view.missing_leading_prt_count << "\n";
     os << "  },\n";
+    os << "  \"platform_velocity\": {\n";
+    os << "    \"true_mps\": "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps),
+              cfg.stage2_platform_velocity_true_mps) << ",\n";
+    os << "    \"reported_mps\": "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps) << ",\n";
+    os << "    \"reported_minus_true_mps\": "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps) &&
+                  std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps -
+                  cfg.stage2_platform_velocity_true_mps) << ",\n";
+    os << "    \"metadata_source\": " << q("Stage2 generated XML") << "\n";
+    os << "  },\n";
     os << "  \"scan\": {\n";
     os << "    \"scan_mode\": " << q(scanModeName(cfg.scan_mode)) << ",\n";
     os << "    \"acquisition_scan_prt_count\": "
@@ -899,6 +916,23 @@ void writeRuntimeConfigTxt(const Config& cfg)
     os << "pulse_num = " << cfg.pulse_num << "\n";
     os << "beam_count = " << beamCount(cfg) << "\n";
     os << "bytes_per_prt = " << cfg.pkg_bytes << "\n\n";
+
+    os << "[PLATFORM_VELOCITY]\n";
+    os << "true_mps = "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps),
+              cfg.stage2_platform_velocity_true_mps) << "\n";
+    os << "reported_mps = "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps) << "\n";
+    os << "reported_minus_true_mps = "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps) &&
+                  std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps -
+                  cfg.stage2_platform_velocity_true_mps) << "\n";
+    os << "metadata_source = Stage2 generated XML\n\n";
 
     os << "[WAVEFORM]\n";
     os << "fc_hz = " << std::setprecision(15) << cfg.fc << "\n";

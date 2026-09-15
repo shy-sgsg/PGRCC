@@ -70,6 +70,12 @@ bool writeStage2Report(const std::string &path,
         << cfg.servo_angle_error.true_minus_reported_deg << "\n\n";
     out << "- platform_height_m: " << cfg.platform_height_m << "\n";
     out << "- platform_speed_mps: " << cfg.platform_speed_mps << "\n\n";
+    out << "- platform_velocity_true_mps: "
+        << cfg.platform_velocity_true_mps << "\n";
+    out << "- platform_velocity_reported_mps: "
+        << cfg.platform_velocity_reported_mps << "\n";
+    out << "- new_protocol_velocity_source: "
+        << cfg.new_protocol_velocity_source << "\n\n";
     out << "## 场景配置\n\n";
     out << "- scene_mode: " << opt.scene_mode << "\n";
     out << "- random_seed: " << cfg.sim.random_seed << "\n";

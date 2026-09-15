@@ -193,6 +193,13 @@ struct Config {
     // by default.  Header vn/ve/vd are optional and must never become an
     // implicit zero-speed source when a deployment omits those fields.
     std::string new_protocol_velocity_source = "position_delta"; // header / position_delta
+    // Stage2 provenance carried into the generated XML.  These fields are
+    // metadata for runtime auditing; the production processor still selects
+    // its velocity source through new_protocol_velocity_source.
+    double stage2_platform_velocity_true_mps =
+        std::numeric_limits<double>::quiet_NaN();
+    double stage2_platform_velocity_reported_mps =
+        std::numeric_limits<double>::quiet_NaN();
     // 本地旧协议回放可选读取 RawData 同级 DBS_parameter_ID*.xml 中的逐周期
     // squint_angle；默认关闭，避免改变现网或普通文件输入的既有配置语义。
     bool legacy_replay_use_companion_parameters = false;
