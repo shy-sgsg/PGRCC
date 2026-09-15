@@ -76,9 +76,25 @@ Oracle 术语或 Router 状态当作当前待办。
 - moving-target 的代表性 CUDA smoke（slow-near-ridge、0.2°、seed 101、low texture、8.75 km）
   的 12 个 Core 行均 exit 0，但 4 个 TO 行触发内部 beam-quality gate（4/5 < 0.95），只有
   8/12 行内部质量有效；P4 target match 为 0/4，不能形成正向 Pd 或目标保持结论。
-- B2/B3/B3K 是离线 `JDL-3x4 reduced STAP` scientific reference，不是生产 CUDA
-  四通道 STAP；TrackManager/PIPE、平台速度/姿态 true/report、Pfa H0–H5 和生产 CUDA
-  四通道 STAP 仍是后续项。
+- Pfa H0–H5 closure 已完成独立 CUT 分母审计：canonical 输出含 18 行、18,000,000 个
+  有效且不重复 CUT；H0 实测 cell-Pfa 为 `4/3,000,000=1.3333e-6`，Wilson 95% CI
+  为 `[5.19e-7,3.43e-6]`。H1–H5 是结构杂波 false-hit control，不是 Pfa，不能写成
+  “配置 `1e-6` 已达到”。证据见 `outputs/unknown_system_error_pfa_closure_20260914/`。
+- 信息量匹配纯空间自由度矩阵已完成 9 cases（3 seed × 3 velocity）和 9 对 J4−J2：
+  J2 为生产 `(1,3)/(2,4)` pair-fused two-channel JDL/STAP，J4 为 native four-channel
+  JDL/STAP；平均 output-SCNR 分别为 `31.7349/24.1102 dB`，纯 DOF delta 为
+  `−7.6247 dB`，background Pfa delta 为 `+1.9155e-4`。当前没有稳定、material 的
+  J4 优势，因此 production CUDA 4ch STAP 仍关闭。证据见
+  `outputs/unknown_system_error_pure_spatial_dof_20260915/`。
+- 平台速度 true/report split 已完成：Stage2 用 `velocity_true_mps` 驱动物理轨迹、echo
+  phase、clutter Doppler 和 target geometry；`velocity_reported_mps` 写入 header，并由
+  `new_protocol_velocity_source=header` 进入处理路径。`0, ±0.05, ±0.1, ±0.2, ±0.5 m/s`
+  × 3 seed × 2 texture × 2 range 的 108-case compact formal 全部 Stage2 成功，header
+  最大误差 `1.53e-6 m/s`；V1K 仅作 known-error evaluation，恢复误差约 0。盲确定性
+  estimator 108/108 因观测模型不一致或超出显式 `1.0 m/s` 支持边界回退 Current，未形成
+  正向 blind correction claim。代表 CUDA smoke 的 V0/V1K/V1 3/3 Core 成功，运行时 dump
+  均回显 true=60、reported=60.2。证据见
+  `outputs/velocity_error_formal_compact_v2_20260915/`、`outputs/velocity_error_cuda_smoke_20260915/`。
 - 本阶段 `ai_training=false`；不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
@@ -189,6 +205,9 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase5 recovery/Pd/Pfa/target transfer | `run`，受控 moving-target fixture | `recovery_metrics.csv`、`target_only_transfer.csv`、`target_off_false_cluster_metrics.csv` |
 | Phase6 geometry correction + nuisance + servo pilot | 几何扩展矩阵、deadband、nuisance sweep、target-assisted pilot 与 target-free clutter-only formal 已运行；S1 当前全 fallback；平台速度未开始 | `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、`outputs/unknown_system_error_servo_pilot_20260914_v3/`、`outputs/clutter_only_servo_formal_compact_v2_20260914/` |
 | Phase7 moving-target servo E2E | formal 96 cases 的 OFF-only 输入和 Stage2 角色链已运行；compact formal 跳过 Core；代表性 CUDA smoke 的 TO 内部质量 gate 失败，未形成 Pd/PIPE 正向结论 | `outputs/servo_gmti_e2e_formal_compact_20260914/`、`outputs/servo_gmti_e2e_cuda_smoke_20260914/` |
+| Phase8 Pfa H0–H5 closure | 18 rows、18M 独立 CUT；H0 cell-Pfa `1.3333e-6`，H1–H5 仅为结构杂波 false-hit controls | `outputs/unknown_system_error_pfa_closure_20260914/` |
+| Phase9 pure spatial DOF J2/J4 | 9 cases；J4−J2 平均 output-SCNR `−7.6247 dB`，未形成 production 4ch STAP 优势 | `outputs/unknown_system_error_pure_spatial_dof_20260915/` |
+| Phase10 platform velocity true/report | 108-case compact formal + 3-row CUDA smoke；header 分离通过，blind estimator 全部 fallback | `outputs/velocity_error_formal_compact_v2_20260915/`、`outputs/velocity_error_cuda_smoke_20260915/` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
@@ -319,9 +338,8 @@ Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU 
 
 ## 下一步（当前第二阶段）
 
-下一步是补齐 moving-target E2E 的 production Core 多场景闭环，平台速度/姿态的独立
-true/report state、Pfa H0–H5 分母闭环、TrackManager/PIPE 目标保持和生产 CUDA 四通道
-STAP 边界。当前
-clutter-only S1 的模型失配仍是 fallback 证据，不进入在线部署；也不训练 MLP、Router、
-RD image-to-image 或通用复权残差；只有确定性估计出现
-稳定、可量化且难以解析的残差后，才重新评估 Physics-AI。
+下一步是完成 yaw-first 姿态 pilot，以及 3–5 period 的生产 TrackManager/PIPE 目标保持闭环。
+当前 clutter-only S1 和 velocity blind estimator 的模型失配均是 fallback 证据，不进入在线
+部署；J4 没有纯 DOF 稳定优势，production CUDA 4ch STAP 保持关闭。也不训练 MLP、Router、
+RD image-to-image 或通用复权残差；只有确定性估计出现稳定、可量化且难以解析的残差后，才重新
+评估 Physics-AI。

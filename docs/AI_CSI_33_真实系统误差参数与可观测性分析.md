@@ -497,14 +497,111 @@ exit code 为 0，生产配置签名一致；OFF/ON 的 8 行内部质量有效�
 质量门失败。P4 target match 为 0/4、target Pd 为 0，故该 smoke 不提供正向目标保持
 结论；Core 中出现 `pf=1e-6` 也不等价于实测 Pfa 达标。
 
+### 7.8 Phase8 Pfa H0–H5 closure
+
+新增 `scripts/run_pfa_closure.py`，把配置的 GO-CFAR `alpha=13.44951031977817`、
+配置字段 `pf=1e-6` 与实测独立 CUT 结果分开。H0 使用生产八个 gamma training blocks
+和独立 exponential CUT；H1–H5 是固定的局部 ridge synthetic controls，指标名称为
+`structured_clutter_false_hit_fraction`，不称为 Pfa，也不输出“configured Pfa achieved”。
+重复有效 CUT ID 会直接失败，不能重复计数。
+
+正式命令：
+
+```bash
+python3 scripts/run_pfa_closure.py \
+  --output-dir outputs/unknown_system_error_pfa_closure_20260914 \
+  --seeds 101 202 303
+```
+
+结果为 18 rows、18,000,000 个有效且独立的 CUT，excluded/duplicate 均为 0。H0 聚合
+命中 `4/3,000,000`，cell-Pfa=`1.3333333333333334e-6`，Wilson 95% CI 为
+`[5.185074128686217e-7,3.4286404730940667e-6]`；各 seed 命中数为 1、2、1。H1–H5
+结构 false-hit fraction 分别约为 `0.0216097/0.0217493/0.0216097/0.0217050/0.0216097`，
+只能作为受控结构杂波分数，不与历史生产 Pfa 直接比较。
+
+### 7.9 Phase9 pure spatial DOF J2/J4
+
+新增 `scripts/run_information_matched_stap.py`，固定 scene、seed、velocity、ROI、
+training support、covariance loading、Doppler taps、target steering 和 GO-CFAR，
+只改变空间维度：J2 为生产 `(1,3)/(2,4)` pair-fused F1/F2 two-channel JDL/STAP，
+J4 为 native four-channel JDL/STAP。该脚本是离线 scientific comparison，不能把结果
+写成生产 CUDA 四通道 STAP 优势。
+
+正式命令：
+
+```bash
+python3 scripts/run_information_matched_stap.py \
+  --output-dir outputs/unknown_system_error_pure_spatial_dof_20260915 \
+  --seeds 101 202 303 --velocities 0.5 1.0 2.0
+```
+
+9/9 cases、18 method rows、9 pairwise rows 成功且无失败。J2/J4 平均 output-SCNR 为
+`31.7348603/24.1101992 dB`，background Pfa 为 `0.00413632226/0.00432787134`，
+target-detected mean 均为 1.0；J4−J2 的纯 DOF delta 为 output-SCNR `−7.6246611 dB`、
+background Pfa `+0.0001915491`，target loss `−0.6083 dB`。因此当前没有稳定、material
+的 J4 优势，production CUDA 4ch STAP 保持关闭。
+
+### 7.10 Phase10 platform velocity true/report split
+
+Stage2 新增显式 `velocity_true_mps` 与 `velocity_reported_mps`，旧 `speed_mps` 仍作为
+兼容别名且在未拆分配置时同时填充两者。true 速度只进入
+`true_platform_trajectory`、echo phase、clutter Doppler 和 target-relative geometry；
+reported 速度写入 INS/header，且 pilot 明确选择 `new_protocol_velocity_source=header`，
+由生产 CTDR/P38、clutter ridge model、steering 和 velocity conversion 消费。resolved
+scenario、Stage2 XML 以及生产 runtime diagnostics 都保存两者和差值。
+
+符号约定固定为：
+
+```text
+delta_v_reported_minus_true = reported - true
+estimated correction = estimated_true - reported
+```
+
+测试先锁定 V0 Current（unknown error）、V1K Known Correction（evaluation-only upper
+bound）和 V1 Blind Deterministic（OFF C+N + reported metadata only）。V1 观测量包括
+clutter Doppler ridge displacement、P38 phase slope、CTDR residual、four-channel
+slow-time phase，并拒绝 ON/TO、target truth、true velocity 与 known error。
+
+formal 命令：
+
+```bash
+python3 scripts/run_velocity_error_study.py \
+  --delta-v-mps 0,-0.05,0.05,-0.1,0.1,-0.2,0.2,-0.5,0.5 \
+  --seeds 101,202,303 --textures low_texture high_texture \
+  --ranges-m 7500,10000 --skip-core \
+  --output outputs/velocity_error_formal_compact_v2_20260915
+```
+
+108/108 Stage2 case 成功，header 最大绝对误差 `1.5258789076710855e-6 m/s`，输入角色
+均为 `OFF_C_PLUS_N_TARGET_FREE_ONLY`。V1K 108/108 仅作已知误差评价，估计 bias 约 0；
+V1 108/108 均为 `FALLBACK_MODEL_MISMATCH`，其中 81 条为 observables disagreement，
+27 条超出显式 `max_supported_error_mps=1.0`，所以没有盲修正被应用。该质量门是为了
+阻止候选一致但整体偏离 reported 的错误“VALID”状态；它是 pilot 的公开假设，不是生产
+部署阈值。
+
+代表性 CUDA smoke：
+
+```bash
+python3 scripts/run_velocity_error_study.py \
+  --delta-v-mps 0.2 --seeds 101 --textures low_texture --ranges-m 8750 \
+  --output outputs/velocity_error_cuda_smoke_20260915
+```
+
+V0/V1K/V1 共 3/3 `GMTI_core` exit code 0，内部质量均有效；GPU 为 RTX 3050 Laptop
+GPU、driver 580.173.02、P8、约 47°C、6.54 W。三分支 runtime dump 均记录
+`true_mps=60`、`reported_mps=60.2`、差值 `0.2`，XML 的 source 为 `header`。由于 V1
+在该 case 回退 Current，不能从该 smoke 声称 Pd、Pfa 或 target retention 改善。
+
 ## 8. 后续阶段顺序
 
 1. 保持已完成的六-pair observables、bias/deadband、nuisance 和目标/Pfa 审计可复现；
-2. 补齐 moving-target E2E 的 production Core 多场景闭环，再单独建立平台速度/姿态的
-   true/report state，做与几何/servo 的耦合可辨识性 pilot；
-3. 完成 Pfa H0–H5 分母闭环、servo-specific 多场景 Pd/Pfa、TrackManager/PIPE 目标保持
-   和生产 CUDA 四通道 STAP 边界；
-4. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
+2. 完成 yaw-first 姿态 pilot，保持 pitch/roll 为 0，单独比较 yaw、servo 和 baseline
+   geometry observables，不做首次三姿态联合拟合；
+3. 建立 3–5 period 的生产 TrackManager/PIPE 闭环，逐条审计 Confirmed +
+   matched_this_frame 的协议目标来源；
+4. 完成 servo-specific 多场景 Pd/Pfa 边界；纯 DOF J4 当前没有足够证据开启 production
+   CUDA 4ch STAP；
+5. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
    `ai_training=false`，不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 ## 9. 证据入口
@@ -538,6 +635,13 @@ exit code 为 0，生产配置签名一致；OFF/ON 的 8 行内部质量有效�
   `outputs/unknown_system_error_pfa_formal_reference_20260914_v2/`
 - information-matched baseline：`outputs/unknown_system_error_information_matched_baseline_20260914_v1/`，
   以及其 `pairwise_postprocess_manifest.json`
+- Pfa H0–H5 closure：`outputs/unknown_system_error_pfa_closure_20260914/manifest.json`、
+  `pfa_closure_summary.csv`
+- pure spatial DOF J2/J4：`outputs/unknown_system_error_pure_spatial_dof_20260915/manifest.json`、
+  `information_matched_pairwise_aggregate.csv`
+- platform velocity true/report：`outputs/velocity_error_formal_compact_v2_20260915/manifest.json`、
+  `velocity_estimates.csv`、`velocity_decisions.csv`、`aggregate_metrics.csv`；CUDA audit
+  为 `outputs/velocity_error_cuda_smoke_20260915/manifest.json` 和 `core_metrics.csv`
 - target-assisted servo calibration pilot：canonical runner
   `scripts/run_target_assisted_servo_calibration_pilot.py`（旧命令
   `scripts/run_unknown_system_error_servo_pilot.py` 保持兼容），结果见

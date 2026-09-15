@@ -141,6 +141,62 @@ std::string jsonString(const std::string &obj, const std::string &key, const std
     return obj.substr(q1 + 1, q2 - q1 - 1);
 }
 
+bool hasJsonKey(const std::string &obj, const std::string &key)
+{
+    return obj.find("\"" + key + "\"") != std::string::npos;
+}
+
+bool parseVelocityPair(const std::string &obj,
+                       const std::string &legacy_key,
+                       Stage2Config &cfg,
+                       std::string &err,
+                       const std::string &scope)
+{
+    const bool has_true = hasJsonKey(obj, "velocity_true_mps") ||
+                          hasJsonKey(obj, "platform_velocity_true_mps");
+    const bool has_reported = hasJsonKey(obj, "velocity_reported_mps") ||
+                              hasJsonKey(obj, "platform_velocity_reported_mps");
+    if (has_true != has_reported) {
+        err = scope + " must specify velocity_true_mps and velocity_reported_mps together";
+        return false;
+    }
+
+    const double legacy = jsonDouble(obj, legacy_key, cfg.platform_speed_mps);
+    if (has_true) {
+        const double true_value = hasJsonKey(obj, "velocity_true_mps")
+            ? jsonDouble(obj, "velocity_true_mps", std::numeric_limits<double>::quiet_NaN())
+            : jsonDouble(obj, "platform_velocity_true_mps", std::numeric_limits<double>::quiet_NaN());
+        const double reported_value = hasJsonKey(obj, "velocity_reported_mps")
+            ? jsonDouble(obj, "velocity_reported_mps", std::numeric_limits<double>::quiet_NaN())
+            : jsonDouble(obj, "platform_velocity_reported_mps", std::numeric_limits<double>::quiet_NaN());
+        if (!std::isfinite(true_value) || !(true_value > 0.0) ||
+            !std::isfinite(reported_value) || !(reported_value > 0.0)) {
+            err = scope + " velocity_true_mps/velocity_reported_mps must be finite and positive";
+            return false;
+        }
+        if (hasJsonKey(obj, legacy_key) &&
+            std::fabs(legacy - reported_value) > 1.0e-9) {
+            err = scope + " legacy " + legacy_key +
+                  " must equal velocity_reported_mps when the split is explicit";
+            return false;
+        }
+        cfg.platform_velocity_true_mps = true_value;
+        cfg.platform_velocity_reported_mps = reported_value;
+    } else {
+        if (!std::isfinite(legacy) || !(legacy > 0.0)) {
+            err = scope + " legacy " + legacy_key +
+                  " must be finite and positive when no velocity split is supplied";
+            return false;
+        }
+        cfg.platform_velocity_true_mps = legacy;
+        cfg.platform_velocity_reported_mps = legacy;
+    }
+    // Existing Stage2 geometry code uses this field as its physical-speed
+    // compatibility alias.  Packet headers use the explicit reported field.
+    cfg.platform_speed_mps = cfg.platform_velocity_true_mps;
+    return true;
+}
+
 void parseMechanicalScan(const std::string &txt, Stage2Config &cfg)
 {
     cfg.scan_mode = jsonString(txt, "scan_mode", cfg.scan_mode);
@@ -619,10 +675,19 @@ bool saveFromTemplate(const Stage2Config &cfg,
     setOrReplaceInt(p, "new_protocol_channel_count", cfg.radar.new_protocol_channel_count);
     setOrReplaceInt(p, "new_protocol_read_channel_1", cfg.radar.new_protocol_read_channel_1);
     setOrReplaceInt(p, "new_protocol_read_channel_2", cfg.radar.new_protocol_read_channel_2);
-    // Pipeline speed is intentionally reconstructed from the held 25 Hz
-    // packet positions; do not treat the auxiliary velocity fields as the
-    // source of truth.
-    setOrReplace(p, "new_protocol_velocity_source", "position_delta");
+    // Keep the velocity source explicit: legacy deployments retain
+    // position_delta, while the true/reported pilot selects header so the
+    // reported INS velocity reaches CTDR/P38/motion compensation.
+    setOrReplace(p, "new_protocol_velocity_source",
+                 cfg.new_protocol_velocity_source);
+    setOrReplaceDouble(
+        p, "stage2_platform_velocity_true_mps",
+        std::isfinite(cfg.platform_velocity_true_mps)
+            ? cfg.platform_velocity_true_mps : cfg.platform_speed_mps);
+    setOrReplaceDouble(
+        p, "stage2_platform_velocity_reported_mps",
+        std::isfinite(cfg.platform_velocity_reported_mps)
+            ? cfg.platform_velocity_reported_mps : cfg.platform_speed_mps);
     writeFourChannelFusionXml(
         p, cfg.radar, cfg.geometry.squint_side,
         cfg.sim.four_channel_phase_center_mode != "paired_same_phase_center");
@@ -788,11 +853,16 @@ bool loadStage2Config(const std::string &path, Stage2Config &cfg, std::string &e
     cfg.radar.pulse_num = jsonInt(sys, "pulse_num", 130);
     parseMechanicalScan(txt, cfg);
     parseServoAngleError(txt, cfg);
+    cfg.new_protocol_velocity_source = jsonString(
+        sys, "new_protocol_velocity_source", cfg.new_protocol_velocity_source);
     cfg.radar.d_chan_m = jsonDouble(sys, "d_chan_m", 0.17);
     if (!parseReceiveChannelGeometry(txt, cfg.radar, err)) return false;
     bindMechanicalPhaseCenterPose(cfg);
     cfg.platform_height_m = jsonDouble(sys, "platform_height_m", cfg.platform_height_m);
-    cfg.platform_speed_mps = jsonDouble(sys, "platform_speed_mps", cfg.platform_speed_mps);
+    if (!parseVelocityPair(
+            sys, "platform_speed_mps", cfg, err, "system")) {
+        return false;
+    }
     cfg.platform_origin_lat_deg = jsonDouble(sys, "platform_origin_lat_deg", cfg.platform_origin_lat_deg);
     cfg.platform_origin_lon_deg = jsonDouble(sys, "platform_origin_lon_deg", cfg.platform_origin_lon_deg);
     cfg.platform_origin_alt_m = jsonDouble(sys, "platform_origin_alt_m", cfg.platform_origin_alt_m);
@@ -963,7 +1033,9 @@ bool writeDefaultStage2Config(const std::string &path, std::string &err)
         "    \"iq_data_type\": \"float32\", \"new_protocol_channel_count\": 2,\n"
         "    \"new_protocol_read_channel_1\": 1, \"new_protocol_read_channel_2\": 2,\n"
         "    \"beam_width_deg\": 2.28, \"pulse_num\": 130,\n"
-        "    \"platform_height_m\": 6000.0, \"platform_speed_mps\": 60.0, \"d_chan_m\": 0.17,\n"
+        "    \"platform_height_m\": 6000.0, \"platform_speed_mps\": 60.0,\n"
+        "    \"velocity_true_mps\": 60.0, \"velocity_reported_mps\": 60.0,\n"
+        "    \"new_protocol_velocity_source\": \"position_delta\", \"d_chan_m\": 0.17,\n"
         "    \"platform_origin_lat_deg\": 40.45121057, \"platform_origin_lon_deg\": 116.98377429,\n"
         "    \"platform_origin_alt_m\": 6000.0, \"projection_ref_lon_deg\": 117.0\n"
         "  },\n"
@@ -1071,6 +1143,16 @@ bool writeStage2OutputConfig(const Stage2Config &cfg,
     setInt(p, "new_protocol_channel_count", cfg.radar.new_protocol_channel_count);
     setInt(p, "new_protocol_read_channel_1", cfg.radar.new_protocol_read_channel_1);
     setInt(p, "new_protocol_read_channel_2", cfg.radar.new_protocol_read_channel_2);
+    setOrReplace(
+        p, "new_protocol_velocity_source", cfg.new_protocol_velocity_source);
+    setOrReplaceDouble(
+        p, "stage2_platform_velocity_true_mps",
+        std::isfinite(cfg.platform_velocity_true_mps)
+            ? cfg.platform_velocity_true_mps : cfg.platform_speed_mps);
+    setOrReplaceDouble(
+        p, "stage2_platform_velocity_reported_mps",
+        std::isfinite(cfg.platform_velocity_reported_mps)
+            ? cfg.platform_velocity_reported_mps : cfg.platform_speed_mps);
     writeFourChannelFusionXml(
         p, cfg.radar, cfg.geometry.squint_side,
         cfg.sim.four_channel_phase_center_mode != "paired_same_phase_center");
@@ -1152,7 +1234,11 @@ gmti::target_injection::TargetGlobalConfig makeTargetGlobal(const Stage2Config &
     g.lfm_time_reference = cfg.sim.lfm_time_reference;
     g.chirp_phase_sign = cfg.sim.chirp_phase_sign;
     g.carrier_phase_sign = cfg.sim.carrier_phase_sign;
-    g.platform_speed_mps = cfg.platform_speed_mps;
+    g.platform_speed_mps = std::isfinite(cfg.platform_velocity_true_mps)
+        ? cfg.platform_velocity_true_mps : cfg.platform_speed_mps;
+    g.platform_velocity_true_mps = g.platform_speed_mps;
+    g.platform_velocity_reported_mps = std::isfinite(cfg.platform_velocity_reported_mps)
+        ? cfg.platform_velocity_reported_mps : g.platform_speed_mps;
     g.platform_height_m = cfg.platform_height_m;
     g.platform_origin_lat_deg = cfg.platform_origin_lat_deg;
     g.platform_origin_lon_deg = cfg.platform_origin_lon_deg;
@@ -1348,13 +1434,24 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
     }
     const std::string platform = sectionObject(txt, "platform");
     if (!platform.empty()) {
-        cfg.platform_speed_mps = jsonDouble(platform, "speed_mps", cfg.platform_speed_mps);
+        if (!parseVelocityPair(
+                platform, "speed_mps", cfg, err, "platform")) {
+            return false;
+        }
+        cfg.new_protocol_velocity_source = jsonString(
+            platform, "velocity_source",
+            jsonString(platform, "new_protocol_velocity_source",
+                       cfg.new_protocol_velocity_source));
         cfg.platform_height_m = jsonDouble(platform, "height_m", cfg.platform_height_m);
         cfg.platform_origin_lat_deg = jsonDouble(platform, "origin_lat_deg", cfg.platform_origin_lat_deg);
         cfg.platform_origin_lon_deg = jsonDouble(platform, "origin_lon_deg", cfg.platform_origin_lon_deg);
         cfg.platform_origin_alt_m = jsonDouble(platform, "origin_alt_m", cfg.platform_origin_alt_m);
         cfg.projection_ref_lon_deg = jsonDouble(platform, "projection_ref_lon_deg", cfg.projection_ref_lon_deg);
         cfg.geometry.squint_side = jsonInt(platform, "squint_side", cfg.geometry.squint_side);
+    }
+    if (platform.empty() &&
+        !parseVelocityPair("{}", "speed_mps", cfg, err, "platform")) {
+        return false;
     }
     const std::string geometry = sectionObject(txt, "simulation_geometry");
     if (!geometry.empty()) {
@@ -1562,6 +1659,18 @@ bool validateStage2RunConfig(const Stage2RunConfig &run, std::string &err)
 {
     if (run.case_id.empty()) { err = "case_id is required"; return false; }
     if (run.output_dir.empty()) { err = "output_dir is required"; return false; }
+    if (!std::isfinite(run.cfg.platform_velocity_true_mps) ||
+        !(run.cfg.platform_velocity_true_mps > 0.0) ||
+        !std::isfinite(run.cfg.platform_velocity_reported_mps) ||
+        !(run.cfg.platform_velocity_reported_mps > 0.0)) {
+        err = "platform velocity_true_mps and velocity_reported_mps must be finite and positive";
+        return false;
+    }
+    if (run.cfg.new_protocol_velocity_source != "header" &&
+        run.cfg.new_protocol_velocity_source != "position_delta") {
+        err = "platform velocity source must be header or position_delta";
+        return false;
+    }
     if (run.cfg.servo_angle_error.enabled &&
         !std::isfinite(run.cfg.servo_angle_error.true_minus_reported_deg)) {
         err = "servo_angle_error.true_minus_reported_deg must be finite";
