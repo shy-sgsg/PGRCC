@@ -592,16 +592,49 @@ GPU、driver 580.173.02、P8、约 47°C、6.54 W。三分支 runtime dump 均�
 `true_mps=60`、`reported_mps=60.2`、差值 `0.2`，XML 的 source 为 `header`。由于 V1
 在该 case 回退 Current，不能从该 smoke 声称 Pd、Pfa 或 target retention 改善。
 
+### 7.11 Phase11 yaw-first attitude pilot
+
+为先拆开姿态误差与伺服指向误差，新增 `scripts/run_yaw_error_study.py`。本阶段只改变
+一个因素：`baseline` 保持 yaw/servo 均为 0，`yaw` 只改变
+`simulation_geometry.platform_heading_deg`，`servo` 只改变
+`servo_angle_error.true_minus_reported_deg`；pitch 和 roll 在配置、source snapshot 和
+估计结果中均固定为 0，不做三姿态联合拟合。true yaw 进入物理平台 heading、clutter/target
+几何和 echo phase；reported yaw 只作为 nominal reported geometry、beam-steering reference
+和 angle-conversion context。当前生产协议没有在本 pilot 中独立消费的 yaw header 字段，
+因此不能把该 reported context 写成已经具备的 operational yaw source。
+
+正式 compact 命令：
+
+```bash
+python3 scripts/run_yaw_error_study.py \
+  --errors-deg 0,-0.5,0.5,-1.0,1.0 \
+  --seeds 101,202 --textures low_texture high_texture \
+  --ranges-m 7500,10000 --scene target_free moving_target \
+  --output outputs/yaw_error_formal_compact_20260915
+```
+
+矩阵覆盖 `target_free/moving_target × {baseline,yaw,servo} × {0, ±0.5, ±1}° × 2 seeds ×
+2 textures × 2 range centers`，共 240/240 Stage2 case 成功，生成 240 条 blind estimate、
+720 条 Current/known/blind decision 和 240 个 source snapshot。blind estimator 的输入审计
+为每个 case 一个 `OFF_C_PLUS_N_TARGET_FREE_ONLY` 路径；`target_truth_used=false`、
+`true_yaw_used=false`、`known_yaw_error_used=false`，且没有 ON/TO 输入。结果为 240/240
+`FALLBACK_MODEL_MISMATCH`、0/240 `VALID`，所有 blind decision 均 `KEEP_CURRENT`；known
+branch 仅作为 evaluation-only correction reference，不能当作运行时估计能力。
+
+moving-target 的 120 个 paired target-assisted reference 为 `VALID`，target-free 的 120
+个 reference 标为 `NOT_APPLICABLE_TARGET_FREE`。该 reference 仍然估计 effective geometry，
+不能在 yaw 条件下把 yaw 与 servo 原因分离，也没有被盲分支使用。由于本矩阵设置
+`core_skipped=true`，未评价生产 Core、TrackManager/PIPE、Pd、Pfa、目标保持或部署性能；GPU
+查询在该次 compact run 中不可用，但这不影响 Stage2/离线输入审计结果，也不构成 CUDA 结论。
+
 ## 8. 后续阶段顺序
 
 1. 保持已完成的六-pair observables、bias/deadband、nuisance 和目标/Pfa 审计可复现；
-2. 完成 yaw-first 姿态 pilot，保持 pitch/roll 为 0，单独比较 yaw、servo 和 baseline
-   geometry observables，不做首次三姿态联合拟合；
-3. 建立 3–5 period 的生产 TrackManager/PIPE 闭环，逐条审计 Confirmed +
+2. 建立 3–5 period 的生产 TrackManager/PIPE 闭环，逐条审计 Confirmed +
    matched_this_frame 的协议目标来源；
-4. 完成 servo-specific 多场景 Pd/Pfa 边界；纯 DOF J4 当前没有足够证据开启 production
+3. 完成 servo-specific 多场景 Pd/Pfa 边界；纯 DOF J4 当前没有足够证据开启 production
    CUDA 4ch STAP；
-5. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
+4. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
    `ai_training=false`，不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 ## 9. 证据入口
@@ -642,6 +675,10 @@ GPU、driver 580.173.02、P8、约 47°C、6.54 W。三分支 runtime dump 均�
 - platform velocity true/report：`outputs/velocity_error_formal_compact_v2_20260915/manifest.json`、
   `velocity_estimates.csv`、`velocity_decisions.csv`、`aggregate_metrics.csv`；CUDA audit
   为 `outputs/velocity_error_cuda_smoke_20260915/manifest.json` 和 `core_metrics.csv`
+- yaw-first attitude：`outputs/yaw_error_formal_compact_20260915/manifest.json`、
+  `case_index.csv`、`attitude_estimates.csv`、`attitude_decisions.csv`、
+  `aggregate_metrics.csv`；实现与输入审计为 `scripts/run_yaw_error_study.py`，契约测试为
+  `tests/test_attitude_source_split.py`
 - target-assisted servo calibration pilot：canonical runner
   `scripts/run_target_assisted_servo_calibration_pilot.py`（旧命令
   `scripts/run_unknown_system_error_servo_pilot.py` 保持兼容），结果见

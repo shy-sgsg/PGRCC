@@ -95,6 +95,15 @@ Oracle 术语或 Router 状态当作当前待办。
   正向 blind correction claim。代表 CUDA smoke 的 V0/V1K/V1 3/3 Core 成功，运行时 dump
   均回显 true=60、reported=60.2。证据见
   `outputs/velocity_error_formal_compact_v2_20260915/`、`outputs/velocity_error_cuda_smoke_20260915/`。
+- yaw-first 姿态 pilot 已完成：保持 pitch/roll=`0`，把 baseline、yaw 和 servo 分成
+  三个互斥条件；覆盖 `target_free/moving_target × 3 conditions × {0, ±0.5, ±1}° ×
+  2 seeds × 2 textures × 2 ranges`，共 240/240 Stage2 case、720 条 Current/known/blind
+  决策。盲估计器逐案只读取一个 OFF C+N 输入，240/240 为
+  `FALLBACK_MODEL_MISMATCH` 并保持 Current，0 条 blind estimate 被应用；known branch
+  只是 evaluation-only。moving-target 的 paired target-assisted reference 单独保留，
+  不能区分 yaw 与 servo 原因；本 compact 阶段未运行 Core、TrackManager/PIPE、Pd 或 Pfa。
+  证据见 `outputs/yaw_error_formal_compact_20260915/`，源字段和约束见
+  `scripts/run_yaw_error_study.py`。
 - 本阶段 `ai_training=false`；不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
@@ -208,6 +217,7 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase8 Pfa H0–H5 closure | 18 rows、18M 独立 CUT；H0 cell-Pfa `1.3333e-6`，H1–H5 仅为结构杂波 false-hit controls | `outputs/unknown_system_error_pfa_closure_20260914/` |
 | Phase9 pure spatial DOF J2/J4 | 9 cases；J4−J2 平均 output-SCNR `−7.6247 dB`，未形成 production 4ch STAP 优势 | `outputs/unknown_system_error_pure_spatial_dof_20260915/` |
 | Phase10 platform velocity true/report | 108-case compact formal + 3-row CUDA smoke；header 分离通过，blind estimator 全部 fallback | `outputs/velocity_error_formal_compact_v2_20260915/`、`outputs/velocity_error_cuda_smoke_20260915/` |
+| Phase11 yaw-first attitude | 240-case compact formal；pitch/roll 固定 0，blind estimator 240/240 fallback，未形成正向修正结论 | `outputs/yaw_error_formal_compact_20260915/` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
@@ -338,7 +348,7 @@ Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU 
 
 ## 下一步（当前第二阶段）
 
-下一步是完成 yaw-first 姿态 pilot，以及 3–5 period 的生产 TrackManager/PIPE 目标保持闭环。
+下一步是完成 3–5 period 的生产 TrackManager/PIPE 目标保持闭环。
 当前 clutter-only S1 和 velocity blind estimator 的模型失配均是 fallback 证据，不进入在线
 部署；J4 没有纯 DOF 稳定优势，production CUDA 4ch STAP 保持关闭。也不训练 MLP、Router、
 RD image-to-image 或通用复权残差；只有确定性估计出现稳定、可量化且难以解析的残差后，才重新
