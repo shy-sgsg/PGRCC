@@ -2,20 +2,24 @@
 
 > 阶段：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`
 >
-> 审计日期：2026-09-14；本文件覆盖源码审计、Phase0–6 实现和实际运行证据。
+> 审计日期：2026-09-15；本文件覆盖源码审计、Phase0–12 实现和实际运行证据。
 > Phase0 是 paired-reference baseline-phase sanity pilot；Phase1–3 是 blind
 > true-geometry estimator/matrix；Phase4–5 已完成 B0/B1/B1K 生产 CUDA CSI/CFAR、
 > B2/B3/B3K 离线 STAP reference、bias/Pfa/target-transfer 和信息量匹配审计；
-> Phase6 已启动独立 target-assisted servo calibration pilot。B2/B3 仍不是生产 CUDA
-> 四通道 STAP；该 servo pilot 也不是 production online estimator。旧 pilot 产物见
-> `outputs/unknown_system_error_pilot_20260913_v5/`，本轮产物见
+> Phase6–12 已完成 target-assisted servo、clutter-only servo、true/report velocity、
+> yaw-first attitude 和 production TrackManager/PIPE 审计。B2/B3 仍不是生产 CUDA
+> 四通道 STAP；servo pilot 也不是 production online estimator。当前产物见
 > `outputs/unknown_system_error_pilot_20260914_clean/`、
 > `outputs/unknown_system_error_geometry_matrix_20260914_v2/`、
-> `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、
-> `outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、
-> `outputs/unknown_system_error_end_to_end_20260914_formal_v4/`、
-> `outputs/unknown_system_error_pfa_audit_20260914_v8/` 和
-> `outputs/unknown_system_error_servo_pilot_20260914_v3/`。
+> `outputs/unknown_system_error_end_to_end_20260914/`、
+> `outputs/unknown_system_error_pfa_closure_20260914/`、
+> `outputs/unknown_system_error_pure_spatial_dof_20260915/`、
+> `outputs/clutter_only_servo_formal_compact_v2_20260914/`、
+> `outputs/servo_gmti_e2e_formal_compact_20260914/`、
+> `outputs/velocity_error_formal_compact_v2_20260915/`、
+> `outputs/yaw_error_formal_compact_20260915/` 和
+> `outputs/track_manager_e2e_formal_compact_20260915/`；统一轻量副本见
+> `outputs/formal_evidence/`。
 
 ## 1. 研究目标和判定边界
 
@@ -316,12 +320,10 @@ mean absolute residual 0.000282 rad，pair consistency 均值/最大值为 0.037
 零误差 case 仍稳定返回约 0.16 mm，而不是静默伪造零值；这属于当前受控 fixture 的
 系统偏置，不能写成“无偏估计”。
 
-扩展 formal matrix 改用 `[0, ±0.5, ±1, ±2.5, ±5, ±10] mm × 3 seeds`，共 33/33
-case fit，无 failure/fallback；各水平的结果和 4000 次 bootstrap CI 保存在
-`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`。零误差
-six-pair 平均估计 `0.15917 mm`，最大绝对误差 `0.16500 mm`；各非零水平的误差主要
-保持在约 `0.15–0.18 mm`，因此 deadband 取自独立 zero-baseline sensitivity audit，
-而不是事后把矩阵结果减去一个经验常数。
+扩展 geometry formal 的 raw case 树已按清理策略删除；当前保留的可复核几何矩阵为
+`outputs/unknown_system_error_geometry_matrix_20260914_v2/`，其中仍有 matrix rows、
+summary、single-pair 对照和 manifest。零误差 floor/deadband 只能按该 compact summary
+和原有报告解释，不能因 raw case 删除而扩展成新的 operational claim。
 
 独立 one-factor-at-a-time nuisance sweep 从 clean source `dfe7b67` 导出运行，固定
 三 seed、三 geometry level `[0, ±2.5] mm`，覆盖固定相位 `0/8/16°`、增益失配
@@ -377,11 +379,11 @@ Laptop GPU、driver 580.173.02、CUDA 13.0，约 50°C、P8、6W/80W；runtime �
 
 1. B2/B3/B3K 的生产 CUDA 四通道 STAP；信息量匹配 baseline 已完成离线矩阵，但
    `M3−M2/M1` 仍是包含算法和空间自由度的 composite delta，不能写成纯 DOF 增益；
-2. TrackManager/PIPE 的 causal target retention，以及多场景、多周期统计泛化；
-3. platform velocity/姿态的独立 true/report state 与 Phase6 后续估计；
-4. servo-specific Pd/Pfa 的专门 target-only/paired 评价；当前 servo Core 分支只作为
+2. 已完成 3-period TrackManager/PIPE causal retention 审计，但 4–5 period、多场景统计
+   泛化仍未完成；
+3. servo-specific Pd/Pfa 的专门 target-only/paired 评价；当前 servo Core 分支只作为
    处理链有效性审计，不能替代上述性能结论；
-5. 只有确定性估计残差稳定且难以解析后，才重新评估 Physics-AI；当前 `ai_training=false`，
+4. 只有确定性估计残差稳定且难以解析后，才重新评估 Physics-AI；当前 `ai_training=false`，
    不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 ### 7.5 Phase6 target-assisted servo calibration pilot
@@ -456,10 +458,10 @@ range crop），manifest 中 `core_skipped=true`、`compact_estimator_input=true
 GPU、driver 580.173.02、CUDA 13.0、P8、49°C、6.26 W/80 W。该 smoke 仍不含目标保持
 统计，Core 的 CFAR 配置字段出现 `pf=1e-6` 也不等于实测 Pfa 已达标。
 
-早期错误配置/中断目录保留为审计现场，但不进入上述结论：
-`clutter_only_servo_formal_20260914/`（boolean 配置序列化错误）、
-`clutter_only_servo_formal_v2_20260914/`（旧输入矩阵中断）、
-`clutter_only_servo_formal_compact_20260914/`（range crop 约束失败）。
+早期错误配置/中断目录已按用户清理请求删除，不进入上述结论；失败原因和保留边界记录在
+`outputs/cleanup_manifest_20260915.json`。本阶段只保留 compact 汇总和
+`outputs/track_manager_e2e_cleanup_summary_20260915.json` 这类高价值失败摘要，不保留可由
+脚本重新生成的 raw case 树。
 
 ### 7.7 Phase7 moving-target servo E2E
 
@@ -627,12 +629,45 @@ moving-target 的 120 个 paired target-assisted reference 为 `VALID`，target-
 `core_skipped=true`，未评价生产 Core、TrackManager/PIPE、Pd、Pfa、目标保持或部署性能；GPU
 查询在该次 compact run 中不可用，但这不影响 Stage2/离线输入审计结果，也不构成 CUDA 结论。
 
+### 7.12 Phase12 production TrackManager/PIPE continuous-target audit
+
+新增 `scripts/run_track_manager_e2e.py` 和
+`scripts/audit_track_manager_run.py` 的协议因果审计。正式矩阵固定同一 Stage2 moving-target
+echo、beam50、3 个连续周期、同一 GO-CFAR/TrackManager/确认规则和 PIPE 路径，只把
+`Current`、`blind_calibrated`（明确 fallback-to-Current）和 `known_error_calibrated`
+（evaluation-only）作为标签；两类校正均未实际注入，`ai_training=false`、Router 关闭。
+
+正式命令：
+
+```bash
+python3 scripts/run_track_manager_e2e.py \
+  --input-mode shm --period-count 3 --input-rate-bytes-per-sec 1000000 \
+  --output-root outputs/track_manager_e2e_formal_compact_20260915 \
+  --result-timeout-ms 900000
+```
+
+3 个 seed × 3 个分支全部完成：9/9 branch `production_status=passed`，每个分支 3/3
+SHM cycle 和 3/3 PIPE result，累计 3510/3510 valid PRT，`ring_overrun=0`、`gaps=0`、
+`duplicates=0`。生产 `track_debug` 审计 9/9 `pass`、总 violation 为 0；294 条协议载荷
+均通过同周期 `Confirmed + matched_this_frame + accepted association + matched detection`
+因果 gate。周期去重后每个分支 `track_pd_all_visible=2/3`，确认窗口后为 `2/2`，ID switch
+为 0–1；false-track rate 为 `0.8333–0.8824`，位置 RMSE 为 `23.52–40.36 m`。
+这证明了生产 TrackManager/PIPE 和协议来源审计链，而不是证明低假轨、在线 servo 校正或
+blind/known 的性能增益；3 period 已验证，4/5 period 尚未验证。
+
+正式 raw 输入、结果 BIN/PNG/F32 已在结果审查后清理，保留 manifest、truth/config、关键
+SHM/PIPE 日志、track_debug CSV、branch metrics 和 protocol payload audit。完整轻量副本见
+`outputs/formal_evidence/track_contract.json`、`track_branch_metrics.csv` 和
+`track_protocol_payload_audit.csv`；清理与失败现场摘要见
+`outputs/cleanup_manifest_20260915.json` 和
+`outputs/track_manager_e2e_cleanup_summary_20260915.json`。
+
 ## 8. 后续阶段顺序
 
 1. 保持已完成的六-pair observables、bias/deadband、nuisance 和目标/Pfa 审计可复现；
-2. 建立 3–5 period 的生产 TrackManager/PIPE 闭环，逐条审计 Confirmed +
-   matched_this_frame 的协议目标来源；
-3. 完成 servo-specific 多场景 Pd/Pfa 边界；纯 DOF J4 当前没有足够证据开启 production
+2. 扩展已通过的 3-period TrackManager/PIPE 审计到 4–5 period，并补 servo-specific 多场景
+   Pd/Pfa 边界；
+3. 纯 DOF J4 当前没有足够证据开启 production
    CUDA 4ch STAP；
 4. 只有确定性估计残差仍稳定、可量化且难以解析，才评估 Physics-AI；当前
    `ai_training=false`，不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
@@ -661,15 +696,14 @@ moving-target 的 120 个 paired target-assisted reference 为 `VALID`，target-
   `scripts/estimate_temporal_phase.py`
 - bias exact-path audit：`outputs/unknown_system_error_geometry_bias_audit_20260914_v1/`
 - deadband/sensitivity audit：`outputs/unknown_system_error_geometry_deadband_audit_20260914_v2/`
-- extended geometry formal matrix：`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`
-- independent nuisance sweep：`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`
-- causal target transfer：`outputs/unknown_system_error_target_transfer_audit_20260914_v2/`
-- empirical Pfa controls：`outputs/unknown_system_error_pfa_audit_20260914_v8/`、
-  `outputs/unknown_system_error_pfa_formal_reference_20260914_v2/`
-- information-matched baseline：`outputs/unknown_system_error_information_matched_baseline_20260914_v1/`，
-  以及其 `pairwise_postprocess_manifest.json`
+- retained geometry matrix / validity gate：`outputs/unknown_system_error_geometry_matrix_20260914_v2/`
+- causal target transfer：`outputs/unknown_system_error_end_to_end_20260914/target_only_transfer.csv`
 - Pfa H0–H5 closure：`outputs/unknown_system_error_pfa_closure_20260914/manifest.json`、
-  `pfa_closure_summary.csv`
+  `pfa_summary.csv`
+- information-matched pure spatial DOF：`outputs/unknown_system_error_pure_spatial_dof_20260915/`，
+  以及其 `information_matched_pairwise_aggregate.csv`
+- Pfa H0–H5 closure：`outputs/unknown_system_error_pfa_closure_20260914/manifest.json`、
+  `pfa_summary.csv`
 - pure spatial DOF J2/J4：`outputs/unknown_system_error_pure_spatial_dof_20260915/manifest.json`、
   `information_matched_pairwise_aggregate.csv`
 - platform velocity true/report：`outputs/velocity_error_formal_compact_v2_20260915/manifest.json`、
@@ -681,9 +715,9 @@ moving-target 的 120 个 paired target-assisted reference 为 `VALID`，target-
   `tests/test_attitude_source_split.py`
 - target-assisted servo calibration pilot：canonical runner
   `scripts/run_target_assisted_servo_calibration_pilot.py`（旧命令
-  `scripts/run_unknown_system_error_servo_pilot.py` 保持兼容），结果见
-  `outputs/unknown_system_error_servo_pilot_20260914_v3/manifest.json`、
-  `servo_estimates.csv`、`servo_decisions.csv`、`core_metrics.csv`
+  `scripts/run_unknown_system_error_servo_pilot.py` 保持兼容），compact 结果见
+  `outputs/unknown_system_error_pilot_20260914_clean/manifest.json`、
+  `condition_metrics.csv`、`calibration_phase_difference.csv`
 - target-free clutter-only servo formal：
   `outputs/clutter_only_servo_formal_compact_v2_20260914/manifest.json`、
   `servo_estimates.csv`、`servo_decisions.csv`、`aggregate_metrics.csv`；修复后 CUDA
@@ -693,4 +727,12 @@ moving-target 的 120 个 paired target-assisted reference 为 `VALID`，target-
   `outputs/servo_gmti_e2e_formal_compact_20260914/manifest.json`、`case_index.csv`、
   `servo_estimates.csv`、`servo_decisions.csv`、`e2e_metrics.csv`、`aggregate_metrics.csv`；
   representative CUDA smoke：`outputs/servo_gmti_e2e_cuda_smoke_20260914/manifest.json`、
-  `core_metrics.csv`、对应 `core/*/gmticore.log`
+  `core_metrics.csv`；raw case/log 树已按 `outputs/cleanup_manifest_20260915.json` 清理
+- production TrackManager/PIPE continuous-target audit：
+  `outputs/track_manager_e2e_formal_compact_20260915/manifest.json`、
+  `track_branch_metrics.csv`、`track_protocol_payload_audit.csv`、各 branch 的
+  `track_debug/*.csv`；compact contract 为 `outputs/formal_evidence/track_contract.json`
+- unified compact formal evidence（15 files, raw suffixes excluded）：
+  `outputs/formal_evidence/manifest.json`
+- cleanup and retained failure summary：`outputs/cleanup_manifest_20260915.json`、
+  `outputs/track_manager_e2e_cleanup_summary_20260915.json`

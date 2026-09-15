@@ -28,6 +28,13 @@ REQUIRED_ARTIFACTS = (
     "servo_estimates.csv",
     "servo_decisions.csv",
     "information_matched_pairwise_aggregate.csv",
+    "velocity_estimates.csv",
+    "velocity_decisions.csv",
+    "attitude_estimates.csv",
+    "attitude_decisions.csv",
+    "track_branch_metrics.csv",
+    "track_protocol_payload_audit.csv",
+    "track_contract.json",
 )
 SOURCE_KEYS = (
     "geometry",
@@ -38,16 +45,22 @@ SOURCE_KEYS = (
     "pfa",
     "servo",
     "information_matched",
+    "velocity",
+    "attitude",
+    "track",
 )
 DEFAULT_SOURCE_RELATIVE = {
-    "geometry": "outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2",
-    "geometry_nuisance": "outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1",
-    "e2e": "outputs/unknown_system_error_end_to_end_20260914_formal_v4",
-    "deadband": "outputs/unknown_system_error_geometry_deadband_audit_20260914_v2",
-    "target_transfer": "outputs/unknown_system_error_target_transfer_audit_20260914_v2",
-    "pfa": "outputs/unknown_system_error_pfa_audit_20260914_v8",
-    "servo": "outputs/unknown_system_error_servo_pilot_20260914_v3",
-    "information_matched": "outputs/unknown_system_error_information_matched_baseline_20260914_v1",
+    "geometry": "outputs/unknown_system_error_geometry_matrix_20260914_v2",
+    "geometry_nuisance": "outputs/unknown_system_error_geometry_matrix_20260914_v2",
+    "e2e": "outputs/unknown_system_error_end_to_end_20260914",
+    "deadband": "outputs/clutter_only_servo_formal_compact_v2_20260914",
+    "target_transfer": "outputs/unknown_system_error_end_to_end_20260914",
+    "pfa": "outputs/unknown_system_error_pfa_closure_20260914",
+    "servo": "outputs/clutter_only_servo_formal_compact_v2_20260914",
+    "information_matched": "outputs/unknown_system_error_pure_spatial_dof_20260915",
+    "velocity": "outputs/velocity_error_formal_compact_v2_20260915",
+    "attitude": "outputs/yaw_error_formal_compact_20260915",
+    "track": "outputs/track_manager_e2e_formal_compact_20260915",
 }
 RAW_SUFFIXES = {".bin", ".npy", ".npz", ".log", ".png", ".jpg", ".jpeg"}
 
@@ -120,6 +133,12 @@ def _write_csv(
         writer.writerows(materialized)
 
 
+def _write_json(path: Path, value: Mapping[str, object]) -> None:
+    with path.open("w", encoding="utf-8") as stream:
+        json.dump(value, stream, indent=2, ensure_ascii=False, allow_nan=False)
+        stream.write("\n")
+
+
 def _validate_source_roots(
     repository_root: Path,
     source_roots: Mapping[str, Path] | None,
@@ -163,6 +182,49 @@ def _union_fieldnames(groups: Sequence[tuple[list[str], list[dict[str, str]]]]) 
     return names
 
 
+def _track_contract(source_manifest: Path) -> dict[str, object]:
+    with source_manifest.open("r", encoding="utf-8") as stream:
+        source = json.load(stream)
+    if not isinstance(source, dict):
+        raise ValueError(f"track source manifest is not an object: {source_manifest}")
+    runs: list[dict[str, object]] = []
+    for case in source.get("cases", []):
+        if not isinstance(case, Mapping):
+            continue
+        for branch in case.get("branches", []):
+            if not isinstance(branch, Mapping):
+                continue
+            metrics = branch.get("metrics")
+            audit = metrics if isinstance(metrics, Mapping) else {}
+            runs.append({
+                "seed": case.get("seed"),
+                "branch": branch.get("branch"),
+                "production_status": branch.get("production_status"),
+                "target_status": branch.get("target_status"),
+                "audit_status": audit.get("track_audit_status"),
+                "audit_total_violations": audit.get("track_audit_total_violations"),
+                "pipe_runtime_status": (
+                    branch.get("pipe_runtime_metrics", {})
+                    .get("status")
+                    if isinstance(branch.get("pipe_runtime_metrics"), Mapping)
+                    else None
+                ),
+            })
+    return {
+        "schema": "track_manager_pipe_contract_v1",
+        "source_manifest": str(source_manifest),
+        "source_status": source.get("status"),
+        "input_mode": source.get("input_mode"),
+        "period_count": source.get("period_count"),
+        "seeds": source.get("seeds"),
+        "input_rate_bytes_per_sec": source.get("input_rate_bytes_per_sec"),
+        "branch_contract": source.get("branch_contract"),
+        "ai_training": source.get("ai_training"),
+        "router_enabled": source.get("router_enabled"),
+        "runs": runs,
+    }
+
+
 def _count_raw_files(source_roots: Mapping[str, Path]) -> int:
     count = 0
     for root in source_roots.values():
@@ -193,17 +255,26 @@ def collect_formal_evidence(
     source_files = {
         "summary.csv": (
             ("geometry", "matrix_summary.csv"),
-            ("geometry_nuisance", "nuisance_matrix_summary.csv"),
+            ("geometry_nuisance", "matrix_rows.csv"),
             ("e2e", "production_metrics.csv"),
             ("e2e", "recovery_metrics.csv"),
+            ("pfa", "pfa_summary.csv"),
         ),
-        "correction_decisions.csv": (("deadband", "correction_decisions.csv"),),
-        "target_transfer.csv": (("target_transfer", "target_transfer.csv"),),
+        "correction_decisions.csv": (("deadband", "servo_decisions.csv"),),
+        "target_transfer.csv": (("target_transfer", "target_only_transfer.csv"),),
         "pfa_summary.csv": (("pfa", "pfa_summary.csv"),),
         "servo_estimates.csv": (("servo", "servo_estimates.csv"),),
         "servo_decisions.csv": (("servo", "servo_decisions.csv"),),
         "information_matched_pairwise_aggregate.csv": (
             ("information_matched", "information_matched_pairwise_aggregate.csv"),
+        ),
+        "velocity_estimates.csv": (("velocity", "velocity_estimates.csv"),),
+        "velocity_decisions.csv": (("velocity", "velocity_decisions.csv"),),
+        "attitude_estimates.csv": (("attitude", "attitude_estimates.csv"),),
+        "attitude_decisions.csv": (("attitude", "attitude_decisions.csv"),),
+        "track_branch_metrics.csv": (("track", "track_branch_metrics.csv"),),
+        "track_protocol_payload_audit.csv": (
+            ("track", "track_protocol_payload_audit.csv"),
         ),
     }
     resolved_files: dict[str, list[Path]] = {}
@@ -246,6 +317,17 @@ def collect_formal_evidence(
                 "row_count": len(rows),
                 "sha256": _sha256(destination),
             }
+
+        track_manifest = _source_file(mapped, "track", "manifest.json")
+        track_contract = _track_contract(track_manifest)
+        contract_destination = temporary / "track_contract.json"
+        _write_json(contract_destination, track_contract)
+        artifact_records["track_contract.json"] = {
+            "source_paths": [str(track_manifest)],
+            "source_sha256": [_sha256(track_manifest)],
+            "row_count": len(track_contract["runs"]),
+            "sha256": _sha256(contract_destination),
+        }
 
         source_status = _git_value(
             repository, "status", "--short", "--untracked-files=no"

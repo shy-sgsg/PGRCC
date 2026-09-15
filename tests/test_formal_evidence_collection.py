@@ -35,13 +35,16 @@ def _source_roots(tmp_path: Path) -> dict[str, Path]:
         "pfa": tmp_path / "pfa",
         "servo": tmp_path / "servo",
         "information_matched": tmp_path / "information_matched",
+        "velocity": tmp_path / "velocity",
+        "attitude": tmp_path / "attitude",
+        "track": tmp_path / "track",
     }
     _write_csv(
         roots["geometry"] / "matrix_summary.csv",
         [{"condition": "zero", "estimate_m": "0.0"}],
     )
     _write_csv(
-        roots["geometry_nuisance"] / "nuisance_matrix_summary.csv",
+        roots["geometry_nuisance"] / "matrix_rows.csv",
         [{"profile": "range_9000", "estimate_m": "0.0"}],
     )
     _write_csv(
@@ -53,11 +56,11 @@ def _source_roots(tmp_path: Path) -> dict[str, Path]:
         [{"branch": "Known", "recovery": "0.0"}],
     )
     _write_csv(
-        roots["deadband"] / "correction_decisions.csv",
+        roots["deadband"] / "servo_decisions.csv",
         [{"label": "zero", "status": "NO_CORRECTION_NEEDED"}],
     )
     _write_csv(
-        roots["target_transfer"] / "target_transfer.csv",
+        roots["target_transfer"] / "target_only_transfer.csv",
         [{"branch": "Current", "pd": "0.0"}],
     )
     _write_csv(
@@ -76,6 +79,56 @@ def _source_roots(tmp_path: Path) -> dict[str, Path]:
         roots["information_matched"] / "information_matched_pairwise_aggregate.csv",
         [{"pair": "J4-J2", "delta": "0.0"}],
     )
+    _write_csv(
+        roots["velocity"] / "velocity_estimates.csv",
+        [{"branch": "V1", "status": "FALLBACK"}],
+    )
+    _write_csv(
+        roots["velocity"] / "velocity_decisions.csv",
+        [{"branch": "V1", "decision": "KEEP_CURRENT"}],
+    )
+    _write_csv(
+        roots["attitude"] / "attitude_estimates.csv",
+        [{"branch": "A1", "status": "FALLBACK"}],
+    )
+    _write_csv(
+        roots["attitude"] / "attitude_decisions.csv",
+        [{"branch": "A1", "decision": "KEEP_CURRENT"}],
+    )
+    _write_csv(
+        roots["track"] / "track_branch_metrics.csv",
+        [{"branch": "Current", "track_pd_all_visible": "1.0"}],
+    )
+    _write_csv(
+        roots["track"] / "track_protocol_payload_audit.csv",
+        [{"branch": "Current", "eligible": "1", "matched_truth": "1"}],
+    )
+    (roots["track"] / "manifest.json").write_text(
+        json.dumps({
+            "status": "completed",
+            "input_mode": "shm",
+            "period_count": 3,
+            "seeds": [101],
+            "input_rate_bytes_per_sec": 1000000,
+            "ai_training": False,
+            "router_enabled": False,
+            "branch_contract": {"branches": ["Current"]},
+            "cases": [{
+                "seed": 101,
+                "branches": [{
+                    "branch": "Current",
+                    "production_status": "passed",
+                    "target_status": "positive",
+                    "metrics": {
+                        "track_audit_status": "pass",
+                        "track_audit_total_violations": 0,
+                    },
+                    "pipe_runtime_metrics": {"status": "passed"},
+                }],
+            }],
+        }),
+        encoding="utf-8",
+    )
     (roots["servo"] / "raw_payload.bin").write_bytes(b"raw evidence must not be copied")
     return roots
 
@@ -90,6 +143,8 @@ def test_collect_formal_evidence_writes_exact_required_files(tmp_path: Path) -> 
     assert result["manifest"]["raw_artifacts_excluded"] is True
     assert result["manifest"]["source_commit"]
     assert sorted(path.name for path in (tmp_path / "formal_evidence").iterdir()) == [
+        "attitude_decisions.csv",
+        "attitude_estimates.csv",
         "correction_decisions.csv",
         "information_matched_pairwise_aggregate.csv",
         "manifest.json",
@@ -98,13 +153,18 @@ def test_collect_formal_evidence_writes_exact_required_files(tmp_path: Path) -> 
         "servo_estimates.csv",
         "summary.csv",
         "target_transfer.csv",
+        "track_branch_metrics.csv",
+        "track_contract.json",
+        "track_protocol_payload_audit.csv",
+        "velocity_decisions.csv",
+        "velocity_estimates.csv",
     ]
     assert not (tmp_path / "formal_evidence" / "raw_payload.bin").exists()
     manifest = json.loads(
         (tmp_path / "formal_evidence" / "manifest.json").read_text(encoding="utf-8")
     )
     assert manifest["schema"] == "unknown_system_error_formal_evidence_v1"
-    assert manifest["artifact_count"] == 8
+    assert manifest["artifact_count"] == 15
 
 
 def test_collect_formal_evidence_rejects_unmapped_or_missing_source(tmp_path: Path) -> None:

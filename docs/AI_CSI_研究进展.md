@@ -14,14 +14,17 @@
 本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量、true/report 几何、
 unknown-only geometry estimator、几何扩展矩阵，以及 B0/B1/B1K 生产 CUDA CSI/CFAR、
 目标因果传递、Pfa 分母审计、信息量匹配 baseline 和 B2/B3/B3K 离线 STAP reference；
-还启动了 target-assisted servo calibration pilot，没有训练 AI。机器可读证据在
-`outputs/system_error_inventory/`、`outputs/unknown_system_error_geometry_matrix_20260914_v2/`
-、`outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、
-`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、
-`outputs/unknown_system_error_end_to_end_20260914_formal_v4/` 和
-`outputs/unknown_system_error_servo_pilot_20260914_v3/`；clutter-only servo formal
-矩阵另见 `outputs/clutter_only_servo_formal_compact_v2_20260914/`，moving-target servo
-E2E 另见 `outputs/servo_gmti_e2e_formal_compact_20260914/`，详细边界见
+还完成了 target-assisted servo pilot、target-free clutter-only formal、true/report
+velocity、yaw-first attitude 和生产 TrackManager/PIPE 连续目标审计，没有训练 AI。机器可读
+证据在 `outputs/system_error_inventory/`、`outputs/unknown_system_error_geometry_matrix_20260914_v2/`、
+`outputs/unknown_system_error_end_to_end_20260914/`、
+`outputs/unknown_system_error_pilot_20260914_clean/`、
+`outputs/clutter_only_servo_formal_compact_v2_20260914/`、
+`outputs/servo_gmti_e2e_formal_compact_20260914/`、
+`outputs/velocity_error_formal_compact_v2_20260915/`、
+`outputs/yaw_error_formal_compact_20260915/` 和
+`outputs/track_manager_e2e_formal_compact_20260915/`；统一轻量证据入口为
+`outputs/formal_evidence/`，详细边界见
 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
 
 当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
@@ -104,6 +107,20 @@ Oracle 术语或 Router 状态当作当前待办。
   不能区分 yaw 与 servo 原因；本 compact 阶段未运行 Core、TrackManager/PIPE、Pd 或 Pfa。
   证据见 `outputs/yaw_error_formal_compact_20260915/`，源字段和约束见
   `scripts/run_yaw_error_study.py`。
+- 生产 TrackManager/PIPE 连续目标正式审计已完成：3 个 seed × `Current`、
+  `blind_calibrated`、`known_error_calibrated` 三个分支，每个分支 3 个连续周期，共 9 行
+  branch metrics、27 个 SHM 周期和 27 个 PIPE 结果。全部运行均为 390/390 valid PRT、
+  `ring_overrun=0`、`gaps=0`、`duplicates=0`，TrackManager 审计 9/9 `pass` 且 0 violation；
+  协议载荷 294 行均可追溯到 production track_debug 的同周期确认关联链。周期去重后
+  `track Pd(all visible)=2/3`，确认窗口后的 `track Pd=2/2`；false-track rate 为
+  `0.8333–0.8824`，因此只证明链路和因果审计成立，不证明低假轨或在线校准收益。
+  blind 分支明确 `fallback_to_current`，known 分支为 `evaluation_only`，两者均未注入校正，
+  AI/Router 仍关闭。证据见 `outputs/track_manager_e2e_formal_compact_20260915/` 和
+  `outputs/formal_evidence/track_contract.json`。
+- 本次清理删除了已失败/被 supersede 的 raw smoke 与逐案例 BIN/PNG/F32，保留命令、配置、
+  truth、manifest、关键日志和审计 CSV；失败的 SHM overrun 与修正后的限速 smoke 只保留在
+  `outputs/track_manager_e2e_cleanup_summary_20260915.json`，清理清单见
+  `outputs/cleanup_manifest_20260915.json`。
 - 本阶段 `ai_training=false`；不训练 MLP、通用 `delta-alpha`、RD image-to-image 或 Router。
 
 2026-09-10 已完成生产相位修复迁移后的 CUDA 正确性基线、残余纹理诊断、Stage2
@@ -206,18 +223,19 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 |---|---|---|
 | 真实系统误差参数盘点 | 已完成代码审计初版 | [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)、`outputs/system_error_inventory/parameter_inventory.csv` |
 | 误差传播与可辨识性 | 第一版关系已审计；基线几何已完成小规模数值验证 | `outputs/system_error_inventory/propagation_map.csv`、`outputs/unknown_system_error_pilot_20260913_v5/calibration_phase_difference.json` |
-| Current 与四通道 STAP 比较口径 | 能力层与信息量匹配层均已运行；M3 仍为离线混合 reference | `outputs/unknown_system_error_end_to_end_20260914_formal_v4/manifest.json`、`outputs/unknown_system_error_information_matched_baseline_20260914_v1/` |
+| Current 与四通道 STAP 比较口径 | 能力层与信息量匹配层均已运行；J4 仍为离线纯 DOF reference，未形成 production 4ch STAP 优势 | `outputs/unknown_system_error_end_to_end_20260914/manifest.json`、`outputs/unknown_system_error_pure_spatial_dof_20260915/` |
 | Phase0 paired-reference baseline-phase sanity | `run`，明确非 blind/online | `outputs/unknown_system_error_pilot_20260914_clean/manifest.json`；估计误差 `0.009999999925 m`，恢复比 `0.9999999991` |
 | Phase1/2 true/report geometry + blind estimator | `run`，单参数 baseline geometry | `outputs/unknown_system_error_end_to_end_20260914/calibration/unknown_only_estimator.json` |
 | Phase3 blind geometry matrix | `run`，27/27 fit、无 fallback | `outputs/unknown_system_error_geometry_matrix_20260914_v2/matrix_summary.csv`、`single_pair_vs_six_pair.csv` |
 | Phase4 production CSI/CFAR + offline STAP | `run`，B0/B1/B1K CUDA；B2/B3/B3K offline reference | `outputs/unknown_system_error_end_to_end_20260914/production_metrics.csv`、`offline_stap_metrics.csv` |
 | Phase5 recovery/Pd/Pfa/target transfer | `run`，受控 moving-target fixture | `recovery_metrics.csv`、`target_only_transfer.csv`、`target_off_false_cluster_metrics.csv` |
-| Phase6 geometry correction + nuisance + servo pilot | 几何扩展矩阵、deadband、nuisance sweep、target-assisted pilot 与 target-free clutter-only formal 已运行；S1 当前全 fallback；平台速度未开始 | `outputs/unknown_system_error_geometry_matrix_extended_20260914_formal_v2/`、`outputs/unknown_system_error_geometry_nuisance_sweep_20260914_formal_v1/`、`outputs/unknown_system_error_servo_pilot_20260914_v3/`、`outputs/clutter_only_servo_formal_compact_v2_20260914/` |
-| Phase7 moving-target servo E2E | formal 96 cases 的 OFF-only 输入和 Stage2 角色链已运行；compact formal 跳过 Core；代表性 CUDA smoke 的 TO 内部质量 gate 失败，未形成 Pd/PIPE 正向结论 | `outputs/servo_gmti_e2e_formal_compact_20260914/`、`outputs/servo_gmti_e2e_cuda_smoke_20260914/` |
+| Phase6 geometry correction + servo pilot | 几何矩阵、target-assisted pilot 与 target-free clutter-only formal 已运行；S1 当前全 fallback；平台速度随后单独审计 | `outputs/unknown_system_error_geometry_matrix_20260914_v2/`、`outputs/unknown_system_error_pilot_20260914_clean/`、`outputs/clutter_only_servo_formal_compact_v2_20260914/` |
+| Phase7 moving-target servo E2E | formal 96 cases 的 OFF-only 输入和 Stage2 角色链已运行；compact formal 跳过 Core；代表性 CUDA smoke 的 TO 内部质量 gate 失败，未形成 Pd/PIPE 正向结论；raw case 树已清理 | `outputs/servo_gmti_e2e_formal_compact_20260914/`、`outputs/servo_gmti_e2e_cuda_smoke_20260914/` |
 | Phase8 Pfa H0–H5 closure | 18 rows、18M 独立 CUT；H0 cell-Pfa `1.3333e-6`，H1–H5 仅为结构杂波 false-hit controls | `outputs/unknown_system_error_pfa_closure_20260914/` |
 | Phase9 pure spatial DOF J2/J4 | 9 cases；J4−J2 平均 output-SCNR `−7.6247 dB`，未形成 production 4ch STAP 优势 | `outputs/unknown_system_error_pure_spatial_dof_20260915/` |
 | Phase10 platform velocity true/report | 108-case compact formal + 3-row CUDA smoke；header 分离通过，blind estimator 全部 fallback | `outputs/velocity_error_formal_compact_v2_20260915/`、`outputs/velocity_error_cuda_smoke_20260915/` |
 | Phase11 yaw-first attitude | 240-case compact formal；pitch/roll 固定 0，blind estimator 240/240 fallback，未形成正向修正结论 | `outputs/yaw_error_formal_compact_20260915/` |
+| Phase12 production TrackManager/PIPE | 3 seed × 3 branch × 3 period；9/9 SHM/PIPE pass、0 ring overrun/gap/duplicate、9/9 protocol audit pass；Track Pd 2/3 all-visible、2/2 after confirmation，false-track rate 0.8333–0.8824；无校正收益 claim | `outputs/track_manager_e2e_formal_compact_20260915/`、`outputs/formal_evidence/track_contract.json` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
