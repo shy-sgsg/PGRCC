@@ -1034,6 +1034,8 @@ def run_production_branch(
     period_count: int,
     input_mode: str,
     layout: Mapping[str, object],
+    *,
+    truth_path: Path | None = None,
 ) -> dict[str, object]:
     """Run one condition/role through the existing production TrackManager.
 
@@ -1199,6 +1201,74 @@ def run_production_branch(
             cfar_summary,
             DEFAULT_THEORETICAL_PFA,
         )
+    id_switch_audit_path: Path | None = None
+    id_switch_rows: list[dict[str, object]] = []
+    id_switch_status = "NOT_APPLICABLE"
+    id_switch_reason: str | None = None
+    id_switch_sources: dict[str, object] = {
+        "track_debug_dir": str(debug_dir) if debug_dir is not None else None,
+        "detection_dir": str(result_dir),
+        "payload_path": (
+            str(debug_dir / "track_output_payloads.csv")
+            if debug_dir is not None else None
+        ),
+        "truth_path": str(truth_path) if truth_path is not None else None,
+    }
+    if role == "ON":
+        id_switch_audit_path = branch_root / "id_switch_audit.csv"
+        try:
+            from scripts.audit_delay_track_id_switch import (
+                audit_track_id_switches,
+                classification_counts,
+                write_audit,
+            )
+
+            payload_path = (
+                debug_dir / "track_output_payloads.csv"
+                if debug_dir is not None
+                else branch_root / "missing_track_output_payloads.csv"
+            )
+            detection_files = sorted(result_dir.glob("detection_results_GMTI*.csv"))
+            truth_file = (
+                truth_path / "truth_targets_by_beam.csv"
+                if truth_path is not None and truth_path.is_dir()
+                else truth_path
+            )
+            missing_audit_inputs = []
+            if debug_dir is None or not debug_dir.is_dir():
+                missing_audit_inputs.append("track_debug_dir")
+            if not payload_path.is_file():
+                missing_audit_inputs.append("track_output_payloads.csv")
+            if not detection_files:
+                missing_audit_inputs.append("detection_results_GMTI*.csv")
+            if truth_file is None or not truth_file.is_file():
+                missing_audit_inputs.append("truth_targets_by_beam.csv")
+            if missing_audit_inputs:
+                id_switch_status = "NOT_EVALUABLE"
+                id_switch_reason = "missing_audit_inputs:" + ",".join(missing_audit_inputs)
+            else:
+                id_switch_rows = audit_track_id_switches(
+                    debug_dir,
+                    result_dir,
+                    payload_path,
+                    truth_path,
+                )
+                id_switch_status = "passed"
+            write_audit(id_switch_audit_path, id_switch_rows)
+        except (OSError, ValueError, KeyError, RuntimeError) as exc:
+            id_switch_status = "error"
+            id_switch_reason = str(exc)
+            try:
+                from scripts.audit_delay_track_id_switch import write_audit
+
+                write_audit(id_switch_audit_path, [])
+            except (OSError, ValueError):
+                pass
+    id_switch_counts = (
+        classification_counts(id_switch_rows)
+        if role == "ON"
+        else None
+    )
     production_status = "passed" if int(rc) == 0 and audit.get("status") == "pass" else "failed"
     record.update({
         "production_returncode": int(rc),
@@ -1215,6 +1285,12 @@ def run_production_branch(
         "cycle_rows": cycle_rows,
         "protocol_rows": payload_rows,
         "target_off_waterfall": off_waterfall,
+        "id_switch_audit_path": str(id_switch_audit_path) if id_switch_audit_path else None,
+        "id_switch_audit_row_count": len(id_switch_rows) if role == "ON" else None,
+        "id_switch_classification_counts": id_switch_counts,
+        "id_switch_audit_status": id_switch_status,
+        "id_switch_audit_reason": id_switch_reason,
+        "id_switch_audit_sources": id_switch_sources if role == "ON" else None,
         "production_status": production_status,
         "status": production_status,
     })
@@ -1538,6 +1614,7 @@ def run_stage1_case(
                 period_count,
                 input_mode,
                 layout,
+                truth_path=Path(str(scene_runs["A0_ON"]["output_dir"])) / "truth",
             )
         production_records[condition] = role_records
     manifest["conditions"] = {
