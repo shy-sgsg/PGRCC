@@ -2054,8 +2054,12 @@ def _manifest_hashes(value: object) -> dict[str, str]:
     return result
 
 
-def cleanup_stage1_raw(case_root: Path) -> dict[str, object]:
-    """Remove only generated ``.bin`` files after a completed case.
+def cleanup_stage1_raw(
+    case_root: Path,
+    *,
+    allow_incomplete: bool = False,
+) -> dict[str, object]:
+    """Remove only generated ``.bin`` files after evidence capture.
 
     The production and simulator outputs are large and reproducible.  This
     explicit opt-in cleanup keeps JSON/CSV/XML/log/debug evidence and records
@@ -2071,9 +2075,14 @@ def cleanup_stage1_raw(case_root: Path) -> dict[str, object]:
     if not root.is_dir() or not manifest_path.is_file():
         raise ValueError(f"raw cleanup requires a completed case root: {root}")
     manifest = _read_json(manifest_path)
-    if manifest.get("status") != "completed":
+    case_status = str(manifest.get("status"))
+    allowed_statuses = {"completed"}
+    if allow_incomplete:
+        allowed_statuses.add("completed_with_gaps")
+    if case_status not in allowed_statuses:
         raise ValueError(
-            f"raw cleanup requires case status=completed, got {manifest.get('status')!r}: {root}"
+            f"raw cleanup requires case status in {sorted(allowed_statuses)}, "
+            f"got {manifest.get('status')!r}: {root}"
         )
     hashes = _manifest_hashes(manifest)
     candidates = sorted(root.rglob("*.bin"))
@@ -2131,8 +2140,9 @@ def cleanup_stage1_raw(case_root: Path) -> dict[str, object]:
     report = {
         "schema_version": 1,
         "case_root": str(root),
-        "status": "completed",
+        "status": case_status,
         "policy": "remove_generated_bin_only_keep_compact_audit_files",
+        "allow_incomplete": bool(allow_incomplete),
         "removed_file_count": removed_files,
         "removed_bytes": removed_bytes,
         "retained_external_symlink_count": retained_external_symlinks,
