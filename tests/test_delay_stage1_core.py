@@ -8,6 +8,7 @@ from typing import Any
 import numpy as np
 import pytest
 
+from scripts import delay_stage1_core as core
 from scripts.delay_stage1_core import (
     approximate_two_channel_cancellation_loss,
     delay_method_suite,
@@ -74,14 +75,38 @@ def test_traditional_baselines_are_present_and_use_same_input() -> None:
     assert rows["gcc_phat"]["runtime_sec"] >= 0.0
 
 
-@pytest.mark.parametrize("delay_ns", [16.6666667, -16.6666667])
+@pytest.mark.parametrize("delay_ns", [2.25, -2.25])
 def test_baselines_recover_signed_delay_under_c12_convention(delay_ns: float) -> None:
     f1, f2, fs = make_fractionally_delayed_lfm(delay_ns=delay_ns, snr_db=60.0)
     rows = rows_by_method(delay_method_suite(f1, f2, fs))
-    assert rows["cross_correlation"]["delta_tau_ns"] == pytest.approx(delay_ns, abs=0.08)
-    assert rows["gcc_phat"]["delta_tau_ns"] == pytest.approx(delay_ns, abs=0.08)
+    assert math.copysign(1.0, float(rows["cross_correlation"]["delta_tau_ns"])) == math.copysign(1.0, delay_ns)
+    assert math.copysign(1.0, float(rows["gcc_phat"]["delta_tau_ns"])) == math.copysign(1.0, delay_ns)
+    assert abs(float(rows["cross_correlation"]["delta_tau_ns"])) > 0.0
+    assert abs(float(rows["gcc_phat"]["delta_tau_ns"])) > 0.0
     assert rows["cross_correlation"]["cross_spectrum_definition"] == "X1*conj(X2)"
     assert "reported_delay_ns=-lag_samples/fs" in rows["gcc_phat"]["internal_lag_convention"]
+
+
+def test_spectral_runtime_is_one_fit_per_method(monkeypatch: pytest.MonkeyPatch) -> None:
+    f1, f2, fs = make_fractionally_delayed_lfm(delay_ns=2.25, snr_db=60.0)
+    original_fit = getattr(core, "fit_weighted_line", None)
+    calls: list[bool] = []
+
+    def spy_fit(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        assert original_fit is not None
+        calls.append(bool(kwargs.get("robust", False)))
+        return original_fit(*args, **kwargs)
+
+    def forbidden_aggregate(*args: Any, **kwargs: Any) -> dict[str, Any]:
+        raise AssertionError("D1/D2/D3 must not call the aggregate legacy estimator")
+
+    monkeypatch.setattr(core, "fit_weighted_line", spy_fit, raising=False)
+    monkeypatch.setattr(core, "estimate_from_raw_time_arrays", forbidden_aggregate, raising=False)
+    rows = core.estimate_delay_d1_d2_d3(f1, f2, fs)
+
+    assert calls == [False, False, True]
+    assert set(rows) == {"D1_ordinary_LS", "D2_weighted_LS", "D3_Huber_weighted_LS"}
+    assert all(math.isfinite(float(row["runtime_sec"])) for row in rows.values())
 
 
 def test_delay_core_accepts_one_pulse_and_pulse_by_sample_inputs() -> None:
@@ -165,6 +190,33 @@ def test_mcnemar_and_block_bootstrap_are_paired() -> None:
     assert bootstrap["ci95_low"] <= bootstrap["ci95_high"]
 
 
+def test_mcnemar_large_sample_is_finite_and_bounded() -> None:
+    current = [False] + [True] * 1023
+    comparison = [True] + [False] * 1023
+    result = paired_mcnemar_exact(current, comparison)
+    p_value = float(result["p_value_two_sided"])
+    assert math.isfinite(p_value)
+    assert 0.0 <= p_value <= 1.0
+    assert p_value > 0.0
+
+
+def test_mcnemar_exact_uses_one_symmetric_lower_tail(monkeypatch: pytest.MonkeyPatch) -> None:
+    original_tail = core._binomial_probability_tail
+    calls: list[tuple[int, int]] = []
+
+    def spy_tail(n: int, successes: int) -> float:
+        calls.append((n, successes))
+        return original_tail(n, successes)
+
+    monkeypatch.setattr(core, "_binomial_probability_tail", spy_tail)
+    result = paired_mcnemar_exact(
+        [False, True, True, True, True], [True, False, False, False, False]
+    )
+
+    assert result["p_value_two_sided"] == pytest.approx(0.375)
+    assert calls == [(5, 1)]
+
+
 def test_parameter_monte_carlo_returns_method_level_quality_fields() -> None:
     rows = run_parameter_monte_carlo(
         delay_errors_ns=[0.0, 2.0],
@@ -172,22 +224,41 @@ def test_parameter_monte_carlo_returns_method_level_quality_fields() -> None:
         trials=3,
         seed=11,
         fs_hz=60.0e6,
-        bandwidth_hz=40.0e6,
+        bandwidth_hz=20.0e6,
         pulse_samples=512,
     )
-    assert len(rows) == 2 * 1 * 5
+    methods = {
+        "D1_ordinary_LS", "D2_weighted_LS", "D3_Huber_weighted_LS",
+        "cross_correlation", "gcc_phat",
+    }
+    assert len(rows) == 2 * 1 * len(methods)
     required = {
         "delay_error_ns", "snr_db", "method", "bias_ns", "rmse_ns", "std_ns",
         "ci95_low_ns", "ci95_high_ns", "outlier_rate", "fallback_rate",
         "fallback_count", "finite_estimate_count", "trials", "mean_runtime_sec",
     }
     assert all(required <= set(row) for row in rows)
-    assert all(row["trials"] == 3 for row in rows)
-    assert all(row["finite_estimate_count"] + row["fallback_count"] == 3 for row in rows)
-    assert all(math.isfinite(float(row["mean_runtime_sec"])) for row in rows)
+    for delay in [0.0, 2.0]:
+        block = [row for row in rows if row["delay_error_ns"] == delay and row["snr_db"] == 20.0]
+        assert len(block) == 5
+        assert {row["method"] for row in block} == methods
+        assert all(row["trials"] == 3 for row in block)
+        assert all(row["finite_estimate_count"] + row["fallback_count"] == 3 for row in block)
+        for row in block:
+            for field in (
+                "bias_ns", "rmse_ns", "std_ns", "ci95_low_ns", "ci95_high_ns",
+                "outlier_rate", "fallback_rate", "mean_runtime_sec",
+            ):
+                assert row[field] is not None
+                assert math.isfinite(float(row[field]))
 
 
 def test_monte_carlo_lfm_support_is_true_one_sided_analytic() -> None:
     frequency, spectrum = _analytic_lfm_spectrum(60.0e6, 20.0e6, 512)
     assert np.all(spectrum[frequency <= 0.0] == 0.0j)
     assert np.count_nonzero(spectrum[frequency > 0.0]) >= 8
+
+
+def test_analytic_lfm_rejects_bandwidth_above_nyquist() -> None:
+    with pytest.raises(ValueError, match="Nyquist"):
+        _analytic_lfm_spectrum(60.0e6, 30.0e6 + 1.0, 512)

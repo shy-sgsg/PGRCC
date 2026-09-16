@@ -16,7 +16,7 @@ from typing import Any
 
 import numpy as np
 
-from scripts.estimate_channel_delay import estimate_from_raw_time_arrays
+from scripts.estimate_channel_delay import fit_weighted_line
 
 
 _MIN_CALIBRATION_SAMPLES = 8
@@ -204,14 +204,51 @@ def estimate_delay_d1_d2_d3(
         }
 
     safe_first, safe_second = _safe_inputs(first, second, finite)
+    spectrum1 = np.fft.fft(safe_first, axis=1)
+    spectrum2 = np.fft.fft(safe_second, axis=1)
+    cross = np.sum(spectrum1 * np.conj(spectrum2), axis=0)
+    frequency = np.fft.fftfreq(first.shape[1], d=1.0 / sample_rate)
+    positive = frequency > 0.0
+    magnitude = np.abs(cross)
+    if not np.any(positive):
+        return {
+            method: _fallback_row(
+                method,
+                "insufficient_calibration_support",
+                finite_count,
+                time.perf_counter(),
+                input_finite_count=finite_count,
+            )
+            for method in _METHODS
+        }
+    threshold = float(np.percentile(magnitude[positive], 80.0))
+    mask = positive & np.isfinite(magnitude) & (magnitude >= max(threshold, _EPS))
+    if int(np.count_nonzero(mask)) < 3:
+        return {
+            method: _fallback_row(
+                method,
+                "insufficient_calibration_support",
+                int(np.count_nonzero(mask)),
+                time.perf_counter(),
+                input_finite_count=finite_count,
+            )
+            for method in _METHODS
+        }
+    order = np.argsort(frequency[mask])
+    fit_frequency = frequency[mask][order]
+    fit_phase = np.unwrap(np.angle(cross[mask][order]))
+    fit_magnitude = magnitude[mask][order]
     rows: dict[str, dict[str, object]] = {}
-    for method in _METHODS:
+    for method, robust in (
+        ("D1_ordinary_LS", False),
+        ("D2_weighted_LS", False),
+        ("D3_Huber_weighted_LS", True),
+    ):
         method_start = time.perf_counter()
+        weights = np.ones_like(fit_magnitude) if method == "D1_ordinary_LS" else fit_magnitude
         try:
-            # The production function computes the three fits together.  Run
-            # it once per reported method so runtime_sec is method-specific,
-            # rather than the same shared aggregate duration in every row.
-            legacy = estimate_from_raw_time_arrays(safe_first, safe_second, sample_rate)
+            fit = fit_weighted_line(fit_frequency, fit_phase, weights, robust=robust)
+            fit_runtime = _elapsed(method_start)
         except (FloatingPointError, ValueError, np.linalg.LinAlgError) as exc:
             reason = (
                 "insufficient_calibration_support"
@@ -226,9 +263,12 @@ def estimate_delay_d1_d2_d3(
                 input_finite_count=finite_count,
             )
             continue
-        aggregate = legacy.get("aggregate", {})
-        fit = aggregate.get(method, {})
-        raw_delay = fit.get("delta_tau_ns")
+        raw_slope = fit.get("slope_rad_per_hz")
+        raw_delay = (
+            float(raw_slope) / _TWO_PI * 1.0e9
+            if raw_slope is not None
+            else None
+        )
         try:
             delay = float(raw_delay) if raw_delay is not None else math.nan
         except (TypeError, ValueError):
@@ -252,7 +292,7 @@ def estimate_delay_d1_d2_d3(
             method,
             delay,
             residual,
-            _elapsed(method_start),
+            fit_runtime,
             support_count,
             extra={
                 "input_finite_count": finite_count,
@@ -561,14 +601,18 @@ def approximate_two_channel_cancellation_loss(
 
 
 def _binomial_probability_tail(n: int, successes: int) -> float:
-    """Return P[X <= successes] for X ~ Binomial(n, 0.5)."""
+    """Return P[X <= successes] for X ~ Binomial(n, 0.5), stably."""
 
     if successes < 0:
         return 0.0
     if successes >= n:
         return 1.0
-    denominator = float(2**n)
-    return float(sum(math.comb(n, index) for index in range(successes + 1)) / denominator)
+    probability = math.ldexp(1.0, -n)
+    tail = probability
+    for index in range(successes):
+        probability *= (n - index) / float(index + 1)
+        tail += probability
+    return float(np.clip(tail, 0.0, 1.0))
 
 
 def paired_mcnemar_exact(
@@ -595,15 +639,10 @@ def paired_mcnemar_exact(
             discordant,
             min(current_miss_comparison_hit, current_hit_comparison_miss),
         )
-        upper_tail = _binomial_probability_tail(
-            discordant,
-            max(current_miss_comparison_hit, current_hit_comparison_miss),
-        )
-        upper_tail = 1.0 - _binomial_probability_tail(
-            discordant,
-            max(current_miss_comparison_hit, current_hit_comparison_miss) - 1,
-        )
-        p_value = min(1.0, 2.0 * min(lower_tail, upper_tail))
+        # Under H0 the two discordant directions are symmetric, so the exact
+        # two-sided probability is twice the one lower tail; no subtraction
+        # from one is needed for the opposite tail.
+        p_value = min(1.0, 2.0 * lower_tail)
         p_value = min(1.0, max(0.0, float(p_value)))
         status = "ok"
     return {
@@ -733,12 +772,27 @@ def _analytic_lfm_spectrum(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return a genuinely one-sided, positive-frequency complex-LFM support."""
 
-    frequency = np.fft.fftfreq(pulse_samples, d=1.0 / fs_hz)
-    support = (frequency > 0.0) & (frequency <= bandwidth_hz)
+    try:
+        sample_rate = float(fs_hz)
+        bandwidth = float(bandwidth_hz)
+        sample_count = int(pulse_samples)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("fs_hz, bandwidth_hz, and pulse_samples must be numeric") from exc
+    if not math.isfinite(sample_rate) or sample_rate <= 0.0:
+        raise ValueError("fs_hz must be a positive finite scalar")
+    if not math.isfinite(bandwidth) or bandwidth <= 0.0:
+        raise ValueError("bandwidth_hz must be a positive finite scalar")
+    if bandwidth > sample_rate / 2.0:
+        raise ValueError("bandwidth_hz must not exceed the Nyquist frequency fs_hz/2")
+    if sample_count < 2:
+        raise ValueError("pulse_samples must be at least two")
+
+    frequency = np.fft.fftfreq(sample_count, d=1.0 / sample_rate)
+    support = (frequency > 0.0) & (frequency <= bandwidth)
     if int(np.count_nonzero(support)) < _MIN_CALIBRATION_SAMPLES:
         raise ValueError("bandwidth and pulse_samples provide insufficient calibration support")
-    normalized_frequency = frequency / max(bandwidth_hz, _EPS)
-    spectrum = np.zeros(pulse_samples, dtype=np.complex128)
+    normalized_frequency = frequency / max(bandwidth, _EPS)
+    spectrum = np.zeros(sample_count, dtype=np.complex128)
     spectrum[support] = np.exp(1j * math.pi * normalized_frequency[support] ** 2)
     return frequency, spectrum
 
@@ -837,8 +891,8 @@ def run_parameter_monte_carlo(
         return []
     if not math.isfinite(sample_rate) or sample_rate <= 0.0:
         raise ValueError("fs_hz must be a positive finite scalar")
-    if not math.isfinite(bandwidth) or bandwidth <= 0.0 or bandwidth > sample_rate:
-        raise ValueError("bandwidth_hz must be positive and no greater than fs_hz")
+    if not math.isfinite(bandwidth) or bandwidth <= 0.0 or bandwidth > sample_rate / 2.0:
+        raise ValueError("bandwidth_hz must be positive and no greater than fs_hz/2 (Nyquist)")
     if sample_count < 2:
         raise ValueError("pulse_samples must be at least two")
     if not all(math.isfinite(value) for value in delays + snrs):
