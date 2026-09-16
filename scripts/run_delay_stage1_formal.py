@@ -15,17 +15,33 @@ import csv
 import hashlib
 import json
 import math
+import os
+import platform
 import re
+import shlex
+import shutil
+import subprocess
+import sys
+import time
 from collections.abc import Mapping, Sequence
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 import numpy as np
 
+from scripts.analyze_four_channel_observables import iter_raw_packets
+from scripts.audit_two_channel_error_observability import fuse_protocol_channels_to_f1_f2
 from scripts.estimate_channel_delay import rewrite_float32_protocol_delay
 
 
 ROOT = Path(__file__).resolve().parents[1]
+TEMPLATE = ROOT / "simulator/scenarios/beam50_one_targets_continuous.run.json"
+SIMULATOR = ROOT / "build/simulate_stage2_statistical"
+PIPE = ROOT / "build/GMTI_pipe_core"
+SHM_INTEGRATION = ROOT / "scripts/run_shm_phase1_integration.sh"
+DEFAULT_THEORETICAL_PFA = 1.0e-6
+DEFAULT_ADDITIVE_TOLERANCE = 5.0e-5
 _CONDITIONS = (
     "A0_Ideal",
     "A1_Current_unknown_error",
@@ -604,8 +620,28 @@ def prepare_condition_inputs(
     }
 
 
-def _layer(status: str, *, value: object = None, reason: str | None = None, **extra: object) -> dict[str, object]:
-    result: dict[str, object] = {"status": status, "value": value}
+def _layer(
+    status: str,
+    *,
+    value: object = None,
+    denominator: object = None,
+    definition: str | None = None,
+    reason: str | None = None,
+    **extra: object,
+) -> dict[str, object]:
+    """Return one waterfall layer with an explicit metric contract.
+
+    A missing denominator is intentionally represented as ``None``.  It is
+    not silently changed to one, because that would turn a production log
+    without valid-CUT accounting into an empirical Pfa claim.
+    """
+
+    result: dict[str, object] = {
+        "status": status,
+        "value": value,
+        "denominator": denominator,
+        "definition": definition,
+    }
     if reason is not None:
         result["reason"] = reason
     result.update(extra)
@@ -685,6 +721,8 @@ def evaluate_target_off_waterfall(
         cell = _layer(
             "passed",
             value=float(hit_cells) / float(valid_cut),
+            denominator=valid_cut,
+            definition="empirical structured-clutter false-hit fraction: hit_cells / valid_cut_count",
             hit_cell_count=hit_cells,
             valid_cut_count=valid_cut,
             metric_name="empirical_structured_clutter_false_hit_fraction",
@@ -692,6 +730,8 @@ def evaluate_target_off_waterfall(
     else:
         cell = _layer(
             "NOT_EVALUABLE",
+            denominator=max(0, valid_cut),
+            definition="empirical structured-clutter false-hit fraction: hit_cells / valid_cut_count",
             reason="valid_cut_count_missing_or_non_positive",
             hit_cell_count=max(0, hit_cells),
             valid_cut_count=max(0, valid_cut),
@@ -701,16 +741,33 @@ def evaluate_target_off_waterfall(
     cluster_ids = cfar_summary.get("cluster_ids")
     if isinstance(cluster_ids, Sequence) and not isinstance(cluster_ids, (str, bytes)):
         unique_ids = {str(value) for value in cluster_ids if str(value).strip()}
-        clusters = _layer("passed", value=len(unique_ids), cluster_ids=sorted(unique_ids))
+        clusters = _layer(
+            "passed",
+            value=len(unique_ids),
+            denominator=1,
+            definition="explicit false-cluster count in one target-off evaluation",
+            cluster_ids=sorted(unique_ids),
+        )
     else:
         try:
             count = int(cfar_summary.get("clusters"))
         except (TypeError, ValueError):
             count = -1
         clusters = (
-            _layer("passed", value=count, source="cfar_summary.clusters")
+            _layer(
+                "passed",
+                value=count,
+                denominator=1,
+                definition="explicit false-cluster count in one target-off evaluation",
+                source="cfar_summary.clusters",
+            )
             if count >= 0
-            else _layer("NOT_EVALUABLE", reason="explicit_cluster_count_missing")
+            else _layer(
+                "NOT_EVALUABLE",
+                denominator=None,
+                definition="explicit false-cluster count in one target-off evaluation",
+                reason="explicit_cluster_count_missing",
+            )
         )
 
     result_path = Path(result_dir)
@@ -720,17 +777,36 @@ def evaluate_target_off_waterfall(
         protocol = _layer(
             "passed",
             value=detection_count,
-            source_paths=[str(path) for path in detection_files],
+            denominator=1,
             definition="all production OFF detection rows; no truth match is possible",
+            source_paths=[str(path) for path in detection_files],
         )
     else:
-        protocol = _layer("NOT_EVALUABLE", reason="production_detection_csv_missing")
+        protocol = _layer(
+            "NOT_EVALUABLE",
+            denominator=None,
+            definition="all production OFF detection rows; no truth match is possible",
+            reason="production_detection_csv_missing",
+        )
 
     track_ids, track_source, track_reason = _false_track_ids(Path(debug_dir) if debug_dir is not None else None)
     tracks = (
-        _layer("passed", value=len(track_ids), unique_track_ids=sorted(track_ids), source_path=str(track_source))
+        _layer(
+            "passed",
+            value=len(track_ids),
+            denominator=1,
+            definition="unique production debug track IDs with Confirmed/output evidence",
+            unique_track_ids=sorted(track_ids),
+            source_path=str(track_source),
+        )
         if track_reason is None
-        else _layer("NOT_EVALUABLE", reason=track_reason, source_path=str(track_source) if track_source else None)
+        else _layer(
+            "NOT_EVALUABLE",
+            denominator=None,
+            definition="unique production debug track IDs with Confirmed/output evidence",
+            reason=track_reason,
+            source_path=str(track_source) if track_source else None,
+        )
     )
     return {
         "schema_version": 1,
@@ -749,10 +825,750 @@ def evaluate_target_off_waterfall(
     }
 
 
+def _read_json(path: Path) -> dict[str, object]:
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError(f"JSON document must be an object: {path}")
+    return value
+
+
+def _run_logged(
+    command: Sequence[object],
+    log_path: Path,
+    *,
+    timeout_s: float = 1800.0,
+) -> tuple[int, float]:
+    """Run one external stage with an auditable command and elapsed time."""
+
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    start = time.monotonic()
+    command_text = shlex.join(str(item) for item in command)
+    returncode = 127
+    with log_path.open("w", encoding="utf-8") as stream:
+        stream.write(f"$ {command_text}\n")
+        stream.flush()
+        try:
+            completed = subprocess.run(
+                [str(item) for item in command],
+                cwd=ROOT,
+                stdout=stream,
+                stderr=subprocess.STDOUT,
+                check=False,
+                timeout=float(timeout_s),
+            )
+            returncode = int(completed.returncode)
+        except FileNotFoundError as exc:
+            stream.write(f"\n[file_not_found] {exc}\n")
+        except subprocess.TimeoutExpired:
+            returncode = 124
+            stream.write("\n[timeout_expired]=true\n")
+        elapsed = time.monotonic() - start
+        stream.write(f"\n[exit_code]={returncode}\n[elapsed_sec]={elapsed:.3f}\n")
+    return returncode, elapsed
+
+
+def _scenario_output_dir(scenario_path: Path) -> Path:
+    scenario = _read_json(scenario_path)
+    raw = scenario.get("output_dir")
+    if not isinstance(raw, str) or not raw.strip():
+        raise ValueError(f"scenario output_dir is missing: {scenario_path}")
+    value = Path(raw)
+    return value.resolve() if value.is_absolute() else (ROOT / value).resolve()
+
+
+def _period_paths_from_output(output_dir: Path, period_count: int) -> list[Path]:
+    """Resolve the simulator's one-file-per-period manifest without guessing."""
+
+    manifest_path = output_dir / "data" / "period_files.csv"
+    rows = _csv_rows(manifest_path)
+    by_period: dict[int, Path] = {}
+    for row in rows:
+        try:
+            period = int(row.get("period_id", "-1"))
+        except (TypeError, ValueError):
+            continue
+        raw = Path(str(row.get("file", "")))
+        path = raw if raw.is_absolute() else output_dir / raw
+        by_period[period] = path.resolve()
+    result: list[Path] = []
+    for period in range(int(period_count)):
+        path = by_period.get(period)
+        if path is None:
+            candidates = sorted((output_dir / "data").glob(f"*period_{period:04d}.bin"))
+            path = candidates[0].resolve() if candidates else None
+        if path is None or not path.is_file():
+            raise FileNotFoundError(f"missing simulator period file {period}: {output_dir}")
+        result.append(path)
+    return result
+
+
+def _load_channels_from_periods(
+    period_paths: Sequence[Path],
+    layout: Mapping[str, object],
+) -> np.ndarray:
+    arrays: list[np.ndarray] = []
+    for path in period_paths:
+        for packet in iter_raw_packets(
+            path,
+            int(layout["pulse_len"]),
+            int(layout["channel_count"]),
+            str(layout["iq_data_type"]),
+        ):
+            channels = np.asarray(packet["channels"], dtype=np.complex128)
+            if channels.ndim != 2 or channels.shape[1] != int(layout["channel_count"]):
+                raise ValueError(f"unexpected channel shape in {path}: {channels.shape}")
+            arrays.append(channels)
+    if not arrays:
+        raise ValueError("period inputs contain no validated packets")
+    return np.concatenate(arrays, axis=0)
+
+
+def _load_fused_from_periods(
+    period_paths: Sequence[Path],
+    layout: Mapping[str, object],
+) -> tuple[np.ndarray, np.ndarray]:
+    channels = _load_channels_from_periods(period_paths, layout)
+    if channels.shape[1] != 4:
+        raise ValueError("Stage-1 estimator requires four protocol channels before F1/F2 fusion")
+    return (
+        0.5 * (channels[:, 0] + channels[:, 2]),
+        0.5 * (channels[:, 1] + channels[:, 3]),
+    )
+
+
+def _write_rows(path: Path, rows: Sequence[Mapping[str, object]]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fields: list[str] = []
+    for row in rows:
+        for key in row:
+            if key not in fields:
+                fields.append(str(key))
+    with path.open("w", encoding="utf-8", newline="") as stream:
+        if not fields:
+            return
+        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        for row in rows:
+            writer.writerow(_json_safe(dict(row)))
+
+
+def _merge_binary_files(paths: Sequence[Path], destination: Path) -> Path:
+    if not paths:
+        raise ValueError("cannot merge an empty input list")
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("wb") as output:
+        for source in paths:
+            if not source.is_file():
+                raise FileNotFoundError(source)
+            with source.open("rb") as stream:
+                shutil.copyfileobj(stream, output, length=8 * 1024 * 1024)
+    if destination.stat().st_size <= 0:
+        raise ValueError(f"merged input is empty: {destination}")
+    return destination
+
+
+def _input_periods(input_path: Path) -> list[Path]:
+    path = Path(input_path)
+    if path.is_dir():
+        candidates = sorted(path.glob("period_*.bin"))
+        if not candidates:
+            candidates = sorted(path.glob("*.bin"))
+        return [item.resolve() for item in candidates if item.is_file()]
+    return [path.resolve()] if path.is_file() else []
+
+
+def _production_branch_contract_metadata(branch_name: str) -> dict[str, object]:
+    condition = branch_name
+    if "_" in branch_name:
+        condition = branch_name.rsplit("_", 1)[0]
+    role = branch_name.rsplit("_", 1)[-1] if "_" in branch_name else None
+    return {
+        "branch_name": branch_name,
+        "condition": condition,
+        "role": role,
+        "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+        "truth_used_in_estimator": False,
+        "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+    }
+
+
+def run_production_branch(
+    case_root: Path,
+    branch_name: str,
+    input_path: Path,
+    source_xml: Path,
+    truth_by_period: Mapping[int, Mapping[str, str]],
+    period_count: int,
+    input_mode: str,
+    layout: Mapping[str, object],
+) -> dict[str, object]:
+    """Run one condition/role through the existing production TrackManager.
+
+    ``input_path`` may be a directory of period files or one concatenated
+    local-test file.  The production evaluator and TrackManager are imported
+    from the established E2E runner; this function only supplies per-branch
+    paths and preserves the same XML gate overrides.
+    """
+
+    if input_mode not in {"local", "shm"}:
+        raise ValueError("input_mode must be local or shm")
+    from scripts import run_track_manager_e2e as e2e
+
+    branch_root = Path(case_root) / "production" / branch_name
+    result_dir = branch_root / "result"
+    configured_debug_dir = branch_root / "track_debug"
+    branch_root.mkdir(parents=True, exist_ok=True)
+    record: dict[str, object] = {
+        **_production_branch_contract_metadata(branch_name),
+        "input_mode": input_mode,
+        "input_path": str(Path(input_path).resolve()),
+        "source_xml": str(Path(source_xml).resolve()),
+        "period_count_expected": int(period_count),
+        "truth_period_count": len(truth_by_period),
+        "status": "not_started",
+    }
+    periods = _input_periods(Path(input_path))
+    if not periods:
+        record.update({"status": "NOT_EVALUABLE", "reason": "production_input_missing"})
+        _write_json(branch_root / "branch_manifest.json", record)
+        return record
+    if not Path(source_xml).is_file():
+        record.update({"status": "NOT_EVALUABLE", "reason": "source_xml_missing"})
+        _write_json(branch_root / "branch_manifest.json", record)
+        return record
+    if not SIMULATOR.is_file() or not e2e.PIPE.is_file():
+        record.update({
+            "status": "NOT_EVALUABLE",
+            "reason": "production_binary_missing",
+            "simulator": str(SIMULATOR),
+            "pipe": str(e2e.PIPE),
+        })
+        _write_json(branch_root / "branch_manifest.json", record)
+        return record
+    if input_mode == "shm" and not e2e.SHM_INTEGRATION.is_file():
+        record.update({"status": "NOT_EVALUABLE", "reason": "shm_wrapper_missing"})
+        _write_json(branch_root / "branch_manifest.json", record)
+        return record
+
+    merged_input = Path(input_path)
+    if merged_input.is_dir():
+        merged_input = _merge_binary_files(periods, branch_root / "input_merged.bin")
+    xml_path = branch_root / "production.xml"
+    configure_rc, configure_log = e2e._configure_xml(
+        Path(source_xml),
+        xml_path,
+        result_dir,
+        configured_debug_dir,
+        layout,
+    )
+    record.update({
+        "configuration_returncode": configure_rc,
+        "configuration_log": str(configure_log),
+        "production_xml": str(xml_path),
+        "period_paths": [
+            {"path": str(path), "bytes": path.stat().st_size, "sha256": _sha256(path)}
+            for path in periods
+        ],
+    })
+    if configure_rc != 0:
+        record.update({"status": "configuration_failed"})
+        _write_json(branch_root / "branch_manifest.json", record)
+        return record
+    xml_audit = e2e._audit_runtime_xml_layout(xml_path, layout)
+    record["runtime_xml_protocol_layout"] = xml_audit
+    if xml_audit.get("status") != "passed":
+        record.update({"status": "configuration_audit_failed"})
+        _write_json(branch_root / "branch_manifest.json", record)
+        return record
+
+    if input_mode == "local":
+        command: list[object] = [
+            e2e.PIPE,
+            "--config", xml_path,
+            "--result-dir", result_dir,
+            "--track-debug-dir", branch_root / "track_debug_runs",
+            "--track-debug-dump", "on",
+            "--runtime-mode=debug",
+            "--runtime-diagnostics=on",
+            "--local-test",
+        ]
+        command.extend(f"{index + 1}={path}" for index, path in enumerate(periods))
+        log_path = branch_root / "gmt_pipe_core.log"
+        rc, elapsed = e2e._run_logged(command, log_path, timeout_s=1800.0)
+        pipe_run_dir = None
+    else:
+        runs_root = branch_root / "integration_runs"
+        command = [
+            e2e.SHM_INTEGRATION,
+            xml_path,
+            merged_input,
+            runs_root,
+            1,
+            1_000_000,
+            1_048_576,
+            int(period_count),
+            300_000,
+            "", "", "", "",
+            900_000,
+        ]
+        log_path = branch_root / "shm_integration.log"
+        environment = os.environ.copy()
+        environment["GMTI_RUNTIME_MODE"] = "debug"
+        rc, elapsed = e2e._run_logged(
+            command,
+            log_path,
+            env=environment,
+            timeout_s=1080.0,
+        )
+        pipe_run_dir = e2e._find_pipe_run(log_path, runs_root)
+        if pipe_run_dir is not None:
+            result_dir = pipe_run_dir / "result"
+
+    debug_dir = e2e._find_debug_dir(result_dir, configured_debug_dir)
+    pipe_metrics = e2e._parse_pipe_runtime_metrics(pipe_run_dir, log_path)
+    cfar_log_paths: list[Path] = [log_path]
+    if pipe_run_dir is not None:
+        cfar_log_paths.extend(pipe_run_dir.rglob("gmticore.log"))
+    cfar_summary = e2e._parse_cfar_summaries(cfar_log_paths)
+    if debug_dir is None:
+        audit: dict[str, object] = {
+            "status": "missing",
+            "total_violations": None,
+            "protocol_target_failures": {"missing_track_debug_dir": 1},
+        }
+    else:
+        try:
+            from scripts.audit_track_manager_run import audit_debug_dir
+
+            audit = audit_debug_dir(debug_dir)
+        except (OSError, ValueError, KeyError) as exc:
+            audit = {
+                "status": "error",
+                "total_violations": None,
+                "protocol_target_failures": {"audit_exception": 1},
+                "audit_exception": str(exc),
+            }
+    metric_row, cycle_rows, payload_rows = e2e._evaluate_branch(
+        branch_name,
+        result_dir,
+        debug_dir,
+        truth_by_period,
+        int(period_count),
+        audit,
+        cfar_summary,
+    )
+    off_waterfall = None
+    role = str(record.get("role", ""))
+    if role == "OFF":
+        off_waterfall = evaluate_target_off_waterfall(
+            result_dir,
+            debug_dir,
+            cfar_summary,
+            DEFAULT_THEORETICAL_PFA,
+        )
+    production_status = "passed" if int(rc) == 0 and audit.get("status") == "pass" else "failed"
+    record.update({
+        "production_returncode": int(rc),
+        "production_elapsed_sec": float(elapsed),
+        "production_log": str(log_path),
+        "pipe_run_dir": str(pipe_run_dir) if pipe_run_dir is not None else None,
+        "result_dir": str(result_dir),
+        "track_debug_dir": str(debug_dir) if debug_dir is not None else None,
+        "pipe_runtime_metrics": pipe_metrics,
+        "cfar_summary": cfar_summary,
+        "audit": audit,
+        "track_audit_total_violations": audit.get("total_violations"),
+        "metrics": metric_row,
+        "cycle_rows": cycle_rows,
+        "protocol_rows": payload_rows,
+        "target_off_waterfall": off_waterfall,
+        "production_status": production_status,
+        "status": production_status,
+    })
+    _write_rows(branch_root / "cycle_metrics.csv", cycle_rows)
+    _write_rows(branch_root / "protocol_payload_audit.csv", payload_rows)
+    _write_json(branch_root / "branch_manifest.json", record)
+    return record
+
+
+def _load_stage1_template(config: Mapping[str, object]) -> dict[str, object]:
+    candidate: object = config.get("scenario_template", config.get("scenario"))
+    if isinstance(candidate, str):
+        return _read_json(Path(candidate))
+    if isinstance(candidate, Mapping) and "waveform" in candidate:
+        return copy.deepcopy(dict(candidate))
+    if "waveform" in config:
+        return copy.deepcopy(dict(config))
+    return _read_json(TEMPLATE)
+
+
+def _select_delay_estimate(rows: Sequence[Mapping[str, object]]) -> tuple[float | None, str | None]:
+    preference = (
+        "D3_Huber_weighted_LS",
+        "D2_weighted_LS",
+        "D1_ordinary_LS",
+    )
+    by_method = {str(row.get("method")): row for row in rows}
+    for method in preference:
+        row = by_method.get(method)
+        if row is None:
+            continue
+        value = row.get("delta_tau_ns")
+        try:
+            value_float = float(value)  # type: ignore[arg-type]
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(value_float):
+            return value_float, method
+    return None, None
+
+
+def _condition_role_periods(
+    scene_runs: Mapping[str, Mapping[str, object]],
+    condition: str,
+    role: str,
+    period_count: int,
+) -> list[Path]:
+    short = "A0" if condition == "A0_Ideal" else "A1"
+    key = f"{short}_{role}"
+    item = scene_runs.get(key)
+    if not isinstance(item, Mapping) or int(item.get("returncode", 1)) != 0:
+        return []
+    output = item.get("output_dir")
+    if not isinstance(output, str):
+        return []
+    try:
+        return _period_paths_from_output(Path(output), period_count)
+    except (FileNotFoundError, OSError, ValueError):
+        return []
+
+
+def _prepare_role_inputs(
+    case_root: Path,
+    condition: str,
+    role: str,
+    period_paths: Sequence[Path],
+    calibration_input: Path,
+    delay_truth_ns: float,
+    delay_estimate_ns: float | None,
+    layout: Mapping[str, object],
+) -> dict[str, object]:
+    return prepare_condition_inputs(
+        case_root / "inputs" / condition / role,
+        condition,
+        period_paths,
+        calibration_input,
+        delay_truth_ns,
+        delay_estimate_ns,
+        layout,
+    )
+
+
+def run_stage1_case(
+    config: Mapping[str, object],
+    scene_identity: Mapping[str, object],
+    output_root: Path,
+    input_mode: str,
+) -> dict[str, object]:
+    """Execute one paired case through simulation, calibration and production."""
+
+    if input_mode not in {"local", "shm"}:
+        raise ValueError("input_mode must be local or shm")
+    base = _load_stage1_template(config)
+    delay_value = scene_identity.get("delay_error_ns", config.get("delay_error_ns"))
+    if delay_value is None:
+        raise ValueError("scene_identity.delay_error_ns or config.delay_error_ns is required")
+    delay = _finite_float(delay_value, "delay_error_ns")
+    case_root = Path(output_root).resolve()
+    case_root.mkdir(parents=True, exist_ok=True)
+    if any(case_root.iterdir()):
+        raise ValueError(f"refusing to overwrite non-empty case output: {case_root}")
+    variants = build_scene_variants(base, scene_identity, delay, case_root / "scenes")
+    manifest: dict[str, object] = {
+        "schema_version": 1,
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "case_root": str(case_root),
+        "input_mode": input_mode,
+        "scene_identity": dict(scene_identity),
+        "delay_error_ns": delay,
+        "branch_contract": build_stage1_branch_contract(),
+        "ai_training": False,
+        "router_enabled": False,
+        "scene_variants": {key: str(path) for key, path in variants.items()},
+        "simulation": {},
+        "conditions": {},
+        "additive_audits": {},
+        "status": "not_started",
+    }
+    if not SIMULATOR.is_file():
+        manifest.update({"status": "NOT_EVALUABLE", "reason": "simulator_binary_missing"})
+        _write_json(case_root / "case_manifest.json", manifest)
+        return manifest
+
+    # A0 ON must run first because it materializes the exact zero-error C+N
+    # background consumed by every other paired scene.
+    simulation_order = ["A0_ON", "A0_OFF", "A0_TO", "A1_ON", "A1_OFF", "A1_TO"]
+    scene_runs: dict[str, dict[str, object]] = {}
+    for key in simulation_order:
+        scenario_path = variants[key]
+        output_dir = _scenario_output_dir(scenario_path)
+        log_path = case_root / "scenes" / "logs" / f"{key}.simulate.log"
+        returncode, elapsed = _run_logged(
+            [SIMULATOR, "--config", scenario_path],
+            log_path,
+            timeout_s=1800.0,
+        )
+        scene_runs[key] = {
+            "scenario_path": str(scenario_path),
+            "scenario_sha256": _sha256(scenario_path),
+            "output_dir": str(output_dir),
+            "log": str(log_path),
+            "returncode": returncode,
+            "elapsed_sec": elapsed,
+            "status": "passed" if returncode == 0 else "failed",
+        }
+    manifest["simulation"] = scene_runs
+
+    try:
+        from scripts import run_track_manager_e2e as e2e
+
+        scenario = _read_json(variants["A0_ON"])
+        layout = e2e._protocol_layout_from_scenario(scenario)
+    except (ImportError, OSError, ValueError, KeyError) as exc:
+        manifest.update({"status": "NOT_EVALUABLE", "reason": f"layout_resolution_failed:{exc}"})
+        _write_json(case_root / "case_manifest.json", manifest)
+        return manifest
+    manifest["protocol_layout"] = layout
+
+    period_count_value = scene_identity.get(
+        "period_count",
+        scenario.get("random", {}).get("period_count", 0)
+        if isinstance(scenario.get("random"), Mapping)
+        else 0,
+    )
+    period_count = int(period_count_value)
+    if period_count <= 0:
+        manifest.update({"status": "NOT_EVALUABLE", "reason": "period_count_invalid"})
+        _write_json(case_root / "case_manifest.json", manifest)
+        return manifest
+
+    scene_periods: dict[str, list[Path]] = {
+        key: _condition_role_periods(
+            scene_runs,
+            "A0_Ideal" if key.startswith("A0") else "A1_Current_unknown_error",
+            "ON" if key.endswith("_ON") else ("OFF" if key.endswith("_OFF") else "TO"),
+            period_count,
+        )
+        for key in simulation_order
+    }
+    calibration_periods = scene_periods["A1_OFF"]
+    if not calibration_periods:
+        manifest.update({"status": "completed_with_gaps", "reason": "A1_OFF_calibration_input_missing"})
+        _write_json(case_root / "case_manifest.json", manifest)
+        return manifest
+    calibration_input = _merge_binary_files(
+        calibration_periods,
+        case_root / "inputs" / "A1_OFF_target_free_calibration.bin",
+    )
+
+    # The only estimator input is the target-free A1 OFF C+N stream after F1/F2
+    # fusion.  The injected delay is retained in the manifest for evaluation,
+    # but is never passed to this call.
+    try:
+        from scripts.delay_stage1_core import delay_method_suite
+
+        f1, f2 = _load_fused_from_periods(calibration_periods, layout)
+        estimator_rows = delay_method_suite(f1, f2, float(layout["fs_hz"]))
+        estimated_delay, selected_method = _select_delay_estimate(estimator_rows)
+        estimator = {
+            "status": "estimated" if estimated_delay is not None else "failed",
+            "method_rows": estimator_rows,
+            "selected_method": selected_method,
+            "selected_delay_ns": estimated_delay,
+            "input_path": str(calibration_input),
+            "input_role": "A1_OFF_target_free_C_plus_N_only",
+            "scientific_input": "F1=(C1+C3)/2, F2=(C2+C4)/2",
+            "truth_used_in_estimator": False,
+        }
+    except (OSError, ValueError, RuntimeError, KeyError) as exc:
+        estimated_delay = None
+        estimator = {
+            "status": "failed",
+            "input_path": str(calibration_input),
+            "input_role": "A1_OFF_target_free_C_plus_N_only",
+            "truth_used_in_estimator": False,
+            "error": str(exc),
+        }
+    manifest["delay_estimator"] = estimator
+
+    raw_condition_periods = {
+        "A0_Ideal": {
+            role: scene_periods[f"A0_{role}"] for role in ("ON", "OFF", "TO")
+        },
+        "A1_Current_unknown_error": {
+            role: scene_periods[f"A1_{role}"] for role in ("ON", "OFF", "TO")
+        },
+    }
+    prepared: dict[str, dict[str, dict[str, object]]] = {}
+    condition_sources = {
+        "A0_Ideal": raw_condition_periods["A0_Ideal"],
+        "A1_Current_unknown_error": raw_condition_periods["A1_Current_unknown_error"],
+        "A2_Known_error_correction_upper_bound": raw_condition_periods["A1_Current_unknown_error"],
+        "A3_Blind_target_free_estimated_correction": raw_condition_periods["A1_Current_unknown_error"],
+    }
+    for condition in _CONDITIONS:
+        prepared[condition] = {}
+        for role in ("ON", "OFF", "TO"):
+            try:
+                prepared[condition][role] = _prepare_role_inputs(
+                    case_root,
+                    condition,
+                    role,
+                    condition_sources[condition][role],
+                    calibration_input,
+                    delay,
+                    estimated_delay,
+                    layout,
+                )
+            except (OSError, ValueError, RuntimeError) as exc:
+                prepared[condition][role] = {
+                    "condition": condition,
+                    "role": role,
+                    "status": "NOT_EVALUABLE",
+                    "reason": str(exc),
+                    "truth_used_in_estimator": False,
+                    "correction_applied": False,
+                    "period_paths": [],
+                }
+
+    # Additive audits are performed on payload samples, not packet headers,
+    # because packet counters and timestamps are transport metadata.
+    for condition in _CONDITIONS:
+        role_arrays: dict[str, np.ndarray] = {}
+        for role in ("ON", "OFF", "TO"):
+            input_values = prepared[condition][role].get("period_paths", [])
+            if isinstance(input_values, list) and input_values and all(isinstance(item, Path) for item in input_values):
+                try:
+                    role_arrays[role] = _load_channels_from_periods(input_values, layout)
+                except (OSError, ValueError, RuntimeError):
+                    pass
+        if len(role_arrays) == 3:
+            manifest["additive_audits"][condition] = audit_additive_triplet(
+                role_arrays["ON"],
+                role_arrays["OFF"],
+                role_arrays["TO"],
+                DEFAULT_ADDITIVE_TOLERANCE,
+            )
+        else:
+            manifest["additive_audits"][condition] = {
+                "status": "NOT_EVALUABLE",
+                "reason": "one_or_more_condition_role_inputs_missing",
+                "max_abs_error": None,
+                "rms_error": None,
+                "sample_count": 0,
+                "tolerance": DEFAULT_ADDITIVE_TOLERANCE,
+            }
+
+    source_xml = Path(str(scene_runs["A0_ON"]["output_dir"])) / "config" / "temp_config_stage2_period_0000.xml"
+    truth: dict[int, dict[str, str]] = {}
+    try:
+        truth = e2e._truth_by_period(Path(str(scene_runs["A0_ON"]["output_dir"])), period_count)
+    except (OSError, ValueError, KeyError):
+        truth = {}
+    production_records: dict[str, dict[str, object]] = {}
+    for condition in _CONDITIONS:
+        role_records: dict[str, object] = {}
+        for role in ("ON", "OFF", "TO"):
+            prep = prepared[condition][role]
+            period_values = prep.get("period_paths", [])
+            if not isinstance(period_values, list) or not period_values or not all(isinstance(item, Path) for item in period_values):
+                role_records[role] = {
+                    "status": "NOT_EVALUABLE",
+                    "reason": prep.get("reason", "prepared_input_missing"),
+                    "condition": condition,
+                    "role": role,
+                }
+                continue
+            input_dir = case_root / "inputs" / "production" / condition / role
+            input_dir.mkdir(parents=True, exist_ok=True)
+            for index, source in enumerate(period_values):
+                link = input_dir / f"period_{index:04d}.bin"
+                if not link.exists():
+                    link.symlink_to(source.resolve())
+            branch = f"{condition}_{role}"
+            role_records[role] = run_production_branch(
+                case_root,
+                branch,
+                input_dir,
+                source_xml,
+                truth,
+                period_count,
+                input_mode,
+                layout,
+            )
+        production_records[condition] = role_records
+    manifest["conditions"] = {
+        condition: {
+            "input_preparation": prepared[condition],
+            "production": production_records[condition],
+            "truth_used_in_estimator": False,
+            "correction_applied": condition in {
+                "A2_Known_error_correction_upper_bound",
+                "A3_Blind_target_free_estimated_correction",
+            },
+        }
+        for condition in _CONDITIONS
+    }
+    manifest["calibration_input"] = {
+        "path": str(calibration_input),
+        "bytes": calibration_input.stat().st_size,
+        "sha256": _sha256(calibration_input),
+    }
+    manifest["source_xml"] = str(source_xml)
+    manifest["git"] = _git_snapshot()
+    all_simulation_passed = all(item.get("status") == "passed" for item in scene_runs.values())
+    all_additive_passed = all(
+        isinstance(value, Mapping) and value.get("status") == "passed"
+        for value in manifest["additive_audits"].values()
+    )
+    all_production_passed = all(
+        isinstance(record, Mapping) and record.get("status") == "passed"
+        for roles in production_records.values()
+        for record in roles.values()
+    )
+    manifest["status"] = (
+        "completed"
+        if all_simulation_passed and all_additive_passed and all_production_passed and estimated_delay is not None
+        else "completed_with_gaps"
+    )
+    _write_json(case_root / "case_manifest.json", manifest)
+    return manifest
+
+
+def _git_snapshot() -> dict[str, object]:
+    commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout.strip()
+    status = subprocess.run(
+        ["git", "status", "--porcelain"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout
+    return {"commit": commit, "dirty": bool(status.strip())}
+
+
 __all__ = [
     "audit_additive_triplet",
     "build_scene_variants",
     "build_stage1_branch_contract",
     "evaluate_target_off_waterfall",
     "prepare_condition_inputs",
+    "run_production_branch",
+    "run_stage1_case",
 ]
