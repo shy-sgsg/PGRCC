@@ -2072,13 +2072,21 @@ def cleanup_stage1_raw(
 
     root = Path(case_root).expanduser().resolve()
     manifest_path = root / "case_manifest.json"
-    if not root.is_dir() or not manifest_path.is_file():
-        raise ValueError(f"raw cleanup requires a completed case root: {root}")
-    manifest = _read_json(manifest_path)
+    if not root.is_dir():
+        raise ValueError(f"raw cleanup requires a case root directory: {root}")
+    if manifest_path.is_file():
+        manifest = _read_json(manifest_path)
+    elif allow_incomplete and (root / "scenes" / "scenes_manifest.json").is_file():
+        manifest = {
+            "status": "orphaned",
+            "reason": "case_manifest_missing_after_interrupted_execution",
+        }
+    else:
+        raise ValueError(f"raw cleanup requires a case manifest or scenes manifest: {root}")
     case_status = str(manifest.get("status"))
     allowed_statuses = {"completed"}
     if allow_incomplete:
-        allowed_statuses.add("completed_with_gaps")
+        allowed_statuses.update({"completed_with_gaps", "orphaned"})
     if case_status not in allowed_statuses:
         raise ValueError(
             f"raw cleanup requires case status in {sorted(allowed_statuses)}, "
