@@ -386,6 +386,22 @@ def test_formal_selection_uses_registered_groups_without_cross_group_cartesian_p
     assert selection["level1_mc_delay_errors_ns"] == [0.0, 1.0, -1.0, 2.0, -2.0, 4.0, -4.0, 8.0, -8.0]
 
 
+def test_registered_formal_override_keeps_group_scoped_case_count() -> None:
+    from scripts.run_delay_stage1_formal import build_arg_parser, load_stage1_config, resolve_stage1_selection
+
+    parser = build_arg_parser()
+    args = parser.parse_args([
+        "--mode", "formal",
+        "--output-root", "/tmp/unused-stage1-selection",
+        "--working-point", "registered",
+        "--seeds", "101,202,303",
+        "--target-velocities-mps", "6.7,12.0",
+        "--snr-db", "20,30,35",
+    ])
+    selection = resolve_stage1_selection(load_stage1_config(), args)
+    assert len(selection["cases"]) == 15
+
+
 def test_cli_rejects_nonempty_output_root(tmp_path: Path) -> None:
     output_root = tmp_path / "nonempty"
     output_root.mkdir()

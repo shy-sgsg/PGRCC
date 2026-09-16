@@ -1768,6 +1768,10 @@ def _selected_working_point_names(
     names = [str(value) for value in override] if override else [
         str(value) for value in mode_config.get("working_points", [])
     ]
+    if "registered" in names:
+        if len(names) != 1:
+            raise ValueError("--working-point registered cannot be combined with named points")
+        names = [str(value) for value in mode_config.get("working_points", [])]
     if not names:
         raise ValueError("at least one working point must be selected")
     unknown = [name for name in names if name not in registry]
@@ -1821,15 +1825,23 @@ def _stage1_case_blocks(
             point_name = str(group.get("point", group_name))
             if point_name not in registry:
                 raise ValueError(f"case group {group_name} refers to unknown point {point_name}")
-            seeds = cli_seeds or list(_config_list(group, "seeds", f"formal.{group_name}.seeds", int))
-            velocities = cli_velocities or list(_config_list(
+            configured_seeds = list(_config_list(group, "seeds", f"formal.{group_name}.seeds", int))
+            configured_velocities = list(_config_list(
                 group,
                 "target_velocities_mps",
                 f"formal.{group_name}.target_velocities_mps",
                 float,
                 positive=True,
             ))
-            snrs = cli_snrs or list(_config_list(group, "target_snr_db", f"formal.{group_name}.target_snr_db", float))
+            configured_snrs = list(_config_list(group, "target_snr_db", f"formal.{group_name}.target_snr_db", float))
+            # Formal command-line values select within the registered group;
+            # they must not manufacture combinations absent from the frozen
+            # case-group registry.
+            seeds = [value for value in configured_seeds if not cli_seeds or value in cli_seeds]
+            velocities = [value for value in configured_velocities if not cli_velocities or value in cli_velocities]
+            snrs = [value for value in configured_snrs if not cli_snrs or value in cli_snrs]
+            if not seeds or not velocities or not snrs:
+                raise ValueError(f"formal overrides select zero cases in group {group_name}")
             for seed in seeds:
                 for velocity in velocities:
                     for snr in snrs:
