@@ -10,6 +10,7 @@ IQ is retained only as the production input representation and audit source.
 
 from __future__ import annotations
 
+import argparse
 import copy
 import csv
 import hashlib
@@ -30,12 +31,21 @@ from typing import Any, Iterable
 
 import numpy as np
 
+# When invoked as ``python scripts/run_delay_stage1_formal.py`` Python places
+# ``scripts/`` (rather than the repository root) on sys.path.  Keep the
+# command-line entry point equivalent to ``python -m`` without changing the
+# package imports used by tests and callers.
+_SCRIPT_ROOT = Path(__file__).resolve().parents[1]
+if __package__ in {None, ""} and str(_SCRIPT_ROOT) not in sys.path:
+    sys.path.insert(0, str(_SCRIPT_ROOT))
+
 from scripts.analyze_four_channel_observables import iter_raw_packets
 from scripts.audit_two_channel_error_observability import fuse_protocol_channels_to_f1_f2
 from scripts.estimate_channel_delay import rewrite_float32_protocol_delay
 
 
 ROOT = Path(__file__).resolve().parents[1]
+CONFIG = ROOT / "configs/research/channel_delay_stage1_formal.json"
 TEMPLATE = ROOT / "simulator/scenarios/beam50_one_targets_continuous.run.json"
 SIMULATOR = ROOT / "build/simulate_stage2_statistical"
 PIPE = ROOT / "build/GMTI_pipe_core"
@@ -421,7 +431,10 @@ def _role_scenario(
         "on": "S+C+N",
         "off": "C+N",
         "target_only": "S",
-        "background_input_dir": str(background_dir.resolve()),
+        # The simulator's legacy parser searches JSON key names globally;
+        # keep audit metadata distinct from the top-level runtime key so an
+        # A0 writer is not accidentally parsed as a background reader.
+        "background_source_dir": str(background_dir.resolve()),
         "same_seed_and_scene_identity": True,
         "same_production_settings": True,
     }
@@ -927,13 +940,33 @@ def _load_fused_from_periods(
     period_paths: Sequence[Path],
     layout: Mapping[str, object],
 ) -> tuple[np.ndarray, np.ndarray]:
-    channels = _load_channels_from_periods(period_paths, layout)
-    if channels.shape[1] != 4:
-        raise ValueError("Stage-1 estimator requires four protocol channels before F1/F2 fusion")
-    return (
-        0.5 * (channels[:, 0] + channels[:, 2]),
-        0.5 * (channels[:, 1] + channels[:, 3]),
-    )
+    """Load F1/F2 as ``(packet, fast_time)`` matrices.
+
+    A raw packet contains one pulse-by-sample matrix.  Concatenating packet
+    samples before FFT would create artificial phase discontinuities at every
+    packet boundary and violates the estimator's pulse model, so packet
+    boundaries are retained here while the additivity audit may still use the
+    flattened channel loader above.
+    """
+
+    f1_rows: list[np.ndarray] = []
+    f2_rows: list[np.ndarray] = []
+    pulse_len = int(layout["pulse_len"])
+    channel_count = int(layout["channel_count"])
+    iq_data_type = str(layout["iq_data_type"])
+    for path in period_paths:
+        for packet in iter_raw_packets(path, pulse_len, channel_count, iq_data_type):
+            channels = np.asarray(packet["channels"], dtype=np.complex128)
+            if channels.shape != (pulse_len, 4):
+                raise ValueError(
+                    "Stage-1 estimator requires four protocol channels before "
+                    f"F1/F2 fusion, got {channels.shape}"
+                )
+            f1_rows.append(0.5 * (channels[:, 0] + channels[:, 2]))
+            f2_rows.append(0.5 * (channels[:, 1] + channels[:, 3]))
+    if not f1_rows:
+        raise ValueError("period inputs contain no validated packets")
+    return np.stack(f1_rows, axis=0), np.stack(f2_rows, axis=0)
 
 
 def _write_rows(path: Path, rows: Sequence[Mapping[str, object]]) -> None:
@@ -1563,12 +1596,593 @@ def _git_snapshot() -> dict[str, object]:
     return {"commit": commit, "dirty": bool(status.strip())}
 
 
+def load_stage1_config(path: Path = CONFIG) -> dict[str, object]:
+    """Load the single declared Stage-1 configuration document."""
+
+    candidate = Path(path)
+    if not candidate.is_absolute():
+        candidate = ROOT / candidate
+    if not candidate.is_file():
+        raise FileNotFoundError(f"Stage-1 config does not exist: {candidate}")
+    return _read_json(candidate.resolve())
+
+
+def _parse_list_values(
+    raw_values: object,
+    name: str,
+    converter: type[int] | type[float],
+    *,
+    positive: bool = False,
+) -> list[int] | list[float]:
+    """Parse repeated and comma-separated CLI values with finite checks."""
+
+    if raw_values is None:
+        return []
+    if isinstance(raw_values, (str, int, float)):
+        items: list[object] = [raw_values]
+    elif isinstance(raw_values, Sequence) and not isinstance(raw_values, (bytes, bytearray)):
+        items = list(raw_values)
+    else:
+        raise ValueError(f"{name} must be a comma-separated or repeated list")
+    parsed: list[int] | list[float] = []
+    for item in items:
+        for token in str(item).split(","):
+            token = token.strip()
+            if not token:
+                raise ValueError(f"{name} must not contain an empty value")
+            try:
+                value = converter(token)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"{name} contains an invalid value: {token!r}") from exc
+            if converter is float and not math.isfinite(float(value)):
+                raise ValueError(f"{name} must contain only finite values")
+            if positive and float(value) <= 0.0:
+                raise ValueError(f"{name} must contain only positive values")
+            parsed.append(value)
+    if not parsed:
+        raise ValueError(f"{name} must not be empty")
+    # A duplicate override does not add a new scientific case and can make
+    # paired counts ambiguous; preserve first occurrence deterministically.
+    unique: list[int] | list[float] = []
+    for value in parsed:
+        if value not in unique:
+            unique.append(value)
+    return unique
+
+
+def _config_list(
+    section: Mapping[str, object],
+    key: str,
+    name: str,
+    converter: type[int] | type[float],
+    *,
+    positive: bool = False,
+) -> list[int] | list[float]:
+    if key not in section:
+        raise ValueError(f"Stage-1 config is missing {name}")
+    return _parse_list_values(section[key], name, converter, positive=positive)
+
+
+def _working_point_registry(config: Mapping[str, object]) -> dict[str, dict[str, object]]:
+    value = config.get("working_points")
+    if not isinstance(value, list) or not value:
+        raise ValueError("Stage-1 config working_points must be a non-empty list")
+    registry: dict[str, dict[str, object]] = {}
+    for item in value:
+        if not isinstance(item, Mapping):
+            raise ValueError("each Stage-1 working point must be an object")
+        name = str(item.get("name", "")).strip()
+        if not name or name in registry:
+            raise ValueError(f"working point name is missing or duplicated: {name!r}")
+        registry[name] = copy.deepcopy(dict(item))
+    return registry
+
+
+def _selected_working_point_names(
+    args: argparse.Namespace,
+    mode_config: Mapping[str, object],
+    registry: Mapping[str, Mapping[str, object]],
+) -> list[str]:
+    override = _parse_list_values(
+        getattr(args, "working_point", None),
+        "--working-point",
+        str,
+    ) if getattr(args, "working_point", None) is not None else []
+    names = [str(value) for value in override] if override else [
+        str(value) for value in mode_config.get("working_points", [])
+    ]
+    if not names:
+        raise ValueError("at least one working point must be selected")
+    unknown = [name for name in names if name not in registry]
+    if unknown:
+        raise ValueError(f"unknown working point(s): {', '.join(unknown)}")
+    return names
+
+
+def _stage1_case_blocks(
+    config: Mapping[str, object],
+    args: argparse.Namespace,
+) -> dict[str, object]:
+    """Resolve pilot/formal case groups without inventing cross-group cases."""
+
+    mode = str(getattr(args, "mode", "pilot"))
+    if mode not in {"pilot", "formal"}:
+        raise ValueError("--mode must be pilot or formal")
+    registry = _working_point_registry(config)
+    mode_config = config.get(mode)
+    if not isinstance(mode_config, Mapping):
+        raise ValueError(f"Stage-1 config is missing {mode} selection")
+    selected_names = _selected_working_point_names(args, mode_config, registry)
+
+    cli_seeds = (
+        _parse_list_values(getattr(args, "seeds", None), "--seeds", int)
+        if getattr(args, "seeds", None) is not None else []
+    )
+    cli_velocities = (
+        _parse_list_values(
+            getattr(args, "target_velocities_mps", None),
+            "--target-velocities-mps",
+            float,
+            positive=True,
+        )
+        if getattr(args, "target_velocities_mps", None) is not None else []
+    )
+    cli_snrs = (
+        _parse_list_values(getattr(args, "snr_db", None), "--snr-db", float)
+        if getattr(args, "snr_db", None) is not None else []
+    )
+    case_blocks: list[dict[str, object]] = []
+
+    if mode == "formal":
+        groups = mode_config.get("case_groups")
+        if not isinstance(groups, Mapping):
+            raise ValueError("formal.case_groups must be an object")
+        for group_name in selected_names:
+            group = groups.get(group_name)
+            if not isinstance(group, Mapping):
+                raise ValueError(f"formal case group is missing: {group_name}")
+            point_name = str(group.get("point", group_name))
+            if point_name not in registry:
+                raise ValueError(f"case group {group_name} refers to unknown point {point_name}")
+            seeds = cli_seeds or list(_config_list(group, "seeds", f"formal.{group_name}.seeds", int))
+            velocities = cli_velocities or list(_config_list(
+                group,
+                "target_velocities_mps",
+                f"formal.{group_name}.target_velocities_mps",
+                float,
+                positive=True,
+            ))
+            snrs = cli_snrs or list(_config_list(group, "target_snr_db", f"formal.{group_name}.target_snr_db", float))
+            for seed in seeds:
+                for velocity in velocities:
+                    for snr in snrs:
+                        case_blocks.append({
+                            "group": group_name,
+                            "working_point": point_name,
+                            "seed": int(seed),
+                            "target_velocity_mps": float(velocity),
+                            "target_snr_db": float(snr),
+                            "point": copy.deepcopy(registry[point_name]),
+                        })
+    else:
+        seeds = cli_seeds or list(_config_list(mode_config, "seeds", "pilot.seeds", int))
+        velocities = cli_velocities or list(_config_list(
+            mode_config,
+            "target_velocities_mps",
+            "pilot.target_velocities_mps",
+            float,
+            positive=True,
+        ))
+        snrs = cli_snrs or list(_config_list(mode_config, "target_snr_db", "pilot.target_snr_db", float))
+        for point_name in selected_names:
+            for seed in seeds:
+                for velocity in velocities:
+                    for snr in snrs:
+                        case_blocks.append({
+                            "group": point_name,
+                            "working_point": point_name,
+                            "seed": int(seed),
+                            "target_velocity_mps": float(velocity),
+                            "target_snr_db": float(snr),
+                            "point": copy.deepcopy(registry[point_name]),
+                        })
+    if not case_blocks:
+        raise ValueError("selection resolved to zero Stage-1 case blocks")
+
+    cli_delays = (
+        _parse_list_values(
+            getattr(args, "delay_errors_ns", None),
+            "--delay-errors-ns",
+            float,
+        )
+        if getattr(args, "delay_errors_ns", None) is not None else []
+    )
+    e2e_delays = cli_delays or list(_config_list(
+        mode_config,
+        "delay_errors_ns",
+        f"{mode}.delay_errors_ns",
+        float,
+    ))
+    mc_config = config.get("monte_carlo")
+    if not isinstance(mc_config, Mapping):
+        raise ValueError("Stage-1 config monte_carlo must be an object")
+    if cli_delays:
+        mc_delays = list(cli_delays)
+    elif mode == "formal":
+        mc_delays = list(_config_list(mc_config, "delay_errors_ns", "monte_carlo.delay_errors_ns", float))
+    else:
+        mc_delays = list(e2e_delays)
+    if getattr(args, "snr_db", None) is not None:
+        mc_snrs = list(cli_snrs)
+    elif mode == "formal":
+        mc_snrs = list(_config_list(mc_config, "target_snr_db", "monte_carlo.target_snr_db", float))
+    else:
+        mc_snrs = []
+        for block in case_blocks:
+            value = float(block["target_snr_db"])
+            if value not in mc_snrs:
+                mc_snrs.append(value)
+    try:
+        mc_trials = int(getattr(args, "mc_trials", None) or mc_config.get("trials"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("mc_trials must be an integer") from exc
+    if mc_trials < 100:
+        raise ValueError("mc_trials must be at least 100 for Stage-1 evidence")
+    period_count = int(getattr(args, "period_count", None) or mode_config.get("period_count", 0))
+    if period_count <= 0:
+        raise ValueError("period_count must be positive")
+    return {
+        "mode": mode,
+        "working_points": selected_names,
+        "cases": case_blocks,
+        "e2e_delay_errors_ns": [float(value) for value in e2e_delays],
+        "level1_mc_delay_errors_ns": [float(value) for value in mc_delays],
+        "level1_mc_snr_db": [float(value) for value in mc_snrs],
+        "mc_trials": mc_trials,
+        "period_count": period_count,
+        "mc_seed": int(mc_config.get("seed", 0)),
+        "mc_random_seed_namespace": f"channel_delay_stage1/{mode}/seed-{int(mc_config.get('seed', 0))}",
+    }
+
+
+def resolve_stage1_selection(config: Mapping[str, object], args: argparse.Namespace) -> dict[str, object]:
+    """Public pure selection helper used by the CLI and contract tests."""
+
+    return _stage1_case_blocks(config, args)
+
+
+def build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Run paired channel-delay Stage-1 estimator and production cases."
+    )
+    parser.add_argument("--mode", choices=("pilot", "formal"), default="pilot")
+    parser.add_argument("--config", type=Path, default=CONFIG)
+    parser.add_argument("--template", type=Path, default=TEMPLATE)
+    parser.add_argument("--delay-errors-ns", "--delay-errors", dest="delay_errors_ns", action="append")
+    parser.add_argument("--seeds", action="append")
+    parser.add_argument("--target-velocities-mps", action="append")
+    parser.add_argument("--snr-db", action="append")
+    parser.add_argument("--working-point", action="append")
+    parser.add_argument("--mc-trials", type=int)
+    parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--input-mode", choices=("local", "shm"), default="local")
+    parser.add_argument("--period-count", type=int)
+    parser.add_argument(
+        "--skip-cuda",
+        action="store_true",
+        help="run Level-1 estimator MC and record Level-2 as an explicit gap",
+    )
+    return parser
+
+
+def _validate_output_root(path: Path) -> Path:
+    root = Path(path).expanduser().resolve()
+    if root.exists():
+        if not root.is_dir():
+            raise ValueError(f"output root is not a directory: {root}")
+        if any(root.iterdir()):
+            raise ValueError(f"refuse to overwrite non-empty output root: {root}")
+    else:
+        root.mkdir(parents=True, exist_ok=False)
+    return root
+
+
+def _gpu_status() -> dict[str, object]:
+    command = [
+        "nvidia-smi",
+        "--query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm",
+        "--format=csv,noheader,nounits",
+    ]
+    try:
+        result = subprocess.run(
+            command,
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=15.0,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {
+            "available": False,
+            "command": shlex.join(command),
+            "returncode": None,
+            "error": str(exc),
+        }
+    return {
+        "available": result.returncode == 0 and bool(result.stdout.strip()),
+        "command": shlex.join(command),
+        "returncode": int(result.returncode),
+        "stdout": result.stdout.strip(),
+        "stderr": result.stderr.strip(),
+    }
+
+
+def _disk_status(path: Path) -> dict[str, object]:
+    target = Path(path).resolve()
+    probe = target if target.exists() else target.parent
+    try:
+        usage = shutil.disk_usage(probe)
+    except OSError as exc:
+        return {"path": str(probe), "error": str(exc)}
+    return {
+        "path": str(probe),
+        "total_bytes": int(usage.total),
+        "used_bytes": int(usage.used),
+        "free_bytes": int(usage.free),
+    }
+
+
+def _number_token(value: float) -> str:
+    sign = "m" if float(value) < 0.0 else "p"
+    magnitude = abs(float(value))
+    return sign + (f"{magnitude:.6f}".rstrip("0").rstrip(".")).replace(".", "d")
+
+
+def _case_slug(block: Mapping[str, object], delay_error_ns: float) -> str:
+    raw = (
+        f"{block['working_point']}__seed_{int(block['seed'])}"
+        f"__v_{_number_token(float(block['target_velocity_mps']))}"
+        f"__snr_{_number_token(float(block['target_snr_db']))}"
+        f"__delay_{_number_token(delay_error_ns)}ns"
+    )
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", raw)
+
+
+def _scene_identity_for_block(
+    block: Mapping[str, object],
+    delay_error_ns: float,
+    period_count: int,
+) -> dict[str, object]:
+    point = block.get("point")
+    if not isinstance(point, Mapping):
+        raise ValueError("resolved case block is missing working point metadata")
+    return {
+        "case_id": _case_slug(block, delay_error_ns),
+        "working_point": str(block["working_point"]),
+        "group": str(block.get("group", block["working_point"])),
+        "seed": int(block["seed"]),
+        "period_count": int(period_count),
+        "beam_id": int(point["beam_id"]),
+        "expected_bin": int(point["expected_bin"]),
+        "range_m": float(point["range_m"]),
+        "target_velocity_mps": float(block["target_velocity_mps"]),
+        "target_snr_db": float(block["target_snr_db"]),
+        "texture_sigma": float(point["texture_sigma"]),
+        "clutter_rho": float(point["clutter_rho"]),
+        "target": {"target_id": "stage1_target_1", "enabled": True},
+        "clutter": {
+            "texture_sigma": float(point["texture_sigma"]),
+            "temporal_correlation_rho": float(point["clutter_rho"]),
+        },
+        "delay_error_ns": float(delay_error_ns),
+    }
+
+
+def _case_summary(case_manifest: Mapping[str, object], case_root: Path) -> dict[str, object]:
+    return {
+        "case_root": str(case_root),
+        "case_manifest": str(case_root / "case_manifest.json"),
+        "status": case_manifest.get("status", "unknown"),
+        "reason": case_manifest.get("reason"),
+        "scene_identity": case_manifest.get("scene_identity"),
+        "delay_estimator": case_manifest.get("delay_estimator"),
+        "additive_audits": case_manifest.get("additive_audits"),
+        "conditions_present": sorted(
+            str(key) for key in case_manifest.get("conditions", {})
+        ) if isinstance(case_manifest.get("conditions"), Mapping) else [],
+    }
+
+
+def run_stage1_cli(
+    args: argparse.Namespace,
+    *,
+    command_args: Sequence[str] | None = None,
+) -> dict[str, object]:
+    """Run Level-1 MC and selected Level-2 cases, always leaving a manifest."""
+
+    config_path = Path(args.config).expanduser().resolve()
+    template_path = Path(args.template).expanduser().resolve()
+    config = load_stage1_config(config_path)
+    if not template_path.is_file():
+        raise FileNotFoundError(f"scenario template does not exist: {template_path}")
+    selection = resolve_stage1_selection(config, args)
+    output_root = _validate_output_root(Path(args.output_root))
+    gpu_before = _gpu_status()
+    disk_before = _disk_status(output_root)
+    config_for_case = copy.deepcopy(config)
+    config_for_case["scenario_template"] = str(template_path)
+    _write_json(output_root / "config_snapshot.json", config)
+    _write_json(output_root / "template_snapshot.json", _read_json(template_path))
+    command_values = list(command_args) if command_args is not None else list(sys.argv[1:])
+    full_command = [sys.executable, str(Path(__file__).resolve()), *command_values]
+    manifest: dict[str, object] = {
+        "schema_version": 1,
+        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "mode": selection["mode"],
+        "command": {
+            "argv": full_command,
+            "shell": shlex.join(str(item) for item in full_command),
+        },
+        "config": {
+            "path": str(config_path),
+            "sha256": _sha256(config_path),
+        },
+        "template": {
+            "path": str(template_path),
+            "sha256": _sha256(template_path),
+        },
+        "resolved": selection,
+        "git": _git_snapshot(),
+        "gpu_status_before": gpu_before,
+        "disk_status_before": disk_before,
+        "ai_training": False,
+        "router_enabled": False,
+        "native_four_channel_stap": False,
+        "mc_summary": {"status": "not_started"},
+        "cases": [],
+        "status": "not_started",
+    }
+    _write_json(output_root / "manifest.json", manifest)
+    mc_ok = False
+    try:
+        from scripts.delay_stage1_core import run_parameter_monte_carlo
+
+        mc_config = config["monte_carlo"]
+        if not isinstance(mc_config, Mapping):
+            raise ValueError("Stage-1 config monte_carlo must be an object")
+        mc_rows = run_parameter_monte_carlo(
+            selection["level1_mc_delay_errors_ns"],
+            selection["level1_mc_snr_db"],
+            int(selection["mc_trials"]),
+            int(selection["mc_seed"]),
+            float(mc_config["fs_hz"]),
+            float(mc_config["bandwidth_hz"]),
+            int(mc_config["pulse_samples"]),
+        )
+        for row in mc_rows:
+            row["random_seed_namespace"] = selection["mc_random_seed_namespace"]
+            row["sampling_rate_hz"] = float(mc_config["fs_hz"])
+            row["bandwidth_hz"] = float(mc_config["bandwidth_hz"])
+            row["pulse_samples"] = int(mc_config["pulse_samples"])
+        mc_path = output_root / "monte_carlo" / "estimator_summary.csv"
+        _write_rows(mc_path, mc_rows)
+        expected_mc_rows = (
+            len(selection["level1_mc_delay_errors_ns"])
+            * len(selection["level1_mc_snr_db"])
+            * 5
+        )
+        mc_ok = len(mc_rows) == expected_mc_rows
+        manifest["mc_summary"] = {
+            "status": "passed" if mc_ok else "incomplete",
+            "path": str(mc_path),
+            "row_count": len(mc_rows),
+            "expected_row_count": expected_mc_rows,
+            "trials_per_delay_snr_method": int(selection["mc_trials"]),
+            "methods": sorted({str(row.get("method")) for row in mc_rows}),
+            "random_seed_namespace": selection["mc_random_seed_namespace"],
+            "rows": mc_rows,
+        }
+        _write_json(output_root / "manifest.json", manifest)
+    except (OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
+        manifest["mc_summary"] = {
+            "status": "failed",
+            "error": str(exc),
+        }
+
+    if bool(args.skip_cuda):
+        for block in selection["cases"]:
+            for delay in selection["e2e_delay_errors_ns"]:
+                manifest["cases"].append({
+                    "status": "SKIPPED",
+                    "reason": "cuda_execution_skipped_by_cli",
+                    "scene_identity": _scene_identity_for_block(
+                        block,
+                        float(delay),
+                        int(selection["period_count"]),
+                    ),
+                })
+    else:
+        for block in selection["cases"]:
+            for delay in selection["e2e_delay_errors_ns"]:
+                scene_identity = _scene_identity_for_block(
+                    block,
+                    float(delay),
+                    int(selection["period_count"]),
+                )
+                case_root = output_root / "cases" / str(scene_identity["case_id"])
+                try:
+                    case_manifest = run_stage1_case(
+                        config_for_case,
+                        scene_identity,
+                        case_root,
+                        str(args.input_mode),
+                    )
+                    manifest["cases"].append(_case_summary(case_manifest, case_root))
+                except (OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
+                    case_root.mkdir(parents=True, exist_ok=True)
+                    failure = {
+                        "schema_version": 1,
+                        "status": "failed",
+                        "reason": str(exc),
+                        "scene_identity": scene_identity,
+                        "truth_used_in_estimator": False,
+                        "ai_training": False,
+                        "router_enabled": False,
+                    }
+                    _write_json(case_root / "case_manifest.json", failure)
+                    manifest["cases"].append(_case_summary(failure, case_root))
+    case_records = manifest["cases"]
+    assert isinstance(case_records, list)
+    all_cases_complete = bool(case_records) and all(
+        item.get("status") == "completed" for item in case_records if isinstance(item, Mapping)
+    )
+    if not mc_ok:
+        manifest["status"] = "completed_with_gaps"
+    elif bool(args.skip_cuda):
+        manifest["status"] = "completed_with_gaps"
+    elif all_cases_complete:
+        manifest["status"] = "completed"
+    else:
+        manifest["status"] = "completed_with_gaps"
+    manifest["git_after"] = _git_snapshot()
+    manifest["gpu_status_after"] = _gpu_status()
+    manifest["disk_status_after"] = _disk_status(output_root)
+    _write_json(output_root / "manifest.json", manifest)
+    return manifest
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = build_arg_parser()
+    args = parser.parse_args(argv)
+    try:
+        manifest = run_stage1_cli(args, command_args=argv)
+    except (OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
+        parser.error(str(exc))
+    print(json.dumps({
+        "status": manifest["status"],
+        "output_root": str(Path(args.output_root).expanduser().resolve()),
+        "case_count": len(manifest.get("cases", [])),
+        "mc_status": manifest.get("mc_summary", {}).get("status")
+        if isinstance(manifest.get("mc_summary"), Mapping) else None,
+    }, ensure_ascii=False))
+    return 0 if manifest["status"] in {"completed", "completed_with_gaps"} else 1
+
+
 __all__ = [
     "audit_additive_triplet",
     "build_scene_variants",
     "build_stage1_branch_contract",
     "evaluate_target_off_waterfall",
+    "build_arg_parser",
+    "load_stage1_config",
     "prepare_condition_inputs",
+    "resolve_stage1_selection",
+    "run_stage1_cli",
     "run_production_branch",
     "run_stage1_case",
 ]
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

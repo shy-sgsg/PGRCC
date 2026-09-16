@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -234,6 +236,7 @@ def test_scene_variants_preserve_scene_identity_and_pair_backgrounds(tmp_path: P
     # A1 ON reuses that exact run root through background_input_dir and applies
     # the delay after target injection.
     assert payloads["A0_ON"]["paired_background_output_dir"]
+    assert "background_input_dir" not in payloads["A0_ON"]["stage1_pairing"]
     assert payloads["A1_ON"]["background_input_dir"]
     assert "paired_background_output_dir" not in payloads["A1_ON"]
     assert payloads["A1_OFF"]["background_input_dir"] == payloads["A1_TO"]["background_input_dir"]
@@ -349,3 +352,57 @@ def test_stage1_config_makes_formal_selection_and_statistics_explicit() -> None:
     statistics = config["statistics"]
     assert isinstance(statistics, dict)
     assert statistics["bootstrap_repetitions"] == 2000
+
+
+def test_cli_parser_exposes_required_stage1_arguments() -> None:
+    from scripts.run_delay_stage1_formal import build_arg_parser
+
+    parser = build_arg_parser()
+    options = set(parser._option_string_actions)
+    assert {
+        "--mode",
+        "--delay-errors-ns",
+        "--seeds",
+        "--target-velocities-mps",
+        "--snr-db",
+        "--working-point",
+        "--mc-trials",
+        "--output-root",
+        "--input-mode",
+        "--period-count",
+        "--skip-cuda",
+    } <= options
+
+
+def test_formal_selection_uses_registered_groups_without_cross_group_cartesian_product() -> None:
+    from scripts.run_delay_stage1_formal import build_arg_parser, load_stage1_config, resolve_stage1_selection
+
+    parser = build_arg_parser()
+    args = parser.parse_args(["--mode", "formal", "--output-root", "/tmp/unused-stage1-selection"])
+    selection = resolve_stage1_selection(load_stage1_config(), args)
+    assert len(selection["cases"]) == 15
+    base_cases = [case for case in selection["cases"] if case["working_point"] == "base"]
+    assert len(base_cases) == 12
+    assert selection["level1_mc_delay_errors_ns"] == [0.0, 1.0, -1.0, 2.0, -2.0, 4.0, -4.0, 8.0, -8.0]
+
+
+def test_cli_rejects_nonempty_output_root(tmp_path: Path) -> None:
+    output_root = tmp_path / "nonempty"
+    output_root.mkdir()
+    (output_root / "existing.txt").write_text("keep", encoding="utf-8")
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/run_delay_stage1_formal.py"),
+            "--mode",
+            "pilot",
+            "--output-root",
+            str(output_root),
+            "--skip-cuda",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "refuse to overwrite non-empty output root" in result.stderr

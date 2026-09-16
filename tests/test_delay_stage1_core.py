@@ -75,6 +75,20 @@ def test_traditional_baselines_are_present_and_use_same_input() -> None:
     assert rows["gcc_phat"]["runtime_sec"] >= 0.0
 
 
+def test_fft_cross_correlation_matches_numpy_linear_reference() -> None:
+    rng = np.random.default_rng(17)
+    first = rng.normal(size=(2, 33)) + 1j * rng.normal(size=(2, 33))
+    second = rng.normal(size=(2, 33)) + 1j * rng.normal(size=(2, 33))
+    correlation, lags = core._linear_cross_correlation(first, second)
+    reference = sum(
+        (np.correlate(row_first, row_second, mode="full")
+         for row_first, row_second in zip(first, second)),
+        np.zeros(2 * first.shape[1] - 1, dtype=np.complex128),
+    )
+    np.testing.assert_allclose(correlation, reference, rtol=1e-12, atol=1e-12)
+    np.testing.assert_array_equal(lags, np.arange(-32, 33, dtype=np.float64))
+
+
 @pytest.mark.parametrize("delay_ns", [2.25, -2.25])
 def test_baselines_recover_signed_delay_under_c12_convention(delay_ns: float) -> None:
     f1, f2, fs = make_fractionally_delayed_lfm(delay_ns=delay_ns, snr_db=60.0)

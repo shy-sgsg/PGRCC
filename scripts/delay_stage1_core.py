@@ -344,9 +344,16 @@ def _linear_cross_correlation(
     """
 
     sample_count = first.shape[1]
-    correlation = np.zeros(2 * sample_count - 1, dtype=np.complex128)
-    for row_first, row_second in zip(first, second):
-        correlation += np.correlate(row_first, row_second, mode="full")
+    # Use the exact linear-correlation identity in the FFT domain.  The
+    # baseline remains ordinary cross-correlation; this only avoids the
+    # O(pulse_samples**2) inner loop dominating the required estimator MC.
+    fft_size = _next_power_of_two(2 * sample_count - 1)
+    spectrum1 = np.fft.fft(first, n=fft_size, axis=1)
+    spectrum2 = np.fft.fft(second, n=fft_size, axis=1)
+    circular = np.fft.ifft(np.sum(spectrum1 * np.conj(spectrum2), axis=0))
+    correlation = np.concatenate(
+        (circular[-(sample_count - 1):], circular[:sample_count])
+    )
     lags = np.arange(-(sample_count - 1), sample_count, dtype=np.float64)
     return correlation, lags
 
