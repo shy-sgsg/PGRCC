@@ -59,13 +59,18 @@ Oracle 术语或 Router 状态当作当前待办。
 - 首个 TrackManager/PIPE channel-delay correction CUDA smoke 已从 target-free raw
   估计后实际施加 fractional-delay correction；Current/blind/known 三分支的生产运行、
   track_debug 和同周期 confirmed/matched payload reverse audit 通过。该结果只有 1 seed、
-  1 速度、1 SNR、3 周期，不能写成正式收益；5–7 周期多场景矩阵仍 pending。最新
-  4ch 产物为 `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/`。
-- 另完成 `/tmp/pgrcc_track_delay_formal_4ch_onecase_20260916/` 的 5-period、1 seed、
-  1 速度、1 SNR 代表性 local-test case；三分支的 4ch layout、runtime fusion、校准
-  provenance、TrackManager audit 和 payload reverse audit 均通过。它不是多场景收益
-  统计；正例链路没有 valid-CUT/target-off 分母，因此 cell-Pfa/false-hit 保持
-  `not_evaluable`，不把 detection record 或 payload 比例称为 Pfa。
+  1 速度、1 SNR、3 周期，不能写成正式收益。最新 4ch 产物为
+  `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/`。
+- TrackManager/PIPE channel-delay formal 已完成：
+  `outputs/track_delay_formal_4ch_local_20260916/` 覆盖 5 periods × 3 seeds × 2 target
+  velocities × 2 SNR，共 12/12 case、36/36 branch；所有输入/校准/runtime XML 审计、生产
+  `track_debug`、TrackManager audit（0 violation）和同周期 `Confirmed + matched_this_frame`
+  payload reverse audit 通过。Current/blind/known 的加权 target-period Pd 为 `55/60`、
+  `59/60`、`59/60`，all-visible Track Pd 为 `42/60`、`47/60`、`47/60`；ID switch 总数
+  `17→23`，所以只报告描述性差异，不宣称整体收益。blind delay 估计 bias=`+0.0590 ns`、
+  RMSE=`0.0610 ns`，残差范围 `+0.0413…+0.0788 ns`；known 残差为 0。该正式运行是
+  local-input 生产 core，不是 SHM 吞吐基准；target-on 正例没有 valid-CUT/target-off
+  分母，cell-Pfa/false-hit 保持 `not_evaluable`。
 - 后续去相关配置 `configs/research/two_channel_decorrelation_study.json` 目前仅为
   contract-only pending；不启动 AI/Router，也不打开 Phase-II native 4ch STAP。
 
@@ -272,7 +277,8 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase11 yaw-first attitude | 240-case compact formal；pitch/roll 固定 0，blind estimator 240/240 fallback，未形成正向修正结论 | `outputs/yaw_error_formal_compact_20260915/` |
 | Phase12 production TrackManager/PIPE | 3 seed × 3 branch × 3 period；9/9 SHM/PIPE pass、0 ring overrun/gap/duplicate、9/9 protocol audit pass；Track Pd 2/3 all-visible、2/2 after confirmation，false-track rate 0.8333–0.8824；无校正收益 claim | `outputs/track_manager_e2e_formal_compact_20260915/`、`outputs/formal_evidence/track_contract.json` |
 | Phase-I F1/F2 unknown-error observability | 完成 54/54 Stage2 cases；6 状态、13 观测；row-balanced scaled rank=6、condition=37.328；zero-control delta=0；delay/servo pair-level near-confounding，其他结论仍为 candidate | `outputs/two_channel_error_observability_phase_i_20260916/manifest.json`、`observability_summary.json`、`pair_observability.csv`、`zero_control.json`、`sensitivity_matrix_scaled.csv` |
-| Phase-I channel-delay TrackManager correction smoke | 真实 4ch protocol CUDA 三分支实际施加/审计通过；1 seed × 1 velocity × 1 SNR × 3 period，仅证明链路契约，未证明正式收益；cell-Pfa/false-hit 因缺少 valid-CUT/target-off 分母为 not_evaluable | `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/manifest.json`、`track_branch_metrics.csv`、`track_protocol_payload_audit.csv` |
+| Phase-I channel-delay TrackManager correction smoke | 真实 4ch protocol CUDA 三分支实际施加/审计通过；1 seed × 1 velocity × 1 SNR × 3 period，仅证明链路契约 | `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/manifest.json`、`track_branch_metrics.csv`、`track_protocol_payload_audit.csv` |
+| Phase-I channel-delay TrackManager formal | 5 periods × 3 seed × 2 velocity × 2 SNR；12/12 case、36/36 branch、runtime/TrackManager/payload audit 全通过；Current→blind/known 的 target-period Pd `55/60→59/60`，ID switch `17→23`；cell-Pfa/false-hit 为 not_evaluable | `outputs/track_delay_formal_4ch_local_20260916/manifest.json`、`track_branch_metrics.csv`、`track_protocol_payload_audit.csv` |
 | Phase-I temporal decorrelation entry | 已建立 contract-only 配置；runner、五方法 sweep、固定 Pfa/目标安全统计待运行 | `configs/research/two_channel_decorrelation_study.json` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
@@ -404,12 +410,11 @@ Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU 
 
 ## 下一步（Phase-I 后续，Phase-II 保持冻结）
 
-先扩展已通过契约的 channel-delay correction 到 5–7 period、多个 seed/目标速度/SCNR，
-并按 `Current / Known-error correction upper bound / Blind estimated correction` 报告
-recovery、target transfer、GO-CFAR 和 TrackManager/PIPE 指标；若 correction 未真实施加，
-分支必须是 `NOT_EVALUABLE`。随后才启动 `two_channel_decorrelation_study.json` 的
-temporal-rho/internal-motion sweep，比较 Current、phase-only、complex LS-Wiener、
-robust LS 和 coherence-aware 五种方法。
+channel-delay correction 的 5-period、多 seed/目标速度/SCNR TrackManager/PIPE formal 已
+完成；下一步启动 `two_channel_decorrelation_study.json` 的 temporal-rho/internal-motion
+sweep，比较 Current、phase-only、complex LS-Wiener、robust LS 和 coherence-aware 五种
+方法，并补齐 target-off fixed-Pfa 与完整 target-safe 统计。若 correction 未真实施加，
+分支仍必须是 `NOT_EVALUABLE`。
 
 clutter-only servo 和 velocity blind estimator 的模型失配仍是 fallback 证据，不进入在线
 部署；J4 没有纯 DOF 稳定优势，production CUDA 4ch STAP 保持关闭。也不训练 MLP、Router、

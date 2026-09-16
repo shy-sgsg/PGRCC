@@ -25,6 +25,9 @@
 > `outputs/track_manager_e2e_formal_compact_20260915/`；统一轻量副本见
 > `outputs/formal_evidence/`。
 
+> 当前补充（2026-09-16）：Phase-I 54-case F1/F2 可观测性矩阵和 12-case channel-delay
+> TrackManager/PIPE formal 已完成；本文件第 10 节及 `AI_CSI_35` 记录新的判读与限制。
+
 ## 1. 研究目标和判定边界
 
 本阶段回答三个先后问题：
@@ -781,17 +784,21 @@ blind estimator；对未加外部约束的 delay+servo 联合在线状态，应�
 首个真正进入生产闭环的校正是 channel delay。新的 TrackManager/PIPE CUDA smoke
 使用 target-free calibration raw 估计后实际改写 protocol IQ，三分支都通过生产运行和
 同周期 `Confirmed + matched_this_frame` payload reverse audit；但它仅覆盖 1 seed、1
-速度、1 SNR、3 周期，使用 4ch protocol IQ（每包 378,496 bytes），不能替代正式收益
-矩阵。实际产物为 `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/`；正式多 seed/多速度/
-多 SCNR/5–7 周期仍是 pending。后续 temporal decorrelation 的 Current、phase-only、complex LS-Wiener、
-robust LS、coherence-aware 入口只在
-`configs/research/two_channel_decorrelation_study.json` 中建立契约，尚未运行。
+速度、1 SNR、3 周期，使用 4ch protocol IQ（每包 378,496 bytes），仅作为链路 smoke。
+随后已完成正式 local-input 矩阵：`outputs/track_delay_formal_4ch_local_20260916/` 覆盖
+5 periods × 3 seeds × 2 target velocities × 2 SNR，共 12/12 case、36/36 branch；输入布局、
+runtime XML、target-free calibration provenance、生产 TrackManager audit（0 violation）和
+同周期 PIPE payload reverse audit 全部通过。Current/blind/known 的加权 target-period Pd 为
+`55/60`、`59/60`、`59/60`，all-visible Track Pd 为 `42/60`、`47/60`、`47/60`；blind
+delay bias=`+0.0590 ns`、RMSE=`0.0610 ns`，known 残差为 0。ID switch 总数从 `17` 增至
+`23`，故只保留 signed/descriptive comparison，不写成整体收益。该运行是 local-input
+生产 core，不是 SHM 吞吐/部署性能结论。正例链路缺少 valid-CUT/target-off 分母，cell-Pfa
+与 cell false-hit 按 `not_evaluable` 记录，detection record、payload 和 cluster association
+proxy 分开命名。
 
-已另完成一个 `/tmp/pgrcc_track_delay_formal_4ch_onecase_20260916/` 代表性 5-period
-local-test case（1 seed、1 速度、1 SNR），用于确认 4ch protocol、runtime fusion、
-校准 provenance、TrackManager audit 和 PIPE payload 反查链路。该 case 不是多场景收益
-结论；正例链路缺少 valid-CUT/target-off 分母，cell-Pfa 与 cell false-hit 按
-`not_evaluable` 记录，detection record、payload 和 cluster association proxy 分开命名。
+后续 temporal decorrelation 的 Current、phase-only、complex LS-Wiener、robust LS、
+coherence-aware 入口只在 `configs/research/two_channel_decorrelation_study.json` 中建立
+契约，尚未运行。
 
 AI 与 Router 均保持关闭；Phase-II native four-channel STAP/JDL/covariance/loading/
 DOF/CUDA 优化保持冻结。当前 framing 的详细方法和未验证项见

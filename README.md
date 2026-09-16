@@ -56,7 +56,7 @@ F1/F2 在 Current CSI 之前完成。native four-channel STAP 保留四个空间
   读取 true positions，处理端保留 reported positions。
 - 当前 E2E 是受控 one-beam/beam-center-clutter moving-target pilot；B2/B3/B3K 是离线
   scientific reference，不宣称生产 CUDA 四通道 STAP。延迟估计已接入真实生产
-  TrackManager/PIPE correction smoke；正式多 seed/多速度收益矩阵尚未完成。
+  TrackManager/PIPE correction formal；正式矩阵已完成，结论和限制见下文。
 - Phase-I 六维状态向量固定为 `channel_delay_error`、`inter_pulse_phase_error`、
   `baseline_geometry_error`、`servo_angle_error`、`platform_velocity_error`、
   `yaw_error`，初始不引入 pitch/roll。当前 delay/phase/geometry/velocity/yaw 有
@@ -163,10 +163,10 @@ V1 原始 BIN 和逐案例中间结果已按清理策略移除；当前 V2 为�
 
 本阶段已验证的工具链包括 CUDA Toolkit 12.4.131、CMake 4.2.3 和 FFTW3 3.3.10。
 受限提权后的 `nvidia-smi` 可见 RTX 3050 Laptop GPU（4 GiB）；本阶段 V2.1
-本阶段已在受限提权的 RTX 3050 Laptop GPU 上运行 TrackManager/PIPE correction smoke；
-可观测性矩阵由同一 Stage2 simulator 生成并保留 GPU probe。除该 smoke 外，TrackManager
-尚未完成正式多 seed/多速度/多 SCNR 性能结论，历史 CPU offline 结果仍不得写成 CUDA
-生产性能结果。
+本阶段已在受限提权的 RTX 3050 Laptop GPU 上运行 TrackManager/PIPE correction smoke 和
+12-case formal；可观测性矩阵由同一 Stage2 simulator 生成并保留 GPU probe。formal 是
+local-input production core 的正确性与指标闭环，不是 SHM 吞吐或部署性能基准；历史 CPU
+offline 结果仍不得写成 CUDA 生产性能结果。
 
 ## 构建
 
@@ -307,11 +307,23 @@ TrackManager/PIPE delay correction CUDA smoke 证据位于
 `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/`；该 smoke 的三分支生产运行和
 payload reverse audit 通过，实际为 4ch protocol（378,496 bytes/packet），但仅为
 1 seed、1 个目标速度、1 个 SNR、3 个周期，不能替代正式统计收益结论。
-另有 5-period、1 seed、1 个速度、1 个 SNR 的代表性 4ch local-test case 位于
-`/tmp/pgrcc_track_delay_formal_4ch_onecase_20260916/`；它只证明 formal 链路和审计
-契约可运行，多场景收益矩阵仍 pending。正例链路不提供独立 Pfa：CFAR hit-cell
-计数保留，但没有 valid-CUT/target-off 分母时，cell-Pfa 和 cell false-hit 记为
-`not_evaluable`，避免把 detection record 或 payload 统计冒充 Pfa。
+正式矩阵证据位于 `outputs/track_delay_formal_4ch_local_20260916/`：5 periods × 3
+seeds × 2 target velocities × 2 SNR，共 12/12 case、36/36 branch 完成；所有 runtime XML、
+calibration provenance、TrackManager audit 和 PIPE payload reverse audit 通过，0 violation，
+blind 与 known 均记录 `correction_applied=true`，估计器未读取 truth。加权 target-period Pd
+为 Current `55/60=0.9167`、blind/known `59/60=0.9833`；all-visible Track Pd 为
+`42/60=0.7000`、`47/60=0.7833`。ID switch 总数从 `17` 增至 `23`，因此不能写成整体
+校正收益；正例 target-on 链路没有 valid-CUT/target-off 分母，cell-Pfa 与 cell false-hit
+为 `not_evaluable`，detection-record、payload 和 cluster-association proxy 仅作分层诊断。
+该矩阵使用 local-input 生产 core，不代表 SHM 吞吐或部署性能。
+
+正式矩阵最短复现入口（需要已构建的 `simulate_stage2_statistical` 和真实 CUDA）：
+
+```bash
+python3 scripts/run_track_manager_e2e.py --input-mode local --period-count 5 \
+  --seeds 101,202,303 --target-velocities-mps 6.7,12.0 --snr-db 30,35 \
+  --output-root /tmp/pgrcc_track_delay_formal_4ch_local_repro
+```
 
 有界 raw-IQ pilot 的最短复现入口：
 

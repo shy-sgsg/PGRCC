@@ -2,8 +2,9 @@
 
 > 审计日期：2026-09-16
 >
-> 本文只解释当前 F1/F2 scientific input 上实际运行的 54-case pilot。它是
-> Phase-I 的可观测性证据，不是完整 airborne 统计泛化、在线校准收益或 AI 开启依据。
+> 本文解释当前 F1/F2 scientific input 上实际运行的 54-case 可观测性 pilot 和
+> channel-delay TrackManager/PIPE formal。它是 Phase-I 的边界证据，不是完整 airborne
+> 统计泛化、SHM 吞吐基准或 AI 开启依据。
 
 ## A. 输入边界和实验设计
 
@@ -167,24 +168,35 @@ cosine 为 0.18023，未显示强 servo/yaw 余弦混淆。这个结果只回答
 真实 CUDA smoke 产物在 `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/`，三分支
 均消费 4ch protocol IQ（每包 378,496 bytes）；runtime XML audit 还强制核对
 `enable_four_channel_fusion=1`、`four_channel_phase_compensation_enable=1` 和 C3/C4
-映射。production return code 均为 0，TrackManager audit 0 violation，payload 可反查到同周期
-`Confirmed + matched_this_frame` detection。该 smoke 只有 1 seed、1 个目标速度、1 个
-SNR、3 个周期；metrics 中的 false-track、Pd、位置/角度/速度误差只证明链路和审计
-契约，不构成正式校正收益结论。正式多 seed、多速度、多 SCNR 和 5–7 周期矩阵仍为
-pending；校正未真实施加时必须保持 `NOT_EVALUABLE`。
+映射。正式产物在 `outputs/track_delay_formal_4ch_local_20260916/`，覆盖 5 periods ×
+3 seeds × 2 target velocities × 2 SNR，共 12/12 case、36/36 branch。所有 case/branch 的
+输入布局、calibration provenance、runtime XML、生产 return code、TrackManager audit（0
+violation）和 PIPE payload reverse audit 均通过；blind/known 的 `correction_applied=true`，
+blind estimator 的 truth-read audit 为 false。该正式运行是 local-input production core，
+不是 SHM 吞吐或部署性能结论。
 
-另完成了一个 5-period、1 seed、1 个目标速度、1 个 SNR 的本地代表性 formal
-case：`/tmp/pgrcc_track_delay_formal_4ch_onecase_20260916/`。该 case 仍使用真实
-4ch protocol IQ、F1/F2 融合和生产 TrackManager；三分支均通过输入布局、runtime XML、
-estimator provenance、TrackManager audit（0 violation）和 PIPE 载荷反查。blind 估计为
-`4.0412577853 ns`，truth 仅用于 known upper bound 的 evaluation-only correction；
-该结果只证明 5-period 链路已经可运行，不代表多 seed/速度/SCNR 的校正收益，完整矩阵仍
-待补。
+正式矩阵的汇总指标如下；比例为各 case 汇总后的加权计数或 case mean，具体字段和状态以
+`track_branch_metrics.csv` 为准：
 
-该 smoke 是 CUDA `--local-test` 生产 core 路径；SHM/PIPE 5-period 正式矩阵已启动但在
-首个 target/calibration case 完成前因运行窗口过长中止，partial 现场见
-`/tmp/pgrcc_track_delay_formal_gpu_20260915/partial_attempt.json`，不能与下面的 smoke
-表混算：
+| branch | target-period Pd | Track Pd（all / after confirmation） | unique false tracks（sum / mean） | false-track rate（mean） | ID switches（sum / mean） | position RMSE mean (m) | velocity RMSE mean (m/s) | angle RMSE mean (deg) |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Current | 55/60 = 0.9167 | 42/60 = 0.7000 / 42/48 = 0.8750 | 754 / 62.8333 | 0.9458 | 17 / 1.4167 | 334.1107 | 15.1981 | 0.2133 |
+| blind estimated | 59/60 = 0.9833 | 47/60 = 0.7833 / 47/48 = 0.9792 | 700 / 58.3333 | 0.9345 | 23 / 1.9167 | 182.9015 | 9.6795 | 0.1157 |
+| known upper bound | 59/60 = 0.9833 | 47/60 = 0.7833 / 47/48 = 0.9792 | 696 / 58.0000 | 0.9355 | 23 / 1.9167 | 179.3365 | 9.8802 | 0.1134 |
+
+blind delay estimates across the 3 seeds are `4.0412578 ns`、`4.0788120 ns`、`4.0569342 ns`；
+相对 4.0 ns truth 的 bias=`+0.0590013 ns`、RMSE=`0.0609782 ns`，残差范围
+`+0.0412578…+0.0788120 ns`。known 分支残差为 0，truth 只用于 A2 上限评价。相对
+Current，blind/known 的 target-period Pd 分别增加 `4/60`，all-visible Track Pd 增加
+`5/60`，after-confirmation Track Pd 增加 `5/48`；但 ID switches 都增加 `6`，因此不
+宣称全指标或统计显著的收益。
+
+表外的 detection-record false-rate、protocol-payload false-alarm 和
+cluster-association proxy 也分别保留在 CSV 中；它们不是独立 Pfa。target-on 正例链路
+没有 valid-CUT/target-off 分母和 CFAR-cell 身份映射，因此 `cfar_pfa`、cell false-hit 和
+production detection-level false alarm 为 `not_evaluable`，不能用这些 proxy 补齐 Pfa。
+
+以下为此前 3-period CUDA smoke 的链路回归表，不参与上面的 12-case formal 汇总：
 
 | branch | correction applied | delay estimate/reference (ns) | detection records / target-period Pd | eligible payloads / matched payloads | unique false tracks | Track Pd (all / after confirmation) | audit |
 |---|---:|---:|---:|---:|---:|---:|---|
@@ -218,13 +230,74 @@ servo/yaw 在本 pilot 中没有强列余弦混淆。满秩不等于无先验可
 
 ### 未验证项
 
-- 尚未完成 5–7 period、多个目标速度/SCNR/seed 的 TrackManager correction benefit；
 - 尚未运行 temporal decorrelation 五方法 sweep、固定 Pfa 和完整 target-safe 统计；
 - 当前 compact 观测使用受控 Stage2 场景，不能外推到真实平台全姿态、全航迹和复杂
   杂波；pitch/roll、clock drift、amplitude/IQ mismatch 尚未进入本六维矩阵；
 - Phase-II native four-channel STAP/JDL/covariance/loading/DOF/CUDA 优化仍冻结；
 - AI/Router 均未训练、未启用。
 
-后续先补 TrackManager 正式 delay correction 矩阵，再按
-`configs/research/two_channel_decorrelation_study.json` 启动同一 F1/F2 输入上的
-Current/phase-only/complex LS-Wiener/robust LS/coherence-aware 比较。
+后续按 `configs/research/two_channel_decorrelation_study.json` 启动同一 F1/F2 输入上的
+Current/phase-only/complex LS-Wiener/robust LS/coherence-aware 比较，并补 target-off
+fixed-Pfa 与完整 target-safe 统计。
+
+## H. 阶段报告：A–G
+
+### A. 哪些系统误差真正会破坏 CSI？
+
+六维状态在 F1/F2 观测上都产生局部响应候选：delay 直接形成频率相关跨通道相位，
+inter-pulse phase 形成脉冲/慢时间斜率，baseline geometry 形成 beam-angle phase
+slope，servo/pointing 改变相位与 look geometry，velocity/yaw 进入 ridge、P38、CTDR 和
+slow-time。它们因此都可能破坏 CSI；但本轮只证明了参数响应，不把每个候选都写成已完成
+在线估计器。真正的 temporal clutter decorrelation 尚未与参数误差残差分离测量。
+
+### B. 哪些能从 F1/F2 独立估计？
+
+54/54 case 的 row-balanced sensitivity matrix 为 rank 6、condition=`37.3283545882`，
+同 seed zero-control delta 最大绝对值为 0（容差 `1e-9`）。在当前 pilot 中，delay 的
+frequency slope、phase drift 的 pulse slope、geometry 的 beam-angle slope，以及
+velocity 的 ridge/P38/CTDR/slow-time 候选分别保留；delay/phase 列余弦为 `−0.09393`，
+servo/yaw 为 `0.18023`。这些结论的强度是 `candidate independently observable`，不是
+部署级 blind estimator 通过。
+
+### C. 哪些必须依赖外部先验？
+
+delay/servo 列余弦为 `−0.9199524`，机器可读分类明确为
+`near-confounded; not independently observable from current two-channel data`。因此联合
+在线状态至少需要 INS/attitude/velocity、servo encoder 或 beam-pointing telemetry、factory
+channel calibration/baseline survey，或跨周期 temporal prior。yaw、velocity 和 pointing
+在真实平台也需要同类外部来源来排除共同 nuisance；本 pilot 的满秩不等于无先验可部署。
+
+### D. 已知误差校正最多能恢复多少？
+
+在当前 12-case A1/A2/A3 TrackManager formal 中，A2 known 是 truth-only 上限：相对 Current，
+target-period Pd 从 `55/60` 到 `59/60`（`+4/60`），all-visible Track Pd 从 `42/60` 到
+`47/60`（`+5/60`），after-confirmation 从 `42/48` 到 `47/48`（`+5/48`）。false-track
+总数 `754→696`、position RMSE mean `334.1107→179.3365 m` 是描述性改善；ID switch
+`17→23` 是反向变化。由于 A0 Ideal 未纳入本 TrackManager 三分支运行，不能从本表推导
+“恢复到无误差理想”的比例；A2 只回答当前 delay error 的 known correction upper bound。
+
+### E. blind self-calibration 实际恢复多少？
+
+blind 与 known 在这 12 个 case 的 target-period Pd、Track Pd 和 after-confirmation Pd 加权
+结果相同，因此在三个非零 `Known−Current` 的 paired case 上 recovery ratio 均为 `1.0`；
+其余九个 case 的 signed denominator 为 0，标记 `not_evaluable`，不做平均。blind delay
+估计 bias=`+0.0590013 ns`、RMSE=`0.0609782 ns`，仍留下约 `+0.0413…+0.0788 ns` 残差。
+false-track 总数为 `700`（相对 Current `−54`），但 ID switch 同样 `17→23`，所以只能
+说本 formal 对 delay correction 给出可追溯的部分恢复证据，不能说所有航迹指标一致改善。
+
+### F. 参数误差修完以后剩余多少是真正杂波失相干？
+
+本阶段不能给出数值比例。可观测性矩阵和 delay formal 只隔离了参数响应及其校正残差；
+formal target-on 运行没有独立 target-off/valid-CUT Pfa 分母，也没有 temporal-rho/internal-
+motion sweep，因此剩余 CSI residual 不能被归因成“真正杂波失相干”。需要先运行五方法
+decorrelation entry，在同一 F1/F2 场景上用 target-off 估计、target-on causal transfer
+和 fixed-Pfa 评价后再回答。
+
+### G. 下一步优化参数估计，还是进入 robust CSI？
+
+下一步应进入 robust CSI/temporal decorrelation 的受控比较，但把 delay formal 的残差、
+servo/delay confounding、velocity fallback 和 target-safe/Pfa 缺口作为前置条件。先完成
+Current、phase-only、complex LS-Wiener、robust LS、coherence-aware 的统一 sweep；不启动
+AI、Router 或 Phase-II native four-channel STAP。若 sweep 显示剩余误差仍可由已观测物理量
+稳定解释，再优化确定性估计；若残差在参数校正后仍呈稳定、不可显式解析且推理可见，再
+重新评估 Physics-AI。

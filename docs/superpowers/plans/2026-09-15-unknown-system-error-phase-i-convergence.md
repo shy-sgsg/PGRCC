@@ -12,17 +12,17 @@
 - Task 2：已完成；54/54 simulator-backed F1/F2 case 通过，包含 row-balanced
   rank/condition/cosine、pair-level machine-readable confounding、same-seed zero-control
   delta、source/axis metadata、物理 range/frequency/block coverage 和 seed stability。
-- Task 3：核心已完成；真实 CUDA 4ch protocol TrackManager/PIPE local-test smoke 已实际施加 blind/known
-  delay correction 并通过 payload reverse audit。5-period、3-seed、2-velocity、2-SNR 的
-  SHM 正式矩阵已启动但因首个 target/calibration 仿真约 184 s、预计多小时 GPU 窗口而在
-  case 完成前中止，partial 现场保留在 `/tmp/pgrcc_track_delay_formal_gpu_20260915/`，
-  该矩阵仍为 pending；另已完成 1 seed × 1 velocity × 1 SNR × 5-period 的 4ch local-test
-  代表性 formal case，产物在 `/tmp/pgrcc_track_delay_formal_4ch_onecase_20260916/`，
-  仅证明 5-period 链路，不替代多场景收益矩阵。
+- Task 3：已完成；真实 CUDA 4ch protocol TrackManager/PIPE local-input formal 实际施加
+  blind/known delay correction 并通过 payload reverse audit。5-period、3-seed、2-velocity、
+  2-SNR 共 12/12 case、36/36 branch 完成，所有 runtime/TrackManager/payload audit 通过，
+  产物在 `outputs/track_delay_formal_4ch_local_20260916/`。较早的 SHM 尝试仍以 partial
+  现场保留在 `/tmp/pgrcc_track_delay_formal_gpu_20260915/`，不与本次 local-input formal
+  混算。
 - Task 4：已完成；研究框架、当前实证报告、历史 framing note 和 decorrelation contract
   已写入仓库；Phase-II native 4ch STAP/JDL/DOF/CUDA 仍冻结，AI/Router 关闭。
-- Task 5：静态、Python、原生 build、CTest、正式 observability 运行和 4ch smoke re-audit
-  已完成；TrackManager formal benefit、decorrelation sweep 和完整目标安全统计仍明确未完成。
+- Task 5：静态、Python、原生 build、CTest、正式 observability 运行、4ch smoke re-audit 和
+  12-case TrackManager formal 已完成；decorrelation sweep、target-off fixed-Pfa 和完整目标
+  安全统计仍明确未完成。
 
 ## 约束和验收口径
 
@@ -89,7 +89,7 @@
 5. 运行定向单元测试、`py_compile` 和一个最小 simulator-backed smoke；失败时按真实
    traceback/输入修复，不用放宽容差掩盖问题。
 
-## Task 3：让首个 TrackManager delay correction 真正进入生产链（核心完成，正式矩阵 pending）
+## Task 3：让首个 TrackManager delay correction 真正进入生产链（已完成）
 
 **测试先行。**
 
@@ -141,7 +141,7 @@
 3. 文档中同步当前 TrackManager/PIPE 状态、A0–A3 定义、recovery 公式、metric direction
    和复现命令；不回写历史四通道数字。
 
-## Task 5：实际运行、汇总和质量闸门（静态/observability/4ch smoke 完成，formal pending）
+## Task 5：实际运行、汇总和质量闸门（已完成，temporal decorrelation 后续）
 
 1. 检查空间、`nvidia-smi`、当前 branch/status；先跑 observability pilot，再跑
    4ch TrackManager CUDA smoke/formal，保留命令、退出码、配置、输入 hash、GPU 状态和产物。

@@ -110,7 +110,9 @@ recovery ratio    = actual recovered / recoverable space
 
 - channel delay 已有 F1/F2 互谱估计和 protocol raw fractional-delay rewrite；首次
   TrackManager smoke 已真实施加 blind/known correction，未施加时 runner 返回
-  `NOT_EVALUABLE`；正式多 seed、多速度、多 SCNR 收益矩阵仍 pending；
+  `NOT_EVALUABLE`；随后完成 5 periods × 3 seeds × 2 target velocities × 2 SNR 的
+  local-input formal，12/12 case、36/36 branch 和全部 runtime/TrackManager/payload audit
+  通过；
 - inter-pulse phase、baseline geometry、platform velocity、yaw 已有观测/真值分离审计，
   但不能把局部 sensitivity candidate 写成已完成的在线 estimator；
 - servo 的 target-assisted pilot 不等于 target-free clutter-only 能力；本阶段近混淆
@@ -146,3 +148,12 @@ python3 scripts/audit_two_channel_error_observability.py \
 TrackManager smoke 的可复现命令和结果限制见 README；真实 CUDA 产物保存了 branch
 manifest、metrics、PIPE payload audit 和 production `track_debug` 反查。所有正式报告
 必须同时写清命令、配置/hash、源码 dirty 状态、设备状态、实际退出码和未验证项。
+
+当前 TrackManager formal 证据为
+`outputs/track_delay_formal_4ch_local_20260916/manifest.json`、
+`track_branch_metrics.csv` 和 `track_protocol_payload_audit.csv`。它使用真实 RTX 3050
+Laptop CUDA 的 local-input production core，不是 SHM 吞吐基准；Current/blind/known 的
+加权 target-period Pd 为 `55/60`、`59/60`、`59/60`，all-visible Track Pd 为 `42/60`、
+`47/60`、`47/60`，但 ID switch 为 `17→23`。因此该结果是有边界的参数校正闭环证据，
+不是全指标一致改善；cell-Pfa/false-hit 因缺少 valid-CUT/target-off 分母保持
+`not_evaluable`。后续仍需运行 Section 7 的 temporal decorrelation sweep。

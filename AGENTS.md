@@ -127,6 +127,18 @@ Current 上叠加 AI”或 `AI Router` 的专家选择写成当前主线。`NO_G
 实验；正式 CUDA 运行必须建立在代码审计和可复现 pilot 设计之后。历史报告中的数字、
 源码身份和实验结论不得回写，只能通过 framing note 说明其在新主线中的位置。
 
+### PGRCC Phase-I / Phase-II 执行栅栏
+
+- Phase-I 只处理生产等效 `4ch protocol IQ → (1,3)/(2,4) F1/F2 → 两通道 CSI →
+  GO-CFAR → clustering/positioning → TrackManager/PIPE`，重点是未知系统误差表征、
+  确定性自校准、稳健 CSI 和目标/航迹安全性。
+- native four-channel STAP/JDL、协方差/加载、额外空间自由度和相关 CUDA 优化全部冻结
+  为 Phase-II；已有四通道结果只作为归档 reference，不能成为当前主线的新增待办。
+- AI 的顺序固定为“物理退化 → 已知误差校正上限 → 确定性盲估计 → 实际校准 → 系统恢复
+  与残差审计 → 仅对稳定且推理可见的剩余误差评估 AI”。前置证据未闭合前保持
+  `ai_training=false`、`router_enabled=false`，不训练 MLP、通用复权残差、RD image-to-image
+  或 Router。
+
 当前 Phase-I 的实现边界是生产等效 F1/F2 两通道失配表征、确定性误差校正和稳健 CSI；
 native four-channel STAP/JDL、协方差/加载、空间自由度扩展及其 CUDA 优化属于冻结的
 Phase-II，不得因一次实验结果提前混入当前主线。
