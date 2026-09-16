@@ -422,3 +422,52 @@ def test_cli_rejects_nonempty_output_root(tmp_path: Path) -> None:
     )
     assert result.returncode != 0
     assert "refuse to overwrite non-empty output root" in result.stderr
+
+
+def test_compact_evidence_has_exact_required_files(tmp_path: Path) -> None:
+    from scripts.analyze_delay_stage1_formal import build_compact_evidence
+
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    manifest = run_root / "manifest.json"
+    manifest.write_text(
+        json.dumps({
+            "schema_version": 1,
+            "status": "completed_with_gaps",
+            "mode": "pilot",
+            "command": {"shell": "pilot"},
+            "config": {},
+            "template": {},
+            "resolved": {"e2e_delay_errors_ns": [0.0]},
+            "cases": [],
+            "mc_summary": {"rows": []},
+            "ai_training": False,
+            "router_enabled": False,
+        }),
+        encoding="utf-8",
+    )
+    outputs = build_compact_evidence(manifest, tmp_path / "evidence")
+    expected = {
+        "manifest.json",
+        "delay_estimation_summary.csv",
+        "delay_baseline_comparison.csv",
+        "A0_A1_A2_A3_summary.csv",
+        "target_off_false_alarm_summary.csv",
+        "target_on_detection_summary.csv",
+        "track_summary.csv",
+        "id_switch_audit.csv",
+        "statistics_summary.csv",
+    }
+    assert set(outputs) == expected
+    assert {path.name for path in (tmp_path / "evidence").iterdir()} == expected
+
+
+def test_summary_preserves_not_evaluable_zero_denominator() -> None:
+    from scripts.analyze_delay_stage1_formal import compute_condition_summary
+
+    rows = compute_condition_summary(
+        [{"condition": "A1", "metric": "cfar_pfa", "value": None, "status": "NOT_EVALUABLE"}],
+        ["A0", "A1", "A2", "A3"],
+    )
+    assert rows[0]["status"] == "NOT_EVALUABLE"
+    assert rows[0]["value"] is None
