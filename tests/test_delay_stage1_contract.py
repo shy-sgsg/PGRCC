@@ -372,6 +372,8 @@ def test_cli_parser_exposes_required_stage1_arguments() -> None:
         "--period-count",
         "--skip-cuda",
         "--cleanup-raw",
+        "--resume",
+        "--max-cases",
     } <= options
 
 
@@ -501,3 +503,17 @@ def test_summary_preserves_not_evaluable_zero_denominator() -> None:
     )
     assert rows[0]["status"] == "NOT_EVALUABLE"
     assert rows[0]["value"] is None
+
+
+def test_stage1_report_and_paper_outline_are_navigable() -> None:
+    report = ROOT / "docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md"
+    paper = ROOT / "docs/papers/Paper1_ChannelDelay_SelfCalibration_Outline.md"
+    readme = ROOT / "README.md"
+    assert report.is_file()
+    assert paper.is_file()
+    assert "A0/A1/A2/A3" in report.read_text(encoding="utf-8")
+    assert "NOT_EVALUABLE" in report.read_text(encoding="utf-8")
+    assert "potential contributions" in paper.read_text(encoding="utf-8")
+    readme_text = readme.read_text(encoding="utf-8")
+    assert "AI_CSI_36_单一系统误差确定性自校准阶段报告.md" in readme_text
+    assert "Paper1_ChannelDelay_SelfCalibration_Outline.md" in readme_text

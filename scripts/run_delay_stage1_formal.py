@@ -1966,14 +1966,29 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="after each completed case, remove generated .bin files and keep audit evidence",
     )
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="resume an existing Stage-1 output root, skipping completed case IDs",
+    )
+    parser.add_argument(
+        "--max-cases",
+        type=int,
+        help="process at most this many not-yet-completed cases in this invocation",
+    )
     return parser
 
 
-def _validate_output_root(path: Path) -> Path:
+def _validate_output_root(path: Path, *, resume: bool = False) -> Path:
     root = Path(path).expanduser().resolve()
     if root.exists():
         if not root.is_dir():
             raise ValueError(f"output root is not a directory: {root}")
+        if resume:
+            manifest_path = root / "manifest.json"
+            if not manifest_path.is_file():
+                raise ValueError(f"resume output root is missing manifest.json: {root}")
+            return root
         if any(root.iterdir()):
             raise ValueError(f"refuse to overwrite non-empty output root: {root}")
     else:
@@ -2236,55 +2251,116 @@ def run_stage1_cli(
     if not template_path.is_file():
         raise FileNotFoundError(f"scenario template does not exist: {template_path}")
     selection = resolve_stage1_selection(config, args)
-    output_root = _validate_output_root(Path(args.output_root))
+    resume = bool(getattr(args, "resume", False))
+    max_cases_value = getattr(args, "max_cases", None)
+    if max_cases_value is not None and int(max_cases_value) <= 0:
+        raise ValueError("--max-cases must be positive")
+    output_root = _validate_output_root(Path(args.output_root), resume=resume)
     gpu_before = _gpu_status()
     disk_before = _disk_status(output_root)
     config_for_case = copy.deepcopy(config)
     config_for_case["scenario_template"] = str(template_path)
-    _write_json(output_root / "config_snapshot.json", config)
-    _write_json(output_root / "template_snapshot.json", _read_json(template_path))
     command_values = list(command_args) if command_args is not None else list(sys.argv[1:])
     full_command = [sys.executable, str(Path(__file__).resolve()), *command_values]
-    manifest: dict[str, object] = {
-        "schema_version": 1,
-        "created_at_utc": datetime.now(timezone.utc).isoformat(),
-        "mode": selection["mode"],
-        "command": {
-            "argv": full_command,
-            "shell": shlex.join(str(item) for item in full_command),
-        },
-        "config": {
-            "path": str(config_path),
-            "sha256": _sha256(config_path),
-        },
-        "template": {
-            "path": str(template_path),
-            "sha256": _sha256(template_path),
-        },
-        "resolved": selection,
-        "delay_range_labels": copy.deepcopy(config.get("delay_ranges_ns")),
-        "git": _git_snapshot(),
-        "gpu_status_before": gpu_before,
-        "disk_status_before": disk_before,
-        "ai_training": False,
-        "router_enabled": False,
-        "native_four_channel_stap": False,
-        "raw_cleanup_requested": bool(getattr(args, "cleanup_raw", False)),
-        "mc_summary": {"status": "not_started"},
-        "cases": [],
-        "status": "not_started",
-    }
+    config_sha256 = _sha256(config_path)
+    template_sha256 = _sha256(template_path)
+    if resume:
+        manifest = _read_json(output_root / "manifest.json")
+        if manifest.get("mode") != selection["mode"]:
+            raise ValueError("resume mode does not match the existing run manifest")
+        if manifest.get("resolved") != selection:
+            raise ValueError("resume selection does not match the existing run manifest")
+        existing_config = manifest.get("config")
+        existing_template = manifest.get("template")
+        if not isinstance(existing_config, Mapping) or existing_config.get("sha256") != config_sha256:
+            raise ValueError("resume config hash does not match the existing run manifest")
+        if not isinstance(existing_template, Mapping) or existing_template.get("sha256") != template_sha256:
+            raise ValueError("resume template hash does not match the existing run manifest")
+        if not isinstance(manifest.get("cases"), list):
+            raise ValueError("resume manifest cases must be a list")
+        history = manifest.get("resume_history")
+        if not isinstance(history, list):
+            history = []
+        history.append({
+            "command": {
+                "argv": full_command,
+                "shell": shlex.join(str(item) for item in full_command),
+            },
+            "resumed_at_utc": datetime.now(timezone.utc).isoformat(),
+            "gpu_status": gpu_before,
+            "disk_status": disk_before,
+        })
+        manifest["resume_history"] = history
+        manifest["raw_cleanup_requested"] = bool(
+            manifest.get("raw_cleanup_requested", False)
+            or bool(getattr(args, "cleanup_raw", False))
+        )
+    else:
+        manifest = {
+            "schema_version": 1,
+            "created_at_utc": datetime.now(timezone.utc).isoformat(),
+            "mode": selection["mode"],
+            "command": {
+                "argv": full_command,
+                "shell": shlex.join(str(item) for item in full_command),
+            },
+            "config": {
+                "path": str(config_path),
+                "sha256": config_sha256,
+            },
+            "template": {
+                "path": str(template_path),
+                "sha256": template_sha256,
+            },
+            "resolved": selection,
+            "delay_range_labels": copy.deepcopy(config.get("delay_ranges_ns")),
+            "git": _git_snapshot(),
+            "gpu_status_before": gpu_before,
+            "disk_status_before": disk_before,
+            "ai_training": False,
+            "router_enabled": False,
+            "native_four_channel_stap": False,
+            "raw_cleanup_requested": bool(getattr(args, "cleanup_raw", False)),
+            "mc_summary": {"status": "not_started"},
+            "cases": [],
+            "status": "not_started",
+        }
+    if not (output_root / "config_snapshot.json").is_file():
+        _write_json(output_root / "config_snapshot.json", config)
+    if not (output_root / "template_snapshot.json").is_file():
+        _write_json(output_root / "template_snapshot.json", _read_json(template_path))
     _write_json(output_root / "manifest.json", manifest)
     expected_case_count = len(selection["cases"]) * len(selection["e2e_delay_errors_ns"])
 
     def checkpoint(last_case_id: str | None = None) -> None:
+        completed_count = sum(
+            1 for item in manifest["cases"]
+            if isinstance(item, Mapping) and item.get("status") == "completed"
+        )
         manifest["progress"] = {
-            "completed_case_count": len(manifest["cases"]),
+            "completed_case_count": completed_count,
+            "processed_case_count": len(manifest["cases"]),
             "expected_case_count": expected_case_count,
             "last_case_id": last_case_id,
             "status": "running",
         }
         _write_json(output_root / "manifest.json", manifest)
+
+    case_records = manifest["cases"]
+    assert isinstance(case_records, list)
+    completed_case_ids = {
+        str(item.get("scene_identity", {}).get("case_id"))
+        for item in case_records
+        if isinstance(item, Mapping)
+        and item.get("status") == "completed"
+        and isinstance(item.get("scene_identity"), Mapping)
+    }
+    interrupted_cases = manifest.get("interrupted_cases")
+    if not isinstance(interrupted_cases, list):
+        interrupted_cases = []
+    manifest["interrupted_cases"] = interrupted_cases
+    processed_this_invocation = 0
+
     mc_ok = False
     try:
         from scripts.delay_stage1_core import run_parameter_monte_carlo
@@ -2334,6 +2410,8 @@ def run_stage1_cli(
     if bool(args.skip_cuda):
         for block in selection["cases"]:
             for delay in selection["e2e_delay_errors_ns"]:
+                if max_cases_value is not None and processed_this_invocation >= int(max_cases_value):
+                    break
                 manifest["cases"].append({
                     "status": "SKIPPED",
                     "reason": "cuda_execution_skipped_by_cli",
@@ -2349,15 +2427,43 @@ def run_stage1_cli(
                     and isinstance(manifest["cases"][-1].get("scene_identity"), Mapping)
                     else None
                 )
+                processed_this_invocation += 1
+            if max_cases_value is not None and processed_this_invocation >= int(max_cases_value):
+                break
     else:
         for block in selection["cases"]:
             for delay in selection["e2e_delay_errors_ns"]:
+                if max_cases_value is not None and processed_this_invocation >= int(max_cases_value):
+                    break
                 scene_identity = _scene_identity_for_block(
                     block,
                     float(delay),
                     int(selection["period_count"]),
                 )
                 case_root = output_root / "cases" / str(scene_identity["case_id"])
+                case_id = str(scene_identity["case_id"])
+                if case_id in completed_case_ids:
+                    continue
+                if case_root.exists() and any(case_root.iterdir()):
+                    cleanup_record: dict[str, object]
+                    try:
+                        cleanup_record = cleanup_stage1_raw(case_root, allow_incomplete=True)
+                    except (OSError, ValueError, RuntimeError, KeyError, TypeError) as cleanup_exc:
+                        cleanup_record = {
+                            "status": "failed",
+                            "error": str(cleanup_exc),
+                        }
+                    interrupted_root = output_root / "interrupted_cases" / (
+                        f"{case_id}__{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')}"
+                    )
+                    interrupted_root.parent.mkdir(parents=True, exist_ok=True)
+                    shutil.move(str(case_root), str(interrupted_root))
+                    interrupted_cases.append({
+                        "case_id": case_id,
+                        "original_root": str(case_root),
+                        "preserved_root": str(interrupted_root),
+                        "cleanup": cleanup_record,
+                    })
                 try:
                     case_manifest = run_stage1_case(
                         config_for_case,
@@ -2389,6 +2495,9 @@ def run_stage1_cli(
                     _write_json(case_root / "case_manifest.json", failure)
                     manifest["cases"].append(_case_summary(failure, case_root))
                 checkpoint(str(scene_identity["case_id"]))
+                processed_this_invocation += 1
+            if max_cases_value is not None and processed_this_invocation >= int(max_cases_value):
+                break
     case_records = manifest["cases"]
     assert isinstance(case_records, list)
     all_cases_complete = bool(case_records) and all(
@@ -2400,8 +2509,27 @@ def run_stage1_cli(
         manifest["status"] = "completed_with_gaps"
     elif all_cases_complete:
         manifest["status"] = "completed"
+    elif max_cases_value is not None:
+        manifest["status"] = "in_progress"
     else:
         manifest["status"] = "completed_with_gaps"
+    manifest["progress"] = {
+        "completed_case_count": sum(
+            1 for item in case_records
+            if isinstance(item, Mapping) and item.get("status") == "completed"
+        ),
+        "processed_case_count": len(case_records),
+        "expected_case_count": expected_case_count,
+        "last_case_id": (
+            case_records[-1].get("scene_identity", {}).get("case_id")
+            if case_records
+            and isinstance(case_records[-1], Mapping)
+            and isinstance(case_records[-1].get("scene_identity"), Mapping)
+            else None
+        ),
+        "processed_this_invocation": processed_this_invocation,
+        "status": manifest["status"],
+    }
     manifest["git_after"] = _git_snapshot()
     manifest["gpu_status_after"] = _gpu_status()
     manifest["disk_status_after"] = _disk_status(output_root)
@@ -2423,7 +2551,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "mc_status": manifest.get("mc_summary", {}).get("status")
         if isinstance(manifest.get("mc_summary"), Mapping) else None,
     }, ensure_ascii=False))
-    return 0 if manifest["status"] in {"completed", "completed_with_gaps"} else 1
+    return 0 if manifest["status"] in {"completed", "completed_with_gaps", "in_progress"} else 1
 
 
 __all__ = [
