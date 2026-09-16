@@ -19,6 +19,7 @@ from scripts.delay_stage1_core import (
     run_parameter_monte_carlo,
     weighted_slope_variance,
 )
+from scripts.delay_stage1_core import _analytic_lfm_spectrum
 
 
 def make_fractionally_delayed_lfm(
@@ -41,10 +42,14 @@ def make_fractionally_delayed_lfm(
     )
     signal_power = float(np.mean(np.abs(delayed) ** 2))
     noise_power = signal_power / (10.0 ** (snr_db / 10.0))
-    noise = math.sqrt(noise_power / 2.0) * (
+    noise_scale = math.sqrt(noise_power / 2.0)
+    noise1 = noise_scale * (
         rng.standard_normal(n_samples) + 1j * rng.standard_normal(n_samples)
     )
-    return reference + noise, delayed + noise, fs_hz
+    noise2 = noise_scale * (
+        rng.standard_normal(n_samples) + 1j * rng.standard_normal(n_samples)
+    )
+    return reference + noise1, delayed + noise2, fs_hz
 
 
 def rows_by_method(rows: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
@@ -67,6 +72,16 @@ def test_traditional_baselines_are_present_and_use_same_input() -> None:
     assert {"cross_correlation", "gcc_phat"} <= set(rows)
     assert rows["cross_correlation"]["support_count"] == len(f1)
     assert rows["gcc_phat"]["runtime_sec"] >= 0.0
+
+
+@pytest.mark.parametrize("delay_ns", [16.6666667, -16.6666667])
+def test_baselines_recover_signed_delay_under_c12_convention(delay_ns: float) -> None:
+    f1, f2, fs = make_fractionally_delayed_lfm(delay_ns=delay_ns, snr_db=60.0)
+    rows = rows_by_method(delay_method_suite(f1, f2, fs))
+    assert rows["cross_correlation"]["delta_tau_ns"] == pytest.approx(delay_ns, abs=0.08)
+    assert rows["gcc_phat"]["delta_tau_ns"] == pytest.approx(delay_ns, abs=0.08)
+    assert rows["cross_correlation"]["cross_spectrum_definition"] == "X1*conj(X2)"
+    assert "reported_delay_ns=-lag_samples/fs" in rows["gcc_phat"]["internal_lag_convention"]
 
 
 def test_delay_core_accepts_one_pulse_and_pulse_by_sample_inputs() -> None:
@@ -97,6 +112,20 @@ def test_weighted_slope_variance_reports_theory_fields() -> None:
     assert result["ci95_low_ns"] <= result["ci95_high_ns"]
 
 
+def test_weighted_slope_variance_uses_exact_weighted_sxx_and_residual_variance() -> None:
+    frequency = np.array([-2.0, 1.0, 4.0])
+    phase = np.array([0.2, 0.8, 2.0])
+    weights = np.array([1.0, 2.0, 3.0])
+    result = weighted_slope_variance(frequency, phase, weights)
+    fbar = np.sum(weights * frequency) / np.sum(weights)
+    sxx = float(np.sum(weights * (frequency - fbar) ** 2))
+    slope = float(np.sum(weights * (frequency - fbar) * (phase - np.average(phase, weights=weights))) / sxx)
+    residual = phase - (np.average(phase, weights=weights) + slope * (frequency - fbar))
+    expected_variance = float(np.sum(weights * residual**2) / (3.0 - 2.0) / sxx)
+    assert result["sxx_w"] == pytest.approx(sxx)
+    assert result["slope_variance"] == pytest.approx(expected_variance)
+
+
 def test_residual_phase_and_cancellation_loss_are_monotonic_in_delay_error() -> None:
     frequency = np.linspace(-25.0e6, 25.0e6, 101)
     small_phase = residual_phase_from_delay_error(frequency, 1.0)
@@ -117,10 +146,12 @@ def test_zero_recovery_denominator_is_not_evaluable() -> None:
 
 
 def test_mcnemar_and_block_bootstrap_are_paired() -> None:
-    result = paired_mcnemar_exact([False, True, False, True], [True, True, False, False])
+    result = paired_mcnemar_exact(
+        [False, True, True, True, True], [True, False, False, False, False]
+    )
     assert result["discordant_current_miss_comparison_hit"] == 1
-    assert result["discordant_current_hit_comparison_miss"] == 1
-    assert 0.0 <= float(result["p_value_two_sided"]) <= 1.0
+    assert result["discordant_current_hit_comparison_miss"] == 4
+    assert result["p_value_two_sided"] == pytest.approx(0.375)
 
     bootstrap = paired_bootstrap_ci(
         [1.0, 2.0, 10.0, 11.0],
@@ -144,5 +175,19 @@ def test_parameter_monte_carlo_returns_method_level_quality_fields() -> None:
         bandwidth_hz=40.0e6,
         pulse_samples=512,
     )
-    assert rows
-    assert {"delay_error_ns", "snr_db", "method", "bias_ns", "rmse_ns", "std_ns", "ci95_low_ns", "ci95_high_ns", "outlier_rate", "fallback_rate", "mean_runtime_sec"} <= set(rows[0])
+    assert len(rows) == 2 * 1 * 5
+    required = {
+        "delay_error_ns", "snr_db", "method", "bias_ns", "rmse_ns", "std_ns",
+        "ci95_low_ns", "ci95_high_ns", "outlier_rate", "fallback_rate",
+        "fallback_count", "finite_estimate_count", "trials", "mean_runtime_sec",
+    }
+    assert all(required <= set(row) for row in rows)
+    assert all(row["trials"] == 3 for row in rows)
+    assert all(row["finite_estimate_count"] + row["fallback_count"] == 3 for row in rows)
+    assert all(math.isfinite(float(row["mean_runtime_sec"])) for row in rows)
+
+
+def test_monte_carlo_lfm_support_is_true_one_sided_analytic() -> None:
+    frequency, spectrum = _analytic_lfm_spectrum(60.0e6, 20.0e6, 512)
+    assert np.all(spectrum[frequency <= 0.0] == 0.0j)
+    assert np.count_nonzero(spectrum[frequency > 0.0]) >= 8

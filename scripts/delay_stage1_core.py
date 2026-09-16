@@ -204,29 +204,29 @@ def estimate_delay_d1_d2_d3(
         }
 
     safe_first, safe_second = _safe_inputs(first, second, finite)
-    try:
-        legacy = estimate_from_raw_time_arrays(safe_first, safe_second, sample_rate)
-    except (FloatingPointError, ValueError, np.linalg.LinAlgError) as exc:
-        reason = (
-            "insufficient_calibration_support"
-            if "support" in str(exc).lower()
-            else "estimator_error"
-        )
-        return {
-            method: _fallback_row(
+    rows: dict[str, dict[str, object]] = {}
+    for method in _METHODS:
+        method_start = time.perf_counter()
+        try:
+            # The production function computes the three fits together.  Run
+            # it once per reported method so runtime_sec is method-specific,
+            # rather than the same shared aggregate duration in every row.
+            legacy = estimate_from_raw_time_arrays(safe_first, safe_second, sample_rate)
+        except (FloatingPointError, ValueError, np.linalg.LinAlgError) as exc:
+            reason = (
+                "insufficient_calibration_support"
+                if "support" in str(exc).lower()
+                else "estimator_error"
+            )
+            rows[method] = _fallback_row(
                 method,
                 reason,
                 finite_count,
-                start,
+                method_start,
                 input_finite_count=finite_count,
             )
-            for method in _METHODS
-        }
-
-    aggregate = legacy.get("aggregate", {})
-    rows: dict[str, dict[str, object]] = {}
-    runtime = _elapsed(start)
-    for method in _METHODS:
+            continue
+        aggregate = legacy.get("aggregate", {})
         fit = aggregate.get(method, {})
         raw_delay = fit.get("delta_tau_ns")
         try:
@@ -238,7 +238,7 @@ def estimate_delay_d1_d2_d3(
                 method,
                 "insufficient_calibration_support",
                 int(fit.get("n", 0) or 0),
-                start,
+                method_start,
                 input_finite_count=finite_count,
             )
             continue
@@ -252,7 +252,7 @@ def estimate_delay_d1_d2_d3(
             method,
             delay,
             residual,
-            runtime,
+            _elapsed(method_start),
             support_count,
             extra={
                 "input_finite_count": finite_count,
@@ -296,12 +296,17 @@ def _linear_cross_correlation(
     first: np.ndarray,
     second: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Aggregate r_21[k] = sum_n x2[n+k] conj(x1[n]) over pulses."""
+    """Aggregate C12's time correlation and its standard signed lag axis.
+
+    ``np.correlate(x1, x2)`` peaks at ``-delay_samples`` when channel 2 is
+    delayed.  Callers negate that internal C12 lag for the public positive
+    channel-2-delay convention.
+    """
 
     sample_count = first.shape[1]
     correlation = np.zeros(2 * sample_count - 1, dtype=np.complex128)
     for row_first, row_second in zip(first, second):
-        correlation += np.correlate(row_second, row_first, mode="full")
+        correlation += np.correlate(row_first, row_second, mode="full")
     lags = np.arange(-(sample_count - 1), sample_count, dtype=np.float64)
     return correlation, lags
 
@@ -335,7 +340,7 @@ def estimate_delay_cross_correlation(
             start,
             input_finite_count=finite_count,
         )
-    delay_ns = lag_samples / sample_rate * 1.0e9
+    delay_ns = -lag_samples / sample_rate * 1.0e9
     return _success_row(
         "cross_correlation",
         delay_ns,
@@ -348,6 +353,7 @@ def estimate_delay_cross_correlation(
             "sample_count": int(first.shape[1]),
             "lag_samples": float(lag_samples),
             "cross_spectrum_definition": "X1*conj(X2)",
+            "internal_lag_convention": "C12_time_correlation_lag; reported_delay_ns=-lag_samples/fs",
         },
     )
 
@@ -386,7 +392,7 @@ def estimate_delay_gcc_phat(
     for row_first, row_second in zip(safe_first, safe_second):
         spectrum1 = np.fft.fft(row_first, n=fft_size)
         spectrum2 = np.fft.fft(row_second, n=fft_size)
-        cross = spectrum2 * np.conj(spectrum1)
+        cross = spectrum1 * np.conj(spectrum2)
         magnitude = np.abs(cross)
         supported = np.isfinite(cross) & (magnitude > _EPS)
         frequency_support_count = max(
@@ -421,7 +427,7 @@ def estimate_delay_gcc_phat(
             input_finite_count=finite_count,
         )
 
-    delay_ns = lag_samples / sample_rate * 1.0e9
+    delay_ns = -lag_samples / sample_rate * 1.0e9
     return _success_row(
         "gcc_phat",
         delay_ns,
@@ -435,6 +441,7 @@ def estimate_delay_gcc_phat(
             "lag_samples": float(lag_samples),
             "frequency_support_count": frequency_support_count,
             "cross_spectrum_definition": "X1*conj(X2)",
+            "internal_lag_convention": "C12_ifft_lag; reported_delay_ns=-lag_samples/fs",
         },
     )
 
@@ -592,12 +599,11 @@ def paired_mcnemar_exact(
             discordant,
             max(current_miss_comparison_hit, current_hit_comparison_miss),
         )
-        p_value = min(1.0, 2.0 * min(lower_tail, 1.0 - _binomial_probability_tail(
+        upper_tail = 1.0 - _binomial_probability_tail(
             discordant,
             max(current_miss_comparison_hit, current_hit_comparison_miss) - 1,
-        )))
-        # The expression above is the upper-tail counterpart P[X >= k].
-        # Keep the direct tail available for readers and guard numerical drift.
+        )
+        p_value = min(1.0, 2.0 * min(lower_tail, upper_tail))
         p_value = min(1.0, max(0.0, float(p_value)))
         status = "ok"
     return {
@@ -713,11 +719,28 @@ def recovery_ratio(
         "actual_recovered": float(actual),
         "recovery_ratio": None,
     }
-    if abs(recoverable) <= _EPS:
+    if recoverable == 0.0:
         result["status"] = "NOT_EVALUABLE"
         return result
     result["recovery_ratio"] = float(actual / recoverable)
     return result
+
+
+def _analytic_lfm_spectrum(
+    fs_hz: float,
+    bandwidth_hz: float,
+    pulse_samples: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return a genuinely one-sided, positive-frequency complex-LFM support."""
+
+    frequency = np.fft.fftfreq(pulse_samples, d=1.0 / fs_hz)
+    support = (frequency > 0.0) & (frequency <= bandwidth_hz)
+    if int(np.count_nonzero(support)) < _MIN_CALIBRATION_SAMPLES:
+        raise ValueError("bandwidth and pulse_samples provide insufficient calibration support")
+    normalized_frequency = frequency / max(bandwidth_hz, _EPS)
+    spectrum = np.zeros(pulse_samples, dtype=np.complex128)
+    spectrum[support] = np.exp(1j * math.pi * normalized_frequency[support] ** 2)
+    return frequency, spectrum
 
 
 def _generate_wideband_lfm_pair(
@@ -730,16 +753,7 @@ def _generate_wideband_lfm_pair(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Generate a deterministic wideband complex chirp with independent noise."""
 
-    frequency = np.fft.fftfreq(pulse_samples, d=1.0 / fs_hz)
-    half_bandwidth = bandwidth_hz / 2.0
-    support = np.abs(frequency) <= half_bandwidth
-    if int(np.count_nonzero(support)) < _MIN_CALIBRATION_SAMPLES:
-        raise ValueError("bandwidth and pulse_samples provide insufficient calibration support")
-    normalized_frequency = frequency / max(half_bandwidth, _EPS)
-    # Quadratic spectral phase is the analytic frequency-domain representation
-    # of a wideband complex LFM pulse; the delay is applied independently.
-    spectrum = np.zeros(pulse_samples, dtype=np.complex128)
-    spectrum[support] = np.exp(1j * math.pi * normalized_frequency[support] ** 2)
+    frequency, spectrum = _analytic_lfm_spectrum(fs_hz, bandwidth_hz, pulse_samples)
     reference = np.fft.ifft(spectrum)
     delay_phase = np.exp(-1j * _TWO_PI * frequency * float(delay_ns) * 1.0e-9)
     delayed = np.fft.ifft(spectrum * delay_phase)
