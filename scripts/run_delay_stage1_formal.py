@@ -1961,6 +1961,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="run Level-1 estimator MC and record Level-2 as an explicit gap",
     )
+    parser.add_argument(
+        "--cleanup-raw",
+        action="store_true",
+        help="after each completed case, remove generated .bin files and keep audit evidence",
+    )
     return parser
 
 
@@ -2022,6 +2027,122 @@ def _disk_status(path: Path) -> dict[str, object]:
     }
 
 
+def _path_is_within(path: Path, root: Path) -> bool:
+    """Return whether ``path`` is inside ``root`` without resolving links."""
+
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
+def _manifest_hashes(value: object) -> dict[str, str]:
+    """Collect already-recorded path/hash pairs from a case manifest."""
+
+    result: dict[str, str] = {}
+    if isinstance(value, Mapping):
+        path_value = value.get("path")
+        sha_value = value.get("sha256")
+        if isinstance(path_value, str) and isinstance(sha_value, str):
+            result[str(Path(path_value).resolve())] = sha_value
+        for item in value.values():
+            result.update(_manifest_hashes(item))
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        for item in value:
+            result.update(_manifest_hashes(item))
+    return result
+
+
+def cleanup_stage1_raw(case_root: Path) -> dict[str, object]:
+    """Remove only generated ``.bin`` files after a completed case.
+
+    The production and simulator outputs are large and reproducible.  This
+    explicit opt-in cleanup keeps JSON/CSV/XML/log/debug evidence and records
+    every removed path.  Existing SHA-256 values from the case manifest are
+    carried into the cleanup ledger; files not previously hashed are marked as
+    derived intermediate outputs instead of being silently presented as
+    hashed inputs.  Symlinks are removed only when their target stays inside
+    this exact case root.
+    """
+
+    root = Path(case_root).expanduser().resolve()
+    manifest_path = root / "case_manifest.json"
+    if not root.is_dir() or not manifest_path.is_file():
+        raise ValueError(f"raw cleanup requires a completed case root: {root}")
+    manifest = _read_json(manifest_path)
+    if manifest.get("status") != "completed":
+        raise ValueError(
+            f"raw cleanup requires case status=completed, got {manifest.get('status')!r}: {root}"
+        )
+    hashes = _manifest_hashes(manifest)
+    candidates = sorted(root.rglob("*.bin"))
+    records: list[dict[str, object]] = []
+    removed_bytes = 0
+    removed_files = 0
+    retained_external_symlinks = 0
+    for path in candidates:
+        relative = path.relative_to(root)
+        absolute = path.resolve()
+        if path.is_symlink():
+            if not _path_is_within(absolute, root):
+                retained_external_symlinks += 1
+                records.append({
+                    "path": str(relative),
+                    "kind": "symlink",
+                    "status": "retained_external_target",
+                    "target": os.readlink(path),
+                })
+                continue
+            target = os.readlink(path)
+            path.unlink()
+            removed_files += 1
+            records.append({
+                "path": str(relative),
+                "kind": "symlink",
+                "status": "removed",
+                "target": target,
+            })
+            continue
+        if not path.is_file() or not _path_is_within(absolute, root):
+            records.append({
+                "path": str(relative),
+                "kind": "file",
+                "status": "retained_outside_case_root",
+            })
+            continue
+        size = int(path.stat().st_size)
+        record: dict[str, object] = {
+            "path": str(relative),
+            "kind": "generated_binary",
+            "bytes": size,
+            "sha256": hashes.get(str(absolute)),
+            "sha256_status": (
+                "recorded_in_case_manifest"
+                if str(absolute) in hashes
+                else "not_recorded_before_cleanup_derived_intermediate"
+            ),
+        }
+        path.unlink()
+        removed_files += 1
+        removed_bytes += size
+        record["status"] = "removed"
+        records.append(record)
+    report = {
+        "schema_version": 1,
+        "case_root": str(root),
+        "status": "completed",
+        "policy": "remove_generated_bin_only_keep_compact_audit_files",
+        "removed_file_count": removed_files,
+        "removed_bytes": removed_bytes,
+        "retained_external_symlink_count": retained_external_symlinks,
+        "records": records,
+        "remaining_bin_count": sum(1 for path in root.rglob("*.bin") if path.is_file()),
+    }
+    _write_json(root / "raw_cleanup.json", report)
+    return report
+
+
 def _number_token(value: float) -> str:
     sign = "m" if float(value) < 0.0 else "p"
     magnitude = abs(float(value))
@@ -2077,6 +2198,7 @@ def _case_summary(case_manifest: Mapping[str, object], case_root: Path) -> dict[
         "scene_identity": case_manifest.get("scene_identity"),
         "delay_estimator": case_manifest.get("delay_estimator"),
         "additive_audits": case_manifest.get("additive_audits"),
+        "raw_cleanup": case_manifest.get("raw_cleanup"),
         "conditions_present": sorted(
             str(key) for key in case_manifest.get("conditions", {})
         ) if isinstance(case_manifest.get("conditions"), Mapping) else [],
@@ -2122,17 +2244,29 @@ def run_stage1_cli(
             "sha256": _sha256(template_path),
         },
         "resolved": selection,
+        "delay_range_labels": copy.deepcopy(config.get("delay_ranges_ns")),
         "git": _git_snapshot(),
         "gpu_status_before": gpu_before,
         "disk_status_before": disk_before,
         "ai_training": False,
         "router_enabled": False,
         "native_four_channel_stap": False,
+        "raw_cleanup_requested": bool(getattr(args, "cleanup_raw", False)),
         "mc_summary": {"status": "not_started"},
         "cases": [],
         "status": "not_started",
     }
     _write_json(output_root / "manifest.json", manifest)
+    expected_case_count = len(selection["cases"]) * len(selection["e2e_delay_errors_ns"])
+
+    def checkpoint(last_case_id: str | None = None) -> None:
+        manifest["progress"] = {
+            "completed_case_count": len(manifest["cases"]),
+            "expected_case_count": expected_case_count,
+            "last_case_id": last_case_id,
+            "status": "running",
+        }
+        _write_json(output_root / "manifest.json", manifest)
     mc_ok = False
     try:
         from scripts.delay_stage1_core import run_parameter_monte_carlo
@@ -2191,6 +2325,12 @@ def run_stage1_cli(
                         int(selection["period_count"]),
                     ),
                 })
+                checkpoint(
+                    str(manifest["cases"][-1]["scene_identity"]["case_id"])
+                    if isinstance(manifest["cases"][-1], Mapping)
+                    and isinstance(manifest["cases"][-1].get("scene_identity"), Mapping)
+                    else None
+                )
     else:
         for block in selection["cases"]:
             for delay in selection["e2e_delay_errors_ns"]:
@@ -2207,6 +2347,15 @@ def run_stage1_cli(
                         case_root,
                         str(args.input_mode),
                     )
+                    if bool(getattr(args, "cleanup_raw", False)) and case_manifest.get("status") == "completed":
+                        try:
+                            case_manifest["raw_cleanup"] = cleanup_stage1_raw(case_root)
+                        except (OSError, ValueError, RuntimeError, KeyError, TypeError) as cleanup_exc:
+                            case_manifest["raw_cleanup"] = {
+                                "status": "failed",
+                                "error": str(cleanup_exc),
+                            }
+                        _write_json(case_root / "case_manifest.json", case_manifest)
                     manifest["cases"].append(_case_summary(case_manifest, case_root))
                 except (OSError, ValueError, RuntimeError, KeyError, TypeError) as exc:
                     case_root.mkdir(parents=True, exist_ok=True)
@@ -2221,6 +2370,7 @@ def run_stage1_cli(
                     }
                     _write_json(case_root / "case_manifest.json", failure)
                     manifest["cases"].append(_case_summary(failure, case_root))
+                checkpoint(str(scene_identity["case_id"]))
     case_records = manifest["cases"]
     assert isinstance(case_records, list)
     all_cases_complete = bool(case_records) and all(
@@ -2264,6 +2414,7 @@ __all__ = [
     "build_stage1_branch_contract",
     "evaluate_target_off_waterfall",
     "build_arg_parser",
+    "cleanup_stage1_raw",
     "load_stage1_config",
     "prepare_condition_inputs",
     "resolve_stage1_selection",

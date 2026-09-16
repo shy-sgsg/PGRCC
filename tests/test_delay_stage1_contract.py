@@ -371,7 +371,37 @@ def test_cli_parser_exposes_required_stage1_arguments() -> None:
         "--input-mode",
         "--period-count",
         "--skip-cuda",
+        "--cleanup-raw",
     } <= options
+
+
+def test_cleanup_stage1_raw_removes_only_case_binaries_and_keeps_audit(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import cleanup_stage1_raw
+
+    case_root = tmp_path / "case"
+    (case_root / "scenes" / "data").mkdir(parents=True)
+    (case_root / "production").mkdir()
+    (case_root / "case_manifest.json").write_text(
+        json.dumps({"status": "completed", "scene_identity": {"case_id": "test"}}),
+        encoding="utf-8",
+    )
+    raw = case_root / "scenes" / "data" / "period_0000.bin"
+    raw.write_bytes(b"raw")
+    (case_root / "audit.csv").write_text("ok\n", encoding="utf-8")
+    external = tmp_path / "external.bin"
+    external.write_bytes(b"keep")
+    link = case_root / "production" / "external.bin"
+    link.symlink_to(external)
+
+    report = cleanup_stage1_raw(case_root)
+
+    assert report["status"] == "completed"
+    assert report["removed_file_count"] == 1
+    assert report["remaining_bin_count"] == 1
+    assert not raw.exists()
+    assert link.is_symlink()
+    assert (case_root / "audit.csv").is_file()
+    assert (case_root / "raw_cleanup.json").is_file()
 
 
 def test_formal_selection_uses_registered_groups_without_cross_group_cartesian_product() -> None:
