@@ -1,14 +1,14 @@
-# 物理模型驱动的智能 GMTI 杂波对消：历史基线与下一阶段
+# 物理模型驱动的智能 GMTI 杂波对消：历史基线与 Phase-I 双通道收束
 
 ## 当前状态
 
 当前主线已从“理想/当前链路上的 AI 候选”转为
-`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`：
+`Phase-I Unknown System Error Characterization / 双通道系统失配与稳健 CSI`：
 
 ```text
 真实系统未知误差 → 多通道回波观测 → 误差/状态参数估计
 → 物理模型修正与通道自校准 → 恢复杂波相干性
-→ CSI / 四通道 STAP → CFAR / Pd / Pfa / 目标保持
+→ 生产 F1/F2 两通道 CSI → CFAR / Pd / Pfa / 目标保持
 ```
 
 本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量、true/report 几何、
@@ -28,11 +28,46 @@ velocity、yaw-first attitude 和生产 TrackManager/PIPE 连续目标审计，�
 [`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
 
 当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
-四通道 STAP 保留四个空间自由度。历史报告中 strict 组与四通道 academic reference
-不混排，只表示信息条件审计，不表示二者不能端到端比较。
+四通道 native STAP 保留四个空间自由度，但已冻结为 Phase-II 独立课题。历史报告中
+strict 组与四通道 academic reference 不混排；reference 只用于信息条件审计，不表示
+当前 Phase-I 已启动 production STAP。
+
+当前 Phase-I 固定把 TrackManager/PIPE 也纳入同一条闭环：
+`4ch protocol IQ → F1/F2 → CTDR/phase/P38 → CSI → GO-CFAR → clustering/positioning
+→ TrackManager/PIPE`。native four-channel STAP/JDL/covariance/loading/DOF/CUDA 优化
+冻结为 Phase-II；`ai_training=false`、`router_enabled=false`。
 
 以下 V1/V2、Physics-AI 和 Router 结果均保留为历史证据；不要把旧阶段的主线标题、
 Oracle 术语或 Router 状态当作当前待办。
+
+## 2026-09-16 Phase-I 双通道可观测性与校正证据
+
+- F1/F2 observability runner `scripts/audit_two_channel_error_observability.py` 完成
+  54/54 Stage2 cases（6 状态 × zero/+/− × 3 seed），只使用
+  `F1=(C1+C3)/2`、`F2=(C2+C4)/2` 科学输入；13 个观测覆盖 frequency/pulse/angle、
+  range-block、P38、ridge、CTDR、coherence 和 CSI residual。行平衡后的 sensitivity
+  matrix 为 scaled rank=`6`、condition number=`37.3283545882`，没有缺失灵敏度。
+- delay/phase drift 的平衡列余弦为 `−0.09393`；geometry 有 phase-angle slope；
+  velocity 保留 ridge/P38/CTDR/slow-time 分列；delay/servo 为 near-confounding
+  (`−0.91995`)，servo/yaw 为 `0.18023`。六状态均只能写 candidate；未加外部约束的
+  delay+servo 联合状态写 `not independently observable from current two-channel data`。
+- 新证据目录为 `outputs/two_channel_error_observability_phase_i_20260916/`，包含 manifest、
+  raw/scaled matrix、pair-level classification、zero-control delta、range/frequency/block
+  coverage 和 seed stability；此前无有效快时间
+  信号的结果保留在 `outputs/two_channel_error_observability_invalid_zero_signal_20260915/`
+  且不引用。
+- 首个 TrackManager/PIPE channel-delay correction CUDA smoke 已从 target-free raw
+  估计后实际施加 fractional-delay correction；Current/blind/known 三分支的生产运行、
+  track_debug 和同周期 confirmed/matched payload reverse audit 通过。该结果只有 1 seed、
+  1 速度、1 SNR、3 周期，不能写成正式收益；5–7 周期多场景矩阵仍 pending。最新
+  4ch 产物为 `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/`。
+- 另完成 `/tmp/pgrcc_track_delay_formal_4ch_onecase_20260916/` 的 5-period、1 seed、
+  1 速度、1 SNR 代表性 local-test case；三分支的 4ch layout、runtime fusion、校准
+  provenance、TrackManager audit 和 payload reverse audit 均通过。它不是多场景收益
+  统计；正例链路没有 valid-CUT/target-off 分母，因此 cell-Pfa/false-hit 保持
+  `not_evaluable`，不把 detection record 或 payload 比例称为 Pfa。
+- 后续去相关配置 `configs/research/two_channel_decorrelation_study.json` 目前仅为
+  contract-only pending；不启动 AI/Router，也不打开 Phase-II native 4ch STAP。
 
 ## 2026-09-14 当前阶段实际证据
 
@@ -236,6 +271,9 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase10 platform velocity true/report | 108-case compact formal + 3-row CUDA smoke；header 分离通过，blind estimator 全部 fallback | `outputs/velocity_error_formal_compact_v2_20260915/`、`outputs/velocity_error_cuda_smoke_20260915/` |
 | Phase11 yaw-first attitude | 240-case compact formal；pitch/roll 固定 0，blind estimator 240/240 fallback，未形成正向修正结论 | `outputs/yaw_error_formal_compact_20260915/` |
 | Phase12 production TrackManager/PIPE | 3 seed × 3 branch × 3 period；9/9 SHM/PIPE pass、0 ring overrun/gap/duplicate、9/9 protocol audit pass；Track Pd 2/3 all-visible、2/2 after confirmation，false-track rate 0.8333–0.8824；无校正收益 claim | `outputs/track_manager_e2e_formal_compact_20260915/`、`outputs/formal_evidence/track_contract.json` |
+| Phase-I F1/F2 unknown-error observability | 完成 54/54 Stage2 cases；6 状态、13 观测；row-balanced scaled rank=6、condition=37.328；zero-control delta=0；delay/servo pair-level near-confounding，其他结论仍为 candidate | `outputs/two_channel_error_observability_phase_i_20260916/manifest.json`、`observability_summary.json`、`pair_observability.csv`、`zero_control.json`、`sensitivity_matrix_scaled.csv` |
+| Phase-I channel-delay TrackManager correction smoke | 真实 4ch protocol CUDA 三分支实际施加/审计通过；1 seed × 1 velocity × 1 SNR × 3 period，仅证明链路契约，未证明正式收益；cell-Pfa/false-hit 因缺少 valid-CUT/target-off 分母为 not_evaluable | `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/manifest.json`、`track_branch_metrics.csv`、`track_protocol_payload_audit.csv` |
+| Phase-I temporal decorrelation entry | 已建立 contract-only 配置；runner、五方法 sweep、固定 Pfa/目标安全统计待运行 | `configs/research/two_channel_decorrelation_study.json` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 
 ## V1 历史实验事实
@@ -364,10 +402,16 @@ regenerated-velocity 汇总，ROC 目录保留 `baseline_v2_roc_points.csv`、
 Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU gate 语义另有
 `csi_gate_cpu_selftest` 直接回归，当前全量 CTest 为 18/18 通过。
 
-## 下一步（当前第二阶段）
+## 下一步（Phase-I 后续，Phase-II 保持冻结）
 
-下一步是完成 3–5 period 的生产 TrackManager/PIPE 目标保持闭环。
-当前 clutter-only S1 和 velocity blind estimator 的模型失配均是 fallback 证据，不进入在线
+先扩展已通过契约的 channel-delay correction 到 5–7 period、多个 seed/目标速度/SCNR，
+并按 `Current / Known-error correction upper bound / Blind estimated correction` 报告
+recovery、target transfer、GO-CFAR 和 TrackManager/PIPE 指标；若 correction 未真实施加，
+分支必须是 `NOT_EVALUABLE`。随后才启动 `two_channel_decorrelation_study.json` 的
+temporal-rho/internal-motion sweep，比较 Current、phase-only、complex LS-Wiener、
+robust LS 和 coherence-aware 五种方法。
+
+clutter-only servo 和 velocity blind estimator 的模型失配仍是 fallback 证据，不进入在线
 部署；J4 没有纯 DOF 稳定优势，production CUDA 4ch STAP 保持关闭。也不训练 MLP、Router、
 RD image-to-image 或通用复权残差；只有确定性估计出现稳定、可量化且难以解析的残差后，才重新
 评估 Physics-AI。

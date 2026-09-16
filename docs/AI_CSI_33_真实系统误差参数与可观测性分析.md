@@ -1,6 +1,10 @@
 # 真实系统误差参数与可观测性分析
 
-> 阶段：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`
+> 历史阶段：`Unknown System Error Characterization / 真实系统未知误差建模与可观测性分析`
+>
+> 当前 framing：`Phase-I 双通道系统失配与稳健 CSI`；当前阅读入口见
+> [`AI_CSI_34_双通道系统失配与稳健CSI研究框架.md`](AI_CSI_34_双通道系统失配与稳健CSI研究框架.md)
+> 和 [`AI_CSI_35_双通道系统误差可观测性分析.md`](AI_CSI_35_双通道系统误差可观测性分析.md)。
 >
 > 审计日期：2026-09-15；本文件覆盖源码审计、Phase0–12 实现和实际运行证据。
 > Phase0 是 paired-reference baseline-phase sanity pilot；Phase1–3 是 blind
@@ -38,7 +42,7 @@
   → 误差/状态参数估计
   → 物理模型修正和通道自校准
   → 通道相干性恢复
-  → CSI / 四通道 STAP
+  → 生产 F1/F2 两通道 CSI
   → CFAR、Pd、Pfa、目标保持
 ```
 
@@ -83,8 +87,10 @@ channel positions，报告/处理链保留 reported positions；`reported_channe
   `theta_true_deg = theta_reported_deg + true_minus_reported_deg`；真实角驱动回波、
   波束增益和 LOS，报告角写入协议/header 并供生产 processing/P38 使用。旧的
   `theta_true_deg = theta_cmd_deg` 是默认关闭该开关时的兼容行为；
-- `simulator/stage2_statistical_sim/stage2_config.cpp:680` 解析的平台速度同时被
-  目标几何、地表/杂波生成和输出链使用，当前没有独立的 true/report velocity；
+- `simulator/stage2_statistical_sim/stage2_config.cpp:680` 现已支持独立
+  `velocity_true_mps`/`velocity_reported_mps`；真实速度驱动目标/地表/杂波生成，
+  reported 速度写入协议/header，并由显式 velocity-source 选择进入处理链。该 split
+  已通过 compact formal 和代表性 CUDA smoke，但 blind estimator 仍有模型失配 fallback；
 - 生产 `include/config_structs.hpp:169-195` 保留协议位置、速度、heading、servo 等
   元数据；`src/processOnePeriod.cpp:4915-5007` 默认从位置差重建速度，只有显式选择
   `new_protocol_velocity_source=header` 才使用有效 header 速度；
@@ -104,6 +110,9 @@ channel positions，报告/处理链保留 reported positions；`reported_channe
   estimator；
 - `scripts/analyze_four_channel_phase_truth.py` 是基于 truth 的四通道相位残差分析，
   不是运行时的未知误差估计器；
+- `scripts/audit_two_channel_error_observability.py` 是当前 F1/F2 科学审计入口：协议
+  四通道先融合为 F1/F2，再计算 13 个观测和六维单参数 central-difference 矩阵；raw
+  six-pair 仍仅作 debug/cross-validation，不替代生产 TrackManager estimator；
 - `configs/research/ai_csi_model_mismatch_suite.json` 已有时延、逐脉冲相位漂移和
   `temporal_correlation_rho` 机制，但当前 suite 不是本阶段完整的四通道联合标定矩阵。
 
@@ -223,8 +232,8 @@ Estimated 条件必须禁止读取 `channel_impairment_truth.csv`、目标 truth
 |---|---|---|
 | B0 Current | 四通道协议 IQ → `(1,3)/(2,4)` → F1/F2 → 生产 CSI | 生产兼容基线 |
 | B1 calibrated 2ch CSI | 同一 F1/F2/CSI 链，在已知或估计校准参数后运行 | 隔离通道/物理校准对 Current 的贡献 |
-| B2 four-channel STAP/reference | 四通道 raw IQ 保留四个空间自由度，按同一场景构造 STAP | 测量增加空间自由度与四通道算法层的能力 |
-| B3 calibrated four-channel STAP | 四通道 raw IQ 先应用已知或估计校准，再运行 STAP | 测量校准与四通道 STAP 的组合收益 |
+| B2 Phase-II four-channel STAP/reference | 四通道 raw IQ 保留四个空间自由度，按同一场景构造 STAP；当前只保留离线归档 | 未来阶段测量增加空间自由度与四通道算法层的能力 |
+| B3 Phase-II calibrated four-channel STAP | 四通道 raw IQ 先应用已知或估计校准，再运行 STAP；不属于当前 production | 未来阶段测量校准与四通道 STAP 的组合收益 |
 
 四层应使用相同的目标/背景、波形、波位和随机种子；训练/协方差数据只来自 OFF 或
 clutter+noise，target protection、steering 来源、CFAR、Pd/Pfa 和目标传递评价保持
@@ -736,3 +745,55 @@ SHM/PIPE 日志、track_debug CSV、branch metrics 和 protocol payload audit。
   `outputs/formal_evidence/manifest.json`
 - cleanup and retained failure summary：`outputs/cleanup_manifest_20260915.json`、
   `outputs/track_manager_e2e_cleanup_summary_20260915.json`
+
+## 10. Phase-I 双通道收束 framing（2026-09-15）
+
+本文件前述 Phase0–12 记录保留其当时的源码身份、输入和结论。尤其是旧的
+Phase12 TrackManager/PIPE formal 使用了 `blind_calibrated=fallback_to_current` 和
+`known_error_calibrated=evaluation_only`，没有实际施加 delay correction；它不能被
+回写成当前校正收益证据。
+
+当前阶段固定为生产等效：
+
+```text
+4ch protocol IQ → (1,3)/(2,4) F1/F2 → CTDR/phase/P38 → CSI
+→ GO-CFAR → clustering/positioning → TrackManager/PIPE
+```
+
+Phase-I 状态向量是 `channel_delay_error`、`inter_pulse_phase_error`、
+`baseline_geometry_error`、`servo_angle_error`、`platform_velocity_error`、
+`yaw_error`；pitch/roll 暂不进入第一轮。F1/F2 可观测性不再从六个 raw pair 的
+额外信息量推断，而是由
+`scripts/audit_two_channel_error_observability.py` 生成 zero/+/− central-difference
+矩阵，观测行先平衡再做列 rank/condition/cosine 判读。
+
+本轮正式证据在 `outputs/two_channel_error_observability_phase_i_20260916/`：54/54 case 通过、scaled
+rank=6、condition number=`37.3283545882`，zero-control same-seed delta 最大绝对值为 0
+（容差 `1e-9`）。delay 的 frequency slope、phase drift 的
+pulse slope、geometry 的 phase-angle slope、velocity 的 ridge/P38/CTDR/slow-time
+候选均单独保留。delay/phase 的平衡列余弦为 `−0.09393`，支持当前 pilot 中两者
+结构可分；delay/servo 为 `−0.91995`，属于 near-confounding，需要 INS、servo encoder、
+factory calibration 或 temporal prior；servo/yaw 为 `0.18023`，本 pilot 未显示强列
+余弦混淆。六个状态均只能称 `candidate independently observable`，不是最终可部署
+blind estimator；对未加外部约束的 delay+servo 联合在线状态，应写
+`not independently observable from current two-channel data`。
+
+首个真正进入生产闭环的校正是 channel delay。新的 TrackManager/PIPE CUDA smoke
+使用 target-free calibration raw 估计后实际改写 protocol IQ，三分支都通过生产运行和
+同周期 `Confirmed + matched_this_frame` payload reverse audit；但它仅覆盖 1 seed、1
+速度、1 SNR、3 周期，使用 4ch protocol IQ（每包 378,496 bytes），不能替代正式收益
+矩阵。实际产物为 `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/`；正式多 seed/多速度/
+多 SCNR/5–7 周期仍是 pending。后续 temporal decorrelation 的 Current、phase-only、complex LS-Wiener、
+robust LS、coherence-aware 入口只在
+`configs/research/two_channel_decorrelation_study.json` 中建立契约，尚未运行。
+
+已另完成一个 `/tmp/pgrcc_track_delay_formal_4ch_onecase_20260916/` 代表性 5-period
+local-test case（1 seed、1 速度、1 SNR），用于确认 4ch protocol、runtime fusion、
+校准 provenance、TrackManager audit 和 PIPE payload 反查链路。该 case 不是多场景收益
+结论；正例链路缺少 valid-CUT/target-off 分母，cell-Pfa 与 cell false-hit 按
+`not_evaluable` 记录，detection record、payload 和 cluster association proxy 分开命名。
+
+AI 与 Router 均保持关闭；Phase-II native four-channel STAP/JDL/covariance/loading/
+DOF/CUDA 优化保持冻结。当前 framing 的详细方法和未验证项见
+[`AI_CSI_34_双通道系统失配与稳健CSI研究框架.md`](AI_CSI_34_双通道系统失配与稳健CSI研究框架.md)
+和 [`AI_CSI_35_双通道系统误差可观测性分析.md`](AI_CSI_35_双通道系统误差可观测性分析.md)。

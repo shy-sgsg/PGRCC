@@ -92,8 +92,10 @@ def test_branch_contract_has_current_blind_known_with_shared_production_gate() -
         "known_error_calibrated",
     ]
     assert all(contract["shared_rules"].values())
-    assert contract["blind_calibrated_status"] == "fallback_to_current"
-    assert contract["known_error_calibrated_status"] == "evaluation_only"
+    assert contract["blind_calibrated_status"] == "estimated_correction_required"
+    assert contract["known_error_calibrated_status"] == "known_error_correction_upper_bound"
+    assert contract["correction_requirements"]["blind_calibrated"]["correction_applied"] is True
+    assert contract["correction_requirements"]["known_error_calibrated"]["correction_applied"] is True
 
 
 def _write_csv(path: Path, rows: list[dict[str, object]]) -> None:
