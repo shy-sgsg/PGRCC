@@ -2,6 +2,7 @@
   "schema_version": 1,
   "scientific_input": {
     "source": "four_channel_protocol_iq",
+    "protocol_channel_count": 4,
     "fusion_pairs": [[1, 3], [2, 4]],
     "f1_formula": "(channel_1 + channel_3) / 2",
     "f2_formula": "(channel_2 + channel_4) / 2",
@@ -63,6 +64,8 @@
     "period_count": 3
   },
   "formal": {
+    "selection_mode": "case_groups_only",
+    "array_semantics": "supported_values_not_cartesian",
     "delay_errors_ns": [0, 1, -1, 4, -4, 8, -8],
     "seeds": [101, 202, 303],
     "target_velocities_mps": [6.7, 12.0],
@@ -74,6 +77,32 @@
       "high_velocity",
       "alternate_texture_geometry"
     ],
+    "case_groups": {
+      "base": {
+        "point": "base",
+        "seeds": [101, 202, 303],
+        "target_velocities_mps": [6.7, 12.0],
+        "target_snr_db": [30.0, 35.0]
+      },
+      "low_snr": {
+        "point": "low_snr",
+        "seeds": [101],
+        "target_velocities_mps": [6.7],
+        "target_snr_db": [20.0]
+      },
+      "high_velocity": {
+        "point": "high_velocity",
+        "seeds": [101],
+        "target_velocities_mps": [12.0],
+        "target_snr_db": [30.0]
+      },
+      "alternate_texture_geometry": {
+        "point": "alternate_texture_geometry",
+        "seeds": [101],
+        "target_velocities_mps": [6.7],
+        "target_snr_db": [30.0]
+      }
+    },
     "base_combination_count": 12,
     "period_count": 5
   },
