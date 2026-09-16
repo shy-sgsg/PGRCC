@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/research/channel_delay_stage1_formal.json"
@@ -116,6 +118,212 @@ def test_stage1_config_has_paired_control_and_registered_working_points() -> Non
     assert set(formal["seeds"]) == {101, 202, 303}
     assert set(formal["target_velocities_mps"]) == {6.7, 12.0}
     assert min(formal["target_snr_db"]) < 30.0
+
+
+def test_stage1_branch_contract_has_four_conditions_and_truth_blind_a3() -> None:
+    from scripts.run_delay_stage1_formal import build_stage1_branch_contract
+
+    contract = build_stage1_branch_contract()
+    assert set(contract["conditions"]) == {
+        "A0_Ideal",
+        "A1_Current_unknown_error",
+        "A2_Known_error_correction_upper_bound",
+        "A3_Blind_target_free_estimated_correction",
+    }
+    assert contract["requirements"]["A3_Blind_target_free_estimated_correction"]["truth_used_in_estimator"] is False
+
+
+def test_additive_triplet_reports_pass_and_not_evaluable_failure() -> None:
+    import numpy as np
+
+    from scripts.run_delay_stage1_formal import audit_additive_triplet
+
+    off = np.array([1 + 2j, 2 - 1j], dtype=np.complex64)
+    target = np.array([3 - 1j, -2 + 4j], dtype=np.complex64)
+    passed = audit_additive_triplet(off + target, off, target, tolerance=1e-5)
+    assert passed["status"] == "passed"
+
+    failed = audit_additive_triplet(np.ones(2, complex), np.zeros(2, complex), np.zeros(2, complex), tolerance=1e-6)
+    assert failed["status"] == "NOT_EVALUABLE"
+    assert failed["reason"] == "on_minus_off_minus_target_exceeds_tolerance"
+
+
+def test_target_off_waterfall_keeps_missing_denominators_not_evaluable(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import evaluate_target_off_waterfall
+
+    result = evaluate_target_off_waterfall(
+        tmp_path,
+        None,
+        {"status": "passed", "hit_cells": 12, "clusters": 3, "selected": 2},
+        1e-6,
+    )
+    assert result["theoretical_go_cfar_cell_pfa"] == 1e-6
+    assert result["cell_false_hit_fraction"]["status"] == "NOT_EVALUABLE"
+    assert result["protocol_false_detections"]["status"] == "NOT_EVALUABLE"
+    assert "empirical_structured_clutter_false_hit_fraction" in result
+
+
+def test_target_off_waterfall_reports_separate_explicit_layers(tmp_path: Path) -> None:
+    result_dir = tmp_path / "result"
+    debug_dir = tmp_path / "debug"
+    result_dir.mkdir()
+    debug_dir.mkdir()
+    (result_dir / "detection_results_GMTI01.csv").write_text(
+        "det_index,range_m\n0,1\n1,2\n2,3\n", encoding="utf-8"
+    )
+    (debug_dir / "track_states.csv").write_text(
+        "result_id,track_id,state\n1,7,Confirmed\n", encoding="utf-8"
+    )
+    from scripts.run_delay_stage1_formal import evaluate_target_off_waterfall
+
+    result = evaluate_target_off_waterfall(
+        result_dir,
+        debug_dir,
+        {
+            "status": "passed",
+            "hit_cells": 4,
+            "valid_cut_count": 100,
+            "clusters": 2,
+            "cluster_ids": ["c1", "c2"],
+            "selected": 2,
+        },
+        1e-6,
+    )
+    assert result["cell_false_hit_fraction"]["value"] == 0.04
+    assert result["false_clusters"]["value"] == 2
+    assert result["protocol_false_detections"]["value"] == 3
+    assert result["false_tracks"]["value"] == 1
+
+
+def test_scene_variants_preserve_scene_identity_and_pair_backgrounds(tmp_path: Path) -> None:
+    import numpy as np
+
+    from scripts.run_delay_stage1_formal import build_scene_variants
+
+    config = {
+        "case_id": "template",
+        "waveform": {"new_protocol_channel_count": 4, "iq_data_type": "float32"},
+        "random": {"random_seed": 999, "beam_start": 1, "period_count": 2},
+        "scene": {"mode": "full", "output_signal_domain": "raw_lfm"},
+        "targets": [{"target_id": "old", "enabled": True}],
+        "channel_impairments": {"enabled": False, "channel_time_delay_ns": 0.0},
+        "production": {"gate": "same"},
+    }
+    scene_identity = {
+        "seed": 101,
+        "target": {"target_id": "T1", "enabled": True},
+        "clutter": {"mean_power": 0.02, "texture_sigma": 0.25},
+        "noise": {"noise_power": 0.001},
+        "beam_id": 7,
+        "range_m": 85000.0,
+        "velocity_mps": 6.7,
+        "snr_db": 30.0,
+        "production": {"gate": "same"},
+    }
+    paths = build_scene_variants(config, scene_identity, -4.0, tmp_path / "case")
+    assert set(paths) == {"A0_ON", "A0_OFF", "A0_TO", "A1_ON", "A1_OFF", "A1_TO"}
+    payloads = {role: json.loads(path.read_text(encoding="utf-8")) for role, path in paths.items()}
+    for path in paths.values():
+        assert path.is_relative_to(tmp_path / "case")
+    assert payloads["A0_ON"]["random"]["random_seed"] == 101
+    assert payloads["A1_ON"]["random"]["random_seed"] == 101
+    assert payloads["A0_ON"]["channel_impairments"]["channel_time_delay_ns"] == 0.0
+    assert payloads["A1_ON"]["channel_impairments"]["channel_time_delay_ns"] == -4.0
+    # The simulator rejects paired_background_output_dir when a non-zero
+    # impairment is enabled.  A0 ON owns the zero-error background write;
+    # A1 ON reuses that exact run root through background_input_dir and applies
+    # the delay after target injection.
+    assert payloads["A0_ON"]["paired_background_output_dir"]
+    assert payloads["A1_ON"]["background_input_dir"]
+    assert "paired_background_output_dir" not in payloads["A1_ON"]
+    assert payloads["A1_OFF"]["background_input_dir"] == payloads["A1_TO"]["background_input_dir"]
+    assert payloads["A1_TO"]["scene"]["signal_only"] is True
+    assert payloads["A1_TO"]["scene"]["output_signal_domain"] == "raw_lfm"
+    assert payloads["A1_ON"]["pairing_provenance"]["seed"] == 101
+    assert np.isfinite(payloads["A1_ON"]["channel_impairments"]["channel_time_delay_ns"])
+
+
+def test_prepare_condition_inputs_records_truth_and_blind_provenance(tmp_path: Path, monkeypatch) -> None:
+    from scripts.run_delay_stage1_formal import prepare_condition_inputs
+
+    period = tmp_path / "period_0000.bin"
+    period.write_bytes(b"raw")
+    calls = []
+
+    def fake_rewrite(source, destination, **kwargs):
+        calls.append((source, destination, kwargs))
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(b"corrected")
+        return {"status": "passed", "channel_indices": list(kwargs["channel_indices"]), "packets_rewritten": 1}
+
+    monkeypatch.setattr("scripts.run_delay_stage1_formal.rewrite_float32_protocol_delay", fake_rewrite)
+    layout = {
+        "pulse_len": 1,
+        "channel_count": 4,
+        "fs_hz": 60.0e6,
+        "correction_channel_indices": [1],
+    }
+    raw = prepare_condition_inputs(
+        tmp_path,
+        "A1_Current_unknown_error",
+        [period],
+        tmp_path / "missing_calibration.bin",
+        delay_truth_ns=4.0,
+        delay_estimate_ns=None,
+        layout=layout,
+    )
+    assert raw["raw_paths"] == [period]
+    assert raw["corrected_paths"] == []
+    assert raw["correction_applied"] is False
+    assert raw["truth_used_in_estimator"] is False
+
+    known = prepare_condition_inputs(
+        tmp_path,
+        "A2_Known_error_correction_upper_bound",
+        [period],
+        tmp_path / "missing_calibration.bin",
+        delay_truth_ns=4.0,
+        delay_estimate_ns=None,
+        layout=layout,
+    )
+    assert known["estimate"] == 4.0
+    assert known["source"] == "truth_evaluation_only"
+    assert known["truth_used_in_estimator"] is False
+    assert known["correction_applied"] is True
+    assert known["residual_ns"] == 0.0
+
+    blind = prepare_condition_inputs(
+        tmp_path,
+        "A3_Blind_target_free_estimated_correction",
+        [period],
+        tmp_path / "missing_calibration.bin",
+        delay_truth_ns=4.0,
+        delay_estimate_ns=3.5,
+        layout=layout,
+    )
+    assert blind["estimate"] == 3.5
+    assert blind["source"] == "A1_OFF_target_free_estimate"
+    assert blind["truth_used_in_estimator"] is False
+    assert blind["residual_ns"] == 0.5
+    assert blind["correction_applied"] is True
+    assert all(item["channel_indices"] == [1] for item in blind["correction_audit"])
+    assert len(calls) == 2
+
+
+def test_prepare_a3_rejects_missing_or_nonfinite_estimate(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import prepare_condition_inputs
+
+    layout = {"pulse_len": 1, "channel_count": 4, "fs_hz": 60.0e6, "correction_channel_indices": [1]}
+    with pytest.raises(ValueError, match="finite target-free delay estimate"):
+        prepare_condition_inputs(
+            tmp_path,
+            "A3_Blind_target_free_estimated_correction",
+            [],
+            tmp_path / "unused.bin",
+            delay_truth_ns=4.0,
+            delay_estimate_ns=None,
+            layout=layout,
+        )
 
 
 def test_stage1_config_makes_formal_selection_and_statistics_explicit() -> None:

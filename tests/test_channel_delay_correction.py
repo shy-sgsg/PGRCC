@@ -113,3 +113,34 @@ def test_rewrite_four_channel_protocol_preserves_non_target_channels(tmp_path) -
     np.testing.assert_allclose(iq[:, 0, 0] + 1j * iq[:, 0, 1], reference, atol=2.0e-7)
     np.testing.assert_allclose(iq[:, 2, 0] + 1j * iq[:, 2, 1], 2.0 * reference, atol=2.0e-7)
     np.testing.assert_allclose(iq[:, 3, 0] + 1j * iq[:, 3, 1], 3.0 * reference, atol=2.0e-7)
+
+
+def test_prepare_condition_inputs_rewrites_each_period_with_four_channel_layout(tmp_path, monkeypatch) -> None:
+    from scripts.run_delay_stage1_formal import prepare_condition_inputs
+
+    periods = [tmp_path / "period_0000.bin", tmp_path / "period_0001.bin"]
+    for path in periods:
+        path.write_bytes(b"raw")
+    calls = []
+
+    def fake_rewrite(source, destination, **kwargs):
+        calls.append((source, destination, kwargs))
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(b"corrected")
+        return {"status": "passed", "channel_indices": list(kwargs["channel_indices"]), "packets_rewritten": 1}
+
+    monkeypatch.setattr("scripts.run_delay_stage1_formal.rewrite_float32_protocol_delay", fake_rewrite)
+    result = prepare_condition_inputs(
+        tmp_path,
+        "A3_Blind_target_free_estimated_correction",
+        periods,
+        tmp_path / "calibration.bin",
+        delay_truth_ns=-4.0,
+        delay_estimate_ns=-3.5,
+        layout={"pulse_len": 8, "channel_count": 4, "fs_hz": 60.0e6, "correction_channel_indices": [1]},
+    )
+    assert len(calls) == 2
+    assert result["corrected_paths"] == [call[1] for call in calls]
+    assert all(call[2]["channel_count"] == 4 for call in calls)
+    assert all(call[2]["channel_indices"] == (1,) for call in calls)
+    assert all(call[2]["delta_tau_sec"] == pytest.approx(-3.5e-9) for call in calls)
