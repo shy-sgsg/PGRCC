@@ -15,7 +15,7 @@ import csv
 import json
 import math
 from pathlib import Path
-from typing import Any
+from typing import Any, Sequence
 
 import numpy as np
 
@@ -243,6 +243,117 @@ def load_raw_channels(path: Path, pulse_len: int, channel_count: int,
     first = values[:, :, channel_1 - 1, 0].astype(np.float64) + 1j * values[:, :, channel_1 - 1, 1].astype(np.float64)
     second = values[:, :, channel_2 - 1, 0].astype(np.float64) + 1j * values[:, :, channel_2 - 1, 1].astype(np.float64)
     return first, second
+
+
+def rewrite_float32_protocol_delay(
+    input_path: Path | str,
+    output_path: Path | str,
+    *,
+    pulse_len: int,
+    channel_count: int,
+    fs_hz: float,
+    delta_tau_sec: float,
+    channel_index: int = 1,
+    channel_indices: Sequence[int] | None = None,
+) -> dict[str, Any]:
+    """Apply an observable fractional-delay correction to selected raw channels.
+
+    The Stage2 production protocol stores each packet as a 256-byte header
+    followed by interleaved ``float32`` IQ samples.  The cross-spectrum
+    estimator defines ``C12 = FFT(ch1) * conj(FFT(ch2))``; therefore a positive
+    fitted ``delta_tau_sec`` is removed from channel 2 with the positive
+    frequency-domain ramp used by :func:`correct_fractional_delay_frequency_domain`.
+
+    This helper deliberately accepts only the float32 protocol layout used by
+    the TrackManager runner.  Indices are zero-based; ``channel_index`` remains
+    the compatible single-channel spelling and ``channel_indices`` supports a
+    caller that must correct multiple channels.  It preserves every packet
+    header and every non-target channel, and refuses truncated or misdeclared
+    packets instead of emitting a partially corrected file.
+    """
+
+    source = Path(input_path)
+    destination = Path(output_path)
+    if pulse_len <= 0 or channel_count <= 0:
+        raise ValueError("pulse_len and channel_count must be positive")
+    selected_indices = (
+        tuple(int(index) for index in channel_indices)
+        if channel_indices is not None
+        else (int(channel_index),)
+    )
+    if not selected_indices:
+        raise ValueError("channel_indices cannot be empty")
+    if len(set(selected_indices)) != len(selected_indices):
+        raise ValueError("channel_indices cannot contain duplicates")
+    if any(index < 0 or index >= channel_count for index in selected_indices):
+        raise ValueError("channel_indices contain an index outside the protocol channel count")
+    if not math.isfinite(float(fs_hz)) or float(fs_hz) <= 0.0:
+        raise ValueError("fs_hz must be finite and positive")
+    if not math.isfinite(float(delta_tau_sec)):
+        raise ValueError("delta_tau_sec must be finite")
+    if source.resolve() == destination.resolve():
+        raise ValueError("input_path and output_path must be different")
+
+    packet_bytes = 256 + pulse_len * channel_count * 2 * 4
+    frequency_hz = np.fft.fftfreq(pulse_len, d=1.0 / float(fs_hz))
+    correction = np.exp(1j * 2.0 * math.pi * float(delta_tau_sec) * frequency_hz)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    packets = 0
+    input_bytes = 0
+    output_bytes = 0
+    with source.open("rb") as stream, destination.open("wb") as output:
+        while True:
+            header = stream.read(256)
+            if not header:
+                break
+            if len(header) != 256:
+                raise ValueError(f"truncated protocol header at packet {packets}")
+            declared_bytes = int.from_bytes(header[9:13], "little")
+            if declared_bytes != packet_bytes:
+                raise ValueError(
+                    f"packet {packets} declares {declared_bytes} bytes; "
+                    f"expected {packet_bytes} for the supplied layout"
+                )
+            payload = stream.read(packet_bytes - 256)
+            if len(payload) != packet_bytes - 256:
+                raise ValueError(f"truncated protocol payload at packet {packets}")
+            values = np.frombuffer(payload, dtype="<f4")
+            expected_values = pulse_len * channel_count * 2
+            if values.size != expected_values:
+                raise ValueError(f"invalid payload scalar count at packet {packets}")
+            iq = values.reshape(pulse_len, channel_count, 2).copy()
+            for selected_index in selected_indices:
+                target = (
+                    iq[:, selected_index, 0].astype(np.float64)
+                    + 1j * iq[:, selected_index, 1].astype(np.float64)
+                )
+                corrected = np.fft.ifft(np.fft.fft(target) * correction)
+                if not np.all(np.isfinite(corrected.real)) or not np.all(np.isfinite(corrected.imag)):
+                    raise ValueError(f"non-finite corrected IQ at packet {packets}")
+                iq[:, selected_index, 0] = corrected.real.astype("<f4")
+                iq[:, selected_index, 1] = corrected.imag.astype("<f4")
+            output.write(header)
+            output.write(iq.astype("<f4", copy=False).tobytes(order="C"))
+            packets += 1
+            input_bytes += len(header) + len(payload)
+            output_bytes += len(header) + iq.nbytes
+
+    return {
+        "status": "passed",
+        "input_path": str(source),
+        "output_path": str(destination),
+        "packets_rewritten": packets,
+        "input_bytes": input_bytes,
+        "output_bytes": output_bytes,
+        "pulse_len": pulse_len,
+        "channel_count": channel_count,
+        "channel_index": selected_indices[0] if len(selected_indices) == 1 else None,
+        "channel_indices": list(selected_indices),
+        "fs_hz": float(fs_hz),
+        "delta_tau_sec": float(delta_tau_sec),
+        "delta_tau_ns": float(delta_tau_sec) * 1.0e9,
+        "correction_definition": "selected_protocol_channels *= exp(+j*2*pi*f*delta_tau_sec)",
+    }
 
 
 def correct_fractional_delay_frequency_domain(

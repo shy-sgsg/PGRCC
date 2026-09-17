@@ -541,6 +541,26 @@ bool GMTIProcessor::readXmlParam(const std::string &xmlFile, Config &cfg)
         "new_protocol_velocity_scale", cfg.new_protocol_velocity_scale);
     cfg.new_protocol_velocity_source = parseOptionalString(
         "new_protocol_velocity_source", cfg.new_protocol_velocity_source);
+    cfg.stage2_platform_velocity_true_mps = parseOptionalDouble(
+        "stage2_platform_velocity_true_mps",
+        cfg.stage2_platform_velocity_true_mps);
+    cfg.stage2_platform_velocity_reported_mps = parseOptionalDouble(
+        "stage2_platform_velocity_reported_mps",
+        cfg.stage2_platform_velocity_reported_mps);
+    const bool has_stage2_true =
+        std::isfinite(cfg.stage2_platform_velocity_true_mps);
+    const bool has_stage2_reported =
+        std::isfinite(cfg.stage2_platform_velocity_reported_mps);
+    if (has_stage2_true != has_stage2_reported) {
+        throw std::runtime_error(
+            "stage2 platform true/reported velocity metadata must be supplied together");
+    }
+    if (has_stage2_true &&
+        (cfg.stage2_platform_velocity_true_mps <= 0.0 ||
+         cfg.stage2_platform_velocity_reported_mps <= 0.0)) {
+        throw std::runtime_error(
+            "stage2 platform true/reported velocity metadata must be positive");
+    }
     if (cfg.new_protocol_channel_count < 1) {
         throw std::runtime_error("field <new_protocol_channel_count> must be >= 1");
     }

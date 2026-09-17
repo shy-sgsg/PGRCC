@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "scientific_input": {
+    "source": "four_channel_protocol_iq",
+    "protocol_channel_count": 4,
+    "fusion_pairs": [[1, 3], [2, 4]],
+    "f1_formula": "(channel_1 + channel_3) / 2",
+    "f2_formula": "(channel_2 + channel_4) / 2",
+    "algorithm_input": "F1/F2"
+  },
+  "delay_sweep_ns": [0, 1, -1, 2, -2, 4, -4, 8, -8],
+  "delay_ranges_ns": {
+    "engineering_realistic_range": [0, 1, -1],
+    "stress_test_range": [2, -2, 4, -4, 8, -8]
+  },
+  "working_points": [
+    {
+      "name": "base",
+      "beam_id": 50,
+      "expected_bin": 2048,
+      "range_m": 85000.0,
+      "texture_sigma": 0.25,
+      "clutter_rho": 0.98,
+      "target_velocity_mps": 6.7,
+      "target_snr_db": 30.0
+    },
+    {
+      "name": "low_snr",
+      "beam_id": 50,
+      "expected_bin": 2048,
+      "range_m": 85000.0,
+      "texture_sigma": 0.25,
+      "clutter_rho": 0.98,
+      "target_velocity_mps": 6.7,
+      "target_snr_db": 20.0
+    },
+    {
+      "name": "high_velocity",
+      "beam_id": 50,
+      "expected_bin": 2048,
+      "range_m": 85000.0,
+      "texture_sigma": 0.25,
+      "clutter_rho": 0.98,
+      "target_velocity_mps": 12.0,
+      "target_snr_db": 30.0
+    },
+    {
+      "name": "alternate_texture_geometry",
+      "beam_id": 35,
+      "expected_bin": 1800,
+      "range_m": 83000.0,
+      "texture_sigma": 0.65,
+      "clutter_rho": 0.90,
+      "target_velocity_mps": 6.7,
+      "target_snr_db": 30.0
+    }
+  ],
+  "pilot": {
+    "delay_errors_ns": [0, 4, -4],
+    "seeds": [101],
+    "target_velocities_mps": [6.7],
+    "target_snr_db": [30.0],
+    "working_points": ["base"],
+    "period_count": 3
+  },
+  "formal": {
+    "selection_mode": "case_groups_only",
+    "array_semantics": "supported_values_not_cartesian",
+    "delay_errors_ns": [0, 1, -1, 4, -4, 8, -8],
+    "seeds": [101, 202, 303],
+    "target_velocities_mps": [6.7, 12.0],
+    "target_snr_db": [20.0, 30.0, 35.0],
+    "base_target_snr_db": [30.0, 35.0],
+    "working_points": [
+      "base",
+      "low_snr",
+      "high_velocity",
+      "alternate_texture_geometry"
+    ],
+    "case_groups": {
+      "base": {
+        "point": "base",
+        "seeds": [101, 202, 303],
+        "target_velocities_mps": [6.7, 12.0],
+        "target_snr_db": [30.0, 35.0]
+      },
+      "low_snr": {
+        "point": "low_snr",
+        "seeds": [101],
+        "target_velocities_mps": [6.7],
+        "target_snr_db": [20.0]
+      },
+      "high_velocity": {
+        "point": "high_velocity",
+        "seeds": [101],
+        "target_velocities_mps": [12.0],
+        "target_snr_db": [30.0]
+      },
+      "alternate_texture_geometry": {
+        "point": "alternate_texture_geometry",
+        "seeds": [101],
+        "target_velocities_mps": [6.7],
+        "target_snr_db": [30.0]
+      }
+    },
+    "base_combination_count": 12,
+    "period_count": 5
+  },
+  "monte_carlo": {
+    "trials": 100,
+    "delay_errors_ns": [0, 1, -1, 2, -2, 4, -4, 8, -8],
+    "target_snr_db": [20.0, 30.0, 35.0],
+    "fs_hz": 60000000.0,
+    "bandwidth_hz": 20000000.0,
+    "pulse_samples": 2048,
+    "seed": 20260916
+  },
+  "paired_control": {
+    "formula": "ON-OFF-TO",
+    "dtype": "float32"
+  },
+  "cfar": {
+    "theoretical": {
+      "type": "GO-CFAR cell Pfa",
+      "pfa": 1e-6
+    },
+    "empirical_structured_clutter_field": "empirical_structured_clutter_false_hit_fraction"
+  },
+  "statistics": {
+    "bootstrap_repetitions": 2000,
+    "bootstrap_unit": "scene_block",
+    "confidence_level": 0.95,
+    "binary_test": "mcnemar_exact"
+  },
+  "ai_training": false,
+  "router_enabled": false
+}

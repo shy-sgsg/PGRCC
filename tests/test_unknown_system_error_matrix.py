@@ -112,6 +112,32 @@ class UnknownSystemErrorMatrixTests(unittest.TestCase):
         self.assertEqual(result["scene"]["range_max_m"], 10350.0)
         self.assertEqual(result["scene"]["area_clutter"]["calibration_range_m"], 9600.0)
 
+    def test_summarize_case_preserves_v2_uncertainty_and_dynamic_deadband(self) -> None:
+        six = {
+            "fit_status": "fit",
+            "status": "APPLY_ESTIMATED_CORRECTION",
+            "estimated_baseline_error_m": 0.0025,
+            "fit_rmse_rad": 0.01,
+            "uncertainty_m": 0.0001,
+            "deadband_m": 0.0002,
+            "sensitivity_rad_per_m": 42.0,
+            "model_disagreement_mean_abs_rad": 0.03,
+            "observation_count": 18,
+        }
+        single = {
+            "fit_status": "fit",
+            "status": "NO_CORRECTION_NEEDED",
+            "estimated_baseline_error_m": 0.0001,
+            "uncertainty_m": 0.0002,
+            "deadband_m": 0.0003,
+        }
+        row = MATRIX.summarize_case(0.0025, six, single)
+        self.assertAlmostEqual(row["six_uncertainty_m"], 0.0001)
+        self.assertAlmostEqual(row["six_deadband_m"], 0.0002)
+        self.assertAlmostEqual(row["six_sensitivity_rad_per_m"], 42.0)
+        self.assertAlmostEqual(row["six_model_disagreement_mean_abs_rad"], 0.03)
+        self.assertFalse(row["six_fallback"])
+
 
 if __name__ == "__main__":
     unittest.main()
