@@ -35,6 +35,10 @@ _SUITE_METHODS = (
     "gcc_phat",
     "oversampled_cross_correlation",
 )
+# Public read-only registry used by the formal runner when validating the
+# expected Monte Carlo row count.  Keeping one source of truth prevents the
+# runner from silently treating newly registered baselines as missing.
+STAGE1_METHOD_SUITE = _SUITE_METHODS
 
 
 def _as_pulse_matrix(value: np.ndarray, name: str) -> np.ndarray:

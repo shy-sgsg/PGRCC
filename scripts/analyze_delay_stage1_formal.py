@@ -564,6 +564,9 @@ def build_compact_evidence(run_manifest: Path, output_dir: Path) -> dict[str, Pa
         raise FileNotFoundError(f"run manifest does not exist: {source_path}")
     source = _read_json(source_path)
     destination = Path(output_dir).expanduser().resolve()
+    immutable_v1 = (ROOT / "outputs/formal_evidence/stage1_delay").resolve()
+    if destination == immutable_v1:
+        raise ValueError("immutable Formal-v1 compact evidence output cannot be overwritten")
     if destination.exists():
         if not destination.is_dir():
             raise ValueError(f"compact evidence output is not a directory: {destination}")
@@ -672,7 +675,9 @@ def build_compact_evidence(run_manifest: Path, output_dir: Path) -> dict[str, Pa
     gaps = _source_gap_rows(a0_rows, off_rows, on_rows)
     compact_manifest: dict[str, object] = {
         "schema_version": 1,
+        "evidence_version": source.get("evidence_version", "formal-v1"),
         "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "output_root": str(destination),
         "source_run_manifest": str(source_path),
         "source_run_manifest_sha256": _sha256(source_path),
         "source_status": source.get("status"),
@@ -682,10 +687,31 @@ def build_compact_evidence(run_manifest: Path, output_dir: Path) -> dict[str, Pa
         "source_template": source.get("template"),
         "source_git": source.get("git"),
         "source_git_after": source.get("git_after"),
+        "source_commit_before": source.get("source_commit_before"),
+        "source_commit_after": source.get("source_commit_after"),
+        "source_dirty_before": source.get("source_dirty_before"),
+        "source_dirty_after": source.get("source_dirty_after"),
+        "source_dirty_tracked_before": source.get("source_dirty_tracked_before"),
+        "source_dirty_tracked_after": source.get("source_dirty_tracked_after"),
         "gpu_status_before": source.get("gpu_status_before"),
         "gpu_status_after": source.get("gpu_status_after"),
         "disk_status_before": source.get("disk_status_before"),
         "disk_status_after": source.get("disk_status_after"),
+        "build_identity": source.get("build_identity"),
+        "build_identity_after": source.get("build_identity_after"),
+        "input_hashes": source.get("input_hashes"),
+        "diagnostic_taps": source.get("diagnostic_taps", {}),
+        "output_roots": source.get("output_roots", {}),
+        "provenance_status": (
+            "passed"
+            if source.get("evidence_version") != "formal-v2"
+            or (
+                source.get("source_commit_before") == source.get("source_commit_after")
+                and source.get("source_dirty_before") is False
+                and source.get("source_dirty_after") is False
+            )
+            else "NOT_EVALUABLE"
+        ),
         "resolved": source.get("resolved"),
         "delay_range_labels": source.get("delay_range_labels"),
         "ai_training": source.get("ai_training", False),

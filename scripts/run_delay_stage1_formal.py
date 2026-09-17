@@ -1670,14 +1670,74 @@ def _git_snapshot() -> dict[str, object]:
         text=True,
         check=False,
     ).stdout.strip()
-    status = subprocess.run(
-        ["git", "status", "--porcelain"],
+    tracked_status = subprocess.run(
+        ["git", "status", "--porcelain", "--untracked-files=no"],
         cwd=ROOT,
         capture_output=True,
         text=True,
         check=False,
     ).stdout
-    return {"commit": commit, "dirty": bool(status.strip())}
+    untracked_status = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard", "--directory"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    ).stdout
+    untracked = [
+        line.strip()
+        for line in untracked_status.splitlines()
+        if line.strip()
+    ]
+    non_output_untracked = [path for path in untracked if not path.startswith("outputs/")]
+    return {
+        "commit": commit,
+        # Formal provenance treats tracked source/config changes as dirty.  A
+        # separate untracked inventory is retained because this workspace
+        # intentionally keeps large, untracked evidence roots outside commits.
+        "dirty": bool(tracked_status.strip()),
+        "dirty_tracked": bool(tracked_status.strip()),
+        "untracked_count": len(untracked),
+        "untracked_output_count": len(untracked) - len(non_output_untracked),
+        "untracked_non_output_count": len(non_output_untracked),
+        "untracked_non_output_examples": non_output_untracked[:20],
+    }
+
+
+def _artifact_identity(path: Path) -> dict[str, object]:
+    candidate = Path(path).resolve()
+    if not candidate.is_file():
+        return {"path": str(candidate), "exists": False, "sha256": None}
+    return {
+        "path": str(candidate),
+        "exists": True,
+        "bytes": candidate.stat().st_size,
+        "sha256": _sha256(candidate),
+    }
+
+
+def _build_identity() -> dict[str, object]:
+    return {
+        "simulate_stage2_statistical": _artifact_identity(SIMULATOR),
+        "GMTI_pipe_core": _artifact_identity(PIPE),
+    }
+
+
+def _collect_diagnostic_taps(output_root: Path) -> dict[str, list[str]]:
+    patterns = {
+        "cfar_geometry": ("*cfar*geometry*.csv", "*cfar*geometry*.json"),
+        "track_association_v2": ("track_association_audit_v2.csv",),
+        "pipe_payload": ("track_output_payloads.csv", "*payload*audit*.csv"),
+    }
+    result: dict[str, list[str]] = {}
+    for key, suffixes in patterns.items():
+        paths: set[str] = set()
+        for pattern in suffixes:
+            for candidate in output_root.rglob(pattern):
+                if candidate.is_file():
+                    paths.add(str(candidate.relative_to(output_root)))
+        result[key] = sorted(paths)
+    return result
 
 
 def load_stage1_config(path: Path = CONFIG) -> dict[str, object]:
@@ -1952,6 +2012,12 @@ def build_arg_parser() -> argparse.ArgumentParser:
         description="Run paired channel-delay Stage-1 estimator and production cases."
     )
     parser.add_argument("--mode", choices=("pilot", "formal"), default="pilot")
+    parser.add_argument(
+        "--evidence-version",
+        choices=("formal-v1", "formal-v2"),
+        default="formal-v1",
+        help="label the evidence root; formal-v2 requires explicit registered delay arguments",
+    )
     parser.add_argument("--config", type=Path, default=CONFIG)
     parser.add_argument("--template", type=Path, default=TEMPLATE)
     parser.add_argument("--delay-errors-ns", "--delay-errors", dest="delay_errors_ns", action="append")
@@ -2259,20 +2325,52 @@ def run_stage1_cli(
         raise FileNotFoundError(f"scenario template does not exist: {template_path}")
     selection = resolve_stage1_selection(config, args)
     resume = bool(getattr(args, "resume", False))
+    evidence_version = str(getattr(args, "evidence_version", "formal-v1"))
     max_cases_value = getattr(args, "max_cases", None)
     if max_cases_value is not None and int(max_cases_value) <= 0:
         raise ValueError("--max-cases must be positive")
+    command_values = list(command_args) if command_args is not None else list(sys.argv[1:])
+    if evidence_version == "formal-v2":
+        if str(args.mode) != "formal":
+            raise ValueError("formal-v2 requires --mode formal")
+        if not any(
+            token == "--delay-errors-ns" or token.startswith("--delay-errors-ns=")
+            or token == "--delay-errors" or token.startswith("--delay-errors=")
+            for token in (str(value) for value in command_values)
+        ):
+            raise ValueError("formal-v2 requires an explicit --delay-errors-ns sweep")
+        working_point_values = getattr(args, "working_point", None) or []
+        if not any(
+            token == "--working-point" or token.startswith("--working-point=")
+            for token in (str(value) for value in command_values)
+        ) or "registered" not in [str(value) for value in working_point_values]:
+            raise ValueError("formal-v2 requires the registered working-point blocks")
     output_root = _validate_output_root(Path(args.output_root), resume=resume)
+    protected_v1_roots = {
+        (ROOT / "outputs/formal_delay_stage1_20260916").resolve(),
+        (ROOT / "outputs/formal_evidence/stage1_delay").resolve(),
+    }
+    if evidence_version == "formal-v2" and output_root in protected_v1_roots:
+        raise ValueError("formal-v2 output root must be independent of immutable Formal-v1")
     gpu_before = _gpu_status()
     disk_before = _disk_status(output_root)
     config_for_case = copy.deepcopy(config)
     config_for_case["scenario_template"] = str(template_path)
-    command_values = list(command_args) if command_args is not None else list(sys.argv[1:])
     full_command = [sys.executable, str(Path(__file__).resolve()), *command_values]
     config_sha256 = _sha256(config_path)
     template_sha256 = _sha256(template_path)
+    git_before = _git_snapshot()
+    build_identity = _build_identity()
+    input_hashes = {
+        "config": config_sha256,
+        "template": template_sha256,
+        "simulator": build_identity["simulate_stage2_statistical"],
+        "pipe": build_identity["GMTI_pipe_core"],
+    }
     if resume:
         manifest = _read_json(output_root / "manifest.json")
+        if manifest.get("evidence_version") != evidence_version:
+            raise ValueError("resume evidence version does not match the existing run manifest")
         if manifest.get("mode") != selection["mode"]:
             raise ValueError("resume mode does not match the existing run manifest")
         if manifest.get("resolved") != selection:
@@ -2298,6 +2396,10 @@ def run_stage1_cli(
             "disk_status": disk_before,
         })
         manifest["resume_history"] = history
+        manifest["attempt"] = int(manifest.get("attempt", 1)) + 1
+        manifest["resume"] = True
+        manifest["source_commit_at_resume"] = git_before.get("commit")
+        manifest["source_dirty_at_resume"] = bool(git_before.get("dirty"))
         manifest["raw_cleanup_requested"] = bool(
             manifest.get("raw_cleanup_requested", False)
             or bool(getattr(args, "cleanup_raw", False))
@@ -2305,6 +2407,7 @@ def run_stage1_cli(
     else:
         manifest = {
             "schema_version": 1,
+            "evidence_version": evidence_version,
             "created_at_utc": datetime.now(timezone.utc).isoformat(),
             "mode": selection["mode"],
             "command": {
@@ -2321,12 +2424,24 @@ def run_stage1_cli(
             },
             "resolved": selection,
             "delay_range_labels": copy.deepcopy(config.get("delay_ranges_ns")),
-            "git": _git_snapshot(),
+            "git": git_before,
+            "source_commit_before": git_before.get("commit"),
+            "source_dirty_before": bool(git_before.get("dirty")),
+            "source_dirty_tracked_before": bool(git_before.get("dirty_tracked", git_before.get("dirty"))),
             "gpu_status_before": gpu_before,
             "disk_status_before": disk_before,
+            "build_identity": build_identity,
+            "input_hashes": input_hashes,
+            "attempt": 1,
+            "resume": False,
             "ai_training": False,
             "router_enabled": False,
             "native_four_channel_stap": False,
+            "diagnostic_taps": _collect_diagnostic_taps(output_root),
+            "output_roots": {
+                "formal_v1": str(ROOT / "outputs/formal_evidence/stage1_delay"),
+                "formal_v2": str(output_root),
+            },
             "raw_cleanup_requested": bool(getattr(args, "cleanup_raw", False)),
             "mc_summary": {"status": "not_started"},
             "cases": [],
@@ -2370,7 +2485,7 @@ def run_stage1_cli(
 
     mc_ok = False
     try:
-        from scripts.delay_stage1_core import run_parameter_monte_carlo
+        from scripts.delay_stage1_core import STAGE1_METHOD_SUITE, run_parameter_monte_carlo
 
         mc_config = config["monte_carlo"]
         if not isinstance(mc_config, Mapping):
@@ -2394,7 +2509,7 @@ def run_stage1_cli(
         expected_mc_rows = (
             len(selection["level1_mc_delay_errors_ns"])
             * len(selection["level1_mc_snr_db"])
-            * 5
+            * len(STAGE1_METHOD_SUITE)
         )
         mc_ok = len(mc_rows) == expected_mc_rows
         manifest["mc_summary"] = {
@@ -2498,6 +2613,7 @@ def run_stage1_cli(
                         "truth_used_in_estimator": False,
                         "ai_training": False,
                         "router_enabled": False,
+                        "native_four_channel_stap": False,
                     }
                     _write_json(case_root / "case_manifest.json", failure)
                     manifest["cases"].append(_case_summary(failure, case_root))
@@ -2548,7 +2664,14 @@ def run_stage1_cli(
         "status": manifest["status"],
     }
     manifest["git_after"] = _git_snapshot()
+    manifest["source_commit_after"] = manifest["git_after"].get("commit")
+    manifest["source_dirty_after"] = bool(manifest["git_after"].get("dirty"))
+    manifest["source_dirty_tracked_after"] = bool(
+        manifest["git_after"].get("dirty_tracked", manifest["git_after"].get("dirty"))
+    )
     manifest["gpu_status_after"] = _gpu_status()
+    manifest["build_identity_after"] = _build_identity()
+    manifest["diagnostic_taps"] = _collect_diagnostic_taps(output_root)
     manifest["disk_status_after"] = _disk_status(output_root)
     _write_json(output_root / "manifest.json", manifest)
     return manifest
