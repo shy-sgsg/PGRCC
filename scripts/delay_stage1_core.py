@@ -28,6 +28,13 @@ _METHODS = (
     "D2_weighted_LS",
     "D3_Huber_weighted_LS",
 )
+_SUITE_METHODS = (
+    *_METHODS,
+    "D4_generalized_phase_slope_ML",
+    "cross_correlation",
+    "gcc_phat",
+    "oversampled_cross_correlation",
+)
 
 
 def _as_pulse_matrix(value: np.ndarray, name: str) -> np.ndarray:
@@ -306,6 +313,76 @@ def estimate_delay_d1_d2_d3(
         )
     return rows
 
+
+def estimate_delay_generalized_phase_slope_ml(
+    f1_time: np.ndarray,
+    f2_time: np.ndarray,
+    fs_hz: float,
+) -> dict[str, object]:
+    """Estimate delay with a nuisance phase intercept and variance weights.
+
+    This is a deterministic traditional baseline, not a learned model.  The
+    phase intercept is fitted jointly with the slope by ``weighted_slope_variance``;
+    magnitude-squared cross-spectrum weights provide the observable variance
+    proxy.  No truth, target-present data, or router state enters the estimate.
+    """
+
+    method = "D4_generalized_phase_slope_ML"
+    start = time.perf_counter()
+    first, second, finite, sample_rate = _prepare_inputs(f1_time, f2_time, fs_hz)
+    finite_count = int(np.count_nonzero(finite))
+    if finite_count < _MIN_CALIBRATION_SAMPLES:
+        return _fallback_row(method, "insufficient_calibration_support", finite_count, start, input_finite_count=finite_count)
+    safe_first, safe_second = _safe_inputs(first, second, finite)
+    spectrum1 = np.fft.fft(safe_first, axis=1)
+    spectrum2 = np.fft.fft(safe_second, axis=1)
+    cross = np.sum(spectrum1 * np.conj(spectrum2), axis=0)
+    frequency = np.fft.fftfreq(first.shape[1], d=1.0 / sample_rate)
+    magnitude = np.abs(cross)
+    positive = frequency > 0.0
+    supported = positive & np.isfinite(cross) & np.isfinite(magnitude) & (magnitude > _EPS)
+    if int(np.count_nonzero(supported)) < 3:
+        return _fallback_row(method, "insufficient_calibration_support", int(np.count_nonzero(supported)), start, input_finite_count=finite_count)
+    support_magnitude = magnitude[supported]
+    threshold = float(np.percentile(support_magnitude, 20.0))
+    mask = supported & (magnitude >= max(threshold, _EPS))
+    if int(np.count_nonzero(mask)) < 3:
+        return _fallback_row(method, "insufficient_calibration_support", int(np.count_nonzero(mask)), start, input_finite_count=finite_count)
+    order = np.argsort(frequency[mask])
+    fit_frequency = frequency[mask][order]
+    fit_phase = np.unwrap(np.angle(cross[mask][order]))
+    weights = np.maximum(magnitude[mask][order] ** 2, _EPS)
+    try:
+        fit = weighted_slope_variance(fit_frequency, fit_phase, weights)
+    except (FloatingPointError, ValueError, np.linalg.LinAlgError):
+        return _fallback_row(method, "estimator_error", int(np.count_nonzero(mask)), start, input_finite_count=finite_count)
+    delay = float(fit["estimated_delay_ns"])
+    if not math.isfinite(delay):
+        return _fallback_row(method, "estimator_error", int(np.count_nonzero(mask)), start, input_finite_count=finite_count)
+    return _success_row(
+        method,
+        delay,
+        _residual_phase_rms(safe_first, safe_second, sample_rate, delay),
+        _elapsed(start),
+        int(np.count_nonzero(mask)),
+        extra={
+            "input_finite_count": finite_count,
+            "pulse_count": int(first.shape[0]),
+            "sample_count": int(first.shape[1]),
+            "phase_slope_rad_per_hz": fit["slope_rad_per_hz"],
+            "phase_intercept_rad": fit["intercept_rad"],
+            "delay_std_ns": fit["delay_std_ns"],
+            "ci95_low_ns": fit["ci95_low_ns"],
+            "ci95_high_ns": fit["ci95_high_ns"],
+            "effective_sample_count": fit["effective_sample_count"],
+            "cross_spectrum_definition": "X1*conj(X2)",
+            "nuisance_intercept": True,
+            "truth_used_in_estimator": False,
+            "weight_definition": "magnitude_squared_cross_spectrum",
+            "estimator_family": "generalized_phase_slope_ml",
+        },
+    )
+
 def _quadratic_peak_lag(values: np.ndarray, lags: np.ndarray) -> float | None:
     """Return a peak lag with bounded three-point parabolic interpolation."""
 
@@ -328,7 +405,12 @@ def _quadratic_peak_lag(values: np.ndarray, lags: np.ndarray) -> float | None:
             candidate = 0.5 * (left - right) / denominator
             if math.isfinite(candidate):
                 offset = float(np.clip(candidate, -0.5, 0.5))
-    result = float(lags[peak_index]) + offset
+    step = 1.0
+    if 0 < peak_index < lags.size - 1:
+        local_step = float(lags[peak_index + 1] - lags[peak_index])
+        if math.isfinite(local_step) and abs(local_step) > _EPS:
+            step = local_step
+    result = float(lags[peak_index]) + offset * step
     return result if math.isfinite(result) else None
 
 
@@ -356,6 +438,40 @@ def _linear_cross_correlation(
     )
     lags = np.arange(-(sample_count - 1), sample_count, dtype=np.float64)
     return correlation, lags
+
+
+def _oversampled_linear_cross_correlation(
+    first: np.ndarray,
+    second: np.ndarray,
+    oversample_factor: int,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return a zero-padded FFT interpolation of the linear correlation."""
+
+    sample_count = int(first.shape[1])
+    base_fft_size = _next_power_of_two(2 * sample_count - 1)
+    fft_size = base_fft_size * int(oversample_factor)
+    spectrum1 = np.fft.fft(first, n=base_fft_size, axis=1)
+    spectrum2 = np.fft.fft(second, n=base_fft_size, axis=1)
+    coarse_cross = np.sum(spectrum1 * np.conj(spectrum2), axis=0)
+    # Zero-pad the centered cross spectrum, rather than the time samples.  It
+    # evaluates the same finite correlation on a fractional lag grid and
+    # preserves the production positive-delay sign convention.
+    centered = np.fft.fftshift(coarse_cross)
+    padded = np.zeros(fft_size, dtype=np.complex128)
+    start = (fft_size - base_fft_size) // 2
+    padded[start:start + base_fft_size] = centered
+    circular = np.fft.ifft(np.fft.ifftshift(padded)) * float(oversample_factor)
+    raw_lags = np.arange(fft_size, dtype=np.float64)
+    signed_lags = np.where(raw_lags <= fft_size // 2, raw_lags, raw_lags - fft_size)
+    support = (
+        signed_lags >= -(sample_count - 1) * oversample_factor
+    ) & (
+        signed_lags <= (sample_count - 1) * oversample_factor
+    )
+    indices = np.flatnonzero(support)
+    order = np.argsort(signed_lags[indices])
+    ordered = indices[order]
+    return circular[ordered], signed_lags[ordered] / float(oversample_factor)
 
 
 def estimate_delay_cross_correlation(
@@ -401,6 +517,53 @@ def estimate_delay_cross_correlation(
             "lag_samples": float(lag_samples),
             "cross_spectrum_definition": "X1*conj(X2)",
             "internal_lag_convention": "C12_time_correlation_lag; reported_delay_ns=-lag_samples/fs",
+        },
+    )
+
+
+def estimate_delay_oversampled_cross_correlation(
+    f1_time: np.ndarray,
+    f2_time: np.ndarray,
+    fs_hz: float,
+    *,
+    oversample_factor: int = 8,
+) -> dict[str, object]:
+    """Estimate signed delay from an oversampled linear correlation grid."""
+
+    method = "oversampled_cross_correlation"
+    start = time.perf_counter()
+    try:
+        factor = int(oversample_factor)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("oversample_factor must be an integer >= 2") from exc
+    if factor < 2:
+        raise ValueError("oversample_factor must be an integer >= 2")
+    first, second, finite, sample_rate = _prepare_inputs(f1_time, f2_time, fs_hz)
+    finite_count = int(np.count_nonzero(finite))
+    if finite_count < _MIN_CALIBRATION_SAMPLES:
+        return _fallback_row(method, "insufficient_calibration_support", finite_count, start, input_finite_count=finite_count)
+    safe_first, safe_second = _safe_inputs(first, second, finite)
+    correlation, lags = _oversampled_linear_cross_correlation(safe_first, safe_second, factor)
+    lag_samples = _quadratic_peak_lag(correlation, lags)
+    if lag_samples is None:
+        return _fallback_row(method, "insufficient_calibration_support", finite_count, start, input_finite_count=finite_count)
+    delay_ns = -lag_samples / sample_rate * 1.0e9
+    return _success_row(
+        method,
+        delay_ns,
+        _residual_phase_rms(safe_first, safe_second, sample_rate, delay_ns),
+        _elapsed(start),
+        finite_count,
+        extra={
+            "input_finite_count": finite_count,
+            "pulse_count": int(first.shape[0]),
+            "sample_count": int(first.shape[1]),
+            "lag_samples": float(lag_samples),
+            "oversample_factor": factor,
+            "cross_spectrum_definition": "X1*conj(X2)",
+            "internal_lag_convention": "oversampled_C12_time_correlation_lag; reported_delay_ns=-lag_samples/fs",
+            "fractional_peak_refinement": "zero_padded_fft_grid_plus_quadratic",
+            "truth_used_in_estimator": False,
         },
     )
 
@@ -505,8 +668,10 @@ def delay_method_suite(
         spectral["D1_ordinary_LS"],
         spectral["D2_weighted_LS"],
         spectral["D3_Huber_weighted_LS"],
+        estimate_delay_generalized_phase_slope_ml(f1_time, f2_time, fs_hz),
         estimate_delay_cross_correlation(f1_time, f2_time, fs_hz),
         estimate_delay_gcc_phat(f1_time, f2_time, fs_hz),
+        estimate_delay_oversampled_cross_correlation(f1_time, f2_time, fs_hz),
     ]
 
 
@@ -909,7 +1074,7 @@ def run_parameter_monte_carlo(
     accumulators: dict[tuple[float, float, str], dict[str, Any]] = {}
     for delay in delays:
         for snr in snrs:
-            for method in (*_METHODS, "cross_correlation", "gcc_phat"):
+            for method in _SUITE_METHODS:
                 accumulators[(delay, snr, method)] = {
                     "errors": [],
                     "runtimes": [],
@@ -939,7 +1104,7 @@ def run_parameter_monte_carlo(
     rows: list[dict[str, object]] = []
     for delay in delays:
         for snr in snrs:
-            for method in (*_METHODS, "cross_correlation", "gcc_phat"):
+            for method in _SUITE_METHODS:
                 accumulator = accumulators[(delay, snr, method)]
                 rows.append(
                     _mc_summary(

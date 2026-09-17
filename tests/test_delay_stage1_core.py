@@ -71,8 +71,34 @@ def test_traditional_baselines_are_present_and_use_same_input() -> None:
     f1, f2, fs = make_fractionally_delayed_lfm(delay_ns=1.5, snr_db=50.0)
     rows = rows_by_method(delay_method_suite(f1, f2, fs))
     assert {"cross_correlation", "gcc_phat"} <= set(rows)
+    assert {"D4_generalized_phase_slope_ML", "oversampled_cross_correlation"} <= set(rows)
     assert rows["cross_correlation"]["support_count"] == len(f1)
     assert rows["gcc_phat"]["runtime_sec"] >= 0.0
+
+
+def test_stronger_traditional_baselines_recover_fractional_delay() -> None:
+    f1, f2, fs = make_fractionally_delayed_lfm(delay_ns=2.25, snr_db=60.0)
+    rows = rows_by_method(delay_method_suite(f1, f2, fs))
+    assert rows["D4_generalized_phase_slope_ML"]["delta_tau_ns"] == pytest.approx(2.25, abs=0.08)
+    assert rows["D4_generalized_phase_slope_ML"]["nuisance_intercept"] is True
+    assert rows["D4_generalized_phase_slope_ML"]["truth_used_in_estimator"] is False
+    assert rows["oversampled_cross_correlation"]["delta_tau_ns"] == pytest.approx(2.25, abs=0.08)
+    assert rows["oversampled_cross_correlation"]["oversample_factor"] >= 4
+
+
+@pytest.mark.parametrize("delay_ns", [2.25, -2.25])
+def test_stronger_traditional_baselines_preserve_signed_delay(delay_ns: float) -> None:
+    f1, f2, fs = make_fractionally_delayed_lfm(delay_ns=delay_ns, snr_db=60.0)
+    rows = rows_by_method(delay_method_suite(f1, f2, fs))
+    for method in ("D4_generalized_phase_slope_ML", "oversampled_cross_correlation"):
+        assert rows[method]["delta_tau_ns"] == pytest.approx(delay_ns, abs=0.08)
+
+
+def test_stronger_traditional_baselines_have_structured_fallbacks() -> None:
+    rows = rows_by_method(delay_method_suite(np.ones(4, complex), np.ones(4, complex), 60.0e6))
+    for method in ("D4_generalized_phase_slope_ML", "oversampled_cross_correlation"):
+        assert rows[method]["status"] == "fallback"
+        assert rows[method]["fallback_reason"] == "insufficient_calibration_support"
 
 
 def test_fft_cross_correlation_matches_numpy_linear_reference() -> None:
@@ -243,7 +269,8 @@ def test_parameter_monte_carlo_returns_method_level_quality_fields() -> None:
     )
     methods = {
         "D1_ordinary_LS", "D2_weighted_LS", "D3_Huber_weighted_LS",
-        "cross_correlation", "gcc_phat",
+        "D4_generalized_phase_slope_ML", "cross_correlation", "gcc_phat",
+        "oversampled_cross_correlation",
     }
     assert len(rows) == 2 * 1 * len(methods)
     required = {
@@ -254,7 +281,7 @@ def test_parameter_monte_carlo_returns_method_level_quality_fields() -> None:
     assert all(required <= set(row) for row in rows)
     for delay in [0.0, 2.0]:
         block = [row for row in rows if row["delay_error_ns"] == delay and row["snr_db"] == 20.0]
-        assert len(block) == 5
+        assert len(block) == len(methods)
         assert {row["method"] for row in block} == methods
         assert all(row["trials"] == 3 for row in block)
         assert all(row["finite_estimate_count"] + row["fallback_count"] == 3 for row in block)
