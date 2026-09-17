@@ -8,6 +8,7 @@
 #include <cuComplex.h>
 #include <cufft.h>
 #include "config_structs.hpp"
+#include "cfar_geometry.hpp"
 #include "dbs/DbsFusionTypes.hpp"
 #include <vector>
 #include <memory>
@@ -361,7 +362,8 @@ private:
                               bool download_maps = true,
                               int detect_source_mode = 0,
                               int cut_band_mode = 0,
-                              std::vector<float> *threshold_map = nullptr);
+                              std::vector<float> *threshold_map = nullptr,
+                              gmti::cfar::CfarGeometryDiagnostics *geometry_diagnostics = nullptr);
     bool target_select(const std::vector<std::complex<double>> &GMTI_dataf_1,
                        const std::vector<std::complex<double>> &GMTI_dataf_2,
                        const std::vector<int> &prow,

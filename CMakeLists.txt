@@ -463,6 +463,10 @@ add_executable(channel_calibration_selftest
   tests/channel_calibration_selftest.cpp
 )
 
+add_executable(cfar_geometry_selftest
+  tests/cfar_geometry_selftest.cpp
+)
+
 add_executable(channel_impairments_selftest
   tests/channel_impairments_selftest.cpp
   simulator/target_injection/channel_impairments.cpp
@@ -824,6 +828,7 @@ configure_non_cuda_tool(track_assignment_selftest)
 configure_non_cuda_tool(low_radial_velocity_filter_selftest)
 configure_non_cuda_tool(track_detection_eval)
 configure_non_cuda_tool(channel_calibration_selftest)
+configure_non_cuda_tool(cfar_geometry_selftest)
 configure_non_cuda_tool(channel_geometry_selftest)
 configure_non_cuda_tool(range_compression_window_selftest)
 configure_non_cuda_tool(motion_comp_ctdr_selftest)
@@ -886,6 +891,7 @@ if(BUILD_TESTING)
   add_test(NAME motion_comp_ctdr_selftest COMMAND motion_comp_ctdr_selftest)
   add_test(NAME velocity_ambiguity_selftest COMMAND velocity_ambiguity_selftest)
   add_test(NAME channel_calibration_selftest COMMAND channel_calibration_selftest)
+  add_test(NAME cfar_geometry_selftest COMMAND cfar_geometry_selftest)
   add_test(NAME channel_impairments_selftest COMMAND channel_impairments_selftest)
   add_test(NAME channel_geometry_selftest COMMAND channel_geometry_selftest)
   add_test(NAME p38_phase_fit_selftest COMMAND p38_phase_fit_selftest)

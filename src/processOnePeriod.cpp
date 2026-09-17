@@ -301,6 +301,63 @@ void writeCfarDiagnostic(const Config &cfg,
     }
 }
 
+void writeCfarGeometryDiagnostics(
+    const Config &cfg,
+    const std::vector<gmti::cfar::CfarGeometryDiagnostics> &rows,
+    std::size_t cluster_count,
+    std::size_t protocol_detection_row_count)
+{
+    if (!cfg.runtime_diagnostics_enabled || cfg.result_add.empty() || rows.empty()) {
+        return;
+    }
+    const std::string debug_dir = joinPathLocal(cfg.result_add, "debug");
+    if (!ensureDirLocal(debug_dir)) return;
+    const std::string path = joinPathLocal(debug_dir, "cfar_geometry_diagnostics.csv");
+    static std::mutex geometry_mutex;
+    std::lock_guard<std::mutex> lock(geometry_mutex);
+    std::ifstream existing(path.c_str());
+    const bool write_header = !existing.good();
+    std::ofstream output(path.c_str(), std::ios::app);
+    if (!output) return;
+    if (write_header) {
+        output << "schema_version,period_id,beam_id,branch,height,width,guard_cells,"
+               << "background_cells,doppler_circular,exclude_row_start,exclude_row_end,"
+               << "cut_band_start,cut_band_end,cut_band_mode,total_cells,edge_invalid_cells,"
+               << "excluded_cells,cut_band_filtered_cells,threshold_test_count,valid_cut_count,"
+               << "hit_cut_count,hit_index_hash,configured_pfa,cfar_type,alpha,hit_rate,"
+               << "hit_rate_status,cluster_count,protocol_detection_row_count,"
+               << "false_cut_hit_count,false_cluster_count,false_track_count,false_counts_status\n";
+    }
+    output << std::setprecision(17);
+    for (const auto &row : rows) {
+        std::ostringstream hash;
+        hash << (row.hit_hash_available ? "fnv1a64:" : "NOT_AVAILABLE:")
+             << std::hex << row.hit_index_hash << std::dec;
+        const bool evaluable = row.valid_cut_count > 0U;
+        output << row.schema_version << ',' << row.period_id << ',' << row.beam_id << ','
+               << row.branch << ',' << row.height << ',' << row.width << ','
+               << row.guard_cells << ',' << row.background_cells << ','
+               << (row.doppler_circular ? "true" : "false") << ','
+               << row.exclude_row_start << ',' << row.exclude_row_end << ','
+               << row.cut_band_start << ',' << row.cut_band_end << ','
+               << row.cut_band_mode << ',' << row.total_cells << ','
+               << row.edge_invalid_cells << ',' << row.excluded_cells << ','
+               << row.cut_band_filtered_cells << ',' << row.threshold_test_count << ','
+               << row.valid_cut_count << ',' << row.hit_cut_count << ',' << hash.str() << ','
+               << row.configured_pfa << ',' << row.cfar_type << ',' << row.alpha << ',';
+        if (evaluable) {
+            output << static_cast<double>(row.hit_cut_count) /
+                           static_cast<double>(row.valid_cut_count)
+                   << ",evaluable,";
+        } else {
+            output << "NA,NOT_EVALUABLE,";
+        }
+        output << cluster_count << ',' << protocol_detection_row_count
+               << ",NOT_EVALUABLE,NOT_EVALUABLE,NOT_EVALUABLE,"
+               << "truth_join_required_for_false_counts\n";
+    }
+}
+
 void writeSplitClusterFilterDiagnostic(const Config &cfg,
                                        int beam_id,
                                        std::size_t vertical_removed,
@@ -2592,6 +2649,17 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
         bool cfarSuccess2 = false;
         bool gpu_cfar_resident = false;
         std::size_t gpu_cfar_hit_count = 0U;
+        std::vector<gmti::cfar::CfarGeometryDiagnostics> cfar_geometry_rows;
+        const auto cfar_geometry_tap = [&](const char *branch)
+            -> gmti::cfar::CfarGeometryDiagnostics * {
+            if (!cfg.runtime_diagnostics_enabled) return nullptr;
+            cfar_geometry_rows.emplace_back();
+            gmti::cfar::CfarGeometryDiagnostics &row = cfar_geometry_rows.back();
+            row.period_id = cfg.result_file_id;
+            row.beam_id = periodIdx;
+            row.branch = branch;
+            return &row;
+        };
         bool split_cluster_complete = false;
         StrongSmallClusterFilterStats split_cluster_filter_stats;
 
@@ -2613,14 +2681,18 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             std::vector<float> in_hits, out_hits, in_power, out_power;
             std::vector<float> in_threshold, out_threshold;
             std::size_t in_hit_count = 0U, out_hit_count = 0U;
+            gmti::cfar::CfarGeometryDiagnostics *in_geometry =
+                cfar_geometry_tap("split_in_band");
+            gmti::cfar::CfarGeometryDiagnostics *out_geometry =
+                cfar_geometry_tap("split_out_of_band");
             const bool in_ok = dpca_cfar2_fast_cuda(
                 CSI_out, csi_cut_st, csi_cut_ed, cfg.pf, c_num, cfar_bnum,
                 cfg.csi_split_in_band_cfar_type, cfg, in_hits, &in_power, nullptr,
-                &in_hit_count, true, 0, 1, &in_threshold);
+                &in_hit_count, true, 0, 1, &in_threshold, in_geometry);
             const bool out_ok = dpca_cfar2_fast_cuda(
                 CSI_out, original_cut_st, original_cut_ed, cfg.pf,
                 c_num, cfar_bnum, cfg.cfar_type, cfg, out_hits, &out_power,
-                nullptr, &out_hit_count, true, 2, 2, &out_threshold);
+                nullptr, &out_hit_count, true, 2, 2, &out_threshold, out_geometry);
             cfarSuccess1 = in_ok && out_ok && in_hits.size() == out_hits.size() &&
                            in_power.size() == out_power.size();
             if (cfarSuccess1) {
@@ -2790,18 +2862,22 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             std::vector<float> dynamic_threshold, full_threshold;
             std::vector<std::complex<float>> dynamic_complex, full_complex;
             const bool dump_complex = pcProfileDopplerRow(periodIdx) >= 0;
+            gmti::cfar::CfarGeometryDiagnostics *dynamic_geometry =
+                cfar_geometry_tap("union_dynamic_in_band");
+            gmti::cfar::CfarGeometryDiagnostics *full_geometry =
+                cfar_geometry_tap("union_full_band");
             const bool dynamic_ok = dpca_cfar2_fast_cuda(
                 CSI_out, dynamic_band_st, dynamic_band_ed,
                 cfg.pf, c_num, cfar_bnum, cfg.cfar_type, cfg,
                 dynamic_hits, &dynamic_power,
                 dump_complex ? &dynamic_complex : nullptr,
-                nullptr, true, 0, 0, &dynamic_threshold);
+                nullptr, true, 0, 0, &dynamic_threshold, dynamic_geometry);
             const bool full_ok = dpca_cfar2_fast_cuda(
                 CSI_out, 0, effectivePulseNum(cfg) - 1,
                 cfg.pf, c_num, cfar_bnum, cfg.cfar_type, cfg,
                 full_hits, &full_power,
                 dump_complex ? &full_complex : nullptr,
-                nullptr, true, 0, 0, &full_threshold);
+                nullptr, true, 0, 0, &full_threshold, full_geometry);
             cfarSuccess1 = dynamic_ok && full_ok &&
                            dynamic_hits.size() == full_hits.size() &&
                            dynamic_power.size() == full_power.size() &&
@@ -2834,6 +2910,8 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
                 (cfg.p38_enhanced_enable && cfg.p38_refit_enable) ||
                 (cfg.runtime_diagnostics_enabled && cfarDumpSelectedBeam(periodIdx)) ||
                 pcProfileDopplerRow(periodIdx) >= 0;
+            gmti::cfar::CfarGeometryDiagnostics *fixed_geometry =
+                cfar_geometry_tap(full_csi_detection_band ? "full_band" : "dynamic_in_band");
             cfarSuccess1 = dpca_cfar2_fast_cuda(
                 CSI_out, band_st, band_ed, cfg.pf, c_num, cfar_bnum,
                 cfg.cfar_type, cfg, mydata,
@@ -2841,7 +2919,7 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
                 pcProfileDopplerRow(periodIdx) >= 0 ? &detection_complex_map : nullptr,
                 cfg.runtime_diagnostics_enabled ? &gpu_cfar_hit_count : nullptr,
                 need_host_maps, 0, 0,
-                need_host_maps ? &threshold_map : nullptr);
+                need_host_maps ? &threshold_map : nullptr, fixed_geometry);
             gpu_cfar_resident = cfarSuccess1;
         }
         if (!cfarSuccess1)
@@ -3050,6 +3128,8 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             convertFloatComplexToDouble(F2_f, F2);
             targetDetection = target_select(F1, F2, prow_new, pcol_new, cfg, targetSel);
         }
+        writeCfarGeometryDiagnostics(
+            cfg, cfar_geometry_rows, prow_new.size(), targetSel.prow.size());
         if (cfg.runtime_diagnostics_enabled) {
             std::cout << "[CFAR][SUMMARY] beam=" << periodIdx
                       << " hit_cells=" << cfar_hit_cells
@@ -4155,6 +4235,17 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
         bool cfar_ok = false;
         bool gpu_cfar_resident = false;
         std::size_t gpu_cfar_hit_count = 0U;
+        std::vector<gmti::cfar::CfarGeometryDiagnostics> cfar_geometry_rows;
+        const auto cfar_geometry_tap = [&](const char *branch)
+            -> gmti::cfar::CfarGeometryDiagnostics * {
+            if (!cfg.runtime_diagnostics_enabled) return nullptr;
+            cfar_geometry_rows.emplace_back();
+            gmti::cfar::CfarGeometryDiagnostics &row = cfar_geometry_rows.back();
+            row.period_id = static_cast<int>(slot);
+            row.beam_id = periodIdx;
+            row.branch = branch;
+            return &row;
+        };
         bool split_cluster_complete = false;
         if (split_csi_detection_band) {
             const int guard = cfg.csi_split_boundary_guard_rows;
@@ -4178,18 +4269,22 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             std::size_t in_hit_count = 0U, out_hit_count = 0U;
             const bool dump_complex = cfg.runtime_diagnostics_enabled &&
                                       cfarDumpSelectedBeam(periodIdx);
+            gmti::cfar::CfarGeometryDiagnostics *in_geometry =
+                cfar_geometry_tap("split_in_band");
+            gmti::cfar::CfarGeometryDiagnostics *out_geometry =
+                cfar_geometry_tap("split_out_of_band");
             const bool in_ok = dpca_cfar2_fast_cuda(
                 CSI_out, csi_cut_st, csi_cut_ed, cfg.pf,
                 cfg.cfar_guard_cells, cfg.cfar_background_cells,
                 cfg.csi_split_in_band_cfar_type, cfg, in_hits, &in_power,
                 dump_complex ? &in_complex : nullptr,
-                &in_hit_count, true, 0, 1, &in_threshold);
+                &in_hit_count, true, 0, 1, &in_threshold, in_geometry);
             const bool out_ok = dpca_cfar2_fast_cuda(
                 CSI_out, original_cut_st, original_cut_ed, cfg.pf,
                 cfg.cfar_guard_cells, cfg.cfar_background_cells,
                 cfg.cfar_type, cfg, out_hits, &out_power,
                 dump_complex ? &out_complex : nullptr,
-                &out_hit_count, true, 2, 2, &out_threshold);
+                &out_hit_count, true, 2, 2, &out_threshold, out_geometry);
             cfar_ok = in_ok && out_ok && in_hits.size() == out_hits.size() &&
                       in_power.size() == out_power.size() &&
                       (!dump_complex ||
@@ -4368,18 +4463,22 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             std::vector<float> dynamic_threshold, full_threshold;
             std::vector<std::complex<float>> dynamic_complex, full_complex;
             const bool dump_complex = pcProfileDopplerRow(periodIdx) >= 0;
+            gmti::cfar::CfarGeometryDiagnostics *dynamic_geometry =
+                cfar_geometry_tap("union_dynamic_in_band");
+            gmti::cfar::CfarGeometryDiagnostics *full_geometry =
+                cfar_geometry_tap("union_full_band");
             const bool dynamic_ok = dpca_cfar2_fast_cuda(
                 CSI_out, dynamic_band_st, dynamic_band_ed,
                 cfg.pf, cfg.cfar_guard_cells, cfg.cfar_background_cells,
                 cfg.cfar_type, cfg, dynamic_hits, &dynamic_power,
                 dump_complex ? &dynamic_complex : nullptr,
-                nullptr, true, 0, 0, &dynamic_threshold);
+                nullptr, true, 0, 0, &dynamic_threshold, dynamic_geometry);
             const bool full_ok = dpca_cfar2_fast_cuda(
                 CSI_out, 0, effectivePulseNum(cfg) - 1,
                 cfg.pf, cfg.cfar_guard_cells, cfg.cfar_background_cells,
                 cfg.cfar_type, cfg, full_hits, &full_power,
                 dump_complex ? &full_complex : nullptr,
-                nullptr, true, 0, 0, &full_threshold);
+                nullptr, true, 0, 0, &full_threshold, full_geometry);
             cfar_ok = dynamic_ok && full_ok &&
                       dynamic_hits.size() == full_hits.size() &&
                       dynamic_power.size() == full_power.size() &&
@@ -4412,6 +4511,8 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                 (cfg.p38_enhanced_enable && cfg.p38_refit_enable) ||
                 (cfg.runtime_diagnostics_enabled && cfarDumpSelectedBeam(periodIdx)) ||
                 pcProfileDopplerRow(periodIdx) >= 0;
+            gmti::cfar::CfarGeometryDiagnostics *fixed_geometry =
+                cfar_geometry_tap(full_csi_detection_band ? "full_band" : "dynamic_in_band");
             cfar_ok = dpca_cfar2_fast_cuda(
                 CSI_out, band_st, band_ed, cfg.pf, cfg.cfar_guard_cells,
                 cfg.cfar_background_cells, cfg.cfar_type, cfg,
@@ -4419,7 +4520,7 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                 pcProfileDopplerRow(periodIdx) >= 0 ? &detection_complex_map : nullptr,
                 cfg.runtime_diagnostics_enabled ? &gpu_cfar_hit_count : nullptr,
                 need_host_maps, 0, 0,
-                need_host_maps ? &threshold_map : nullptr);
+                need_host_maps ? &threshold_map : nullptr, fixed_geometry);
             gpu_cfar_resident = cfar_ok;
         }
         if (!cfar_ok) {
@@ -4509,6 +4610,8 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             : 0U;
         writeCfarDiagnostic(cfg, periodIdx, fa_ctr, mydata, power_map,
                             detection_complex_map, &threshold_map);
+        writeCfarGeometryDiagnostics(
+            cfg, cfar_geometry_rows, prow_new.size(), targetSel.prow.size());
         writeDetectionRangeProfile(cfg, periodIdx, power_map);
         writeDetectionComplexRangeProfile(cfg, periodIdx, detection_complex_map);
 

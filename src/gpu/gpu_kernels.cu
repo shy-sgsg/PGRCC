@@ -2476,7 +2476,8 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
                                          bool download_maps,
                                          int detect_source_mode,
                                          int cut_band_mode,
-                                         std::vector<float> *threshold_map)
+                                         std::vector<float> *threshold_map,
+                                         gmti::cfar::CfarGeometryDiagnostics *geometry_diagnostics)
 {
     const int H = effectivePulseNum(cfg);
     const int W = cfg.rg_len;
@@ -2577,6 +2578,13 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
     band_st = std::max(0, std::min(band_st, H - 1));
     band_ed = std::max(0, std::min(band_ed, H - 1));
 
+    const gmti::cfar::GeometryCounts geometry = gmti::cfar::count_geometry(
+        H, W, g, b, cfg.cfar_doppler_circular,
+        cfg.cfar_exclude_row_start, cfg.cfar_exclude_row_end,
+        band_st, band_ed, cut_band_mode);
+    std::vector<float> geometry_hits;
+    if (geometry_diagnostics != nullptr) geometry_hits.resize(total);
+
     int threads = 256;
     int blocks = static_cast<int>((total + threads - 1) / threads);
     mix_detect_data_kernel<<<blocks, threads, 0, stream_compute_>>>(
@@ -2637,13 +2645,15 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
     CUDA_CHECK(cudaGetLastError());
 
     d_cfar_maps_valid_ = true;
-    if (hit_count) {
+    std::size_t measured_hit_count = 0U;
+    if (hit_count || geometry_diagnostics != nullptr) {
         const auto policy = thrust::cuda::par.on(stream_compute_);
-        *hit_count = static_cast<std::size_t>(thrust::count_if(
+        measured_hit_count = static_cast<std::size_t>(thrust::count_if(
             policy,
             thrust::device_pointer_cast(d_mydata),
             thrust::device_pointer_cast(d_mydata) + total,
             PositivePower()));
+        if (hit_count) *hit_count = measured_hit_count;
     }
     if (download_maps) {
         mydata.resize(total);
@@ -2677,8 +2687,39 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
                                    total * sizeof(float),
                                    cudaMemcpyDeviceToHost, stream_compute_));
     }
-    if (download_maps || detect_map != nullptr || hit_count != nullptr) {
+    if (geometry_diagnostics != nullptr) {
+        CUDA_CHECK(cudaMemcpyAsync(geometry_hits.data(), d_mydata,
+                                   total * sizeof(float),
+                                   cudaMemcpyDeviceToHost, stream_compute_));
+    }
+    if (download_maps || detect_map != nullptr || hit_count != nullptr ||
+        geometry_diagnostics != nullptr) {
         CUDA_CHECK(cudaStreamSynchronize(stream_compute_));
+    }
+
+    if (geometry_diagnostics != nullptr) {
+        geometry_diagnostics->height = H;
+        geometry_diagnostics->width = W;
+        geometry_diagnostics->guard_cells = g;
+        geometry_diagnostics->background_cells = b;
+        geometry_diagnostics->doppler_circular = cfg.cfar_doppler_circular;
+        geometry_diagnostics->exclude_row_start = cfg.cfar_exclude_row_start;
+        geometry_diagnostics->exclude_row_end = cfg.cfar_exclude_row_end;
+        geometry_diagnostics->cut_band_start = band_st;
+        geometry_diagnostics->cut_band_end = band_ed;
+        geometry_diagnostics->cut_band_mode = cut_band_mode;
+        geometry_diagnostics->total_cells = geometry.total_cells;
+        geometry_diagnostics->edge_invalid_cells = geometry.edge_invalid_cells;
+        geometry_diagnostics->excluded_cells = geometry.excluded_cells;
+        geometry_diagnostics->cut_band_filtered_cells = geometry.cut_band_filtered_cells;
+        geometry_diagnostics->threshold_test_count = geometry.threshold_test_count;
+        geometry_diagnostics->valid_cut_count = geometry.valid_cut_count;
+        geometry_diagnostics->hit_cut_count = measured_hit_count;
+        geometry_diagnostics->hit_index_hash = gmti::cfar::hash_hit_indices(geometry_hits);
+        geometry_diagnostics->hit_hash_available = true;
+        geometry_diagnostics->configured_pfa = pf;
+        geometry_diagnostics->alpha = alpha;
+        geometry_diagnostics->cfar_type = ty;
     }
 
     if (owns_csi) {
