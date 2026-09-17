@@ -36,7 +36,7 @@ multi-error neural estimator。
 Formal-v1 的开发 formal 事实必须作为只读历史记录保留：
 
 - `source_status=completed`，source run manifest SHA-256 为
-  `30e0cc4b945dcc63e4e4a92bf4208653b337ca6d07e541b58f1875a61fddcb9b`；
+  `30e0cc4b945dcc63e4e4a92fb4208653b337ca6d07e541b58f1875a61fddcb9b`；
 - source commit 从 `106aaacee9c73abba133bad33f34fca4f52ce427` 跨到
   `3ba37d8816cca6ad8f453aa6730197252b5abc74`，且 dirty；
 - 该次运行包含 resume/interrupted-case 相关代码变化，不能作为最终 frozen-paper
