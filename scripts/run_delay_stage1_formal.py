@@ -2500,8 +2500,18 @@ def run_stage1_cli(
                 break
     case_records = manifest["cases"]
     assert isinstance(case_records, list)
-    all_cases_complete = bool(case_records) and all(
-        item.get("status") == "completed" for item in case_records if isinstance(item, Mapping)
+    # A bounded ``--max-cases`` invocation can have only completed records
+    # while the registered matrix still has unprocessed cases.  Completion
+    # must therefore be judged against the resolved expected count, not just
+    # the records present in this checkpoint.
+    all_cases_complete = (
+        len(case_records) == expected_case_count
+        and bool(case_records)
+        and all(
+            item.get("status") == "completed"
+            for item in case_records
+            if isinstance(item, Mapping)
+        )
     )
     if not mc_ok:
         manifest["status"] = "completed_with_gaps"

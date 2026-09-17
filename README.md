@@ -56,7 +56,8 @@ F1/F2 在 Current CSI 之前完成。native four-channel STAP 保留四个空间
   读取 true positions，处理端保留 reported positions。
 - 当前 E2E 是受控 one-beam/beam-center-clutter moving-target pilot；B2/B3/B3K 是离线
   scientific reference，不宣称生产 CUDA 四通道 STAP。延迟估计已接入真实生产
-  TrackManager/PIPE correction formal；正式矩阵已完成，结论和限制见下文。
+  TrackManager/PIPE correction formal；channel-delay Stage-1 的 A0–A3 正式矩阵
+  运行与收口证据见下文及 `outputs/formal_evidence/stage1_delay/`。
 - Phase-I 六维状态向量固定为 `channel_delay_error`、`inter_pulse_phase_error`、
   `baseline_geometry_error`、`servo_angle_error`、`platform_velocity_error`、
   `yaw_error`，初始不引入 pitch/roll。当前 delay/phase/geometry/velocity/yaw 有
@@ -125,6 +126,12 @@ docs/                       数学模型、实验报告和后续 AI 建议
 docs/AI_CSI_33_真实系统误差参数与可观测性分析.md  下一阶段误差参数、传播和 pilot 设计
 docs/AI_CSI_34_双通道系统失配与稳健CSI研究框架.md  当前 Phase-I 研究框架
 docs/AI_CSI_35_双通道系统误差可观测性分析.md  当前 F1/F2 可观测性实证报告
+docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md  channel-delay 单误差闭环阶段报告
+docs/papers/Paper1_ChannelDelay_SelfCalibration_Outline.md  第一篇 channel-delay 论文草稿框架
+configs/research/channel_delay_stage1_formal.json  Stage-1 delay sweep、工作点和统计契约
+scripts/run_delay_stage1_formal.py  A0–A3/ON-OFF-TO 生产 formal runner
+scripts/analyze_delay_stage1_formal.py  九文件 compact evidence 与 paired statistics
+scripts/audit_delay_track_id_switch.py  生产 TrackManager ID-switch 机制审计
 configs/research/unknown_system_error_baseline_pilot.json  有界四通道基线误差 pilot 配置
 configs/research/unknown_system_error_true_geometry_pilot.json  true/report geometry 与 blind matrix 配置
 configs/research/unknown_system_error_end_to_end_pilot.json  生产 CSI/CFAR 与离线 STAP E2E 配置
@@ -294,6 +301,12 @@ V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
 5. 后续 temporal decorrelation/robust CSI 只按契约配置启动，必须先通过当前误差残差、
    target causal transfer、GO-CFAR 和 TrackManager 因果审计。
 
+channel-delay 单误差的论文级方法、A0/A1/A2/A3 比较、D1/D2/D3 与传统 baseline、
+target-off 四层 waterfall、ID-switch 审计和正式矩阵复现入口见
+[`AI_CSI_36_单一系统误差确定性自校准阶段报告.md`](AI_CSI_36_单一系统误差确定性自校准阶段报告.md)。
+论文结构见
+[`Paper1_ChannelDelay_SelfCalibration_Outline.md`](papers/Paper1_ChannelDelay_SelfCalibration_Outline.md)。
+
 最新 54-case F1/F2 可观测性证据位于
 `outputs/two_channel_error_observability_phase_i_20260916/`，其 `manifest.json` 为
 `completed`、54/54 case 通过、scaled rank=6、condition number 约 37.328；
@@ -317,7 +330,33 @@ blind 与 known 均记录 `correction_applied=true`，估计器未读取 truth�
 为 `not_evaluable`，detection-record、payload 和 cluster-association proxy 仅作分层诊断。
 该矩阵使用 local-input 生产 core，不代表 SHM 吞吐或部署性能。
 
-正式矩阵最短复现入口（需要已构建的 `simulate_stage2_statistical` 和真实 CUDA）：
+新的 Stage-1 channel-delay formal 已完成 135/135 case；5 方法 Monte Carlo 为 135 行、
+每格 100 trials 且 `passed`，紧凑证据位于
+`outputs/formal_evidence/stage1_delay/`。27 个 delay/SNR 参数点的平均 estimator RMSE
+为 D1/D2/D3=`0.053395/0.053359/0.054587 ns`，cross-correlation/GCC-PHAT 为
+`2.027616/2.990429 ns`。A1→A3 的 135-case 平均 target-period Pd 为
+`0.9556→0.9793`，position RMSE 为 `220.4825→161.4688 m`，angle RMSE 为
+`0.1358→0.0969 deg`；ID switch 为 `248→290`，且 materiality threshold 尚未预注册，
+所以只报告描述性/配对统计，不宣称无条件整体收益。正式源树已按
+[`清理记录_2026-09-16.md`](docs/清理记录_2026-09-16.md) 删除原始/中间 case 产物，
+保留 root manifest、MC 汇总和逐 case 的配置/生产审计 manifest；逐文件 cleanup 记录只在
+root manifest 保留一份。
+
+Stage-1 channel-delay formal 的最短复现入口（需要已构建的 `simulate_stage2_statistical`
+和真实 CUDA）：
+
+```bash
+python3 scripts/run_delay_stage1_formal.py --mode formal --input-mode local \
+  --output-root outputs/formal_delay_stage1_20260916 \
+  --delay-errors-ns 0,1,-1,2,-2,4,-4,8,-8 \
+  --seeds 101,202,303 --target-velocities-mps 6.7,12.0 --snr-db 20,30,35 \
+  --working-point registered --mc-trials 100 --cleanup-raw --resume
+python3 scripts/analyze_delay_stage1_formal.py \
+  --run-manifest outputs/formal_delay_stage1_20260916/manifest.json \
+  --output-root outputs/formal_evidence/stage1_delay
+```
+
+此前 12-case TrackManager formal 的历史兼容入口为：
 
 ```bash
 python3 scripts/run_track_manager_e2e.py --input-mode local --period-count 5 \
@@ -392,6 +431,8 @@ Routing Oracle；两者分别为 `NO_GO_COMPLEX_WEIGHT_RESIDUAL` 和
 - [真实系统误差参数与可观测性分析](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)
 - [双通道系统失配与稳健 CSI 研究框架](docs/AI_CSI_34_双通道系统失配与稳健CSI研究框架.md)
 - [双通道系统误差可观测性分析](docs/AI_CSI_35_双通道系统误差可观测性分析.md)
+- [单一系统误差确定性自校准阶段报告](docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md)
+- [Paper 1 channel-delay self-calibration outline](docs/papers/Paper1_ChannelDelay_SelfCalibration_Outline.md)
 - [研究进展](docs/AI_CSI_研究进展.md)
 - [当前对消数学模型](docs/AI_CSI_01_当前对消数学模型.md)
 - [Current–Oracle 实验报告](docs/AI_CSI_02_Current_Oracle实验报告.md)

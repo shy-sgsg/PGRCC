@@ -32,6 +32,36 @@ velocity、yaw-first attitude 和生产 TrackManager/PIPE 连续目标审计，�
 strict 组与四通道 academic reference 不混排；reference 只用于信息条件审计，不表示
 当前 Phase-I 已启动 production STAP。
 
+## 2026-09-16 channel-delay 单误差确定性自校准
+
+本轮把 channel delay 定义为 Phase-I 的第一个论文级单误差模板，新增 D1 ordinary
+LS、D2 magnitude/power weighted LS、D3 Huber weighted LS、cross-correlation 与
+GCC-PHAT 传统 baseline，并固定 A0 Ideal、A1 Current unknown-error、A2 Known-error
+correction upper bound、A3 Blind target-free estimated correction 四条件。生产输入
+仍严格是 4ch protocol IQ → F1/F2 → two-channel CSI；A2/A3 使用 fractional-delay
+physical correction，A3 只从 A1 OFF target-free data 估计，truth 不进入 estimator。
+
+本轮 runner 同时生成 ON/OFF/TO paired control、target-off 四层 waterfall、生产
+TrackManager/PIPE 的同周期 `Confirmed + matched_this_frame` 反查、ID-switch 分类和
+paired McNemar/bootstrap 统计。Level-1 为每个选定 delay/SNR 100 trials 的 estimator
+Monte Carlo，Level-2 为 5-period CUDA production case；delay sweep 覆盖 `0, ±1, ±2,
+±4, ±8 ns`，registered group 保持 group-scoped，不制造不支持的 Cartesian product。
+正式命令、理论误差传播、限制和 multi-error gate 见
+[`AI_CSI_36_单一系统误差确定性自校准阶段报告.md`](AI_CSI_36_单一系统误差确定性自校准阶段报告.md)，
+论文结构见 [`Paper1_ChannelDelay_SelfCalibration_Outline.md`](papers/Paper1_ChannelDelay_SelfCalibration_Outline.md)。
+
+正式源产物使用独立 `outputs/formal_delay_stage1_20260916/`，现已完成 135/135 case，
+5 方法 Monte Carlo 为 135 行、每格 100 trials 且 `passed`；九个轻量文件已收敛到
+`outputs/formal_evidence/stage1_delay/`。27 个 delay/SNR 参数点的平均 estimator RMSE
+为 D1/D2/D3=`0.053395/0.053359/0.054587 ns`，cross-correlation/GCC-PHAT 为
+`2.027616/2.990429 ns`。生产层按 135 个 case block 的 A1→A3 平均变化为 target-period
+Pd `0.9556→0.9793`、position RMSE `220.4825→161.4688 m`、angle RMSE
+`0.1358→0.0969 deg`；但 ID switch 为 `248→290`，且工程 materiality threshold 尚未
+预注册，因此只报告描述性/配对统计，不宣称无条件整体收益。正式源树已按
+[`清理记录_2026-09-16.md`](清理记录_2026-09-16.md) 删除原始/中间 case 产物，保留
+root manifest、MC 汇总和逐 case 配置/生产审计 manifest；逐文件 cleanup 记录只保留在
+root manifest，pilot 与沙箱失败证据仍分开保存。
+
 当前 Phase-I 固定把 TrackManager/PIPE 也纳入同一条闭环：
 `4ch protocol IQ → F1/F2 → CTDR/phase/P38 → CSI → GO-CFAR → clustering/positioning
 → TrackManager/PIPE`。native four-channel STAP/JDL/covariance/loading/DOF/CUDA 优化
@@ -71,6 +101,16 @@ Oracle 术语或 Router 状态当作当前待办。
   RMSE=`0.0610 ns`，残差范围 `+0.0413…+0.0788 ns`；known 残差为 0。该正式运行是
   local-input 生产 core，不是 SHM 吞吐基准；target-on 正例没有 valid-CUT/target-off
   分母，cell-Pfa/false-hit 保持 `not_evaluable`。
+- Stage-1 单一 channel-delay 确定性自校准 formal 已完成：
+  `outputs/formal_delay_stage1_20260916/manifest.json` 为 `completed`，135/135 case
+  完成，MC 为 135 行 × 5 方法 × 100 trials；紧凑证据为
+  `outputs/formal_evidence/stage1_delay/` 的九个文件。D1/D2/D3 平均 RMSE 分别为
+  `0.053395/0.053359/0.054587 ns`，cross-correlation/GCC-PHAT 为
+  `2.027616/2.990429 ns`。A1→A3 平均 target-period Pd=`0.9556→0.9793`、position
+  RMSE=`220.4825→161.4688 m`、angle RMSE=`0.1358→0.0969 deg`，但 ID switch
+  `248→290`；cell false-hit 因 valid-CUT 分母为 0 保持 `NOT_EVALUABLE`，ID audit
+  1040 行均保守为 `other`。原始/中间 case 产物已按
+  [`清理记录_2026-09-16.md`](清理记录_2026-09-16.md) 清理，未与 pilot 合并。
 - 后续去相关配置 `configs/research/two_channel_decorrelation_study.json` 目前仅为
   contract-only pending；不启动 AI/Router，也不打开 Phase-II native 4ch STAP。
 
@@ -279,6 +319,7 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Phase-I F1/F2 unknown-error observability | 完成 54/54 Stage2 cases；6 状态、13 观测；row-balanced scaled rank=6、condition=37.328；zero-control delta=0；delay/servo pair-level near-confounding，其他结论仍为 candidate | `outputs/two_channel_error_observability_phase_i_20260916/manifest.json`、`observability_summary.json`、`pair_observability.csv`、`zero_control.json`、`sensitivity_matrix_scaled.csv` |
 | Phase-I channel-delay TrackManager correction smoke | 真实 4ch protocol CUDA 三分支实际施加/审计通过；1 seed × 1 velocity × 1 SNR × 3 period，仅证明链路契约 | `outputs/track_delay_smoke_4ch_gpu_reaudit_20260916/manifest.json`、`track_branch_metrics.csv`、`track_protocol_payload_audit.csv` |
 | Phase-I channel-delay TrackManager formal | 5 periods × 3 seed × 2 velocity × 2 SNR；12/12 case、36/36 branch、runtime/TrackManager/payload audit 全通过；Current→blind/known 的 target-period Pd `55/60→59/60`，ID switch `17→23`；cell-Pfa/false-hit 为 not_evaluable | `outputs/track_delay_formal_4ch_local_20260916/manifest.json`、`track_branch_metrics.csv`、`track_protocol_payload_audit.csv` |
+| Phase-I channel-delay Stage-1 deterministic formal | 15 registered blocks × 9 delays、135/135 case；MC 135 行 × 5 方法 × 100 trials；A0/A1/A2/A3、ON/OFF/TO、TrackManager/PIPE、ID-switch 和 paired statistics 已收口；cell false-hit 无 valid-CUT 分母、ID 1040 行均为 `other` | `outputs/formal_delay_stage1_20260916/manifest.json`、`outputs/formal_evidence/stage1_delay/`、[`AI_CSI_36_单一系统误差确定性自校准阶段报告.md`](AI_CSI_36_单一系统误差确定性自校准阶段报告.md) |
 | Phase-I temporal decorrelation entry | 已建立 contract-only 配置；runner、五方法 sweep、固定 Pfa/目标安全统计待运行 | `configs/research/two_channel_decorrelation_study.json` |
 | AI 训练 | 未进行，按计划关闭 | `ai_training=false`；先完成确定性估计和残差证据 |
 

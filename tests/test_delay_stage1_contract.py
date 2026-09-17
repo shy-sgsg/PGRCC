@@ -434,6 +434,27 @@ def test_registered_formal_override_keeps_group_scoped_case_count() -> None:
     assert len(selection["cases"]) == 15
 
 
+def test_bounded_run_is_not_marked_completed_before_expected_matrix(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import build_arg_parser, run_stage1_cli
+
+    args = build_arg_parser().parse_args(
+        [
+            "--mode", "formal",
+            "--output-root", str(tmp_path / "bounded"),
+            "--input-mode", "local",
+            "--working-point", "registered",
+            "--delay-errors-ns", "0",
+            "--mc-trials", "100",
+            "--skip-cuda",
+            "--max-cases", "1",
+        ]
+    )
+    manifest = run_stage1_cli(args, command_args=[])
+    assert manifest["status"] == "completed_with_gaps"
+    assert manifest["progress"]["processed_this_invocation"] == 1
+    assert manifest["progress"]["expected_case_count"] == 15
+
+
 def test_cli_rejects_nonempty_output_root(tmp_path: Path) -> None:
     output_root = tmp_path / "nonempty"
     output_root.mkdir()
