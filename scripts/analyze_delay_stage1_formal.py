@@ -21,7 +21,12 @@ if __package__ in {None, ""}:
     if str(_ROOT_FOR_IMPORT) not in sys.path:
         sys.path.insert(0, str(_ROOT_FOR_IMPORT))
 
-from scripts.audit_delay_track_id_switch import AUDIT_COLUMNS, audit_track_id_switches
+from scripts.audit_delay_track_id_switch import (
+    AUDIT_COLUMNS,
+    audit_track_id_switches,
+    classification_counts,
+    missing_production_field_counts,
+)
 from scripts.delay_stage1_core import (
     paired_bootstrap_ci,
     paired_mcnemar_exact,
@@ -697,6 +702,8 @@ def build_compact_evidence(run_manifest: Path, output_dir: Path) -> dict[str, Pa
             "id_switch": len(audit_rows),
             "statistics": len(stats_rows),
         },
+        "id_switch_classification_counts": classification_counts(audit_rows),
+        "id_switch_missing_production_field_counts": missing_production_field_counts(audit_rows),
         "unresolved_not_evaluable": gaps,
         "output_file_hashes": {
             name: _sha256(path)

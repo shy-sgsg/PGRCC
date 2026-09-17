@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "source_file": "outputs/formal_evidence/stage1_delay/id_switch_audit.csv",
+  "source_sha256": "81759d6c654063ce6921cd339505d2ad9b8b7a21bce1b50db8be9b4442beaa72",
+  "source_row_count": 1040,
+  "output_file": "outputs/formal_evidence/stage1_delay_v2_reanalysis_20260917/id_switch_audit_v2_reanalysis.csv",
+  "read_only_v1": true,
+  "truth_used_to_create_switches": false,
+  "production_v2_association_available": false,
+  "classification_counts": {
+    "miss_to_reacquisition": 0,
+    "multiple_candidate_competition": 0,
+    "false_track_takeover": 0,
+    "gate_boundary_crossing": 0,
+    "position_velocity_jump": 0,
+    "lifecycle_transition": 0,
+    "track_confirmation_or_reset": 0,
+    "unclassifiable_production_fields": 1040,
+    "other": 0
+  },
+  "missing_production_field_counts": {
+    "track_association_audit_v2.csv": 1040
+  },
+  "limitations": [
+    "reclassification consumes retained v1 switch rows only",
+    "candidate competition, lifecycle and gate attribution require the removed v2 production association stream",
+    "no truth or raw detection row is used to create a new switch"
+  ]
+}

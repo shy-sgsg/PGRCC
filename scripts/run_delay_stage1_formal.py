@@ -1220,6 +1220,7 @@ def run_production_branch(
             from scripts.audit_delay_track_id_switch import (
                 audit_track_id_switches,
                 classification_counts,
+                missing_production_field_counts,
                 write_audit,
             )
 
@@ -1269,6 +1270,11 @@ def run_production_branch(
         if role == "ON"
         else None
     )
+    id_switch_missing_field_counts = (
+        missing_production_field_counts(id_switch_rows)
+        if role == "ON"
+        else None
+    )
     production_status = "passed" if int(rc) == 0 and audit.get("status") == "pass" else "failed"
     record.update({
         "production_returncode": int(rc),
@@ -1288,6 +1294,7 @@ def run_production_branch(
         "id_switch_audit_path": str(id_switch_audit_path) if id_switch_audit_path else None,
         "id_switch_audit_row_count": len(id_switch_rows) if role == "ON" else None,
         "id_switch_classification_counts": id_switch_counts,
+        "id_switch_missing_production_field_counts": id_switch_missing_field_counts,
         "id_switch_audit_status": id_switch_status,
         "id_switch_audit_reason": id_switch_reason,
         "id_switch_audit_sources": id_switch_sources if role == "ON" else None,

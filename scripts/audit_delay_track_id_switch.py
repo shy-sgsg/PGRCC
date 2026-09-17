@@ -25,8 +25,20 @@ _CLASSIFICATIONS = (
     "false_track_takeover",
     "gate_boundary_crossing",
     "position_velocity_jump",
+    "lifecycle_transition",
     "track_confirmation_or_reset",
+    "unclassifiable_production_fields",
     "other",
+)
+
+_V2_REQUIRED_ATTRIBUTION_FIELDS = (
+    "candidate_count",
+    "candidate_detection_ids",
+    "candidate_track_ids",
+    "euclidean_dist_m",
+    "euclidean_gate_m",
+    "assignment_outcome",
+    "lifecycle_event",
 )
 
 # Keep the output schema stable even when a particular production version did
@@ -43,7 +55,10 @@ AUDIT_COLUMNS = (
     "detection_id",
     "previous_track_id",
     "current_track_id",
+    "association_schema_version",
     "candidate_ids",
+    "candidate_track_ids",
+    "candidate_rank",
     "candidate_count",
     "innovation_m",
     "residual_m",
@@ -51,6 +66,14 @@ AUDIT_COLUMNS = (
     "gate_threshold_m",
     "mahalanobis_d2",
     "mahalanobis_gate_d2",
+    "assignment_mode",
+    "assignment_outcome",
+    "reject_reason",
+    "lifecycle_event",
+    "unavailable_fields",
+    "association_source_file",
+    "association_source_row",
+    "missing_production_fields",
     "previous_confirmation_state",
     "confirmation_state",
     "lost",
@@ -138,14 +161,52 @@ def _return_classification(
     reason: str,
     *,
     evidence: Mapping[str, object] | None = None,
+    missing_production_fields: Sequence[str] | None = None,
 ) -> dict[str, object]:
     if classification not in _CLASSIFICATIONS:
         raise ValueError(f"unknown switch classification: {classification}")
+    missing = sorted({str(value) for value in (missing_production_fields or ()) if str(value).strip()})
     return {
         "classification": classification,
         "reason": reason,
         "evidence": dict(evidence or {}),
+        "missing_production_fields": missing,
     }
+
+
+def _is_blank(value: object) -> bool:
+    return value is None or not str(value).strip() or str(value).strip().lower() in {
+        "na", "n/a", "not_evaluable", "none",
+    }
+
+
+def _missing_production_fields(row: Mapping[str, object], context: Mapping[str, object]) -> list[str]:
+    """Return explicit gaps in the versioned production association evidence."""
+
+    schema = str(row.get("_association_schema", context.get("association_schema", ""))).strip().lower()
+    if schema == "v2":
+        missing = [field for field in _V2_REQUIRED_ATTRIBUTION_FIELDS if _is_blank(row.get(field))]
+        candidate_count = _integer(row.get("candidate_count"))
+        if candidate_count is not None and candidate_count > 0 and _is_blank(row.get("candidate_detection_ids")):
+            if "candidate_detection_ids" not in missing:
+                missing.append("candidate_detection_ids")
+        return sorted(set(missing))
+    if schema == "legacy":
+        explicit = row.get("_missing_production_fields", context.get("missing_production_fields"))
+        if isinstance(explicit, Sequence) and not isinstance(explicit, (str, bytes, bytearray)):
+            return sorted({str(value) for value in explicit if str(value).strip()})
+        if explicit is not None and str(explicit).strip():
+            return sorted({value for value in str(explicit).split("|") if value.strip()})
+        return ["track_association_audit_v2.csv"]
+    return []
+
+
+def _candidate_values(value: object) -> list[str]:
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        raw = [str(item) for item in value]
+    else:
+        raw = re.split(r"[|;]", str(value or ""))
+    return [item.strip() for item in raw if item.strip()]
 
 
 def classify_switch(
@@ -154,6 +215,18 @@ def classify_switch(
     context: Mapping[str, object],
 ) -> dict[str, object]:
     """Classify only mechanisms explicitly represented by recorded fields."""
+
+    missing_fields = _missing_production_fields(current, context)
+    if missing_fields and str(current.get("_association_schema", context.get("association_schema", ""))).strip().lower() == "v2":
+        return _return_classification(
+            "unclassifiable_production_fields",
+            "production association evidence is missing fields required for mechanism attribution",
+            evidence={
+                "missing_production_fields": missing_fields,
+                "association_schema": current.get("_association_schema", context.get("association_schema")),
+            },
+            missing_production_fields=missing_fields,
+        )
 
     previous_missed = (
         previous.get("matched_this_frame") is not None
@@ -175,10 +248,7 @@ def classify_switch(
             "the current association record exports more than one candidate",
             evidence={"candidate_count": candidate_count, "candidate_ids": candidate_ids},
         )
-    if isinstance(candidate_ids, Sequence) and not isinstance(candidate_ids, (str, bytes, bytearray)):
-        candidate_values = [str(value) for value in candidate_ids if str(value).strip()]
-    else:
-        candidate_values = [value for value in str(candidate_ids or "").split("|") if value.strip()]
+    candidate_values = _candidate_values(candidate_ids)
     if len(set(candidate_values)) > 1:
         return _return_classification(
             "multiple_candidate_competition",
@@ -203,11 +273,32 @@ def classify_switch(
 
     distance = _finite(current.get("association_distance_m"))
     gate = _finite(current.get("gate_threshold_m"))
-    if distance is not None and gate is not None and distance > gate:
+    gate_passed = current.get("gate_passed")
+    reject_reason = str(current.get("reject_reason", "")).strip().lower()
+    assignment_outcome = str(current.get("assignment_outcome", "")).strip().lower()
+    gate_rejected = (
+        not _is_blank(gate_passed)
+        and not _truthy(gate_passed)
+    ) or assignment_outcome == "gate_rejected" or any(
+        marker in reject_reason for marker in ("gate", "euclidean", "mahalanobis", "chi2")
+    )
+    near_gate = (
+        distance is not None
+        and gate is not None
+        and gate > 0.0
+        and abs(distance - gate) <= max(1.0, 0.01 * gate)
+    )
+    if (distance is not None and gate is not None and distance > gate) or gate_rejected or near_gate:
         return _return_classification(
             "gate_boundary_crossing",
-            "recorded association distance is outside the recorded gate",
-            evidence={"association_distance_m": distance, "gate_threshold_m": gate},
+            "recorded association distance or production gate outcome is at the gate boundary",
+            evidence={
+                "association_distance_m": distance,
+                "gate_threshold_m": gate,
+                "gate_passed": current.get("gate_passed"),
+                "reject_reason": current.get("reject_reason"),
+                "assignment_outcome": current.get("assignment_outcome"),
+            },
         )
 
     position_jump = _finite(current.get("position_jump_m"))
@@ -237,6 +328,28 @@ def classify_switch(
     previous_state = str(previous.get("confirmation_state", "")).strip().lower()
     current_state = str(current.get("confirmation_state", "")).strip().lower()
     event = str(current.get("event", "")).strip().lower()
+    lifecycle_event = str(current.get("lifecycle_event", "")).strip().lower()
+    if lifecycle_event in {
+        "reacquired",
+        "confirmed",
+        "coasted",
+        "lost_deleted",
+        "matched_other_detection",
+        "candidate_rejected",
+    } or (
+        current.get("_association_schema") == "v2"
+        and current_state
+        and str(current.get("track_state_before", "")).strip().lower() != current_state
+    ):
+        return _return_classification(
+            "lifecycle_transition",
+            "versioned production association audit records an explicit lifecycle or state transition",
+            evidence={
+                "track_state_before": current.get("track_state_before"),
+                "track_state_after": current.get("track_state_after"),
+                "lifecycle_event": current.get("lifecycle_event"),
+            },
+        )
     if (
         event in {"reset", "delete", "deleted", "confirm", "confirmation", "reacquire", "reacquired"}
         or (previous_state and current_state and previous_state != current_state)
@@ -249,6 +362,17 @@ def classify_switch(
                 "confirmation_state": current.get("confirmation_state"),
                 "event": current.get("event"),
             },
+        )
+
+    if missing_fields:
+        return _return_classification(
+            "unclassifiable_production_fields",
+            "production association evidence is missing fields required for mechanism attribution",
+            evidence={
+                "missing_production_fields": missing_fields,
+                "association_schema": current.get("_association_schema", context.get("association_schema")),
+            },
+            missing_production_fields=missing_fields,
         )
 
     return _return_classification(
@@ -312,12 +436,59 @@ def _target_match(
 
 
 def _association_rows(track_debug_dir: Path) -> dict[tuple[int, str, int], dict[str, str]]:
-    path = _first_file(track_debug_dir, "track_association_accepts.csv")
+    """Read v2 production association evidence, with an explicit legacy fallback."""
+
+    v2_path = _first_file(track_debug_dir, "track_association_audit_v2.csv")
+    v2_rows = _csv_rows(v2_path) if v2_path else []
     result: dict[tuple[int, str, int], dict[str, str]] = {}
-    for row in _csv_rows(path) if path else []:
+    if v2_rows:
+        for index, source_row in enumerate(v2_rows):
+            row = dict(source_row)
+            row["_association_schema"] = "v2"
+            row["_association_source_file"] = str(v2_path)
+            row["_association_source_row"] = str(_csv_row_number(index))
+            row["association_schema_version"] = row.get("schema_version", "")
+            row["candidate_ids"] = row.get("candidate_detection_ids", "")
+            row["association_distance_m"] = row.get("euclidean_dist_m", "")
+            row["gate_threshold_m"] = row.get("euclidean_gate_m", "")
+            innovation_e = _finite(row.get("innovation_e"))
+            innovation_n = _finite(row.get("innovation_n"))
+            if innovation_e is not None and innovation_n is not None:
+                row["innovation_m"] = str(math.hypot(innovation_e, innovation_n))
+            row["residual_m"] = row.get("euclidean_dist_m", "")
+            row["confirmation_state"] = row.get("track_state_after", "")
+            row["event"] = row.get("lifecycle_event", "")
+            row["reacquired"] = int(str(row.get("lifecycle_event", "")).strip().lower() == "reacquired")
+            row["lost"] = int(str(row.get("lifecycle_event", "")).strip().lower() in {"coasted", "lost_deleted"})
+            det_index = _integer(row.get("det_index"))
+            period = _period_id(row)
+            track_id = str(row.get("track_id", "")).strip()
+            if period >= 0 and track_id and det_index is not None and det_index >= 0:
+                result[(period, track_id, det_index)] = row
+        if result:
+            return result
+
+    path = _first_file(track_debug_dir, "track_association_accepts.csv")
+    for index, source_row in enumerate(_csv_rows(path) if path else []):
+        row = dict(source_row)
+        row["_association_schema"] = "legacy"
+        row["_association_source_file"] = str(path) if path else ""
+        row["_association_source_row"] = str(_csv_row_number(index))
+        row["_missing_production_fields"] = "track_association_audit_v2.csv"
+        row["association_schema_version"] = ""
+        row["candidate_ids"] = ""
+        row["candidate_count"] = ""
+        row["association_distance_m"] = row.get("euclidean_dist_m", "")
+        row["gate_threshold_m"] = row.get("euclidean_gate_m", "")
+        row["residual_m"] = row.get("euclidean_dist_m", "")
+        row["assignment_outcome"] = "assigned" if _truthy(row.get("post_assignment_accepted")) else ""
+        row["reject_reason"] = ""
+        row["lifecycle_event"] = ""
+        row["confirmation_state"] = row.get("track_state_before", "")
+        row["event"] = ""
+        det_index = _integer(row.get("det_index"))
         period = _period_id(row)
         track_id = str(row.get("track_id", "")).strip()
-        det_index = _integer(row.get("det_index"))
         if period >= 0 and track_id and det_index is not None:
             result[(period, track_id, det_index)] = row
     return result
@@ -408,7 +579,21 @@ def audit_track_id_switches(
             continue
         state = states.get((period, track_id), {})
         association = associations.get((period, track_id, det_index), {}) if det_index is not None else {}
+        if not association:
+            association = {
+                "_association_schema": "legacy",
+                "_missing_production_fields": "track_association_audit_v2.csv",
+            }
         flags = event_by_track_period.get((period, track_id), {"lost": 0, "reacquired": 0, "event": ""})
+        association_event = str(association.get("lifecycle_event", "")).strip()
+        event = "|".join(
+            value for value in (
+                str(flags.get("event", "")).strip(),
+                association_event,
+            ) if value
+        )
+        lifecycle_reacquired = association_event.lower() == "reacquired"
+        lifecycle_lost = association_event.lower() in {"coasted", "lost_deleted"}
         detection_source = detection_sources.get((period, det_index)) if det_index is not None else None
         target_candidates.setdefault(period, []).append({
             "period_id": period,
@@ -419,13 +604,31 @@ def audit_track_id_switches(
             "matched_this_frame": state.get("matched_this_frame", 1),
             "truth_associated": 1,
             "confirmation_state": state.get("state", payload.get("resolved_source", "")),
-            "lost": flags.get("lost", 0),
-            "reacquired": flags.get("reacquired", 0),
-            "event": flags.get("event", ""),
+            "lost": int(bool(flags.get("lost", 0)) or lifecycle_lost),
+            "reacquired": int(bool(flags.get("reacquired", 0)) or lifecycle_reacquired),
+            "event": event,
+            "association_schema": association.get("_association_schema", ""),
+            "_association_schema": association.get("_association_schema", ""),
+            "association_schema_version": association.get("association_schema_version", ""),
+            "candidate_ids": association.get("candidate_ids", ""),
+            "candidate_track_ids": association.get("candidate_track_ids", ""),
+            "candidate_rank": association.get("candidate_rank", ""),
+            "candidate_count": association.get("candidate_count", ""),
+            "innovation_m": association.get("innovation_m", ""),
+            "residual_m": association.get("residual_m", ""),
             "association_distance_m": association.get("euclidean_dist_m"),
             "gate_threshold_m": association.get("euclidean_gate_m"),
             "mahalanobis_d2": association.get("mahalanobis_d2"),
             "mahalanobis_gate_d2": association.get("mahalanobis_gate_d2"),
+            "assignment_mode": association.get("assignment_mode", ""),
+            "assignment_outcome": association.get("assignment_outcome", ""),
+            "reject_reason": association.get("reject_reason", ""),
+            "lifecycle_event": association_event,
+            "unavailable_fields": association.get("unavailable_fields", ""),
+            "association_source_file": association.get("_association_source_file", ""),
+            "association_source_row": association.get("_association_source_row", ""),
+            "missing_production_fields": association.get("_missing_production_fields", ""),
+            "_missing_production_fields": association.get("_missing_production_fields", ""),
             "source_row": _csv_row_number(index),
             "detection_source": detection_source,
             "truth_source_file": str(truth_file) if truth_file else "",
@@ -491,7 +694,10 @@ def audit_track_id_switches(
                     "detection_id": current.get("det_index"),
                     "previous_track_id": previous["track_id"],
                     "current_track_id": current["track_id"],
+                    "association_schema_version": current_record.get("association_schema_version"),
                     "candidate_ids": current_record.get("candidate_ids"),
+                    "candidate_track_ids": current_record.get("candidate_track_ids"),
+                    "candidate_rank": current_record.get("candidate_rank"),
                     "candidate_count": current_record.get("candidate_count"),
                     "innovation_m": current_record.get("innovation_m"),
                     "residual_m": current_record.get("residual_m"),
@@ -499,6 +705,14 @@ def audit_track_id_switches(
                     "gate_threshold_m": current.get("gate_threshold_m"),
                     "mahalanobis_d2": current.get("mahalanobis_d2"),
                     "mahalanobis_gate_d2": current.get("mahalanobis_gate_d2"),
+                    "assignment_mode": current_record.get("assignment_mode"),
+                    "assignment_outcome": current_record.get("assignment_outcome"),
+                    "reject_reason": current_record.get("reject_reason"),
+                    "lifecycle_event": current_record.get("lifecycle_event"),
+                    "unavailable_fields": current_record.get("unavailable_fields"),
+                    "association_source_file": current_record.get("association_source_file"),
+                    "association_source_row": current_record.get("association_source_row"),
+                    "missing_production_fields": classified.get("missing_production_fields", []),
                     "previous_confirmation_state": previous.get("confirmation_state"),
                     "confirmation_state": current.get("confirmation_state"),
                     "lost": current.get("lost", 0),
@@ -530,7 +744,117 @@ def _csv_value(value: object) -> object:
     return value
 
 
-def write_audit(path: Path, rows: Sequence[Mapping[str, object]]) -> None:
+def missing_production_field_counts(rows: Sequence[Mapping[str, object]]) -> dict[str, int]:
+    counts: Counter[str] = Counter()
+    for row in rows:
+        values = row.get("missing_production_fields")
+        if isinstance(values, Sequence) and not isinstance(values, (str, bytes, bytearray)):
+            fields = [str(value).strip() for value in values]
+        else:
+            text = str(values or "").strip()
+            if not text:
+                fields = []
+            elif text.startswith("["):
+                try:
+                    decoded = json.loads(text)
+                except json.JSONDecodeError:
+                    decoded = []
+                fields = [str(value).strip() for value in decoded] if isinstance(decoded, list) else []
+            else:
+                fields = [value.strip() for value in text.replace(";", "|").split("|")]
+        for field in fields:
+            if field:
+                counts[field] += 1
+    return {field: int(counts[field]) for field in sorted(counts)}
+
+
+def reanalyze_retained_audit(
+    source_path: Path,
+    output_path: Path,
+) -> dict[str, object]:
+    """Reclassify retained v1 switch rows without rebuilding any association.
+
+    The retained compact v1 audit is the only source of switch identities after
+    raw TrackManager CSV cleanup.  This function therefore never joins a new
+    detection, never creates a candidate, and never mutates the v1 file.  It
+    records the missing v2 association stream explicitly in the new output.
+    """
+
+    source = Path(source_path)
+    destination = Path(output_path)
+    source_rows = _csv_rows(source)
+    reanalyzed: list[dict[str, object]] = []
+    for index, source_row in enumerate(source_rows):
+        current = dict(source_row)
+        current["_association_schema"] = "legacy"
+        current["_missing_production_fields"] = "track_association_audit_v2.csv"
+        previous = {
+            "track_id": source_row.get("previous_track_id"),
+            "truth_target_id": source_row.get("previous_truth_target_id"),
+            "truth_associated": 1,
+            "matched_this_frame": 1,
+            "confirmation_state": source_row.get("previous_confirmation_state"),
+        }
+        classified = classify_switch(
+            previous,
+            current,
+            {
+                "association_schema": "legacy",
+                "missing_production_fields": ["track_association_audit_v2.csv"],
+            },
+        )
+        row = dict(source_row)
+        row["association_schema_version"] = ""
+        row["association_source_file"] = ""
+        row["association_source_row"] = ""
+        row["missing_production_fields"] = classified.get("missing_production_fields", [])
+        row["classification"] = classified["classification"]
+        row["reason"] = classified["reason"]
+        row["evidence_json"] = json.dumps(classified.get("evidence", {}), sort_keys=True)
+        row["reanalysis_source_row"] = _csv_row_number(index)
+        reanalyzed.append(row)
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    extra_columns = (
+        "condition",
+        "working_point",
+        "seed",
+        "delay_error_ns",
+        "reanalysis_source_row",
+    )
+    fields = list(dict.fromkeys([*AUDIT_COLUMNS, *extra_columns]))
+    with destination.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore", lineterminator="\n")
+        writer.writeheader()
+        for row in reanalyzed:
+            writer.writerow({field: _csv_value(row.get(field)) for field in fields})
+
+    import hashlib
+
+    digest = hashlib.sha256(source.read_bytes()).hexdigest()
+    summary = {
+        "schema_version": 1,
+        "source_file": str(source),
+        "source_sha256": digest,
+        "source_row_count": len(source_rows),
+        "output_file": str(destination),
+        "read_only_v1": True,
+        "truth_used_to_create_switches": False,
+        "production_v2_association_available": False,
+        "classification_counts": classification_counts(reanalyzed),
+        "missing_production_field_counts": missing_production_field_counts(reanalyzed),
+        "limitations": [
+            "reclassification consumes retained v1 switch rows only",
+            "candidate competition, lifecycle and gate attribution require the removed v2 production association stream",
+            "no truth or raw detection row is used to create a new switch",
+        ],
+    }
+    manifest = destination.with_name("reanalysis_manifest.json")
+    manifest.write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    return summary
+
+
+def write_audit(path: Path, rows: Sequence[Mapping[str, object]]) -> dict[str, object]:
     """Write a stable, gap-preserving ID-switch audit CSV."""
 
     destination = Path(path)
@@ -540,6 +864,11 @@ def write_audit(path: Path, rows: Sequence[Mapping[str, object]]) -> None:
         writer.writeheader()
         for row in rows:
             writer.writerow({column: _csv_value(row.get(column)) for column in AUDIT_COLUMNS})
+    return {
+        "row_count": len(rows),
+        "classification_counts": classification_counts(rows),
+        "missing_production_field_counts": missing_production_field_counts(rows),
+    }
 
 
 def classification_counts(rows: Sequence[Mapping[str, object]]) -> dict[str, int]:
@@ -552,5 +881,7 @@ __all__ = [
     "audit_track_id_switches",
     "classify_switch",
     "classification_counts",
+    "missing_production_field_counts",
+    "reanalyze_retained_audit",
     "write_audit",
 ]
