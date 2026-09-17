@@ -26,6 +26,7 @@ EXPECTED_TOP_LEVEL_KEYS = {
     "statistics",
     "ai_training",
     "router_enabled",
+    "native_four_channel_stap",
 }
 EXPECTED_WORKING_POINT_KEYS = {
     "name",
@@ -80,6 +81,7 @@ def test_stage1_config_declares_delay_sweep_and_disabled_ai() -> None:
     assert config["delay_sweep_ns"] == [0, 1, -1, 2, -2, 4, -4, 8, -8]
     assert config["ai_training"] is False
     assert config["router_enabled"] is False
+    assert config["native_four_channel_stap"] is False
     scientific_input = config["scientific_input"]
     assert isinstance(scientific_input, dict)
     assert scientific_input["fusion_pairs"] == [[1, 3], [2, 4]]

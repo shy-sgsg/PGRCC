@@ -466,6 +466,9 @@ def run_closure_matrix(
         writer.writerows(rows)
     manifest = {
         "schema_version": 1,
+        "ai_training": False,
+        "router_enabled": False,
+        "native_four_channel_stap": False,
         "seed": int(seed),
         "fs_hz": sample_rate,
         "delays_ns": delays,

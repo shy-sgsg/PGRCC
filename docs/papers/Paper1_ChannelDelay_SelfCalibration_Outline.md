@@ -4,6 +4,13 @@
 `outputs/formal_evidence/stage1_delay/`；仍不得把 pilot 数字、历史 Oracle 术语或
 未验证的 novelty 写成结论。工程 materiality threshold 和硬件实测标定尚未声明。
 
+2026-09-17 收口约束：novelty 只允许写成 potential/unverified，来源与差异见
+[`ChannelDelay_Calibration_Novelty_Audit.md`](../literature/ChannelDelay_Calibration_Novelty_Audit.md)；硬件只引用
+[`ChannelDelay_Hardware_Validation_Protocol.md`](../experiments/ChannelDelay_Hardware_Validation_Protocol.md)，当前没有硬件结果。Formal-v1 仍是 development formal，最终结论只能由独立 Formal-v2 填入
+[`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](../AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)。
+
+固定开关：`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
 ## 1. Introduction
 
 ### 1.1 Problem
@@ -414,5 +421,5 @@ partition. Until then:
 ```text
 ai_training=false
 router_enabled=false
-native four-channel STAP/JDL=false
+native_four_channel_stap=false
 ```

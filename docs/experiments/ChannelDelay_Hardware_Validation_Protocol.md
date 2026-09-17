@@ -5,6 +5,8 @@
 **版本日期：** 2026-09-17
 **适用链路：** `4ch protocol IQ → F1/F2 → 2ch CSI → production GO-CFAR → clustering/positioning → TrackManager/PIPE`
 
+本阶段固定开关：`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
 ## 1. 目的与当前证据边界
 
 本协议用于验证四通道接收链中的相对 fractional time delay、相位漂移和包/脉冲边界行为，并把测量不确定度传递到 C0–C4、CSI、CFAR、检测和航迹指标。它不改变生产链、不启用 native four-channel STAP/JDL，也不引入 AI 或 Router。

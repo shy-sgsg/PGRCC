@@ -127,6 +127,10 @@ docs/AI_CSI_33_真实系统误差参数与可观测性分析.md  下一阶段误
 docs/AI_CSI_34_双通道系统失配与稳健CSI研究框架.md  当前 Phase-I 研究框架
 docs/AI_CSI_35_双通道系统误差可观测性分析.md  当前 F1/F2 可观测性实证报告
 docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md  channel-delay 单误差闭环阶段报告
+docs/AI_CSI_37_ChannelDelay_Finalization_Audit.md  Formal-v1 不可变证据与限制审计
+docs/AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md  Formal-v2 最终结论模板（未填充）
+docs/literature/ChannelDelay_Calibration_Novelty_Audit.md  channel-delay 校准文献新颖性审计
+docs/experiments/ChannelDelay_Hardware_Validation_Protocol.md  硬件验证拓扑与判定协议（无结果）
 docs/papers/Paper1_ChannelDelay_SelfCalibration_Outline.md  第一篇 channel-delay 论文草稿框架
 configs/research/channel_delay_stage1_formal.json  Stage-1 delay sweep、工作点和统计契约
 scripts/run_delay_stage1_formal.py  A0–A3/ON-OFF-TO 生产 formal runner

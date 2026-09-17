@@ -32,6 +32,21 @@ velocity、yaw-first attitude 和生产 TrackManager/PIPE 连续目标审计，�
 strict 组与四通道 academic reference 不混排；reference 只用于信息条件审计，不表示
 当前 Phase-I 已启动 production STAP。
 
+## 2026-09-17 channel-delay Stage-1.1 收口阅读顺序
+
+本轮新增证据按以下顺序阅读：
+
+1. [`AI_CSI_37_ChannelDelay_Finalization_Audit.md`](AI_CSI_37_ChannelDelay_Finalization_Audit.md)：先确认 Formal-v1 是 development formal，且文件不可覆盖；
+2. `outputs/fractional_delay_inverse_closure_20260917/`：读取 C0–C4 closure 及 C4 的 `NOT_EVALUABLE` 原因；
+3. `outputs/formal_evidence/stage1_delay_v2_reanalysis_20260917/`：读取 CFAR/TrackManager 归因边界和旧 v1 switch 的保守重分析；
+4. `outputs/formal_evidence/stage1_delay_hierarchical_v1_exploratory_20260917/`：读取 scene-block 层级统计和 duplicate/missingness；
+5. `configs/research/channel_delay_stage1_materiality.json` 与当前传统 baseline：确认阈值预注册但仍 pending，且比较没有越界为系统 Pd/Pfa claim；
+6. [`ChannelDelay_Calibration_Novelty_Audit.md`](literature/ChannelDelay_Calibration_Novelty_Audit.md) 与 [`ChannelDelay_Hardware_Validation_Protocol.md`](experiments/ChannelDelay_Hardware_Validation_Protocol.md)：确认新颖性和硬件结果边界；
+7. [`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)：仅在独立 clean Formal-v2 后填入结论。
+
+截至本记录，Formal-v2 尚未冻结，Stage-2A hard gate 尚未满足；固定开关为
+`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
 ## 2026-09-16 channel-delay 单误差确定性自校准
 
 本轮把 channel delay 定义为 Phase-I 的第一个论文级单误差模板，新增 D1 ordinary

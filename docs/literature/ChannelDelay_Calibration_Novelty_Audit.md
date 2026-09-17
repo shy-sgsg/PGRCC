@@ -5,6 +5,8 @@
 **审计范围：** 经典多通道校准、multichannel SAR / SAR-GMTI、airborne GMTI/STAP，以及约近 5–10 年的通道不一致/幅相/时延校准工作。
 **证据规则：** 技术判断只依据论文正文、论文摘要页、DOI 页面或出版方/期刊页面；下表只做方法边界和证据边界的转述，不复制长段原文。检索结果不是系统综述，也不构成“未发现即不存在”。
 
+本阶段固定开关：`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
 ## 当前 Paper-1 的比较对象
 
 本仓库的待审计方案是固定的生产等效链路：

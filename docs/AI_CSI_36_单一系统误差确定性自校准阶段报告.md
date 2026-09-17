@@ -4,6 +4,36 @@
 > 当前四通道协议 IQ 经 F1/F2 融合后的生产两通道链路；不包含 native 4ch
 > STAP/JDL、AI Router 或任何神经网络。
 
+## 0. 2026-09-17 收口增补：证据边界与下一步
+
+本节只记录本次收口已经产生的证据和文档，不把历史 Formal-v1 数字升级为最终论文结论。
+
+- Formal-v1 仍标记为 development formal；不可变身份、dirty provenance 和限制见
+  [`AI_CSI_37_ChannelDelay_Finalization_Audit.md`](AI_CSI_37_ChannelDelay_Finalization_Audit.md)。
+- fractional-delay inverse closure 已生成 54 行 C0–C4 矩阵；C4 因未提供 production input 保持
+  `NOT_EVALUABLE`，入口为 `outputs/fractional_delay_inverse_closure_20260917/`。
+- production GO-CFAR geometry/valid-CUT tap、TrackManager association schema 和 retained-v1
+  ID-switch reanalysis 已分别保留；v1 的 1040 行旧 switch 没有被重建或覆盖，缺少 v2 association
+  字段的行明确标为 `unclassifiable_production_fields`，见
+  `outputs/formal_evidence/stage1_delay_v2_reanalysis_20260917/`。
+- hierarchical reanalysis 已以 physical scene block 为单位：15 个 block、9 个 delay，重复的
+  block-delay-metric 行折叠并记录 duplicate/missingness；当前结果标签为 `Formal-v1 exploratory`，见
+  `outputs/formal_evidence/stage1_delay_hierarchical_v1_exploratory_20260917/`。
+- materiality 已在 `configs/research/channel_delay_stage1_materiality.json` 预注册；阈值仍为
+  `null/exploratory_pending`，因此当前不能做工程 pass/fail。
+- D1/D2/D3 之外新增的传统 baseline 为 generalized phase-slope ML 和
+  oversampled cross-correlation；所有方法共享 F1/F2、target-free 输入和 truth-blind estimator
+  边界，比较仍不等同于 Pd/Pfa 或 tracking 优势。
+- 文献新颖性和硬件边界分别见
+  [`ChannelDelay_Calibration_Novelty_Audit.md`](literature/ChannelDelay_Calibration_Novelty_Audit.md)
+  与 [`ChannelDelay_Hardware_Validation_Protocol.md`](experiments/ChannelDelay_Hardware_Validation_Protocol.md)。
+  Paper-1 只保留 potential/unverified 表述；硬件当前没有实测结果。
+- 最终 v2 结论槽位见
+  [`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)；
+  在独立 clean Formal-v2 前，不启动 Stage-2A hard gate。
+
+本阶段固定开关为：`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
 ## 1. 结论摘要
 
 当前研究边界固定为：

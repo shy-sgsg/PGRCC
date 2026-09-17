@@ -580,6 +580,9 @@ def write_hierarchical_evidence(
     available_delays = sorted({_delay(row) for row in a0_rows if _delay(row) is not None})
     manifest: dict[str, object] = {
         "schema_version": 1,
+        "ai_training": False,
+        "router_enabled": False,
+        "native_four_channel_stap": False,
         "status": "completed" if a0_rows else "NOT_EVALUABLE",
         "source_classification": "Formal-v1 exploratory",
         "physical_block_definition": "seed+velocity+SNR+working_point/texture/geometry+delay-independent scene identity",

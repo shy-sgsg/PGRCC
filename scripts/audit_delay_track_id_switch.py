@@ -834,6 +834,9 @@ def reanalyze_retained_audit(
     digest = hashlib.sha256(source.read_bytes()).hexdigest()
     summary = {
         "schema_version": 1,
+        "ai_training": False,
+        "router_enabled": False,
+        "native_four_channel_stap": False,
         "source_file": str(source),
         "source_sha256": digest,
         "source_row_count": len(source_rows),
