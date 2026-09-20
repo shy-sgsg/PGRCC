@@ -161,6 +161,28 @@ def test_robust_ddc_uses_circular_phase_threshold_to_exclude_phase_outlier() -> 
     assert robust.metadata["local_support_count"].tolist() == [4, 5]
 
 
+def test_robust_ddc_phase_center_is_not_rotated_by_high_amplitude_on_outlier() -> None:
+    clutter_gamma = np.exp(1j * 0.4)
+    f1 = np.ones((21, 1), dtype=np.complex128)
+    f1[-1, 0] = 100.0 + 0.0j
+    f2 = clutter_gamma * f1
+    f2[-1, 0] = np.exp(1j * 2.8) * f1[-1, 0]
+    support = np.ones(f1.shape, dtype=bool)
+
+    robust = estimate_robust_ddc(
+        f1,
+        f2,
+        support,
+        min_support=20,
+        phase_threshold_rad=0.35,
+    )
+
+    assert robust.status == "OK"
+    assert robust.gamma[0] == pytest.approx(clutter_gamma)
+    assert robust.metadata["excluded_count"] == 1
+    assert robust.metadata["local_support_count"].tolist() == [20]
+
+
 def test_robust_ddc_rb_reports_local_not_evaluable_for_low_support_band() -> None:
     f1 = deterministic_f1((4, 2))
     f2 = f1 * (1.2 - 0.1j)

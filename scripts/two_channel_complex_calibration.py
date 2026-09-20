@@ -81,14 +81,24 @@ def _robust_mask(
     first: np.ndarray,
     second: np.ndarray,
     mask: np.ndarray,
-    gamma: complex,
     phase_threshold_rad: float,
-) -> np.ndarray:
-    predicted = gamma * first
-    selected = mask & (np.abs(predicted) > _EPS)
-    residual_phase = np.zeros(first.shape, dtype=np.float64)
-    residual_phase[selected] = np.angle(second[selected] * np.conj(predicted[selected]))
-    return selected & (np.abs(residual_phase) <= phase_threshold_rad)
+    min_support: int,
+) -> tuple[np.ndarray, str | None, float | None]:
+    cross = second * np.conj(first)
+    selected = mask & (np.abs(cross) > _EPS)
+    if int(np.count_nonzero(selected)) < min_support:
+        return np.zeros(first.shape, dtype=bool), "insufficient_phase_support", None
+    unit_phase = cross[selected] / np.abs(cross[selected])
+    mean_phase = np.mean(unit_phase)
+    coherence = float(np.abs(mean_phase))
+    if not np.isfinite(coherence) or coherence <= _EPS:
+        return np.zeros(first.shape, dtype=bool), "low_phase_coherence", coherence
+    phase_center = complex(mean_phase / coherence)
+    residual_phase = np.angle(unit_phase * np.conj(phase_center))
+    keep_selected = np.abs(residual_phase) <= phase_threshold_rad
+    robust = np.zeros(first.shape, dtype=bool)
+    robust[selected] = keep_selected
+    return robust, None, coherence
 
 
 def _overall_status(local_status: np.ndarray | list[str]) -> str:
@@ -264,6 +274,7 @@ def _estimate_by_groups(
     gamma = np.full((band_count, cols), np.nan + 1j * np.nan, dtype=np.complex128)
     local_status = np.full((band_count, cols), _NOT_EVALUABLE, dtype=object)
     local_support = np.zeros((band_count, cols), dtype=np.int64)
+    local_phase_coherence = np.full((band_count, cols), np.nan, dtype=np.float64)
     reasons: list[str] = []
     excluded_count = 0
 
@@ -278,11 +289,17 @@ def _estimate_by_groups(
             )
             if robust and status == _OK:
                 assert threshold is not None
-                filtered_mask = _robust_mask(first, second, local_mask, initial_gamma, threshold)
+                filtered_mask, robust_reason, coherence = _robust_mask(
+                    first, second, local_mask, threshold, min_count
+                )
+                if coherence is not None:
+                    local_phase_coherence[band_index, col] = coherence
                 excluded_count += int(np.count_nonzero(local_mask) - np.count_nonzero(filtered_mask))
                 initial_gamma, status, count, reason = _fit_gamma(
                     first, second, filtered_mask, min_count
                 )
+                if robust_reason is not None:
+                    reason = robust_reason
                 if status != _OK and reason == "insufficient_support":
                     reason = "insufficient_robust_support"
             gamma[band_index, col] = initial_gamma
@@ -300,6 +317,9 @@ def _estimate_by_groups(
     if robust:
         metadata_extra["phase_threshold_rad"] = threshold
         metadata_extra["excluded_count"] = excluded_count
+        metadata_extra["local_phase_coherence"] = (
+            local_phase_coherence[0] if range_band_size is None else local_phase_coherence
+        )
     if reasons:
         metadata_extra["reasons"] = sorted(set(reasons))
 
