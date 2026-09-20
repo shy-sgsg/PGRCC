@@ -125,6 +125,35 @@ def residual_power(residual: np.ndarray, mask: np.ndarray) -> float:
     return float(np.mean(np.abs(selected) ** 2))
 
 
+def evaluate_method(
+    *,
+    method: str,
+    case: dict[str, Any],
+    estimator_f2: np.ndarray,
+    min_support: int,
+    range_band_size: int,
+    phase_threshold_rad: float,
+) -> tuple[CalibrationEstimate, np.ndarray, float, float]:
+    estimate = method_estimate(
+        method,
+        case["f1"],
+        estimator_f2,
+        case["support"],
+        min_support=min_support,
+        range_band_size=range_band_size,
+        phase_threshold_rad=phase_threshold_rad,
+    )
+    residual = apply_complex_calibration(case["f1"], case["f2_on"], estimate)
+    power = residual_power(residual, case["clutter_mask"])
+    gamma_error = gamma_abs_error(
+        estimate,
+        case["gamma_truth"],
+        case["support"],
+        range_band_size,
+    )
+    return estimate, residual, power, gamma_error
+
+
 def deterministic_f1(rows: int, cols: int, rng: np.random.Generator) -> np.ndarray:
     real = rng.normal(loc=0.0, scale=1.0, size=(rows, cols))
     imag = rng.normal(loc=0.0, scale=1.0, size=(rows, cols))
@@ -235,6 +264,71 @@ def run(config: dict[str, Any], output_root: Path) -> dict[str, Any]:
         case = build_case(case_id, rows, cols, range_band_size, rng)
         coherence_values.append(finite_float(case["coherence_floor"]))
         per_mode_assertions: list[bool] = []
+        comparison: dict[str, dict[str, Any]] = {}
+        if case_id == "T2":
+            baseline, _, baseline_power, _ = evaluate_method(
+                method="SCC",
+                case=case,
+                estimator_f2=case["f2_off"],
+                min_support=min_support,
+                range_band_size=range_band_size,
+                phase_threshold_rad=phase_threshold_rad,
+            )
+            candidate, _, candidate_power, _ = evaluate_method(
+                method="DDC",
+                case=case,
+                estimator_f2=case["f2_off"],
+                min_support=min_support,
+                range_band_size=range_band_size,
+                phase_threshold_rad=phase_threshold_rad,
+            )
+            passed = (
+                baseline.status == "OK"
+                and candidate.status == "OK"
+                and candidate_power <= float(thresholds["residual_power_max"])
+                and candidate_power < baseline_power
+            )
+            per_mode_assertions.append(passed)
+            comparison = {
+                "baseline_method": "SCC",
+                "candidate_method": "DDC",
+                "baseline_power": baseline_power,
+                "candidate_power": candidate_power,
+                "status": "passed" if passed else "failed",
+                "baseline_estimate": baseline,
+            }
+        elif case_id == "T3":
+            baseline, _, baseline_power, _ = evaluate_method(
+                method="DDC",
+                case=case,
+                estimator_f2=case["f2_off"],
+                min_support=min_support,
+                range_band_size=range_band_size,
+                phase_threshold_rad=phase_threshold_rad,
+            )
+            candidate, _, candidate_power, _ = evaluate_method(
+                method="DDC-RB",
+                case=case,
+                estimator_f2=case["f2_off"],
+                min_support=min_support,
+                range_band_size=range_band_size,
+                phase_threshold_rad=phase_threshold_rad,
+            )
+            passed = (
+                baseline.status == "OK"
+                and candidate.status == "OK"
+                and candidate_power <= float(thresholds["residual_power_max"])
+                and candidate_power < baseline_power
+            )
+            per_mode_assertions.append(passed)
+            comparison = {
+                "baseline_method": "DDC",
+                "candidate_method": "DDC-RB",
+                "baseline_power": baseline_power,
+                "candidate_power": candidate_power,
+                "status": "passed" if passed else "failed",
+                "baseline_estimate": baseline,
+            }
         ordinary_on_residual = float("nan")
         if case_id == "T4":
             ordinary = estimate_ddc(
@@ -252,29 +346,23 @@ def run(config: dict[str, Any], output_root: Path) -> dict[str, Any]:
             mode = mode_cfg["mode_id"]
             method = config["methods"][mode][case_id]
             estimator_f2 = case["f2_off"] if mode == "Mode-A" else case["f2_on"]
-            estimate = method_estimate(
-                method,
-                case["f1"],
-                estimator_f2,
-                case["support"],
+            estimate, _, power, gamma_error = evaluate_method(
+                method=method,
+                case=case,
+                estimator_f2=estimator_f2,
                 min_support=min_support,
                 range_band_size=range_band_size,
                 phase_threshold_rad=phase_threshold_rad,
-            )
-            apply_f2 = case["f2_on"]
-            residual = apply_complex_calibration(case["f1"], apply_f2, estimate)
-            power = residual_power(residual, case["clutter_mask"])
-            gamma_error = gamma_abs_error(
-                estimate,
-                case["gamma_truth"],
-                case["support"],
-                range_band_size,
             )
             robust_excluded = int(estimate.metadata.get("excluded_count", 0))
 
             assertion = estimate.status == "OK"
             if case_id in {"T1", "T2", "T3", "T4"}:
-                assertion = assertion and gamma_error <= float(thresholds["gamma_error_abs_max"])
+                assertion = (
+                    assertion
+                    and gamma_error <= float(thresholds["gamma_error_abs_max"])
+                    and power <= float(thresholds["residual_power_max"])
+                )
             if case_id == "T5":
                 floor_power = float(case["decorrelation_floor_power"])
                 assertion = (
@@ -311,9 +399,55 @@ def run(config: dict[str, Any], output_root: Path) -> dict[str, Any]:
                     "theory_coherence_floor": f"{float(case['coherence_floor']):.12g}",
                     "ordinary_on_ddc_residual_power": f"{ordinary_on_residual:.12g}",
                     "robust_excluded_count": robust_excluded,
+                    "comparison_role": (
+                        "candidate"
+                        if mode == "Mode-A" and estimate.method == comparison.get("candidate_method")
+                        else ""
+                    ),
+                    "comparison_baseline_method": comparison.get("baseline_method", ""),
+                    "comparison_candidate_method": comparison.get("candidate_method", ""),
+                    "superiority_status": (
+                        comparison.get("status", "")
+                        if mode == "Mode-A" and estimate.method == comparison.get("candidate_method")
+                        else ""
+                    ),
+                    "superiority_ratio": (
+                        f"{comparison['candidate_power'] / comparison['baseline_power']:.12g}"
+                        if (
+                            mode == "Mode-A"
+                            and estimate.method == comparison.get("candidate_method")
+                            and float(comparison.get("baseline_power", float("nan"))) > 0.0
+                        )
+                        else ""
+                    ),
                     "assertion_status": "passed" if assertion else "failed",
                 }
             )
+            if mode == "Mode-A" and estimate.method == comparison.get("candidate_method"):
+                baseline_estimate = comparison["baseline_estimate"]
+                clutter_rows.append(
+                    {
+                        "case_id": case_id,
+                        "mode": mode,
+                        "method": comparison["baseline_method"],
+                        "status": baseline_estimate.status,
+                        "clutter_residual_power": f"{comparison['baseline_power']:.12g}",
+                        "decorrelation_floor_power": f"{float(case['decorrelation_floor_power']):.12g}",
+                        "theory_coherence_floor": f"{float(case['coherence_floor']):.12g}",
+                        "ordinary_on_ddc_residual_power": f"{ordinary_on_residual:.12g}",
+                        "robust_excluded_count": int(baseline_estimate.metadata.get("excluded_count", 0)),
+                        "comparison_role": "baseline",
+                        "comparison_baseline_method": comparison["baseline_method"],
+                        "comparison_candidate_method": comparison["candidate_method"],
+                        "superiority_status": comparison["status"],
+                        "superiority_ratio": (
+                            f"{comparison['candidate_power'] / comparison['baseline_power']:.12g}"
+                            if float(comparison["baseline_power"]) > 0.0
+                            else ""
+                        ),
+                        "assertion_status": "informational",
+                    }
+                )
             target_rows.append(
                 {
                     "case_id": case_id,
@@ -374,6 +508,11 @@ def run(config: dict[str, Any], output_root: Path) -> dict[str, Any]:
             "theory_coherence_floor",
             "ordinary_on_ddc_residual_power",
             "robust_excluded_count",
+            "comparison_role",
+            "comparison_baseline_method",
+            "comparison_candidate_method",
+            "superiority_status",
+            "superiority_ratio",
             "assertion_status",
         ],
     )
@@ -409,6 +548,18 @@ def run(config: dict[str, Any], output_root: Path) -> dict[str, Any]:
             "status": floor_status,
             "definition": "minimum synthetic true F1/F2 coherence after evaluator-only decorrelation injection",
         },
+        "superiority_checks": [
+            {
+                "case_id": row["case_id"],
+                "mode": row["mode"],
+                "baseline_method": row["comparison_baseline_method"],
+                "candidate_method": row["comparison_candidate_method"],
+                "superiority_status": row["superiority_status"],
+                "superiority_ratio": row["superiority_ratio"],
+            }
+            for row in clutter_rows
+            if row.get("comparison_role") == "candidate"
+        ],
         "estimator_input_audit": input_audit,
         "evidence_files": {
             "gamma_recovery": "gamma_recovery.csv",

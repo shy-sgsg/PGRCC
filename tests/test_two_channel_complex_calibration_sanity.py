@@ -94,6 +94,33 @@ def test_target_contamination_case_shows_robust_mode_b_improvement(tmp_path: Pat
     assert int(t4_rows["Mode-B"]["robust_excluded_count"]) > 0
 
 
+def test_t2_and_t3_record_side_by_side_superiority_comparisons(tmp_path: Path) -> None:
+    output_root = run_sanity(tmp_path)
+    rows = read_csv(output_root / "clutter_metrics.csv")
+
+    t2_rows = {
+        row["method"]: row
+        for row in rows
+        if row["case_id"] == "T2" and row["mode"] == "Mode-A"
+    }
+    assert {"SCC", "DDC"} <= set(t2_rows)
+    assert t2_rows["DDC"]["comparison_role"] == "candidate"
+    assert t2_rows["SCC"]["comparison_role"] == "baseline"
+    assert t2_rows["DDC"]["superiority_status"] == "passed"
+    assert float(t2_rows["DDC"]["clutter_residual_power"]) < float(t2_rows["SCC"]["clutter_residual_power"])
+
+    t3_rows = {
+        row["method"]: row
+        for row in rows
+        if row["case_id"] == "T3" and row["mode"] == "Mode-A"
+    }
+    assert {"DDC", "DDC-RB"} <= set(t3_rows)
+    assert t3_rows["DDC-RB"]["comparison_role"] == "candidate"
+    assert t3_rows["DDC"]["comparison_role"] == "baseline"
+    assert t3_rows["DDC-RB"]["superiority_status"] == "passed"
+    assert float(t3_rows["DDC-RB"]["clutter_residual_power"]) < float(t3_rows["DDC"]["clutter_residual_power"])
+
+
 def test_target_transfer_downstream_fields_are_not_evaluable(tmp_path: Path) -> None:
     output_root = run_sanity(tmp_path)
     rows = read_csv(output_root / "target_transfer.csv")
