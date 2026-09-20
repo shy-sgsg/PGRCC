@@ -142,6 +142,7 @@ docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md  channel-dela
 docs/AI_CSI_37_ChannelDelay_Finalization_Audit.md  Formal-v1 不可变证据与限制审计
 docs/AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md  Formal-v2 A–L 收口结论与 Stage-2A gate
 docs/AI_CSI_39_等效复校准与物理系统校准边界.md  Phase-I 等效复校准/物理状态/去相关三层边界
+docs/AI_CSI_40_等效复校准与物理校准定向Pilot报告.md  T1–T5 sanity、机制 pilot、证据边界与 decision gate
 docs/literature/ChannelDelay_Calibration_Novelty_Audit.md  channel-delay 校准文献新颖性审计
 docs/experiments/ChannelDelay_Hardware_Validation_Protocol.md  硬件验证拓扑与判定协议（无结果）
 docs/papers/Paper1_ChannelDelay_SelfCalibration_Outline.md  第一篇 channel-delay 论文草稿框架
