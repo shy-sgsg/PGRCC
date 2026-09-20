@@ -78,6 +78,11 @@
     }
   ],
   "mechanism_pilot": {
+    "fast_time_frequency_cycles_per_sample": {
+      "start": -0.5,
+      "stop": 0.5,
+      "endpoint": false
+    },
     "cases": [
       {
         "case_id": "E1",
@@ -106,7 +111,7 @@
         "physical_observable": "servo_pointing_bias_deg",
         "observable_domain": "pointing_geometry_state",
         "physical_truth": 0.18,
-        "physical_blind_estimate": 0.16,
+        "sensor_prior_value": 0.16,
         "physical_unit": "deg"
       },
       {
@@ -116,7 +121,7 @@
         "physical_observable": "platform_velocity_bias_mps",
         "observable_domain": "slow_time_kinematic_state",
         "physical_truth": 1.25,
-        "physical_blind_estimate": 1.10,
+        "sensor_prior_value": 1.10,
         "physical_unit": "mps"
       },
       {

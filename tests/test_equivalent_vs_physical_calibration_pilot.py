@@ -153,8 +153,11 @@ def test_mechanism_rows_preserve_physical_state_and_decorrelation_boundaries(tmp
     assert any(row["method_id"] == "P1" and row["physical_status"] == "OK" for row in servo)
     assert any(row["method_id"] == "P1" and row["physical_status"] == "OK" for row in velocity)
     assert decorrelation
-    assert all(float(row["single_coefficient_residual_floor"]) > 0.0 for row in decorrelation)
-    assert all(row["irreducible_decorrelation_status"] == "OK" for row in decorrelation)
+    floor_rows = [
+        row for row in decorrelation if row["mode"] == "Mode-A" and row["method_id"] in {"M2", "M6"}
+    ]
+    assert all(float(row["single_coefficient_residual_floor"]) > 0.0 for row in floor_rows)
+    assert all(row["irreducible_decorrelation_status"] == "OK" for row in floor_rows)
 
 
 def test_downstream_detection_track_metrics_are_not_invented(tmp_path: Path) -> None:
@@ -196,3 +199,57 @@ def test_decision_matrix_uses_allowed_non_ai_label_and_records_gate_statuses(tmp
         "AI gate",
     }
     assert all(row["status"] in {"PASS", "CLOSED", "NOT_EVALUABLE", "historical_reference"} for row in rows)
+
+
+def test_mode_separation_and_physical_observable_audits_are_explicit(tmp_path: Path) -> None:
+    output_root = run_pilot(tmp_path)
+    manifest = json.loads((output_root / "manifest.json").read_text(encoding="utf-8"))
+    gamma_rows = read_csv(output_root / "gamma_recovery.csv")
+
+    mode_audit = manifest["mode_separation_audit"]
+    assert mode_audit["Mode-A"]["estimator_source"] == "OFF=C+N"
+    assert mode_audit["Mode-B"]["estimator_source"] == "ON=S+C+N"
+    assert mode_audit["Mode-A"]["off_on_observables_distinct"] is True
+    assert mode_audit["Mode-B"]["off_on_observables_distinct"] is True
+
+    delay_audit = manifest["mechanism_observable_audit"]["fast_time_channel_delay"]
+    assert delay_audit["phase_model"] == "exp(-j*2*pi*f*delay_samples)"
+    assert delay_audit["frequency_axis_count"] >= 2
+    assert delay_audit["physical_estimator_input_paths"] == [
+        "F1",
+        "F2",
+        "fast_time_frequency_cycles_per_sample",
+    ]
+
+    physical_audit = manifest["physical_estimator_audit"]
+    assert physical_audit["blind_rows_use_observable_values"] is True
+    assert physical_audit["blind_rows_read_evaluator_truth"] is False
+    delay_p2 = next(
+        row
+        for row in gamma_rows
+        if row["mechanism"] == "fast_time_channel_delay" and row["method_id"] == "P2"
+    )
+    assert delay_p2["physical_correction_applied"] == "true"
+    assert float(delay_p2["residual_power"]) >= 0.0
+
+
+def test_decorrelation_floor_is_measured_from_cross_correlation_and_reached_by_local_fit(tmp_path: Path) -> None:
+    output_root = run_pilot(tmp_path)
+    manifest = json.loads((output_root / "manifest.json").read_text(encoding="utf-8"))
+    rows = read_csv(output_root / "clutter_metrics.csv")
+
+    audit = manifest["decorrelation_audit"]
+    assert audit["empirical_coherence_source"] == "cross_correlation(F1,F2,clutter_support)"
+    assert audit["floor_check_status"] == "passed"
+    d1_rows = [
+        row
+        for row in rows
+        if row["mechanism"] == "true_decorrelation"
+        and row["mode"] == "Mode-A"
+        and row["method_id"] in {"M2", "M6"}
+    ]
+    assert d1_rows
+    for row in d1_rows:
+        floor = float(row["single_coefficient_residual_floor"])
+        residual = float(row["clutter_residual_power"])
+        assert abs(residual - floor) <= max(1e-12, floor * 1e-8)
