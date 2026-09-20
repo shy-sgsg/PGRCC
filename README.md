@@ -1,4 +1,4 @@
-# PGRCC
+# PGRCC：Phase-I 等效复校准与物理系统校准层次
 
 真实系统未知误差驱动的多通道 GMTI 杂波抑制研究仓库。
 
@@ -6,16 +6,27 @@
 
 真实 airborne GMTI 中的 INS、平台运动、伺服/波束指向、通道时延、幅相、时钟同步、
 基线几何和杂波时间统计可能并不准确或并不完全可用。这些未知误差会破坏跨通道
-杂波相干性，降低 CSI/STAP 的杂波抑制和目标保持能力。本仓库当前研究主线是：
+杂波相干性，降低 CSI/STAP 的杂波抑制和目标保持能力。本仓库当前 Phase-I 研究主线
+改写为三层校准边界：
 
 ```text
-真实系统未知误差 → 多通道回波观测 → 未知误差/状态参数估计
-→ 物理模型修正与通道自校准 → 恢复相干性
-→ 当前两通道 CSI → CFAR / Pd / Pfa / 目标保持
+Class-P 物理状态校准
+  → Class-E 等效复校准 / clutter-derived Gamma 传统 baseline
+  → Class-D 去相关极限与稳健两通道 CSI
+  → CFAR / Pd / Pfa / TrackManager / PIPE 安全性
 ```
+
+Class-P 保留会改变 fast-time/Doppler/pointing/geolocation/kinematic/track-state 的物理
+状态问题；channel-delay 仍按 Class-P 解释，必须记录 delay estimate、fractional-delay
+physical correction、符号和下游传播，而不能只用复系数吸收后改写成普通 Class-E。
+Class-E 只处理在 F1/F2 域内可由 `F2(r,fD) ~= Gamma(r,fD) F1(r,fD)` 表示的局部乘性
+失配；SCC、DDC、DDC-RB、robust DDC 和 robust DDC-RB 是传统等效复校准 baseline。
+Class-D 记录真实去相关或信息损失的 coherence floor、target transfer 和稳健对消边界。
 
 AI 不是目标本身。当前阶段 `ai_training=false`，先做误差建模、可观测性、确定性
 校准和端到端验证；只有确定性方法存在稳定且可量化的残差时，才重新评估 Physics-AI。
+`router_enabled=false` 同样保持冻结。`Phase-II native four-channel freeze` 表示 native
+four-channel STAP/JDL、协方差/加载、额外空间自由度和相关 CUDA 优化继续冻结到 Phase-II。
 
 ## Current Production Chain
 
@@ -45,8 +56,9 @@ F1/F2 在 Current CSI 之前完成。native four-channel STAP 保留四个空间
 - 当前阶段名称：`Phase-I Unknown System Error Characterization / 双通道系统失配与稳健 CSI`。
 - 当前科学问题是：在生产等效 F1/F2 两通道输入上，哪些真实系统未知误差可由回波观测
   独立估计，哪些必须由 INS、伺服编码器、工厂标定或时间先验约束，并在此基础上恢复
-  杂波相干性和稳健 CSI。四通道 native STAP/JDL/covariance/loading/DOF/CUDA 优化
-  已冻结为 Phase-II，历史结果只作归档参考。
+  杂波相干性和稳健 CSI。新增的等效复校准层只作为同一 F1/F2 输入上的强传统 baseline
+  与残差解释层，不取代需要物理配准的 Class-P 证据。四通道 native
+  STAP/JDL/covariance/loading/DOF/CUDA 优化已冻结为 Phase-II，历史结果只作归档参考。
 - 已完成 Phase0 paired-reference sanity、Phase1 unknown-only blind estimator、Phase2
   true/reported four-channel geometry、Phase3 27-case blind matrix，以及 Phase4
   B0/B1/B1K 生产 CUDA CSI/CFAR 和 B2/B3/B3K 离线 STAP reference；完整结果和限制见
@@ -129,6 +141,7 @@ docs/AI_CSI_35_双通道系统误差可观测性分析.md  当前 F1/F2 可观�
 docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md  channel-delay 单误差闭环阶段报告
 docs/AI_CSI_37_ChannelDelay_Finalization_Audit.md  Formal-v1 不可变证据与限制审计
 docs/AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md  Formal-v2 A–L 收口结论与 Stage-2A gate
+docs/AI_CSI_39_等效复校准与物理系统校准边界.md  Phase-I 等效复校准/物理状态/去相关三层边界
 docs/literature/ChannelDelay_Calibration_Novelty_Audit.md  channel-delay 校准文献新颖性审计
 docs/experiments/ChannelDelay_Hardware_Validation_Protocol.md  硬件验证拓扑与判定协议（无结果）
 docs/papers/Paper1_ChannelDelay_SelfCalibration_Outline.md  第一篇 channel-delay 论文草稿框架

@@ -89,7 +89,9 @@ git status --short --untracked-files=all
 
 ### 3.5 研究主线、比较口径与 AI 使用边界
 
-本仓库当前及后续阶段的主线固定为：
+本仓库当前及后续阶段的 Phase-I 主线固定为“等效复校准 + 物理系统校准”的层次化
+自校准，而不是把每个现象都强行解释成独立物理状态，也不是把复系数校准写成 AI
+创新。当前长期主线固定为：
 
 ```text
 真实系统未知误差
@@ -107,12 +109,29 @@ Current 上叠加 AI”或 `AI Router` 的专家选择写成当前主线。`NO_G
 只表示 Current/J5/J6 三者之间 Router 的安全平均增益不足，不表示 Physics-AI、
 未知系统误差估计或物理模型自校准方向被否定。
 
+Phase-I 的层次化校准分类固定如下：
+
+- `Class-E / equivalent complex calibration`：在当前 F1/F2 处理域内可近似写成
+  `F2(r,fD) ~= Gamma(r,fD) F1(r,fD)` 的局部乘性失配。`clutter-derived` Gamma、
+  SCC、DDC、DDC-RB、robust DDC 和 robust DDC-RB 是强传统 baseline，不得把普通
+  complex LS、per-Doppler Gamma 或 range-Doppler Gamma 本身写成创新。
+- `Class-P / physical-state calibration`：fast-time registration、Doppler registration、
+  指向/几何、平台速度、定位和航迹状态等会改变物理配准、运动学或下游语义的误差。
+  channel-delay 默认保留为 Class-P：即使某些窄域残差可被 Gamma 吸收，正式解释仍须
+  记录 delay estimate、fractional-delay correction、符号、单位和 TrackManager/PIPE
+  传播证据。
+- `Class-D / decorrelation limit`：真实时间变化杂波、不可约失相干或信息损失。此类
+  问题应报告 coherence floor、target transfer 和稳健对消边界，不得伪装成可完全拟合
+  的系统误差。
+
 比较必须同时区分信息条件和算法能力：
 
 - Current 的生产口径是四通道协议 IQ 先按 `(1,3)`、`(2,4)` 融合为 F1/F2，再进入
   两通道 CSI。native four-channel STAP 保留四个空间自由度，但属于冻结的 Phase-II
   独立课题；其历史/离线结果可做归档 reference，不能写成当前 production STAP 进展。
-  信息量匹配层只用于后续阶段拆分算法改进与融合/空间自由度增加的贡献。
+  信息量匹配层只用于后续阶段拆分算法改进与融合/空间自由度增加的贡献。本文档中的
+  `Phase-II native four-channel freeze` 表示 native four-channel STAP/JDL、协方差/
+  加载、额外空间自由度和相关 CUDA 优化继续冻结到 Phase-II。
 - 用 `Known-error correction upper bound / 已知误差校正上限`，不使用含义不清的
   `Oracle` 作为默认术语。每个场景优先保留 Ideal/No-error、Current+unknown-error、
   Known-error correction、Estimated-error correction 四个条件，并报告
