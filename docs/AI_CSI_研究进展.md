@@ -32,7 +32,7 @@ velocity、yaw-first attitude 和生产 TrackManager/PIPE 连续目标审计，�
 strict 组与四通道 academic reference 不混排；reference 只用于信息条件审计，不表示
 当前 Phase-I 已启动 production STAP。
 
-## 2026-09-17 channel-delay Stage-1.1 收口阅读顺序
+## 2026-09-17 channel-delay Stage-1.1 收口阅读顺序（历史收口）
 
 本轮新增证据按以下顺序阅读：
 
@@ -42,10 +42,23 @@ strict 组与四通道 academic reference 不混排；reference 只用于信息�
 4. `outputs/formal_evidence/stage1_delay_hierarchical_v1_exploratory_20260917/`：读取 scene-block 层级统计和 duplicate/missingness；
 5. `configs/research/channel_delay_stage1_materiality.json` 与当前传统 baseline：确认阈值预注册但仍 pending，且比较没有越界为系统 Pd/Pfa claim；
 6. [`ChannelDelay_Calibration_Novelty_Audit.md`](literature/ChannelDelay_Calibration_Novelty_Audit.md) 与 [`ChannelDelay_Hardware_Validation_Protocol.md`](experiments/ChannelDelay_Hardware_Validation_Protocol.md)：确认新颖性和硬件结果边界；
-7. [`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)：仅在独立 clean Formal-v2 后填入结论。
+7. [`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)：读取当前 Formal-v2 A–L 矩阵和限制。
 
-截至本记录，Formal-v2 尚未冻结，Stage-2A hard gate 尚未满足；固定开关为
+截至历史记录时，Formal-v2 尚未冻结；当前状态见下节。固定开关为
 `ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
+## 2026-09-20 Formal-v2 当前状态
+
+独立 Formal-v2 已完成 `135/135` 个 case，覆盖 15 个 physical block 和 9 个 delay，证据
+已压缩到 `outputs/formal_evidence/stage1_delay_v2_full_20260917/`，分层统计在
+`outputs/formal_evidence/stage1_delay_v2_full_20260917_hierarchical/`。run manifest 记录
+source before/after 相同、tracked dirty=false；raw case 树已在 manifest、compact CSV 和
+135 个 case manifest 归档验证后删除，清理记录见 `docs/清理记录_2026-09-17.md`。
+
+当前 A–L 不是全通过：C4 production input、valid-CUT denominator 和 A2/A0 residual
+单因素分解仍为 `NOT_EVALUABLE`，因此 Stage-2A 为 `NO_GO_STAGE1_INCOMPLETE`。在项目
+决策者书面允许这些边界前，不启动 coupled-error runner、Physics-AI 或 Router。完整
+结果和最短复现命令见 [`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)。
 
 ## 2026-09-16 channel-delay 单误差确定性自校准
 

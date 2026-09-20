@@ -128,7 +128,7 @@ docs/AI_CSI_34_双通道系统失配与稳健CSI研究框架.md  当前 Phase-I 
 docs/AI_CSI_35_双通道系统误差可观测性分析.md  当前 F1/F2 可观测性实证报告
 docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md  channel-delay 单误差闭环阶段报告
 docs/AI_CSI_37_ChannelDelay_Finalization_Audit.md  Formal-v1 不可变证据与限制审计
-docs/AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md  Formal-v2 最终结论模板（未填充）
+docs/AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md  Formal-v2 A–L 收口结论与 Stage-2A gate
 docs/literature/ChannelDelay_Calibration_Novelty_Audit.md  channel-delay 校准文献新颖性审计
 docs/experiments/ChannelDelay_Hardware_Validation_Protocol.md  硬件验证拓扑与判定协议（无结果）
 docs/papers/Paper1_ChannelDelay_SelfCalibration_Outline.md  第一篇 channel-delay 论文草稿框架
@@ -334,30 +334,30 @@ blind 与 known 均记录 `correction_applied=true`，估计器未读取 truth�
 为 `not_evaluable`，detection-record、payload 和 cluster-association proxy 仅作分层诊断。
 该矩阵使用 local-input 生产 core，不代表 SHM 吞吐或部署性能。
 
-新的 Stage-1 channel-delay formal 已完成 135/135 case；5 方法 Monte Carlo 为 135 行、
-每格 100 trials 且 `passed`，紧凑证据位于
-`outputs/formal_evidence/stage1_delay/`。27 个 delay/SNR 参数点的平均 estimator RMSE
-为 D1/D2/D3=`0.053395/0.053359/0.054587 ns`，cross-correlation/GCC-PHAT 为
-`2.027616/2.990429 ns`。A1→A3 的 135-case 平均 target-period Pd 为
+新的 Stage-1 Formal-v2 已完成 135/135 case；7 方法 Monte Carlo 为 189 行、每格 100
+trials 且 `passed`，紧凑证据位于
+`outputs/formal_evidence/stage1_delay_v2_full_20260917/`；不可变 Formal-v1 仍在
+`outputs/formal_evidence/stage1_delay/`。Formal-v2 的 27 个 delay/SNR 参数点平均
+estimator RMSE 为 D1/D2/D3=`0.053395/0.053359/0.054587 ns`，D4=`0.030293 ns`，
+cross-correlation/GCC-PHAT=`2.027616/2.990429 ns`。A1→A3 的 135-case 平均 target-period Pd 为
 `0.9556→0.9793`，position RMSE 为 `220.4825→161.4688 m`，angle RMSE 为
 `0.1358→0.0969 deg`；ID switch 为 `248→290`，且 materiality threshold 尚未预注册，
-所以只报告描述性/配对统计，不宣称无条件整体收益。正式源树已按
-[`清理记录_2026-09-16.md`](docs/清理记录_2026-09-16.md) 删除原始/中间 case 产物，
-保留 root manifest、MC 汇总和逐 case 的配置/生产审计 manifest；逐文件 cleanup 记录只在
-root manifest 保留一份。
+所以只报告描述性/配对统计，不宣称无条件整体收益。Formal-v2 raw case 树已在 compact
+和 manifest 校验后删除，保留 root run manifest、135 个 case manifest 压缩归档、命令历史
+和 retention manifest；精确边界见 [`清理记录_2026-09-17.md`](docs/清理记录_2026-09-17.md)。
 
-Stage-1 channel-delay formal 的最短复现入口（需要已构建的 `simulate_stage2_statistical`
-和真实 CUDA）：
+Formal-v2 channel-delay 的清洁重跑入口（需要已构建的
+`simulate_stage2_statistical` 和真实 CUDA；本次已执行的 representative/resume 命令另见
+`outputs/formal_evidence/stage1_delay_v2_full_20260917/formal_v2_execution_commands.txt`）：
 
 ```bash
-python3 scripts/run_delay_stage1_formal.py --mode formal --input-mode local \
-  --output-root outputs/formal_delay_stage1_20260916 \
+python3 scripts/run_delay_stage1_formal.py --mode formal --evidence-version formal-v2 --input-mode local \
+  --output-root outputs/formal_delay_stage1_v2_20260917 \
   --delay-errors-ns 0,1,-1,2,-2,4,-4,8,-8 \
-  --seeds 101,202,303 --target-velocities-mps 6.7,12.0 --snr-db 20,30,35 \
-  --working-point registered --mc-trials 100 --cleanup-raw --resume
+  --working-point registered --mc-trials 100 --cleanup-raw
 python3 scripts/analyze_delay_stage1_formal.py \
-  --run-manifest outputs/formal_delay_stage1_20260916/manifest.json \
-  --output-root outputs/formal_evidence/stage1_delay
+  --run-manifest outputs/formal_delay_stage1_v2_20260917/manifest.json \
+  --output-root outputs/formal_evidence/stage1_delay_v2_full_20260917
 ```
 
 此前 12-case TrackManager formal 的历史兼容入口为：

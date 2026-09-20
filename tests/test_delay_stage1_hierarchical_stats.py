@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 
 from scripts.analyze_delay_stage1_hierarchical import (
@@ -134,3 +135,25 @@ def test_write_hierarchical_evidence_records_v1_exploratory_provenance(tmp_path:
     assert summary["source_classification"] == "Formal-v1 exploratory"
     assert (tmp_path / "out" / "hierarchical_manifest.json").is_file()
     assert (tmp_path / "out" / "hierarchical_effects.csv").is_file()
+
+
+def test_write_hierarchical_evidence_inherits_v2_provenance(tmp_path: Path) -> None:
+    input_dir = tmp_path / "compact"
+    input_dir.mkdir()
+    input_path = input_dir / "A0_A1_A2_A3_summary.csv"
+    rows = [_row(scene="scene-1", delay=1)]
+    with input_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    (input_dir / "manifest.json").write_text(
+        json.dumps({"evidence_version": "formal-v2"}) + "\n",
+        encoding="utf-8",
+    )
+
+    summary = write_hierarchical_evidence([input_dir], tmp_path / "out", seed=7, trials=20)
+
+    assert summary["source_classification"] == "Formal-v2 confirmatory"
+    effect_rows = list(csv.DictReader((tmp_path / "out" / "hierarchical_effects.csv").open()))
+    assert effect_rows
+    assert {row["source_classification"] for row in effect_rows} == {"Formal-v2 confirmatory"}

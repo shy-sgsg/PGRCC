@@ -443,6 +443,23 @@ def _find_sources(input_paths: Sequence[Path]) -> dict[str, Path]:
     return found
 
 
+def _source_classification(input_paths: Sequence[Path]) -> str:
+    """Classify evidence from a nearby compact manifest without guessing."""
+
+    for input_path in input_paths:
+        path = Path(input_path)
+        manifest = path.parent / "manifest.json" if path.is_file() else path / "manifest.json"
+        if not manifest.is_file():
+            continue
+        try:
+            payload = json.loads(manifest.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            continue
+        if payload.get("evidence_version") == "formal-v2":
+            return "Formal-v2 confirmatory"
+    return "Formal-v1 exploratory"
+
+
 def _condition_pairs(rows: Sequence[Mapping[str, object]], *, key_name: str) -> list[dict[str, object]]:
     grouped: dict[tuple[str, float, str], dict[str, Mapping[str, object]]] = defaultdict(dict)
     for source in rows:
@@ -507,6 +524,7 @@ def write_hierarchical_evidence(
     """Read compact summaries and write scene-block hierarchical evidence."""
 
     sources = _find_sources(input_paths)
+    source_classification = _source_classification(input_paths)
     a0_rows = _read_csv(sources["a0"]) if "a0" in sources else []
     requested = list(DEFAULT_DELAYS_NS)
     effects = paired_delay_effects(
@@ -516,6 +534,8 @@ def write_hierarchical_evidence(
         trials=trials,
         seed=seed,
     )
+    for row in effects:
+        row["source_classification"] = source_classification
 
     binary_rows: list[dict[str, object]] = []
     binary_results: list[dict[str, object]] = []
@@ -548,9 +568,12 @@ def write_hierarchical_evidence(
                         "comparison": comparison,
                         "delay_error_ns": _number(delay),
                         **result,
-                        "source_classification": "Formal-v1 exploratory",
+                        "source_classification": source_classification,
                     })
-            binary_rows.extend({"source": source_key, **row} for row in pairs)
+            binary_rows.extend(
+                {"source": source_key, "source_classification": source_classification, **row}
+                for row in pairs
+            )
 
     output = Path(output_dir)
     output.mkdir(parents=True, exist_ok=True)
@@ -569,6 +592,7 @@ def write_hierarchical_evidence(
             "unavailable_block_count": row.get("unavailable_block_count"),
             "status": row.get("status"),
             "reason": row.get("reason"),
+            "source_classification": source_classification,
         }
         for row in effects
         if int(row.get("missing_block_count", 0) or 0)
@@ -584,7 +608,7 @@ def write_hierarchical_evidence(
         "router_enabled": False,
         "native_four_channel_stap": False,
         "status": "completed" if a0_rows else "NOT_EVALUABLE",
-        "source_classification": "Formal-v1 exploratory",
+        "source_classification": source_classification,
         "physical_block_definition": "seed+velocity+SNR+working_point/texture/geometry+delay-independent scene identity",
         "delay_is_within_block_treatment": True,
         "requested_delays_ns": [_number(value) for value in requested],

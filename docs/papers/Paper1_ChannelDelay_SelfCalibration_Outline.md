@@ -1,8 +1,9 @@
 # Paper 1 outline — Target-free channel-delay self-calibration for production two-channel GMTI
 
-状态：论文草稿框架，不是已投稿稿件。135-case formal evidence 已完成并回填到
-`outputs/formal_evidence/stage1_delay/`；仍不得把 pilot 数字、历史 Oracle 术语或
-未验证的 novelty 写成结论。工程 materiality threshold 和硬件实测标定尚未声明。
+状态：论文草稿框架，不是已投稿稿件。Formal-v2 135-case evidence 已完成并回填到
+`outputs/formal_evidence/stage1_delay_v2_full_20260917/`；Formal-v1
+`outputs/formal_evidence/stage1_delay/` 保持不可变历史参考。仍不得把 pilot 数字、历史
+Oracle 术语或未验证的 novelty 写成结论。工程 materiality threshold 和硬件实测标定尚未声明。
 
 2026-09-17 收口约束：novelty 只允许写成 potential/unverified，来源与差异见
 [`ChannelDelay_Calibration_Novelty_Audit.md`](../literature/ChannelDelay_Calibration_Novelty_Audit.md)；硬件只引用
@@ -10,6 +11,26 @@
 [`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](../AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)。
 
 固定开关：`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
+## 2026-09-20 Formal-v2 addendum
+
+Formal-v2 在 frozen commit `ebac0b7c649ac23295e36e8aee9ee8749631d30b` 上完成
+`135/135` case、15 个 physical block 和 9 个 delay，source before/after 相同、tracked
+dirty=false。当前可写入论文草稿的结果仅限 registered conditions：A1→A3 的
+target/period Pd 为 `0.9556→0.9793`，position RMSE 为
+`220.4825→161.4688 m`，angle RMSE 为 `0.1358→0.0969 deg`；A3 使用 A1 OFF
+target-free estimate，不能视为 truth-based upper bound。
+
+以下边界必须随结果保留：materiality thresholds 全部 pending；cell false-hit layer
+因 valid-CUT denominator 为 0 保持 `NOT_EVALUABLE`；1040 个 ID-switch row 均为
+`unclassifiable_production_fields`；C4 production input 未提供；A2/A0 residual 尚未被
+单因素反事实分解；硬件 protocol 已交付但无硬件测量。故当前 manuscript 只能使用
+“potential contribution”“engineering evidence combination”或“under the registered
+conditions”，不得写 first/novel/unconditionally improves，也不授权 Stage-2A 或
+Physics-AI。
+
+最终矩阵和复现入口见
+[`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](../AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)。
 
 ## 1. Introduction
 
@@ -370,9 +391,10 @@ count 去调 gate 或 confirmation logic。
    violate the simple regression model.
 6. Local-input production correctness is not a SHM throughput benchmark.
 7. Pilot data and incomplete/failed runs are kept as separate evidence roots and are never
-   pooled with the final formal matrix；正式 raw production/scenes/inputs 已在 compact
-   evidence 校验后删除，只保留 root manifest、MC 汇总和逐 case manifest；逐文件 cleanup
-   record 的唯一完整副本保存在 root manifest，case 文件仅保留清理摘要与生产审计字段。
+   pooled with the final formal matrix；Formal-v2 raw production/scenes/inputs 已在 compact
+   evidence 校验后删除，只保留 compact CSV、root run manifest、135 个 case manifest 的
+   压缩归档、命令历史和 retention manifest；精确清理边界见
+   `docs/清理记录_2026-09-17.md`。
 
 ## 12. Conclusion template
 

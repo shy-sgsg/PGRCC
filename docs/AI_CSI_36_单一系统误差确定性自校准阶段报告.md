@@ -4,7 +4,7 @@
 > 当前四通道协议 IQ 经 F1/F2 融合后的生产两通道链路；不包含 native 4ch
 > STAP/JDL、AI Router 或任何神经网络。
 
-## 0. 2026-09-17 收口增补：证据边界与下一步
+## 0. 2026-09-17 收口增补：证据边界与下一步（历史收口）
 
 本节只记录本次收口已经产生的证据和文档，不把历史 Formal-v1 数字升级为最终论文结论。
 
@@ -30,9 +30,35 @@
   Paper-1 只保留 potential/unverified 表述；硬件当前没有实测结果。
 - 最终 v2 结论槽位见
   [`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)；
-  在独立 clean Formal-v2 前，不启动 Stage-2A hard gate。
+  当时在独立 clean Formal-v2 前不启动 Stage-2A hard gate；Formal-v2 完成后的 A–L 判定见第 0.1 节。
 
 本阶段固定开关为：`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
+## 0.1 2026-09-20 Formal-v2 最终收口
+
+独立 Formal-v2 已从 frozen commit `ebac0b7c649ac23295e36e8aee9ee8749631d30b` 完成
+`135/135` 个 case，覆盖 15 个 physical scene block、9 个 delay；source before/after
+相同且 tracked dirty=false。当前 compact 和分层证据分别为：
+
+- `outputs/formal_evidence/stage1_delay_v2_full_20260917/`；
+- `outputs/formal_evidence/stage1_delay_v2_full_20260917_hierarchical/`。
+
+当前结果支持：A3 是 target-free correction；A2/A3 相对 A1 的 position RMSE 平均改善
+分别为 `60.2619/59.0136 m`，target/period detection Pd 为
+`A1=0.9556 → A2=0.9867 → A3=0.9793`；但 materiality 阈值仍为
+`exploratory_pending`，不能写成工程 pass/fail。OFF waterfall 的 cluster/protocol/track
+层分别可评估，而 cell 层 540 行因 `valid_cut_count=0` 为 `NOT_EVALUABLE`；ID-switch
+1040 行全部保留 `unclassifiable_production_fields`，缺失字段为
+`track_association_audit_v2.csv`。C0–C3 closure 有限输入通过，C4 production input
+缺失，A2/A0 residual 的单因素反事实分解仍不充分。
+
+因此 Stage-2A 当前为 `NO_GO_STAGE1_INCOMPLETE`，缺口为 C4 production input、valid-CUT
+分母和 A2/A0 residual 分解。除非项目决策者书面允许在这些 `NOT_EVALUABLE` 边界下继续，
+本阶段不启动耦合误差 runner、Physics-AI 或 Router；固定开关继续为
+`ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
+
+完整 A–L 矩阵、当前数值、限制和最短复现命令见
+[`AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md`](AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md)。
 
 ## 1. 结论摘要
 
@@ -370,15 +396,15 @@ p-value 替代工程重要性。
   “校正带来收益”的结论；
 - v2 保留为跨 packet 拼接错误的失败证据，不与 v3 混排。
 
-正式矩阵已按上述定义完成并收敛到
-`outputs/formal_evidence/stage1_delay/`。compact package 恰好包含九个文件：估计器与
+历史 Formal-v1 矩阵已按上述定义完成并收敛到
+`outputs/formal_evidence/stage1_delay/`；当前正式结论使用独立 Formal-v2
+`outputs/formal_evidence/stage1_delay_v2_full_20260917/`。compact package 恰好包含九个文件：估计器与
 baseline、A0/A1/A2/A3、OFF/ON、TrackManager、ID-switch 和 paired statistics；其
 `manifest.json` 的 `source_status=completed`、`source_run_manifest_sha256`、源码身份、
-GPU/磁盘状态和 row counts 可反查正式源 manifest。正式 source tree 只保留 135 份
-case manifest、根 manifest 和 MC 汇总；case manifest 保留四条件配置、production/PIPE
-审计与状态，逐文件 cleanup 记录的唯一完整副本在根 manifest，避免重复存储。在 compact
-package 生成并校验后，逐 case 的 production/scenes/inputs 中间产物与重复 cleanup JSON
-已删除，清理记录见 `docs/清理记录_2026-09-16.md`。
+GPU/磁盘状态和 row counts 可反查正式源 manifest。Formal-v2 raw source tree 已在 compact
+校验后删除；根 run manifest、135 个 case manifest 的压缩归档、命令历史和 retention
+manifest 保留在 v2 compact 目录。v1/v2 的精确删除与保留边界见
+`docs/清理记录_2026-09-17.md`。
 
 ## 10. 其他单误差成熟度
 

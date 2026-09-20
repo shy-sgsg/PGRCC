@@ -1,0 +1,11 @@
+Formal-v2 representative CUDA command (attempt 1, exit 0):
+python3 scripts/run_delay_stage1_formal.py --mode formal --evidence-version formal-v2 --input-mode local --output-root outputs/formal_delay_stage1_v2_20260917 --delay-errors-ns 0,1,-1,2,-2,4,-4,8,-8 --working-point registered --mc-trials 100 --max-cases 1 --cleanup-raw
+
+Formal-v2 full resume command (attempt 2, exit 0; completed 135/135):
+python3 scripts/run_delay_stage1_formal.py --mode formal --evidence-version formal-v2 --input-mode local --output-root outputs/formal_delay_stage1_v2_20260917 --delay-errors-ns 0,1,-1,2,-2,4,-4,8,-8 --working-point registered --mc-trials 100 --resume --cleanup-raw
+
+Compact evidence command (exit 0):
+python3 scripts/analyze_delay_stage1_formal.py --run-manifest outputs/formal_delay_stage1_v2_20260917/manifest.json --output-root outputs/formal_evidence/stage1_delay_v2_full_20260917
+
+Hierarchical evidence command (exit 0):
+python3 -c 'from pathlib import Path; from scripts.analyze_delay_stage1_hierarchical import write_hierarchical_evidence; write_hierarchical_evidence([Path("outputs/formal_evidence/stage1_delay_v2_full_20260917")], Path("outputs/formal_evidence/stage1_delay_v2_full_20260917_hierarchical"), seed=20260917, trials=2000)'
