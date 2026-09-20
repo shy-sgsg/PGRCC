@@ -77,6 +77,88 @@
       "apply_source": "ON=S+C+N"
     }
   ],
+  "mechanism_pilot": {
+    "cases": [
+      {
+        "case_id": "E1",
+        "label": "pure equivalent complex mismatch",
+        "mechanism": "pure_equivalent_mismatch",
+        "physical_observable": "equivalent_complex_gamma",
+        "observable_domain": "range_doppler_multiplicative",
+        "physical_truth": 0.0,
+        "physical_blind_estimate": 0.0,
+        "physical_unit": "none"
+      },
+      {
+        "case_id": "P1",
+        "label": "fast-time channel delay",
+        "mechanism": "fast_time_channel_delay",
+        "physical_observable": "fast_time_range_registration",
+        "observable_domain": "fast_time_frequency_phase",
+        "physical_truth": 0.375,
+        "physical_blind_estimate": 0.35,
+        "physical_unit": "sample"
+      },
+      {
+        "case_id": "P2",
+        "label": "servo pointing bias",
+        "mechanism": "servo_pointing",
+        "physical_observable": "servo_pointing_bias_deg",
+        "observable_domain": "pointing_geometry_state",
+        "physical_truth": 0.18,
+        "physical_blind_estimate": 0.16,
+        "physical_unit": "deg"
+      },
+      {
+        "case_id": "P3",
+        "label": "platform velocity bias",
+        "mechanism": "platform_velocity",
+        "physical_observable": "platform_velocity_bias_mps",
+        "observable_domain": "slow_time_kinematic_state",
+        "physical_truth": 1.25,
+        "physical_blind_estimate": 1.10,
+        "physical_unit": "mps"
+      },
+      {
+        "case_id": "D1",
+        "label": "true decorrelation",
+        "mechanism": "true_decorrelation",
+        "physical_observable": "decorrelation_coherence_floor",
+        "observable_domain": "stochastic_cross_channel_coherence",
+        "physical_truth": 0.0,
+        "physical_blind_estimate": 0.0,
+        "physical_unit": "coherence"
+      }
+    ],
+    "historical_references": [
+      {
+        "topic": "channel_delay_formal",
+        "path": "docs/AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md",
+        "limitation": "historical production evidence only; not recomputed by this mechanism pilot"
+      },
+      {
+        "topic": "system_error_observability",
+        "path": "docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md",
+        "limitation": "historical physical-estimation framing only; not treated as a new measured servo or velocity result"
+      },
+      {
+        "topic": "channel_delay_audit",
+        "path": "docs/AI_CSI_37_ChannelDelay_Finalization_Audit.md",
+        "limitation": "historical audit reference; downstream fields remain NOT_EVALUABLE in this pilot"
+      },
+      {
+        "topic": "target_transfer_audit",
+        "path": "docs/AI_CSI_26_TargetTransfer与目标保护审计.md",
+        "limitation": "historical archive reference only; not promoted to Task 4 measured target transfer"
+      }
+    ],
+    "allowed_decision_labels": [
+      "GO_HIERARCHICAL_CALIBRATION",
+      "GO_EQUIVALENT_CALIBRATION_ONLY",
+      "GO_PHYSICAL_CALIBRATION_ONLY",
+      "GO_COUPLED_PHYSICAL_STATE_STUDY"
+    ]
+  },
   "evidence_root": "outputs/formal_evidence/equivalent_vs_physical_pilot",
   "downstream_status": "NOT_EVALUABLE",
   "ai_training": false,
