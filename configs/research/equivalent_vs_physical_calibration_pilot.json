@@ -1,0 +1,84 @@
+{
+  "schema": "equivalent_vs_physical_calibration_pilot.v1",
+  "seed": 20260920,
+  "dimensions": {
+    "range_bins": 24,
+    "doppler_bins": 6,
+    "range_band_size": 6
+  },
+  "support": {
+    "min_support": 4,
+    "clutter_support_name": "clutter_support"
+  },
+  "thresholds": {
+    "gamma_error_abs_max": 1e-10,
+    "residual_power_max": 1e-20,
+    "coherence_floor_min": 0.8,
+    "decorrelation_floor_ratio_min": 0.95,
+    "mode_b_improvement_ratio_max": 0.5
+  },
+  "methods": {
+    "Mode-A": {
+      "T1": "SCC",
+      "T2": "DDC",
+      "T3": "DDC-RB",
+      "T4": "DDC",
+      "T5": "DDC-RB"
+    },
+    "Mode-B": {
+      "T1": "robust_DDC-RB",
+      "T2": "robust_DDC-RB",
+      "T3": "robust_DDC-RB",
+      "T4": "robust_DDC",
+      "T5": "robust_DDC-RB"
+    }
+  },
+  "robust": {
+    "phase_threshold_rad": 0.45
+  },
+  "cases": [
+    {
+      "case_id": "T1",
+      "label": "constant Gamma",
+      "mechanism": "constant_gamma"
+    },
+    {
+      "case_id": "T2",
+      "label": "Doppler-dependent Gamma",
+      "mechanism": "doppler_gamma"
+    },
+    {
+      "case_id": "T3",
+      "label": "range-Doppler Gamma",
+      "mechanism": "range_doppler_gamma"
+    },
+    {
+      "case_id": "T4",
+      "label": "strong moving target contamination",
+      "mechanism": "target_contamination"
+    },
+    {
+      "case_id": "T5",
+      "label": "true decorrelation below unit coherence",
+      "mechanism": "decorrelation"
+    }
+  ],
+  "modes": [
+    {
+      "mode_id": "Mode-A",
+      "label": "target-free OFF-derived Gamma fixed onto ON",
+      "estimator_source": "OFF=C+N",
+      "apply_source": "ON=S+C+N"
+    },
+    {
+      "mode_id": "Mode-B",
+      "label": "online robust ON-derived Gamma",
+      "estimator_source": "ON=S+C+N",
+      "apply_source": "ON=S+C+N"
+    }
+  ],
+  "evidence_root": "outputs/formal_evidence/equivalent_vs_physical_pilot",
+  "downstream_status": "NOT_EVALUABLE",
+  "ai_training": false,
+  "router_enabled": false
+}
