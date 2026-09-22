@@ -64,6 +64,14 @@ bool finiteInputs(const std::vector<std::complex<float> >& f1,
     return true;
 }
 
+bool finiteOutput(const std::vector<std::complex<float> >& output)
+{
+    for (const std::complex<float>& value : output) {
+        if (!isFiniteComplex(value)) return false;
+    }
+    return true;
+}
+
 bool normalizeBounds(const SupportBounds& requested,
                      int rows,
                      int cols,
@@ -342,6 +350,12 @@ Result applyProductionCalibration(
     }
     result.support_count = static_cast<int>(support_count);
 
+    if (method == Method::kRobustDdcRb &&
+        static_cast<long long>(range_band_bins) > range_count) {
+        result.reason = "range_band_bins_exceeds_support";
+        return result;
+    }
+
     if (method == Method::kOrdinarySubtraction) {
         GammaSummary summary;
         summary.range_start = bounds.range_start;
@@ -362,10 +376,15 @@ Result applyProductionCalibration(
                     f2[offset(row, col, cols)] - f1[offset(row, col, cols)];
             }
         }
+        result.gamma_summary.push_back(summary);
+        if (!finiteOutput(result.csi)) {
+            result.csi = f1;
+            result.reason = "nonfinite_output";
+            return result;
+        }
         result.status = Status::kOk;
         result.groups_total = 1;
         result.valid_groups = 1;
-        result.gamma_summary.push_back(summary);
         return result;
     }
 
@@ -392,6 +411,11 @@ Result applyProductionCalibration(
                     gamma * f1[offset(row, col, cols)];
             }
         }
+        if (!finiteOutput(result.csi)) {
+            result.csi = f1;
+            result.reason = "nonfinite_output";
+            return result;
+        }
         result.status = Status::kOk;
         result.valid_groups = 1;
         return result;
@@ -402,11 +426,14 @@ Result applyProductionCalibration(
     const int band_size = range_banded ? range_band_bins : range_count;
     for (int row = bounds.az_start; row <= bounds.az_end; ++row) {
         if (range_banded) {
-            for (int band_start = bounds.range_start;
-                 band_start <= bounds.range_end;
-                 band_start += band_size) {
-                const int band_end = std::min(
-                    bounds.range_end, band_start + band_size - 1);
+            for (long long band_start_wide = bounds.range_start;
+                 band_start_wide <= static_cast<long long>(bounds.range_end);
+                 band_start_wide += static_cast<long long>(band_size)) {
+                const long long band_end_wide = std::min(
+                    static_cast<long long>(bounds.range_end),
+                    band_start_wide + static_cast<long long>(band_size) - 1LL);
+                const int band_start = static_cast<int>(band_start_wide);
+                const int band_end = static_cast<int>(band_end_wide);
                 const LocalFit fit = robust
                     ? fitRobust(f1, f2, cols, row, band_start, band_end,
                                 min_support, robust_phase_threshold_rad)
@@ -439,6 +466,13 @@ Result applyProductionCalibration(
                               bounds.range_end, fit, &result.csi);
             }
         }
+    }
+
+    if (!finiteOutput(result.csi)) {
+        result.csi = f1;
+        result.status = Status::kNotEvaluable;
+        result.reason = "nonfinite_output";
+        return result;
     }
 
     if (result.valid_groups == result.groups_total && result.groups_total > 0) {

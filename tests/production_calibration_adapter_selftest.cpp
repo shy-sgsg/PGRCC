@@ -4,6 +4,7 @@
 #include <cmath>
 #include <complex>
 #include <iostream>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -76,6 +77,33 @@ int main()
     const std::vector<std::complex<float> > f2 = scaled(f1, phase_gain);
     const std::vector<std::complex<float> > f1_before = f1;
     const std::vector<std::complex<float> > f2_before = f2;
+
+    const auto oversized_band = applyProductionCalibration(
+        f1, f2, rows, cols, support, Method::kRobustDdcRb,
+        2, std::numeric_limits<int>::max(), 0.30);
+    require(oversized_band.status == Status::kNotEvaluable &&
+                oversized_band.reason == "range_band_bins_exceeds_support",
+            "oversized positive range band is rejected before signed arithmetic");
+
+    const int overflow_rows = 1;
+    const int overflow_cols = 2;
+    const std::vector<std::complex<float> > small_f1(
+        static_cast<std::size_t>(overflow_rows * overflow_cols),
+        std::complex<float>(1.0e-7f, 0.0f));
+    const std::vector<std::complex<float> > large_f2(
+        static_cast<std::size_t>(overflow_rows * overflow_cols),
+        std::complex<float>(std::numeric_limits<float>::max(), 0.0f));
+    const auto float_overflow = applyProductionCalibration(
+        small_f1, large_f2, overflow_rows, overflow_cols,
+        SupportBounds(0, 0, 0, 1), Method::kScc,
+        2, 1, 0.30);
+    require(float_overflow.status == Status::kNotEvaluable &&
+                float_overflow.reason == "nonfinite_output",
+            "finite double Gamma that overflows float output is fail-closed");
+    for (const std::complex<float>& value : float_overflow.csi) {
+        require(std::isfinite(value.real()) && std::isfinite(value.imag()),
+                "fail-closed output remains finite");
+    }
 
     const auto ordinary = applyProductionCalibration(
         f1, f2, rows, cols, support, Method::kOrdinarySubtraction,
