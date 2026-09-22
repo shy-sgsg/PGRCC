@@ -147,6 +147,21 @@ def test_fast_time_delay_is_separate_range_registration_not_doppler_only(tmp_pat
     assert any(abs(float(row["range_registration_error_samples"])) < 1e-12 for row in physical_delay_rows)
 
 
+def test_physical_residual_rows_are_kept_for_explicit_status_vocabulary(tmp_path: Path) -> None:
+    output_root = run_pilot(tmp_path)
+    rows = read_csv(output_root / "clutter_metrics.csv")
+    delay_rows = [row for row in rows if row["mechanism"] == "fast_time_channel_delay"]
+
+    residual_rows = {
+        row["method_id"]: row
+        for row in delay_rows
+        if row["method_id"] in {"P2", "PK+R"}
+    }
+    assert residual_rows["P2"]["status"] == "RADAR_ESTIMATED"
+    assert residual_rows["PK+R"]["status"] == "KNOWN_TRUTH"
+    assert all(row["status"] != "NOT_EVALUABLE" for row in residual_rows.values())
+
+
 def test_mechanism_rows_preserve_physical_state_and_decorrelation_boundaries(tmp_path: Path) -> None:
     output_root = run_pilot(tmp_path)
     gamma_rows = read_csv(output_root / "gamma_recovery.csv")

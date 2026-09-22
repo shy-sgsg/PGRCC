@@ -666,7 +666,11 @@ def build_observations(config: dict[str, Any]) -> dict[str, Any]:
                         "estimator_input_paths": physical["estimator_input_paths"],
                     }
                 )
-            if method_id in {"P2", "PK+R"} and physical_status in {"OK", "PARTIAL"}:
+            if (
+                method_id in {"P2", "PK+R"}
+                and physical_status in PHYSICAL_STATUS_VOCABULARY
+                and physical_status != NOT_EVALUABLE
+            ):
                 clutter_rows.append(
                     {
                         "case_id": case["case_id"],
