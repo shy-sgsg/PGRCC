@@ -288,6 +288,100 @@ def test_adapter_rows_preserve_provenance_and_fail_closed() -> None:
     assert missing_truth_marker["fallback_to_current"] is False
 
 
+def test_reference_group_rows_reject_empty_identity_and_gamma(tmp_path: Path) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        validate_reference_gamma_rows,
+    )
+
+    row = {
+        "period_id": "1",
+        "result_id": "GMTI01",
+        "beam_id": "3",
+        "method": "robust_ddc_rb",
+        "group_id": "az_1_range_4_7",
+        "az_index": "1",
+        "range_start": "4",
+        "range_end": "7",
+        "status": "OK",
+        "support_count": "4",
+        "phase_coherence": "nan",
+        "gamma_real": "0.8",
+        "gamma_imag": "0.1",
+        "truth_used_in_estimator": "false",
+        "reason": "",
+    }
+    for field in (
+        "period_id",
+        "beam_id",
+        "az_index",
+        "range_start",
+        "range_end",
+        "support_count",
+        "gamma_real",
+        "gamma_imag",
+    ):
+        malformed = dict(row)
+        malformed[field] = ""
+        result = validate_reference_gamma_rows(
+            [malformed], method_id="robust_ddc_rb", min_support=4
+        )
+        assert result["status"] == "NOT_EVALUABLE"
+        assert result["reason"] == f"reference_field_missing:{field}"
+
+    malformed_gamma = dict(row)
+    malformed_gamma["gamma_real"] = "not-a-number"
+    result = validate_reference_gamma_rows(
+        [malformed_gamma], method_id="robust_ddc_rb", min_support=4
+    )
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["reason"] == "reference_field_invalid:gamma_real"
+
+
+def test_reference_artifact_uses_group_rows_not_aggregate_rows(tmp_path: Path) -> None:
+    import csv
+
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        write_reference_gamma_artifact,
+    )
+
+    rows = []
+    for group_id, az_index, range_start, range_end, gamma_real in (
+        ("az_1_range_1_3", "1", "1", "3", "0.8"),
+        ("az_1_range_4_6", "1", "4", "6", "0.6"),
+    ):
+        rows.append(
+            {
+                "period_id": "1",
+                "result_id": "GMTI01",
+                "beam_id": "3",
+                "method": "robust_ddc_rb",
+                "group_id": group_id,
+                "az_index": az_index,
+                "range_start": range_start,
+                "range_end": range_end,
+                "status": "OK",
+                "support_count": "3",
+                "phase_coherence": "nan",
+                "gamma_real": gamma_real,
+                "gamma_imag": "0.0",
+                "truth_used_in_estimator": "false",
+                "reason": "",
+            }
+        )
+    destination = tmp_path / "reference_gamma.csv"
+    result = write_reference_gamma_artifact(
+        rows, destination, method_id="robust_ddc_rb", min_support=3
+    )
+    assert result["status"] == "passed"
+    with destination.open(newline="", encoding="utf-8") as stream:
+        written = list(csv.DictReader(stream))
+    assert [item["group_id"] for item in written] == [
+        "az_1_range_1_3",
+        "az_1_range_4_6",
+    ]
+    assert [item["gamma_real"] for item in written] == ["0.8", "0.6"]
+
+
 def test_geometry_aggregation_uses_real_valid_and_hit_cut_fields(tmp_path: Path) -> None:
     from scripts.run_production_hierarchical_calibration_pilot import aggregate_branch_cfar_geometry
 

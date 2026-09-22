@@ -126,6 +126,15 @@ std::string csvEscape(const std::string& s)
     return out;
 }
 
+std::string gammaGroupId(const ProductionCalibrationGammaGroup& group)
+{
+    std::ostringstream id;
+    id << "az_" << group.az_index
+       << "_range_" << group.range_start
+       << "_" << group.range_end;
+    return id.str();
+}
+
 std::string pathJoin(std::string dir, const std::string& file)
 {
     if (dir.empty()) {
@@ -1420,6 +1429,11 @@ bool recordProductionCalibrationTap(const Config& cfg,
                   << std::endl;
         return false;
     }
+    if (!tap.gamma_groups.empty() && cfg.result_file_id <= 0) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot emit strict group "
+                  << "reference rows without result_file_id" << std::endl;
+        return false;
+    }
     if (!mkdirP(cfg.result_add)) {
         std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot create output dir: "
                   << cfg.result_add << std::endl;
@@ -1468,6 +1482,50 @@ bool recordProductionCalibrationTap(const Config& cfg,
     if (!os.good()) {
         std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV row "
                   << path << std::endl;
+        return false;
+    }
+
+    const std::string group_path = pathJoin(
+        cfg.result_add, "production_calibration_reference_gamma.csv");
+    const bool group_write_header = !fileExists(group_path);
+    std::ofstream group_os(group_path.c_str(), std::ios::out | std::ios::app);
+    if (!group_os) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write "
+                  << group_path << std::endl;
+        return false;
+    }
+    if (group_write_header) {
+        group_os << "period_id,result_id,beam_id,method,group_id,az_index,"
+                    "range_start,range_end,status,support_count,"
+                    "phase_coherence,gamma_real,gamma_imag,"
+                    "truth_used_in_estimator,reason\n";
+        if (!group_os.good()) {
+            std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV header "
+                      << group_path << std::endl;
+            return false;
+        }
+    }
+    for (const ProductionCalibrationGammaGroup& group : tap.gamma_groups) {
+        group_os << cfg.result_file_id << ","
+                 << csvEscape(state().result_id) << ","
+                 << beam_id << ","
+                 << csvEscape(tap.method) << ","
+                 << csvEscape(gammaGroupId(group)) << ","
+                 << group.az_index << ","
+                 << group.range_start << ","
+                 << group.range_end << ","
+                 << csvEscape(group.status) << ","
+                 << group.support_count << ","
+                 << std::setprecision(15) << group.phase_coherence << ","
+                 << group.gamma_real << ","
+                 << group.gamma_imag << ","
+                 << (group.truth_used_in_estimator ? "true" : "false") << ","
+                 << csvEscape(group.reason) << "\n";
+    }
+    group_os.flush();
+    if (!group_os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV rows "
+                  << group_path << std::endl;
         return false;
     }
     return true;

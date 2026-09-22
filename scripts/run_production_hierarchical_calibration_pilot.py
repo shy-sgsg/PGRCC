@@ -906,6 +906,7 @@ def _collect_branch_artifacts(record: Mapping[str, object]) -> dict[str, object]
     debug_dir = Path(str(record.get("track_debug_dir", ""))) if record.get("track_debug_dir") else None
     patterns = {
         "adapter_csv": "production_calibration_adapter.csv",
+        "reference_gamma_csv": "production_calibration_reference_gamma.csv",
         "cfar_geometry": "*cfar*geometry*.csv",
         "detection": "detection_results_GMTI*.csv",
         "track_frames": "track_frames.csv",
@@ -925,6 +926,10 @@ def _collect_branch_artifacts(record: Mapping[str, object]) -> dict[str, object]
 
 
 def _adapter_rows(paths: Sequence[str], method_id: str, role: str) -> list[dict[str, object]]:
+    return _read_csv_rows(paths, method_id, role)
+
+
+def _read_csv_rows(paths: Sequence[str], method_id: str, role: str) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for raw in paths:
         path = Path(raw)
@@ -939,6 +944,157 @@ def _adapter_rows(paths: Sequence[str], method_id: str, role: str) -> list[dict[
         except OSError:
             continue
     return rows
+
+
+def _reference_gamma_rows(
+    paths: Sequence[str], method_id: str, role: str
+) -> list[dict[str, object]]:
+    """Read raw per-GammaSummary rows from the dedicated reference artifact."""
+
+    return _read_csv_rows(paths, method_id, role)
+
+
+REFERENCE_GAMMA_REQUIRED_FIELDS = (
+    "period_id",
+    "result_id",
+    "beam_id",
+    "method",
+    "group_id",
+    "az_index",
+    "range_start",
+    "range_end",
+    "status",
+    "support_count",
+    "gamma_real",
+    "gamma_imag",
+    "truth_used_in_estimator",
+)
+
+
+def validate_reference_gamma_rows(
+    rows: Sequence[Mapping[str, object]], *, method_id: str, min_support: int
+) -> dict[str, object]:
+    """Validate strict raw per-group Gamma rows for fixed-reference replay."""
+
+    try:
+        minimum = int(min_support)
+    except (TypeError, ValueError):
+        minimum = 0
+    copied = [dict(row) for row in rows]
+    statuses = [str(row.get("status", "")).strip() for row in copied]
+    support_counts: list[int] = []
+    for row in copied:
+        try:
+            support_counts.append(int(str(row.get("support_count", "")).strip()))
+        except (TypeError, ValueError):
+            support_counts.append(-1)
+    base = {
+        "truth_used_in_estimator": False,
+        "support_count": sum(max(0, value) for value in support_counts),
+        "support_counts": support_counts,
+        "min_support": minimum,
+        "statuses": statuses,
+        "rows": copied,
+        "fallback_to_current": False,
+    }
+    if not copied:
+        return {**base, "status": "NOT_EVALUABLE", "reason": "reference_groups_missing"}
+    if minimum <= 0:
+        return {**base, "status": "NOT_EVALUABLE", "reason": "invalid_min_support"}
+
+    for row in copied:
+        for field in REFERENCE_GAMMA_REQUIRED_FIELDS:
+            value = row.get(field)
+            if value is None or not str(value).strip():
+                return {
+                    **base,
+                    "status": "NOT_EVALUABLE",
+                    "reason": f"reference_field_missing:{field}",
+                }
+        for field in (
+            "period_id",
+            "beam_id",
+            "az_index",
+            "range_start",
+            "range_end",
+            "support_count",
+        ):
+            try:
+                parsed = int(str(row[field]).strip())
+            except (TypeError, ValueError):
+                return {
+                    **base,
+                    "status": "NOT_EVALUABLE",
+                    "reason": f"reference_field_invalid:{field}",
+                }
+            if parsed < -(2**31) or parsed > 2**31 - 1:
+                return {
+                    **base,
+                    "status": "NOT_EVALUABLE",
+                    "reason": f"reference_field_invalid:{field}",
+                }
+        if str(row["method"]).strip() != method_id:
+            return {
+                **base,
+                "status": "NOT_EVALUABLE",
+                "reason": "reference_method_mismatch",
+            }
+        if str(row["status"]).strip() != "OK":
+            return {
+                **base,
+                "status": "NOT_EVALUABLE",
+                "reason": "reference_status_not_ok",
+            }
+        truth = row["truth_used_in_estimator"]
+        truth_is_false = (
+            isinstance(truth, bool) and not truth
+        ) or str(truth).strip().lower() == "false"
+        if not truth_is_false:
+            return {
+                **base,
+                "status": "NOT_EVALUABLE",
+                "reason": "truth_used_in_estimator",
+            }
+        if int(str(row["support_count"]).strip()) < minimum:
+            return {
+                **base,
+                "status": "NOT_EVALUABLE",
+                "reason": "support_below_minimum",
+            }
+        for field in ("gamma_real", "gamma_imag"):
+            try:
+                value = float(str(row[field]).strip())
+            except (TypeError, ValueError):
+                return {
+                    **base,
+                    "status": "NOT_EVALUABLE",
+                    "reason": f"reference_field_invalid:{field}",
+                }
+            if not math.isfinite(value):
+                return {
+                    **base,
+                    "status": "NOT_EVALUABLE",
+                    "reason": f"reference_field_invalid:{field}",
+                }
+        phase = row.get("phase_coherence")
+        if phase is not None and str(phase).strip():
+            phase_text = str(phase).strip().lower()
+            if phase_text != "nan":
+                try:
+                    phase_value = float(phase_text)
+                except (TypeError, ValueError):
+                    return {
+                        **base,
+                        "status": "NOT_EVALUABLE",
+                        "reason": "reference_field_invalid:phase_coherence",
+                    }
+                if not math.isfinite(phase_value):
+                    return {
+                        **base,
+                        "status": "NOT_EVALUABLE",
+                        "reason": "reference_field_invalid:phase_coherence",
+                    }
+    return {**base, "status": "evaluable", "reason": None}
 
 
 def _result_period_id(value: object) -> int:
@@ -957,18 +1113,15 @@ def write_reference_gamma_artifact(
     method_id: str,
     min_support: int,
 ) -> dict[str, object]:
-    """Persist OFF/ON tap Gamma rows for a later fixed-reference run.
+    """Persist raw per-GammaSummary rows for a later fixed-reference run."""
 
-    The current CUDA tap exports one aggregate group per period/beam.  The
-    artifact keeps that group identity and all provenance fields; a future tap
-    can add local groups without changing the contract columns.
-    """
-
-    validation = validate_adapter_rows(rows, min_support=min_support)
+    validation = validate_reference_gamma_rows(
+        rows, method_id=method_id, min_support=min_support
+    )
     if validation["status"] != "evaluable":
         return {
             "status": "NOT_EVALUABLE",
-            "reason": validation.get("reason", "adapter_reference_rows_invalid"),
+            "reason": validation.get("reason", "reference_gamma_rows_invalid"),
             "fallback_to_current": False,
             "validation": validation,
             "path": str(Path(destination).resolve()),
@@ -990,37 +1143,14 @@ def write_reference_gamma_artifact(
         "truth_used_in_estimator",
         "reason",
     ]
-    output_rows: list[dict[str, object]] = []
-    for row in rows:
-        if _parse_bool_marker(row.get("truth_used_in_estimator", False)):
-            return {
-                "status": "NOT_EVALUABLE",
-                "reason": "truth_used_in_estimator",
-                "fallback_to_current": False,
-                "validation": validation,
-                "path": str(Path(destination).resolve()),
-            }
-        output_rows.append({
-            "period_id": _result_period_id(row.get("result_id")),
-            "result_id": row.get("result_id", ""),
-            "beam_id": row.get("beam_id", "-1"),
-            "method": row.get("method", method_id),
-            "group_id": "global",
-            "az_index": row.get("az_index", "-1") or "-1",
-            "range_start": row.get("range_start", "-1") or "-1",
-            "range_end": row.get("range_end", "-1") or "-1",
-            "status": row.get("status", "NOT_EVALUABLE"),
-            "support_count": row.get("support_count", "0"),
-            "phase_coherence": row.get("phase_coherence", ""),
-            "gamma_real": row.get("gamma_real", ""),
-            "gamma_imag": row.get("gamma_imag", ""),
-            "truth_used_in_estimator": row.get("truth_used_in_estimator", "false"),
-            "reason": row.get("reason", ""),
-        })
+    output_rows = [
+        {field: row.get(field, "") for field in fields}
+        for row in rows
+    ]
     if not output_rows:
         return {
             "status": "NOT_EVALUABLE",
-            "reason": "adapter_reference_rows_missing",
+            "reason": "reference_groups_missing",
             "fallback_to_current": False,
             "validation": validation,
             "path": str(Path(destination).resolve()),
@@ -1038,7 +1168,7 @@ def write_reference_gamma_artifact(
         "path": str(destination.resolve()),
         "row_count": len(output_rows),
         "sha256": _sha256(destination),
-        "grouping": "period_id/beam_id/global",
+        "grouping": "period_id/beam_id/group_id",
     }
 
 
@@ -1533,13 +1663,20 @@ def _run_case(
                 base_record["adapter_rows"] = _adapter_rows(
                     base_record["artifacts"].get("adapter_csv", []), method_id, role  # type: ignore[union-attr]
                 )
+                base_record["reference_gamma_rows"] = _reference_gamma_rows(
+                    base_record["artifacts"].get("reference_gamma_csv", []),  # type: ignore[union-attr]
+                    method_id,
+                    role,
+                )
                 expects_tap = method_id in RESEARCH_METHOD_IDS and not control_off
                 if expects_tap:
-                    adapter_validation = validate_adapter_rows(
-                        base_record["adapter_rows"],
+                    adapter_validation = validate_reference_gamma_rows(
+                        base_record["reference_gamma_rows"],
+                        method_id=method_id,
                         min_support=int(production.get("min_support", 8)),
                     )
                     base_record["adapter_validation"] = adapter_validation
+                    base_record["reference_gamma_validation"] = adapter_validation
                     base_record["truth_used_in_estimator"] = adapter_validation.get(
                         "truth_used_in_estimator"
                     )
@@ -1551,7 +1688,7 @@ def _run_case(
                         })
                     if bool(execution_contract.get("estimator_called")):
                         reference_info = write_reference_gamma_artifact(
-                            base_record["adapter_rows"],
+                            base_record["reference_gamma_rows"],
                             reference_path,
                             method_id=method_id,
                             min_support=int(production.get("min_support", 8)),
@@ -1638,9 +1775,9 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
                 ),
             }
             method_rows.append(common)
-            for adapter in branch.get("adapter_rows", []):
-                if isinstance(adapter, Mapping):
-                    gamma = dict(adapter)
+            for reference_row in branch.get("reference_gamma_rows", []):
+                if isinstance(reference_row, Mapping):
+                    gamma = dict(reference_row)
                     gamma.update({
                         "case": case_id,
                         "method_id": method_id,

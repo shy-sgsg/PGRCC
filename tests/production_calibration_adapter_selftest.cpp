@@ -145,7 +145,7 @@ int main()
     persisted_reference[0].phase_coherence = 0.0;
     const auto fixed_reference = applyProductionCalibrationReference(
         f1, f2, rows, cols, support, Method::kScc,
-        persisted_reference, 2);
+        persisted_reference, 2, 0);
     require(fixed_reference.status == Status::kOk &&
                 fixed_reference.reason == "reference_gamma_applied_without_current_input_fit",
             "persisted Gamma is applied without fitting the current input");
@@ -156,14 +156,14 @@ int main()
         1U, persisted_reference[0]);
     bad_reference[0].status = Status::kNotEvaluable;
     const auto rejected_reference = applyProductionCalibrationReference(
-        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2, 0);
     require(rejected_reference.status == Status::kNotEvaluable &&
                 rejected_reference.reason == "reference_group_not_evaluable",
             "invalid reference is NOT_EVALUABLE without Current fallback");
 
     bad_reference[0].status = Status::kPartial;
     const auto rejected_partial_reference = applyProductionCalibrationReference(
-        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2, 0);
     require(rejected_partial_reference.status == Status::kNotEvaluable &&
                 rejected_partial_reference.reason == "reference_group_partial_not_evaluable",
             "partial persisted reference is NOT_EVALUABLE without Current fallback");
@@ -171,18 +171,25 @@ int main()
     bad_reference[0].status = Status::kOk;
     bad_reference[0].support_count = 1;
     const auto rejected_low_support_reference = applyProductionCalibrationReference(
-        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2, 0);
     require(rejected_low_support_reference.status == Status::kNotEvaluable &&
                 rejected_low_support_reference.reason == "reference_support_below_minimum",
             "low-support persisted reference is NOT_EVALUABLE without Current fallback");
 
     bad_reference[0].support_count = 2;
     bad_reference[0].phase_coherence = std::numeric_limits<double>::quiet_NaN();
+    const auto optional_phase_reference = applyProductionCalibrationReference(
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2, 0);
+    require(optional_phase_reference.status == Status::kOk,
+            "optional persisted phase coherence does not invalidate a reference");
+
+    bad_reference[0].gamma = std::complex<double>(
+        std::numeric_limits<double>::quiet_NaN(), 0.0);
     const auto rejected_missing_metadata_reference = applyProductionCalibrationReference(
-        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2, 0);
     require(rejected_missing_metadata_reference.status == Status::kNotEvaluable &&
-                rejected_missing_metadata_reference.reason == "reference_phase_coherence_nonfinite",
-            "missing persisted reference metadata is NOT_EVALUABLE without Current fallback");
+                rejected_missing_metadata_reference.reason == "reference_gamma_nonfinite",
+            "missing persisted Gamma metadata is NOT_EVALUABLE without Current fallback");
 
     std::vector<std::complex<float> > f2_ddc = f1;
     for (int row = 0; row < rows; ++row) {
@@ -248,6 +255,54 @@ int main()
     require(robust_rb.gamma_summary.back().range_start == 5 &&
                 robust_rb.gamma_summary.back().range_end == 6,
             "DDC-RB closes the final short range band safely");
+
+    const auto fixed_robust_rb = applyProductionCalibrationReference(
+        f1, f2_rb, rows, cols, support, Method::kRobustDdcRb,
+        robust_rb.gamma_summary, 2, 4);
+    require(fixed_robust_rb.status == Status::kOk &&
+                fixed_robust_rb.gamma_summary.size() == 4U,
+            "fixed DDC-RB applies every persisted row/band group");
+    require(closeDouble(
+                std::abs(fixed_robust_rb.gamma_summary[0].gamma -
+                         fixed_robust_rb.gamma_summary[1].gamma),
+                std::abs(robust_rb.gamma_summary[0].gamma -
+                         robust_rb.gamma_summary[1].gamma),
+                1.0e-12) &&
+                closeComplex(fixed_robust_rb.csi[1 * cols + 2],
+                             std::complex<float>(0.0f, 0.0f), 2.0e-5f) &&
+                closeComplex(fixed_robust_rb.csi[2 * cols + 6],
+                             std::complex<float>(0.0f, 0.0f), 2.0e-5f),
+            "distinct persisted row/band Gamma values remain distinct and local");
+
+    std::vector<gmti::production_calibration::GammaSummary> missing_group_reference =
+        robust_rb.gamma_summary;
+    missing_group_reference.pop_back();
+    const auto rejected_missing_group = applyProductionCalibrationReference(
+        f1, f2_rb, rows, cols, support, Method::kRobustDdcRb,
+        missing_group_reference, 2, 4);
+    require(rejected_missing_group.status == Status::kNotEvaluable &&
+                rejected_missing_group.reason == "reference_group_count_mismatch",
+            "missing persisted row/band group is NOT_EVALUABLE");
+
+    std::vector<gmti::production_calibration::GammaSummary> duplicate_group_reference =
+        robust_rb.gamma_summary;
+    duplicate_group_reference.back() = duplicate_group_reference.front();
+    const auto rejected_duplicate_group = applyProductionCalibrationReference(
+        f1, f2_rb, rows, cols, support, Method::kRobustDdcRb,
+        duplicate_group_reference, 2, 4);
+    require(rejected_duplicate_group.status == Status::kNotEvaluable &&
+                rejected_duplicate_group.reason == "reference_group_duplicate",
+            "duplicate persisted row/band group is NOT_EVALUABLE");
+
+    std::vector<gmti::production_calibration::GammaSummary> outside_group_reference =
+        robust_rb.gamma_summary;
+    outside_group_reference[0].az_index = 0;
+    const auto rejected_outside_group = applyProductionCalibrationReference(
+        f1, f2_rb, rows, cols, support, Method::kRobustDdcRb,
+        outside_group_reference, 2, 4);
+    require(rejected_outside_group.status == Status::kNotEvaluable &&
+                rejected_outside_group.reason == "reference_group_outside_support",
+            "out-of-support persisted group is NOT_EVALUABLE");
 
     const auto zero_support = applyProductionCalibration(
         f1, f2, rows, cols, SupportBounds(0, -1, 0, -1),

@@ -19,6 +19,16 @@ struct NormalizedBounds {
     int range_end;
 };
 
+struct ReferenceGroupKey {
+    int az_index;
+    int range_start;
+    int range_end;
+
+    ReferenceGroupKey(int az_value, int range_start_value, int range_end_value)
+        : az_index(az_value), range_start(range_start_value),
+          range_end(range_end_value) {}
+};
+
 struct LocalFit {
     std::complex<double> gamma;
     double phase_coherence;
@@ -89,6 +99,51 @@ bool normalizeBounds(const SupportBounds& requested,
     normalized->az_end = az_end;
     normalized->range_start = range_start;
     normalized->range_end = range_end;
+    return true;
+}
+
+bool expectedReferenceGroups(
+    Method method,
+    const NormalizedBounds& bounds,
+    int range_band_bins,
+    std::vector<ReferenceGroupKey>* expected,
+    std::string* reason)
+{
+    if (expected == nullptr) return false;
+    expected->clear();
+    const int range_count = bounds.range_end - bounds.range_start + 1;
+    if (method == Method::kRobustDdcRb) {
+        if (range_band_bins <= 0) {
+            if (reason != nullptr) *reason = "invalid_range_band_bins";
+            return false;
+        }
+        if (range_band_bins > range_count) {
+            if (reason != nullptr) *reason = "range_band_bins_exceeds_support";
+            return false;
+        }
+        for (int row = bounds.az_start; row <= bounds.az_end; ++row) {
+            for (long long band_start_wide = bounds.range_start;
+                 band_start_wide <= static_cast<long long>(bounds.range_end);
+                 band_start_wide += static_cast<long long>(range_band_bins)) {
+                const long long band_end_wide = std::min(
+                    static_cast<long long>(bounds.range_end),
+                    band_start_wide + static_cast<long long>(range_band_bins) - 1LL);
+                expected->push_back(
+                    ReferenceGroupKey(row, static_cast<int>(band_start_wide),
+                                      static_cast<int>(band_end_wide)));
+            }
+        }
+        return true;
+    }
+    if (method == Method::kOrdinarySubtraction || method == Method::kScc) {
+        expected->push_back(ReferenceGroupKey(
+            -1, bounds.range_start, bounds.range_end));
+        return true;
+    }
+    for (int row = bounds.az_start; row <= bounds.az_end; ++row) {
+        expected->push_back(ReferenceGroupKey(
+            row, bounds.range_start, bounds.range_end));
+    }
     return true;
 }
 
@@ -495,7 +550,8 @@ Result applyProductionCalibrationReference(
     const SupportBounds& support,
     Method method,
     const std::vector<GammaSummary>& reference,
-    int min_support)
+    int min_support,
+    int range_band_bins)
 {
     Result result;
     result.method = method;
@@ -530,10 +586,23 @@ Result applyProductionCalibrationReference(
         return result;
     }
 
-    // Validate every group before changing the output.  A persisted reference
-    // is usable only when every group is complete and independently auditable;
-    // never estimate missing groups or fall back to Current here.
-    for (const GammaSummary& summary : reference) {
+    std::vector<ReferenceGroupKey> expected;
+    std::string expected_reason;
+    if (!expectedReferenceGroups(method, bounds, range_band_bins,
+                                 &expected, &expected_reason)) {
+        result.reason = expected_reason.empty()
+            ? "reference_group_contract_invalid" : expected_reason;
+        return result;
+    }
+    if (reference.size() != expected.size()) {
+        result.reason = "reference_group_count_mismatch";
+        return result;
+    }
+
+    std::vector<bool> matched(expected.size(), false);
+    std::vector<std::size_t> reference_indices(reference.size(), 0U);
+    for (std::size_t index = 0; index < reference.size(); ++index) {
+        const GammaSummary& summary = reference[index];
         if (summary.status == Status::kPartial) {
             result.reason = "reference_group_partial_not_evaluable";
             return result;
@@ -550,35 +619,45 @@ Result applyProductionCalibrationReference(
                 : "reference_gamma_nonfinite";
             return result;
         }
-        if (!std::isfinite(summary.phase_coherence)) {
-            result.reason = "reference_phase_coherence_nonfinite";
+
+        std::size_t matched_index = expected.size();
+        for (std::size_t expected_index = 0;
+             expected_index < expected.size(); ++expected_index) {
+            if (summary.az_index == expected[expected_index].az_index &&
+                summary.range_start == expected[expected_index].range_start &&
+                summary.range_end == expected[expected_index].range_end) {
+                matched_index = expected_index;
+                break;
+            }
+        }
+        if (matched_index == expected.size()) {
+            result.reason = "reference_group_outside_support";
             return result;
         }
-        const int row_start = summary.az_index < 0
-            ? bounds.az_start : summary.az_index;
-        const int row_end = summary.az_index < 0
-            ? bounds.az_end : summary.az_index;
-        const int range_start = summary.range_start < 0
-            ? bounds.range_start : summary.range_start;
-        const int range_end = summary.range_end < 0
-            ? bounds.range_end : summary.range_end;
-        if (row_start < bounds.az_start || row_end > bounds.az_end ||
-            range_start < bounds.range_start || range_end > bounds.range_end ||
-            row_start > row_end || range_start > range_end) {
-            result.reason = "reference_group_outside_support";
+        if (matched[matched_index]) {
+            result.reason = "reference_group_duplicate";
+            return result;
+        }
+        matched[matched_index] = true;
+        reference_indices[index] = matched_index;
+    }
+    for (std::size_t expected_index = 0;
+         expected_index < matched.size(); ++expected_index) {
+        if (!matched[expected_index]) {
+            result.reason = "reference_group_missing";
             return result;
         }
     }
 
-    for (const GammaSummary& summary : reference) {
-        const int row_start = summary.az_index < 0
-            ? bounds.az_start : summary.az_index;
-        const int row_end = summary.az_index < 0
-            ? bounds.az_end : summary.az_index;
-        const int range_start = summary.range_start < 0
-            ? bounds.range_start : summary.range_start;
-        const int range_end = summary.range_end < 0
-            ? bounds.range_end : summary.range_end;
+    for (std::size_t index = 0; index < reference.size(); ++index) {
+        const GammaSummary& summary = reference[index];
+        const ReferenceGroupKey& group = expected[reference_indices[index]];
+        const int row_start = group.az_index < 0
+            ? bounds.az_start : group.az_index;
+        const int row_end = group.az_index < 0
+            ? bounds.az_end : group.az_index;
+        const int range_start = group.range_start;
+        const int range_end = group.range_end;
         LocalFit fit;
         fit.gamma = summary.gamma;
         fit.status = Status::kOk;
@@ -591,6 +670,12 @@ Result applyProductionCalibrationReference(
         result.gamma_summary.push_back(summary);
         ++result.groups_total;
         ++result.valid_groups;
+        if (summary.excluded_count <= std::numeric_limits<int>::max() -
+                result.excluded_count) {
+            result.excluded_count += summary.excluded_count;
+        } else {
+            result.excluded_count = std::numeric_limits<int>::max();
+        }
         if (summary.support_count <= std::numeric_limits<int>::max() -
                 result.support_count) {
             result.support_count += summary.support_count;

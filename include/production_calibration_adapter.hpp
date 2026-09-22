@@ -103,8 +103,8 @@ Result applyProductionCalibration(
 
 // Apply a previously persisted, truth-blind Gamma reference without fitting
 // the current input.  The reference summaries carry period/beam/group
-// provenance and are rejected when no valid group is available; callers must
-// not fall back to the per-input estimator or Production Current.
+// provenance and must exactly cover the method's expected support groups;
+// callers must not fall back to the per-input estimator or Production Current.
 Result applyProductionCalibrationReference(
     const std::vector<std::complex<float> >& f1,
     const std::vector<std::complex<float> >& f2,
@@ -113,7 +113,8 @@ Result applyProductionCalibrationReference(
     const SupportBounds& support,
     Method method,
     const std::vector<GammaSummary>& reference,
-    int min_support);
+    int min_support,
+    int range_band_bins = 0);
 
 const char* methodName(Method method);
 const char* statusName(Status status);

@@ -244,12 +244,35 @@ int main(int argc, char** argv)
     tap.phase_coherence = 0.1;
     tap.truth_used_in_estimator = false;
     tap.reason = "test";
+    gmti::runtime::ProductionCalibrationGammaGroup first_group;
+    first_group.az_index = 1;
+    first_group.range_start = 0;
+    first_group.range_end = 15;
+    first_group.status = "OK";
+    first_group.support_count = 16;
+    first_group.phase_coherence = 0.8;
+    first_group.gamma_real = 0.99;
+    first_group.gamma_imag = 0.01;
+    first_group.truth_used_in_estimator = false;
+    first_group.reason = "first_group";
+    tap.gamma_groups.push_back(first_group);
+    gmti::runtime::ProductionCalibrationGammaGroup second_group = first_group;
+    second_group.az_index = 1;
+    second_group.range_start = 16;
+    second_group.range_end = 31;
+    second_group.phase_coherence = 0.7;
+    second_group.gamma_real = 0.61;
+    second_group.gamma_imag = -0.02;
+    second_group.reason = "second_group";
+    tap.gamma_groups.push_back(second_group);
     gmti::runtime::recordProductionCalibrationTap(snapshot_cfg, 3, tap);
     gmti::runtime::finishRun(snapshot_cfg, true, 0, "selftest");
 
     const std::string json = readText(root + "/runtime_config_dump.json");
     const std::string text = readText(root + "/runtime_config_dump.txt");
     const std::string csv = readText(root + "/production_calibration_adapter.csv");
+    const std::string reference_csv = readText(
+        root + "/production_calibration_reference_gamma.csv");
     check(json.find("\"research_calibration_enable\": true") != std::string::npos,
           "runtime JSON includes research enable");
     check(json.find("\"research_calibration_method\": \"robust_ddc_rb\"") != std::string::npos,
@@ -272,6 +295,17 @@ int main(int argc, char** argv)
           "research tap CSV records beam and status");
     check(csv.find(",false,test") != std::string::npos,
           "research tap CSV records truth-blind provenance");
+    check(reference_csv.find(
+              "period_id,result_id,beam_id,method,group_id,az_index,range_start,"
+              "range_end,status,support_count,phase_coherence,gamma_real,"
+              "gamma_imag,truth_used_in_estimator,reason") != std::string::npos,
+          "group reference CSV has the strict raw header");
+    check(reference_csv.find(",az_1_range_0_15,1,0,15,OK,16") != std::string::npos &&
+              reference_csv.find(",az_1_range_16_31,1,16,31,OK,16") != std::string::npos,
+          "group reference CSV preserves distinct row/band groups");
+    check(reference_csv.find(",0.99,0.01,false,first_group") != std::string::npos &&
+              reference_csv.find(",0.61,-0.02,false,second_group") != std::string::npos,
+          "group reference CSV preserves distinct Gamma values");
 
     const std::string blocked_parent = root + "/tap_blocker_file";
     {

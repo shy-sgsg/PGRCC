@@ -75,3 +75,44 @@ def test_research_tap_is_after_range_phase_preparation() -> None:
             "bool GMTIProcessor::processOnePeriodFusionCache"
         )
     )
+
+
+def test_reference_csv_contract_rejects_wildcards_and_requires_strict_fields() -> None:
+    loader = KERNEL[KERNEL.index("static bool loadProductionCalibrationReference") :]
+    for field in (
+        "period_id",
+        "beam_id",
+        "az_index",
+        "range_start",
+        "range_end",
+        "support_count",
+        "gamma_real",
+        "gamma_imag",
+    ):
+        assert field in loader
+    assert "parseReferenceIntRequired" in loader
+    assert "parseReferenceDoubleRequired" in loader
+    assert 'if (status != "OK")' in loader
+    assert "period_id != cfg.result_file_id" in loader
+    assert "beam_id != diagnostic_beam_id" in loader
+    assert 'truth != "false"' in loader
+    assert "parseReferenceInt(fields, columns, \"period_id\", -1" not in loader
+    assert "parseReferenceDouble(fields, columns, \"gamma_real\", 0.0" not in loader
+
+
+def test_runtime_tap_exports_per_group_reference_csv() -> None:
+    assert "ProductionCalibrationGammaGroup" in RUNTIME
+    assert "production_calibration_reference_gamma.csv" in RUNTIME
+    for field in (
+        "period_id",
+        "result_id",
+        "beam_id",
+        "group_id",
+        "az_index",
+        "range_start",
+        "range_end",
+        "phase_coherence",
+        "gamma_real",
+        "gamma_imag",
+    ):
+        assert field in RUNTIME

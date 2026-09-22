@@ -2,7 +2,9 @@
 #define RUNTIME_DIAGNOSTICS_HPP
 
 #include <chrono>
+#include <limits>
 #include <string>
+#include <vector>
 
 struct Config;
 
@@ -16,9 +18,24 @@ struct RunPaths {
     std::string run_manifest_json;
 };
 
-// One compact, truth-blind row emitted by the research-only production
+// One per-GammaSummary group emitted by the research-only production
 // calibration tap. Keep this record independent of the adapter header so
 // existing non-CUDA diagnostic selftests do not acquire a new link dependency.
+struct ProductionCalibrationGammaGroup {
+    int az_index = -1;
+    int range_start = -1;
+    int range_end = -1;
+    std::string status;
+    int support_count = 0;
+    double phase_coherence = std::numeric_limits<double>::quiet_NaN();
+    double gamma_real = std::numeric_limits<double>::quiet_NaN();
+    double gamma_imag = std::numeric_limits<double>::quiet_NaN();
+    bool truth_used_in_estimator = false;
+    std::string reason;
+};
+
+// One compact aggregate row emitted by the research-only production
+// calibration tap. Group rows are also written to a separate reference CSV.
 struct ProductionCalibrationTap {
     std::string method;
     std::string status;
@@ -33,6 +50,7 @@ struct ProductionCalibrationTap {
     double phase_coherence = 0.0;
     bool truth_used_in_estimator = false;
     std::string reason;
+    std::vector<ProductionCalibrationGammaGroup> gamma_groups;
 };
 
 void initializeRun(const Config& cfg,
