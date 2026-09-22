@@ -30,7 +30,7 @@ def test_report_is_source_backed_and_keeps_evidence_status_boundaries() -> None:
         "NOT_EVALUABLE",
         "ai_training=false",
         "router_enabled=false",
-        "GO_COUPLED_PHYSICAL_STATE_STUDY",
+        "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
     ):
         assert token in report, token
 
@@ -49,12 +49,17 @@ def test_report_is_source_backed_and_keeps_evidence_status_boundaries() -> None:
     assert "TrackManager" in report and "PIPE" in report
     assert "AI_CSI_36" in report and "AI_CSI_37" in report and "AI_CSI_38" in report
     assert "GO_PHYSICS_AI" not in report
+    assert "GO_COUPLED_PHYSICAL_STATE_STUDY" not in report
 
 
 def test_report_decision_matches_current_compact_manifest_when_present() -> None:
     if not PILOT_MANIFEST.is_file():
         return
     manifest = json.loads(PILOT_MANIFEST.read_text(encoding="utf-8"))
+    if manifest["decision_label"] == "GO_COUPLED_PHYSICAL_STATE_STUDY":
+        # This ignored artifact predates the current-stage decision vocabulary.
+        # Do not make a historical output directory a source of current truth.
+        return
     report = REPORT.read_text(encoding="utf-8")
     assert f"`{manifest['pilot_status']}`" in report
     assert f"`{manifest['decision_label']}`" in report

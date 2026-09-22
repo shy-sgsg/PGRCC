@@ -20,7 +20,10 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from scripts.analyze_equivalent_vs_physical_calibration import emit_evidence  # noqa: E402
+from scripts.analyze_equivalent_vs_physical_calibration import (  # noqa: E402
+    PHYSICAL_STATUS_VOCABULARY,
+    emit_evidence,
+)
 from scripts.two_channel_complex_calibration import (  # noqa: E402
     CalibrationEstimate,
     apply_complex_calibration,
@@ -39,8 +42,8 @@ PHYSICAL_METHODS = ("P1", "P2", "PK", "PK+R")
 
 
 METHOD_NAMES = {
-    "M0": "Current",
-    "M1": "ordinary subtraction",
+    "M0": "uncalibrated_subtraction_proxy",
+    "M1": "ordinary_complex_subtraction",
     "M2": "SCC",
     "M3": "DDC",
     "M4": "Robust DDC",
@@ -59,6 +62,33 @@ def _finite(value: float) -> float:
 
 def _fmt(value: float) -> str:
     return f"{_finite(value):.12g}"
+
+
+def coherence_metadata(coherence: float, threshold: float) -> dict[str, Any]:
+    """Classify coherence metadata without changing any estimator calculation."""
+
+    value = float(coherence)
+    limit = float(threshold)
+    if not math.isfinite(value):
+        return {
+            "status": NOT_EVALUABLE,
+            "reason": "invalid_coherence",
+            "coherence": None,
+            "threshold": limit,
+        }
+    if value < limit:
+        return {
+            "status": NOT_EVALUABLE,
+            "reason": "low_coherence",
+            "coherence": value,
+            "threshold": limit,
+        }
+    return {
+        "status": "OK",
+        "reason": "",
+        "coherence": value,
+        "threshold": limit,
+    }
 
 
 def residual_power(residual: np.ndarray, mask: np.ndarray) -> float:
@@ -381,8 +411,15 @@ def _physical_method_result(
         }
 
     if not needs_correction:
+        status = (
+            "KNOWN_TRUTH"
+            if known
+            else "RADAR_ESTIMATED"
+            if case["mechanism"] == "fast_time_channel_delay"
+            else "SENSOR_PRIOR_ONLY"
+        )
         return {
-            "status": "OK",
+            "status": status,
             "estimate": float(estimate),
             "error": error,
             "residual_power": float("nan"),
@@ -401,13 +438,19 @@ def _physical_method_result(
         phase_threshold_rad=phase_threshold_rad,
     )
     residual = apply_complex_calibration(case["f1_on"], corrected_f2, robust, allow_invalid=True)
-    status = robust.status
+    status = (
+        "KNOWN_TRUTH"
+        if known and robust.status in {"OK", "PARTIAL"}
+        else "RADAR_ESTIMATED"
+        if not known and robust.status in {"OK", "PARTIAL"}
+        else NOT_EVALUABLE
+    )
     return {
         "status": status,
         "estimate": float(estimate),
         "error": error,
         "residual_power": residual_power(residual, case["clutter_mask"]),
-        "physical_correction_applied": status in {"OK", "PARTIAL"},
+        "physical_correction_applied": status != NOT_EVALUABLE,
         "estimator_input_paths": input_paths + ["F1", "F2", "clutter_support"],
         "truth_used_in_estimator": not blind,
     }
@@ -437,6 +480,7 @@ def build_observations(config: dict[str, Any]) -> dict[str, Any]:
     cases_summary: list[dict[str, str]] = []
     mode_separation_audit: dict[str, dict[str, Any]] = {}
     mechanism_observable_audit: dict[str, dict[str, Any]] = {}
+    coherence_metadata_by_mechanism: dict[str, dict[str, Any]] = {}
 
     for case_cfg in cases_cfg:
         case = build_case(
@@ -446,6 +490,11 @@ def build_observations(config: dict[str, Any]) -> dict[str, Any]:
             range_band_size,
             fast_time_frequency_cycles_per_sample,
         )
+        case["coherence_metadata"] = coherence_metadata(
+            case["empirical_coherence"],
+            float(config["thresholds"]["coherence_floor_min"]),
+        )
+        coherence_metadata_by_mechanism[case["mechanism"]] = case["coherence_metadata"]
         cases_summary.append(
             {
                 "case_id": case["case_id"],
@@ -454,6 +503,7 @@ def build_observations(config: dict[str, Any]) -> dict[str, Any]:
                 "physical_observable": case["physical_observable"],
                 "observable_domain": case["observable_domain"],
                 "target_cell_count": int(np.count_nonzero(case["target_mask"])),
+                "coherence_metadata": case["coherence_metadata"],
             }
         )
         mechanism_observable_audit[case["mechanism"]] = {
@@ -602,7 +652,11 @@ def build_observations(config: dict[str, Any]) -> dict[str, Any]:
                     "excluded_count": "",
                 }
             )
-            if method_id in {"P1", "P2"} and physical_status in {"OK", "PARTIAL"}:
+            if (
+                method_id in {"P1", "P2"}
+                and physical_status in PHYSICAL_STATUS_VOCABULARY
+                and physical_status != NOT_EVALUABLE
+            ):
                 audit_entries.append(
                     {
                         "case_id": case["case_id"],
@@ -667,6 +721,7 @@ def build_observations(config: dict[str, Any]) -> dict[str, Any]:
             "copy pre-existing Task 3 same-named evidence under sanity/ before Task 4 output"
         ),
         "physical_correction_status": config.get("downstream_status", NOT_EVALUABLE),
+        "coherence_metadata": coherence_metadata_by_mechanism,
         "mode_separation_audit": mode_separation_audit,
         "mechanism_observable_audit": {
             **mechanism_observable_audit,

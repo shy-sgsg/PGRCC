@@ -12,34 +12,41 @@ from typing import Any
 
 NOT_EVALUABLE = "NOT_EVALUABLE"
 HISTORICAL_REFERENCE = "historical_reference"
+PHYSICAL_STATUS_VOCABULARY = (
+    "RADAR_ESTIMATED",
+    "SENSOR_PRIOR_ONLY",
+    "PRIOR_PLUS_RADAR_RESIDUAL",
+    "KNOWN_TRUTH",
+    NOT_EVALUABLE,
+)
 ALLOWED_DECISIONS = {
     "GO_HIERARCHICAL_CALIBRATION",
     "GO_EQUIVALENT_CALIBRATION_ONLY",
     "GO_PHYSICAL_CALIBRATION_ONLY",
-    "GO_COUPLED_PHYSICAL_STATE_STUDY",
+    "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
 }
 
 
 METHOD_CONTRACT = [
     {
         "method_id": "M0",
-        "method_name": "Current",
-        "class": "current",
+        "method_name": "uncalibrated_subtraction_proxy",
+        "class": "mechanism_only",
         "mode_applicability": "Mode-A;Mode-B",
         "estimator_inputs": "none",
         "truth_blind": "true",
         "ai_training": "false",
-        "notes": "uncalibrated F2-F1 production-domain baseline",
+        "notes": "historical mechanism-only uncalibrated subtraction proxy; not production Current",
     },
     {
         "method_id": "M1",
-        "method_name": "ordinary subtraction",
-        "class": "equivalent",
+        "method_name": "ordinary_complex_subtraction",
+        "class": "mechanism_only",
         "mode_applicability": "Mode-A;Mode-B",
         "estimator_inputs": "none",
         "truth_blind": "true",
         "ai_training": "false",
-        "notes": "direct F2-F1 subtraction with no fitted Gamma",
+        "notes": "historical mechanism-only direct F2-F1 subtraction with no fitted Gamma",
     },
     {
         "method_id": "M2",
@@ -263,7 +270,9 @@ def _decision_rows(observations: dict[str, Any]) -> tuple[str, list[dict[str, st
         any(
             row["mechanism"] == mechanism
             and row["method_id"] in {"P1", "P2"}
-            and row["physical_status"] == "OK"
+            and row["physical_status"] in {
+                status for status in PHYSICAL_STATUS_VOCABULARY if status != NOT_EVALUABLE
+            }
             for row in observations["gamma_rows"]
         )
         for mechanism in physical_mechanisms
@@ -278,14 +287,16 @@ def _decision_rows(observations: dict[str, Any]) -> tuple[str, list[dict[str, st
     )
     downstream_status = NOT_EVALUABLE
 
-    if equivalent_ok and physical_correction_evaluable:
+    if observations.get("physical_correction_status", NOT_EVALUABLE) != "measured":
+        decision = "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
+    elif equivalent_ok and physical_correction_evaluable:
         decision = "GO_HIERARCHICAL_CALIBRATION"
     elif equivalent_ok:
-        decision = "GO_COUPLED_PHYSICAL_STATE_STUDY" if physical_observable_rows else "GO_EQUIVALENT_CALIBRATION_ONLY"
+        decision = "GO_EQUIVALENT_CALIBRATION_ONLY"
     elif physical_correction_evaluable:
         decision = "GO_PHYSICAL_CALIBRATION_ONLY"
     else:
-        decision = "GO_COUPLED_PHYSICAL_STATE_STUDY"
+        decision = "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
     if decision not in ALLOWED_DECISIONS:
         raise ValueError(f"invalid decision label: {decision}")
 
@@ -483,6 +494,8 @@ def emit_evidence(observations: dict[str, Any], output_root: Path) -> dict[str, 
         "mechanism_observable_audit": observations.get("mechanism_observable_audit", {}),
         "physical_estimator_audit": observations.get("physical_estimator_audit", {}),
         "decorrelation_audit": observations.get("decorrelation_audit", {}),
+        "physical_status_vocabulary": list(PHYSICAL_STATUS_VOCABULARY),
+        "coherence_metadata": observations.get("coherence_metadata", {}),
         "provenance": observations.get("provenance", {}),
         "preserved_sanity_evidence": observations.get("preserved_sanity_evidence", []),
         "evidence_files": {
@@ -531,7 +544,11 @@ def _report_text(manifest: dict[str, Any], decision_rows: list[dict[str, str]]) 
         "Mode-A estimates use target-free OFF support and Mode-B estimates use the ON "
         "observable without target truth. The blind physical rows use only their "
         "declared sensor-prior observable; known-physical rows are evaluator upper "
-        "bounds.\n\n"
+        "bounds. M0/M1 are historical mechanism-only names; production Current is a "
+        "separate production branch and is not represented by either row.\n\n"
+        "Physical status vocabulary: `RADAR_ESTIMATED`, `SENSOR_PRIOR_ONLY`, "
+        "`PRIOR_PLUS_RADAR_RESIDUAL`, `KNOWN_TRUTH`, and `NOT_EVALUABLE`. Invalid or "
+        "low-coherence metadata remains `NOT_EVALUABLE`.\n\n"
         "Evidence files: `manifest.json`, `observations.json`, `method_contract.csv`, "
         "`gamma_recovery.csv`, `clutter_metrics.csv`, `target_transfer.csv`, "
         "`detection_metrics.csv`, `track_metrics.csv`, `decision_matrix.csv`, and "

@@ -10,7 +10,7 @@
 报告状态字段：`sanity_status` = `passed`；`pilot_status` = `passed`。
 
 ```text
-GO_COUPLED_PHYSICAL_STATE_STUDY
+NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE
 ```
 
 理由是：Class-E 的传统 SCC/DDC/DDC-RB/Robust baseline 在等效失配上有效，
@@ -87,8 +87,8 @@ Y     = F2 - Gamma * F1
 
 | 方法 | 含义 | 输入/限制 |
 |---|---|---|
-| M0 Current | 未复校准的生产等效基线 | F1/F2 |
-| M1 ordinary subtraction | 直接 `F2-F1` | F1/F2 |
+| M0 `uncalibrated_subtraction_proxy` | 历史机制-only 未复校准 subtraction proxy；不是 production Current | F1/F2 |
+| M1 `ordinary_complex_subtraction` | 历史机制-only 直接 `F2-F1` | F1/F2 |
 | M2 SCC | 单一复系数 | F1/F2/clutter support |
 | M3 DDC | 每 Doppler 一个复系数 | F1/F2/clutter support |
 | M4 Robust DDC | circular phase outlier rejection 后的 DDC | 不读 target truth |
@@ -97,7 +97,9 @@ Y     = F2 - Gamma * F1
 | P1/P2 | blind physical / physical+robust | 物理 observable；P2 仅在有 correction model 时执行 |
 | PK/PK+R | known-error correction upper bound | evaluator-only，不可部署 |
 
-支撑不足、零分母、非有限输入和局部不可估计状态均保留 `NOT_EVALUABLE` 或
+物理状态字段固定使用 `RADAR_ESTIMATED`、`SENSOR_PRIOR_ONLY`、
+`PRIOR_PLUS_RADAR_RESIDUAL`、`KNOWN_TRUTH`、`NOT_EVALUABLE`；servo/velocity
+本轮只有 sensor prior，因此不能写成 `RADAR_ESTIMATED`。支撑不足、零分母、非有限输入和局部不可估计状态均保留 `NOT_EVALUABLE` 或
 `PARTIAL`，不会静默回退到 Current。
 
 ## 4. Synthetic sanity 是否通过
@@ -256,4 +258,5 @@ router_enabled=false
 | AI gate | `CLOSED` | 当前没有 deterministic coupled baseline 失败证据 |
 | Phase-II gate | `CLOSED` | native four-channel STAP/JDL 未获得新授权 |
 
-因此本报告的唯一决策为 `GO_COUPLED_PHYSICAL_STATE_STUDY`，AI gate 保持关闭。
+因此本报告的唯一决策为 `NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE`；生产 tap、下游
+CFAR/Pd/Pfa/TrackManager/PIPE 证据仍待当前阶段补齐，AI gate 保持关闭。

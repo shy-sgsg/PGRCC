@@ -49,7 +49,14 @@ ALLOWED_DECISIONS = {
     "GO_HIERARCHICAL_CALIBRATION",
     "GO_EQUIVALENT_CALIBRATION_ONLY",
     "GO_PHYSICAL_CALIBRATION_ONLY",
-    "GO_COUPLED_PHYSICAL_STATE_STUDY",
+    "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+}
+PHYSICAL_STATUS_VALUES = {
+    "RADAR_ESTIMATED",
+    "SENSOR_PRIOR_ONLY",
+    "PRIOR_PLUS_RADAR_RESIDUAL",
+    "KNOWN_TRUTH",
+    "NOT_EVALUABLE",
 }
 
 
@@ -105,8 +112,10 @@ def test_method_contract_lists_required_equivalent_and_physical_methods(tmp_path
 
     assert {row["method_id"] for row in rows} == EXPECTED_METHODS
     method_names = {row["method_id"]: row["method_name"] for row in rows}
-    assert method_names["M0"] == "Current"
-    assert method_names["M1"] == "ordinary subtraction"
+    assert method_names["M0"] == "uncalibrated_subtraction_proxy"
+    assert method_names["M1"] == "ordinary_complex_subtraction"
+    assert method_names["M0"] != "Current"
+    assert method_names["M1"] != "Current"
     assert method_names["M2"] == "SCC"
     assert method_names["M3"] == "DDC"
     assert method_names["M4"] == "Robust DDC"
@@ -126,8 +135,10 @@ def test_fast_time_delay_is_separate_range_registration_not_doppler_only(tmp_pat
 
     assert delay_rows
     assert {row["mode"] for row in delay_rows if row["method_id"].startswith("M")} == EXPECTED_MODES
-    assert any(row["method_id"] == "P1" and row["physical_status"] == "OK" for row in delay_rows)
-    assert any(row["method_id"] == "PK" and row["physical_status"] == "OK" for row in delay_rows)
+    assert any(row["method_id"] == "P1" and row["physical_status"] == "RADAR_ESTIMATED" for row in delay_rows)
+    assert any(row["method_id"] == "P2" and row["physical_status"] == "RADAR_ESTIMATED" for row in delay_rows)
+    assert any(row["method_id"] == "PK" and row["physical_status"] == "KNOWN_TRUTH" for row in delay_rows)
+    assert any(row["method_id"] == "PK+R" and row["physical_status"] == "KNOWN_TRUTH" for row in delay_rows)
     assert all(row["physical_observable"] == "fast_time_range_registration" for row in delay_rows)
     assert all(row["doppler_only_claim"] == "false" for row in delay_rows)
     physical_delay_rows = [
@@ -150,8 +161,14 @@ def test_mechanism_rows_preserve_physical_state_and_decorrelation_boundaries(tmp
 
     assert any(row["physical_observable"] == "servo_pointing_bias_deg" for row in servo)
     assert any(row["physical_observable"] == "platform_velocity_bias_mps" for row in velocity)
-    assert any(row["method_id"] == "P1" and row["physical_status"] == "OK" for row in servo)
-    assert any(row["method_id"] == "P1" and row["physical_status"] == "OK" for row in velocity)
+    assert any(row["method_id"] == "P1" and row["physical_status"] == "SENSOR_PRIOR_ONLY" for row in servo)
+    assert any(row["method_id"] == "P1" and row["physical_status"] == "SENSOR_PRIOR_ONLY" for row in velocity)
+    assert all(row["physical_status"] in PHYSICAL_STATUS_VALUES for row in servo + velocity)
+    assert all(
+        row["physical_status"] != "RADAR_ESTIMATED"
+        for row in servo + velocity
+        if row["method_id"] in {"P1", "P2"}
+    )
     assert decorrelation
     floor_rows = [
         row for row in decorrelation if row["mode"] == "Mode-A" and row["method_id"] in {"M2", "M6"}
@@ -190,7 +207,9 @@ def test_decision_matrix_uses_allowed_non_ai_label_and_records_gate_statuses(tmp
     assert len(labels) == 1
     decision = labels.pop()
     assert decision in ALLOWED_DECISIONS
+    assert decision == "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
     assert "GO_PHYSICS_AI" not in report
+    assert "GO_COUPLED_PHYSICAL_STATE_STUDY" not in report
     assert {row["gate_item"] for row in rows} >= {
         "Class-E coverage",
         "Class-P need",
