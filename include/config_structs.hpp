@@ -451,6 +451,12 @@ struct Config {
     int research_calibration_min_support = 8;
     int research_calibration_range_band_bins = 0;
     double research_calibration_robust_phase_threshold_rad = 0.35;
+    // Non-empty only for a research branch that applies a previously
+    // persisted, truth-blind Gamma reference.  Empty preserves the existing
+    // per-input estimator behavior for research experiments and all legacy
+    // production runs.
+    std::string research_calibration_reference_gamma_csv;
+    std::string research_calibration_mode = "not_applicable";
     // legacy_min_magnitude: 旧 P38 线性相位 + 逐像素最小幅度均衡；
     // row_complex_ls: 每个多普勒行用距离训练单元估计复最小二乘系数。
     // row_phase_ls_linear: 每个多普勒行只使用复最小二乘系数的相位，

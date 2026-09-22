@@ -7,6 +7,8 @@ boundary without starting CUDA or replacing the production tracker.
 from __future__ import annotations
 
 import json
+import inspect
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 import pytest
@@ -137,6 +139,33 @@ def test_compact_evidence_root_has_exact_six_file_allow_list(tmp_path: Path) -> 
         validate_compact_evidence_root(root)
 
 
+def test_compact_decision_matrix_retains_target_and_track_audit_contract(tmp_path: Path) -> None:
+    import csv
+
+    from scripts.analyze_production_hierarchical_calibration_pilot import build_compact_evidence
+
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "status": "skip_cuda",
+                "algorithmic_results_claimed": False,
+                "method_contract": [],
+                "compact_rows": {"gamma_recovery": [], "clutter_metrics": []},
+            }
+        ),
+        encoding="utf-8",
+    )
+    outputs = build_compact_evidence(manifest_path, tmp_path / "compact")
+    with outputs["decision_matrix.csv"].open(newline="", encoding="utf-8") as stream:
+        row = next(csv.DictReader(stream))
+    assert row["target_protection_rule"] == "causal_ON_minus_OFF_and_TO; never_ON_power_alone"
+    assert row["track_evidence_required"] == (
+        "track_association_audit_v2,track_states,track_output_payloads,"
+        "id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    )
+
+
 def test_formal_source_guard_refuses_tracked_dirty_identity() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         require_clean_tracked_source,
@@ -195,6 +224,140 @@ def test_causal_triplet_requires_on_minus_off_equals_target_only() -> None:
     target = np.array([3 - 1j, -2 + 4j], dtype=np.complex64)
     assert causal_triplet_status(off, off + target, target)["status"] == "passed"
     assert causal_triplet_status(off, off + target, np.zeros(1, dtype=np.complex64))["status"] == "NOT_EVALUABLE"
+
+
+def test_mode_a_reference_handoff_and_mode_b_truth_blind_roles_are_explicit() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        build_branch_execution_contract,
+    )
+
+    mode_a_off = build_branch_execution_contract("C4", "Mode-A", "OFF", "/tmp/reference.csv")
+    mode_a_on = build_branch_execution_contract("C4", "Mode-A", "ON", "/tmp/reference.csv")
+    mode_a_to = build_branch_execution_contract("C4", "Mode-A", "TO", "/tmp/reference.csv")
+    mode_b_on = build_branch_execution_contract("C4", "Mode-B", "ON", "/tmp/reference.csv")
+    mode_b_to = build_branch_execution_contract("C4", "Mode-B", "TO", "/tmp/reference.csv")
+
+    assert mode_a_off["estimator_input_roles"] == ["OFF"]
+    assert mode_a_off["reference_source"] == "OFF_estimator_output"
+    assert mode_a_off["estimator_called"] is True
+    assert mode_a_on["reference_source"] == "OFF_estimator_output"
+    assert mode_a_on["estimator_called"] is False
+    assert mode_a_to["evaluator_only"] is True
+    assert mode_a_to["estimator_called"] is False
+    assert mode_b_on["estimator_input_roles"] == ["ON"]
+    assert mode_b_on["reference_source"] == "ON_estimator_output"
+    assert mode_b_on["truth_used_in_estimator"] is False
+    assert mode_b_to["evaluator_only"] is True
+    assert mode_b_to["estimator_called"] is False
+
+
+def test_adapter_rows_preserve_provenance_and_fail_closed() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import validate_adapter_rows
+
+    passed = validate_adapter_rows(
+        [{"status": "OK", "truth_used_in_estimator": "false", "support_count": "12", "reason": ""}],
+        min_support=8,
+    )
+    assert passed["status"] == "evaluable"
+    assert passed["truth_used_in_estimator"] is False
+    assert passed["support_count"] == 12
+
+    failed = validate_adapter_rows(
+        [{"status": "NOT_EVALUABLE", "truth_used_in_estimator": "true", "support_count": "0", "reason": "low_phase_coherence"}],
+        min_support=8,
+    )
+    assert failed["status"] == "NOT_EVALUABLE"
+    assert failed["truth_used_in_estimator"] is True
+    assert failed["reason"] == "low_phase_coherence"
+    assert failed["fallback_to_current"] is False
+
+    partial = validate_adapter_rows(
+        [{"status": "PARTIAL", "truth_used_in_estimator": "false", "support_count": "12"}],
+        min_support=8,
+    )
+    assert partial["status"] == "NOT_EVALUABLE"
+    assert partial["reason"] == "adapter_status_PARTIAL"
+    assert partial["fallback_to_current"] is False
+
+    missing_truth_marker = validate_adapter_rows(
+        [{"status": "OK", "support_count": "12"}],
+        min_support=8,
+    )
+    assert missing_truth_marker["status"] == "NOT_EVALUABLE"
+    assert missing_truth_marker["reason"] == "truth_marker_missing"
+    assert missing_truth_marker["fallback_to_current"] is False
+
+
+def test_geometry_aggregation_uses_real_valid_and_hit_cut_fields(tmp_path: Path) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import aggregate_branch_cfar_geometry
+
+    path = tmp_path / "cfar_geometry_diagnostics.csv"
+    fields = [
+        "schema_version", "period_id", "beam_id", "branch", "total_cells",
+        "edge_invalid_cells", "excluded_cells", "cut_band_filtered_cells",
+        "valid_cut_count", "threshold_test_count", "hit_cut_count", "hit_index_hash",
+        "configured_pfa", "cfar_type", "alpha", "guard_cells", "background_cells",
+        "doppler_circular", "exclude_row_start", "exclude_row_end", "cut_band_start",
+        "cut_band_end", "cut_band_mode",
+    ]
+    values = {
+        key: "0" for key in fields
+    }
+    values.update({
+        "schema_version": "1", "period_id": "0", "beam_id": "1", "branch": "C4",
+        "total_cells": "10", "threshold_test_count": "10", "valid_cut_count": "8",
+        "hit_cut_count": "2", "hit_index_hash": "abc", "configured_pfa": "1e-6",
+        "cfar_type": "GO", "doppler_circular": "0", "cut_band_mode": "none",
+    })
+    path.write_text(",".join(fields) + "\n" + ",".join(values[field] for field in fields) + "\n", encoding="utf-8")
+    result = aggregate_branch_cfar_geometry([path])
+    assert result["status"] == "evaluable"
+    assert result["valid_cut_count"] == 8
+    assert result["hit_cut_count"] == 2
+    assert result["cell_pfa"] == pytest.approx(0.25)
+
+
+def test_formal_selection_declares_two_snr_values_without_cartesian_expansion() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import load_pilot_config, resolve_selection
+
+    config = load_pilot_config(CONFIG)
+    formal = resolve_selection(config, "formal")
+    assert {30.0, 35.0} <= set(formal["target_snr_db"])
+    assert formal["selection_mode"] == "targeted_groups"
+    assert formal["cartesian_full_matrix"] is False
+    assert formal["case_count"] < formal["configured_cartesian_case_count"]
+
+
+def test_production_branch_exposes_xml_override_handoff_and_fields_are_auditable(tmp_path: Path) -> None:
+    from scripts import run_delay_stage1_formal as stage1
+    from scripts.run_production_hierarchical_calibration_pilot import audit_xml_fields
+
+    assert "xml_overrides" in inspect.signature(stage1.run_production_branch).parameters
+    xml_path = tmp_path / "production.xml"
+    root = ET.Element("config")
+    params = ET.SubElement(root, "GMTI_parameter")
+    for key, value in {"research_calibration_enable": "1", "research_calibration_method": "robust_ddc_rb"}.items():
+        ET.SubElement(params, key).text = value
+    ET.ElementTree(root).write(xml_path, encoding="utf-8")
+    audit = audit_xml_fields(xml_path, {
+        "research_calibration_enable": "1",
+        "research_calibration_method": "robust_ddc_rb",
+    })
+    assert audit["status"] == "passed"
+
+
+def test_compact_contract_includes_causal_waterfall_and_track_audit_layers() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import build_downstream_compact_contract
+
+    contract = build_downstream_compact_contract()
+    assert {"ON_minus_OFF", "TO", "CFAR", "cluster", "protocol_detection", "track"} <= set(contract)
+    assert contract["target_protection_rule"] == "causal_ON_minus_OFF_and_TO; never_ON_power_alone"
+    assert contract["track_evidence"] == [
+        "track_association_audit_v2",
+        "track_states",
+        "track_output_payloads",
+        "id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
+    ]
 
 
 def test_skip_contract_runner_records_non_algorithmic_status_and_methods(tmp_path: Path) -> None:

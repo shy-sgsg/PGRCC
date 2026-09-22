@@ -101,6 +101,20 @@ Result applyProductionCalibration(
     int range_band_bins,
     double robust_phase_threshold_rad);
 
+// Apply a previously persisted, truth-blind Gamma reference without fitting
+// the current input.  The reference summaries carry period/beam/group
+// provenance and are rejected when no valid group is available; callers must
+// not fall back to the per-input estimator or Production Current.
+Result applyProductionCalibrationReference(
+    const std::vector<std::complex<float> >& f1,
+    const std::vector<std::complex<float> >& f2,
+    int rows,
+    int cols,
+    const SupportBounds& support,
+    Method method,
+    const std::vector<GammaSummary>& reference,
+    int min_support);
+
 const char* methodName(Method method);
 const char* statusName(Status status);
 bool parseMethod(const std::string& name, Method* method);

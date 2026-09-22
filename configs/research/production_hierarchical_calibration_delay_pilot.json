@@ -168,7 +168,7 @@
     "delay_errors_ns": [0, 2, -2, 4, -4, 8, -8],
     "seeds": [101, 202, 303],
     "target_velocities_mps": [6.7, 12.0],
-    "target_snr_db": [30.0],
+    "target_snr_db": [30.0, 35.0],
     "working_points": ["base"],
     "period_count": 5,
     "case_groups": [
@@ -200,6 +200,13 @@
           {"delay_error_ns": -4, "seed": 101, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"},
           {"delay_error_ns": -4, "seed": 202, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"},
           {"delay_error_ns": -4, "seed": 303, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"}
+        ]
+      },
+      {
+        "name": "snr_35_targeted",
+        "cases": [
+          {"delay_error_ns": 4, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 35.0, "working_point": "base"},
+          {"delay_error_ns": -4, "seed": 101, "target_velocity_mps": 12.0, "target_snr_db": 35.0, "working_point": "base"}
         ]
       }
     ]

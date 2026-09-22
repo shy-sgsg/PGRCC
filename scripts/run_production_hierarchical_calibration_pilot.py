@@ -31,6 +31,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+import xml.etree.ElementTree as ET
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -59,6 +60,7 @@ ALLOWED_DECISION_LABELS = {
 }
 DEFAULT_ADDITIVE_TOLERANCE = 5.0e-5
 DEFAULT_COHERENCE_THRESHOLD = 0.0
+RESEARCH_METHOD_IDS = frozenset({"C1", "C2", "C3", "C4", "P2", "PKR"})
 
 
 def _json_safe(value: object) -> object:
@@ -220,6 +222,288 @@ def build_paired_input_contract() -> dict[str, object]:
                 "known_error_allowed": False,
             },
         },
+    }
+
+
+def build_branch_execution_contract(
+    method_id: str,
+    mode: str,
+    role: str,
+    reference_path: str | Path | None = None,
+) -> dict[str, object]:
+    """Describe exactly which role may estimate or apply a Gamma reference.
+
+    This is deliberately a data contract, not a declaration that a production
+    run succeeded.  The runner creates the reference artifact after the sole
+    estimator role has produced auditable adapter rows; consumers must still
+    validate the artifact and the production tap status before accepting a
+    branch.
+    """
+
+    method = str(method_id)
+    selected_mode = str(mode)
+    selected_role = str(role)
+    if method not in METHOD_IDS:
+        raise ValueError(f"unknown production method: {method}")
+    if selected_mode not in {"Mode-A", "Mode-B", "not_applicable"}:
+        raise ValueError(f"unknown calibration mode: {selected_mode}")
+    if selected_role not in {"OFF", "ON", "TO"}:
+        raise ValueError(f"unknown paired-input role: {selected_role}")
+
+    research_enabled = method in RESEARCH_METHOD_IDS
+    if selected_mode == "Mode-A":
+        estimator_roles = ["OFF"] if research_enabled else []
+        reference_source = "OFF_estimator_output" if research_enabled else "not_applicable"
+        estimator_called = research_enabled and selected_role == "OFF"
+        fixed_reference_required = research_enabled and selected_role in {"ON", "TO"}
+    elif selected_mode == "Mode-B":
+        estimator_roles = ["ON"] if research_enabled else []
+        reference_source = "ON_estimator_output" if research_enabled else "not_applicable"
+        estimator_called = research_enabled and selected_role == "ON"
+        fixed_reference_required = research_enabled and selected_role == "TO"
+    else:
+        estimator_roles = []
+        reference_source = "not_applicable"
+        estimator_called = False
+        fixed_reference_required = False
+
+    reference_value = str(Path(reference_path).resolve()) if reference_path is not None else None
+    return {
+        "method_id": method,
+        "mode": selected_mode,
+        "role": selected_role,
+        "estimator_input_roles": estimator_roles,
+        "reference_source": reference_source,
+        "reference_artifact": reference_value,
+        "estimator_called": estimator_called,
+        "evaluator_only": selected_role == "TO" or not research_enabled,
+        "fixed_reference_required": fixed_reference_required,
+        "reference_applied": fixed_reference_required and reference_value is not None,
+        "truth_used_in_estimator": False,
+        "target_position_allowed": False,
+        "injected_error_label_allowed": False,
+        "known_error_allowed": False,
+        "fallback_to_current": False,
+    }
+
+
+def _parse_bool_marker(value: object) -> bool:
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _parse_truth_marker(value: object) -> bool | None:
+    """Parse the persisted estimator-truth marker without defaulting unknowns."""
+
+    if isinstance(value, bool):
+        return value
+    marker = str(value).strip().lower()
+    if marker in {"0", "false", "no", "off"}:
+        return False
+    if marker in {"1", "true", "yes", "on"}:
+        return True
+    return None
+
+
+def validate_adapter_rows(
+    rows: Sequence[Mapping[str, object]], *, min_support: int
+) -> dict[str, object]:
+    """Validate adapter provenance without replacing failures by Current.
+
+    The returned fields intentionally retain the tap's actual status, truth
+    marker, support and reason.  A missing/failed row is a hard evidence gap.
+    """
+
+    try:
+        minimum = int(min_support)
+    except (TypeError, ValueError):
+        minimum = 0
+    copied = [dict(row) for row in rows]
+    if not copied:
+        return {
+            "status": "NOT_EVALUABLE",
+            "truth_used_in_estimator": False,
+            "support_count": 0,
+            "min_support": minimum,
+            "reason": "adapter_rows_missing",
+            "fallback_to_current": False,
+            "rows": [],
+        }
+
+    statuses = [str(row.get("status", "")).strip() for row in copied]
+    support_counts: list[int] = []
+    for row in copied:
+        try:
+            support_counts.append(int(row.get("support_count", 0)))
+        except (TypeError, ValueError):
+            support_counts.append(-1)
+    reasons = [str(row.get("reason", "")).strip() for row in copied if str(row.get("reason", "")).strip()]
+    first_reason = reasons[0] if reasons else None
+    truth_values: list[bool] = []
+    truth_marker_error: str | None = None
+    for row in copied:
+        if "truth_used_in_estimator" not in row:
+            truth_marker_error = truth_marker_error or "truth_marker_missing"
+            continue
+        parsed_truth = _parse_truth_marker(row["truth_used_in_estimator"])
+        if parsed_truth is None:
+            truth_marker_error = truth_marker_error or "truth_marker_invalid"
+            continue
+        truth_values.append(parsed_truth)
+    truth_used = any(truth_values)
+    unsupported_status = next(
+        (status for status in statuses if status != "OK"),
+        None,
+    )
+    if truth_used:
+        status = "NOT_EVALUABLE"
+        reason = first_reason or "truth_used_in_estimator"
+    elif truth_marker_error is not None:
+        status = "NOT_EVALUABLE"
+        reason = first_reason or truth_marker_error
+    elif unsupported_status is not None:
+        status = "NOT_EVALUABLE"
+        reason = first_reason or f"adapter_status_{unsupported_status or 'missing'}"
+    elif minimum <= 0:
+        status = "NOT_EVALUABLE"
+        reason = first_reason or "invalid_min_support"
+    elif any(value < minimum for value in support_counts):
+        status = "NOT_EVALUABLE"
+        reason = first_reason or "support_below_minimum"
+    else:
+        status = "evaluable"
+        reason = first_reason
+
+    return {
+        "status": status,
+        "truth_used_in_estimator": truth_used,
+        "support_count": sum(max(0, value) for value in support_counts),
+        "support_counts": support_counts,
+        "min_support": minimum,
+        "reason": reason,
+        "fallback_to_current": False,
+        "statuses": statuses,
+        "rows": copied,
+    }
+
+
+def aggregate_branch_cfar_geometry(paths: Sequence[str | Path]) -> dict[str, object]:
+    """Aggregate exported valid/hit CUT geometry, never configured Pfa."""
+
+    candidates = [Path(path).resolve() for path in paths if Path(path).is_file()]
+    if not candidates:
+        return {
+            "status": "NOT_EVALUABLE",
+            "valid_cut_count": 0,
+            "hit_cut_count": 0,
+            "cell_pfa": None,
+            "reason": "cfar_geometry_diagnostics_missing",
+            "definition": "hit_cut_count / valid_cut_count",
+            "source_paths": [],
+            "rows": [],
+        }
+    try:
+        from scripts.cfar_geometry_audit import load_geometry_rows
+
+        rows = load_geometry_rows(candidates)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        return {
+            "status": "NOT_EVALUABLE",
+            "valid_cut_count": 0,
+            "hit_cut_count": 0,
+            "cell_pfa": None,
+            "reason": f"cfar_geometry_invalid:{exc}",
+            "definition": "hit_cut_count / valid_cut_count",
+            "source_paths": [str(path) for path in candidates],
+            "rows": [],
+        }
+    valid = sum(int(row["valid_cut_count"]) for row in rows)
+    hits = sum(int(row["hit_cut_count"]) for row in rows)
+    threshold = sum(int(row["threshold_test_count"]) for row in rows)
+    status = "evaluable" if valid > 0 else "NOT_EVALUABLE"
+    return {
+        "status": status,
+        "valid_cut_count": valid,
+        "hit_cut_count": hits,
+        "threshold_test_count": threshold,
+        "cell_pfa": float(hits) / float(valid) if valid > 0 else None,
+        "reason": None if valid > 0 else "valid_cut_count_missing_or_non_positive",
+        "definition": "hit_cut_count / valid_cut_count",
+        "source_paths": [str(path) for path in candidates],
+        "rows": rows,
+    }
+
+
+def _normalize_xml_value(value: object) -> str:
+    if isinstance(value, bool):
+        return "1" if value else "0"
+    return str(value).strip()
+
+
+def audit_xml_fields(path: Path, expected: Mapping[str, object]) -> dict[str, object]:
+    """Check method-specific XML values after the final XML is materialized."""
+
+    candidate = Path(path).resolve()
+    try:
+        root = ET.parse(candidate).getroot()
+    except (OSError, ET.ParseError) as exc:
+        return {"status": "failed", "path": str(candidate), "reason": str(exc), "fields": {}}
+    actual: dict[str, str] = {}
+    for node in root.iter():
+        tag = str(node.tag).rsplit("}", 1)[-1]
+        if tag in expected:
+            actual[tag] = (node.text or "").strip()
+    missing = [key for key in expected if key not in actual]
+    mismatches = {
+        key: {"expected": _normalize_xml_value(value), "actual": actual.get(key)}
+        for key, value in expected.items()
+        if key in actual and actual[key] != _normalize_xml_value(value)
+    }
+    return {
+        "status": "passed" if not missing and not mismatches else "failed",
+        "path": str(candidate),
+        "fields": actual,
+        "missing": missing,
+        "mismatches": mismatches,
+    }
+
+
+def build_downstream_compact_contract() -> dict[str, object]:
+    """Freeze the causal and production-debug evidence layers."""
+
+    return {
+        "ON_minus_OFF": {
+            "definition": "target causal transfer; compare ON against paired OFF",
+            "required": True,
+        },
+        "TO": {
+            "definition": "target-only evaluator; never an estimator input",
+            "required": True,
+        },
+        "CFAR": {
+            "definition": "GO-CFAR valid_cut_count/hit_cut_count geometry",
+            "required": True,
+        },
+        "cluster": {
+            "definition": "production cluster count/association layer",
+            "required": True,
+        },
+        "protocol_detection": {
+            "definition": "production detection CSV and protocol eligibility",
+            "required": True,
+        },
+        "track": {
+            "definition": "production TrackManager confirmed/matched output",
+            "required": True,
+        },
+        "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
+        "track_evidence": [
+            "track_association_audit_v2",
+            "track_states",
+            "track_output_payloads",
+            "id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
+        ],
     }
 
 
@@ -578,15 +862,21 @@ def _scene_identity(config: Mapping[str, object], case: Mapping[str, object], pe
 def _missing_branches(reason: str, method_contract: Sequence[Mapping[str, object]]) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for method in method_contract:
-        for role in ("OFF", "ON", "TO"):
-            rows.append({
-                "method_id": method["method_id"],
-                "role": role,
-                "status": "NOT_EVALUABLE",
-                "reason": reason,
-                "truth_used_in_estimator": False,
-                "fallback_to_current": False,
-            })
+        method_id = str(method["method_id"])
+        modes = ("Mode-A", "Mode-B") if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
+        for mode in modes:
+            for role in ("OFF", "ON", "TO"):
+                contract = build_branch_execution_contract(method_id, mode, role)
+                rows.append({
+                    "method_id": method_id,
+                    "mode": mode,
+                    "role": role,
+                    "status": "NOT_EVALUABLE",
+                    "reason": reason,
+                    "truth_used_in_estimator": False,
+                    "fallback_to_current": False,
+                    "execution_contract": contract,
+                })
     return rows
 
 
@@ -618,6 +908,7 @@ def _collect_branch_artifacts(record: Mapping[str, object]) -> dict[str, object]
         "adapter_csv": "production_calibration_adapter.csv",
         "cfar_geometry": "*cfar*geometry*.csv",
         "detection": "detection_results_GMTI*.csv",
+        "track_frames": "track_frames.csv",
         "track_association": "track_association_audit_v2.csv",
         "track_states": "track_states.csv",
         "track_payloads": "track_output_payloads.csv",
@@ -650,16 +941,126 @@ def _adapter_rows(paths: Sequence[str], method_id: str, role: str) -> list[dict[
     return rows
 
 
+def _result_period_id(value: object) -> int:
+    text = str(value or "")
+    digits = "".join(char for char in text if char.isdigit())
+    try:
+        return int(digits) if digits else -1
+    except ValueError:
+        return -1
+
+
+def write_reference_gamma_artifact(
+    rows: Sequence[Mapping[str, object]],
+    destination: Path,
+    *,
+    method_id: str,
+    min_support: int,
+) -> dict[str, object]:
+    """Persist OFF/ON tap Gamma rows for a later fixed-reference run.
+
+    The current CUDA tap exports one aggregate group per period/beam.  The
+    artifact keeps that group identity and all provenance fields; a future tap
+    can add local groups without changing the contract columns.
+    """
+
+    validation = validate_adapter_rows(rows, min_support=min_support)
+    if validation["status"] != "evaluable":
+        return {
+            "status": "NOT_EVALUABLE",
+            "reason": validation.get("reason", "adapter_reference_rows_invalid"),
+            "fallback_to_current": False,
+            "validation": validation,
+            "path": str(Path(destination).resolve()),
+        }
+    fields = [
+        "period_id",
+        "result_id",
+        "beam_id",
+        "method",
+        "group_id",
+        "az_index",
+        "range_start",
+        "range_end",
+        "status",
+        "support_count",
+        "phase_coherence",
+        "gamma_real",
+        "gamma_imag",
+        "truth_used_in_estimator",
+        "reason",
+    ]
+    output_rows: list[dict[str, object]] = []
+    for row in rows:
+        if _parse_bool_marker(row.get("truth_used_in_estimator", False)):
+            return {
+                "status": "NOT_EVALUABLE",
+                "reason": "truth_used_in_estimator",
+                "fallback_to_current": False,
+                "validation": validation,
+                "path": str(Path(destination).resolve()),
+            }
+        output_rows.append({
+            "period_id": _result_period_id(row.get("result_id")),
+            "result_id": row.get("result_id", ""),
+            "beam_id": row.get("beam_id", "-1"),
+            "method": row.get("method", method_id),
+            "group_id": "global",
+            "az_index": row.get("az_index", "-1") or "-1",
+            "range_start": row.get("range_start", "-1") or "-1",
+            "range_end": row.get("range_end", "-1") or "-1",
+            "status": row.get("status", "NOT_EVALUABLE"),
+            "support_count": row.get("support_count", "0"),
+            "phase_coherence": row.get("phase_coherence", ""),
+            "gamma_real": row.get("gamma_real", ""),
+            "gamma_imag": row.get("gamma_imag", ""),
+            "truth_used_in_estimator": row.get("truth_used_in_estimator", "false"),
+            "reason": row.get("reason", ""),
+        })
+    if not output_rows:
+        return {
+            "status": "NOT_EVALUABLE",
+            "reason": "adapter_reference_rows_missing",
+            "fallback_to_current": False,
+            "validation": validation,
+            "path": str(Path(destination).resolve()),
+        }
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    with destination.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields, extrasaction="ignore")
+        writer.writeheader()
+        writer.writerows(output_rows)
+    return {
+        "status": "passed",
+        "reason": None,
+        "fallback_to_current": False,
+        "validation": validation,
+        "path": str(destination.resolve()),
+        "row_count": len(output_rows),
+        "sha256": _sha256(destination),
+        "grouping": "period_id/beam_id/global",
+    }
+
+
 def _method_xml(
     case_root: Path,
     source_xml: Path,
     method: Mapping[str, object],
     production: Mapping[str, object],
+    *,
+    mode: str = "not_applicable",
+    role: str = "ALL",
+    reference_path: Path | None = None,
+    enable_override: bool | None = None,
 ) -> dict[str, object]:
     method_id = str(method["method_id"])
-    destination = case_root / "method_xml" / f"{method_id}.xml"
+    destination = case_root / "method_xml" / f"{method_id}_{mode}_{role}.xml"
     enable = bool(method["research_calibration_enable"])
     method_name = str(method["research_calibration_method"])
+    if enable_override is not None:
+        enable = bool(enable_override)
+        if not enable:
+            method_name = "production_current"
     band = int(production.get("range_band_bins", 6)) if method_name == "robust_ddc_rb" else 0
     overrides = {
         "research_calibration_enable": "true" if enable else "false",
@@ -668,6 +1069,10 @@ def _method_xml(
         "research_calibration_range_band_bins": band,
         "research_calibration_robust_phase_threshold_rad": float(
             production.get("robust_phase_threshold_rad", 0.35)
+        ),
+        "research_calibration_mode": str(mode),
+        "research_calibration_reference_gamma_csv": (
+            str(Path(reference_path).resolve()) if reference_path is not None else ""
         ),
     }
     command: list[object] = [
@@ -969,13 +1374,8 @@ def _run_case(
 
     production = production_config
     xml_records: dict[str, dict[str, object]] = {}
-    for method in method_contract:
-        xml_records[str(method["method_id"])] = _method_xml(
-            case_root, source_xml, method, production
-        )
-    manifest["method_xml"] = xml_records
-
     method_branches: list[dict[str, object]] = []
+    mode_contracts: list[dict[str, object]] = []
     for method in method_contract:
         method_id = str(method["method_id"])
         if method_id in {"P1", "P2"}:
@@ -985,67 +1385,199 @@ def _run_case(
         else:
             family = "none"
         prepared_family = prepared[family]
-        for role in ("OFF", "ON", "TO"):
-            base_record: dict[str, object] = {
-                "method_id": method_id,
-                "role": role,
-                "method_family": method["family"],
-                "research_calibration_enable": method["research_calibration_enable"],
-                "research_calibration_method": method["research_calibration_method"],
-                "input_correction": method["input_correction"],
-                "known_error": method["known_error"],
-                "known_error_use": method["known_error_use"],
-                "truth_used_in_estimator": False,
-                "estimator_input_roles": method["estimator_input_roles"],
-                "mode_contract": build_paired_input_contract()["modes"],
-                "fallback_to_current": False,
-                "input_identity": manifest["pair_identity"],
-            }
-            if prepared_family.get("status") != "evaluable":
-                base_record.update({
-                    "status": "NOT_EVALUABLE",
-                    "reason": prepared_family.get("reason", "input_preparation_failed"),
-                })
-                method_branches.append(base_record)
-                continue
-            paths_by_role = prepared_family.get("period_paths_by_role")
-            if not isinstance(paths_by_role, Mapping) or not isinstance(paths_by_role.get(role), Sequence):
-                base_record.update({"status": "NOT_EVALUABLE", "reason": "missing_role_input"})
-                method_branches.append(base_record)
-                continue
-            input_dir = _materialize_input_dir(
-                case_root / "production_inputs" / method_id / role,
-                [Path(path) for path in paths_by_role[role]],
-            )
-            branch_name = f"{method_id}_{role}"
-            try:
-                record = delay_runner.run_production_branch(
-                    case_root,
-                    branch_name,
-                    input_dir,
-                    Path(str(xml_records[method_id]["path"])),
-                    truth,
-                    period_count,
-                    input_mode,
-                    layout,
-                    truth_path=truth_root,
+        modes = ("Mode-A", "Mode-B") if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
+        for mode in modes:
+            mode_root = case_root / "references" / mode / method_id
+            reference_path = mode_root / "reference_gamma.csv"
+            role_order = ("OFF", "ON", "TO")
+            if mode == "Mode-B":
+                # The estimator must finish before its fixed reference can be
+                # used by the target-only evaluator.
+                role_order = ("ON", "OFF", "TO")
+            role_records: dict[str, dict[str, object]] = {}
+            reference_info: dict[str, object] | None = None
+            for role in role_order:
+                execution_contract = build_branch_execution_contract(
+                    method_id, mode, role, reference_path if mode != "not_applicable" else None
                 )
-            except (OSError, RuntimeError, ValueError, KeyError) as exc:
-                record = {
-                    "status": "NOT_EVALUABLE",
-                    "reason": f"production_branch_exception:{exc}",
-                    "production_returncode": None,
+                mode_contracts.append(dict(execution_contract))
+                base_record: dict[str, object] = {
+                    "method_id": method_id,
+                    "mode": mode,
+                    "role": role,
+                    "method_family": method["family"],
+                    "research_calibration_enable": method["research_calibration_enable"],
+                    "research_calibration_method": method["research_calibration_method"],
+                    "input_correction": method["input_correction"],
+                    "known_error": method["known_error"],
+                    "known_error_use": method["known_error_use"],
+                    "truth_used_in_estimator": False,
+                    "estimator_input_roles": execution_contract["estimator_input_roles"],
+                    "execution_contract": execution_contract,
+                    "mode_contract": build_paired_input_contract()["modes"],
+                    "fallback_to_current": False,
+                    "input_identity": manifest["pair_identity"],
                 }
-            base_record.update(record)
-            base_record["input_dir"] = str(input_dir)
-            base_record["input_paths"] = [str(path) for path in paths_by_role[role]]
-            base_record["input_sha256"] = [_sha256(Path(path)) for path in paths_by_role[role]]
-            base_record["truth_used_in_estimator"] = False
-            base_record["artifacts"] = _collect_branch_artifacts(record)
-            base_record["adapter_rows"] = _adapter_rows(
-                base_record["artifacts"].get("adapter_csv", []), method_id, role  # type: ignore[union-attr]
-            )
-            method_branches.append(base_record)
+                if prepared_family.get("status") != "evaluable":
+                    base_record.update({
+                        "status": "NOT_EVALUABLE",
+                        "reason": prepared_family.get("reason", "input_preparation_failed"),
+                    })
+                    method_branches.append(base_record)
+                    role_records[role] = base_record
+                    continue
+                paths_by_role = prepared_family.get("period_paths_by_role")
+                if not isinstance(paths_by_role, Mapping) or not isinstance(paths_by_role.get(role), Sequence):
+                    base_record.update({"status": "NOT_EVALUABLE", "reason": "missing_role_input"})
+                    method_branches.append(base_record)
+                    role_records[role] = base_record
+                    continue
+
+                # Mode-B OFF is an evaluator/control input.  It must not
+                # trigger a second blind estimate.  It remains a distinct
+                # record rather than being mislabeled as a successful C4 run.
+                control_off = mode == "Mode-B" and role == "OFF" and method_id in RESEARCH_METHOD_IDS
+                if control_off:
+                    execution_contract = dict(execution_contract)
+                    execution_contract.update({
+                        "evaluator_only": True,
+                        "control_path": "production_current_control",
+                        "research_estimator_called": False,
+                    })
+                    base_record["execution_contract"] = execution_contract
+
+                if bool(execution_contract.get("fixed_reference_required")):
+                    if reference_info is None or reference_info.get("status") != "passed":
+                        base_record.update({
+                            "status": "NOT_EVALUABLE",
+                            "reason": (
+                                "reference_gamma_artifact_missing_or_invalid"
+                                if reference_info is None
+                                else reference_info.get("reason", "reference_gamma_artifact_invalid")
+                            ),
+                            "reference_artifact": str(reference_path.resolve()),
+                        })
+                        method_branches.append(base_record)
+                        role_records[role] = base_record
+                        continue
+
+                input_dir = _materialize_input_dir(
+                    case_root / "production_inputs" / method_id / mode / role,
+                    [Path(path) for path in paths_by_role[role]],
+                )
+                branch_name = f"{method_id}_{mode.replace('-', '').lower()}_{role}"
+                enable_override = False if control_off else None
+                xml_record = _method_xml(
+                    case_root,
+                    source_xml,
+                    method,
+                    production,
+                    mode=mode,
+                    role=role,
+                    reference_path=(
+                        Path(str(reference_info["path"]))
+                        if reference_info is not None and reference_info.get("status") == "passed"
+                        else None
+                    ),
+                    enable_override=enable_override,
+                )
+                xml_key = f"{method_id}_{mode}_{role}"
+                xml_records[xml_key] = xml_record
+                base_record["xml_key"] = xml_key
+                try:
+                    record = delay_runner.run_production_branch(
+                        case_root,
+                        branch_name,
+                        input_dir,
+                        Path(str(xml_record["path"])),
+                        truth,
+                        period_count,
+                        input_mode,
+                        layout,
+                        truth_path=truth_root,
+                        xml_overrides=xml_record["overrides"],
+                    )
+                except (OSError, RuntimeError, ValueError, KeyError) as exc:
+                    record = {
+                        "status": "NOT_EVALUABLE",
+                        "reason": f"production_branch_exception:{exc}",
+                        "production_returncode": None,
+                        "xml_overrides": xml_record["overrides"],
+                    }
+                base_record.update(record)
+                base_record["input_dir"] = str(input_dir)
+                base_record["input_paths"] = [str(path) for path in paths_by_role[role]]
+                base_record["input_sha256"] = [_sha256(Path(path)) for path in paths_by_role[role]]
+                actual_xml = Path(str(record.get("production_xml", ""))) if record.get("production_xml") else None
+                if actual_xml is not None and actual_xml.is_file():
+                    xml_audit = audit_xml_fields(actual_xml, xml_record["overrides"])
+                else:
+                    xml_audit = {
+                        "status": "failed",
+                        "path": str(actual_xml) if actual_xml else None,
+                        "reason": "production_xml_missing",
+                        "fields": {},
+                    }
+                base_record["xml_audit"] = xml_audit
+                if xml_audit.get("status") != "passed":
+                    base_record.update({
+                        "status": "NOT_EVALUABLE",
+                        "reason": "production_xml_method_fields_not_auditable",
+                        "fallback_to_current": False,
+                    })
+                base_record["artifacts"] = _collect_branch_artifacts(record)
+                if not isinstance(base_record.get("cfar_geometry"), Mapping):
+                    base_record["cfar_geometry"] = aggregate_branch_cfar_geometry(
+                        base_record["artifacts"].get("cfar_geometry", [])  # type: ignore[union-attr]
+                    )
+                base_record["adapter_rows"] = _adapter_rows(
+                    base_record["artifacts"].get("adapter_csv", []), method_id, role  # type: ignore[union-attr]
+                )
+                expects_tap = method_id in RESEARCH_METHOD_IDS and not control_off
+                if expects_tap:
+                    adapter_validation = validate_adapter_rows(
+                        base_record["adapter_rows"],
+                        min_support=int(production.get("min_support", 8)),
+                    )
+                    base_record["adapter_validation"] = adapter_validation
+                    base_record["truth_used_in_estimator"] = adapter_validation.get(
+                        "truth_used_in_estimator"
+                    )
+                    if adapter_validation.get("status") != "evaluable":
+                        base_record.update({
+                            "status": "NOT_EVALUABLE",
+                            "reason": adapter_validation.get("reason", "adapter_not_evaluable"),
+                            "fallback_to_current": False,
+                        })
+                    if bool(execution_contract.get("estimator_called")):
+                        reference_info = write_reference_gamma_artifact(
+                            base_record["adapter_rows"],
+                            reference_path,
+                            method_id=method_id,
+                            min_support=int(production.get("min_support", 8)),
+                        )
+                        base_record["reference_artifact"] = reference_info
+                elif control_off:
+                    base_record["adapter_validation"] = {
+                        "status": "not_applicable",
+                        "truth_used_in_estimator": False,
+                        "fallback_to_current": False,
+                        "reason": "Mode-B_OFF_evaluator_control_does_not_estimate",
+                    }
+                else:
+                    base_record["adapter_validation"] = {
+                        "status": "not_applicable",
+                        "truth_used_in_estimator": False,
+                        "fallback_to_current": False,
+                    }
+                if bool(execution_contract.get("fixed_reference_required")):
+                    base_record["reference_applied"] = True
+                    base_record["reference_path"] = str(reference_path.resolve())
+                method_branches.append(base_record)
+                role_records[role] = base_record
+            manifest.setdefault("method_mode_roles", {})[f"{method_id}_{mode}"] = role_records
+    manifest["method_xml"] = xml_records
+    manifest["mode_contracts"] = mode_contracts
     manifest["method_branches"] = method_branches
     causal_ok = all(
         isinstance(value, Mapping) and value.get("status") == "passed"
@@ -1085,38 +1617,172 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
     for case in cases:
         case_values = case.get("case", {})
         case_id = str(case.get("case_id", case_values.get("group", ""))) if isinstance(case_values, Mapping) else str(case.get("case_id", ""))
+        grouped: dict[tuple[str, str], dict[str, dict[str, object]]] = {}
         for branch in case.get("method_branches", []):
             if not isinstance(branch, Mapping):
                 continue
+            method_id = str(branch.get("method_id", ""))
+            mode = str(branch.get("mode", "not_applicable"))
             common = {
                 "case": case_id,
-                "method_id": branch.get("method_id"),
+                "method_id": method_id,
+                "mode": mode,
                 "role": branch.get("role"),
                 "status": branch.get("status"),
                 "reason": branch.get("reason"),
-                "truth_used_in_estimator": branch.get("truth_used_in_estimator", False),
+                "truth_used_in_estimator": branch.get("truth_used_in_estimator"),
                 "fallback_to_current": branch.get("fallback_to_current", False),
+                "reference_source": (
+                    branch.get("execution_contract", {}).get("reference_source")
+                    if isinstance(branch.get("execution_contract"), Mapping) else None
+                ),
             }
             method_rows.append(common)
             for adapter in branch.get("adapter_rows", []):
                 if isinstance(adapter, Mapping):
                     gamma = dict(adapter)
-                    gamma.update({"case": case_id, "method_id": branch.get("method_id"), "role": branch.get("role")})
+                    gamma.update({
+                        "case": case_id,
+                        "method_id": method_id,
+                        "mode": mode,
+                        "role": branch.get("role"),
+                        "reference_source": common["reference_source"],
+                    })
                     gamma_rows.append(gamma)
+            grouped.setdefault((method_id, mode), {})[str(branch.get("role", ""))] = dict(branch)
+
+            metrics = branch.get("metrics")
+            metrics_map = metrics if isinstance(metrics, Mapping) else {}
+            geometry = branch.get("cfar_geometry")
+            geometry_map = geometry if isinstance(geometry, Mapping) else {}
+            artifacts = branch.get("artifacts")
+            artifact_map = artifacts if isinstance(artifacts, Mapping) else {}
+            id_switch = branch.get("id_switch_classification_counts")
+            id_switch_marker = (
+                id_switch
+                if branch.get("id_switch_audit_status") == "passed"
+                else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+            )
+            layer_rows = [
+                {
+                    "layer": "CFAR",
+                    "status": geometry_map.get("status", "NOT_EVALUABLE"),
+                    "valid_cut_count": geometry_map.get("valid_cut_count"),
+                    "hit_cut_count": geometry_map.get("hit_cut_count"),
+                    "cell_pfa": geometry_map.get("cell_pfa"),
+                    "cfar_layer": geometry_map,
+                },
+                {
+                    "layer": "cluster",
+                    "status": metrics_map.get("cluster_false_alarm_status", "NOT_EVALUABLE"),
+                    "cluster_layer": {
+                        "cfar_cluster_count": metrics_map.get("cfar_cluster_count"),
+                        "selected_cluster_count": metrics_map.get("cfar_selected_cluster_count"),
+                        "false_alarm_count": metrics_map.get("cluster_false_alarm_count"),
+                    },
+                },
+                {
+                    "layer": "protocol_detection",
+                    "status": metrics_map.get("protocol_detection_false_alarm_status", "NOT_EVALUABLE"),
+                    "protocol_detection_layer": {
+                        "raw_detection_count": metrics_map.get("raw_detection_count"),
+                        "target_detection_hit_count": metrics_map.get("target_detection_hit_count"),
+                        "false_alarm_count": metrics_map.get("protocol_payload_false_alarm_count"),
+                    },
+                },
+                {
+                    "layer": "track",
+                    "status": "evaluable" if artifact_map.get("track_states") else "NOT_EVALUABLE",
+                    "track_layer": {
+                        "track_pd_all_visible": metrics_map.get("track_pd_all_visible"),
+                        "track_continuity": metrics_map.get("track_continuity"),
+                        "association": artifact_map.get("track_association", []),
+                        "states": artifact_map.get("track_states", []),
+                        "payloads": artifact_map.get("track_payloads", []),
+                        "id_switch_classification": id_switch_marker,
+                    },
+                    "track_association_audit_v2": artifact_map.get("track_association", []),
+                    "track_states": artifact_map.get("track_states", []),
+                    "track_output_payloads": artifact_map.get("track_payloads", []),
+                    "id_switch_classification": id_switch_marker,
+                },
+            ]
+            for layer in layer_rows:
+                clutter_rows.append({
+                    "case": case_id,
+                    "method_id": method_id,
+                    "mode": mode,
+                    "role": branch.get("role"),
+                    **layer,
+                })
             if str(branch.get("role")) == "OFF":
                 waterfall = branch.get("target_off_waterfall")
                 if isinstance(waterfall, Mapping):
+                    cell = waterfall.get("cell_false_hit_fraction")
+                    cell_map = cell if isinstance(cell, Mapping) else {}
                     clutter_rows.append({
                         "case": case_id,
-                        "method_id": branch.get("method_id"),
-                        "cell_false_hit_status": (waterfall.get("cell_false_hit_fraction") or {}).get("status") if isinstance(waterfall.get("cell_false_hit_fraction"), Mapping) else "NOT_EVALUABLE",
-                        "cell_false_hit_fraction": (waterfall.get("cell_false_hit_fraction") or {}).get("value") if isinstance(waterfall.get("cell_false_hit_fraction"), Mapping) else None,
-                        "hit_cut_count": (waterfall.get("cell_false_hit_fraction") or {}).get("hit_cell_count") if isinstance(waterfall.get("cell_false_hit_fraction"), Mapping) else None,
-                        "valid_cut_count": (waterfall.get("cell_false_hit_fraction") or {}).get("valid_cut_count") if isinstance(waterfall.get("cell_false_hit_fraction"), Mapping) else None,
+                        "method_id": method_id,
+                        "mode": mode,
+                        "role": "OFF",
+                        "layer": "OFF_waterfall",
+                        "status": cell_map.get("status", "NOT_EVALUABLE"),
+                        "cell_false_hit_status": cell_map.get("status", "NOT_EVALUABLE"),
+                        "cell_false_hit_fraction": cell_map.get("value"),
+                        "hit_cut_count": cell_map.get("hit_cell_count"),
+                        "valid_cut_count": cell_map.get("valid_cut_count"),
                         "cluster_layer": waterfall.get("false_clusters"),
                         "protocol_detection_layer": waterfall.get("protocol_false_detections"),
                         "track_layer": waterfall.get("false_tracks"),
                     })
+
+        # One causal row per method/mode keeps ON-OFF and TO evidence together
+        # without promoting target power alone to a protection metric.
+        for (method_id, mode), roles in grouped.items():
+            off = roles.get("OFF", {})
+            on = roles.get("ON", {})
+            target_only = roles.get("TO", {})
+            on_metrics = on.get("metrics") if isinstance(on.get("metrics"), Mapping) else {}
+            off_metrics = off.get("metrics") if isinstance(off.get("metrics"), Mapping) else {}
+            to_metrics = target_only.get("metrics") if isinstance(target_only.get("metrics"), Mapping) else {}
+
+            def _delta(key: str) -> float | None:
+                try:
+                    on_value = float(on_metrics[key])
+                    off_value = float(off_metrics[key])
+                except (KeyError, TypeError, ValueError):
+                    return None
+                return on_value - off_value if math.isfinite(on_value) and math.isfinite(off_value) else None
+
+            causal_status = (
+                "evaluable"
+                if on_metrics and off_metrics and to_metrics
+                and all(item.get("status") in {"passed", "completed", "completed_with_gaps"} for item in (on, off, target_only))
+                else "NOT_EVALUABLE"
+            )
+            on_artifacts = on.get("artifacts") if isinstance(on.get("artifacts"), Mapping) else {}
+            id_switch_status = on.get("id_switch_audit_status")
+            clutter_rows.append({
+                "case": case_id,
+                "method_id": method_id,
+                "mode": mode,
+                "role": "ON_MINUS_OFF",
+                "layer": "ON_minus_OFF",
+                "status": causal_status,
+                "on_minus_off_target_detection_pd": _delta("target_detection_pd"),
+                "on_minus_off_track_pd": _delta("track_pd_all_visible"),
+                "to_target_detection_pd": to_metrics.get("target_detection_pd"),
+                "to_track_pd": to_metrics.get("track_pd_all_visible"),
+                "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
+                "track_association_audit_v2": on_artifacts.get("track_association", []),
+                "track_states": on_artifacts.get("track_states", []),
+                "track_output_payloads": on_artifacts.get("track_payloads", []),
+                "id_switch_classification": (
+                    on.get("id_switch_classification_counts")
+                    if id_switch_status == "passed"
+                    else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+                ),
+            })
     return method_rows, gamma_rows, clutter_rows
 
 
@@ -1139,6 +1805,7 @@ def _initial_manifest(
         "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
         "method_contract": build_method_contract(config),
         "input_contract": build_paired_input_contract(),
+        "downstream_compact_contract": build_downstream_compact_contract(),
         "production_contract": config.get("production"),
         "selection": selection,
         "ai_training": False,

@@ -487,6 +487,128 @@ Result applyProductionCalibration(
     return result;
 }
 
+Result applyProductionCalibrationReference(
+    const std::vector<std::complex<float> >& f1,
+    const std::vector<std::complex<float> >& f2,
+    int rows,
+    int cols,
+    const SupportBounds& support,
+    Method method,
+    const std::vector<GammaSummary>& reference,
+    int min_support)
+{
+    Result result;
+    result.method = method;
+    result.csi = f1;
+    if (!isKnownMethod(method)) {
+        result.reason = "unsupported_method";
+        return result;
+    }
+    if (rows <= 0 || cols <= 0 ||
+        static_cast<std::size_t>(rows) * static_cast<std::size_t>(cols) != f1.size() ||
+        f1.size() != f2.size()) {
+        result.reason = "invalid_input_shape";
+        result.csi.clear();
+        return result;
+    }
+    if (!finiteInputs(f1, f2)) {
+        result.reason = "nonfinite_input";
+        result.csi.clear();
+        return result;
+    }
+    if (min_support <= 0) {
+        result.reason = "invalid_min_support";
+        return result;
+    }
+    NormalizedBounds bounds;
+    if (!normalizeBounds(support, rows, cols, &bounds)) {
+        result.reason = "empty_support";
+        return result;
+    }
+    if (reference.empty()) {
+        result.reason = "reference_gamma_missing";
+        return result;
+    }
+
+    // Validate every group before changing the output.  A persisted reference
+    // is usable only when every group is complete and independently auditable;
+    // never estimate missing groups or fall back to Current here.
+    for (const GammaSummary& summary : reference) {
+        if (summary.status == Status::kPartial) {
+            result.reason = "reference_group_partial_not_evaluable";
+            return result;
+        }
+        if (summary.status != Status::kOk) {
+            result.reason = summary.reason.empty()
+                ? "reference_group_not_evaluable" : summary.reason;
+            return result;
+        }
+        if (summary.support_count < min_support ||
+            !finiteGamma(summary.gamma)) {
+            result.reason = summary.support_count < min_support
+                ? "reference_support_below_minimum"
+                : "reference_gamma_nonfinite";
+            return result;
+        }
+        if (!std::isfinite(summary.phase_coherence)) {
+            result.reason = "reference_phase_coherence_nonfinite";
+            return result;
+        }
+        const int row_start = summary.az_index < 0
+            ? bounds.az_start : summary.az_index;
+        const int row_end = summary.az_index < 0
+            ? bounds.az_end : summary.az_index;
+        const int range_start = summary.range_start < 0
+            ? bounds.range_start : summary.range_start;
+        const int range_end = summary.range_end < 0
+            ? bounds.range_end : summary.range_end;
+        if (row_start < bounds.az_start || row_end > bounds.az_end ||
+            range_start < bounds.range_start || range_end > bounds.range_end ||
+            row_start > row_end || range_start > range_end) {
+            result.reason = "reference_group_outside_support";
+            return result;
+        }
+    }
+
+    for (const GammaSummary& summary : reference) {
+        const int row_start = summary.az_index < 0
+            ? bounds.az_start : summary.az_index;
+        const int row_end = summary.az_index < 0
+            ? bounds.az_end : summary.az_index;
+        const int range_start = summary.range_start < 0
+            ? bounds.range_start : summary.range_start;
+        const int range_end = summary.range_end < 0
+            ? bounds.range_end : summary.range_end;
+        LocalFit fit;
+        fit.gamma = summary.gamma;
+        fit.status = Status::kOk;
+        fit.support_count = summary.support_count;
+        fit.phase_coherence = summary.phase_coherence;
+        for (int row = row_start; row <= row_end; ++row) {
+            applyResidual(f1, f2, cols, row, range_start, range_end,
+                          fit, &result.csi);
+        }
+        result.gamma_summary.push_back(summary);
+        ++result.groups_total;
+        ++result.valid_groups;
+        if (summary.support_count <= std::numeric_limits<int>::max() -
+                result.support_count) {
+            result.support_count += summary.support_count;
+        } else {
+            result.support_count = std::numeric_limits<int>::max();
+        }
+    }
+    if (!finiteOutput(result.csi)) {
+        result.csi = f1;
+        result.status = Status::kNotEvaluable;
+        result.reason = "nonfinite_output";
+        return result;
+    }
+    result.status = Status::kOk;
+    result.reason = "reference_gamma_applied_without_current_input_fit";
+    return result;
+}
+
 const char* methodName(Method method)
 {
     switch (method) {

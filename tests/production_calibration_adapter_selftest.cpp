@@ -67,6 +67,7 @@ int main()
     using gmti::production_calibration::Status;
     using gmti::production_calibration::SupportBounds;
     using gmti::production_calibration::applyProductionCalibration;
+    using gmti::production_calibration::applyProductionCalibrationReference;
 
     const int rows = 3;
     const int cols = 7;
@@ -138,6 +139,50 @@ int main()
     require(closeDouble(std::abs(phase_fit.gamma_summary[0].gamma), 0.8, 1.0e-5) &&
                 closeDouble(std::arg(phase_fit.gamma_summary[0].gamma), 0.37, 1.0e-5),
             "positive phase/sign convention is preserved");
+
+    std::vector<gmti::production_calibration::GammaSummary> persisted_reference =
+        phase_fit.gamma_summary;
+    persisted_reference[0].phase_coherence = 0.0;
+    const auto fixed_reference = applyProductionCalibrationReference(
+        f1, f2, rows, cols, support, Method::kScc,
+        persisted_reference, 2);
+    require(fixed_reference.status == Status::kOk &&
+                fixed_reference.reason == "reference_gamma_applied_without_current_input_fit",
+            "persisted Gamma is applied without fitting the current input");
+    require(closeComplex(fixed_reference.csi[1 * cols + 2],
+                         std::complex<float>(0.0f, 0.0f), 2.0e-5f),
+            "fixed reference Gamma produces the same residual");
+    std::vector<gmti::production_calibration::GammaSummary> bad_reference(
+        1U, persisted_reference[0]);
+    bad_reference[0].status = Status::kNotEvaluable;
+    const auto rejected_reference = applyProductionCalibrationReference(
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+    require(rejected_reference.status == Status::kNotEvaluable &&
+                rejected_reference.reason == "reference_group_not_evaluable",
+            "invalid reference is NOT_EVALUABLE without Current fallback");
+
+    bad_reference[0].status = Status::kPartial;
+    const auto rejected_partial_reference = applyProductionCalibrationReference(
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+    require(rejected_partial_reference.status == Status::kNotEvaluable &&
+                rejected_partial_reference.reason == "reference_group_partial_not_evaluable",
+            "partial persisted reference is NOT_EVALUABLE without Current fallback");
+
+    bad_reference[0].status = Status::kOk;
+    bad_reference[0].support_count = 1;
+    const auto rejected_low_support_reference = applyProductionCalibrationReference(
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+    require(rejected_low_support_reference.status == Status::kNotEvaluable &&
+                rejected_low_support_reference.reason == "reference_support_below_minimum",
+            "low-support persisted reference is NOT_EVALUABLE without Current fallback");
+
+    bad_reference[0].support_count = 2;
+    bad_reference[0].phase_coherence = std::numeric_limits<double>::quiet_NaN();
+    const auto rejected_missing_metadata_reference = applyProductionCalibrationReference(
+        f1, f2, rows, cols, support, Method::kScc, bad_reference, 2);
+    require(rejected_missing_metadata_reference.status == Status::kNotEvaluable &&
+                rejected_missing_metadata_reference.reason == "reference_phase_coherence_nonfinite",
+            "missing persisted reference metadata is NOT_EVALUABLE without Current fallback");
 
     std::vector<std::complex<float> > f2_ddc = f1;
     for (int row = 0; row < rows; ++row) {

@@ -826,6 +826,7 @@ def _configure_xml(
     result_dir: Path,
     track_debug_dir: Path,
     layout: Mapping[str, object],
+    xml_overrides: Mapping[str, object] | None = None,
 ) -> tuple[int, str]:
     overrides: dict[str, object] = {
         "result_add": result_dir,
@@ -868,6 +869,10 @@ def _configure_xml(
         "dbs_mosaic_use_gpu": "false",
         "wavepos_parallel": 0,
     }
+    # Callers may select a research-only branch, but the shared production
+    # defaults above remain authoritative for every downstream setting.
+    if xml_overrides:
+        overrides.update(dict(xml_overrides))
     command: list[object] = [
         sys.executable,
         ROOT / "scripts/configure_gmti_xml.py",

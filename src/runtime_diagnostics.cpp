@@ -724,6 +724,10 @@ void writeRuntimeConfigJson(const Config& cfg)
        << cfg.research_calibration_range_band_bins << ",\n";
     os << "    \"research_calibration_robust_phase_threshold_rad\": "
        << cfg.research_calibration_robust_phase_threshold_rad << ",\n";
+    os << "    \"research_calibration_reference_gamma_csv\": "
+       << q(cfg.research_calibration_reference_gamma_csv) << ",\n";
+    os << "    \"research_calibration_mode\": "
+       << q(cfg.research_calibration_mode) << ",\n";
     os << "    \"research_calibration_estimator_truth_blind\": true,\n";
     os << "    \"research_calibration_tap_source\": "
        << q(cfg.research_calibration_enable
@@ -1148,6 +1152,9 @@ void writeRuntimeConfigTxt(const Config& cfg)
        << cfg.research_calibration_range_band_bins << "\n";
     os << "research_calibration_robust_phase_threshold_rad = "
        << cfg.research_calibration_robust_phase_threshold_rad << "\n";
+    os << "research_calibration_reference_gamma_csv = "
+       << cfg.research_calibration_reference_gamma_csv << "\n";
+    os << "research_calibration_mode = " << cfg.research_calibration_mode << "\n";
     os << "research_calibration_estimator_truth_blind = true\n";
     os << "research_calibration_tap_source = "
        << (cfg.research_calibration_enable

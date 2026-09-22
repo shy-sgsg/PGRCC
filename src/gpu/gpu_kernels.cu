@@ -19,6 +19,9 @@
 #include <cstdint>
 #include <iostream>
 #include <chrono>
+#include <fstream>
+#include <sstream>
+#include <map>
 #include "GMTIProcessor.hpp"
 #include "dbs/NewProtocolReader.hpp"
 #include "azimuth_fft_window.hpp"
@@ -3596,6 +3599,189 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_p38_cuda(
     return true;
 }
 
+static std::vector<std::string> splitReferenceCsvLine(const std::string& line)
+{
+    std::vector<std::string> fields;
+    std::stringstream stream(line);
+    std::string field;
+    while (std::getline(stream, field, ',')) {
+        fields.push_back(field);
+    }
+    return fields;
+}
+
+static std::string trimReferenceCsvField(const std::string& value)
+{
+    const std::size_t first = value.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) return std::string();
+    const std::size_t last = value.find_last_not_of(" \t\r\n");
+    return value.substr(first, last - first + 1U);
+}
+
+static bool parseReferenceInt(const std::vector<std::string>& fields,
+                              const std::map<std::string, std::size_t>& columns,
+                              const char* name,
+                              int default_value,
+                              int* output)
+{
+    if (output == nullptr) return false;
+    const std::map<std::string, std::size_t>::const_iterator found =
+        columns.find(name);
+    if (found == columns.end() || found->second >= fields.size()) {
+        *output = default_value;
+        return true;
+    }
+    const std::string value = trimReferenceCsvField(fields[found->second]);
+    if (value.empty()) {
+        *output = default_value;
+        return true;
+    }
+    try {
+        *output = std::stoi(value);
+    } catch (const std::exception&) {
+        return false;
+    }
+    return true;
+}
+
+static bool parseReferenceDouble(const std::vector<std::string>& fields,
+                                 const std::map<std::string, std::size_t>& columns,
+                                 const char* name,
+                                 double default_value,
+                                 double* output)
+{
+    if (output == nullptr) return false;
+    const std::map<std::string, std::size_t>::const_iterator found =
+        columns.find(name);
+    if (found == columns.end() || found->second >= fields.size()) {
+        *output = default_value;
+        return true;
+    }
+    const std::string value = trimReferenceCsvField(fields[found->second]);
+    if (value.empty()) {
+        *output = default_value;
+        return true;
+    }
+    try {
+        *output = std::stod(value);
+    } catch (const std::exception&) {
+        return false;
+    }
+    return std::isfinite(*output);
+}
+
+static bool loadProductionCalibrationReference(
+    const Config& cfg,
+    int diagnostic_beam_id,
+    std::vector<gmti::production_calibration::GammaSummary>* summaries,
+    std::string* reason)
+{
+    if (summaries == nullptr) return false;
+    summaries->clear();
+    if (cfg.research_calibration_reference_gamma_csv.empty()) {
+        if (reason != nullptr) *reason = "reference_gamma_path_empty";
+        return false;
+    }
+    std::ifstream input(cfg.research_calibration_reference_gamma_csv.c_str());
+    if (!input) {
+        if (reason != nullptr) *reason = "reference_gamma_file_missing";
+        return false;
+    }
+    std::string line;
+    if (!std::getline(input, line)) {
+        if (reason != nullptr) *reason = "reference_gamma_header_missing";
+        return false;
+    }
+    const std::vector<std::string> header = splitReferenceCsvLine(line);
+    std::map<std::string, std::size_t> columns;
+    for (std::size_t index = 0; index < header.size(); ++index) {
+        columns[trimReferenceCsvField(header[index])] = index;
+    }
+    const char* required[] = {"period_id", "beam_id", "method", "status",
+                              "support_count", "gamma_real", "gamma_imag",
+                              "truth_used_in_estimator"};
+    for (const char* name : required) {
+        if (columns.find(name) == columns.end()) {
+            if (reason != nullptr) *reason = std::string("reference_gamma_column_missing:") + name;
+            return false;
+        }
+    }
+    while (std::getline(input, line)) {
+        if (trimReferenceCsvField(line).empty()) continue;
+        const std::vector<std::string> fields = splitReferenceCsvLine(line);
+        const std::size_t method_index = columns["method"];
+        const std::size_t status_index = columns["status"];
+        if (method_index >= fields.size() || status_index >= fields.size()) continue;
+        if (trimReferenceCsvField(fields[method_index]) != cfg.research_calibration_method) {
+            continue;
+        }
+        int period_id = -1;
+        int beam_id = -1;
+        if (!parseReferenceInt(fields, columns, "period_id", -1, &period_id) ||
+            !parseReferenceInt(fields, columns, "beam_id", -1, &beam_id)) {
+            if (reason != nullptr) *reason = "reference_gamma_identity_invalid";
+            return false;
+        }
+        if (period_id >= 0 && period_id != cfg.result_file_id) continue;
+        if (beam_id >= 0 && beam_id != diagnostic_beam_id) continue;
+
+        gmti::production_calibration::GammaSummary summary;
+        const std::string status = trimReferenceCsvField(fields[status_index]);
+        if (status == "OK") {
+            summary.status = gmti::production_calibration::Status::kOk;
+        } else if (status == "PARTIAL") {
+            summary.status = gmti::production_calibration::Status::kPartial;
+        } else {
+            summary.status = gmti::production_calibration::Status::kNotEvaluable;
+        }
+        if (!parseReferenceInt(fields, columns, "az_index", -1, &summary.az_index) ||
+            !parseReferenceInt(fields, columns, "range_start", -1, &summary.range_start) ||
+            !parseReferenceInt(fields, columns, "range_end", -1, &summary.range_end) ||
+            !parseReferenceInt(fields, columns, "support_count", 0, &summary.support_count) ||
+            !parseReferenceDouble(fields, columns, "phase_coherence",
+                                  std::numeric_limits<double>::quiet_NaN(),
+                                  &summary.phase_coherence)) {
+            if (reason != nullptr) *reason = "reference_gamma_metadata_invalid";
+            return false;
+        }
+        double gamma_real = 0.0;
+        double gamma_imag = 0.0;
+        if (!parseReferenceDouble(fields, columns, "gamma_real", 0.0, &gamma_real) ||
+            !parseReferenceDouble(fields, columns, "gamma_imag", 0.0, &gamma_imag)) {
+            if (reason != nullptr) *reason = "reference_gamma_nonfinite";
+            return false;
+        }
+        summary.gamma = std::complex<double>(gamma_real, gamma_imag);
+        const std::size_t truth_index = columns["truth_used_in_estimator"];
+        if (truth_index >= fields.size()) {
+            if (reason != nullptr) *reason = "reference_gamma_truth_marker_missing";
+            return false;
+        }
+        std::string truth = trimReferenceCsvField(fields[truth_index]);
+        std::transform(truth.begin(), truth.end(), truth.begin(), [](unsigned char value) {
+            return static_cast<char>(std::tolower(value));
+        });
+        if (truth != "0" && truth != "false" && truth != "no" && truth != "off") {
+            if (reason != nullptr) *reason = truth == "1" || truth == "true" ||
+                    truth == "yes" || truth == "on"
+                ? "truth_used_in_estimator"
+                : "reference_gamma_truth_marker_invalid";
+            return false;
+        }
+        const std::map<std::string, std::size_t>::const_iterator reason_column =
+            columns.find("reason");
+        if (reason_column != columns.end() && reason_column->second < fields.size()) {
+            summary.reason = trimReferenceCsvField(fields[reason_column->second]);
+        }
+        summaries->push_back(summary);
+    }
+    if (summaries->empty()) {
+        if (reason != nullptr) *reason = "reference_gamma_identity_not_found";
+        return false;
+    }
+    return true;
+}
+
 static gmti::runtime::ProductionCalibrationTap makeProductionCalibrationTap(
     const gmti::production_calibration::Result& result,
     const std::string& source)
@@ -3786,8 +3972,36 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                 return false;
             }
 
-            const gmti::production_calibration::Result result =
-                gmti::production_calibration::applyProductionCalibration(
+            gmti::production_calibration::Result result;
+            std::string calibration_source = research_source;
+            if (!cfg.research_calibration_reference_gamma_csv.empty()) {
+                std::vector<gmti::production_calibration::GammaSummary> reference;
+                std::string reference_reason;
+                if (!loadProductionCalibrationReference(
+                        cfg, diagnostic_beam_id, &reference, &reference_reason)) {
+                    gmti::runtime::ProductionCalibrationTap tap;
+                    tap.method = cfg.research_calibration_method;
+                    tap.status = "NOT_EVALUABLE";
+                    tap.source = "reference_gamma_artifact";
+                    tap.reason = reference_reason;
+                    tap.truth_used_in_estimator = false;
+                    if (!gmti::runtime::recordProductionCalibrationTap(
+                            cfg, diagnostic_beam_id, tap)) {
+                        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                                  << "reference-gamma load failure tap" << std::endl;
+                        return false;
+                    }
+                    return false;
+                }
+                result = gmti::production_calibration::applyProductionCalibrationReference(
+                    f1_host, f2_host, static_cast<int>(Na),
+                    static_cast<int>(Nr),
+                    gmti::production_calibration::SupportBounds(
+                        az_st, az_ed, rg_st, rg_ed),
+                    method, reference, cfg.research_calibration_min_support);
+                calibration_source = "reference_gamma_artifact_fixed_apply";
+            } else {
+                result = gmti::production_calibration::applyProductionCalibration(
                     f1_host, f2_host, static_cast<int>(Na),
                     static_cast<int>(Nr),
                     gmti::production_calibration::SupportBounds(
@@ -3795,8 +4009,9 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                     method, cfg.research_calibration_min_support,
                     cfg.research_calibration_range_band_bins,
                     cfg.research_calibration_robust_phase_threshold_rad);
+            }
             gmti::runtime::ProductionCalibrationTap tap =
-                makeProductionCalibrationTap(result, research_source);
+                makeProductionCalibrationTap(result, calibration_source);
             tap.method = cfg.research_calibration_method;
             if (result.status == gmti::production_calibration::Status::kNotEvaluable ||
                 result.csi.size() != total) {

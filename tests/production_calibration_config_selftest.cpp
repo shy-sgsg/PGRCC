@@ -106,6 +106,9 @@ int main(int argc, char** argv)
           "default research support minimum is positive");
     check(defaults.research_calibration_range_band_bins == 0,
           "default range-band size is disabled for non-banded methods");
+    check(defaults.research_calibration_reference_gamma_csv.empty() &&
+              defaults.research_calibration_mode == "not_applicable",
+          "reference Gamma fields are inert by default");
     check(defaults.csi_cancellation_mode == "legacy_min_magnitude",
           "legacy csi_cancellation_mode default is unchanged");
 
@@ -126,8 +129,10 @@ int main(int argc, char** argv)
     check(parser.readXmlParam(source_path, parsed_default),
           "XML without research fields must parse");
     check(!parsed_default.research_calibration_enable &&
-              parsed_default.research_calibration_method == "production_current" &&
-              parsed_default.research_calibration_range_band_bins == 0,
+                  parsed_default.research_calibration_method == "production_current" &&
+                  parsed_default.research_calibration_range_band_bins == 0 &&
+                  parsed_default.research_calibration_reference_gamma_csv.empty() &&
+                  parsed_default.research_calibration_mode == "not_applicable",
           "absent research XML fields preserve safe defaults");
     check(parsed_default.csi_cancellation_mode == "legacy_min_magnitude",
           "absent csi cancellation XML field preserves legacy default");
@@ -220,6 +225,8 @@ int main(int argc, char** argv)
     snapshot_cfg.research_calibration_min_support = 12;
     snapshot_cfg.research_calibration_range_band_bins = 16;
     snapshot_cfg.research_calibration_robust_phase_threshold_rad = 0.35;
+    snapshot_cfg.research_calibration_reference_gamma_csv = "/tmp/reference_gamma.csv";
+    snapshot_cfg.research_calibration_mode = "Mode-A";
 
     gmti::runtime::initializeRun(snapshot_cfg, "production_calibration_selftest.xml",
                                  "production_calibration_config_selftest");
@@ -253,6 +260,10 @@ int main(int argc, char** argv)
           "runtime JSON includes range-band size");
     check(json.find("\"research_calibration_robust_phase_threshold_rad\": 0.35") != std::string::npos,
           "runtime JSON includes robust phase threshold");
+    check(json.find("\"research_calibration_reference_gamma_csv\": \"/tmp/reference_gamma.csv\"") != std::string::npos,
+          "runtime JSON includes reference Gamma artifact");
+    check(json.find("\"research_calibration_mode\": \"Mode-A\"") != std::string::npos,
+          "runtime JSON includes calibration mode");
     check(text.find("research_calibration_method = robust_ddc_rb") != std::string::npos,
           "runtime text includes research method");
     check(csv.find("beam_id,run_id") != std::string::npos,

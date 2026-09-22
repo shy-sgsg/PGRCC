@@ -159,6 +159,7 @@ def _compact_manifest(manifest: Mapping[str, object], decision: str) -> dict[str
         },
         "method_ids": method_ids,
         "input_contract": manifest.get("input_contract"),
+        "downstream_compact_contract": manifest.get("downstream_compact_contract"),
         "production_contract": manifest.get("production_contract"),
         "evidence_files": list(COMPACT_EVIDENCE_FILES),
         "raw_outputs": "kept outside this compact tracked evidence directory",
@@ -212,9 +213,11 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
         [
             "case",
             "method_id",
+            "mode",
             "role",
             "method",
             "status",
+            "reason",
             "support_count",
             "excluded_count",
             "gamma_real",
@@ -222,6 +225,7 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
             "gamma_abs",
             "phase_coherence",
             "truth_used_in_estimator",
+            "reference_source",
         ],
     )
 
@@ -232,13 +236,27 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
         [
             "case",
             "method_id",
+            "mode",
+            "role",
+            "layer",
+            "status",
+            "target_protection_rule",
             "cell_false_hit_status",
             "cell_false_hit_fraction",
             "hit_cut_count",
             "valid_cut_count",
+            "cell_pfa",
+            "on_minus_off_target_detection_pd",
+            "on_minus_off_track_pd",
+            "to_target_detection_pd",
+            "to_track_pd",
             "cluster_layer",
             "protocol_detection_layer",
             "track_layer",
+            "track_association_audit_v2",
+            "track_states",
+            "track_output_payloads",
+            "id_switch_classification",
         ],
     )
 
@@ -247,9 +265,11 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
         "decision": decision,
         "status": manifest.get("status"),
         "algorithmic_results_claimed": manifest.get("algorithmic_results_claimed", False),
-        "causal_triplet_required": True,
-        "valid_cut_denominator_required": True,
-        "source_dirty_refused_for_formal": bool(
+            "causal_triplet_required": True,
+            "valid_cut_denominator_required": True,
+            "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
+            "track_evidence_required": "track_association_audit_v2,track_states,track_output_payloads,id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
+            "source_dirty_refused_for_formal": bool(
             isinstance(manifest.get("source"), Mapping)
             and manifest["source"].get("dirty_tracked")
         ),
@@ -263,6 +283,8 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
             "algorithmic_results_claimed",
             "causal_triplet_required",
             "valid_cut_denominator_required",
+            "target_protection_rule",
+            "track_evidence_required",
             "source_dirty_refused_for_formal",
         ],
     )
@@ -280,6 +302,9 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
         f"- {skip_note}\n"
         "- Cell Pfa is evaluable only as `hit_cut_count / valid_cut_count` with a positive denominator.\n"
         "- Target accounting requires the causal `OFF=C+N`, `ON=S+C+N`, `TO=S` triplet.\n"
+        "- Target protection is reported from ON−OFF and TO causal transfer; ON power alone is not a protection metric.\n"
+        "- Downstream layers remain separate: CFAR → cluster → protocol detection → TrackManager track.\n"
+        "- Track evidence uses association/state/payload debug files; missing ID-switch fields are `NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG`.\n"
         "- Raw simulator and production outputs remain outside this compact directory.\n",
         encoding="utf-8",
     )

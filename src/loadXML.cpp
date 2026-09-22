@@ -1159,6 +1159,17 @@ bool GMTIProcessor::readXmlParam(const std::string &xmlFile, Config &cfg)
     cfg.research_calibration_robust_phase_threshold_rad = parseResearchDouble(
         "research_calibration_robust_phase_threshold_rad",
         cfg.research_calibration_robust_phase_threshold_rad);
+    cfg.research_calibration_reference_gamma_csv = parseOptionalString(
+        "research_calibration_reference_gamma_csv",
+        cfg.research_calibration_reference_gamma_csv);
+    cfg.research_calibration_mode = parseOptionalString(
+        "research_calibration_mode", cfg.research_calibration_mode);
+    if (cfg.research_calibration_mode != "Mode-A" &&
+        cfg.research_calibration_mode != "Mode-B" &&
+        cfg.research_calibration_mode != "not_applicable") {
+        throw std::runtime_error(
+            "invalid research calibration mode: " + cfg.research_calibration_mode);
+    }
     {
         std::string research_error;
         if (!validateResearchCalibrationConfig(cfg, &research_error)) {

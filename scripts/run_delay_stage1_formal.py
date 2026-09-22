@@ -1036,6 +1036,7 @@ def run_production_branch(
     layout: Mapping[str, object],
     *,
     truth_path: Path | None = None,
+    xml_overrides: Mapping[str, object] | None = None,
 ) -> dict[str, object]:
     """Run one condition/role through the existing production TrackManager.
 
@@ -1060,6 +1061,7 @@ def run_production_branch(
         "source_xml": str(Path(source_xml).resolve()),
         "period_count_expected": int(period_count),
         "truth_period_count": len(truth_by_period),
+        "xml_overrides": dict(xml_overrides or {}),
         "status": "not_started",
     }
     periods = _input_periods(Path(input_path))
@@ -1095,6 +1097,7 @@ def run_production_branch(
         result_dir,
         configured_debug_dir,
         layout,
+        xml_overrides=xml_overrides,
     )
     record.update({
         "configuration_returncode": configure_rc,
@@ -1165,6 +1168,71 @@ def run_production_branch(
     if pipe_run_dir is not None:
         cfar_log_paths.extend(pipe_run_dir.rglob("gmticore.log"))
     cfar_summary = e2e._parse_cfar_summaries(cfar_log_paths)
+    geometry_paths: list[Path] = []
+    geometry_roots = [result_dir, debug_dir, branch_root]
+    for root in geometry_roots:
+        if root is None or not root.is_dir():
+            continue
+        geometry_paths.extend(
+            candidate
+            for pattern in ("cfar_geometry_diagnostics.csv", "cfar_geometry_diagnostics.json")
+            for candidate in root.rglob(pattern)
+            if candidate.is_file()
+        )
+    geometry_paths = sorted(set(path.resolve() for path in geometry_paths))
+    geometry_summary: dict[str, object]
+    if geometry_paths:
+        try:
+            from scripts.cfar_geometry_audit import load_geometry_rows
+
+            geometry_rows = load_geometry_rows(geometry_paths)
+            valid_cut_count = sum(int(row["valid_cut_count"]) for row in geometry_rows)
+            hit_cut_count = sum(int(row["hit_cut_count"]) for row in geometry_rows)
+            geometry_summary = {
+                "status": "evaluable" if valid_cut_count > 0 else "NOT_EVALUABLE",
+                "valid_cut_count": valid_cut_count,
+                "hit_cut_count": hit_cut_count,
+                "threshold_test_count": sum(int(row["threshold_test_count"]) for row in geometry_rows),
+                "cell_pfa": (
+                    float(hit_cut_count) / float(valid_cut_count)
+                    if valid_cut_count > 0 else None
+                ),
+                "definition": "hit_cut_count / valid_cut_count",
+                "reason": None if valid_cut_count > 0 else "valid_cut_count_missing_or_non_positive",
+                "source_paths": [str(path) for path in geometry_paths],
+                "rows": geometry_rows,
+            }
+            # The OFF waterfall must consume this physical denominator.  The
+            # log's hit_cells field is retained only as a separate diagnostic.
+            cfar_summary = dict(cfar_summary)
+            cfar_summary.update({
+                "valid_cut_count": valid_cut_count,
+                "hit_cut_count": hit_cut_count,
+                "hit_cells": hit_cut_count,
+                "cell_pfa": geometry_summary["cell_pfa"],
+            })
+        except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
+            geometry_summary = {
+                "status": "NOT_EVALUABLE",
+                "valid_cut_count": 0,
+                "hit_cut_count": 0,
+                "cell_pfa": None,
+                "definition": "hit_cut_count / valid_cut_count",
+                "reason": f"cfar_geometry_invalid:{exc}",
+                "source_paths": [str(path) for path in geometry_paths],
+                "rows": [],
+            }
+    else:
+        geometry_summary = {
+            "status": "NOT_EVALUABLE",
+            "valid_cut_count": 0,
+            "hit_cut_count": 0,
+            "cell_pfa": None,
+            "definition": "hit_cut_count / valid_cut_count",
+            "reason": "cfar_geometry_diagnostics_missing",
+            "source_paths": [],
+            "rows": [],
+        }
     if debug_dir is None:
         audit: dict[str, object] = {
             "status": "missing",
@@ -1285,6 +1353,7 @@ def run_production_branch(
         "track_debug_dir": str(debug_dir) if debug_dir is not None else None,
         "pipe_runtime_metrics": pipe_metrics,
         "cfar_summary": cfar_summary,
+        "cfar_geometry": geometry_summary,
         "audit": audit,
         "track_audit_total_violations": audit.get("total_violations"),
         "metrics": metric_row,

@@ -81,9 +81,10 @@ def validate_geometry_row(row: Mapping[str, Any]) -> dict[str, Any]:
         "background_cells",
         "cut_band_start",
         "cut_band_end",
-        "cut_band_mode",
     ):
         _int(row, field)
+    if not str(row["cut_band_mode"]).strip():
+        raise ValueError("cut_band_mode must be non-empty")
     valid = _int(row, "valid_cut_count")
     threshold = _int(row, "threshold_test_count")
     total = _int(row, "total_cells")
