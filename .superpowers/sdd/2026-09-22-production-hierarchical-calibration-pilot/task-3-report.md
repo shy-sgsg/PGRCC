@@ -83,11 +83,9 @@ Task 3 已完成：研究配置、运行时 snapshot、共享 CUDA production ta
 
 ## 限制
 
-已运行 `nvidia-smi`，退出码 9，真实错误为：`NVIDIA-SMI has failed because it couldn't
-communicate with the NVIDIA driver.` 当前环境没有可用 NVIDIA driver，因此本 Task 没有
-运行真实 GPU 端到端 production CUDA case；Release nvcc 编译和 CPU/selftest/CTest 不能
-替代该运行时证据。待设备可用时应补跑共享入口的 disabled/enabled runtime smoke，并
-核对 adapter CSV；本限制不影响本次代码/配置/静态合约和 Release 构建验证结论。
+Task 3 初始代理沙箱中的 `nvidia-smi` 退出码为 9，真实错误为：
+`NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver.` 该历史
+探测不能替代 GPU 运行时证据；后续 Controller GPU smoke evidence 已补齐如下。
 
 本次没有修改或暂存 `outputs/`，也没有纳入与 Task 3 无关的用户改动。
 
@@ -130,5 +128,36 @@ cmake --build build --target production_calibration_config_selftest -j4
 
 ### GPU 边界
 
-本 fix round 没有运行 GPU smoke，也没有把它写成已完成；由控制器在本 fix review 后
-运行。控制器已通过受限权限确认 GPU 可见：RTX 3050、driver 580.173.02、CUDA 13.0。
+本 fix round 的 agent 验证没有运行 GPU smoke；Controller 在 fix review 后补跑的证据
+见下节，未将 agent 侧未运行写成已完成。
+
+## Controller GPU smoke evidence
+
+Controller 通过受限权限运行 `nvidia-smi` 成功，设备为 `RTX 3050 Laptop GPU`，driver
+`580.173.02`、CUDA `13.0`；运行时状态为 P8、约 44C、6.24W、3% utilization。
+
+默认关闭 smoke 使用命令：
+
+```text
+run_track_manager_e2e.py --smoke --input-mode local
+```
+
+在独立 `.scratch/pgrcc_task3_gpu_smoke_disabled_retry` 中退出码为 0，case completed；
+`Current`、`blind_calibrated`、`known_error_calibrated` 均为 `passed`，且
+`production_calibration_adapter.csv` absent，证明 disabled 路径未产生 adapter tap。
+
+同一输入的 enabled production 命令为：
+
+```text
+build/GMTI_pipe_core ... --local-test 1=...0000.bin 2=...0001.bin 3=...0002.bin
+```
+
+退出码为 0；`result/run_manifest` 为 `normal_exit=true`、`exit_code=0`。runtime
+snapshot 为 `research_calibration_enable=true`、`method=ordinary_subtraction`；
+`production_calibration_adapter.csv` 有 3 行，三行均为 `status=OK`、
+`support=159705`、`truth_used_in_estimator=false`；TrackManager debug files 存在。
+
+首次 `/tmp` smoke 因 `Errno 122` quota failure 失败，随后改到 workspace scratch
+重跑成功；该 quota failure 是输出配额问题，不是算法失败。相关输出保留在未跟踪的
+`.scratch/`（以及既有 `outputs/`）中，未删除、未纳入提交。本次 Controller evidence
+补齐了 Task 3 的 disabled/enabled GPU smoke 证据。
