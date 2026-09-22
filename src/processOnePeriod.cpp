@@ -2581,7 +2581,7 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             faAxis_f,
             cfg.az_st, cfg.rg_st, cfg.az_ed, cfg.rg_ed,
             csi_fit_cfg,
-            F1_r_f, p_38_csi_f, ph_trace_f, fa_cut_f
+            F1_r_f, p_38_csi_f, ph_trace_f, fa_cut_f, periodIdx
         )) return false;
         p_38_aligned = p_38_csi_f;
         p38_aligned_trace.assign(ph_trace_f.begin(), ph_trace_f.end());
@@ -4166,7 +4166,7 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                 faAxis_f,
                 cfg.az_st, cfg.rg_st, cfg.az_ed, cfg.rg_ed,
                 csi_fit_cfg,
-                csi_trace_f, p_38_csi_f, ph_trace_f, fa_cut_f)) {
+                csi_trace_f, p_38_csi_f, ph_trace_f, fa_cut_f, periodIdx)) {
             return failBeamStage("p38_csi");
         }
         p_38_aligned = p_38_csi_f;

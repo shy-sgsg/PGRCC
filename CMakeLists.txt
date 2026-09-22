@@ -469,6 +469,16 @@ add_executable(production_calibration_adapter_selftest
   src/production_calibration_adapter.cpp
 )
 
+add_executable(production_calibration_config_selftest
+  tests/production_calibration_config_selftest.cpp
+  src/loadXML.cpp
+  src/runtime_diagnostics.cpp
+  src/xml/tinystr.cpp
+  src/xml/tinyxml.cpp
+  src/xml/tinyxmlerror.cpp
+  src/xml/tinyxmlparser.cpp
+)
+
 add_executable(cfar_geometry_selftest
   tests/cfar_geometry_selftest.cpp
 )
@@ -835,6 +845,8 @@ configure_non_cuda_tool(low_radial_velocity_filter_selftest)
 configure_non_cuda_tool(track_detection_eval)
 configure_non_cuda_tool(channel_calibration_selftest)
 configure_non_cuda_tool(production_calibration_adapter_selftest)
+configure_non_cuda_tool(production_calibration_config_selftest)
+target_link_libraries(production_calibration_config_selftest PRIVATE CUDA::cudart)
 configure_non_cuda_tool(cfar_geometry_selftest)
 configure_non_cuda_tool(channel_geometry_selftest)
 configure_non_cuda_tool(range_compression_window_selftest)
@@ -899,6 +911,8 @@ if(BUILD_TESTING)
   add_test(NAME velocity_ambiguity_selftest COMMAND velocity_ambiguity_selftest)
   add_test(NAME channel_calibration_selftest COMMAND channel_calibration_selftest)
   add_test(NAME production_calibration_adapter_selftest COMMAND production_calibration_adapter_selftest)
+  add_test(NAME production_calibration_config_selftest
+           COMMAND production_calibration_config_selftest ${CMAKE_SOURCE_DIR}/gmti.xml)
   add_test(NAME cfar_geometry_selftest COMMAND cfar_geometry_selftest)
   add_test(NAME channel_impairments_selftest COMMAND channel_impairments_selftest)
   add_test(NAME channel_geometry_selftest COMMAND channel_geometry_selftest)

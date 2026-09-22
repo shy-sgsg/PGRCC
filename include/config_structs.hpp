@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cmath>
 #include <limits>
 #include <memory>
 
@@ -443,6 +444,13 @@ struct Config {
     // 关闭后仅写 after_power/fa_axis/range_axis，避免实时测试落盘无关中间图。
     bool csi_metrics_dump_intermediate_maps = true;
     int csi_metrics_beam_id = -1; // <0 表示全部处理波位
+    // Research-only production calibration tap. The default is an inert
+    // baseline selector and must not change the existing CSI branch.
+    bool research_calibration_enable = false;
+    std::string research_calibration_method = "production_current";
+    int research_calibration_min_support = 8;
+    int research_calibration_range_band_bins = 0;
+    double research_calibration_robust_phase_threshold_rad = 0.35;
     // legacy_min_magnitude: 旧 P38 线性相位 + 逐像素最小幅度均衡；
     // row_complex_ls: 每个多普勒行用距离训练单元估计复最小二乘系数。
     // row_phase_ls_linear: 每个多普勒行只使用复最小二乘系数的相位，
@@ -608,6 +616,40 @@ struct Config {
     int squint_side = 0;      // 右斜视侧，默认0
     double squint_angle = 0.0; // 斜视角度，单位：度
 };
+
+inline bool validateResearchCalibrationConfig(
+    const Config& cfg, std::string* error = nullptr)
+{
+    const auto fail = [error](const char* reason) {
+        if (error != nullptr) *error = reason;
+        return false;
+    };
+    const std::string& method = cfg.research_calibration_method;
+    if (method != "production_current" &&
+        method != "ordinary_subtraction" &&
+        method != "scc" &&
+        method != "ddc" &&
+        method != "robust_ddc" &&
+        method != "robust_ddc_rb") {
+        return fail("method must be production_current, ordinary_subtraction, scc, ddc, robust_ddc, or robust_ddc_rb");
+    }
+    if (cfg.research_calibration_min_support <= 0) {
+        return fail("min_support must be positive");
+    }
+    if (cfg.research_calibration_range_band_bins < 0) {
+        return fail("range_band_bins must be non-negative");
+    }
+    if (method == "robust_ddc_rb" &&
+        cfg.research_calibration_range_band_bins <= 0) {
+        return fail("robust_ddc_rb requires a positive range_band_bins");
+    }
+    if (!std::isfinite(cfg.research_calibration_robust_phase_threshold_rad) ||
+        cfg.research_calibration_robust_phase_threshold_rad <= 0.0) {
+        return fail("robust_phase_threshold_rad must be finite and positive");
+    }
+    if (error != nullptr) error->clear();
+    return true;
+}
 
 inline int effectivePulseNum(const Config& cfg)
 {

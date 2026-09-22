@@ -714,6 +714,21 @@ void writeRuntimeConfigJson(const Config& cfg)
        << cfg.csi_subtraction_gain << ",\n";
     os << "    \"csi_range_phase_correction_enable\": "
        << (cfg.csi_range_phase_correction_enable ? "true" : "false") << ",\n";
+    os << "    \"research_calibration_enable\": "
+       << (cfg.research_calibration_enable ? "true" : "false") << ",\n";
+    os << "    \"research_calibration_method\": "
+       << q(cfg.research_calibration_method) << ",\n";
+    os << "    \"research_calibration_min_support\": "
+       << cfg.research_calibration_min_support << ",\n";
+    os << "    \"research_calibration_range_band_bins\": "
+       << cfg.research_calibration_range_band_bins << ",\n";
+    os << "    \"research_calibration_robust_phase_threshold_rad\": "
+       << cfg.research_calibration_robust_phase_threshold_rad << ",\n";
+    os << "    \"research_calibration_estimator_truth_blind\": true,\n";
+    os << "    \"research_calibration_tap_source\": "
+       << q(cfg.research_calibration_enable
+                ? "shared_clutter_cancel_38_paper_1_cuda_after_p38_range_phase"
+                : "disabled") << ",\n";
     os << "    \"paired_raw_range_phase_override_f32\": "
        << q(cfg.paired_raw_range_phase_override_f32) << ",\n";
     os << "    \"paired_csi_range_phase_override_f32\": "
@@ -1124,6 +1139,20 @@ void writeRuntimeConfigTxt(const Config& cfg)
     os << "csi_subtraction_gain = " << cfg.csi_subtraction_gain << "\n";
     os << "csi_range_phase_correction_enable = "
        << (cfg.csi_range_phase_correction_enable ? 1 : 0) << "\n";
+    os << "research_calibration_enable = "
+       << (cfg.research_calibration_enable ? "true" : "false") << "\n";
+    os << "research_calibration_method = " << cfg.research_calibration_method << "\n";
+    os << "research_calibration_min_support = "
+       << cfg.research_calibration_min_support << "\n";
+    os << "research_calibration_range_band_bins = "
+       << cfg.research_calibration_range_band_bins << "\n";
+    os << "research_calibration_robust_phase_threshold_rad = "
+       << cfg.research_calibration_robust_phase_threshold_rad << "\n";
+    os << "research_calibration_estimator_truth_blind = true\n";
+    os << "research_calibration_tap_source = "
+       << (cfg.research_calibration_enable
+               ? "shared_clutter_cancel_38_paper_1_cuda_after_p38_range_phase"
+               : "disabled") << "\n";
     os << "paired_raw_range_phase_override_f32 = "
        << cfg.paired_raw_range_phase_override_f32 << "\n";
     os << "paired_csi_range_phase_override_f32 = "
@@ -1372,6 +1401,52 @@ void writeRuntimeConfigDump(const Config& cfg,
     if (!diagnosticsEnabled()) return;
     writeRuntimeConfigJson(cfg);
     writeRuntimeConfigTxt(cfg);
+}
+
+void recordProductionCalibrationTap(const Config& cfg,
+                                    int beam_id,
+                                    const ProductionCalibrationTap& tap)
+{
+    if (!cfg.research_calibration_enable || cfg.result_add.empty()) return;
+    if (!mkdirP(cfg.result_add)) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot create output dir: "
+                  << cfg.result_add << std::endl;
+        return;
+    }
+
+    const std::string path = pathJoin(
+        cfg.result_add, "production_calibration_adapter.csv");
+    std::lock_guard<std::mutex> lock(stateMutex());
+    const bool write_header = !fileExists(path);
+    std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+    if (!os) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write "
+                  << path << std::endl;
+        return;
+    }
+    if (write_header) {
+        os << "beam_id,run_id,case_id,result_id,method,status,source,"
+              "support_count,excluded_count,groups_total,valid_groups,"
+              "gamma_real,gamma_imag,gamma_abs,phase_coherence,"
+              "truth_used_in_estimator,reason\n";
+    }
+    os << beam_id << ","
+       << csvEscape(state().run_id) << ","
+       << csvEscape(state().case_id) << ","
+       << csvEscape(state().result_id) << ","
+       << csvEscape(tap.method) << ","
+       << csvEscape(tap.status) << ","
+       << csvEscape(tap.source) << ","
+       << tap.support_count << ","
+       << tap.excluded_count << ","
+       << tap.groups_total << ","
+       << tap.valid_groups << ","
+       << std::setprecision(15) << tap.gamma_real << ","
+       << tap.gamma_imag << ","
+       << tap.gamma_abs << ","
+       << tap.phase_coherence << ","
+       << (tap.truth_used_in_estimator ? "true" : "false") << ","
+       << csvEscape(tap.reason) << "\n";
 }
 
 void recordTiming(const char* scope_name,
