@@ -90,3 +90,45 @@ communicate with the NVIDIA driver.` 当前环境没有可用 NVIDIA driver，�
 核对 adapter CSV；本限制不影响本次代码/配置/静态合约和 Release 构建验证结论。
 
 本次没有修改或暂存 `outputs/`，也没有纳入与 Task 3 无关的用户改动。
+
+## Fix round 1 — tap 写入失败必须 fail-closed
+
+Reviewer 指出 `recordProductionCalibrationTap` 原先是 `void`，并且在输出目录、CSV
+打开或写入失败时吞掉错误；CUDA 调用点也没有据此停止。该问题在当前代码中复核成立。
+
+### TDD red
+
+先在现有 `production_calibration_config_selftest` 增加 research enabled、`result_add`
+指向“普通文件/child”不可创建目录的回归，并运行：
+
+```text
+cmake --build build --target production_calibration_config_selftest -j4
+```
+
+退出码为 2。真实错误是新增断言需要 bool，但旧 API 返回 `void`：
+`could not convert ... recordProductionCalibrationTap(...) from 'void' to 'bool'`。
+
+### Fix
+
+- `recordProductionCalibrationTap` 声明/实现改为 `bool`。
+- research enabled 时 `result_add` 为空、目录创建失败、CSV open 失败、header 写入
+  失败或 row flush/write 失败均打印明确错误并返回 `false`；disabled 调用为无影响的
+  成功 no-op。
+- `src/gpu/gpu_kernels.cu` 的全部 7 个 tap 调用点检查 bool 结果；记录失败统一返回
+  `false`，成功记录后才继续/标记 research output ready。Task 2 adapter 未修改。
+
+### TDD green 与回归
+
+- `cmake --build build --target production_calibration_config_selftest GMTI_pipe_core -j4`：退出码 0。
+- `./build/production_calibration_config_selftest gmti.xml`：退出码 0，PASS；新增 blocker
+  场景输出 `cannot create output dir` warning，并断言返回 `false`。
+- `PYTHONPATH=. pytest -q tests/test_production_calibration_tap.py`：退出码 0，`5 passed`。
+- `cmake -S . -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build -j4`：退出码 0，
+  `[100%] Built target GMTI_core`；仅有既有编译/nvlink warnings。
+- `ctest --test-dir build --output-on-failure`：退出码 0，23/23 tests passed。
+- `git diff --check`：退出码 0。
+
+### GPU 边界
+
+本 fix round 没有运行 GPU smoke，也没有把它写成已完成；由控制器在本 fix review 后
+运行。控制器已通过受限权限确认 GPU 可见：RTX 3050、driver 580.173.02、CUDA 13.0。

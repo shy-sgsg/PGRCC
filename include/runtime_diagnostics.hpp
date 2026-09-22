@@ -46,7 +46,7 @@ void writeRuntimeConfigDump(const Config& cfg,
                             const std::string& config_path,
                             const std::string& executable_path);
 
-void recordProductionCalibrationTap(const Config& cfg,
+bool recordProductionCalibrationTap(const Config& cfg,
                                     int beam_id,
                                     const ProductionCalibrationTap& tap);
 

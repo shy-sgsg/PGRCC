@@ -1403,15 +1403,20 @@ void writeRuntimeConfigDump(const Config& cfg,
     writeRuntimeConfigTxt(cfg);
 }
 
-void recordProductionCalibrationTap(const Config& cfg,
+bool recordProductionCalibrationTap(const Config& cfg,
                                     int beam_id,
                                     const ProductionCalibrationTap& tap)
 {
-    if (!cfg.research_calibration_enable || cfg.result_add.empty()) return;
+    if (!cfg.research_calibration_enable) return true;
+    if (cfg.result_add.empty()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] result_add is empty"
+                  << std::endl;
+        return false;
+    }
     if (!mkdirP(cfg.result_add)) {
         std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot create output dir: "
                   << cfg.result_add << std::endl;
-        return;
+        return false;
     }
 
     const std::string path = pathJoin(
@@ -1422,13 +1427,18 @@ void recordProductionCalibrationTap(const Config& cfg,
     if (!os) {
         std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write "
                   << path << std::endl;
-        return;
+        return false;
     }
     if (write_header) {
         os << "beam_id,run_id,case_id,result_id,method,status,source,"
               "support_count,excluded_count,groups_total,valid_groups,"
               "gamma_real,gamma_imag,gamma_abs,phase_coherence,"
               "truth_used_in_estimator,reason\n";
+        if (!os.good()) {
+            std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV header "
+                      << path << std::endl;
+            return false;
+        }
     }
     os << beam_id << ","
        << csvEscape(state().run_id) << ","
@@ -1447,6 +1457,13 @@ void recordProductionCalibrationTap(const Config& cfg,
        << tap.phase_coherence << ","
        << (tap.truth_used_in_estimator ? "true" : "false") << ","
        << csvEscape(tap.reason) << "\n";
+    os.flush();
+    if (!os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV row "
+                  << path << std::endl;
+        return false;
+    }
+    return true;
 }
 
 void recordTiming(const char* scope_name,

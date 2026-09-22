@@ -262,6 +262,18 @@ int main(int argc, char** argv)
     check(csv.find(",false,test") != std::string::npos,
           "research tap CSV records truth-blind provenance");
 
+    const std::string blocked_parent = root + "/tap_blocker_file";
+    {
+        std::ofstream blocker(blocked_parent.c_str());
+        check(static_cast<bool>(blocker), "cannot create tap blocker file");
+        blocker << "not a directory";
+    }
+    Config unwritable_cfg = snapshot_cfg;
+    unwritable_cfg.result_add = blocked_parent + "/child";
+    check(!gmti::runtime::recordProductionCalibrationTap(
+              unwritable_cfg, 3, tap),
+          "research tap must fail closed when result_add cannot be created");
+
     std::cout << "production calibration config/runtime selftest: PASS" << std::endl;
     return 0;
 }

@@ -3717,8 +3717,12 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
             tap.source = research_source;
             tap.reason = config_error;
             tap.truth_used_in_estimator = false;
-            gmti::runtime::recordProductionCalibrationTap(
-                cfg, diagnostic_beam_id, tap);
+            if (!gmti::runtime::recordProductionCalibrationTap(
+                    cfg, diagnostic_beam_id, tap)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                          << "configuration failure tap" << std::endl;
+                return false;
+            }
             std::cerr << "[RESEARCH_CALIBRATION][ERR] " << config_error
                       << std::endl;
             return false;
@@ -3739,8 +3743,12 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
             tap.groups_total = 1;
             tap.truth_used_in_estimator = false;
             tap.reason = "research_baseline_preserves_production_current";
-            gmti::runtime::recordProductionCalibrationTap(
-                cfg, diagnostic_beam_id, tap);
+            if (!gmti::runtime::recordProductionCalibrationTap(
+                    cfg, diagnostic_beam_id, tap)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                          << "production baseline tap" << std::endl;
+                return false;
+            }
         } else {
             gmti::production_calibration::Method method;
             if (!gmti::production_calibration::parseMethod(
@@ -3751,8 +3759,12 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                 tap.source = research_source;
                 tap.reason = "unsupported_method";
                 tap.truth_used_in_estimator = false;
-                gmti::runtime::recordProductionCalibrationTap(
-                    cfg, diagnostic_beam_id, tap);
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "unsupported-method tap" << std::endl;
+                    return false;
+                }
                 return false;
             }
 
@@ -3765,8 +3777,12 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                 tap.source = research_source;
                 tap.reason = "final_f1_f2_download_failed";
                 tap.truth_used_in_estimator = false;
-                gmti::runtime::recordProductionCalibrationTap(
-                    cfg, diagnostic_beam_id, tap);
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "F1/F2 download failure tap" << std::endl;
+                    return false;
+                }
                 return false;
             }
 
@@ -3791,8 +3807,12 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                     tap.status = "NOT_EVALUABLE";
                     tap.reason = "invalid_adapter_output_shape";
                 }
-                gmti::runtime::recordProductionCalibrationTap(
-                    cfg, diagnostic_beam_id, tap);
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "adapter evaluation failure tap" << std::endl;
+                    return false;
+                }
                 return false;
             }
 
@@ -3805,12 +3825,20 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
             if (research_copy_error != cudaSuccess) {
                 tap.status = "NOT_EVALUABLE";
                 tap.reason = "adapter_output_upload_failed";
-                gmti::runtime::recordProductionCalibrationTap(
-                    cfg, diagnostic_beam_id, tap);
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "adapter upload failure tap" << std::endl;
+                    return false;
+                }
                 return false;
             }
-            gmti::runtime::recordProductionCalibrationTap(
-                cfg, diagnostic_beam_id, tap);
+            if (!gmti::runtime::recordProductionCalibrationTap(
+                    cfg, diagnostic_beam_id, tap)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                          << "adapter result tap" << std::endl;
+                return false;
+            }
             research_output_ready = true;
         }
     }
