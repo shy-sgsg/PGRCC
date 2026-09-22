@@ -19,6 +19,9 @@
 #include <cstdint>
 #include <iostream>
 #include <chrono>
+#include <fstream>
+#include <sstream>
+#include <map>
 #include "GMTIProcessor.hpp"
 #include "dbs/NewProtocolReader.hpp"
 #include "azimuth_fft_window.hpp"
@@ -27,6 +30,7 @@
 #include "go_cfar_alpha.hpp"
 #include "trig_lut.hpp"
 #include "trig_lut_device.cuh"
+#include "production_calibration_adapter.hpp"
 
 extern "C" gmti::trig_lut_device::TrigLutConfig gmtiGetDeviceTrigLutConfig();
 
@@ -2476,7 +2480,8 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
                                          bool download_maps,
                                          int detect_source_mode,
                                          int cut_band_mode,
-                                         std::vector<float> *threshold_map)
+                                         std::vector<float> *threshold_map,
+                                         gmti::cfar::CfarGeometryDiagnostics *geometry_diagnostics)
 {
     const int H = effectivePulseNum(cfg);
     const int W = cfg.rg_len;
@@ -2577,6 +2582,13 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
     band_st = std::max(0, std::min(band_st, H - 1));
     band_ed = std::max(0, std::min(band_ed, H - 1));
 
+    const gmti::cfar::GeometryCounts geometry = gmti::cfar::count_geometry(
+        H, W, g, b, cfg.cfar_doppler_circular,
+        cfg.cfar_exclude_row_start, cfg.cfar_exclude_row_end,
+        band_st, band_ed, cut_band_mode);
+    std::vector<float> geometry_hits;
+    if (geometry_diagnostics != nullptr) geometry_hits.resize(total);
+
     int threads = 256;
     int blocks = static_cast<int>((total + threads - 1) / threads);
     mix_detect_data_kernel<<<blocks, threads, 0, stream_compute_>>>(
@@ -2637,13 +2649,15 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
     CUDA_CHECK(cudaGetLastError());
 
     d_cfar_maps_valid_ = true;
-    if (hit_count) {
+    std::size_t measured_hit_count = 0U;
+    if (hit_count || geometry_diagnostics != nullptr) {
         const auto policy = thrust::cuda::par.on(stream_compute_);
-        *hit_count = static_cast<std::size_t>(thrust::count_if(
+        measured_hit_count = static_cast<std::size_t>(thrust::count_if(
             policy,
             thrust::device_pointer_cast(d_mydata),
             thrust::device_pointer_cast(d_mydata) + total,
             PositivePower()));
+        if (hit_count) *hit_count = measured_hit_count;
     }
     if (download_maps) {
         mydata.resize(total);
@@ -2677,8 +2691,39 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
                                    total * sizeof(float),
                                    cudaMemcpyDeviceToHost, stream_compute_));
     }
-    if (download_maps || detect_map != nullptr || hit_count != nullptr) {
+    if (geometry_diagnostics != nullptr) {
+        CUDA_CHECK(cudaMemcpyAsync(geometry_hits.data(), d_mydata,
+                                   total * sizeof(float),
+                                   cudaMemcpyDeviceToHost, stream_compute_));
+    }
+    if (download_maps || detect_map != nullptr || hit_count != nullptr ||
+        geometry_diagnostics != nullptr) {
         CUDA_CHECK(cudaStreamSynchronize(stream_compute_));
+    }
+
+    if (geometry_diagnostics != nullptr) {
+        geometry_diagnostics->height = H;
+        geometry_diagnostics->width = W;
+        geometry_diagnostics->guard_cells = g;
+        geometry_diagnostics->background_cells = b;
+        geometry_diagnostics->doppler_circular = cfg.cfar_doppler_circular;
+        geometry_diagnostics->exclude_row_start = cfg.cfar_exclude_row_start;
+        geometry_diagnostics->exclude_row_end = cfg.cfar_exclude_row_end;
+        geometry_diagnostics->cut_band_start = band_st;
+        geometry_diagnostics->cut_band_end = band_ed;
+        geometry_diagnostics->cut_band_mode = cut_band_mode;
+        geometry_diagnostics->total_cells = geometry.total_cells;
+        geometry_diagnostics->edge_invalid_cells = geometry.edge_invalid_cells;
+        geometry_diagnostics->excluded_cells = geometry.excluded_cells;
+        geometry_diagnostics->cut_band_filtered_cells = geometry.cut_band_filtered_cells;
+        geometry_diagnostics->threshold_test_count = geometry.threshold_test_count;
+        geometry_diagnostics->valid_cut_count = geometry.valid_cut_count;
+        geometry_diagnostics->hit_cut_count = measured_hit_count;
+        geometry_diagnostics->hit_index_hash = gmti::cfar::hash_hit_indices(geometry_hits);
+        geometry_diagnostics->hit_hash_available = true;
+        geometry_diagnostics->configured_pfa = pf;
+        geometry_diagnostics->alpha = alpha;
+        geometry_diagnostics->cfar_type = ty;
     }
 
     if (owns_csi) {
@@ -3554,6 +3599,232 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_p38_cuda(
     return true;
 }
 
+static std::vector<std::string> splitReferenceCsvLine(const std::string& line)
+{
+    std::vector<std::string> fields;
+    std::stringstream stream(line);
+    std::string field;
+    while (std::getline(stream, field, ',')) {
+        fields.push_back(field);
+    }
+    return fields;
+}
+
+static std::string trimReferenceCsvField(const std::string& value)
+{
+    const std::size_t first = value.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) return std::string();
+    const std::size_t last = value.find_last_not_of(" \t\r\n");
+    return value.substr(first, last - first + 1U);
+}
+
+static bool parseReferenceInt(const std::vector<std::string>& fields,
+                              const std::map<std::string, std::size_t>& columns,
+                              const char* name,
+                              int default_value,
+                              int* output)
+{
+    if (output == nullptr) return false;
+    const std::map<std::string, std::size_t>::const_iterator found =
+        columns.find(name);
+    if (found == columns.end() || found->second >= fields.size()) {
+        *output = default_value;
+        return true;
+    }
+    const std::string value = trimReferenceCsvField(fields[found->second]);
+    if (value.empty()) {
+        *output = default_value;
+        return true;
+    }
+    try {
+        *output = std::stoi(value);
+    } catch (const std::exception&) {
+        return false;
+    }
+    return true;
+}
+
+static bool parseReferenceDouble(const std::vector<std::string>& fields,
+                                 const std::map<std::string, std::size_t>& columns,
+                                 const char* name,
+                                 double default_value,
+                                 double* output)
+{
+    if (output == nullptr) return false;
+    const std::map<std::string, std::size_t>::const_iterator found =
+        columns.find(name);
+    if (found == columns.end() || found->second >= fields.size()) {
+        *output = default_value;
+        return true;
+    }
+    const std::string value = trimReferenceCsvField(fields[found->second]);
+    if (value.empty()) {
+        *output = default_value;
+        return true;
+    }
+    try {
+        *output = std::stod(value);
+    } catch (const std::exception&) {
+        return false;
+    }
+    return std::isfinite(*output);
+}
+
+static bool loadProductionCalibrationReference(
+    const Config& cfg,
+    int diagnostic_beam_id,
+    std::vector<gmti::production_calibration::GammaSummary>* summaries,
+    std::string* reason)
+{
+    if (summaries == nullptr) return false;
+    summaries->clear();
+    if (cfg.research_calibration_reference_gamma_csv.empty()) {
+        if (reason != nullptr) *reason = "reference_gamma_path_empty";
+        return false;
+    }
+    std::ifstream input(cfg.research_calibration_reference_gamma_csv.c_str());
+    if (!input) {
+        if (reason != nullptr) *reason = "reference_gamma_file_missing";
+        return false;
+    }
+    std::string line;
+    if (!std::getline(input, line)) {
+        if (reason != nullptr) *reason = "reference_gamma_header_missing";
+        return false;
+    }
+    const std::vector<std::string> header = splitReferenceCsvLine(line);
+    std::map<std::string, std::size_t> columns;
+    for (std::size_t index = 0; index < header.size(); ++index) {
+        columns[trimReferenceCsvField(header[index])] = index;
+    }
+    const char* required[] = {"period_id", "beam_id", "method", "status",
+                              "support_count", "gamma_real", "gamma_imag",
+                              "truth_used_in_estimator"};
+    for (const char* name : required) {
+        if (columns.find(name) == columns.end()) {
+            if (reason != nullptr) *reason = std::string("reference_gamma_column_missing:") + name;
+            return false;
+        }
+    }
+    while (std::getline(input, line)) {
+        if (trimReferenceCsvField(line).empty()) continue;
+        const std::vector<std::string> fields = splitReferenceCsvLine(line);
+        const std::size_t method_index = columns["method"];
+        const std::size_t status_index = columns["status"];
+        if (method_index >= fields.size() || status_index >= fields.size()) continue;
+        if (trimReferenceCsvField(fields[method_index]) != cfg.research_calibration_method) {
+            continue;
+        }
+        int period_id = -1;
+        int beam_id = -1;
+        if (!parseReferenceInt(fields, columns, "period_id", -1, &period_id) ||
+            !parseReferenceInt(fields, columns, "beam_id", -1, &beam_id)) {
+            if (reason != nullptr) *reason = "reference_gamma_identity_invalid";
+            return false;
+        }
+        if (period_id >= 0 && period_id != cfg.result_file_id) continue;
+        if (beam_id >= 0 && beam_id != diagnostic_beam_id) continue;
+
+        gmti::production_calibration::GammaSummary summary;
+        const std::string status = trimReferenceCsvField(fields[status_index]);
+        if (status == "OK") {
+            summary.status = gmti::production_calibration::Status::kOk;
+        } else if (status == "PARTIAL") {
+            summary.status = gmti::production_calibration::Status::kPartial;
+        } else {
+            summary.status = gmti::production_calibration::Status::kNotEvaluable;
+        }
+        if (!parseReferenceInt(fields, columns, "az_index", -1, &summary.az_index) ||
+            !parseReferenceInt(fields, columns, "range_start", -1, &summary.range_start) ||
+            !parseReferenceInt(fields, columns, "range_end", -1, &summary.range_end) ||
+            !parseReferenceInt(fields, columns, "support_count", 0, &summary.support_count) ||
+            !parseReferenceDouble(fields, columns, "phase_coherence",
+                                  std::numeric_limits<double>::quiet_NaN(),
+                                  &summary.phase_coherence)) {
+            if (reason != nullptr) *reason = "reference_gamma_metadata_invalid";
+            return false;
+        }
+        double gamma_real = 0.0;
+        double gamma_imag = 0.0;
+        if (!parseReferenceDouble(fields, columns, "gamma_real", 0.0, &gamma_real) ||
+            !parseReferenceDouble(fields, columns, "gamma_imag", 0.0, &gamma_imag)) {
+            if (reason != nullptr) *reason = "reference_gamma_nonfinite";
+            return false;
+        }
+        summary.gamma = std::complex<double>(gamma_real, gamma_imag);
+        const std::size_t truth_index = columns["truth_used_in_estimator"];
+        if (truth_index >= fields.size()) {
+            if (reason != nullptr) *reason = "reference_gamma_truth_marker_missing";
+            return false;
+        }
+        std::string truth = trimReferenceCsvField(fields[truth_index]);
+        std::transform(truth.begin(), truth.end(), truth.begin(), [](unsigned char value) {
+            return static_cast<char>(std::tolower(value));
+        });
+        if (truth != "0" && truth != "false" && truth != "no" && truth != "off") {
+            if (reason != nullptr) *reason = truth == "1" || truth == "true" ||
+                    truth == "yes" || truth == "on"
+                ? "truth_used_in_estimator"
+                : "reference_gamma_truth_marker_invalid";
+            return false;
+        }
+        const std::map<std::string, std::size_t>::const_iterator reason_column =
+            columns.find("reason");
+        if (reason_column != columns.end() && reason_column->second < fields.size()) {
+            summary.reason = trimReferenceCsvField(fields[reason_column->second]);
+        }
+        summaries->push_back(summary);
+    }
+    if (summaries->empty()) {
+        if (reason != nullptr) *reason = "reference_gamma_identity_not_found";
+        return false;
+    }
+    return true;
+}
+
+static gmti::runtime::ProductionCalibrationTap makeProductionCalibrationTap(
+    const gmti::production_calibration::Result& result,
+    const std::string& source)
+{
+    gmti::runtime::ProductionCalibrationTap tap;
+    tap.status = gmti::production_calibration::statusName(result.status);
+    tap.source = source;
+    tap.support_count = result.support_count;
+    tap.excluded_count = result.excluded_count;
+    tap.groups_total = result.groups_total;
+    tap.valid_groups = result.valid_groups;
+    tap.truth_used_in_estimator = result.truth_used_in_estimator;
+    tap.reason = result.reason;
+
+    double gamma_real = 0.0;
+    double gamma_imag = 0.0;
+    double gamma_abs = 0.0;
+    double coherence = 0.0;
+    int gamma_count = 0;
+    for (const gmti::production_calibration::GammaSummary& summary :
+         result.gamma_summary) {
+        if (!std::isfinite(summary.gamma.real()) ||
+            !std::isfinite(summary.gamma.imag())) {
+            continue;
+        }
+        gamma_real += summary.gamma.real();
+        gamma_imag += summary.gamma.imag();
+        gamma_abs += std::abs(summary.gamma);
+        if (std::isfinite(summary.phase_coherence)) {
+            coherence += summary.phase_coherence;
+        }
+        ++gamma_count;
+    }
+    if (gamma_count > 0) {
+        const double divisor = static_cast<double>(gamma_count);
+        tap.gamma_real = gamma_real / divisor;
+        tap.gamma_imag = gamma_imag / divisor;
+        tap.gamma_abs = gamma_abs / divisor;
+        tap.phase_coherence = coherence / divisor;
+    }
+    return tap;
+}
+
 bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
     const std::vector<float>& y_faAxis,
     int az_st, int rg_st, int az_ed, int rg_ed,
@@ -3561,7 +3832,8 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
     std::vector<std::complex<float>>& prosig_38,
     std::array<float,2>& p_38,
     std::vector<float>& phase_tra_38_cut,
-    std::vector<float>& row_fa_cut)
+    std::vector<float>& row_fa_cut,
+    int diagnostic_beam_id)
 {
     const size_t Na = static_cast<size_t>(effectivePulseNum(cfg));
     const size_t Nr = static_cast<size_t>(cfg.rg_len);
@@ -3615,13 +3887,185 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
         return false;
     }
 
+    // Research-only tap: final F1/F2 are already aligned, FFT/DBS prepared,
+    // and range-phase corrected at this point.  The default branch below is
+    // intentionally left intact; no D2H copy or host adapter call occurs
+    // while research_calibration_enable is false.
+    bool research_output_ready = false;
+    const std::string research_source =
+        "production_final_f1_f2_after_p38_range_phase";
+    if (cfg.research_calibration_enable) {
+        std::string config_error;
+        if (!validateResearchCalibrationConfig(cfg, &config_error)) {
+            gmti::runtime::ProductionCalibrationTap tap;
+            tap.method = cfg.research_calibration_method;
+            tap.status = "NOT_EVALUABLE";
+            tap.source = research_source;
+            tap.reason = config_error;
+            tap.truth_used_in_estimator = false;
+            if (!gmti::runtime::recordProductionCalibrationTap(
+                    cfg, diagnostic_beam_id, tap)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                          << "configuration failure tap" << std::endl;
+                return false;
+            }
+            std::cerr << "[RESEARCH_CALIBRATION][ERR] " << config_error
+                      << std::endl;
+            return false;
+        }
+
+        if (cfg.research_calibration_method == "production_current") {
+            gmti::runtime::ProductionCalibrationTap tap;
+            tap.method = cfg.research_calibration_method;
+            tap.status = "OK";
+            tap.source = "existing_production_current_cuda_branch";
+            const long long support_count =
+                static_cast<long long>(az_ed - az_st + 1) *
+                static_cast<long long>(rg_ed - rg_st + 1);
+            tap.support_count = support_count > 0 &&
+                    support_count <= static_cast<long long>(std::numeric_limits<int>::max())
+                ? static_cast<int>(support_count) : 0;
+            tap.valid_groups = 1;
+            tap.groups_total = 1;
+            tap.truth_used_in_estimator = false;
+            tap.reason = "research_baseline_preserves_production_current";
+            if (!gmti::runtime::recordProductionCalibrationTap(
+                    cfg, diagnostic_beam_id, tap)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                          << "production baseline tap" << std::endl;
+                return false;
+            }
+        } else {
+            gmti::production_calibration::Method method;
+            if (!gmti::production_calibration::parseMethod(
+                    cfg.research_calibration_method, &method)) {
+                gmti::runtime::ProductionCalibrationTap tap;
+                tap.method = cfg.research_calibration_method;
+                tap.status = "NOT_EVALUABLE";
+                tap.source = research_source;
+                tap.reason = "unsupported_method";
+                tap.truth_used_in_estimator = false;
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "unsupported-method tap" << std::endl;
+                    return false;
+                }
+                return false;
+            }
+
+            std::vector<std::complex<float>> f1_host;
+            std::vector<std::complex<float>> f2_host;
+            if (!cuda_download_sync(f1_host, f2_host, total)) {
+                gmti::runtime::ProductionCalibrationTap tap;
+                tap.method = cfg.research_calibration_method;
+                tap.status = "NOT_EVALUABLE";
+                tap.source = research_source;
+                tap.reason = "final_f1_f2_download_failed";
+                tap.truth_used_in_estimator = false;
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "F1/F2 download failure tap" << std::endl;
+                    return false;
+                }
+                return false;
+            }
+
+            gmti::production_calibration::Result result;
+            std::string calibration_source = research_source;
+            if (!cfg.research_calibration_reference_gamma_csv.empty()) {
+                std::vector<gmti::production_calibration::GammaSummary> reference;
+                std::string reference_reason;
+                if (!loadProductionCalibrationReference(
+                        cfg, diagnostic_beam_id, &reference, &reference_reason)) {
+                    gmti::runtime::ProductionCalibrationTap tap;
+                    tap.method = cfg.research_calibration_method;
+                    tap.status = "NOT_EVALUABLE";
+                    tap.source = "reference_gamma_artifact";
+                    tap.reason = reference_reason;
+                    tap.truth_used_in_estimator = false;
+                    if (!gmti::runtime::recordProductionCalibrationTap(
+                            cfg, diagnostic_beam_id, tap)) {
+                        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                                  << "reference-gamma load failure tap" << std::endl;
+                        return false;
+                    }
+                    return false;
+                }
+                result = gmti::production_calibration::applyProductionCalibrationReference(
+                    f1_host, f2_host, static_cast<int>(Na),
+                    static_cast<int>(Nr),
+                    gmti::production_calibration::SupportBounds(
+                        az_st, az_ed, rg_st, rg_ed),
+                    method, reference, cfg.research_calibration_min_support);
+                calibration_source = "reference_gamma_artifact_fixed_apply";
+            } else {
+                result = gmti::production_calibration::applyProductionCalibration(
+                    f1_host, f2_host, static_cast<int>(Na),
+                    static_cast<int>(Nr),
+                    gmti::production_calibration::SupportBounds(
+                        az_st, az_ed, rg_st, rg_ed),
+                    method, cfg.research_calibration_min_support,
+                    cfg.research_calibration_range_band_bins,
+                    cfg.research_calibration_robust_phase_threshold_rad);
+            }
+            gmti::runtime::ProductionCalibrationTap tap =
+                makeProductionCalibrationTap(result, calibration_source);
+            tap.method = cfg.research_calibration_method;
+            if (result.status == gmti::production_calibration::Status::kNotEvaluable ||
+                result.csi.size() != total) {
+                // Never silently fall through to Current when the requested
+                // research method cannot be evaluated.
+                if (result.csi.size() != total &&
+                    result.status != gmti::production_calibration::Status::kNotEvaluable) {
+                    tap.status = "NOT_EVALUABLE";
+                    tap.reason = "invalid_adapter_output_shape";
+                }
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "adapter evaluation failure tap" << std::endl;
+                    return false;
+                }
+                return false;
+            }
+
+            cudaError_t research_copy_error = cudaMemcpyAsync(
+                gpu_ptrs_.csi, result.csi.data(), total * sizeof(cudacd),
+                cudaMemcpyHostToDevice, stream_compute_);
+            if (research_copy_error == cudaSuccess) {
+                research_copy_error = cudaStreamSynchronize(stream_compute_);
+            }
+            if (research_copy_error != cudaSuccess) {
+                tap.status = "NOT_EVALUABLE";
+                tap.reason = "adapter_output_upload_failed";
+                if (!gmti::runtime::recordProductionCalibrationTap(
+                        cfg, diagnostic_beam_id, tap)) {
+                    std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                              << "adapter upload failure tap" << std::endl;
+                    return false;
+                }
+                return false;
+            }
+            if (!gmti::runtime::recordProductionCalibrationTap(
+                    cfg, diagnostic_beam_id, tap)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot record "
+                          << "adapter result tap" << std::endl;
+                return false;
+            }
+            research_output_ready = true;
+        }
+    }
+
     int threads = 256;
     int blocks = (static_cast<int>(total) + threads - 1) / threads;
     const gmti::trig_lut_device::TrigLutConfig trig_cfg =
         gmtiGetDeviceTrigLutConfig();
-    if (cfg.csi_cancellation_mode == "row_complex_ls" ||
+    if (!research_output_ready &&
+        (cfg.csi_cancellation_mode == "row_complex_ls" ||
         cfg.csi_cancellation_mode == "row_phase_ls_linear" ||
-        cfg.csi_cancellation_mode == "row_phase_ls_min_magnitude") {
+        cfg.csi_cancellation_mode == "row_phase_ls_min_magnitude")) {
         if (!ensureCsiRowWorkspace(Na)) return false;
         cuFloatComplex* d_alpha = d_csi_alpha_;
         float* d_coherence = d_csi_coherence_;
@@ -3708,7 +4152,7 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                 static_cast<float>(cfg.csi_row_coherence_min));
         }
         CUDA_CHECK(cudaGetLastError());
-    } else {
+    } else if (!research_output_ready) {
         float* d_legacy_coherence = nullptr;
         const bool legacy_coherence_gate = cfg.csi_row_coherence_gate_enable;
         if (legacy_coherence_gate) {

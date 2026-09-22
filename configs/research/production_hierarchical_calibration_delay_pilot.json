@@ -1,0 +1,247 @@
+{
+  "schema_version": 1,
+  "stage": "Production Hierarchical Calibration Pilot",
+  "scenario_template": "simulator/scenarios/beam50_one_targets_continuous.run.json",
+  "scientific_input": {
+    "source": "four_channel_protocol_iq",
+    "protocol_channel_count": 4,
+    "fusion_pairs": [[1, 3], [2, 4]],
+    "f1_formula": "(channel_1 + channel_3) / 2",
+    "f2_formula": "(channel_2 + channel_4) / 2",
+    "algorithm_input": "final production F1/F2",
+    "gamma_convention": "sum(F2*conj(F1))/sum(|F1|^2)",
+    "residual_convention": "F2-Gamma*F1"
+  },
+  "paired_inputs": {
+    "roles": {"OFF": "C+N", "ON": "S+C+N", "TO": "S"},
+    "shared_identity_fields": [
+      "seed",
+      "background_id",
+      "target_id",
+      "delay_error_ns",
+      "production_identity"
+    ],
+    "same_downstream_contract": true
+  },
+  "methods": [
+    {
+      "method_id": "C0",
+      "description": "Production Current",
+      "family": "current",
+      "research_calibration_enable": false,
+      "research_calibration_method": "production_current",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": ["OFF"],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "C1",
+      "description": "Ordinary complex subtraction",
+      "family": "equivalent",
+      "research_calibration_enable": true,
+      "research_calibration_method": "ordinary_subtraction",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": ["OFF", "ON"],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "C2",
+      "description": "SCC",
+      "family": "equivalent",
+      "research_calibration_enable": true,
+      "research_calibration_method": "scc",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": ["OFF", "ON"],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "C3",
+      "description": "Robust DDC",
+      "family": "equivalent",
+      "research_calibration_enable": true,
+      "research_calibration_method": "robust_ddc",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": ["OFF", "ON"],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "C4",
+      "description": "Robust DDC-RB",
+      "family": "equivalent",
+      "research_calibration_enable": true,
+      "research_calibration_method": "robust_ddc_rb",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": ["OFF", "ON"],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "P1",
+      "description": "Blind physical delay correction then Current",
+      "family": "physical",
+      "research_calibration_enable": false,
+      "research_calibration_method": "production_current",
+      "input_correction": "raw_channel_2_fractional_delay",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": ["OFF"],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false,
+      "delay_estimator": "target_free_OFF_phase_vs_fast_frequency"
+    },
+    {
+      "method_id": "P2",
+      "description": "Blind physical delay correction then Robust DDC-RB",
+      "family": "hierarchical",
+      "research_calibration_enable": true,
+      "research_calibration_method": "robust_ddc_rb",
+      "input_correction": "raw_channel_2_fractional_delay",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": ["OFF", "ON"],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false,
+      "delay_estimator": "target_free_OFF_phase_vs_fast_frequency"
+    },
+    {
+      "method_id": "PK",
+      "description": "Known physical evaluator upper bound then Current",
+      "family": "known_physical_upper_bound",
+      "research_calibration_enable": false,
+      "research_calibration_method": "production_current",
+      "input_correction": "raw_channel_2_fractional_delay",
+      "known_error": true,
+      "known_error_use": "evaluator_only",
+      "estimator_input_roles": [],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "PKR",
+      "description": "Known physical evaluator upper bound then Robust DDC-RB",
+      "family": "known_hierarchical_upper_bound",
+      "research_calibration_enable": true,
+      "research_calibration_method": "robust_ddc_rb",
+      "input_correction": "raw_channel_2_fractional_delay",
+      "known_error": true,
+      "known_error_use": "evaluator_only",
+      "estimator_input_roles": [],
+      "apply_input_roles": ["ON"],
+      "truth_used_in_estimator": false
+    }
+  ],
+  "pilot": {
+    "selection_mode": "targeted",
+    "delay_errors_ns": [0, 2, -2],
+    "seeds": [101],
+    "target_velocities_mps": [6.7],
+    "target_snr_db": [30.0],
+    "working_points": ["base"],
+    "period_count": 3,
+    "case_groups": [
+      {
+        "name": "targeted_path_check",
+        "cases": [
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": 2, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": -2, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"}
+        ]
+      }
+    ]
+  },
+  "formal": {
+    "selection_mode": "targeted_groups",
+    "delay_errors_ns": [0, 2, -2, 4, -4, 8, -8],
+    "seeds": [101, 202, 303],
+    "target_velocities_mps": [6.7, 12.0],
+    "target_snr_db": [30.0, 35.0],
+    "working_points": ["base"],
+    "period_count": 5,
+    "case_groups": [
+      {
+        "name": "path_check",
+        "cases": [
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": 2, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": -2, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"}
+        ]
+      },
+      {
+        "name": "representative_positive",
+        "cases": [
+          {"delay_error_ns": 4, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": 4, "seed": 202, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": 4, "seed": 303, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": 4, "seed": 101, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": 4, "seed": 202, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": 4, "seed": 303, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"}
+        ]
+      },
+      {
+        "name": "representative_negative",
+        "cases": [
+          {"delay_error_ns": -4, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": -4, "seed": 202, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": -4, "seed": 303, "target_velocity_mps": 6.7, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": -4, "seed": 101, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": -4, "seed": 202, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"},
+          {"delay_error_ns": -4, "seed": 303, "target_velocity_mps": 12.0, "target_snr_db": 30.0, "working_point": "base"}
+        ]
+      },
+      {
+        "name": "snr_35_targeted",
+        "cases": [
+          {"delay_error_ns": 4, "seed": 101, "target_velocity_mps": 6.7, "target_snr_db": 35.0, "working_point": "base"},
+          {"delay_error_ns": -4, "seed": 101, "target_velocity_mps": 12.0, "target_snr_db": 35.0, "working_point": "base"}
+        ]
+      }
+    ]
+  },
+  "production": {
+    "input_mode": "local",
+    "period_count": 5,
+    "min_support": 8,
+    "range_band_bins": 6,
+    "robust_phase_threshold_rad": 0.35,
+    "theoretical_cell_pfa": 1e-6,
+    "downstream_contract": {
+      "cfar_type": "GO",
+      "clustering": "production",
+      "localization": "production",
+      "track_manager": "production",
+      "pipe": "production",
+      "track_debug": true
+    }
+  },
+  "evidence_allowlist": [
+    "manifest.json",
+    "method_contract.csv",
+    "gamma_recovery.csv",
+    "clutter_metrics.csv",
+    "decision_matrix.csv",
+    "report.md"
+  ],
+  "decision_labels": [
+    "GO_EQUIVALENT_CALIBRATION_ONLY",
+    "GO_PHYSICAL_CALIBRATION_ONLY",
+    "GO_HIERARCHICAL_CALIBRATION",
+    "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
+  ],
+  "ai_training": false,
+  "router_enabled": false,
+  "native_4ch_stap": false
+}

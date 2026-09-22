@@ -16,6 +16,25 @@ struct RunPaths {
     std::string run_manifest_json;
 };
 
+// One compact, truth-blind row emitted by the research-only production
+// calibration tap. Keep this record independent of the adapter header so
+// existing non-CUDA diagnostic selftests do not acquire a new link dependency.
+struct ProductionCalibrationTap {
+    std::string method;
+    std::string status;
+    std::string source;
+    int support_count = 0;
+    int excluded_count = 0;
+    int groups_total = 0;
+    int valid_groups = 0;
+    double gamma_real = 0.0;
+    double gamma_imag = 0.0;
+    double gamma_abs = 0.0;
+    double phase_coherence = 0.0;
+    bool truth_used_in_estimator = false;
+    std::string reason;
+};
+
 void initializeRun(const Config& cfg,
                    const std::string& config_path,
                    const std::string& executable_path);
@@ -26,6 +45,10 @@ void finishRun(const Config& cfg, bool normal_exit, int exit_code,
 void writeRuntimeConfigDump(const Config& cfg,
                             const std::string& config_path,
                             const std::string& executable_path);
+
+bool recordProductionCalibrationTap(const Config& cfg,
+                                    int beam_id,
+                                    const ProductionCalibrationTap& tap);
 
 void recordTiming(const char* scope_name,
                   std::chrono::system_clock::time_point start_time,

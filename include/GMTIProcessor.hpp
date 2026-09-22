@@ -8,6 +8,7 @@
 #include <cuComplex.h>
 #include <cufft.h>
 #include "config_structs.hpp"
+#include "cfar_geometry.hpp"
 #include "dbs/DbsFusionTypes.hpp"
 #include <vector>
 #include <memory>
@@ -329,7 +330,8 @@ private:
         std::vector<std::complex<float>> &prosig_38,
         std::array<float, 2> &p_38,
         std::vector<float> &phase_tra_38_cut,
-        std::vector<float> &row_fa_cut);
+        std::vector<float> &row_fa_cut,
+        int diagnostic_beam_id = -1);
 
     bool clutter_cancel_38_paper_2(
         const std::vector<double>& y_faAxis,
@@ -361,7 +363,8 @@ private:
                               bool download_maps = true,
                               int detect_source_mode = 0,
                               int cut_band_mode = 0,
-                              std::vector<float> *threshold_map = nullptr);
+                              std::vector<float> *threshold_map = nullptr,
+                              gmti::cfar::CfarGeometryDiagnostics *geometry_diagnostics = nullptr);
     bool target_select(const std::vector<std::complex<double>> &GMTI_dataf_1,
                        const std::vector<std::complex<double>> &GMTI_dataf_2,
                        const std::vector<int> &prow,
