@@ -3618,6 +3618,24 @@ static std::string trimReferenceCsvField(const std::string& value)
     return value.substr(first, last - first + 1U);
 }
 
+static std::string canonicalReferenceResultId(int period_id)
+{
+    std::ostringstream value;
+    value << "GMTI";
+    if (period_id >= 0 && period_id < 10) value << "0";
+    value << period_id;
+    return value.str();
+}
+
+static std::string canonicalReferenceGroupId(
+    int az_index, int range_start, int range_end)
+{
+    std::ostringstream value;
+    value << "az_" << az_index
+          << "_range_" << range_start << "_" << range_end;
+    return value.str();
+}
+
 static bool referenceFieldValue(
     const std::vector<std::string>& fields,
     const std::map<std::string, std::size_t>& columns,
@@ -3780,8 +3798,16 @@ static bool loadProductionCalibrationReference(
             if (reason != nullptr) *reason = "reference_gamma_identity_invalid";
             return false;
         }
+        if (period_id <= 0) {
+            if (reason != nullptr) *reason = "reference_gamma_period_id_invalid";
+            return false;
+        }
         if (period_id != cfg.result_file_id) continue;
         if (beam_id != diagnostic_beam_id) continue;
+        if (result_id != canonicalReferenceResultId(period_id)) {
+            if (reason != nullptr) *reason = "reference_gamma_result_id_mismatch";
+            return false;
+        }
 
         std::string group_id;
         if (!referenceFieldValue(fields, columns, "group_id", &group_id)) {
@@ -3798,6 +3824,11 @@ static bool loadProductionCalibrationReference(
                                           std::numeric_limits<double>::quiet_NaN(),
                                           &summary.phase_coherence)) {
             if (reason != nullptr) *reason = "reference_gamma_metadata_invalid";
+            return false;
+        }
+        if (group_id != canonicalReferenceGroupId(
+                summary.az_index, summary.range_start, summary.range_end)) {
+            if (reason != nullptr) *reason = "reference_gamma_group_id_mismatch";
             return false;
         }
         double gamma_real = 0.0;

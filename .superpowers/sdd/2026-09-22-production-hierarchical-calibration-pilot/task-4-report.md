@@ -202,3 +202,34 @@ git diff --check
 
 三项均退出码 `0`。本轮没有声称 GPU algorithmic result；GPU formal、full Cartesian
 和 Task 5 均明确未运行。
+
+## Task 4 fix-round-3 — canonical reference identity
+
+第二轮 reviewer 复审发现：仅检查 `result_id`/`group_id` 非空仍会接受
+`result_id=bogus`、`group_id=bogus`。本轮只补身份一致性校验，未扩大实验范围：
+
+- `result_id` 必须等于运行时 canonical `GMTI%02d`（由 `period_id` 推导）；
+- `group_id` 必须等于 `az_<az_index>_range_<range_start>_<range_end>`；
+- Python runner 与 CUDA loader 双端都 fail-closed 为 `NOT_EVALUABLE`，且拒绝
+  非正 `period_id`；新增 malformed identity 回归断言。
+
+实际验证：
+
+```text
+PYTHONPATH=. pytest -q tests/test_production_hierarchical_calibration_pilot.py tests/test_delay_stage1_contract.py tests/test_delay_stage1_provenance.py tests/test_channel_delay_correction.py tests/test_production_calibration_tap.py
+```
+
+结果：`53 passed`。
+
+```text
+cmake --build build --target production_calibration_adapter_selftest production_calibration_config_selftest GMTI_pipe_core -j4
+build/production_calibration_adapter_selftest
+build/production_calibration_config_selftest gmti.xml
+cmake --build build -j4
+ctest --test-dir build --output-on-failure
+```
+
+结果：定向目标、两个 calibration selftest、Release 全构建均退出码 `0`；CTest
+`23/23 passed`。CUDA link 仍有既有系统库兼容 warning，但无新增错误。`git diff --check`
+和 Python `py_compile` 均通过。本轮仍未运行 GPU formal/full Cartesian，未声称算法
+结果。

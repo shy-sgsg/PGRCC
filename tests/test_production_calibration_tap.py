@@ -96,8 +96,11 @@ def test_reference_csv_contract_rejects_wildcards_and_requires_strict_fields() -
     assert "period_id != cfg.result_file_id" in loader
     assert "beam_id != diagnostic_beam_id" in loader
     assert 'truth != "false"' in loader
+    assert "period_id <= 0" in loader
     assert "parseReferenceInt(fields, columns, \"period_id\", -1" not in loader
     assert "parseReferenceDouble(fields, columns, \"gamma_real\", 0.0" not in loader
+    assert "canonicalReferenceResultId" in loader
+    assert "canonicalReferenceGroupId" in loader
 
 
 def test_runtime_tap_exports_per_group_reference_csv() -> None:

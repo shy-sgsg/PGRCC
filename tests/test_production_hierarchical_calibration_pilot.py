@@ -336,6 +336,22 @@ def test_reference_group_rows_reject_empty_identity_and_gamma(tmp_path: Path) ->
     assert result["status"] == "NOT_EVALUABLE"
     assert result["reason"] == "reference_field_invalid:gamma_real"
 
+    malformed_result_id = dict(row)
+    malformed_result_id["result_id"] = "bogus"
+    result = validate_reference_gamma_rows(
+        [malformed_result_id], method_id="robust_ddc_rb", min_support=4
+    )
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["reason"] == "reference_result_id_mismatch"
+
+    malformed_group_id = dict(row)
+    malformed_group_id["group_id"] = "bogus"
+    result = validate_reference_gamma_rows(
+        [malformed_group_id], method_id="robust_ddc_rb", min_support=4
+    )
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["reason"] == "reference_group_id_mismatch"
+
 
 def test_reference_artifact_uses_group_rows_not_aggregate_rows(tmp_path: Path) -> None:
     import csv

@@ -1011,6 +1011,7 @@ def validate_reference_gamma_rows(
                     "status": "NOT_EVALUABLE",
                     "reason": f"reference_field_missing:{field}",
                 }
+        parsed_ints: dict[str, int] = {}
         for field in (
             "period_id",
             "beam_id",
@@ -1033,6 +1034,30 @@ def validate_reference_gamma_rows(
                     "status": "NOT_EVALUABLE",
                     "reason": f"reference_field_invalid:{field}",
                 }
+            parsed_ints[field] = parsed
+        if parsed_ints["period_id"] <= 0:
+            return {
+                **base,
+                "status": "NOT_EVALUABLE",
+                "reason": "reference_field_invalid:period_id",
+            }
+        expected_result_id = f"GMTI{parsed_ints['period_id']:02d}"
+        if str(row["result_id"]).strip() != expected_result_id:
+            return {
+                **base,
+                "status": "NOT_EVALUABLE",
+                "reason": "reference_result_id_mismatch",
+            }
+        expected_group_id = (
+            f"az_{parsed_ints['az_index']}_range_"
+            f"{parsed_ints['range_start']}_{parsed_ints['range_end']}"
+        )
+        if str(row["group_id"]).strip() != expected_group_id:
+            return {
+                **base,
+                "status": "NOT_EVALUABLE",
+                "reason": "reference_group_id_mismatch",
+            }
         if str(row["method"]).strip() != method_id:
             return {
                 **base,
