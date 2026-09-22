@@ -438,6 +438,116 @@ def test_formal_selection_declares_two_snr_values_without_cartesian_expansion() 
     assert formal["case_count"] < formal["configured_cartesian_case_count"]
 
 
+def test_analyzer_closes_a0_pk_pkr_residual_before_assigning_estimator_class() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import residual_closure
+
+    closed = residual_closure(
+        {
+            "A0": {"residual_power_db": -20.0},
+            "PK": {"residual_power_db": -21.0},
+            "PKR": {"residual_power_db": -22.0},
+        },
+        tolerance_db=3.0,
+    )
+    assert closed["status"] == "passed"
+    assert closed["required_conditions"] == ["A0", "PK", "PKR"]
+    assert closed["estimator_class_allowed"] is True
+
+    missing = residual_closure({"A0": {"residual_power_db": -20.0}})
+    assert missing["status"] == "NOT_EVALUABLE"
+    assert missing["estimator_class_allowed"] is False
+    assert missing["decision"] == "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
+
+
+def test_analyzer_reports_causal_off_on_to_metrics_without_using_on_power() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import causal_target_metrics
+
+    result = causal_target_metrics(
+        {"target_detection_pd": 0.10, "track_pd": 0.05},
+        {"target_detection_pd": 0.80, "track_pd": 0.70},
+        {"target_detection_pd": 0.90, "track_pd": 0.75},
+    )
+    assert result["status"] == "evaluable"
+    assert result["on_minus_off"]["target_detection_pd"] == pytest.approx(0.70)
+    assert result["on_minus_off"]["track_pd"] == pytest.approx(0.65)
+    assert result["to"]["target_detection_pd"] == pytest.approx(0.90)
+    assert "on_power" not in result
+    assert result["target_protection_rule"] == "causal_ON_minus_OFF_and_TO; never_ON_power_alone"
+
+
+def test_analyzer_keeps_cfar_cluster_protocol_and_track_layers_separate() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import waterfall_layers
+
+    result = waterfall_layers(
+        {
+            "cfar_geometry": {"valid_cut_count": 100, "hit_cut_count": 4},
+            "metrics": {"cfar_cluster_count": 3, "cfar_selected_cluster_count": 2},
+            "artifacts": {
+                "detection": ["detections.csv"],
+                "track_association": ["track_association_audit_v2.csv"],
+                "track_states": ["track_states.csv"],
+                "track_payloads": ["track_payloads.csv"],
+            },
+        }
+    )
+    assert result["status"] == "evaluable"
+    assert [item["layer"] for item in result["layers"]] == [
+        "CFAR", "cluster", "protocol_detection", "track"
+    ]
+    assert result["layers"][0]["cell_pfa"] == pytest.approx(0.04)
+    assert result["layers"][1]["count"] == 3
+    assert result["layers"][2]["count"] == 1
+    assert result["layers"][3]["status"] == "evaluable"
+
+
+def test_analyzer_classifies_id_switches_or_marks_debug_limit() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import classify_id_switches
+
+    classified = classify_id_switches(
+        [
+            {"frame": 1, "track_id": 7, "truth_id": "T1"},
+            {"frame": 2, "track_id": 7, "truth_id": "T2"},
+        ]
+    )
+    assert classified["status"] == "evaluable"
+    assert classified["id_switch_count"] == 1
+    assert classified["classification"] == "ID_SWITCH"
+
+    unavailable = classify_id_switches([{"track_id": 7, "truth_id": "T1"}])
+    assert unavailable["status"] == "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    assert unavailable["classification"] == "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+
+
+def test_blind_delay_estimator_uses_existing_stage1_fused_api(monkeypatch: pytest.MonkeyPatch) -> None:
+    from scripts import run_delay_stage1_formal as stage1
+    from scripts import delay_stage1_core
+    from scripts.run_production_hierarchical_calibration_pilot import estimate_blind_delay
+
+    monkeypatch.setattr(
+        stage1,
+        "_load_fused_from_periods",
+        lambda periods, layout: (object(), object()),
+    )
+    monkeypatch.setattr(
+        delay_stage1_core,
+        "delay_method_suite",
+        lambda f1, f2, fs_hz: [{"method": "D1_ordinary_LS", "delta_tau_ns": 1.25}],
+    )
+    monkeypatch.setattr(
+        stage1,
+        "_select_delay_estimate",
+        lambda rows: (1.25, "D1_ordinary_LS"),
+    )
+    result = estimate_blind_delay(
+        stage1,
+        [Path("off_0000.bin")],
+        {"fs_hz": 1.0},
+    )
+    assert result["status"] == "estimated"
+    assert result["selected_delay_ns"] == pytest.approx(1.25)
+    assert result["truth_used_in_estimator"] is False
+
+
 def test_production_branch_exposes_xml_override_handoff_and_fields_are_auditable(tmp_path: Path) -> None:
     from scripts import run_delay_stage1_formal as stage1
     from scripts.run_production_hierarchical_calibration_pilot import audit_xml_fields

@@ -1284,6 +1284,26 @@ def _case_manifest_base(config: Mapping[str, object], case: Mapping[str, object]
     }
 
 
+def estimate_blind_delay(
+    delay_runner: object, periods: Sequence[Path], layout: Mapping[str, object]
+) -> dict[str, object]:
+    """Use the existing Stage1 fused F1/F2 delay estimator, truth-blind."""
+
+    f1, f2 = delay_runner._load_fused_from_periods(periods, layout)  # type: ignore[attr-defined]
+    from scripts.delay_stage1_core import delay_method_suite
+
+    rows = delay_method_suite(f1, f2, float(layout["fs_hz"]))
+    selected_delay, selected_method = delay_runner._select_delay_estimate(rows)  # type: ignore[attr-defined]
+    return {
+        "status": "estimated" if selected_delay is not None else "failed",
+        "method_rows": rows,
+        "selected_method": selected_method,
+        "selected_delay_ns": selected_delay,
+        "input_role": "OFF=C+N",
+        "truth_used_in_estimator": False,
+    }
+
+
 def _run_case(
     config: Mapping[str, object],
     case: Mapping[str, object],
@@ -1402,9 +1422,7 @@ def _run_case(
     manifest["source_xml_sha256"] = _sha256(source_xml) if source_xml.is_file() else None
 
     try:
-        estimator = delay_runner._estimate_delay_from_calibration(calibration_input, layout)
-        estimator["input_role"] = "OFF=C+N"
-        estimator["truth_used_in_estimator"] = False
+        estimator = estimate_blind_delay(delay_runner, raw_by_role["OFF"], layout)
     except (OSError, ValueError, RuntimeError, SystemExit) as exc:
         estimator = {
             "status": "NOT_EVALUABLE",
