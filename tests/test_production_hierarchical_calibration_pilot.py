@@ -753,6 +753,56 @@ def test_analyzer_claims_only_clean_formal_actual_evidence_after_all_gates_pass(
     assert result["decision"] == "GO_HIERARCHICAL_CALIBRATION"
 
 
+def test_analyzer_allows_not_identifiable_id_switch_with_complete_track_provenance() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import analyze_delay_evidence
+
+    manifest = _formal_manifest_with_complete_rows()
+    track = manifest["compact_rows"]["clutter_metrics"][3]  # type: ignore[index]
+    track["id_switch_classification"] = "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+
+    result = analyze_delay_evidence(manifest)
+
+    assert result["status"] == "passed"
+    assert result["algorithmic_results_claimed"] is True
+    assert result["id_switch"]["classification"] == "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    assert result["id_switch"]["limitation"] == "current_debug_cannot_classify_id_switch"
+
+
+def test_analyzer_refuses_not_identifiable_id_switch_when_track_provenance_is_missing() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import analyze_delay_evidence
+
+    manifest = _formal_manifest_with_complete_rows()
+    track = manifest["compact_rows"]["clutter_metrics"][3]  # type: ignore[index]
+    track["id_switch_classification"] = "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    track["track_output_payloads"] = []
+
+    result = analyze_delay_evidence(manifest)
+
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["algorithmic_results_claimed"] is False
+
+
+def test_compact_evidence_retains_not_identifiable_id_switch_marker(tmp_path: Path) -> None:
+    import csv
+
+    from scripts.analyze_production_hierarchical_calibration_pilot import build_compact_evidence
+
+    manifest = _formal_manifest_with_complete_rows()
+    track = manifest["compact_rows"]["clutter_metrics"][3]  # type: ignore[index]
+    track["id_switch_classification"] = "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    manifest_path = tmp_path / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+
+    outputs = build_compact_evidence(manifest_path, tmp_path / "compact")
+
+    with outputs["decision_matrix.csv"].open(newline="", encoding="utf-8") as stream:
+        row = next(csv.DictReader(stream))
+    report = outputs["report.md"].read_text(encoding="utf-8")
+    assert row["id_switch_classification"] == "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    assert row["id_switch_limitation"] == "current_debug_cannot_classify_id_switch"
+    assert "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG" in report
+
+
 def test_runner_aggregates_case_closures_into_manifest_evidence() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         aggregate_case_residual_closures,

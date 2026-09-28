@@ -449,19 +449,45 @@ def analyze_delay_evidence(manifest: Mapping[str, object]) -> dict[str, object]:
         item.get("status") == "evaluable" for item in waterfall_rows
     )
     track_rows = [item for item in waterfall_rows if item.get("layer") == "track"]
+
     def valid_track_provenance(item: Mapping[str, object]) -> bool:
         id_switch = item.get("id_switch_classification")
         return (
             all(item.get(field) for field in (
                 "track_association_audit_v2", "track_states", "track_output_payloads"
             ))
-            and id_switch not in (None, "", "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG")
+            and id_switch not in (None, "")
             and (not isinstance(id_switch, Mapping) or bool(id_switch))
         )
 
     track_provenance_evaluable = bool(track_rows) and all(
         valid_track_provenance(item) for item in track_rows
     )
+    id_switch_not_identifiable = any(
+        item.get("id_switch_classification") == "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+        for item in track_rows
+    )
+    if track_provenance_evaluable:
+        id_switch_analysis = {
+            "status": (
+                "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+                if id_switch_not_identifiable else "evaluable"
+            ),
+            "classification": (
+                "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+                if id_switch_not_identifiable else "classified"
+            ),
+            "limitation": (
+                "current_debug_cannot_classify_id_switch"
+                if id_switch_not_identifiable else None
+            ),
+        }
+    else:
+        id_switch_analysis = {
+            "status": "NOT_EVALUABLE",
+            "classification": "NOT_EVALUABLE",
+            "limitation": "track_provenance_missing_or_empty",
+        }
     source = manifest.get("source")
     formal_clean_source = (
         str(manifest.get("mode")) == "formal"
@@ -515,10 +541,7 @@ def analyze_delay_evidence(manifest: Mapping[str, object]) -> dict[str, object]:
             "status": "evaluable" if waterfall_evaluable else "NOT_EVALUABLE",
             "layers": sorted(layers_present),
         },
-        "id_switch": {
-            "status": "evaluable" if track_provenance_evaluable else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
-            "classification": "classified" if track_provenance_evaluable else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
-        },
+        "id_switch": id_switch_analysis,
         "questions": questions,
         "reason": None if complete else "formal_production_evidence_incomplete",
     }
@@ -699,6 +722,8 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
         "causal_metrics_status": analysis.get("causal_metrics", {}).get("status"),
         "waterfall_status": analysis.get("waterfall", {}).get("status"),
         "id_switch_status": analysis.get("id_switch", {}).get("status"),
+        "id_switch_classification": analysis.get("id_switch", {}).get("classification"),
+        "id_switch_limitation": analysis.get("id_switch", {}).get("limitation"),
             "causal_triplet_required": True,
             "valid_cut_denominator_required": True,
             "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
@@ -721,6 +746,8 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
             "causal_metrics_status",
             "waterfall_status",
             "id_switch_status",
+            "id_switch_classification",
+            "id_switch_limitation",
             "causal_triplet_required",
             "valid_cut_denominator_required",
             "target_protection_rule",
@@ -747,6 +774,8 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
         "- 目标保护只从 `OFF=C+N`、`ON=S+C+N`、`TO=S` 的 ON−OFF 与 TO 因果量报告，禁止用 ON power alone。\n"
         "- 下游层级严格分开：CFAR → cluster → protocol detection → TrackManager track。\n"
         "- Track evidence 使用 association/state/payload；现有 debug 无法解释 ID-switch 时标记 `NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG`。\n"
+        f"- ID-switch audit: `{analysis['id_switch']['classification']}`"
+        f"; limitation: `{analysis['id_switch']['limitation']}`。\n"
         "- A0/PK/PKR residual closure 在 estimator 归因之前检查。\n\n"
         "## Delay-stage questions\n\n" + question_lines + "\n\n"
         "原始 simulator/production 输出保留在 compact 目录之外。\n",
