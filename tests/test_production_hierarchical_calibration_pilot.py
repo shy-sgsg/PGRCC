@@ -267,6 +267,16 @@ def test_ideal_a0_evaluator_contract_is_supported_without_expanding_method_contr
     assert a0["truth_used_in_estimator"] is False
 
 
+@pytest.mark.parametrize("mode", ["Mode-A", "Mode-B"])
+def test_ideal_a0_rejects_calibration_modes(mode: str) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        build_branch_execution_contract,
+    )
+
+    with pytest.raises(ValueError, match="A0 only supports not_applicable"):
+        build_branch_execution_contract("A0", mode, "ON")
+
+
 def test_adapter_rows_preserve_provenance_and_fail_closed() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import validate_adapter_rows
 

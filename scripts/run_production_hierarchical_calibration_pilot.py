@@ -247,6 +247,8 @@ def build_branch_execution_contract(
         raise ValueError(f"unknown production method: {method}")
     if selected_mode not in {"Mode-A", "Mode-B", "not_applicable"}:
         raise ValueError(f"unknown calibration mode: {selected_mode}")
+    if method == "A0" and selected_mode != "not_applicable":
+        raise ValueError("A0 only supports not_applicable mode")
     if selected_role not in {"OFF", "ON", "TO"}:
         raise ValueError(f"unknown paired-input role: {selected_role}")
 
