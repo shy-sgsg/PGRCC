@@ -78,3 +78,28 @@ report.md
 - `NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE`
 
 在当前没有 clean formal CUDA 算法结果的状态下，本报告只能输出最后一个标签。
+
+## 最新运行审计（2026-09-28）
+
+- `task5_clean_gpu_pathcheck`（source `f928e91`）实际进入 runner，但 A0 分支最初暴露
+  `unknown production method: A0`；该次 0/±2 ns 结果为
+  `NOT_EVALUABLE`，不能作为算法证据。
+- 随后的 A0 contract 修复已通过 TDD 与 scoped review；`task5_clean_gpu_after_a0_0ns`
+  （source `68bf013`）确认 A0、C0–C3、P1、PK/PKR 等 branch 能启动，但 C4/P2/PKR
+  的部分 branch 出现真实 `scan beam quality gate failed: valid=0/1`；其
+  `production_calibration_reference_gamma.csv` 进一步显示 `NOT_EVALUABLE: insufficient_phase_support`，
+  不是可用于 Gamma 归因的成功 reference。
+- 该次单 case 在汇总阶段生成约 3.7 GB 的 `case_manifest.json`，进程 RSS 约 9 GB，最终
+  以退出码 137 终止；根因是把逐行 `reference_gamma` validation rows 重复嵌入 manifest。
+  当前 runner 已改为保留状态、计数、均值和 raw CSV 路径的紧凑摘要，fixed-reference
+  写入仍使用完整已验证 rows；该修复尚未重新取得 CUDA formal 结果。
+- 对现有 branch manifests 做的离线 compact 审计只用于核对 analyzer：C1–C3 的 Gamma
+  摘要可生成，但 A0/PK/PKR closure 因 PKR CSI tap 缺失而保持 `NOT_EVALUABLE`；该临时
+  输出位于 `/tmp/pgrcc_partial_audit_v2/`，不是 tracked formal evidence。
+- 设备探测：RTX 3050 Laptop GPU，driver `580.178.04`，CUDA `13.0`，48°C，P8，
+  约 `6.34W/40W`；有桌面进程占用，因此没有作性能结论。由于上述 raw 失败现场约占
+  20 GB、当前工作区剩余约 17 GB，继续 CUDA 运行前需要清理本轮生成的失败 raw 目录，
+  但删除大型产物需得到明确授权。
+
+因此当前可复现结论仍为 `NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE`；不得把 branch
+启动、退出码 0、CPU/contract 测试或部分日志提升为 A0/PK/PKR closure 或 delay 决策。

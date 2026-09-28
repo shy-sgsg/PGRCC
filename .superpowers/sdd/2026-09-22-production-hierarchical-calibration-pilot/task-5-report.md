@@ -90,6 +90,42 @@ python3 scripts/run_production_hierarchical_calibration_pilot.py --config config
 
 ## 检查与限制
 
+## Fix round 2/3 与最新 clean GPU 审计
+
+后续 scoped review 发现并修复了两个 runner 边界问题：
+
+1. `A0` 是 residual closure 所需的 ideal evaluator，但不属于九个正式方法 contract；
+   runner 现在只允许 `A0 + not_applicable`，明确拒绝 `A0 + Mode-A/Mode-B`。
+2. 真实 branch 产生的逐行 `reference_gamma` rows 原先被重复写入
+   `method_branches`/`method_mode_roles`，导致一个 0 ns case 的 `case_manifest.json`
+   膨胀到约 3.7 GB。当前只持久化 status、reason、support/row count、均值和 raw CSV
+   source paths；fixed-reference CSV 仍由完整已验证 rows 生成，compact gamma CSV 为每个
+   branch 一行摘要。
+
+对应提交为 `6940008`、`68bf013`、`771d9a7`，均已通过 Task 5 scoped reviewer；当前
+`771d9a7` 之后 tracked source 干净。新增修复的相关回归为 `80 passed`，skip-CUDA
+contract 仍只生成六个 schema 文件并保持 `algorithmic_results_claimed=false`。
+
+最新 CUDA 运行现场：
+
+- `task5_clean_gpu_pathcheck`（source `f928e91`）：A0 接口错误，0/±2 ns 全部
+  `NOT_EVALUABLE`。
+- `task5_clean_gpu_after_a0_0ns`（source `68bf013`）：A0、C0–C3、P1、PK/PKR 等
+  branch 实际启动；部分 C4/P2/PKR branch 记录 `scan beam quality gate failed: valid=0/1`。
+  汇总阶段因 manifest OOM 以退出码 `137` 终止，尚未形成 clean formal compact evidence。
+
+当前设备为 RTX 3050 Laptop、driver `580.178.04`、CUDA `13.0`、48°C/P8、约
+`6.34W/40W`；工作区剩余约 17 GB，而本轮 raw 失败现场约 20 GB。再次 CUDA 运行前须
+在保留 manifest/log/branch 状态后清理本轮失败 raw 目录；该删除动作按仓库规则等待用户
+明确授权。故尚未运行 ±2/±4 多 seed/velocity 矩阵，也未生成 tracked formal six-file
+evidence；阶段结论仍为 `NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE`。
+
+在不改动 raw 现场的前提下，使用现有 branch manifests 和 CSI/Gamma CSV 做了临时离线
+compact 审计 `/tmp/pgrcc_partial_audit_v2/`。它生成六个临时 schema 文件并严格保持
+`algorithmic_results_claimed=false`；C1–C3 Gamma 摘要可读，但 C4/P2/PKR reference
+rows 是 `NOT_EVALUABLE: insufficient_phase_support`，PKR CSI tap 缺失，故该输出不是
+tracked formal evidence，也没有改变正式结论。
+
 ## Fix round 1：reviewer blocker 修复（当前提交前）
 
 本轮修复只针对 Task 5 reviewer 指出的可导致错误 promotion 或空 blind correction 的 blocker；没有修改 `.scratch/` 或 `outputs/`，也没有运行 `±4 ns` 或全矩阵。
