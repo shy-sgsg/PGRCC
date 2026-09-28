@@ -243,7 +243,7 @@ def build_branch_execution_contract(
     method = str(method_id)
     selected_mode = str(mode)
     selected_role = str(role)
-    if method not in METHOD_IDS:
+    if method not in METHOD_IDS and method != "A0":
         raise ValueError(f"unknown production method: {method}")
     if selected_mode not in {"Mode-A", "Mode-B", "not_applicable"}:
         raise ValueError(f"unknown calibration mode: {selected_mode}")

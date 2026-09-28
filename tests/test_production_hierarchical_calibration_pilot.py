@@ -251,6 +251,22 @@ def test_mode_a_reference_handoff_and_mode_b_truth_blind_roles_are_explicit() ->
     assert mode_b_to["estimator_called"] is False
 
 
+def test_ideal_a0_evaluator_contract_is_supported_without_expanding_method_contract() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        build_branch_execution_contract,
+    )
+
+    a0 = build_branch_execution_contract("A0", "not_applicable", "ON")
+
+    assert a0["method_id"] == "A0"
+    assert a0["mode"] == "not_applicable"
+    assert a0["estimator_input_roles"] == []
+    assert a0["estimator_called"] is False
+    assert a0["evaluator_only"] is True
+    assert a0["fixed_reference_required"] is False
+    assert a0["truth_used_in_estimator"] is False
+
+
 def test_adapter_rows_preserve_provenance_and_fail_closed() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import validate_adapter_rows
 
