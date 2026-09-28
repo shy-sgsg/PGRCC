@@ -424,6 +424,90 @@ def test_reference_artifact_uses_group_rows_not_aggregate_rows(tmp_path: Path) -
     assert [item["gamma_real"] for item in written] == ["0.8", "0.6"]
 
 
+def test_reference_gamma_summary_drops_raw_rows_but_keeps_recovery_statistics() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        compact_reference_gamma_summary,
+    )
+
+    rows = [
+        {
+            "gamma_real": "0.8",
+            "gamma_imag": "0.1",
+            "phase_coherence": "0.9",
+            "support_count": "4",
+        },
+        {
+            "gamma_real": "0.6",
+            "gamma_imag": "-0.1",
+            "phase_coherence": "0.7",
+            "support_count": "5",
+        },
+    ]
+    validation = {
+        "status": "evaluable",
+        "reason": None,
+        "truth_used_in_estimator": False,
+        "fallback_to_current": False,
+        "support_count": 9,
+        "min_support": 4,
+        "rows": rows,
+    }
+
+    summary = compact_reference_gamma_summary(
+        rows, validation, source_paths=["/scratch/reference_gamma.csv"]
+    )
+
+    assert summary["status"] == "evaluable"
+    assert summary["row_count"] == 2
+    assert summary["support_count"] == 9
+    assert summary["gamma_real_mean"] == pytest.approx(0.7)
+    assert summary["gamma_imag_mean"] == pytest.approx(0.0)
+    assert summary["phase_coherence_mean"] == pytest.approx(0.8)
+    assert summary["source_paths"] == ["/scratch/reference_gamma.csv"]
+    assert "rows" not in summary
+
+
+def test_flatten_rows_emits_compact_gamma_summary_row() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import _flatten_rows
+
+    _, gamma_rows, _ = _flatten_rows(
+        [
+            {
+                "case_id": "case-1",
+                "method_branches": [
+                    {
+                        "method_id": "C4",
+                        "mode": "Mode-A",
+                        "role": "OFF",
+                        "status": "passed",
+                        "reference_source": "OFF_estimator_output",
+                        "execution_contract": {"reference_source": "OFF_estimator_output"},
+                        "reference_gamma_summary": {
+                            "status": "evaluable",
+                            "reason": None,
+                            "row_count": 2,
+                            "support_count": 9,
+                            "gamma_real_mean": 0.7,
+                            "gamma_imag_mean": 0.0,
+                            "gamma_abs_mean": 0.71,
+                            "phase_coherence_mean": 0.8,
+                            "source_paths": ["/scratch/reference_gamma.csv"],
+                        },
+                        "metrics": {},
+                        "artifacts": {},
+                        "cfar_geometry": {},
+                    }
+                ],
+            }
+        ]
+    )
+
+    assert len(gamma_rows) == 1
+    assert gamma_rows[0]["row_count"] == 2
+    assert gamma_rows[0]["gamma_real"] == pytest.approx(0.7)
+    assert gamma_rows[0]["source_paths"] == "/scratch/reference_gamma.csv"
+
+
 def test_geometry_aggregation_uses_real_valid_and_hit_cut_fields(tmp_path: Path) -> None:
     from scripts.run_production_hierarchical_calibration_pilot import aggregate_branch_cfar_geometry
 

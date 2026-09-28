@@ -1125,6 +1125,64 @@ def validate_reference_gamma_rows(
     return {**base, "status": "evaluable", "reason": None}
 
 
+def _compact_reference_validation(validation: Mapping[str, object]) -> dict[str, object]:
+    """Keep validation status/counts without embedding raw per-group rows."""
+
+    return {
+        str(key): value
+        for key, value in validation.items()
+        if key not in {"rows", "support_counts", "statuses"}
+    }
+
+
+def compact_reference_gamma_summary(
+    rows: Sequence[Mapping[str, object]],
+    validation: Mapping[str, object],
+    *,
+    source_paths: Sequence[str],
+) -> dict[str, object]:
+    """Summarize raw Gamma rows while retaining their external provenance."""
+
+    real_values: list[float] = []
+    imag_values: list[float] = []
+    abs_values: list[float] = []
+    coherence_values: list[float] = []
+    for row in rows:
+        try:
+            real = float(row.get("gamma_real"))
+            imag = float(row.get("gamma_imag"))
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(real) and math.isfinite(imag):
+            real_values.append(real)
+            imag_values.append(imag)
+            abs_values.append(math.hypot(real, imag))
+        try:
+            coherence = float(row.get("phase_coherence"))
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(coherence):
+            coherence_values.append(coherence)
+
+    def _mean(values: Sequence[float]) -> float | None:
+        return sum(values) / len(values) if values else None
+
+    return {
+        "status": validation.get("status", "NOT_EVALUABLE"),
+        "reason": validation.get("reason"),
+        "truth_used_in_estimator": validation.get("truth_used_in_estimator", False),
+        "fallback_to_current": validation.get("fallback_to_current", False),
+        "row_count": len(rows),
+        "support_count": validation.get("support_count", 0),
+        "min_support": validation.get("min_support"),
+        "gamma_real_mean": _mean(real_values),
+        "gamma_imag_mean": _mean(imag_values),
+        "gamma_abs_mean": _mean(abs_values),
+        "phase_coherence_mean": _mean(coherence_values),
+        "source_paths": sorted({str(path) for path in source_paths}),
+    }
+
+
 def _result_period_id(value: object) -> int:
     text = str(value or "")
     digits = "".join(char for char in text if char.isdigit())
@@ -1806,23 +1864,25 @@ def _run_case(
                     base_record["cfar_geometry"] = aggregate_branch_cfar_geometry(
                         base_record["artifacts"].get("cfar_geometry", [])  # type: ignore[union-attr]
                     )
-                base_record["adapter_rows"] = _adapter_rows(
-                    base_record["artifacts"].get("adapter_csv", []), method_id, role  # type: ignore[union-attr]
-                )
-                base_record["reference_gamma_rows"] = _reference_gamma_rows(
-                    base_record["artifacts"].get("reference_gamma_csv", []),  # type: ignore[union-attr]
-                    method_id,
-                    role,
+                reference_gamma_paths = base_record["artifacts"].get("reference_gamma_csv", [])
+                reference_gamma_rows = _reference_gamma_rows(
+                    reference_gamma_paths, method_id, role  # type: ignore[arg-type]
                 )
                 expects_tap = method_id in RESEARCH_METHOD_IDS and not control_off
                 if expects_tap:
                     adapter_validation = validate_reference_gamma_rows(
-                        base_record["reference_gamma_rows"],
+                        reference_gamma_rows,
                         method_id=method_id,
                         min_support=int(production.get("min_support", 8)),
                     )
-                    base_record["adapter_validation"] = adapter_validation
-                    base_record["reference_gamma_validation"] = adapter_validation
+                    base_record["reference_gamma_summary"] = compact_reference_gamma_summary(
+                        reference_gamma_rows,
+                        adapter_validation,
+                        source_paths=reference_gamma_paths,  # type: ignore[arg-type]
+                    )
+                    compact_validation = _compact_reference_validation(adapter_validation)
+                    base_record["adapter_validation"] = compact_validation
+                    base_record["reference_gamma_validation"] = compact_validation
                     base_record["truth_used_in_estimator"] = adapter_validation.get(
                         "truth_used_in_estimator"
                     )
@@ -1834,12 +1894,17 @@ def _run_case(
                         })
                     if bool(execution_contract.get("estimator_called")):
                         reference_info = write_reference_gamma_artifact(
-                            base_record["reference_gamma_rows"],
+                            reference_gamma_rows,
                             reference_path,
                             method_id=method_id,
                             min_support=int(production.get("min_support", 8)),
                         )
-                        base_record["reference_artifact"] = reference_info
+                        compact_reference_info = dict(reference_info)
+                        if isinstance(compact_reference_info.get("validation"), Mapping):
+                            compact_reference_info["validation"] = _compact_reference_validation(
+                                compact_reference_info["validation"]  # type: ignore[arg-type]
+                            )
+                        base_record["reference_artifact"] = compact_reference_info
                 elif control_off:
                     base_record["adapter_validation"] = {
                         "status": "not_applicable",
@@ -1926,17 +1991,49 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
                 ),
             }
             method_rows.append(common)
-            for reference_row in branch.get("reference_gamma_rows", []):
-                if isinstance(reference_row, Mapping):
-                    gamma = dict(reference_row)
-                    gamma.update({
+            raw_reference_rows = branch.get("reference_gamma_rows", [])
+            if (
+                isinstance(raw_reference_rows, Sequence)
+                and not isinstance(raw_reference_rows, (str, bytes))
+                and raw_reference_rows
+            ):
+                for reference_row in raw_reference_rows:
+                    if isinstance(reference_row, Mapping):
+                        gamma = dict(reference_row)
+                        gamma.update({
+                            "case": case_id,
+                            "method_id": method_id,
+                            "mode": mode,
+                            "role": branch.get("role"),
+                            "reference_source": common["reference_source"],
+                        })
+                        gamma_rows.append(gamma)
+            else:
+                summary = branch.get("reference_gamma_summary")
+                if isinstance(summary, Mapping):
+                    gamma_rows.append({
                         "case": case_id,
                         "method_id": method_id,
                         "mode": mode,
                         "role": branch.get("role"),
+                        "method": branch.get("research_calibration_method"),
+                        "status": summary.get("status"),
+                        "reason": summary.get("reason"),
+                        "support_count": summary.get("support_count"),
+                        "row_count": summary.get("row_count"),
+                        "gamma_real": summary.get("gamma_real_mean"),
+                        "gamma_imag": summary.get("gamma_imag_mean"),
+                        "gamma_abs": summary.get("gamma_abs_mean"),
+                        "phase_coherence": summary.get("phase_coherence_mean"),
+                        "truth_used_in_estimator": summary.get(
+                            "truth_used_in_estimator", False
+                        ),
                         "reference_source": common["reference_source"],
+                        "source_paths": ";".join(
+                            str(path) for path in summary.get("source_paths", [])
+                        ),
+                        "group_id": "__branch_summary__",
                     })
-                    gamma_rows.append(gamma)
             grouped.setdefault((method_id, mode), {})[str(branch.get("role", ""))] = dict(branch)
 
             metrics = branch.get("metrics")
