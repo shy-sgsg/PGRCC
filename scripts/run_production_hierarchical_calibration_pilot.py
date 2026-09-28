@@ -907,6 +907,7 @@ def _collect_branch_artifacts(record: Mapping[str, object]) -> dict[str, object]
     patterns = {
         "adapter_csv": "production_calibration_adapter.csv",
         "reference_gamma_csv": "production_calibration_reference_gamma.csv",
+        "csi_metric_tap_summary": "csi_metric_tap_summary.csv",
         "cfar_geometry": "*cfar*geometry*.csv",
         "detection": "detection_results_GMTI*.csv",
         "track_frames": "track_frames.csv",
@@ -1304,6 +1305,94 @@ def estimate_blind_delay(
     }
 
 
+def prepare_blind_delay_correction(
+    estimator: Mapping[str, object], *, delay_truth_ns: float
+) -> dict[str, object]:
+    """Translate the public blind-estimator result into correction metadata."""
+
+    selected_delay = estimator.get("selected_delay_ns")
+    try:
+        estimate = float(selected_delay)
+    except (TypeError, ValueError):
+        estimate = math.nan
+    if estimator.get("status") == "estimated" and math.isfinite(estimate):
+        return {
+            "condition": "A3_Blind_target_free_estimated_correction",
+            "correction": "raw_channel_2_fractional_delay",
+            "correction_source": "target_free_OFF_phase_vs_fast_frequency",
+            "delay_truth_ns": float(delay_truth_ns),
+            "delay_estimate_ns": estimate,
+            "correction_applied": True,
+            "truth_used_in_estimator": False,
+            "truth_used_to_apply_correction": False,
+            "status": "evaluable",
+        }
+    return {
+        "condition": "A3_Blind_target_free_estimated_correction",
+        "correction": "raw_channel_2_fractional_delay",
+        "correction_source": "target_free_OFF_phase_vs_fast_frequency",
+        "delay_truth_ns": float(delay_truth_ns),
+        "delay_estimate_ns": None,
+        "correction_applied": False,
+        "truth_used_in_estimator": False,
+        "truth_used_to_apply_correction": False,
+        "status": "NOT_EVALUABLE",
+        "reason": "target_free_OFF_delay_estimate_missing; refusing Current fallback",
+    }
+
+
+def aggregate_case_residual_closures(
+    cases: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """Require every executed case to carry auditable A0/PK/PKR CSI closure."""
+
+    required = ("A0", "PK", "PKR")
+    source_paths: dict[str, list[str]] = {condition: [] for condition in required}
+    per_case: dict[str, dict[str, object]] = {}
+    for case in cases:
+        case_id = str(case.get("case_id", ""))
+        closure = case.get("residual_closure")
+        if not isinstance(closure, Mapping):
+            return {
+                "status": "NOT_EVALUABLE",
+                "reason": f"case_residual_closure_missing:{case_id}",
+                "actual_production_artifacts": False,
+                "source_paths": source_paths,
+                "per_case": per_case,
+            }
+        per_case[case_id] = dict(closure)
+        paths = closure.get("source_paths")
+        if (
+            closure.get("status") != "passed"
+            or closure.get("actual_production_artifacts") is not True
+            or not isinstance(paths, Mapping)
+            or any(not paths.get(condition) for condition in required)
+        ):
+            return {
+                "status": "NOT_EVALUABLE",
+                "reason": f"case_residual_closure_not_evaluable:{case_id}",
+                "actual_production_artifacts": False,
+                "source_paths": source_paths,
+                "per_case": per_case,
+            }
+        for condition in required:
+            source_paths[condition].extend(str(path) for path in paths[condition])
+    if not cases:
+        return {
+            "status": "NOT_EVALUABLE",
+            "reason": "case_residual_closure_missing:no_cases",
+            "actual_production_artifacts": False,
+            "source_paths": source_paths,
+            "per_case": per_case,
+        }
+    return {
+        "status": "passed",
+        "actual_production_artifacts": True,
+        "source_paths": source_paths,
+        "per_case": per_case,
+    }
+
+
 def _run_case(
     config: Mapping[str, object],
     case: Mapping[str, object],
@@ -1398,6 +1487,11 @@ def _run_case(
         "ON": scene_periods["A1_ON"],
         "TO": scene_periods["A1_TO"],
     }
+    ideal_by_role = {
+        "OFF": scene_periods["A0_OFF"],
+        "ON": scene_periods["A0_ON"],
+        "TO": scene_periods["A0_TO"],
+    }
     calibration_input = delay_runner._merge_binary_files(
         raw_by_role["OFF"], case_root / "inputs" / "target_free_OFF_C_plus_N.bin"
     )
@@ -1431,10 +1525,18 @@ def _run_case(
             "reason": str(exc),
         }
     manifest["delay_estimator"] = estimator
-    estimated_delay = estimator.get("delta_tau_ns") if estimator.get("status") == "estimated" else None
     delay_truth = float(case["delay_error_ns"])
 
     prepared: dict[str, dict[str, object]] = {
+        "ideal": {
+            **_prepare_raw_input_record(
+                ideal_by_role,
+                correction="none",
+                correction_source="none_ideal_no_error",
+                delay_truth_ns=0.0,
+            ),
+            "condition": "A0_Ideal_no_error",
+        },
         "none": _prepare_raw_input_record(
             raw_by_role,
             correction="none",
@@ -1442,7 +1544,8 @@ def _run_case(
             delay_truth_ns=delay_truth,
         )
     }
-    if estimated_delay is not None and math.isfinite(float(estimated_delay)):
+    blind_record = prepare_blind_delay_correction(estimator, delay_truth_ns=delay_truth)
+    if blind_record["correction_applied"]:
         blind: dict[str, dict[str, object]] = {}
         for role, paths in raw_by_role.items():
             blind[role] = delay_runner.prepare_condition_inputs(
@@ -1451,35 +1554,18 @@ def _run_case(
                 paths,
                 calibration_input,
                 delay_truth,
-                float(estimated_delay),
+                float(blind_record["delay_estimate_ns"]),
                 layout,
             )
         prepared["blind"] = {
-            "condition": "A3_Blind_target_free_estimated_correction",
-            "correction": "raw_channel_2_fractional_delay",
-            "correction_source": "target_free_OFF_phase_vs_fast_frequency",
-            "delay_truth_ns": delay_truth,
-            "delay_estimate_ns": float(estimated_delay),
-            "correction_applied": True,
-            "truth_used_in_estimator": False,
-            "truth_used_to_apply_correction": False,
+            **blind_record,
             "period_paths_by_role": {role: list(item["period_paths"]) for role, item in blind.items()},
             "correction_audit_by_role": {role: item.get("correction_audit", []) for role, item in blind.items()},
-            "status": "evaluable",
         }
     else:
         prepared["blind"] = {
-            "condition": "A3_Blind_target_free_estimated_correction",
-            "correction": "raw_channel_2_fractional_delay",
-            "correction_source": "target_free_OFF_phase_vs_fast_frequency",
-            "delay_truth_ns": delay_truth,
-            "delay_estimate_ns": None,
-            "correction_applied": False,
-            "truth_used_in_estimator": False,
-            "truth_used_to_apply_correction": False,
+            **blind_record,
             "period_paths_by_role": {role: [] for role in raw_by_role},
-            "status": "NOT_EVALUABLE",
-            "reason": "target_free_OFF_delay_estimate_missing; refusing Current fallback",
         }
     known: dict[str, dict[str, object]] = {}
     for role, paths in raw_by_role.items():
@@ -1549,9 +1635,24 @@ def _run_case(
     xml_records: dict[str, dict[str, object]] = {}
     method_branches: list[dict[str, object]] = []
     mode_contracts: list[dict[str, object]] = []
-    for method in method_contract:
+    execution_methods = [
+        {
+            "method_id": "A0",
+            "family": "ideal_reference",
+            "research_calibration_enable": False,
+            "research_calibration_method": "production_current",
+            "input_correction": "none",
+            "known_error": False,
+            "known_error_use": "none",
+            "_prepared_family": "ideal",
+        },
+        *method_contract,
+    ]
+    for method in execution_methods:
         method_id = str(method["method_id"])
-        if method_id in {"P1", "P2"}:
+        if method_id == "A0":
+            family = "ideal"
+        elif method_id in {"P1", "P2"}:
             family = "blind"
         elif method_id in {"PK", "PKR"}:
             family = "known"
@@ -1759,6 +1860,11 @@ def _run_case(
     manifest["method_xml"] = xml_records
     manifest["mode_contracts"] = mode_contracts
     manifest["method_branches"] = method_branches
+    from scripts.analyze_production_hierarchical_calibration_pilot import (
+        residual_closure_from_branch_artifacts,
+    )
+
+    manifest["residual_closure"] = residual_closure_from_branch_artifacts(method_branches)
     causal_ok = all(
         isinstance(value, Mapping) and value.get("status") == "passed"
         for value in manifest.get("causal_triplets", {}).values()
@@ -2149,6 +2255,7 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
                 "gamma_recovery": gamma_rows,
                 "clutter_metrics": clutter_rows,
             }
+            manifest["residual_closure"] = aggregate_case_residual_closures(cases)
         _write_json(manifest_path, manifest)
         evidence_root = (
             Path(args.evidence_root).resolve()
@@ -2158,6 +2265,16 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
         manifest["compact_evidence_root"] = str(evidence_root)
         _write_json(manifest_path, manifest)
         manifest["compact_evidence"] = _write_skip_compact_evidence(manifest_path, evidence_root)
+        compact_manifest = _read_json(evidence_root / "manifest.json")
+        analysis = compact_manifest.get("analysis")
+        if isinstance(analysis, Mapping):
+            manifest["analysis"] = dict(analysis)
+            manifest["algorithmic_results_claimed"] = bool(
+                analysis.get("algorithmic_results_claimed")
+            )
+            manifest["decision"] = analysis.get(
+                "decision", "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
+            )
         _write_json(manifest_path, manifest)
         return 0
     except (FileNotFoundError, RuntimeError, ValueError, OSError) as exc:

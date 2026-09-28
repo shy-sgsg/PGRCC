@@ -173,6 +173,126 @@ def residual_closure(
     }
 
 
+_RESIDUAL_CLOSURE_ROI = "clutter_band_strong_power_top10pct"
+_RESIDUAL_CLOSURE_STATUS = "formal_clutter_band_strong_roi_before_power_selected"
+_RESIDUAL_POWER_DEFINITION = (
+    "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))"
+)
+_RESIDUAL_PERIOD_AGGREGATION = "arithmetic_mean_over_period_beam"
+_RESIDUAL_BRANCH_SELECTORS = {
+    "A0": ("A0", "not_applicable", "OFF"),
+    "PK": ("PK", "not_applicable", "OFF"),
+    "PKR": ("PKR", "Mode-A", "OFF"),
+}
+
+
+def residual_closure_from_branch_artifacts(
+    branches: Sequence[Mapping[str, object]], *, tolerance_db: float = 3.0
+) -> dict[str, object]:
+    """Compute A0/PK/PKR closure from production CSI tap summaries only."""
+
+    conditions: dict[str, dict[str, object]] = {}
+    source_paths: dict[str, list[str]] = {}
+    for condition, selector in _RESIDUAL_BRANCH_SELECTORS.items():
+        matching = [
+            branch for branch in branches
+            if isinstance(branch, Mapping)
+            and tuple(str(branch.get(key, "")) for key in ("method_id", "mode", "role")) == selector
+        ]
+        if len(matching) != 1:
+            return {
+                **residual_closure({}, tolerance_db=tolerance_db),
+                "reason": f"residual_branch_missing_or_ambiguous:{condition}",
+                "residual_power_definition": _RESIDUAL_POWER_DEFINITION,
+                "period_aggregation": _RESIDUAL_PERIOD_AGGREGATION,
+                "source_paths": source_paths,
+                "actual_production_artifacts": False,
+            }
+        artifacts = matching[0].get("artifacts")
+        paths = artifacts.get("csi_metric_tap_summary") if isinstance(artifacts, Mapping) else None
+        if not isinstance(paths, Sequence) or isinstance(paths, (str, bytes)) or not paths:
+            return {
+                **residual_closure({}, tolerance_db=tolerance_db),
+                "reason": f"csi_metric_tap_summary_missing:{condition}",
+                "residual_power_definition": _RESIDUAL_POWER_DEFINITION,
+                "period_aggregation": _RESIDUAL_PERIOD_AGGREGATION,
+                "source_paths": source_paths,
+                "actual_production_artifacts": False,
+            }
+        period_beam_power: dict[tuple[str, str], float] = {}
+        selected_paths: list[str] = []
+        for raw_path in paths:
+            path = Path(str(raw_path))
+            if not path.is_file():
+                return {
+                    **residual_closure({}, tolerance_db=tolerance_db),
+                    "reason": f"csi_metric_tap_summary_unreadable:{condition}",
+                    "residual_power_definition": _RESIDUAL_POWER_DEFINITION,
+                    "period_aggregation": _RESIDUAL_PERIOD_AGGREGATION,
+                    "source_paths": source_paths,
+                    "actual_production_artifacts": False,
+                }
+            try:
+                with path.open("r", encoding="utf-8-sig", newline="") as stream:
+                    rows = list(csv.DictReader(stream))
+            except OSError:
+                rows = []
+            selected = [
+                row for row in rows
+                if row.get("roi_name") == _RESIDUAL_CLOSURE_ROI
+                and row.get("status") == _RESIDUAL_CLOSURE_STATUS
+            ]
+            if not selected:
+                return {
+                    **residual_closure({}, tolerance_db=tolerance_db),
+                    "reason": f"csi_residual_row_missing:{condition}",
+                    "residual_power_definition": _RESIDUAL_POWER_DEFINITION,
+                    "period_aggregation": _RESIDUAL_PERIOD_AGGREGATION,
+                    "source_paths": source_paths,
+                    "actual_production_artifacts": False,
+                }
+            for row in selected:
+                period_id = str(row.get("result_id") or row.get("period_id") or "").strip()
+                beam_id = str(row.get("beam_id") or "").strip()
+                try:
+                    power = float(row["after_mean_power"])
+                except (KeyError, TypeError, ValueError):
+                    power = math.nan
+                key = (period_id, beam_id)
+                if not period_id or not beam_id or not math.isfinite(power) or power <= 0.0 or key in period_beam_power:
+                    return {
+                        **residual_closure({}, tolerance_db=tolerance_db),
+                        "reason": f"csi_residual_row_invalid:{condition}",
+                        "residual_power_definition": _RESIDUAL_POWER_DEFINITION,
+                        "period_aggregation": _RESIDUAL_PERIOD_AGGREGATION,
+                        "source_paths": source_paths,
+                        "actual_production_artifacts": False,
+                    }
+                period_beam_power[key] = power
+            selected_paths.append(str(path))
+        if not period_beam_power:
+            return {
+                **residual_closure({}, tolerance_db=tolerance_db),
+                "reason": f"csi_residual_rows_empty:{condition}",
+                "residual_power_definition": _RESIDUAL_POWER_DEFINITION,
+                "period_aggregation": _RESIDUAL_PERIOD_AGGREGATION,
+                "source_paths": source_paths,
+                "actual_production_artifacts": False,
+            }
+        source_paths[condition] = selected_paths
+        conditions[condition] = {
+            "residual_power_db": 10.0 * math.log10(sum(period_beam_power.values()) / len(period_beam_power)),
+            "period_beam_count": len(period_beam_power),
+        }
+    return {
+        **residual_closure(conditions, tolerance_db=tolerance_db),
+        "residual_power_definition": _RESIDUAL_POWER_DEFINITION,
+        "period_aggregation": _RESIDUAL_PERIOD_AGGREGATION,
+        "source_paths": source_paths,
+        "actual_production_artifacts": True,
+    }
+
+
 def causal_target_metrics(
     off: Mapping[str, object], on: Mapping[str, object], target_only: Mapping[str, object]
 ) -> dict[str, object]:
@@ -293,25 +413,83 @@ def analyze_delay_evidence(manifest: Mapping[str, object]) -> dict[str, object]:
         if item.get("layer") in {"CFAR", "cluster", "protocol_detection", "track"}
     ]
     pfa_rows = [item for item in waterfall_rows if item.get("layer") == "CFAR"]
-    pfa_evaluable = bool(pfa_rows) and all(item.get("cell_pfa") is not None for item in pfa_rows)
-    causal_evaluable = bool(causal_rows) and all(item.get("status") == "evaluable" for item in causal_rows)
+
+    def valid_pfa(row: Mapping[str, object]) -> bool:
+        try:
+            valid = int(row["valid_cut_count"])
+            hit = int(row["hit_cut_count"])
+            value = float(row["cell_pfa"])
+        except (KeyError, TypeError, ValueError):
+            return False
+        return (
+            row.get("status") == "evaluable"
+            and valid > 0
+            and hit >= 0
+            and math.isfinite(value)
+            and math.isclose(value, hit / valid, rel_tol=1.0e-12, abs_tol=1.0e-15)
+        )
+
+    pfa_evaluable = bool(pfa_rows) and all(valid_pfa(item) for item in pfa_rows)
+    causal_evaluable = bool(causal_rows) and all(
+        item.get("status") == "evaluable"
+        and all(
+            _finite_metric(item, field) is not None
+            for field in (
+                "on_minus_off_target_detection_pd",
+                "on_minus_off_track_pd",
+                "to_target_detection_pd",
+                "to_track_pd",
+            )
+        )
+        for item in causal_rows
+    )
+    expected_layers = {"CFAR", "cluster", "protocol_detection", "track"}
+    layers_present = {str(item.get("layer")) for item in waterfall_rows}
+    waterfall_evaluable = expected_layers <= layers_present and all(
+        item.get("status") == "evaluable" for item in waterfall_rows
+    )
     track_rows = [item for item in waterfall_rows if item.get("layer") == "track"]
-    id_switch_known = bool(track_rows) and all(
-        item.get("id_switch_classification") != "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
-        for item in track_rows
+    def valid_track_provenance(item: Mapping[str, object]) -> bool:
+        id_switch = item.get("id_switch_classification")
+        return (
+            all(item.get(field) for field in (
+                "track_association_audit_v2", "track_states", "track_output_payloads"
+            ))
+            and id_switch not in (None, "", "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG")
+            and (not isinstance(id_switch, Mapping) or bool(id_switch))
+        )
+
+    track_provenance_evaluable = bool(track_rows) and all(
+        valid_track_provenance(item) for item in track_rows
+    )
+    source = manifest.get("source")
+    formal_clean_source = (
+        str(manifest.get("mode")) == "formal"
+        and isinstance(source, Mapping)
+        and bool(source.get("commit"))
+        and source.get("dirty") is False
+        and source.get("dirty_tracked") is False
+    )
+    actual_production_evidence = (
+        residual.get("actual_production_artifacts") is True
+        and isinstance(residual.get("source_paths"), Mapping)
+        and all(residual["source_paths"].get(condition) for condition in ("A0", "PK", "PKR"))
     )
     complete = (
         str(manifest.get("status")) == "completed"
         and manifest.get("skip_cuda") is not True
-        and manifest.get("algorithmic_results_claimed") is True
         and residual.get("status") == "passed"
+        and formal_clean_source
+        and actual_production_evidence
         and causal_evaluable
         and pfa_evaluable
+        and waterfall_evaluable
+        and track_provenance_evaluable
     )
     candidate = manifest.get("decision_candidate")
     decision = str(candidate) if complete and candidate in ALLOWED_DECISION_LABELS else "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
     questions = {
-        "1_robust_ddc_production_f1_f2": "evaluable" if waterfall_rows else "NOT_EVALUABLE",
+        "1_robust_ddc_production_f1_f2": "evaluable" if waterfall_evaluable else "NOT_EVALUABLE",
         "2_current_vs_ordinary_subtraction": "evaluable" if manifest.get("method_contract") else "NOT_EVALUABLE",
         "3_ddc_fast_time_delay_clutter_recovery": "evaluable" if residual.get("status") == "passed" else "NOT_EVALUABLE",
         "4_ddc_range_angle_position_velocity_track": "evaluable" if causal_evaluable else "NOT_EVALUABLE",
@@ -319,7 +497,7 @@ def analyze_delay_evidence(manifest: Mapping[str, object]) -> dict[str, object]:
         "6_physical_plus_robust_complementarity": "evaluable" if causal_evaluable else "NOT_EVALUABLE",
         "7_known_delay_to_a0": residual.get("status", "NOT_EVALUABLE"),
         "8_target_preservation": "causal_ON_minus_OFF_and_TO_required" if causal_evaluable else "NOT_EVALUABLE",
-        "9_false_alarm_waterfall": "evaluable" if pfa_evaluable and waterfall_rows else "NOT_EVALUABLE",
+        "9_false_alarm_waterfall": "evaluable" if pfa_evaluable and waterfall_evaluable else "NOT_EVALUABLE",
         "10_delay_class": "NOT_EVALUABLE_until_single_error_closure",
         "11_channel_delay_research_value": "NOT_EVALUABLE_without_formal_delay_matrix",
         "12_servo_velocity_gate": "CLOSED",
@@ -334,12 +512,12 @@ def analyze_delay_evidence(manifest: Mapping[str, object]) -> dict[str, object]:
         "causal_metrics": {"status": "evaluable" if causal_evaluable else "NOT_EVALUABLE"},
         "empirical_cell_pfa": {"status": "evaluable" if pfa_evaluable else "NOT_EVALUABLE"},
         "waterfall": {
-            "status": "evaluable" if waterfall_rows else "NOT_EVALUABLE",
-            "layers": sorted({str(item.get("layer")) for item in waterfall_rows}),
+            "status": "evaluable" if waterfall_evaluable else "NOT_EVALUABLE",
+            "layers": sorted(layers_present),
         },
         "id_switch": {
-            "status": "evaluable" if id_switch_known else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
-            "classification": "classified" if id_switch_known else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
+            "status": "evaluable" if track_provenance_evaluable else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
+            "classification": "classified" if track_provenance_evaluable else "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
         },
         "questions": questions,
         "reason": None if complete else "formal_production_evidence_incomplete",
@@ -433,6 +611,7 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
 
     outputs: dict[str, Path] = {}
     compact_manifest = _compact_manifest(manifest, decision)
+    compact_manifest["algorithmic_results_claimed"] = analysis["algorithmic_results_claimed"]
     compact_manifest["analysis"] = analysis
     outputs["manifest.json"] = destination / "manifest.json"
     _write_json(outputs["manifest.json"], compact_manifest)
@@ -513,7 +692,7 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
     decision_row = {
         "decision": decision,
         "status": manifest.get("status"),
-        "algorithmic_results_claimed": manifest.get("algorithmic_results_claimed", False),
+        "algorithmic_results_claimed": analysis.get("algorithmic_results_claimed", False),
         "analysis_status": analysis.get("status"),
         "residual_closure_status": analysis.get("residual_closure", {}).get("status"),
         "empirical_cell_pfa_status": analysis.get("empirical_cell_pfa", {}).get("status"),

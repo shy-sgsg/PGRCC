@@ -604,3 +604,171 @@ def test_skip_contract_runner_records_non_algorithmic_status_and_methods(tmp_pat
         "C0", "C1", "C2", "C3", "C4", "P1", "P2", "PK", "PKR"
     ]
     assert manifest["selection"]["cartesian_full_matrix"] is False
+
+
+def test_blind_delay_preparation_uses_selected_delay_without_truth() -> None:
+    """P1/P2 must consume estimate_blind_delay's public result key."""
+
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        prepare_blind_delay_correction,
+    )
+
+    prepared = prepare_blind_delay_correction(
+        {
+            "status": "estimated",
+            "selected_delay_ns": 1.25,
+            "input_role": "OFF=C+N",
+            "truth_used_in_estimator": False,
+        },
+        delay_truth_ns=4.0,
+    )
+
+    assert prepared["status"] == "evaluable"
+    assert prepared["delay_estimate_ns"] == pytest.approx(1.25)
+    assert prepared["correction_applied"] is True
+    assert prepared["truth_used_in_estimator"] is False
+    assert prepared["truth_used_to_apply_correction"] is False
+
+
+def test_residual_closure_reads_actual_csi_after_power_by_period_and_beam(tmp_path: Path) -> None:
+    import csv
+
+    from scripts.analyze_production_hierarchical_calibration_pilot import (
+        residual_closure_from_branch_artifacts,
+    )
+
+    fields = ["period_id", "beam_id", "roi_name", "after_mean_power", "status"]
+    branches = []
+    for method_id, powers in {"A0": [100.0, 100.0], "PK": [110.0, 110.0], "PKR": [90.0, 90.0]}.items():
+        summary = tmp_path / f"{method_id}_csi_metric_tap_summary.csv"
+        with summary.open("w", newline="", encoding="utf-8") as stream:
+            writer = csv.DictWriter(stream, fieldnames=fields)
+            writer.writeheader()
+            for period_id, power in enumerate(powers):
+                writer.writerow({
+                    "period_id": period_id,
+                    "beam_id": 50,
+                    "roi_name": "clutter_band_strong_power_top10pct",
+                    "after_mean_power": power,
+                    "status": "formal_clutter_band_strong_roi_before_power_selected",
+                })
+        branches.append({
+            "method_id": method_id,
+            "mode": "Mode-A" if method_id == "PKR" else "not_applicable",
+            "role": "OFF",
+            "status": "passed",
+            "artifacts": {"csi_metric_tap_summary": [str(summary)]},
+        })
+
+    closure = residual_closure_from_branch_artifacts(branches, tolerance_db=1.0)
+
+    assert closure["status"] == "passed"
+    assert closure["period_aggregation"] == "arithmetic_mean_over_period_beam"
+    assert closure["residual_power_definition"] == (
+        "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))"
+    )
+    assert closure["values_db"]["A0"] == pytest.approx(20.0)
+    assert closure["source_paths"]["PK"] == [str(tmp_path / "PK_csi_metric_tap_summary.csv")]
+
+
+def _formal_manifest_with_complete_rows() -> dict[str, object]:
+    return {
+        "status": "completed",
+        "mode": "formal",
+        "skip_cuda": False,
+        "algorithmic_results_claimed": False,
+        "decision_candidate": "GO_HIERARCHICAL_CALIBRATION",
+        "source": {"commit": "frozen", "dirty": False, "dirty_tracked": False},
+        "residual_closure": {
+            "status": "passed",
+            "actual_production_artifacts": True,
+            "source_paths": {
+                "A0": ["a0/csi_metric_tap_summary.csv"],
+                "PK": ["pk/csi_metric_tap_summary.csv"],
+                "PKR": ["pkr/csi_metric_tap_summary.csv"],
+            },
+        },
+        "compact_rows": {
+            "clutter_metrics": [
+                {"layer": "CFAR", "status": "evaluable", "valid_cut_count": 10, "hit_cut_count": 1, "cell_pfa": 0.1},
+                {"layer": "cluster", "status": "evaluable"},
+                {"layer": "protocol_detection", "status": "evaluable"},
+                {
+                    "layer": "track",
+                    "status": "evaluable",
+                    "track_association_audit_v2": ["association.csv"],
+                    "track_states": ["states.csv"],
+                    "track_output_payloads": ["payloads.csv"],
+                    "id_switch_classification": {"classification": "NO_ID_SWITCH"},
+                },
+                {
+                    "layer": "ON_minus_OFF",
+                    "status": "evaluable",
+                    "on_minus_off_target_detection_pd": 0.7,
+                    "on_minus_off_track_pd": 0.6,
+                    "to_target_detection_pd": 0.8,
+                    "to_track_pd": 0.7,
+                },
+            ]
+        },
+    }
+
+
+@pytest.mark.parametrize(
+    "mutate",
+    [
+        lambda manifest: manifest["compact_rows"]["clutter_metrics"][0].update({  # type: ignore[index]
+            "status": "NOT_EVALUABLE", "valid_cut_count": 0, "cell_pfa": 0.0
+        }),
+        lambda manifest: manifest["compact_rows"]["clutter_metrics"][-1].update({  # type: ignore[index]
+            "on_minus_off_track_pd": None
+        }),
+        lambda manifest: manifest["compact_rows"]["clutter_metrics"].pop(2),  # type: ignore[index]
+        lambda manifest: manifest["compact_rows"]["clutter_metrics"][3].update({  # type: ignore[index]
+            "track_states": [], "id_switch_classification": "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+        }),
+        lambda manifest: manifest.update({"source": {"commit": "dirty", "dirty": True, "dirty_tracked": True}}),
+    ],
+    ids=["cell-pfa", "causal", "four-layers", "track-provenance", "dirty-source"],
+)
+def test_analyzer_refuses_algorithmic_claim_when_any_formal_gate_is_incomplete(mutate) -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import analyze_delay_evidence
+
+    manifest = _formal_manifest_with_complete_rows()
+    mutate(manifest)
+    result = analyze_delay_evidence(manifest)
+
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["algorithmic_results_claimed"] is False
+    assert result["decision"] == "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
+
+
+def test_analyzer_claims_only_clean_formal_actual_evidence_after_all_gates_pass() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import analyze_delay_evidence
+
+    result = analyze_delay_evidence(_formal_manifest_with_complete_rows())
+
+    assert result["status"] == "passed"
+    assert result["algorithmic_results_claimed"] is True
+    assert result["decision"] == "GO_HIERARCHICAL_CALIBRATION"
+
+
+def test_runner_aggregates_case_closures_into_manifest_evidence() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        aggregate_case_residual_closures,
+    )
+
+    closure = aggregate_case_residual_closures([
+        {
+            "case_id": "case-a",
+            "residual_closure": {
+                "status": "passed",
+                "actual_production_artifacts": True,
+                "source_paths": {"A0": ["a0.csv"], "PK": ["pk.csv"], "PKR": ["pkr.csv"]},
+            },
+        }
+    ])
+
+    assert closure["status"] == "passed"
+    assert closure["actual_production_artifacts"] is True
+    assert closure["source_paths"]["A0"] == ["a0.csv"]

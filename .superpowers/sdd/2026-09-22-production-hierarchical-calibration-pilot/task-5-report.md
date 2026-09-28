@@ -90,6 +90,30 @@ python3 scripts/run_production_hierarchical_calibration_pilot.py --config config
 
 ## 检查与限制
 
+## Fix round 1：reviewer blocker 修复（当前提交前）
+
+本轮修复只针对 Task 5 reviewer 指出的可导致错误 promotion 或空 blind correction 的 blocker；没有修改 `.scratch/` 或 `outputs/`，也没有运行 `±4 ns` 或全矩阵。
+
+1. `estimate_blind_delay()` 的稳定输出字段是 `selected_delay_ns`。P1/P2 的 blind correction 现只读取该字段；其准备记录固定为 `OFF=C+N`、`truth_used_in_estimator=false`、`truth_used_to_apply_correction=false`。缺失/非有限 estimate 仍为 `NOT_EVALUABLE`，不回退 Current。
+2. runner 现额外执行实际 production `A0`（ideal/no-error）branch，并收集每个 branch 的 `csi_metric_tap_summary.csv`。A0/PK/PKR closure 只选择 `roi_name=clutter_band_strong_power_top10pct` 且 `status=formal_clutter_band_strong_roi_before_power_selected` 的行；`residual_power_db = 10*log10(mean(after_mean_power))`，按唯一 period×beam 行作 arithmetic mean。缺文件、重复/非有限/非正 power、缺 reference branch 或 closure 超容差一律 `NOT_EVALUABLE`。branch exit status 不参与 closure 推断。
+3. analyzer 的 algorithmic promotion 现同时要求 formal clean source、实际 CSI closure source、四层 CFAR/cluster/protocol detection/track 全部显式 evaluable、严格 `hit_cut_count/valid_cut_count` cell-Pfa、OFF/ON/TO 的四个有限 causal 字段，以及可追溯的 track association/state/payload 与 ID-switch 分类。任一 skip、failed、dirty 或缺失证据均固定 `algorithmic_results_claimed=false` 和 `NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE`。
+
+新增 TDD regression 先运行：
+
+```text
+PYTHONPATH=. pytest -q tests/test_production_hierarchical_calibration_pilot.py -k 'blind_delay_preparation_uses_selected_delay or residual_closure_reads_actual_csi_after_power_by_period_and_beam or analyzer_refuses_algorithmic_claim_when_any_formal_gate_is_incomplete'
+```
+
+修复前实际结果：`7 failed`（blind/closure API 缺失；cell-Pfa、causal、layer、track provenance、dirty source 均被错误提升）。修复后实际结果：`7 passed`。
+
+本轮完整相关 Python 回归实际结果：`67 passed in 16.48s`；Release `cmake --build build -j4` 成功，`ctest --test-dir build --output-on-failure` 为 `23/23 passed`。
+
+当前 GPU 状态仍是 pending/failed：已有 `.scratch/task5_targeted_gpu_zero_retry/` 是 dirty worktree 的 `0 ns` partial production run，`PKR_modeb_ON` 记录 `scan beam quality gate failed: valid=0/1`，并且该次 run 不含本轮 A0 closure 接线。因此它不是 clean formal evidence，不能生成算法结论。后续 controller 必须从 clean frozen commit 重跑以下最小 GPU path check（仅 0 ns，非 `±4 ns` 全矩阵）：
+
+```text
+python3 scripts/run_production_hierarchical_calibration_pilot.py --config configs/research/production_hierarchical_calibration_delay_pilot.json --mode pilot --input-mode local --output-root .scratch/task5_fix_round1_gpu_zero --evidence-root .scratch/task5_fix_round1_gpu_zero/compact_evidence --delay-errors-ns 0 --max-cases 1
+```
+
 已运行：
 
 ```text
