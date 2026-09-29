@@ -2,7 +2,7 @@
 
 ## 当前状态
 
-本报告对应唯一允许的 production delay stage。代码和 analyzer 已具备 targeted pilot 入口、A0/PK/PKR residual closure、实测 cell-Pfa 分母、OFF/ON/TO 因果指标以及 CFAR→cluster→protocol→track 分层。在没有 clean formal CUDA 产物前，结论固定为：
+本报告对应唯一允许的 production delay stage。代码和 analyzer 已具备 targeted pilot 入口、A0/PK/PKR residual closure、实测 cell-Pfa 分母、OFF/ON/TO 因果指标以及 CFAR→cluster→protocol→track 分层。当前已有 clean formal CUDA 产物和 tracked compact evidence，但关键 production branch 仍有真实 gate gap，因此结论固定为：
 
 ```text
 NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE
@@ -77,29 +77,17 @@ report.md
 - `GO_HIERARCHICAL_CALIBRATION`
 - `NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE`
 
-在当前没有 clean formal CUDA 算法结果的状态下，本报告只能输出最后一个标签。
+当前虽已取得 clean formal CUDA 运行记录，但 A0/PK/PKR closure、valid-cut denominator 和完整 downstream waterfall 尚未闭合，本报告仍只能输出最后一个标签。
 
-## 最新运行审计（2026-09-28）
+## 最新运行审计（2026-09-29）
 
-- `task5_clean_gpu_pathcheck`（source `f928e91`）实际进入 runner，但 A0 分支最初暴露
-  `unknown production method: A0`；该次 0/±2 ns 结果为
-  `NOT_EVALUABLE`，不能作为算法证据。
-- 随后的 A0 contract 修复已通过 TDD 与 scoped review；`task5_clean_gpu_after_a0_0ns`
-  （source `68bf013`）确认 A0、C0–C3、P1、PK/PKR 等 branch 能启动，但 C4/P2/PKR
-  的部分 branch 出现真实 `scan beam quality gate failed: valid=0/1`；其
-  `production_calibration_reference_gamma.csv` 进一步显示 `NOT_EVALUABLE: insufficient_phase_support`，
-  不是可用于 Gamma 归因的成功 reference。
-- 该次单 case 在汇总阶段生成约 3.7 GB 的 `case_manifest.json`，进程 RSS 约 9 GB，最终
-  以退出码 137 终止；根因是把逐行 `reference_gamma` validation rows 重复嵌入 manifest。
-  当前 runner 已改为保留状态、计数、均值和 raw CSV 路径的紧凑摘要，fixed-reference
-  写入仍使用完整已验证 rows；该修复尚未重新取得 CUDA formal 结果。
-- 对现有 branch manifests 做的离线 compact 审计只用于核对 analyzer：C1–C3 的 Gamma
-  摘要可生成，但 A0/PK/PKR closure 因 PKR CSI tap 缺失而保持 `NOT_EVALUABLE`；该临时
-  输出位于 `/tmp/pgrcc_partial_audit_v2/`，不是 tracked formal evidence。
-- 设备探测：RTX 3050 Laptop GPU，driver `580.178.04`，CUDA `13.0`，48°C，P8，
-  约 `6.34W/40W`；有桌面进程占用，因此没有作性能结论。由于上述 raw 失败现场约占
-  20 GB、当前工作区剩余约 17 GB，继续 CUDA 运行前需要清理本轮生成的失败 raw 目录，
-  但删除大型产物需得到明确授权。
+- source commit 为 `6fa1a5f92c210c499a6d0112c05d065bb7f06dc9`，tracked dirty=false；设备为 RTX 3050 Laptop GPU，driver `580.178.04`，CUDA `13.0`。本次只记录正确性/证据，不作性能结论。
+- 0/±2 ns path check 在 seed 101、6.7 m/s、SNR 30 dB 完成；随后 formal representative 实际执行 `±4 ns × 3 seeds × 2 velocities = 12 cases`，每 case 5 periods。所有 runner 返回码为 0，但状态均为 `completed_with_gaps`。
+- 由于 production `method` 字段记录方法族（如 `robust_ddc`），而 pilot branch 使用方法 ID（如 `C3`），新增 `expected_method` 分离校验命名空间；修复经 TDD、scoped review 和全量测试验证。修复后 C1/C2/C3 Gamma rows 为 `evaluable`，formal compact evidence 共 180 条；C4/P2/PKR 共 72 条为 `NOT_EVALUABLE`。
+- C4/P2/PKR 的共同真实失败为 `scan beam quality gate failed: valid=0/1 required=1 min_ratio=0.95`；这使 PKR CSI tap 缺失，A0/PK/PKR residual closure 仍为 `NOT_EVALUABLE`，不能把 gap 归因于 Gamma estimator。
+- 每个 formal case 的 causal triplet gate 为 `passed`；但 valid-cut denominator、完整 CFAR→cluster→protocol→TrackManager waterfall 和 ID-switch provenance 没有全部闭合，因此 `algorithmic_results_claimed=false`。
+- tracked evidence 只保留 `docs/evidence/equivalent_vs_physical_pilot/` 下六个文件；本次 raw cases、manifest、branch logs/XML 和紧凑副本位于 Git 外的 `/tmp/pgrcc_task5_cleanup_audit_20260929_v2/`，其中原始大 payload 已按授权清理。
 
 因此当前可复现结论仍为 `NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE`；不得把 branch
-启动、退出码 0、CPU/contract 测试或部分日志提升为 A0/PK/PKR closure 或 delay 决策。
+启动、退出码 0、CPU/contract 测试、Gamma partial rows 或部分日志提升为 A0/PK/PKR closure
+或 delay 决策。
