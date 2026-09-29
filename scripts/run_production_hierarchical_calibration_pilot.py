@@ -975,14 +975,25 @@ REFERENCE_GAMMA_REQUIRED_FIELDS = (
 
 
 def validate_reference_gamma_rows(
-    rows: Sequence[Mapping[str, object]], *, method_id: str, min_support: int
+    rows: Sequence[Mapping[str, object]],
+    *,
+    method_id: str,
+    min_support: int,
+    expected_method: str | None = None,
 ) -> dict[str, object]:
-    """Validate strict raw per-group Gamma rows for fixed-reference replay."""
+    """Validate strict raw per-group Gamma rows for fixed-reference replay.
+
+    ``method_id`` identifies the pilot branch (for example ``C3``), while the
+    production CSV ``method`` column records the method family (for example
+    ``robust_ddc``).  Callers that have both identities must pass the latter as
+    ``expected_method`` so the two namespaces are not conflated.
+    """
 
     try:
         minimum = int(min_support)
     except (TypeError, ValueError):
         minimum = 0
+    expected_method_value = str(expected_method or method_id).strip()
     copied = [dict(row) for row in rows]
     statuses = [str(row.get("status", "")).strip() for row in copied]
     support_counts: list[int] = []
@@ -1061,7 +1072,7 @@ def validate_reference_gamma_rows(
                 "status": "NOT_EVALUABLE",
                 "reason": "reference_group_id_mismatch",
             }
-        if str(row["method"]).strip() != method_id:
+        if str(row["method"]).strip() != expected_method_value:
             return {
                 **base,
                 "status": "NOT_EVALUABLE",
@@ -1198,11 +1209,15 @@ def write_reference_gamma_artifact(
     *,
     method_id: str,
     min_support: int,
+    expected_method: str | None = None,
 ) -> dict[str, object]:
     """Persist raw per-GammaSummary rows for a later fixed-reference run."""
 
     validation = validate_reference_gamma_rows(
-        rows, method_id=method_id, min_support=min_support
+        rows,
+        method_id=method_id,
+        min_support=min_support,
+        expected_method=expected_method,
     )
     if validation["status"] != "evaluable":
         return {
@@ -1874,6 +1889,7 @@ def _run_case(
                         reference_gamma_rows,
                         method_id=method_id,
                         min_support=int(production.get("min_support", 8)),
+                        expected_method=str(method["research_calibration_method"]),
                     )
                     base_record["reference_gamma_summary"] = compact_reference_gamma_summary(
                         reference_gamma_rows,
@@ -1898,6 +1914,7 @@ def _run_case(
                             reference_path,
                             method_id=method_id,
                             min_support=int(production.get("min_support", 8)),
+                            expected_method=str(method["research_calibration_method"]),
                         )
                         compact_reference_info = dict(reference_info)
                         if isinstance(compact_reference_info.get("validation"), Mapping):

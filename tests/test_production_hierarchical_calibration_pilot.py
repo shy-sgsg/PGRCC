@@ -379,6 +379,36 @@ def test_reference_group_rows_reject_empty_identity_and_gamma(tmp_path: Path) ->
     assert result["reason"] == "reference_group_id_mismatch"
 
 
+def test_reference_group_rows_match_production_method_family_separately_from_id() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        validate_reference_gamma_rows,
+    )
+
+    row = {
+        "period_id": "1",
+        "result_id": "GMTI01",
+        "beam_id": "3",
+        "method": "robust_ddc",
+        "group_id": "az_1_range_4_7",
+        "az_index": "1",
+        "range_start": "4",
+        "range_end": "7",
+        "status": "OK",
+        "support_count": "4",
+        "phase_coherence": "nan",
+        "gamma_real": "0.8",
+        "gamma_imag": "0.1",
+        "truth_used_in_estimator": "false",
+    }
+
+    result = validate_reference_gamma_rows(
+        [row], method_id="C3", expected_method="robust_ddc", min_support=4
+    )
+
+    assert result["status"] == "evaluable"
+    assert result["reason"] is None
+
+
 def test_reference_artifact_uses_group_rows_not_aggregate_rows(tmp_path: Path) -> None:
     import csv
 
