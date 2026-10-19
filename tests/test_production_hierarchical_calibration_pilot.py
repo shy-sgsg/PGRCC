@@ -61,9 +61,9 @@ def test_paired_input_contract_declares_shared_identity_and_two_modes() -> None:
         "production_identity",
     }
     assert contract["modes"]["Mode-A"]["estimator_input_roles"] == ["OFF"]
-    assert contract["modes"]["Mode-A"]["apply_input_roles"] == ["ON"]
+    assert contract["modes"]["Mode-A"]["apply_input_roles"] == ["ON", "TO"]
     assert contract["modes"]["Mode-B"]["estimator_input_roles"] == ["ON"]
-    assert contract["modes"]["Mode-B"]["apply_input_roles"] == ["ON"]
+    assert contract["modes"]["Mode-B"]["apply_input_roles"] == ["ON", "OFF", "TO"]
     for mode in contract["modes"].values():
         assert mode["truth_used_in_estimator"] is False
         assert mode["target_position_allowed"] is False
@@ -202,15 +202,30 @@ def test_only_four_decision_labels_are_accepted() -> None:
         validate_decision_label("GO_PHYSICS_AI")
 
 
-def test_cell_pfa_uses_only_hit_and_valid_cut_denominator() -> None:
+def test_cell_pfa_requires_false_hits_and_target_free_cut_denominator() -> None:
     from scripts.analyze_production_hierarchical_calibration_pilot import empirical_cell_pfa
 
-    passed = empirical_cell_pfa(5, 100)
+    observed = empirical_cell_pfa(5, 100)
+    assert observed["status"] == "NOT_EVALUABLE"
+    assert observed["value"] is None
+    assert observed["tested_cut_hit_fraction"] == pytest.approx(0.05)
+
+    passed = empirical_cell_pfa(
+        5,
+        100,
+        false_cut_hit_count=3,
+        valid_h0_cut_count=60,
+    )
     assert passed["status"] == "evaluable"
     assert passed["value"] == pytest.approx(0.05)
-    assert passed["definition"] == "hit_cut_count / valid_cut_count"
+    assert passed["definition"] == "false_cut_hit_count / valid_h0_cut_count"
 
-    missing = empirical_cell_pfa(5, 0)
+    missing = empirical_cell_pfa(
+        5,
+        100,
+        false_cut_hit_count=3,
+        valid_h0_cut_count=0,
+    )
     assert missing["status"] == "NOT_EVALUABLE"
     assert missing["value"] is None
 
@@ -228,15 +243,20 @@ def test_causal_triplet_requires_on_minus_off_equals_target_only() -> None:
 
 def test_mode_a_reference_handoff_and_mode_b_truth_blind_roles_are_explicit() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
+        build_paired_input_contract,
         build_branch_execution_contract,
     )
 
+    input_contract = build_paired_input_contract()
     mode_a_off = build_branch_execution_contract("C4", "Mode-A", "OFF", "/tmp/reference.csv")
     mode_a_on = build_branch_execution_contract("C4", "Mode-A", "ON", "/tmp/reference.csv")
     mode_a_to = build_branch_execution_contract("C4", "Mode-A", "TO", "/tmp/reference.csv")
     mode_b_on = build_branch_execution_contract("C4", "Mode-B", "ON", "/tmp/reference.csv")
+    mode_b_off = build_branch_execution_contract("C4", "Mode-B", "OFF", "/tmp/reference.csv")
     mode_b_to = build_branch_execution_contract("C4", "Mode-B", "TO", "/tmp/reference.csv")
 
+    assert input_contract["modes"]["Mode-A"]["apply_input_roles"] == ["ON", "TO"]
+    assert input_contract["modes"]["Mode-B"]["apply_input_roles"] == ["ON", "OFF", "TO"]
     assert mode_a_off["estimator_input_roles"] == ["OFF"]
     assert mode_a_off["reference_source"] == "OFF_estimator_output"
     assert mode_a_off["estimator_called"] is True
@@ -247,8 +267,136 @@ def test_mode_a_reference_handoff_and_mode_b_truth_blind_roles_are_explicit() ->
     assert mode_b_on["estimator_input_roles"] == ["ON"]
     assert mode_b_on["reference_source"] == "ON_estimator_output"
     assert mode_b_on["truth_used_in_estimator"] is False
+    assert mode_b_off["reference_source"] == "ON_estimator_output"
+    assert mode_b_off["estimator_called"] is False
+    assert mode_b_off["fixed_reference_required"] is True
+    assert mode_b_off["reference_applied"] is True
+    assert mode_b_off["evaluator_only"] is True
     assert mode_b_to["evaluator_only"] is True
+    assert mode_b_to["fixed_reference_required"] is True
     assert mode_b_to["estimator_called"] is False
+
+
+def test_mode_b_off_fixed_reference_generates_research_operator_xml(tmp_path: Path) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _method_xml,
+        build_branch_execution_contract,
+    )
+
+    reference = tmp_path / "mode_b_on_reference.csv"
+    contract = build_branch_execution_contract("C4", "Mode-B", "OFF", reference)
+    method = {
+        "method_id": "C4",
+        "research_calibration_enable": True,
+        "research_calibration_method": "robust_ddc_rb",
+    }
+    xml_record = _method_xml(
+        tmp_path,
+        ROOT / "config/gmti.xml",
+        method,
+        {},
+        mode="Mode-B",
+        role="OFF",
+        reference_path=Path(str(contract["reference_artifact"])),
+    )
+
+    assert xml_record["status"] == "passed"
+    assert xml_record["overrides"]["research_calibration_enable"] == "true"
+    assert xml_record["overrides"]["research_calibration_method"] == "robust_ddc_rb"
+    assert xml_record["overrides"]["research_calibration_reference_gamma_csv"] == str(reference.resolve())
+
+
+def test_flatten_rows_rejects_mode_b_current_off_as_noncomparable() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _flatten_rows,
+        build_branch_execution_contract,
+    )
+
+    reference = "/tmp/shared_mode_b_reference.csv"
+    branches = []
+    for role in ("ON", "OFF", "TO"):
+        contract = build_branch_execution_contract("C4", "Mode-B", role, reference)
+        branch = {
+            "method_id": "C4",
+            "mode": "Mode-B",
+            "role": role,
+            "status": "passed",
+            "execution_contract": contract,
+            "metrics": {
+                "target_detection_pd": 0.8,
+                "track_pd_all_visible": 0.7,
+            },
+            "artifacts": {},
+        }
+        if role == "ON":
+            branch["reference_artifact"] = {"status": "passed", "path": reference}
+        else:
+            branch["reference_applied"] = True
+            branch["reference_path"] = reference
+        branches.append(branch)
+
+    off = next(branch for branch in branches if branch["role"] == "OFF")
+    off_contract = dict(off["execution_contract"])
+    off_contract.update({
+        "fixed_reference_required": False,
+        "reference_applied": False,
+        "control_path": "production_current_control",
+    })
+    off["execution_contract"] = off_contract
+    off["reference_applied"] = False
+    off.pop("reference_path")
+
+    _, _, clutter_rows = _flatten_rows([{
+        "case_id": "mode-b-counterfactual",
+        "method_branches": branches,
+    }])
+    causal = next(row for row in clutter_rows if row.get("layer") == "ON_minus_OFF")
+
+    assert causal["status"] == "NOT_EVALUABLE"
+    assert causal["processing_comparability_status"] == "NOT_EVALUABLE"
+    assert causal["processing_comparability_reason"] == "fixed_reference_contract_invalid:OFF"
+
+
+@pytest.mark.parametrize(("mode", "estimator_role"), [("Mode-A", "OFF"), ("Mode-B", "ON")])
+def test_flatten_rows_accepts_causal_pair_with_shared_fixed_reference(
+    mode: str, estimator_role: str
+) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _flatten_rows,
+        build_branch_execution_contract,
+    )
+
+    reference = "/tmp/shared_counterfactual_reference.csv"
+    branches = []
+    for role in ("OFF", "ON", "TO"):
+        contract = build_branch_execution_contract("C4", mode, role, reference)
+        branch = {
+            "method_id": "C4",
+            "mode": mode,
+            "role": role,
+            "status": "passed",
+            "execution_contract": contract,
+            "metrics": {
+                "target_detection_pd": 0.8,
+                "track_pd_all_visible": 0.7,
+            },
+            "artifacts": {},
+        }
+        if role == estimator_role:
+            branch["reference_artifact"] = {"status": "passed", "path": reference}
+        else:
+            branch["reference_applied"] = True
+            branch["reference_path"] = reference
+        branches.append(branch)
+
+    _, _, clutter_rows = _flatten_rows([{
+        "case_id": f"{mode}-counterfactual",
+        "method_branches": branches,
+    }])
+    causal = next(row for row in clutter_rows if row.get("layer") == "ON_minus_OFF")
+
+    assert causal["status"] == "evaluable"
+    assert causal["processing_comparability_status"] == "passed"
 
 
 def test_ideal_a0_evaluator_contract_is_supported_without_expanding_method_contract() -> None:
@@ -538,7 +686,7 @@ def test_flatten_rows_emits_compact_gamma_summary_row() -> None:
     assert gamma_rows[0]["source_paths"] == "/scratch/reference_gamma.csv"
 
 
-def test_geometry_aggregation_uses_real_valid_and_hit_cut_fields(tmp_path: Path) -> None:
+def test_geometry_aggregation_keeps_hit_fraction_distinct_from_pfa(tmp_path: Path) -> None:
     from scripts.run_production_hierarchical_calibration_pilot import aggregate_branch_cfar_geometry
 
     path = tmp_path / "cfar_geometry_diagnostics.csv"
@@ -564,7 +712,9 @@ def test_geometry_aggregation_uses_real_valid_and_hit_cut_fields(tmp_path: Path)
     assert result["status"] == "evaluable"
     assert result["valid_cut_count"] == 8
     assert result["hit_cut_count"] == 2
-    assert result["cell_pfa"] == pytest.approx(0.25)
+    assert result["tested_cut_hit_fraction"] == pytest.approx(0.25)
+    assert result["cell_pfa"] is None
+    assert result["pfa_status"] == "NOT_EVALUABLE"
 
 
 def test_formal_selection_declares_two_snr_values_without_cartesian_expansion() -> None:
@@ -599,6 +749,60 @@ def test_analyzer_closes_a0_pk_pkr_residual_before_assigning_estimator_class() -
     assert missing["decision"] == "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
 
 
+def test_residual_closure_allows_pkr_extra_suppression_and_reports_it_separately() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import residual_closure
+
+    result = residual_closure(
+        {
+            "A0": {"residual_power_db": -20.0},
+            "PK": {"residual_power_db": -21.0},
+            "PKR": {"residual_power_db": -35.0},
+        },
+        tolerance_db=3.0,
+    )
+
+    assert result["status"] == "passed"
+    assert result["closure_conditions"] == ["A0", "PK"]
+    assert result["spread_db"] == pytest.approx(15.0)
+    assert result["a0_pk_spread_db"] == pytest.approx(1.0)
+    assert result["additional_residual_suppression_db"] == pytest.approx(14.0)
+    assert result["estimator_class_allowed"] is True
+
+
+def test_residual_closure_keeps_a0_pk_physical_check_as_gate() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import residual_closure
+
+    result = residual_closure(
+        {
+            "A0": {"residual_power_db": -20.0},
+            "PK": {"residual_power_db": -25.0},
+            "PKR": {"residual_power_db": -21.0},
+        },
+        tolerance_db=3.0,
+    )
+
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["reason"] == "a0_pk_residual_not_closed"
+    assert result["spread_db"] == pytest.approx(5.0)
+    assert result["estimator_class_allowed"] is False
+
+
+def test_residual_closure_requires_pkr_for_the_separate_comparison() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import residual_closure
+
+    result = residual_closure(
+        {
+            "A0": {"residual_power_db": -20.0},
+            "PK": {"residual_power_db": -21.0},
+        },
+        tolerance_db=3.0,
+    )
+
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["reason"] == "missing_condition:PKR"
+    assert result["estimator_class_allowed"] is False
+
+
 def test_analyzer_reports_causal_off_on_to_metrics_without_using_on_power() -> None:
     from scripts.analyze_production_hierarchical_calibration_pilot import causal_target_metrics
 
@@ -620,7 +824,7 @@ def test_analyzer_keeps_cfar_cluster_protocol_and_track_layers_separate() -> Non
 
     result = waterfall_layers(
         {
-            "cfar_geometry": {"valid_cut_count": 100, "hit_cut_count": 4},
+            "cfar_geometry": {"status": "evaluable", "valid_cut_count": 100, "hit_cut_count": 4},
             "metrics": {"cfar_cluster_count": 3, "cfar_selected_cluster_count": 2},
             "artifacts": {
                 "detection": ["detections.csv"],
@@ -634,7 +838,9 @@ def test_analyzer_keeps_cfar_cluster_protocol_and_track_layers_separate() -> Non
     assert [item["layer"] for item in result["layers"]] == [
         "CFAR", "cluster", "protocol_detection", "track"
     ]
-    assert result["layers"][0]["cell_pfa"] == pytest.approx(0.04)
+    assert result["layers"][0]["tested_cut_hit_fraction"] == pytest.approx(0.04)
+    assert result["layers"][0]["cell_pfa"] is None
+    assert result["layers"][0]["pfa_status"] == "NOT_EVALUABLE"
     assert result["layers"][1]["count"] == 3
     assert result["layers"][2]["count"] == 1
     assert result["layers"][3]["status"] == "evaluable"
@@ -830,7 +1036,17 @@ def _formal_manifest_with_complete_rows() -> dict[str, object]:
         },
         "compact_rows": {
             "clutter_metrics": [
-                {"layer": "CFAR", "status": "evaluable", "valid_cut_count": 10, "hit_cut_count": 1, "cell_pfa": 0.1},
+                {
+                    "layer": "CFAR",
+                    "status": "evaluable",
+                    "valid_cut_count": 10,
+                    "hit_cut_count": 1,
+                    "tested_cut_hit_fraction": 0.1,
+                    "false_cut_hit_count": 1,
+                    "valid_h0_cut_count": 10,
+                    "cell_pfa": 0.1,
+                    "pfa_status": "evaluable",
+                },
                 {"layer": "cluster", "status": "evaluable"},
                 {"layer": "protocol_detection", "status": "evaluable"},
                 {
@@ -881,6 +1097,37 @@ def test_analyzer_refuses_algorithmic_claim_when_any_formal_gate_is_incomplete(m
     assert result["status"] == "NOT_EVALUABLE"
     assert result["algorithmic_results_claimed"] is False
     assert result["decision"] == "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
+
+
+def test_analyzer_rejects_mode_b_causal_row_without_comparability_evidence() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import analyze_delay_evidence
+
+    manifest = _formal_manifest_with_complete_rows()
+    causal = manifest["compact_rows"]["clutter_metrics"][-1]  # type: ignore[index]
+    causal["mode"] = "Mode-B"
+
+    result = analyze_delay_evidence(manifest)
+
+    assert result["causal_metrics"]["status"] == "NOT_EVALUABLE"
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["algorithmic_results_claimed"] is False
+
+
+def test_analyzer_accepts_mode_b_causal_row_with_comparability_evidence() -> None:
+    from scripts.analyze_production_hierarchical_calibration_pilot import analyze_delay_evidence
+
+    manifest = _formal_manifest_with_complete_rows()
+    causal = manifest["compact_rows"]["clutter_metrics"][-1]  # type: ignore[index]
+    causal.update({
+        "mode": "Mode-B",
+        "processing_comparability_status": "passed",
+    })
+
+    result = analyze_delay_evidence(manifest)
+
+    assert result["causal_metrics"]["status"] == "evaluable"
+    assert result["causal_metrics"]["processing_comparability"] == "passed"
+    assert result["status"] == "passed"
 
 
 def test_analyzer_claims_only_clean_formal_actual_evidence_after_all_gates_pass() -> None:

@@ -199,6 +199,89 @@ def test_target_off_waterfall_reports_separate_explicit_layers(tmp_path: Path) -
     assert result["false_tracks"]["value"] == 1
 
 
+def test_cfar_geometry_summary_keeps_branch_hits_separate_when_cut_sets_overlap() -> None:
+    from scripts.run_delay_stage1_formal import summarize_cfar_geometry_rows
+
+    rows = [
+        {
+            "period_id": 0,
+            "beam_id": 50,
+            "branch": "union_dynamic_in_band",
+            "valid_cut_count": 100,
+            "hit_cut_count": 4,
+        },
+        {
+            "period_id": 0,
+            "beam_id": 50,
+            "branch": "union_full_band",
+            "valid_cut_count": 100,
+            "hit_cut_count": 5,
+        },
+    ]
+
+    result = summarize_cfar_geometry_rows(rows)
+
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["cell_pfa"] is None
+    assert result["cell_pfa_status"] == "NOT_EVALUABLE"
+    assert result["tested_cut_hit_fraction"] is None
+    assert result["tested_cut_hit_fraction_status"] == "NOT_EVALUABLE"
+    assert result["reason"] == "multiple_detector_branches_require_unique_hit_union"
+    assert result["branch_summaries"]["union_dynamic_in_band"]["hit_fraction"] == 0.04
+    assert result["branch_summaries"]["union_full_band"]["hit_fraction"] == 0.05
+
+
+def test_cfar_geometry_summary_pools_one_branch_and_never_labels_it_pfa() -> None:
+    from scripts.run_delay_stage1_formal import summarize_cfar_geometry_rows
+
+    rows = [
+        {
+            "period_id": period_id,
+            "beam_id": 50,
+            "branch": "full_band",
+            "threshold_test_count": 120,
+            "valid_cut_count": 100,
+            "hit_cut_count": hits,
+        }
+        for period_id, hits in ((0, 2), (1, 3))
+    ]
+
+    result = summarize_cfar_geometry_rows(rows)
+
+    assert result["status"] == "evaluable"
+    assert result["threshold_test_count"] == 240
+    assert result["valid_cut_count"] == 200
+    assert result["hit_cut_count"] == 5
+    assert result["tested_cut_hit_fraction"] == 0.025
+    assert result["tested_cut_hit_fraction_status"] == "evaluable"
+    assert result["cell_pfa"] is None
+    assert result["cell_pfa_status"] == "NOT_EVALUABLE"
+
+
+def test_target_off_waterfall_rejects_ambiguous_multibranch_geometry(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import evaluate_target_off_waterfall
+
+    result = evaluate_target_off_waterfall(
+        tmp_path,
+        None,
+        {
+            "status": "passed",
+            "hit_cells": None,
+            "valid_cut_count": None,
+            "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+            "aggregate_hit_fraction_reason": (
+                "multiple_detector_branches_require_unique_hit_union"
+            ),
+        },
+        1e-6,
+    )
+
+    assert result["cell_false_hit_fraction"]["status"] == "NOT_EVALUABLE"
+    assert result["cell_false_hit_fraction"]["reason"] == (
+        "multiple_detector_branches_require_unique_hit_union"
+    )
+
+
 def test_scene_variants_preserve_scene_identity_and_pair_backgrounds(tmp_path: Path) -> None:
     import numpy as np
 

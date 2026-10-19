@@ -2660,6 +2660,23 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             row.branch = branch;
             return &row;
         };
+        const auto cfar_geometry_tap_pair = [&](const char *first_branch,
+                                                const char *second_branch)
+            -> std::pair<gmti::cfar::CfarGeometryDiagnostics *,
+                         gmti::cfar::CfarGeometryDiagnostics *> {
+            if (!cfg.runtime_diagnostics_enabled) return {nullptr, nullptr};
+            const auto indices = gmti::cfar::append_geometry_diagnostic_pair(
+                cfar_geometry_rows, first_branch, second_branch);
+            gmti::cfar::CfarGeometryDiagnostics *first =
+                &cfar_geometry_rows[indices.first];
+            gmti::cfar::CfarGeometryDiagnostics *second =
+                &cfar_geometry_rows[indices.second];
+            first->period_id = cfg.result_file_id;
+            first->beam_id = periodIdx;
+            second->period_id = cfg.result_file_id;
+            second->beam_id = periodIdx;
+            return {first, second};
+        };
         bool split_cluster_complete = false;
         StrongSmallClusterFilterStats split_cluster_filter_stats;
 
@@ -2681,10 +2698,12 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             std::vector<float> in_hits, out_hits, in_power, out_power;
             std::vector<float> in_threshold, out_threshold;
             std::size_t in_hit_count = 0U, out_hit_count = 0U;
+            const auto geometry_pair = cfar_geometry_tap_pair(
+                "split_in_band", "split_out_of_band");
             gmti::cfar::CfarGeometryDiagnostics *in_geometry =
-                cfar_geometry_tap("split_in_band");
+                geometry_pair.first;
             gmti::cfar::CfarGeometryDiagnostics *out_geometry =
-                cfar_geometry_tap("split_out_of_band");
+                geometry_pair.second;
             const bool in_ok = dpca_cfar2_fast_cuda(
                 CSI_out, csi_cut_st, csi_cut_ed, cfg.pf, c_num, cfar_bnum,
                 cfg.csi_split_in_band_cfar_type, cfg, in_hits, &in_power, nullptr,
@@ -2862,10 +2881,12 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             std::vector<float> dynamic_threshold, full_threshold;
             std::vector<std::complex<float>> dynamic_complex, full_complex;
             const bool dump_complex = pcProfileDopplerRow(periodIdx) >= 0;
+            const auto geometry_pair = cfar_geometry_tap_pair(
+                "union_dynamic_in_band", "union_full_band");
             gmti::cfar::CfarGeometryDiagnostics *dynamic_geometry =
-                cfar_geometry_tap("union_dynamic_in_band");
+                geometry_pair.first;
             gmti::cfar::CfarGeometryDiagnostics *full_geometry =
-                cfar_geometry_tap("union_full_band");
+                geometry_pair.second;
             const bool dynamic_ok = dpca_cfar2_fast_cuda(
                 CSI_out, dynamic_band_st, dynamic_band_ed,
                 cfg.pf, c_num, cfar_bnum, cfg.cfar_type, cfg,
@@ -4246,6 +4267,23 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             row.branch = branch;
             return &row;
         };
+        const auto cfar_geometry_tap_pair = [&](const char *first_branch,
+                                                const char *second_branch)
+            -> std::pair<gmti::cfar::CfarGeometryDiagnostics *,
+                         gmti::cfar::CfarGeometryDiagnostics *> {
+            if (!cfg.runtime_diagnostics_enabled) return {nullptr, nullptr};
+            const auto indices = gmti::cfar::append_geometry_diagnostic_pair(
+                cfar_geometry_rows, first_branch, second_branch);
+            gmti::cfar::CfarGeometryDiagnostics *first =
+                &cfar_geometry_rows[indices.first];
+            gmti::cfar::CfarGeometryDiagnostics *second =
+                &cfar_geometry_rows[indices.second];
+            first->period_id = static_cast<int>(slot);
+            first->beam_id = periodIdx;
+            second->period_id = static_cast<int>(slot);
+            second->beam_id = periodIdx;
+            return {first, second};
+        };
         bool split_cluster_complete = false;
         if (split_csi_detection_band) {
             const int guard = cfg.csi_split_boundary_guard_rows;
@@ -4269,10 +4307,12 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             std::size_t in_hit_count = 0U, out_hit_count = 0U;
             const bool dump_complex = cfg.runtime_diagnostics_enabled &&
                                       cfarDumpSelectedBeam(periodIdx);
+            const auto geometry_pair = cfar_geometry_tap_pair(
+                "split_in_band", "split_out_of_band");
             gmti::cfar::CfarGeometryDiagnostics *in_geometry =
-                cfar_geometry_tap("split_in_band");
+                geometry_pair.first;
             gmti::cfar::CfarGeometryDiagnostics *out_geometry =
-                cfar_geometry_tap("split_out_of_band");
+                geometry_pair.second;
             const bool in_ok = dpca_cfar2_fast_cuda(
                 CSI_out, csi_cut_st, csi_cut_ed, cfg.pf,
                 cfg.cfar_guard_cells, cfg.cfar_background_cells,
@@ -4463,10 +4503,12 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             std::vector<float> dynamic_threshold, full_threshold;
             std::vector<std::complex<float>> dynamic_complex, full_complex;
             const bool dump_complex = pcProfileDopplerRow(periodIdx) >= 0;
+            const auto geometry_pair = cfar_geometry_tap_pair(
+                "union_dynamic_in_band", "union_full_band");
             gmti::cfar::CfarGeometryDiagnostics *dynamic_geometry =
-                cfar_geometry_tap("union_dynamic_in_band");
+                geometry_pair.first;
             gmti::cfar::CfarGeometryDiagnostics *full_geometry =
-                cfar_geometry_tap("union_full_band");
+                geometry_pair.second;
             const bool dynamic_ok = dpca_cfar2_fast_cuda(
                 CSI_out, dynamic_band_st, dynamic_band_ed,
                 cfg.pf, cfg.cfar_guard_cells, cfg.cfar_background_cells,

@@ -48,31 +48,54 @@ def choose_decision(evidence: Mapping[str, object]) -> str:
     return validate_decision_label(candidate)
 
 
-def empirical_cell_pfa(hit_cut_count: object, valid_cut_count: object) -> dict[str, object]:
-    """Compute cell Pfa only from the exported hit/valid CUT denominator."""
+def empirical_cell_pfa(
+    hit_cut_count: object,
+    valid_cut_count: object,
+    *,
+    false_cut_hit_count: object = None,
+    valid_h0_cut_count: object = None,
+) -> dict[str, object]:
+    """Compute Pfa only from truth-filtered false hits over valid H0 CUTs."""
 
     try:
         hit = int(hit_cut_count)
         valid = int(valid_cut_count)
     except (TypeError, ValueError):
         hit, valid = -1, 0
-    if valid <= 0 or hit < 0:
-        return {
-            "status": "NOT_EVALUABLE",
-            "value": None,
-            "hit_cut_count": max(0, hit),
-            "valid_cut_count": max(0, valid),
-            "reason": "valid_cut_count_missing_or_non_positive",
-            "definition": "hit_cut_count / valid_cut_count",
-        }
-    return {
-        "status": "evaluable",
-        "value": float(hit) / float(valid),
-        "hit_cut_count": hit,
-        "valid_cut_count": valid,
+    hit_fraction = (
+        float(hit) / float(valid) if hit >= 0 and valid > 0 else None
+    )
+
+    try:
+        false_hits = int(false_cut_hit_count)
+        valid_h0 = int(valid_h0_cut_count)
+    except (TypeError, ValueError):
+        false_hits, valid_h0 = -1, 0
+
+    result: dict[str, object] = {
+        "status": "NOT_EVALUABLE",
+        "value": None,
+        "hit_cut_count": max(0, hit),
+        "valid_cut_count": max(0, valid),
+        "tested_cut_hit_fraction": hit_fraction,
+        "false_cut_hit_count": max(0, false_hits) if false_hits >= 0 else None,
+        "valid_h0_cut_count": max(0, valid_h0),
         "reason": None,
-        "definition": "hit_cut_count / valid_cut_count",
+        "definition": "false_cut_hit_count / valid_h0_cut_count",
     }
+    if valid <= 0 or hit < 0:
+        result["reason"] = "valid_cut_count_missing_or_non_positive"
+        return result
+    if false_hits < 0 or valid_h0 <= 0:
+        result["reason"] = "false_hits_and_target_free_cut_denominator_required"
+        return result
+    if valid_h0 > valid or false_hits > valid_h0:
+        result["reason"] = "false_hit_or_h0_cut_count_out_of_range"
+        return result
+    result["status"] = "evaluable"
+    result["value"] = float(false_hits) / float(valid_h0)
+    result["reason"] = None
+    return result
 
 
 def causal_triplet_status(
@@ -121,20 +144,21 @@ def _finite_metric(metrics: Mapping[str, object], *names: str) -> float | None:
 def residual_closure(
     conditions: Mapping[str, Mapping[str, object]], *, tolerance_db: float = 3.0
 ) -> dict[str, object]:
-    """Require A0/PK/PKR residuals to close before estimator attribution.
+    """Check A0-vs-PK physical closure and report PKR-vs-PK suppression.
 
-    The check is deliberately agnostic to the direction of an improvement: it
-    only establishes that the three reference conditions are present, finite,
-    and mutually close within the declared tolerance.  It therefore cannot
-    promote a missing or incomparable known-error result.
+    PKR must be present and finite for the comparison, but its residual level
+    is not required to match A0 or PK: additional residual suppression is
+    reported separately and does not fail the A0/PK physical-correction gate.
     """
 
     required = ["A0", "PK", "PKR"]
+    closure_conditions = ["A0", "PK"]
     values: dict[str, float] = {}
     if not math.isfinite(float(tolerance_db)) or float(tolerance_db) < 0:
         return {
             "status": "NOT_EVALUABLE",
             "required_conditions": required,
+            "closure_conditions": closure_conditions,
             "estimator_class_allowed": False,
             "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
             "reason": "invalid_tolerance_db",
@@ -145,6 +169,7 @@ def residual_closure(
             return {
                 "status": "NOT_EVALUABLE",
                 "required_conditions": required,
+                "closure_conditions": closure_conditions,
                 "estimator_class_allowed": False,
                 "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
                 "reason": f"missing_condition:{name}",
@@ -154,22 +179,28 @@ def residual_closure(
             return {
                 "status": "NOT_EVALUABLE",
                 "required_conditions": required,
+                "closure_conditions": closure_conditions,
                 "estimator_class_allowed": False,
                 "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
                 "reason": f"residual_not_finite:{name}",
             }
         values[name] = value
     spread = max(values.values()) - min(values.values())
-    passed = spread <= float(tolerance_db)
+    a0_pk_spread = abs(values["A0"] - values["PK"])
+    passed = a0_pk_spread <= float(tolerance_db)
     return {
         "status": "passed" if passed else "NOT_EVALUABLE",
         "required_conditions": required,
+        "closure_conditions": closure_conditions,
         "values_db": values,
         "spread_db": spread,
+        "a0_pk_spread_db": a0_pk_spread,
         "tolerance_db": float(tolerance_db),
+        "additional_residual_suppression_db": values["PK"] - values["PKR"],
+        "comparison_definition": "A0_vs_PK_closure; additional_suppression_db=PK_residual_minus_PKR_residual",
         "estimator_class_allowed": passed,
         "decision": "GO_EQUIVALENT_CALIBRATION_ONLY" if passed else "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
-        "reason": None if passed else "a0_pk_pkr_residual_not_closed",
+        "reason": None if passed else "a0_pk_residual_not_closed",
     }
 
 
@@ -329,7 +360,12 @@ def waterfall_layers(branch: Mapping[str, object]) -> dict[str, object]:
 
     geometry = branch.get("cfar_geometry")
     geometry = geometry if isinstance(geometry, Mapping) else {}
-    pfa = empirical_cell_pfa(geometry.get("hit_cut_count"), geometry.get("valid_cut_count"))
+    pfa = empirical_cell_pfa(
+        geometry.get("hit_cut_count"),
+        geometry.get("valid_cut_count"),
+        false_cut_hit_count=geometry.get("false_cut_hit_count"),
+        valid_h0_cut_count=geometry.get("valid_h0_cut_count"),
+    )
     metrics = branch.get("metrics")
     metrics = metrics if isinstance(metrics, Mapping) else {}
     artifacts = branch.get("artifacts")
@@ -344,10 +380,17 @@ def waterfall_layers(branch: Mapping[str, object]) -> dict[str, object]:
     layers = [
         {
             "layer": "CFAR",
-            "status": pfa["status"],
+            "status": (
+                "evaluable"
+                if pfa["tested_cut_hit_fraction"] is not None
+                else "NOT_EVALUABLE"
+            ),
             "count": pfa["hit_cut_count"],
             "valid_cut_count": pfa["valid_cut_count"],
+            "tested_cut_hit_fraction": pfa["tested_cut_hit_fraction"],
             "cell_pfa": pfa["value"],
+            "pfa_status": pfa["status"],
+            "pfa_reason": pfa["reason"],
         },
         {
             "layer": "cluster",
@@ -372,7 +415,11 @@ def waterfall_layers(branch: Mapping[str, object]) -> dict[str, object]:
         },
     ]
     return {
-        "status": "evaluable" if pfa["status"] == "evaluable" else "NOT_EVALUABLE",
+        "status": (
+            "evaluable"
+            if pfa["tested_cut_hit_fraction"] is not None
+            else "NOT_EVALUABLE"
+        ),
         "layers": layers,
         "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
     }
@@ -417,20 +464,31 @@ def analyze_delay_evidence(manifest: Mapping[str, object]) -> dict[str, object]:
     def valid_pfa(row: Mapping[str, object]) -> bool:
         try:
             valid = int(row["valid_cut_count"])
-            hit = int(row["hit_cut_count"])
+            false_hits = int(row["false_cut_hit_count"])
+            valid_h0 = int(row["valid_h0_cut_count"])
             value = float(row["cell_pfa"])
         except (KeyError, TypeError, ValueError):
             return False
         return (
             row.get("status") == "evaluable"
+            and row.get("pfa_status") == "evaluable"
             and valid > 0
-            and hit >= 0
+            and valid_h0 > 0
+            and valid_h0 <= valid
+            and 0 <= false_hits <= valid_h0
             and math.isfinite(value)
-            and math.isclose(value, hit / valid, rel_tol=1.0e-12, abs_tol=1.0e-15)
+            and math.isclose(
+                value, false_hits / valid_h0, rel_tol=1.0e-12, abs_tol=1.0e-15
+            )
         )
 
     pfa_evaluable = bool(pfa_rows) and all(valid_pfa(item) for item in pfa_rows)
-    causal_evaluable = bool(causal_rows) and all(
+    causal_comparability_evaluable = bool(causal_rows) and all(
+        item.get("mode") not in {"Mode-A", "Mode-B"}
+        or item.get("processing_comparability_status") == "passed"
+        for item in causal_rows
+    )
+    causal_evaluable = bool(causal_rows) and causal_comparability_evaluable and all(
         item.get("status") == "evaluable"
         and all(
             _finite_metric(item, field) is not None
@@ -535,7 +593,12 @@ def analyze_delay_evidence(manifest: Mapping[str, object]) -> dict[str, object]:
         "decision": decision,
         "algorithmic_results_claimed": bool(complete),
         "residual_closure": dict(residual),
-        "causal_metrics": {"status": "evaluable" if causal_evaluable else "NOT_EVALUABLE"},
+        "causal_metrics": {
+            "status": "evaluable" if causal_evaluable else "NOT_EVALUABLE",
+            "processing_comparability": (
+                "passed" if causal_comparability_evaluable else "NOT_EVALUABLE"
+            ),
+        },
         "empirical_cell_pfa": {"status": "evaluable" if pfa_evaluable else "NOT_EVALUABLE"},
         "waterfall": {
             "status": "evaluable" if waterfall_evaluable else "NOT_EVALUABLE",
@@ -698,7 +761,12 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
             "cell_false_hit_fraction",
             "hit_cut_count",
             "valid_cut_count",
+            "tested_cut_hit_fraction",
             "cell_pfa",
+            "pfa_status",
+            "pfa_reason",
+            "false_cut_hit_count",
+            "valid_h0_cut_count",
             "on_minus_off_target_detection_pd",
             "on_minus_off_track_pd",
             "to_target_detection_pd",
@@ -772,7 +840,7 @@ def build_compact_evidence(manifest_path: Path, destination: Path) -> dict[str, 
         f"- Status: `{manifest.get('status')}`\n"
         f"- Decision: `{decision}`\n"
         f"- {skip_note}\n"
-        "- Cell Pfa 只使用 `hit_cut_count / valid_cut_count`，且分母必须为正；configured Pfa 不是实测 Pfa。\n"
+        "- Empirical cell Pfa 仅用 truth-filtered `false_cut_hit_count / valid_h0_cut_count`；缺任一项即 `NOT_EVALUABLE`。`tested_cut_hit_fraction` 不是 Pfa，configured Pfa 也不是实测 Pfa。\n"
         "- 目标保护只从 `OFF=C+N`、`ON=S+C+N`、`TO=S` 的 ON−OFF 与 TO 因果量报告，禁止用 ON power alone。\n"
         "- 下游层级严格分开：CFAR → cluster → protocol detection → TrackManager track。\n"
         "- Track evidence 使用 association/state/payload；现有 debug 无法解释 ID-switch 时标记 `NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG`。\n"

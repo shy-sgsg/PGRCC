@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace gmti {
@@ -120,6 +121,19 @@ struct CfarGeometryDiagnostics {
     float alpha = 0.0f;
     std::string cfar_type;
 };
+
+inline std::pair<std::size_t, std::size_t> append_geometry_diagnostic_pair(
+    std::vector<CfarGeometryDiagnostics> &rows,
+    const std::string &first_branch,
+    const std::string &second_branch)
+{
+    const std::size_t first_index = rows.size();
+    rows.emplace_back();
+    rows.back().branch = first_branch;
+    rows.emplace_back();
+    rows.back().branch = second_branch;
+    return std::make_pair(first_index, first_index + 1U);
+}
 
 } // namespace cfar
 } // namespace gmti

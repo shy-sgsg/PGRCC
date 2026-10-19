@@ -89,6 +89,31 @@ def test_zero_valid_cut_is_not_evaluable() -> None:
     assert aggregate[0]["hit_rate_status"] == "NOT_EVALUABLE"
 
 
+def test_branch_cfar_geometry_reports_hit_fraction_not_empirical_pfa(tmp_path) -> None:
+    import csv
+
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        aggregate_branch_cfar_geometry,
+    )
+
+    row = _row()
+    path = tmp_path / "cfar_geometry_diagnostics.csv"
+    with path.open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.DictWriter(stream, fieldnames=list(row))
+        writer.writeheader()
+        writer.writerow(row)
+
+    result = aggregate_branch_cfar_geometry([path])
+
+    assert result["status"] == "evaluable"
+    assert result["valid_cut_count"] == 24
+    assert result["hit_cut_count"] == 2
+    assert result["tested_cut_hit_fraction"] == pytest.approx(2.0 / 24.0)
+    assert result["cell_pfa"] is None
+    assert result["pfa_status"] == "NOT_EVALUABLE"
+    assert result["pfa_reason"] == "false_hits_and_target_free_cut_denominator_required"
+
+
 def test_missing_geometry_field_is_rejected() -> None:
     row = _row()
     del row["valid_cut_count"]

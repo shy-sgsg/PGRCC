@@ -205,8 +205,8 @@ def build_paired_input_contract() -> dict[str, object]:
         "modes": {
             "Mode-A": {
                 "estimator_input_roles": ["OFF"],
-                "apply_input_roles": ["ON"],
-                "description": "estimate from target-free OFF=C+N and apply to ON=S+C+N",
+                "apply_input_roles": ["ON", "TO"],
+                "description": "estimate from target-free OFF=C+N and apply the fixed reference to ON=S+C+N and TO=S",
                 "truth_used_in_estimator": False,
                 "target_position_allowed": False,
                 "injected_error_label_allowed": False,
@@ -214,8 +214,8 @@ def build_paired_input_contract() -> dict[str, object]:
             },
             "Mode-B": {
                 "estimator_input_roles": ["ON"],
-                "apply_input_roles": ["ON"],
-                "description": "blind online ON=S+C+N estimate; no target truth or error label",
+                "apply_input_roles": ["ON", "OFF", "TO"],
+                "description": "blind online ON=S+C+N estimate; apply its fixed reference to ON/OFF/TO without target truth or error labels",
                 "truth_used_in_estimator": False,
                 "target_position_allowed": False,
                 "injected_error_label_allowed": False,
@@ -262,7 +262,7 @@ def build_branch_execution_contract(
         estimator_roles = ["ON"] if research_enabled else []
         reference_source = "ON_estimator_output" if research_enabled else "not_applicable"
         estimator_called = research_enabled and selected_role == "ON"
-        fixed_reference_required = research_enabled and selected_role == "TO"
+        fixed_reference_required = research_enabled and selected_role in {"OFF", "TO"}
     else:
         estimator_roles = []
         reference_source = "not_applicable"
@@ -278,7 +278,7 @@ def build_branch_execution_contract(
         "reference_source": reference_source,
         "reference_artifact": reference_value,
         "estimator_called": estimator_called,
-        "evaluator_only": selected_role == "TO" or not research_enabled,
+        "evaluator_only": not estimator_called,
         "fixed_reference_required": fixed_reference_required,
         "reference_applied": fixed_reference_required and reference_value is not None,
         "truth_used_in_estimator": False,
@@ -399,9 +399,12 @@ def aggregate_branch_cfar_geometry(paths: Sequence[str | Path]) -> dict[str, obj
             "status": "NOT_EVALUABLE",
             "valid_cut_count": 0,
             "hit_cut_count": 0,
+            "tested_cut_hit_fraction": None,
             "cell_pfa": None,
+            "pfa_status": "NOT_EVALUABLE",
+            "pfa_reason": "cfar_geometry_diagnostics_missing",
             "reason": "cfar_geometry_diagnostics_missing",
-            "definition": "hit_cut_count / valid_cut_count",
+            "definition": "false_cut_hit_count / valid_h0_cut_count",
             "source_paths": [],
             "rows": [],
         }
@@ -414,9 +417,12 @@ def aggregate_branch_cfar_geometry(paths: Sequence[str | Path]) -> dict[str, obj
             "status": "NOT_EVALUABLE",
             "valid_cut_count": 0,
             "hit_cut_count": 0,
+            "tested_cut_hit_fraction": None,
             "cell_pfa": None,
+            "pfa_status": "NOT_EVALUABLE",
+            "pfa_reason": "cfar_geometry_invalid",
             "reason": f"cfar_geometry_invalid:{exc}",
-            "definition": "hit_cut_count / valid_cut_count",
+            "definition": "false_cut_hit_count / valid_h0_cut_count",
             "source_paths": [str(path) for path in candidates],
             "rows": [],
         }
@@ -429,9 +435,15 @@ def aggregate_branch_cfar_geometry(paths: Sequence[str | Path]) -> dict[str, obj
         "valid_cut_count": valid,
         "hit_cut_count": hits,
         "threshold_test_count": threshold,
-        "cell_pfa": float(hits) / float(valid) if valid > 0 else None,
+        "tested_cut_hit_fraction": float(hits) / float(valid) if valid > 0 else None,
+        "cell_pfa": None,
+        "pfa_status": "NOT_EVALUABLE",
+        "pfa_reason": "false_hits_and_target_free_cut_denominator_required",
         "reason": None if valid > 0 else "valid_cut_count_missing_or_non_positive",
-        "definition": "hit_cut_count / valid_cut_count",
+        "definition": (
+            "tested_cut_hit_fraction = sum(hit_cut_count) / sum(valid_cut_count); "
+            "descriptive only, not empirical Pfa"
+        ),
         "source_paths": [str(path) for path in candidates],
         "rows": rows,
     }
@@ -506,6 +518,10 @@ def build_downstream_compact_contract() -> dict[str, object]:
             "track_output_payloads",
             "id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG",
         ],
+        "counterfactual_processing_rule": (
+            "Mode-A uses the OFF-estimated reference for ON/TO; Mode-B uses the ON-estimated "
+            "reference for OFF/TO; ON-minus-OFF requires the shared fixed-reference provenance"
+        ),
     }
 
 
@@ -1282,16 +1298,11 @@ def _method_xml(
     mode: str = "not_applicable",
     role: str = "ALL",
     reference_path: Path | None = None,
-    enable_override: bool | None = None,
 ) -> dict[str, object]:
     method_id = str(method["method_id"])
     destination = case_root / "method_xml" / f"{method_id}_{mode}_{role}.xml"
     enable = bool(method["research_calibration_enable"])
     method_name = str(method["research_calibration_method"])
-    if enable_override is not None:
-        enable = bool(enable_override)
-        if not enable:
-            method_name = "production_current"
     band = int(production.get("range_band_bins", 6)) if method_name == "robust_ddc_rb" else 0
     overrides = {
         "research_calibration_enable": "true" if enable else "false",
@@ -1782,19 +1793,6 @@ def _run_case(
                     role_records[role] = base_record
                     continue
 
-                # Mode-B OFF is an evaluator/control input.  It must not
-                # trigger a second blind estimate.  It remains a distinct
-                # record rather than being mislabeled as a successful C4 run.
-                control_off = mode == "Mode-B" and role == "OFF" and method_id in RESEARCH_METHOD_IDS
-                if control_off:
-                    execution_contract = dict(execution_contract)
-                    execution_contract.update({
-                        "evaluator_only": True,
-                        "control_path": "production_current_control",
-                        "research_estimator_called": False,
-                    })
-                    base_record["execution_contract"] = execution_contract
-
                 if bool(execution_contract.get("fixed_reference_required")):
                     if reference_info is None or reference_info.get("status") != "passed":
                         base_record.update({
@@ -1815,7 +1813,6 @@ def _run_case(
                     [Path(path) for path in paths_by_role[role]],
                 )
                 branch_name = f"{method_id}_{mode.replace('-', '').lower()}_{role}"
-                enable_override = False if control_off else None
                 xml_record = _method_xml(
                     case_root,
                     source_xml,
@@ -1828,7 +1825,6 @@ def _run_case(
                         if reference_info is not None and reference_info.get("status") == "passed"
                         else None
                     ),
-                    enable_override=enable_override,
                 )
                 xml_key = f"{method_id}_{mode}_{role}"
                 xml_records[xml_key] = xml_record
@@ -1883,7 +1879,7 @@ def _run_case(
                 reference_gamma_rows = _reference_gamma_rows(
                     reference_gamma_paths, method_id, role  # type: ignore[arg-type]
                 )
-                expects_tap = method_id in RESEARCH_METHOD_IDS and not control_off
+                expects_tap = method_id in RESEARCH_METHOD_IDS
                 if expects_tap:
                     adapter_validation = validate_reference_gamma_rows(
                         reference_gamma_rows,
@@ -1922,13 +1918,6 @@ def _run_case(
                                 compact_reference_info["validation"]  # type: ignore[arg-type]
                             )
                         base_record["reference_artifact"] = compact_reference_info
-                elif control_off:
-                    base_record["adapter_validation"] = {
-                        "status": "not_applicable",
-                        "truth_used_in_estimator": False,
-                        "fallback_to_current": False,
-                        "reason": "Mode-B_OFF_evaluator_control_does_not_estimate",
-                    }
                 else:
                     base_record["adapter_validation"] = {
                         "status": "not_applicable",
@@ -1978,6 +1967,57 @@ def _run_case(
     manifest["algorithmic_results_claimed"] = False
     _write_json(case_root / "case_manifest.json", manifest)
     return manifest
+
+
+def _counterfactual_processing_comparability(
+    method_id: str,
+    mode: str,
+    roles: Mapping[str, Mapping[str, object]],
+) -> dict[str, object]:
+    if mode not in {"Mode-A", "Mode-B"}:
+        return {"status": "not_required", "reason": None}
+
+    estimator_role = "OFF" if mode == "Mode-A" else "ON"
+    apply_roles = {"ON", "TO"} if mode == "Mode-A" else {"OFF", "TO"}
+    expected_source = f"{estimator_role}_estimator_output"
+    for role in ("OFF", "ON", "TO"):
+        branch = roles.get(role)
+        contract = branch.get("execution_contract") if isinstance(branch, Mapping) else None
+        if not isinstance(contract, Mapping):
+            return {"status": "NOT_EVALUABLE", "reason": f"execution_contract_missing:{role}"}
+        if (
+            str(branch.get("method_id")) != method_id
+            or str(branch.get("mode")) != mode
+            or str(branch.get("role")) != role
+            or str(contract.get("method_id")) != method_id
+            or str(contract.get("mode")) != mode
+            or str(contract.get("role")) != role
+            or contract.get("reference_source") != expected_source
+        ):
+            return {"status": "NOT_EVALUABLE", "reason": f"execution_contract_mismatch:{role}"}
+        if branch.get("fallback_to_current") is True or contract.get("fallback_to_current") is True:
+            return {"status": "NOT_EVALUABLE", "reason": f"fallback_to_current:{role}"}
+        if role == estimator_role:
+            if contract.get("estimator_called") is not True or contract.get("fixed_reference_required") is True:
+                return {"status": "NOT_EVALUABLE", "reason": f"estimator_contract_invalid:{role}"}
+        elif role in apply_roles:
+            if (
+                contract.get("estimator_called") is not False
+                or contract.get("fixed_reference_required") is not True
+                or contract.get("reference_applied") is not True
+                or branch.get("reference_applied") is not True
+            ):
+                return {"status": "NOT_EVALUABLE", "reason": f"fixed_reference_contract_invalid:{role}"}
+
+    estimator = roles[estimator_role]
+    artifact = estimator.get("reference_artifact")
+    reference_path = artifact.get("path") if isinstance(artifact, Mapping) else None
+    if not isinstance(artifact, Mapping) or artifact.get("status") != "passed" or not reference_path:
+        return {"status": "NOT_EVALUABLE", "reason": "estimator_reference_artifact_invalid"}
+    for role in apply_roles:
+        if str(roles[role].get("reference_path", "")) != str(reference_path):
+            return {"status": "NOT_EVALUABLE", "reason": f"fixed_reference_path_mismatch:{role}"}
+    return {"status": "passed", "reason": None}
 
 
 def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]]]:
@@ -2071,7 +2111,14 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
                     "status": geometry_map.get("status", "NOT_EVALUABLE"),
                     "valid_cut_count": geometry_map.get("valid_cut_count"),
                     "hit_cut_count": geometry_map.get("hit_cut_count"),
+                    "tested_cut_hit_fraction": geometry_map.get(
+                        "tested_cut_hit_fraction"
+                    ),
                     "cell_pfa": geometry_map.get("cell_pfa"),
+                    "pfa_status": geometry_map.get("pfa_status", "NOT_EVALUABLE"),
+                    "pfa_reason": geometry_map.get("pfa_reason"),
+                    "false_cut_hit_count": geometry_map.get("false_cut_hit_count"),
+                    "valid_h0_cut_count": geometry_map.get("valid_h0_cut_count"),
                     "cfar_layer": geometry_map,
                 },
                 {
@@ -2144,6 +2191,9 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
             off = roles.get("OFF", {})
             on = roles.get("ON", {})
             target_only = roles.get("TO", {})
+            processing_comparability = _counterfactual_processing_comparability(
+                method_id, mode, roles
+            )
             on_metrics = on.get("metrics") if isinstance(on.get("metrics"), Mapping) else {}
             off_metrics = off.get("metrics") if isinstance(off.get("metrics"), Mapping) else {}
             to_metrics = target_only.get("metrics") if isinstance(target_only.get("metrics"), Mapping) else {}
@@ -2159,6 +2209,7 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
             causal_status = (
                 "evaluable"
                 if on_metrics and off_metrics and to_metrics
+                and processing_comparability.get("status") in {"passed", "not_required"}
                 and all(item.get("status") in {"passed", "completed", "completed_with_gaps"} for item in (on, off, target_only))
                 else "NOT_EVALUABLE"
             )
@@ -2171,6 +2222,8 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
                 "role": "ON_MINUS_OFF",
                 "layer": "ON_minus_OFF",
                 "status": causal_status,
+                "processing_comparability_status": processing_comparability.get("status"),
+                "processing_comparability_reason": processing_comparability.get("reason"),
                 "on_minus_off_target_detection_pd": _delta("target_detection_pd"),
                 "on_minus_off_track_pd": _delta("track_pd_all_visible"),
                 "to_target_detection_pd": to_metrics.get("target_detection_pd"),

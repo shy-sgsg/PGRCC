@@ -712,6 +712,123 @@ def _false_track_ids(debug_dir: Path | None) -> tuple[set[str], Path | None, str
     return selected, states_path, None if selected else "no_confirmed_output_track_ids"
 
 
+def summarize_cfar_geometry_rows(
+    rows: Sequence[Mapping[str, object]],
+) -> dict[str, object]:
+    """Summarize branch diagnostics without pooling overlapping CUT sets."""
+
+    grouped: dict[str, list[Mapping[str, object]]] = {}
+    seen_keys: set[tuple[int, int, str]] = set()
+    duplicate_keys: set[tuple[int, int, str]] = set()
+    for row in rows:
+        branch = str(row.get("branch", "")).strip()
+        if not branch:
+            return {
+                "status": "NOT_EVALUABLE",
+                "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+                "cell_pfa": None,
+                "cell_pfa_status": "NOT_EVALUABLE",
+                "reason": "geometry_branch_missing",
+                "branch_summaries": {},
+            }
+        try:
+            period_id = int(row["period_id"])
+            beam_id = int(row["beam_id"])
+            valid = int(row["valid_cut_count"])
+            hits = int(row["hit_cut_count"])
+        except (KeyError, TypeError, ValueError):
+            return {
+                "status": "NOT_EVALUABLE",
+                "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+                "cell_pfa": None,
+                "cell_pfa_status": "NOT_EVALUABLE",
+                "reason": "geometry_counts_or_identity_invalid",
+                "branch_summaries": {},
+            }
+        if valid < 0 or hits < 0 or hits > valid:
+            return {
+                "status": "NOT_EVALUABLE",
+                "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+                "cell_pfa": None,
+                "cell_pfa_status": "NOT_EVALUABLE",
+                "reason": "geometry_counts_out_of_range",
+                "branch_summaries": {},
+            }
+        key = (period_id, beam_id, branch)
+        if key in seen_keys:
+            duplicate_keys.add(key)
+        seen_keys.add(key)
+        grouped.setdefault(branch, []).append(row)
+
+    branch_summaries: dict[str, dict[str, object]] = {}
+    for branch, branch_rows in sorted(grouped.items()):
+        threshold_tests = sum(int(row.get("threshold_test_count", 0)) for row in branch_rows)
+        valid = sum(int(row["valid_cut_count"]) for row in branch_rows)
+        hits = sum(int(row["hit_cut_count"]) for row in branch_rows)
+        branch_has_duplicates = any(key[2] == branch for key in duplicate_keys)
+        branch_status = "evaluable" if valid > 0 and not branch_has_duplicates else "NOT_EVALUABLE"
+        branch_summaries[branch] = {
+            "status": branch_status,
+            "threshold_test_count": threshold_tests,
+            "valid_cut_count": valid,
+            "hit_cut_count": hits,
+            "hit_fraction": hits / valid if branch_status == "evaluable" else None,
+            "reason": "duplicate_period_beam_branch_rows" if branch_has_duplicates else (
+                None if valid > 0 else "valid_cut_count_missing_or_non_positive"
+            ),
+        }
+
+    reason: str | None = None
+    aggregate_status = "evaluable"
+    if not grouped:
+        aggregate_status = "NOT_EVALUABLE"
+        reason = "cfar_geometry_diagnostics_missing"
+    elif len(grouped) > 1:
+        aggregate_status = "NOT_EVALUABLE"
+        reason = "multiple_detector_branches_require_unique_hit_union"
+    elif duplicate_keys:
+        aggregate_status = "NOT_EVALUABLE"
+        reason = "duplicate_period_beam_branch_rows"
+    else:
+        only_branch = next(iter(grouped))
+        branch_summary = branch_summaries[only_branch]
+        if branch_summary["status"] != "evaluable":
+            aggregate_status = "NOT_EVALUABLE"
+            reason = str(branch_summary["reason"])
+
+    if aggregate_status == "evaluable":
+        only_branch = next(iter(grouped))
+        branch_summary = branch_summaries[only_branch]
+        threshold_test_count = int(branch_summary["threshold_test_count"])
+        valid_cut_count = int(branch_summary["valid_cut_count"])
+        hit_cut_count = int(branch_summary["hit_cut_count"])
+        hit_fraction: float | None = float(branch_summary["hit_fraction"])
+    else:
+        threshold_test_count = None
+        valid_cut_count = None
+        hit_cut_count = None
+        hit_fraction = None
+
+    return {
+        "status": aggregate_status,
+        "branch_geometry_status": "evaluable" if grouped else "NOT_EVALUABLE",
+        "tested_cut_hit_fraction_status": aggregate_status,
+        "tested_cut_hit_fraction": hit_fraction,
+        "threshold_test_count": threshold_test_count,
+        "valid_cut_count": valid_cut_count,
+        "hit_cut_count": hit_cut_count,
+        "cell_pfa": None,
+        "cell_pfa_status": "NOT_EVALUABLE",
+        "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+        "definition": (
+            "hit_cut_count / valid_cut_count for one unique detector branch; not empirical Pfa"
+            if aggregate_status == "evaluable" else None
+        ),
+        "reason": reason,
+        "branch_summaries": branch_summaries,
+    }
+
+
 def evaluate_target_off_waterfall(
     result_dir: Path,
     debug_dir: Path | None,
@@ -725,12 +842,24 @@ def evaluate_target_off_waterfall(
         raise ValueError("theoretical_pfa must be in (0, 1)")
     valid_cut_raw = cfar_summary.get("valid_cut_count")
     hit_raw = cfar_summary.get("hit_cells")
+    aggregate_hit_status = cfar_summary.get("aggregate_hit_fraction_status")
+    aggregate_hit_reason = cfar_summary.get("aggregate_hit_fraction_reason")
     try:
         valid_cut = int(valid_cut_raw) if valid_cut_raw is not None else 0
         hit_cells = int(hit_raw) if hit_raw is not None else 0
     except (TypeError, ValueError):
         valid_cut, hit_cells = 0, 0
-    if valid_cut > 0 and hit_cells >= 0:
+    if aggregate_hit_status == "NOT_EVALUABLE":
+        cell = _layer(
+            "NOT_EVALUABLE",
+            denominator=None,
+            definition="unique production detector CUT hits / unique valid CUTs",
+            reason=str(aggregate_hit_reason or "cfar_geometry_aggregate_not_evaluable"),
+            hit_cell_count=None,
+            valid_cut_count=None,
+            metric_name="empirical_structured_clutter_false_hit_fraction",
+        )
+    elif valid_cut > 0 and hit_cells >= 0:
         cell = _layer(
             "passed",
             value=float(hit_cells) / float(valid_cut),
@@ -1186,53 +1315,36 @@ def run_production_branch(
             from scripts.cfar_geometry_audit import load_geometry_rows
 
             geometry_rows = load_geometry_rows(geometry_paths)
-            valid_cut_count = sum(int(row["valid_cut_count"]) for row in geometry_rows)
-            hit_cut_count = sum(int(row["hit_cut_count"]) for row in geometry_rows)
-            geometry_summary = {
-                "status": "evaluable" if valid_cut_count > 0 else "NOT_EVALUABLE",
-                "valid_cut_count": valid_cut_count,
-                "hit_cut_count": hit_cut_count,
-                "threshold_test_count": sum(int(row["threshold_test_count"]) for row in geometry_rows),
-                "cell_pfa": (
-                    float(hit_cut_count) / float(valid_cut_count)
-                    if valid_cut_count > 0 else None
-                ),
-                "definition": "hit_cut_count / valid_cut_count",
-                "reason": None if valid_cut_count > 0 else "valid_cut_count_missing_or_non_positive",
+            geometry_summary = summarize_cfar_geometry_rows(geometry_rows)
+            geometry_summary.update({
                 "source_paths": [str(path) for path in geometry_paths],
                 "rows": geometry_rows,
-            }
-            # The OFF waterfall must consume this physical denominator.  The
-            # log's hit_cells field is retained only as a separate diagnostic.
-            cfar_summary = dict(cfar_summary)
-            cfar_summary.update({
-                "valid_cut_count": valid_cut_count,
-                "hit_cut_count": hit_cut_count,
-                "hit_cells": hit_cut_count,
-                "cell_pfa": geometry_summary["cell_pfa"],
             })
         except (OSError, ValueError, KeyError, json.JSONDecodeError) as exc:
-            geometry_summary = {
-                "status": "NOT_EVALUABLE",
-                "valid_cut_count": 0,
-                "hit_cut_count": 0,
-                "cell_pfa": None,
-                "definition": "hit_cut_count / valid_cut_count",
+            geometry_summary = summarize_cfar_geometry_rows([])
+            geometry_summary.update({
                 "reason": f"cfar_geometry_invalid:{exc}",
                 "source_paths": [str(path) for path in geometry_paths],
                 "rows": [],
-            }
+            })
     else:
-        geometry_summary = {
-            "status": "NOT_EVALUABLE",
-            "valid_cut_count": 0,
-            "hit_cut_count": 0,
-            "cell_pfa": None,
-            "definition": "hit_cut_count / valid_cut_count",
-            "reason": "cfar_geometry_diagnostics_missing",
+        geometry_summary = summarize_cfar_geometry_rows([])
+        geometry_summary.update({
             "source_paths": [],
             "rows": [],
-        }
+        })
+    cfar_summary = dict(cfar_summary)
+    cfar_summary.update({
+        "aggregate_hit_fraction_status": geometry_summary["tested_cut_hit_fraction_status"],
+        "aggregate_hit_fraction_reason": geometry_summary["reason"],
+        "valid_cut_count": geometry_summary["valid_cut_count"],
+        "threshold_test_count": geometry_summary["threshold_test_count"],
+        "hit_cut_count": geometry_summary["hit_cut_count"],
+        "hit_cells": geometry_summary["hit_cut_count"],
+        "tested_cut_hit_fraction": geometry_summary["tested_cut_hit_fraction"],
+        "cell_pfa": None,
+        "cell_pfa_status": "NOT_EVALUABLE",
+    })
     if debug_dir is None:
         audit: dict[str, object] = {
             "status": "missing",

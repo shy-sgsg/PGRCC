@@ -445,6 +445,7 @@ Routing Oracle；两者分别为 `NO_GO_COMPLEX_WEIGHT_RESIDUAL` 和
 
 ## 研究文档
 
+- [Phase R：GMTI 性能瓶颈与 AI 必要性审查入口](docs/research/phase_r/README.md)
 - [研究主线重构与历史结果重新解释](docs/AI_CSI_研究主线重构与历史结果重新解释.md)
 - [真实系统误差参数与可观测性分析](docs/AI_CSI_33_真实系统误差参数与可观测性分析.md)
 - [双通道系统失配与稳健 CSI 研究框架](docs/AI_CSI_34_双通道系统失配与稳健CSI研究框架.md)
