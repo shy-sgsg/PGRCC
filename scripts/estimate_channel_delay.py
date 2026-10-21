@@ -255,6 +255,7 @@ def rewrite_float32_protocol_delay(
     delta_tau_sec: float,
     channel_index: int = 1,
     channel_indices: Sequence[int] | None = None,
+    simulator_linear_fractional_delay_inverse: bool = False,
 ) -> dict[str, Any]:
     """Apply an observable fractional-delay correction to selected raw channels.
 
@@ -267,9 +268,13 @@ def rewrite_float32_protocol_delay(
     This helper deliberately accepts only the float32 protocol layout used by
     the TrackManager runner.  Indices are zero-based; ``channel_index`` remains
     the compatible single-channel spelling and ``channel_indices`` supports a
-    caller that must correct multiple channels.  It preserves every packet
-    header and every non-target channel, and refuses truncated or misdeclared
-    packets instead of emitting a partially corrected file.
+    caller that must correct multiple channels.  The optional simulator model
+    inverts Stage2's positive, zero-extended linear fractional-delay operator;
+    it is restricted to delays in [0, 1) samples and requires the first output
+    sample to be numerically zero because the simulator discards out-of-range
+    samples.  It preserves every packet header and every non-target channel,
+    and refuses truncated or misdeclared packets instead of emitting a
+    partially corrected file.
     """
 
     source = Path(input_path)
@@ -291,6 +296,11 @@ def rewrite_float32_protocol_delay(
         raise ValueError("fs_hz must be finite and positive")
     if not math.isfinite(float(delta_tau_sec)):
         raise ValueError("delta_tau_sec must be finite")
+    delay_samples = float(delta_tau_sec) * float(fs_hz)
+    if simulator_linear_fractional_delay_inverse and not 0.0 <= delay_samples < 1.0:
+        raise ValueError(
+            "Stage2 linear-interpolator inverse requires delay_samples in [0, 1)"
+        )
     if source.resolve() == destination.resolve():
         raise ValueError("input_path and output_path must be different")
 
@@ -327,7 +337,21 @@ def rewrite_float32_protocol_delay(
                     iq[:, selected_index, 0].astype(np.float64)
                     + 1j * iq[:, selected_index, 1].astype(np.float64)
                 )
-                corrected = np.fft.ifft(np.fft.fft(target) * correction)
+                if simulator_linear_fractional_delay_inverse and delay_samples > 0.0:
+                    rms = float(np.sqrt(np.mean(np.abs(target) ** 2)))
+                    boundary_tolerance = max(1.0e-7, 1.0e-7 * rms)
+                    if abs(target[0]) > boundary_tolerance:
+                        raise ValueError(
+                            f"packet {packets} first sample is not zero-extended-delay compatible"
+                        )
+                    corrected = np.zeros_like(target)
+                    inverse_gain = 1.0 / (1.0 - delay_samples)
+                    for sample in range(1, pulse_len):
+                        corrected[sample] = (
+                            target[sample] - delay_samples * corrected[sample - 1]
+                        ) * inverse_gain
+                else:
+                    corrected = np.fft.ifft(np.fft.fft(target) * correction)
                 if not np.all(np.isfinite(corrected.real)) or not np.all(np.isfinite(corrected.imag)):
                     raise ValueError(f"non-finite corrected IQ at packet {packets}")
                 iq[:, selected_index, 0] = corrected.real.astype("<f4")
@@ -352,7 +376,16 @@ def rewrite_float32_protocol_delay(
         "fs_hz": float(fs_hz),
         "delta_tau_sec": float(delta_tau_sec),
         "delta_tau_ns": float(delta_tau_sec) * 1.0e9,
-        "correction_definition": "selected_protocol_channels *= exp(+j*2*pi*f*delta_tau_sec)",
+        "correction_model": (
+            "inverse_stage2_zero_extended_linear_interpolator"
+            if simulator_linear_fractional_delay_inverse
+            else "ideal_frequency_domain_phase_ramp"
+        ),
+        "correction_definition": (
+            "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+            if simulator_linear_fractional_delay_inverse
+            else "selected_protocol_channels *= exp(+j*2*pi*f*delta_tau_sec)"
+        ),
     }
 
 

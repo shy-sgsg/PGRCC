@@ -115,6 +115,44 @@ def test_rewrite_four_channel_protocol_preserves_non_target_channels(tmp_path) -
     np.testing.assert_allclose(iq[:, 3, 0] + 1j * iq[:, 3, 1], 3.0 * reference, atol=2.0e-7)
 
 
+def test_rewrite_inverts_stage2_zero_extended_linear_fractional_delay(tmp_path) -> None:
+    pulse_len = 96
+    channel_count = 4
+    fs_hz = 60.0e6
+    delay_samples = 0.24
+    rng = np.random.default_rng(101)
+    reference = (
+        rng.standard_normal(pulse_len) + 1j * rng.standard_normal(pulse_len)
+    ).astype(np.complex64)
+    reference[0] = 0.0j
+    delayed = np.zeros_like(reference)
+    delayed[1:] = (
+        (1.0 - delay_samples) * reference[1:]
+        + delay_samples * reference[:-1]
+    )
+    samples = np.column_stack((reference, delayed, 2.0 * reference, 3.0 * reference))
+    input_path = tmp_path / "linear_interpolated.bin"
+    output_path = tmp_path / "linear_interpolated_corrected.bin"
+    input_path.write_bytes(_packet(samples))
+
+    audit = rewrite_float32_protocol_delay(
+        input_path,
+        output_path,
+        pulse_len=pulse_len,
+        channel_count=channel_count,
+        fs_hz=fs_hz,
+        delta_tau_sec=delay_samples / fs_hz,
+        channel_indices=(1,),
+        simulator_linear_fractional_delay_inverse=True,
+    )
+
+    raw = np.fromfile(output_path, dtype=np.uint8)[HEADER_BYTES:]
+    iq = raw.view("<f4").reshape(pulse_len, channel_count, 2)
+    corrected = iq[:, 1, 0] + 1j * iq[:, 1, 1]
+    np.testing.assert_allclose(corrected, reference, rtol=2.0e-7, atol=2.0e-7)
+    assert audit["correction_model"] == "inverse_stage2_zero_extended_linear_interpolator"
+
+
 def test_prepare_condition_inputs_rewrites_each_period_with_four_channel_layout(tmp_path, monkeypatch) -> None:
     from scripts.run_delay_stage1_formal import prepare_condition_inputs
 
@@ -144,3 +182,4 @@ def test_prepare_condition_inputs_rewrites_each_period_with_four_channel_layout(
     assert all(call[2]["channel_count"] == 4 for call in calls)
     assert all(call[2]["channel_indices"] == (1,) for call in calls)
     assert all(call[2]["delta_tau_sec"] == pytest.approx(-3.5e-9) for call in calls)
+    assert all(call[2]["simulator_linear_fractional_delay_inverse"] is True for call in calls)

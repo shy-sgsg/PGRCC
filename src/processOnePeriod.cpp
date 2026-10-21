@@ -4257,12 +4257,17 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
         bool gpu_cfar_resident = false;
         std::size_t gpu_cfar_hit_count = 0U;
         std::vector<gmti::cfar::CfarGeometryDiagnostics> cfar_geometry_rows;
+        const int cfar_diagnostic_period_id = cfg.echo_cycle_view.valid()
+            ? static_cast<int>(cfg.echo_cycle_view.acquisition_cycle_id)
+            : (cfg.stage2_period_id >= 0
+                   ? cfg.stage2_period_id
+                   : cfg.new_protocol_file_period_index);
         const auto cfar_geometry_tap = [&](const char *branch)
             -> gmti::cfar::CfarGeometryDiagnostics * {
             if (!cfg.runtime_diagnostics_enabled) return nullptr;
             cfar_geometry_rows.emplace_back();
             gmti::cfar::CfarGeometryDiagnostics &row = cfar_geometry_rows.back();
-            row.period_id = static_cast<int>(slot);
+            row.period_id = cfar_diagnostic_period_id;
             row.beam_id = periodIdx;
             row.branch = branch;
             return &row;
@@ -4278,9 +4283,9 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                 &cfar_geometry_rows[indices.first];
             gmti::cfar::CfarGeometryDiagnostics *second =
                 &cfar_geometry_rows[indices.second];
-            first->period_id = static_cast<int>(slot);
+            first->period_id = cfar_diagnostic_period_id;
             first->beam_id = periodIdx;
-            second->period_id = static_cast<int>(slot);
+            second->period_id = cfar_diagnostic_period_id;
             second->beam_id = periodIdx;
             return {first, second};
         };

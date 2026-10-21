@@ -137,6 +137,37 @@ def test_stage1_branch_contract_has_four_conditions_and_truth_blind_a3() -> None
     assert contract["requirements"]["A3_Blind_target_free_estimated_correction"]["truth_used_in_estimator"] is False
 
 
+def test_stage1_condition_subset_is_fail_closed_and_can_skip_blind_estimation() -> None:
+    from scripts.run_delay_stage1_formal import (
+        _normalize_stage1_conditions,
+        _stage1_delay_estimation_requested,
+    )
+
+    assert _normalize_stage1_conditions(None) == (
+        "A0_Ideal",
+        "A1_Current_unknown_error",
+        "A2_Known_error_correction_upper_bound",
+        "A3_Blind_target_free_estimated_correction",
+    )
+    abc = _normalize_stage1_conditions((
+        "A0_Ideal",
+        "A1_Current_unknown_error",
+        "A2_Known_error_correction_upper_bound",
+    ))
+    assert abc == (
+        "A0_Ideal",
+        "A1_Current_unknown_error",
+        "A2_Known_error_correction_upper_bound",
+    )
+    assert _stage1_delay_estimation_requested(abc) is False
+    assert _stage1_delay_estimation_requested(_normalize_stage1_conditions(None)) is True
+
+    with pytest.raises(ValueError, match="requires A0 and A1"):
+        _normalize_stage1_conditions(("A2_Known_error_correction_upper_bound",))
+    with pytest.raises(ValueError, match="duplicate"):
+        _normalize_stage1_conditions(("A0_Ideal", "A0_Ideal"))
+
+
 def test_additive_triplet_reports_pass_and_not_evaluable_failure() -> None:
     import numpy as np
 
@@ -150,6 +181,129 @@ def test_additive_triplet_reports_pass_and_not_evaluable_failure() -> None:
     failed = audit_additive_triplet(np.ones(2, complex), np.zeros(2, complex), np.zeros(2, complex), tolerance=1e-6)
     assert failed["status"] == "NOT_EVALUABLE"
     assert failed["reason"] == "on_minus_off_minus_target_exceeds_tolerance"
+
+
+def test_stage2_area_clutter_gate_uses_observed_injection_and_reachable_geometry() -> None:
+    from scripts.run_delay_stage1_formal import audit_stage2_area_clutter_report
+
+    scenario = {
+        "platform": {"height_m": 6000.0, "origin_alt_m": 6000.0},
+        "scene": {
+            "ground_z_m": 0.0,
+            "range_min_m": 84_500.0,
+            "range_max_m": 85_500.0,
+            "area_clutter": {"enabled": True, "model": "continuous_texture"},
+        },
+    }
+    report = "\n".join((
+        "- continuous_area_packets: 390",
+        "- continuous_area_samples: 1952655",
+        "- area_mean_power_measured: 0.0223",
+    ))
+    passed = audit_stage2_area_clutter_report(report, scenario)
+    assert passed["status"] == "passed"
+    assert passed["continuous_area_packets"] == 390
+    assert passed["continuous_area_samples"] == 1952655
+    assert passed["minimum_slant_range_m"] == 6000.0
+    assert passed["ground_range_min_m"] > 0.0
+
+    zero_injection = audit_stage2_area_clutter_report(
+        "\n".join((
+            "- continuous_area_packets: 0",
+            "- continuous_area_samples: 0",
+            "- area_mean_power_measured: 0",
+        )),
+        scenario,
+    )
+    assert zero_injection["status"] == "NOT_EVALUABLE"
+    assert "continuous_area_packets_not_positive" in zero_injection["reasons"]
+
+    unreachable = dict(scenario)
+    unreachable["scene"] = {
+        **scenario["scene"],
+        "range_min_m": 2500.0,
+        "range_max_m": 5000.0,
+    }
+    failed_geometry = audit_stage2_area_clutter_report(report, unreachable)
+    assert failed_geometry["status"] == "NOT_EVALUABLE"
+    assert "range_window_below_ground_slant_horizon" in failed_geometry["reasons"]
+
+
+def test_production_smoke_gate_requires_current_runtime_csi_and_valid_cfar_branch(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import audit_production_path_evidence
+
+    branch = tmp_path / "A_ON"
+    result_dir = branch / "result"
+    metrics_dir = result_dir / "csi_metrics" / "run1"
+    metrics_dir.mkdir(parents=True)
+    (branch / "production.xml").write_text("<root/>", encoding="utf-8")
+    (branch / "gmt_pipe_core.log").write_text(
+        "[TIMING-SCOPE] pulse_compression: 1 ms\n"
+        "[CSI][CANCELLATION] period=0 beam=50\n[CFAR][SUMMARY] beam=50\n",
+        encoding="utf-8",
+    )
+    (result_dir / "runtime_config_dump.json").write_text("{}\n", encoding="utf-8")
+    (metrics_dir / "csi_metric_tap_summary.csv").write_text(
+        "period_id,roi_name,status\n0,active_support_unmasked,diagnostic\n",
+        encoding="utf-8",
+    )
+    record = {
+        "status": "passed",
+        "production_returncode": 0,
+        "production_xml": str(branch / "production.xml"),
+        "production_log": str(branch / "gmt_pipe_core.log"),
+        "result_dir": str(result_dir),
+        "cfar_geometry": {
+            "status": "NOT_EVALUABLE",
+            "branch_summaries": {
+                "union_dynamic_in_band": {"status": "NOT_EVALUABLE", "valid_cut_count": 0},
+                "union_full_band": {"status": "evaluable", "valid_cut_count": 100},
+            },
+        },
+    }
+    passed = audit_production_path_evidence(record)
+    assert passed["status"] == "passed"
+    assert passed["valid_cfar_branches"] == ["union_full_band"]
+    assert passed["csi_tap_row_count"] == 1
+
+    record["cfar_geometry"]["branch_summaries"]["union_full_band"]["valid_cut_count"] = 0
+    failed = audit_production_path_evidence(record)
+    assert failed["status"] == "NOT_EVALUABLE"
+    assert "valid_cfar_cut_branch_missing" in failed["reasons"]
+
+
+def test_known_correction_closure_is_measured_on_fused_production_inputs(monkeypatch) -> None:
+    import numpy as np
+
+    from scripts import run_delay_stage1_formal as stage1
+
+    reference_path = Path("reference.bin")
+    candidate_path = Path("candidate.bin")
+    source = np.array([[1 + 2j, 3 - 1j]], dtype=np.complex128)
+
+    def load_fused(paths, layout):
+        if paths[0] == reference_path:
+            return source.copy(), source.copy() * 2.0
+        return source.copy(), source.copy() * 2.0
+
+    monkeypatch.setattr(stage1, "_load_fused_from_periods", load_fused)
+    passed = stage1.audit_fused_input_closure(
+        [reference_path], [candidate_path], {"pulse_len": 2}
+    )
+    assert passed["status"] == "passed"
+    assert passed["channels"]["F1"]["relative_rms_error"] == 0.0
+
+    def load_mismatched(paths, layout):
+        if paths[0] == reference_path:
+            return source.copy(), source.copy()
+        return source.copy(), source.copy() * 1.1
+
+    monkeypatch.setattr(stage1, "_load_fused_from_periods", load_mismatched)
+    failed = stage1.audit_fused_input_closure(
+        [reference_path], [candidate_path], {"pulse_len": 2}
+    )
+    assert failed["status"] == "failed"
+    assert failed["channels"]["F2"]["relative_rms_error"] > 1.0e-3
 
 
 def test_target_off_waterfall_keeps_missing_denominators_not_evaluable(tmp_path: Path) -> None:
@@ -489,6 +643,48 @@ def test_cleanup_stage1_raw_removes_only_case_binaries_and_keeps_audit(tmp_path:
     assert link.is_symlink()
     assert (case_root / "audit.csv").is_file()
     assert (case_root / "raw_cleanup.json").is_file()
+
+
+def test_cleanup_stage1_raw_accepts_completed_production_comparison_status(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import cleanup_stage1_raw
+
+    case_root = tmp_path / "case"
+    (case_root / "data").mkdir(parents=True)
+    (case_root / "case_manifest.json").write_text(
+        json.dumps({"status": "production_comparisons_executed"}),
+        encoding="utf-8",
+    )
+    raw = case_root / "data" / "derived.bin"
+    raw.write_bytes(b"reproducible")
+    (case_root / "runtime.xml").write_text("<root/>\n", encoding="utf-8")
+
+    report = cleanup_stage1_raw(case_root)
+
+    assert report["status"] == "production_comparisons_executed"
+    assert report["removed_file_count"] == 1
+    assert not raw.exists()
+    assert (case_root / "runtime.xml").is_file()
+
+
+def test_cleanup_stage1_raw_can_reclaim_binaries_after_preserving_production_failure(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import cleanup_stage1_raw
+
+    case_root = tmp_path / "failed_case"
+    (case_root / "data").mkdir(parents=True)
+    (case_root / "case_manifest.json").write_text(
+        json.dumps({"status": "production_path_failed"}),
+        encoding="utf-8",
+    )
+    raw = case_root / "data" / "reproducible_input.bin"
+    raw.write_bytes(b"reproducible")
+    (case_root / "failure.log").write_text("no CUDA-capable device is detected\n", encoding="utf-8")
+
+    report = cleanup_stage1_raw(case_root, allow_incomplete=True)
+
+    assert report["status"] == "production_path_failed"
+    assert report["removed_file_count"] == 1
+    assert not raw.exists()
+    assert (case_root / "failure.log").is_file()
 
 
 def test_formal_selection_uses_registered_groups_without_cross_group_cartesian_product() -> None:

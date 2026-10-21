@@ -68,6 +68,38 @@ _FOUR_CHANNEL_GEOMETRY = {
 }
 
 
+def _normalize_stage1_conditions(
+    condition_names: Sequence[str] | None,
+) -> tuple[str, ...]:
+    """Validate a canonical subset of conditions for a targeted paired run."""
+
+    if condition_names is None:
+        return _CONDITIONS
+    requested = tuple(str(name) for name in condition_names)
+    if len(requested) != len(set(requested)):
+        raise ValueError("stage1 condition selection contains a duplicate condition")
+    unknown = [name for name in requested if name not in _CONDITIONS]
+    if unknown:
+        raise ValueError(f"unknown Stage-1 condition(s): {', '.join(unknown)}")
+    selected = tuple(name for name in _CONDITIONS if name in requested)
+    if selected != requested:
+        raise ValueError("stage1 conditions must follow the registered canonical order")
+    if not {"A0_Ideal", "A1_Current_unknown_error"}.issubset(selected):
+        raise ValueError("paired Stage-1 evaluation requires A0 and A1")
+    if (
+        "A3_Blind_target_free_estimated_correction" in selected
+        and "A1_Current_unknown_error" not in selected
+    ):
+        raise ValueError("A3 blind estimation requires the A1 target-free input condition")
+    if not selected:
+        raise ValueError("stage1 condition selection must not be empty")
+    return selected
+
+
+def _stage1_delay_estimation_requested(conditions: Sequence[str]) -> bool:
+    return "A3_Blind_target_free_estimated_correction" in conditions
+
+
 def _finite_float(value: object, name: str) -> float:
     try:
         result = float(value)  # type: ignore[arg-type]
@@ -593,6 +625,7 @@ def prepare_condition_inputs(
                 fs_hz=fs_hz,
                 delta_tau_sec=float(applied_delay) * 1.0e-9,
                 channel_indices=indices,
+                simulator_linear_fractional_delay_inverse=True,
             )
             audits.append(dict(audit))
             corrected.append(destination)
@@ -619,6 +652,10 @@ def prepare_condition_inputs(
             truth - float(applied_delay) if applied_delay is not None else None
         ),
         "correction_source": source,
+        "correction_model": (
+            "inverse_stage2_zero_extended_linear_interpolator"
+            if should_correct else "none"
+        ),
         "source": source,
         "truth_used_in_estimator": False,
         "truth_used_to_apply_correction": truth_to_apply,
@@ -1561,16 +1598,254 @@ def _prepare_role_inputs(
     )
 
 
+def audit_stage2_area_clutter_report(
+    report_text: str,
+    scenario: Mapping[str, object],
+) -> dict[str, object]:
+    """Require observed continuous-area injection and physically reachable geometry."""
+
+    fields = {
+        key.strip(): value.strip()
+        for key, value in re.findall(r"^\s*-\s*([^:]+):\s*(.*?)\s*$", report_text, re.MULTILINE)
+    }
+    scene = scenario.get("scene")
+    platform = scenario.get("platform")
+    if not isinstance(scene, Mapping) or not isinstance(platform, Mapping):
+        return {
+            "status": "NOT_EVALUABLE",
+            "reasons": ["scene_or_platform_config_missing"],
+        }
+    area = scene.get("area_clutter")
+    if not isinstance(area, Mapping):
+        area = {}
+    try:
+        ground_z = _finite_float(scene.get("ground_z_m", 0.0), "scene.ground_z_m")
+        altitude_raw = fields.get("platform_height_m")
+        altitude = _finite_float(
+            altitude_raw if altitude_raw is not None else platform.get("origin_alt_m", platform.get("height_m")),
+            "platform_height_m",
+        )
+        range_min = _finite_float(scene.get("range_min_m"), "scene.range_min_m")
+        range_max = _finite_float(scene.get("range_max_m"), "scene.range_max_m")
+    except ValueError as exc:
+        return {
+            "status": "NOT_EVALUABLE",
+            "reasons": [f"geometry_invalid:{exc}"],
+        }
+
+    reasons: list[str] = []
+    if area.get("enabled") is not True:
+        reasons.append("area_clutter_not_enabled")
+    if str(area.get("model", "")) != "continuous_texture":
+        reasons.append("area_model_not_continuous_texture")
+    height_delta = abs(altitude - ground_z)
+    minimum_slant_range = height_delta
+    if range_max <= minimum_slant_range:
+        reasons.append("range_window_below_ground_slant_horizon")
+    ground_range_min = math.sqrt(max(0.0, range_min * range_min - height_delta * height_delta))
+    ground_range_max = math.sqrt(max(0.0, range_max * range_max - height_delta * height_delta))
+
+    def parse_report_number(name: str, cast: type[int] | type[float]) -> int | float | None:
+        raw = fields.get(name)
+        if raw is None:
+            reasons.append(f"{name}_missing")
+            return None
+        try:
+            value = cast(raw)
+        except (TypeError, ValueError, OverflowError):
+            reasons.append(f"{name}_invalid")
+            return None
+        if isinstance(value, float) and not math.isfinite(value):
+            reasons.append(f"{name}_nonfinite")
+            return None
+        return value
+
+    packets = parse_report_number("continuous_area_packets", int)
+    samples = parse_report_number("continuous_area_samples", int)
+    mean_power = parse_report_number("area_mean_power_measured", float)
+    if packets is not None and packets <= 0:
+        reasons.append("continuous_area_packets_not_positive")
+    if samples is not None and samples <= 0:
+        reasons.append("continuous_area_samples_not_positive")
+    if mean_power is not None and mean_power <= 0.0:
+        reasons.append("area_mean_power_not_positive")
+
+    return {
+        "status": "passed" if not reasons else "NOT_EVALUABLE",
+        "reasons": reasons,
+        "area_enabled": area.get("enabled") is True,
+        "area_model": area.get("model"),
+        "platform_height_m": altitude,
+        "ground_height_m": ground_z,
+        "minimum_slant_range_m": minimum_slant_range,
+        "range_window_m": [range_min, range_max],
+        "ground_range_window_m": [ground_range_min, ground_range_max],
+        "ground_range_min_m": ground_range_min,
+        "ground_range_max_m": ground_range_max,
+        "continuous_area_packets": packets,
+        "continuous_area_samples": samples,
+        "area_mean_power_measured": mean_power,
+        "report_values": {
+            name: fields.get(name)
+            for name in (
+                "area_rho_lag1_measured",
+                "area_rho_at_CTDR_lag",
+                "area_ctdr_lag_pulses",
+                "area_power_cv_measured",
+                "mean_noise_power_per_complex_sample",
+            )
+        },
+    }
+
+
+def audit_production_path_evidence(
+    record: Mapping[str, object],
+) -> dict[str, object]:
+    """Fail closed unless one CUDA production branch has runtime, CSI and CFAR evidence."""
+
+    reasons: list[str] = []
+    if record.get("status") != "passed":
+        reasons.append("production_branch_not_passed")
+    try:
+        return_code = int(record.get("production_returncode", -1))
+    except (TypeError, ValueError):
+        return_code = -1
+    if return_code != 0:
+        reasons.append("production_returncode_nonzero")
+
+    xml_path = Path(str(record.get("production_xml", "")))
+    log_path = Path(str(record.get("production_log", "")))
+    result_dir = Path(str(record.get("result_dir", "")))
+    if not xml_path.is_file():
+        reasons.append("runtime_xml_missing")
+    runtime_dump = result_dir / "runtime_config_dump.json"
+    if not runtime_dump.is_file():
+        reasons.append("runtime_config_dump_missing")
+    log_text = log_path.read_text(encoding="utf-8", errors="replace") if log_path.is_file() else ""
+    if not log_path.is_file():
+        reasons.append("production_log_missing")
+    stage_counts = {
+        "csi_cancellation": log_text.count("[CSI][CANCELLATION]"),
+        "cfar_summary": log_text.count("[CFAR][SUMMARY]"),
+        "beam_stage_timing": log_text.count("[TIMING-SCOPE]"),
+    }
+    for name, count in stage_counts.items():
+        if count <= 0:
+            reasons.append(f"{name}_missing_from_runtime_log")
+
+    csi_paths = sorted(result_dir.rglob("csi_metric_tap_summary.csv")) if result_dir.is_dir() else []
+    csi_rows = [row for path in csi_paths for row in _csv_rows(path)]
+    if not csi_rows:
+        reasons.append("csi_metric_tap_summary_missing_or_empty")
+
+    geometry = record.get("cfar_geometry")
+    branch_summaries = geometry.get("branch_summaries") if isinstance(geometry, Mapping) else None
+    valid_branches: list[str] = []
+    if isinstance(branch_summaries, Mapping):
+        for name, summary in sorted(branch_summaries.items()):
+            if not isinstance(summary, Mapping):
+                continue
+            try:
+                valid_count = int(summary.get("valid_cut_count", 0))
+            except (TypeError, ValueError):
+                continue
+            if summary.get("status") == "evaluable" and valid_count > 0:
+                valid_branches.append(str(name))
+    if not valid_branches:
+        reasons.append("valid_cfar_cut_branch_missing")
+
+    return {
+        "status": "passed" if not reasons else "NOT_EVALUABLE",
+        "reasons": reasons,
+        "production_returncode": return_code,
+        "production_xml": str(xml_path),
+        "production_log": str(log_path),
+        "runtime_config_dump": str(runtime_dump),
+        "csi_tap_paths": [str(path) for path in csi_paths],
+        "csi_tap_row_count": len(csi_rows),
+        "runtime_log_stage_counts": stage_counts,
+        "valid_cfar_branches": valid_branches,
+        "valid_cfar_cut_count_by_branch": {
+            name: int(branch_summaries[name]["valid_cut_count"])
+            for name in valid_branches
+        } if isinstance(branch_summaries, Mapping) else {},
+    }
+
+
+def audit_fused_input_closure(
+    reference_period_paths: Sequence[Path],
+    candidate_period_paths: Sequence[Path],
+    layout: Mapping[str, object],
+    *,
+    tolerance: float = 1.0e-3,
+) -> dict[str, object]:
+    """Compare paired A0 and physically corrected F1/F2 protocol inputs."""
+
+    if not math.isfinite(float(tolerance)) or float(tolerance) < 0.0:
+        return {"status": "NOT_EVALUABLE", "reason": "invalid_tolerance"}
+    if len(reference_period_paths) != len(candidate_period_paths) or not reference_period_paths:
+        return {"status": "NOT_EVALUABLE", "reason": "period_count_mismatch_or_empty"}
+    try:
+        ref_f1, ref_f2 = _load_fused_from_periods(reference_period_paths, layout)
+        candidate_f1, candidate_f2 = _load_fused_from_periods(candidate_period_paths, layout)
+    except (OSError, ValueError, RuntimeError, KeyError) as exc:
+        return {"status": "NOT_EVALUABLE", "reason": f"input_load_failed:{exc}"}
+
+    channel_results: dict[str, dict[str, object]] = {}
+    for name, reference, candidate in (
+        ("F1", ref_f1, candidate_f1),
+        ("F2", ref_f2, candidate_f2),
+    ):
+        if reference.shape != candidate.shape or reference.size == 0:
+            return {"status": "NOT_EVALUABLE", "reason": f"{name}_shape_mismatch"}
+        finite = np.isfinite(reference) & np.isfinite(candidate)
+        if not np.all(finite):
+            return {"status": "NOT_EVALUABLE", "reason": f"{name}_nonfinite_samples"}
+        error = candidate - reference
+        reference_power = float(np.mean(np.abs(reference) ** 2))
+        error_power = float(np.mean(np.abs(error) ** 2))
+        if not math.isfinite(reference_power) or reference_power <= 0.0:
+            return {"status": "NOT_EVALUABLE", "reason": f"{name}_reference_power_invalid"}
+        relative_rms = math.sqrt(max(0.0, error_power / reference_power))
+        valid_phase = (np.abs(reference) > 1.0e-12) & (np.abs(candidate) > 1.0e-12)
+        phase_errors = np.angle(candidate[valid_phase] * np.conj(reference[valid_phase]))
+        phase_rms = (
+            float(np.sqrt(np.mean(phase_errors * phase_errors)))
+            if phase_errors.size else None
+        )
+        channel_results[name] = {
+            "sample_count": int(reference.size),
+            "reference_mean_power": reference_power,
+            "error_mean_power": error_power,
+            "relative_rms_error": relative_rms,
+            "max_abs_error": float(np.max(np.abs(error))),
+            "phase_rms_rad": phase_rms,
+            "phase_sample_count": int(phase_errors.size),
+            "status": "passed" if relative_rms <= float(tolerance) else "failed",
+        }
+    passed = all(value["status"] == "passed" for value in channel_results.values())
+    return {
+        "status": "passed" if passed else "failed",
+        "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+        "tolerance_relative_rms": float(tolerance),
+        "channels": channel_results,
+    }
+
+
 def run_stage1_case(
     config: Mapping[str, object],
     scene_identity: Mapping[str, object],
     output_root: Path,
     input_mode: str,
+    *,
+    conditions_to_run: Sequence[str] | None = None,
 ) -> dict[str, object]:
     """Execute one paired case through simulation, calibration and production."""
 
     if input_mode not in {"local", "shm"}:
         raise ValueError("input_mode must be local or shm")
+    selected_conditions = _normalize_stage1_conditions(conditions_to_run)
+    estimate_delay = _stage1_delay_estimation_requested(selected_conditions)
     base = _load_stage1_template(config)
     delay_value = scene_identity.get("delay_error_ns", config.get("delay_error_ns"))
     if delay_value is None:
@@ -1589,6 +1864,7 @@ def run_stage1_case(
         "scene_identity": dict(scene_identity),
         "delay_error_ns": delay,
         "branch_contract": build_stage1_branch_contract(),
+        "selected_conditions": list(selected_conditions),
         "ai_training": False,
         "router_enabled": False,
         "scene_variants": {key: str(path) for key, path in variants.items()},
@@ -1624,7 +1900,62 @@ def run_stage1_case(
             "elapsed_sec": elapsed,
             "status": "passed" if returncode == 0 else "failed",
         }
+        manifest["simulation"] = scene_runs
+        if returncode != 0:
+            manifest.update({
+                "status": "stage2_failed",
+                "reason": f"stage2_simulation_failed:{key}",
+            })
+            _write_json(case_root / "case_manifest.json", manifest)
+            return manifest
+        if key == "A0_ON":
+            report_path = output_dir / "reports" / "stage2_simulation_report.md"
+            try:
+                report_text = report_path.read_text(encoding="utf-8")
+            except OSError as exc:
+                report_text = ""
+                report_error = str(exc)
+            else:
+                report_error = None
+            scenario = _read_json(scenario_path)
+            clutter_gate = audit_stage2_area_clutter_report(report_text, scenario)
+            clutter_gate["report_path"] = str(report_path)
+            clutter_gate["report_sha256"] = _sha256(report_path) if report_path.is_file() else None
+            if report_error is not None:
+                clutter_gate["status"] = "NOT_EVALUABLE"
+                clutter_gate["reasons"] = list(clutter_gate.get("reasons", [])) + [
+                    f"stage2_report_read_failed:{report_error}"
+                ]
+            manifest["area_clutter_gate"] = clutter_gate
+            if clutter_gate.get("status") != "passed":
+                manifest.update({
+                    "status": "clutter_gate_failed",
+                    "reason": "stage2_area_clutter_not_proven",
+                })
+                _write_json(case_root / "case_manifest.json", manifest)
+                return manifest
     manifest["simulation"] = scene_runs
+
+    scene_manifest = _read_json(case_root / "scenes" / "scenes_manifest.json")
+    background_dir = str(scene_manifest.get("background_dir", ""))
+    background_sources = {
+        str(_read_json(path).get("stage1_pair_id", ""))
+        for path in variants.values()
+    }
+    if not background_dir or background_sources != {background_dir}:
+        manifest.update({
+            "status": "stage2_pairing_failed",
+            "reason": "paired_background_identity_mismatch",
+            "background_dir": background_dir,
+            "background_sources": sorted(background_sources),
+        })
+        _write_json(case_root / "case_manifest.json", manifest)
+        return manifest
+    manifest["paired_background"] = {
+        "directory": background_dir,
+        "source_condition": "A0_Ideal_zero_delay",
+        "role_contract": "A0_ON writes C+N; A0/A1 OFF and TO plus A1 ON reuse identical background",
+    }
 
     try:
         from scripts import run_track_manager_e2e as e2e
@@ -1663,38 +1994,43 @@ def run_stage1_case(
         manifest.update({"status": "completed_with_gaps", "reason": "A1_OFF_calibration_input_missing"})
         _write_json(case_root / "case_manifest.json", manifest)
         return manifest
-    calibration_input = _merge_binary_files(
-        calibration_periods,
-        case_root / "inputs" / "A1_OFF_target_free_calibration.bin",
-    )
+    calibration_input = case_root / "inputs" / "A1_OFF_target_free_calibration.bin"
+    estimated_delay: float | None = None
+    if estimate_delay:
+        calibration_input = _merge_binary_files(calibration_periods, calibration_input)
+        # The only estimator input is target-free A1 OFF C+N after F1/F2
+        # fusion. Injected delay truth is never passed to this call.
+        try:
+            from scripts.delay_stage1_core import delay_method_suite
 
-    # The only estimator input is the target-free A1 OFF C+N stream after F1/F2
-    # fusion.  The injected delay is retained in the manifest for evaluation,
-    # but is never passed to this call.
-    try:
-        from scripts.delay_stage1_core import delay_method_suite
-
-        f1, f2 = _load_fused_from_periods(calibration_periods, layout)
-        estimator_rows = delay_method_suite(f1, f2, float(layout["fs_hz"]))
-        estimated_delay, selected_method = _select_delay_estimate(estimator_rows)
+            f1, f2 = _load_fused_from_periods(calibration_periods, layout)
+            estimator_rows = delay_method_suite(f1, f2, float(layout["fs_hz"]))
+            estimated_delay, selected_method = _select_delay_estimate(estimator_rows)
+            estimator = {
+                "status": "estimated" if estimated_delay is not None else "failed",
+                "method_rows": estimator_rows,
+                "selected_method": selected_method,
+                "selected_delay_ns": estimated_delay,
+                "input_path": str(calibration_input),
+                "input_role": "A1_OFF_target_free_C_plus_N_only",
+                "scientific_input": "F1=(C1+C3)/2, F2=(C2+C4)/2",
+                "truth_used_in_estimator": False,
+            }
+        except (OSError, ValueError, RuntimeError, KeyError) as exc:
+            estimator = {
+                "status": "failed",
+                "input_path": str(calibration_input),
+                "input_role": "A1_OFF_target_free_C_plus_N_only",
+                "truth_used_in_estimator": False,
+                "error": str(exc),
+            }
+    else:
         estimator = {
-            "status": "estimated" if estimated_delay is not None else "failed",
-            "method_rows": estimator_rows,
-            "selected_method": selected_method,
-            "selected_delay_ns": estimated_delay,
+            "status": "NOT_REQUESTED",
             "input_path": str(calibration_input),
-            "input_role": "A1_OFF_target_free_C_plus_N_only",
-            "scientific_input": "F1=(C1+C3)/2, F2=(C2+C4)/2",
+            "input_role": None,
             "truth_used_in_estimator": False,
-        }
-    except (OSError, ValueError, RuntimeError, KeyError) as exc:
-        estimated_delay = None
-        estimator = {
-            "status": "failed",
-            "input_path": str(calibration_input),
-            "input_role": "A1_OFF_target_free_C_plus_N_only",
-            "truth_used_in_estimator": False,
-            "error": str(exc),
+            "reason": "selected conditions do not include the blind-estimation condition",
         }
     manifest["delay_estimator"] = estimator
 
@@ -1713,7 +2049,7 @@ def run_stage1_case(
         "A2_Known_error_correction_upper_bound": raw_condition_periods["A1_Current_unknown_error"],
         "A3_Blind_target_free_estimated_correction": raw_condition_periods["A1_Current_unknown_error"],
     }
-    for condition in _CONDITIONS:
+    for condition in selected_conditions:
         prepared[condition] = {}
         for role in ("ON", "OFF", "TO"):
             try:
@@ -1740,7 +2076,7 @@ def run_stage1_case(
 
     # Additive audits are performed on payload samples, not packet headers,
     # because packet counters and timestamps are transport metadata.
-    for condition in _CONDITIONS:
+    for condition in selected_conditions:
         role_arrays: dict[str, np.ndarray] = {}
         for role in ("ON", "OFF", "TO"):
             input_values = prepared[condition][role].get("period_paths", [])
@@ -1773,18 +2109,36 @@ def run_stage1_case(
     except (OSError, ValueError, KeyError):
         truth = {}
     production_records: dict[str, dict[str, object]] = {}
-    for condition in _CONDITIONS:
+    production_failure: dict[str, object] | None = None
+    production_xml_overrides = {
+        "csi_metrics_enable": "true",
+        "csi_metrics_dump_power_maps": "true",
+        "csi_metrics_dump_intermediate_maps": "true",
+        "csi_metrics_beam_id": int(layout["beam_id"]),
+    }
+    for condition in selected_conditions:
         role_records: dict[str, object] = {}
         for role in ("ON", "OFF", "TO"):
             prep = prepared[condition][role]
             period_values = prep.get("period_paths", [])
             if not isinstance(period_values, list) or not period_values or not all(isinstance(item, Path) for item in period_values):
+                is_blind_unavailable = (
+                    condition == "A3_Blind_target_free_estimated_correction"
+                    and estimated_delay is None
+                )
                 role_records[role] = {
-                    "status": "NOT_EVALUABLE",
-                    "reason": prep.get("reason", "prepared_input_missing"),
+                    "status": "NOT_AVAILABLE" if is_blind_unavailable else "NOT_EVALUABLE",
+                    "reason": "blind_estimator_has_no_qualified_finite_output"
+                    if is_blind_unavailable else prep.get("reason", "prepared_input_missing"),
                     "condition": condition,
                     "role": role,
                 }
+                if not is_blind_unavailable:
+                    production_failure = {
+                        "branch": f"{condition}_{role}",
+                        "reason": "prepared_production_input_missing",
+                    }
+                    break
                 continue
             input_dir = case_root / "inputs" / "production" / condition / role
             input_dir.mkdir(parents=True, exist_ok=True)
@@ -1793,7 +2147,7 @@ def run_stage1_case(
                 if not link.exists():
                     link.symlink_to(source.resolve())
             branch = f"{condition}_{role}"
-            role_records[role] = run_production_branch(
+            branch_record = run_production_branch(
                 case_root,
                 branch,
                 input_dir,
@@ -1803,27 +2157,100 @@ def run_stage1_case(
                 input_mode,
                 layout,
                 truth_path=Path(str(scene_runs["A0_ON"]["output_dir"])) / "truth",
+                xml_overrides=production_xml_overrides,
             )
+            evidence_gate = audit_production_path_evidence(branch_record)
+            branch_record["production_path_gate"] = evidence_gate
+            role_records[role] = branch_record
+            if (
+                branch == "A0_Ideal_ON"
+                and "A2_Known_error_correction_upper_bound" in selected_conditions
+            ):
+                manifest["production_smoke_gate"] = evidence_gate
+            if evidence_gate.get("status") != "passed":
+                production_failure = {
+                    "branch": branch,
+                    "reason": "production_path_evidence_gate_failed",
+                    "evidence_gate": evidence_gate,
+                }
+                break
+            if branch == "A0_Ideal_ON":
+                closure_by_role: dict[str, object] = {}
+                for closure_role in ("ON", "OFF", "TO"):
+                    a0_paths = prepared["A0_Ideal"][closure_role].get("period_paths", [])
+                    known_paths = prepared[
+                        "A2_Known_error_correction_upper_bound"
+                    ][closure_role].get("period_paths", [])
+                    if not (
+                        isinstance(a0_paths, list)
+                        and isinstance(known_paths, list)
+                        and all(isinstance(path, Path) for path in a0_paths)
+                        and all(isinstance(path, Path) for path in known_paths)
+                    ):
+                        closure_by_role[closure_role] = {
+                            "status": "NOT_EVALUABLE",
+                            "reason": "paired_A0_or_known_input_missing",
+                        }
+                    else:
+                        closure_by_role[closure_role] = audit_fused_input_closure(
+                            a0_paths,
+                            known_paths,
+                            layout,
+                        )
+                closure_passed = all(
+                    isinstance(value, Mapping) and value.get("status") == "passed"
+                    for value in closure_by_role.values()
+                )
+                manifest["known_correction_physical_closure"] = {
+                    "status": "passed" if closure_passed else "failed",
+                    "by_role": closure_by_role,
+                }
+                if not closure_passed:
+                    production_failure = {
+                        "branch": "A0_Ideal_ON",
+                        "reason": "known_physical_correction_does_not_close_to_A0",
+                    }
+                    break
         production_records[condition] = role_records
+        if production_failure is not None:
+            break
+    if production_failure is not None:
+        for condition in selected_conditions:
+            condition_records = production_records.setdefault(condition, {})
+            for role in ("ON", "OFF", "TO"):
+                condition_records.setdefault(role, {
+                    "status": "NOT_RUN",
+                    "reason": "earlier_stage_or_production_branch_failed",
+                    "condition": condition,
+                    "role": role,
+                })
     manifest["conditions"] = {
         condition: {
             "input_preparation": prepared[condition],
-            "production": production_records[condition],
+            "production": production_records.get(condition, {}),
             "truth_used_in_estimator": False,
             "correction_applied": condition in {
                 "A2_Known_error_correction_upper_bound",
                 "A3_Blind_target_free_estimated_correction",
             },
         }
-        for condition in _CONDITIONS
+        for condition in selected_conditions
     }
     manifest["calibration_input"] = {
         "path": str(calibration_input),
-        "bytes": calibration_input.stat().st_size,
-        "sha256": _sha256(calibration_input),
+        "exists": calibration_input.is_file(),
+        "bytes": calibration_input.stat().st_size if calibration_input.is_file() else None,
+        "sha256": _sha256(calibration_input) if calibration_input.is_file() else None,
     }
     manifest["source_xml"] = str(source_xml)
     manifest["git"] = _git_snapshot()
+    if production_failure is not None:
+        manifest.update({
+            "status": "production_path_failed",
+            "production_failure": production_failure,
+        })
+        _write_json(case_root / "case_manifest.json", manifest)
+        return manifest
     all_simulation_passed = all(item.get("status") == "passed" for item in scene_runs.values())
     all_additive_passed = all(
         isinstance(value, Mapping) and value.get("status") == "passed"
@@ -1834,9 +2261,10 @@ def run_stage1_case(
         for roles in production_records.values()
         for record in roles.values()
     )
+    delay_estimation_passed = not estimate_delay or estimated_delay is not None
     manifest["status"] = (
         "completed"
-        if all_simulation_passed and all_additive_passed and all_production_passed and estimated_delay is not None
+        if all_simulation_passed and all_additive_passed and all_production_passed and delay_estimation_passed
         else "completed_with_gaps"
     )
     _write_json(case_root / "case_manifest.json", manifest)
@@ -2353,9 +2781,9 @@ def cleanup_stage1_raw(
     else:
         raise ValueError(f"raw cleanup requires a case manifest or scenes manifest: {root}")
     case_status = str(manifest.get("status"))
-    allowed_statuses = {"completed"}
+    allowed_statuses = {"completed", "production_comparisons_executed"}
     if allow_incomplete:
-        allowed_statuses.update({"completed_with_gaps", "orphaned"})
+        allowed_statuses.update({"completed_with_gaps", "orphaned", "production_path_failed"})
     if case_status not in allowed_statuses:
         raise ValueError(
             f"raw cleanup requires case status in {sorted(allowed_statuses)}, "
