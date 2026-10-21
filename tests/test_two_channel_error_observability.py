@@ -146,6 +146,37 @@ def test_central_difference_and_confounded_columns_are_explicit() -> None:
     assert report["status_by_state"]["delay"]["external_prior"]
 
 
+@pytest.mark.parametrize("name", [
+    "cross_channel_phase_rad", "p38_intercept_residual_rad", "ctdr_residual_rad",
+])
+@pytest.mark.parametrize("direction", [-1.0, 1.0])
+def test_central_difference_uses_short_arc_across_phase_cut(name, direction) -> None:
+    result = central_difference_sensitivity(
+        {name: direction * (-math.pi + 0.01)},
+        {name: direction * (math.pi - 0.02)},
+        perturbation=0.5,
+    )
+    assert result[name] == pytest.approx(direction * 0.03, abs=1e-12)
+
+
+def test_central_difference_keeps_phase_slopes_and_rms_linear() -> None:
+    names = ("phase_vs_pulse_slope_rad_per_pulse", "range_block_phase_residual_rad")
+    result = central_difference_sensitivity(
+        dict.fromkeys(names, 4.0), dict.fromkeys(names, 0.0), perturbation=0.5,
+    )
+    assert list(result.values()) == pytest.approx([4.0, 4.0])
+
+
+def test_zero_control_compares_equivalent_phase_representatives() -> None:
+    report = summarize_zero_control_delta(
+        {("delay", 101): [math.pi - 0.01], ("servo", 101): [-math.pi + 0.01]},
+        observable_names=("cross_channel_phase_rad",),
+        reference_parameter="delay", tolerance=0.03,
+    )
+    assert report["status"] == "passed"
+    assert report["max_abs_delta"] == pytest.approx(0.02, abs=1e-12)
+
+
 def test_classification_balances_observable_rows_before_column_cosine() -> None:
     # The first observable has a larger physical unit than the second.  Raw
     # column cosine would call the states confounded even though the second

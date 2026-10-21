@@ -134,3 +134,7 @@ R2 建立了 PGRCC 当前的信息边界、几何投影、多普勒模糊和 CSI
 四条件 raw-IQ pilot 的相位残差指标为 lower-is-better。按原任务的方向定义，原始差值 `Known−Current = −0.2004197161 rad`、`Estimated−Current = −0.2004197159 rad`；等价的正向改善量为 `Current−Known = 0.2004197161 rad`、`Current−Estimated = 0.2004197159 rad`，故方向归一化恢复率 `(Current−Estimated)/(Current−Known) = 0.9999999991`。该比例只表示这个无面积杂波、配对参考相位残差条件下，Estimated 与 Known-error correction upper bound 的差距很小；不能解读为杂波抑制率、Pd 增益或 Physics-AI 收益。详细输入与计算量见 [`phase_ii_raw_iq_pilot_summary.json`](phase_ii_raw_iq_pilot_summary.json)。
 
 本阶段未运行新实验、未改变运行代码，也未改动或删除任何历史 scratch/output/package。下一阶段先完成 R3 评价链审计，再冻结 R4 最小实验设计；在这两项完成前不启动实验。
+
+## 2026-10-21 补充：Phase-I 敏感度证据修正
+
+对历史 54 组已保存观测的[离线复核](phase_i_observability_reanalysis.md)确认了圆周相位中心差分错误。汇总条件数从 37.32835 改为 3.99259，delay–servo 列余弦从 −0.91995 改为 −0.06815；逐 seed 条件数差异、FFT argmax 跳变、参数尺度和派生重复特征仍影响判读。这些数值是代理观测域的有限差分诊断，没有观测噪声模型，不能作为 FIM/CRLB、稳定物理辨识或 AI 入口证据。原历史报告和矩阵未回写；后续引用以补充复核的适用范围为准。

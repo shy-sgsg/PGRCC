@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Audit Phase-I unknown-error observability from production-equivalent F1/F2.
+"""Audit Phase-I unknown-error observability from raw protocol pair-fused F1/F2.
 
 The scientific input boundary in this module is deliberately narrow: a four
 channel protocol packet is first fused as ``F1=(C1+C3)/2`` and
 ``F2=(C2+C4)/2``.  All observables and sensitivity classifications are then
 computed from F1/F2.  Six raw channel pairs are not used to manufacture an
 independent-observability claim.
+
+These simple pair means do not run the production decoder's geometric phase
+compensation or the downstream CSI preprocessing chain.
 
 The CLI runs a one-parameter-at-a-time Stage2 matrix.  Its deterministic
 estimators only see the generated protocol IQ and reported configuration;
@@ -66,6 +69,12 @@ OBSERVABLE_NAMES = (
     "f1_f2_coherence",
     "csi_residual_power_db",
 )
+
+# Only signed, explicitly wrapped angles live on the circle. Slopes and
+# nonnegative phase RMS measurements must retain ordinary real differences.
+CIRCULAR_OBSERVABLE_NAMES = frozenset({
+    "cross_channel_phase_rad", "p38_intercept_residual_rad", "ctdr_residual_rad",
+})
 
 OBSERVABLE_METADATA = {
     "cross_channel_phase_rad": {
@@ -424,7 +433,11 @@ def central_difference_sensitivity(
     *,
     perturbation: float,
 ) -> dict[str, float | None]:
-    """Return ``(observable(+h)-observable(-h))/(2h)`` without truth input."""
+    """Return central differences, using the principal arc for wrapped angles.
+
+    A short arc removes representation jumps at +/-pi; it cannot resolve
+    multiple physical windings between the two finite perturbations.
+    """
 
     if not math.isfinite(float(perturbation)) or float(perturbation) <= 0.0:
         raise ValueError("perturbation must be finite and positive")
@@ -440,7 +453,10 @@ def central_difference_sensitivity(
         if not math.isfinite(high) or not math.isfinite(low):
             result[key] = None
         else:
-            result[key] = (high - low) / (2.0 * float(perturbation))
+            difference = high - low
+            if key in CIRCULAR_OBSERVABLE_NAMES:
+                difference = float(_wrap_phase(difference))
+            result[key] = difference / (2.0 * float(perturbation))
     return result
 
 
@@ -581,6 +597,9 @@ def summarize_zero_control_delta(
             if case_seed != seed:
                 continue
             delta = vector - reference
+            for index, name in enumerate(names):
+                if name in CIRCULAR_OBSERVABLE_NAMES:
+                    delta[index] = _wrap_phase(delta[index])
             max_abs = float(np.max(np.abs(delta))) if delta.size else 0.0
             finite_deltas.append(max_abs)
             rows.append({

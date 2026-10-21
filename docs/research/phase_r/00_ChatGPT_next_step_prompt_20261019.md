@@ -1,6 +1,6 @@
 # ChatGPT 提示词：独立审查 PGRCC Phase R 并建议下一步
 
-请作为 GMTI/STAP 研究者和严格的独立审稿人，审查 GitHub 仓库 `https://github.com/shy-sgsg/PGRCC` 中的 PGRCC Phase R 阶段成果，并给出一个有证据支持的近期下一步。请先阅读 `docs/research/phase_r/README.md`，再审阅 `01_system_architecture_audit.md`、`02_literature_review.md`、`literature_matrix.csv`、`03_physical_limits.md`、`04_evaluation_pipeline_audit.md` 和 `phase_ii_raw_iq_pilot_summary.json`；必要时检查报告引用的当前源码、配置、runner 和测试。报告和源码可能对应不同时间/提交，必须核对各自身份，不可拼接成一个实验结论。
+请作为 GMTI/STAP 研究者和严格的独立审稿人，审查 GitHub 仓库 `https://github.com/shy-sgsg/PGRCC` 的 `codex/unknown-system-error-next-stage` 分支中 PGRCC Phase R 阶段成果，并给出一个有证据支持的近期下一步。请先阅读 `docs/research/phase_r/README.md`，再审阅 `01_system_architecture_audit.md`、`02_literature_review.md`、`literature_matrix.csv`、`03_physical_limits.md`、`04_evaluation_pipeline_audit.md`、`phase_i_observability_reanalysis.md` 和 `phase_ii_raw_iq_pilot_summary.json`；必要时检查报告引用的当前源码、配置、runner 和测试。报告和源码可能对应不同时间/提交，必须核对各自身份，不可拼接成一个实验结论。
 
 ## 核心决策
 
@@ -20,11 +20,11 @@
 
 现有审查材料曾报告 54 个 Phase-I case、13×6 局部敏感度矩阵 rank=6、条件数约 37.33，以及 channel delay 与 servo angle 灵敏度列余弦约 −0.920。不要直接沿用这些数值作为可靠结论。
 
-一项尚未并入正式报告的本地复核发现：观测量 `cross_channel_phase_rad` 是圆周相位，而旧的中心差分似乎直接对正负扰动的相位角作普通减法。若正负样本跨越 ±π，差分会引入约 2π 跳变。对已保存的 54 份派生观测做圆周差分后，汇总矩阵仍为 rank 6，但条件数约 3.99，delay-servo 列余弦约 −0.068；三个 seed 单独计算的条件数约为 69.75、10.11、3.40，参数混淆关系也随 seed 改变。这些数字是待核验的复算结果，不是新的原始 IQ 实验，也不证明实际估计精度或可恢复性能。
+2026-10-21 的复核已确认：旧中心差分直接对包裹相位作普通减法，54 组已保存观测中有 9 次跨越 ±π。圆周差分修正后，汇总矩阵仍为 rank 6，但条件数约 3.99，delay–servo 列余弦约 −0.068；三个 seed 的条件数约为 69.75、10.11、3.40。源码修复和新报告已保存，历史报告未回写。请从报告链接的 `source_manifest.json` 和 `scripts/phase_r/reanalyze_observability.py` 独立复算，不把这些派生观测的结果当成新 IQ 实验、实际估计精度或可恢复生产性能。
 
-还需检查 `clutter_doppler_ridge_hz` 是否为量化 FFT argmax 特征，而非平滑局部观测；一个 seed 的平台速度响应似乎包含单个频率 bin 跳变，纳入该特征会显著改变速度列灵敏度。请将离散/跳变特征与连续局部敏感度分开，按 seed 展示结果，并说明尺度归一化和汇总方式对条件数、列相关度的影响。
+`clutter_doppler_ridge_hz` 及 ridge-angle 斜率使用 FFT argmax。seed303 的平台速度扰动使峰从 469.44 Hz 跳到 −72.22 Hz；36 行、PRF 1300 Hz 下相距 15 个格点，先前“单个 bin”的推测已撤回。这 36 行还包括 9 个 beam。请审查报告中剔除两项 FFT 特征、逐 seed 和状态步长缩放的对照，并检查三个 pulse-slope 派生特征的代数依赖。解释这些权重/尺度选择如何影响条件数，避免把数值 rank 当作噪声下物理可辨识性。
 
-如果仓库快照没有保存这 54 个 JSON 观测或生成差分矩阵的源码，请明确标注“无法从 GitHub 包独立复算”，不要假装已验证上述复算值；指出复核所需的最小文件/命令。即使复算成立，也只能更新局部可观测性判读，不能推出噪声下估计可行、全局可辨识、生产性能损失或 AI 优势。原始 IQ 已不在可审材料中，因此也不能据此验证 IQ 到观测量的提取链。
+新快照的源 manifest 内嵌全部 54 组派生观测，可独立复算矩阵；原始 IQ 不在可审材料内。该观测提取器只做原始协议配对均值及其后变换，没有执行完整生产几何相位补偿。因此，即使复算成立，也只更新代理观测域的局部有限差分判读，不能推出 Production Current 的噪声下估计可行性、全局可辨识性、性能损失或 AI 优势；不能据此验证 IQ 到观测的完整提取链。若工具不能访问上述分支文件，请明确说明访问缺口。
 
 ## 评价规则
 

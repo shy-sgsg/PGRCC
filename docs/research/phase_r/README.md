@@ -6,6 +6,7 @@
 
 - **AI 必要性尚未建立**，但现有证据也没有证明 AI 无价值。是否进入 Physics-AI，仍取决于未知误差造成的可重复损失、已知误差校正上限、盲确定性估计残差及下游生产指标能否闭合。
 - R0–R3 的架构、文献、物理边界和评价链审计已有文档。R3 软件修复通过既有软件验证，但尚无修复后的 CUDA production 重跑，故不能声称生产性能已验证。
+- Phase-I 相位跨 ±π 的差分错误已用 54 组保存观测复算确认并修复。旧 delay–servo 近混淆判读需撤回；修正后的汇总条件数约 3.99，仍有明显 seed/特征/尺度依赖。参见[复核报告与可独立复算的输入](phase_i_observability_reanalysis.md)。
 - 四条件 raw-IQ Stage2 pilot 的方向归一化恢复率约为 1，但地面面积杂波注入计数为 0：平台高 6000 m、地面高 0 m，配置斜距窗 2500–5000 m 不可达。相位残差是越低越好，恢复率按 `(Current−Estimated)/(Current−Known)` 计算；原始 `Known−Current` 和 `Estimated−Current` 均为负。该结果只支持配对参考下的确定性基线相位校正，不支持杂波抑制收益或 AI 必要性，详见[带方向定义的数值摘要](phase_ii_raw_iq_pilot_summary.json)。
 - 截至本导航快照，R4 实验设计与新仿真等待用户提供外部审查方向；R5 决策及下一阶段计划尚未形成。
 
@@ -17,8 +18,9 @@
 4. [R2 物理边界分析](03_physical_limits.md)：双通道响应、速度投影/模糊、时延敏感性和可辨识性限制；附带由理想模型生成、明确非 Pd/实测指标的单像素响应曲线及[生成数据](figures/idealized_target_response.csv)。
 5. [R3 评价流水线审计](04_evaluation_pipeline_audit.md)：历史结果可评估性、评价代码修复和 production 验证缺口。
 6. [Phase-II raw-IQ pilot 摘要](phase_ii_raw_iq_pilot_summary.json)：几何配置、杂波注入计数、相位残差及解释边界；不含原始 IQ。
+7. [Phase-I 局部敏感度复核](phase_i_observability_reanalysis.md)：圆周差分修正、逐 seed 矩阵、FFT 格点与尺度对照；附历史观测 manifest、结果及复算命令。
 
-此前的 `00_ChatGPT_review_request_20261019.md`、`00_minimal_review_brief_20261019.md` 和 ZIP 快照保留为历史材料，不属于本次 GitHub 发布清单。其中 Phase-I 的线性相位差分可能跨越 ±π，导致旧敏感度矩阵及 delay-servo 混淆结论需要重算；不要把旧包中的数值直接当作当前结论。新提示词列出了独立复核所需的疑点及其限制。
+此前的 `00_ChatGPT_review_request_20261019.md`、`00_minimal_review_brief_20261019.md` 和 ZIP 快照保留为历史材料，不属于当前 GitHub 阅读入口。其中 Phase-I 的线性相位差分跨越 ±π；旧敏感度矩阵及 delay–servo 混淆结论已由 2026-10-21 复核修正。外审应同时读取新复核报告，不能把旧包数值直接当作当前结论。
 
 ## 阶段与交付物状态
 
@@ -36,7 +38,8 @@ R3 文档使用 `IMPLEMENTED`、`EXECUTED`、`EVALUABLE`、`PERFORMANCE_VERIFIED
 
 ## 关键证据入口
 
-- 四条件 raw-IQ Stage2 pilot：可引用的紧凑摘要在[本目录摘要](phase_ii_raw_iq_pilot_summary.json)。逐 case 报告、配置、日志和 raw IQ 位于本地 `outputs/unknown_system_error_pilot_20260913_v5/`，未纳入本次 GitHub 发布；摘要只支持文中明确限定的几何与相位残差判读。
+- 四条件 raw-IQ Stage2 pilot：可引用的紧凑摘要在[本目录摘要](phase_ii_raw_iq_pilot_summary.json)。活动 worktree 的 `outputs/unknown_system_error_pilot_20260913_v5/` 保留配置、日志和观测汇总，其 `raw/` 子树及原始 IQ 不在本工作树或 GitHub 发布材料中；逐 case Stage2 原报告的历史取证位置见摘要。摘要只支持限定的几何与相位残差判读。
+- Phase-I 观测到矩阵复算：[源 manifest](evidence/phase_i_observability_reanalysis_20261021/source_manifest.json)和[完整结果](evidence/phase_i_observability_reanalysis_20261021/summary.json)。包含 54 组已派生观测；不含原始 IQ。
 - 2026-09-14 clean-labelled 重跑与有效斜距控制：几何、注入计数及范围已记入[紧凑摘要](phase_ii_raw_iq_pilot_summary.json)。控制结果来自另一 servo pilot，不是四条件 pilot 的等价复验；逐 case 输出未纳入本次 GitHub 发布。
 - 历史 production calibration pilot：[`report.md`](../../evidence/equivalent_vs_physical_pilot/report.md) 与相邻 manifest。该历史矩阵为 `completed_with_gaps`，不能当成 R3 修复后的 CUDA 验证。
 

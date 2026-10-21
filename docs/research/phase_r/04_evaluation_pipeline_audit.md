@@ -127,3 +127,11 @@ manifest 记录的 simulator SHA-256 与当前保留的 `build/simulate_stage2_s
 5. 当前修复之后未运行 CUDA production。依据 Phase R 顺序，先完成并冻结 `05_experiment_design.md`，再做最小 pilot；不得把历史 clean-source run 或 scratch 目录中的旧运行改标为修复后的结果。
 
 **R3 判定：** 评价软件存在的定义/聚合/诊断问题已有最小代码修复并通过软件测试；历史实验中未修复前的证据仍有输入和产物缺口。算法收益 `NOT_EVALUABLE`，并非算法失败；生产性能 `PERFORMANCE_VERIFIED = false`。不支持也不否定 Physics-AI，AI 必要性仍未建立。
+
+## 2026-10-21 补充：Phase-I 圆周差分回归
+
+[`phase_i_observability_reanalysis.md`](phase_i_observability_reanalysis.md)记录了一项已确认的评价缺陷：显式包裹角度被普通相减，跨 ±π 时产生伪敏感度。`central_difference_sensitivity` 和同 seed 零误差对照已按角度类型修复；斜率/RMS 等实数量保留原语义。回归测试先复现 7 个失败，再验证修复通过。新增离线脚本以严格配对的历史 manifest 为输入，保存旧/新差分、逐 seed、FFT 特征剔除及步长缩放对照，拒绝缺失/重复/失败/非有限输入及覆盖已有输出。
+
+历史 54 份观测 JSON 与 manifest 内嵌值逐一相同；重新计算复现了旧条件数和余弦，圆周修正后给出不同结果。故“观测→差分矩阵”的软件修复为 `IMPLEMENTED/EXECUTED/EVALUABLE`；“IQ→观测”、噪声下误差估计和下游 production 效果仍未由本次复核验证。完整输入快照和结果已放入本专题证据目录，支持脱离本地 outputs 的独立复算。
+
+本补充的软件验证为 `python3 -m pytest -q`：408 passed、18 skipped；定向观测性/重放测试 27/27 通过；相关 Python 编译检查、文档本地链接和差异检查通过。独立临时目录的重放数值与发布材料一致。未更改 C++/CUDA 生产代码。
