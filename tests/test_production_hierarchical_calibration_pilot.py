@@ -84,6 +84,24 @@ def test_method_and_mode_subset_keeps_default_contract_but_allows_bounded_pilot(
     assert args.calibration_modes == ["Mode-A"]
 
 
+def test_selected_methods_only_prepare_their_required_input_families() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _required_prepared_families,
+        build_method_contract,
+        load_pilot_config,
+    )
+
+    config = load_pilot_config(CONFIG)
+    e1_methods = build_method_contract(config, method_ids=("C0", "C1", "C2", "C3"))
+    assert _required_prepared_families(e1_methods) == {"ideal", "none"}
+
+    blind_methods = build_method_contract(config, method_ids=("P1",))
+    assert _required_prepared_families(blind_methods) == {"ideal", "blind"}
+
+    known_methods = build_method_contract(config, method_ids=("PK",))
+    assert _required_prepared_families(known_methods) == {"ideal", "known"}
+
+
 def test_scene_identity_accepts_explicit_case_scene_parameters() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         _scene_identity,

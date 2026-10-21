@@ -978,6 +978,28 @@ def _missing_branches(
     return rows
 
 
+def _required_prepared_families(
+    method_contract: Sequence[Mapping[str, object]],
+) -> set[str]:
+    """Resolve input families actually consumed by the selected methods.
+
+    The ideal A0 baseline is always executed. Other condition families are
+    prepared only when their corresponding method is selected; in particular,
+    equivalent-calibration pilots must not run blind or known-delay correction.
+    """
+
+    required = {"ideal"}
+    for method in method_contract:
+        method_id = str(method.get("method_id", ""))
+        if method_id in {"P1", "P2"}:
+            required.add("blind")
+        elif method_id in {"PK", "PKR"}:
+            required.add("known")
+        else:
+            required.add("none")
+    return required
+
+
 def _prepare_raw_input_record(
     role_paths: Mapping[str, Sequence[Path]],
     *,
@@ -1714,20 +1736,12 @@ def _run_case(
     manifest["source_xml"] = str(source_xml)
     manifest["source_xml_sha256"] = _sha256(source_xml) if source_xml.is_file() else None
 
-    try:
-        estimator = estimate_blind_delay(delay_runner, raw_by_role["OFF"], layout)
-    except (OSError, ValueError, RuntimeError, SystemExit) as exc:
-        estimator = {
-            "status": "NOT_EVALUABLE",
-            "input_role": "OFF=C+N",
-            "truth_used_in_estimator": False,
-            "reason": str(exc),
-        }
-    manifest["delay_estimator"] = estimator
     delay_truth = float(case["delay_error_ns"])
-
-    prepared: dict[str, dict[str, object]] = {
-        "ideal": {
+    required_families = _required_prepared_families(method_contract)
+    manifest["required_prepared_families"] = sorted(required_families)
+    prepared: dict[str, dict[str, object]] = {}
+    if "ideal" in required_families:
+        prepared["ideal"] = {
             **_prepare_raw_input_record(
                 ideal_by_role,
                 correction="none",
@@ -1735,62 +1749,80 @@ def _run_case(
                 delay_truth_ns=0.0,
             ),
             "condition": "A0_Ideal_no_error",
-        },
-        "none": _prepare_raw_input_record(
+        }
+    if "none" in required_families:
+        prepared["none"] = _prepare_raw_input_record(
             raw_by_role,
             correction="none",
             correction_source="none",
             delay_truth_ns=delay_truth,
         )
-    }
-    blind_record = prepare_blind_delay_correction(estimator, delay_truth_ns=delay_truth)
-    if blind_record["correction_applied"]:
-        blind: dict[str, dict[str, object]] = {}
+    if "blind" in required_families:
+        try:
+            estimator = estimate_blind_delay(delay_runner, raw_by_role["OFF"], layout)
+        except (OSError, ValueError, RuntimeError, SystemExit) as exc:
+            estimator = {
+                "status": "NOT_EVALUABLE",
+                "input_role": "OFF=C+N",
+                "truth_used_in_estimator": False,
+                "reason": str(exc),
+            }
+        manifest["delay_estimator"] = estimator
+        blind_record = prepare_blind_delay_correction(estimator, delay_truth_ns=delay_truth)
+        if blind_record["correction_applied"]:
+            blind: dict[str, dict[str, object]] = {}
+            for role, paths in raw_by_role.items():
+                blind[role] = delay_runner.prepare_condition_inputs(
+                    case_root / "inputs" / "blind" / role,
+                    "A3_Blind_target_free_estimated_correction",
+                    paths,
+                    calibration_input,
+                    delay_truth,
+                    float(blind_record["delay_estimate_ns"]),
+                    layout,
+                )
+            prepared["blind"] = {
+                **blind_record,
+                "period_paths_by_role": {role: list(item["period_paths"]) for role, item in blind.items()},
+                "correction_audit_by_role": {role: item.get("correction_audit", []) for role, item in blind.items()},
+            }
+        else:
+            prepared["blind"] = {
+                **blind_record,
+                "period_paths_by_role": {role: [] for role in raw_by_role},
+            }
+    else:
+        manifest["delay_estimator"] = {
+            "status": "not_applicable",
+            "truth_used_in_estimator": False,
+            "reason": "selected_method_subset_excludes_blind_correction",
+        }
+    if "known" in required_families:
+        known: dict[str, dict[str, object]] = {}
         for role, paths in raw_by_role.items():
-            blind[role] = delay_runner.prepare_condition_inputs(
-                case_root / "inputs" / "blind" / role,
-                "A3_Blind_target_free_estimated_correction",
+            known[role] = delay_runner.prepare_condition_inputs(
+                case_root / "inputs" / "known" / role,
+                "A2_Known_error_correction_upper_bound",
                 paths,
                 calibration_input,
                 delay_truth,
-                float(blind_record["delay_estimate_ns"]),
+                None,
                 layout,
             )
-        prepared["blind"] = {
-            **blind_record,
-            "period_paths_by_role": {role: list(item["period_paths"]) for role, item in blind.items()},
-            "correction_audit_by_role": {role: item.get("correction_audit", []) for role, item in blind.items()},
+        prepared["known"] = {
+            "condition": "A2_Known_error_correction_upper_bound",
+            "correction": "raw_channel_2_fractional_delay",
+            "correction_source": "truth_evaluation_only",
+            "delay_truth_ns": delay_truth,
+            "delay_estimate_ns": delay_truth,
+            "correction_applied": True,
+            "truth_used_in_estimator": False,
+            "truth_used_to_apply_correction": True,
+            "known_error_use": "evaluator_only",
+            "period_paths_by_role": {role: list(item["period_paths"]) for role, item in known.items()},
+            "correction_audit_by_role": {role: item.get("correction_audit", []) for role, item in known.items()},
+            "status": "evaluable",
         }
-    else:
-        prepared["blind"] = {
-            **blind_record,
-            "period_paths_by_role": {role: [] for role in raw_by_role},
-        }
-    known: dict[str, dict[str, object]] = {}
-    for role, paths in raw_by_role.items():
-        known[role] = delay_runner.prepare_condition_inputs(
-            case_root / "inputs" / "known" / role,
-            "A2_Known_error_correction_upper_bound",
-            paths,
-            calibration_input,
-            delay_truth,
-            None,
-            layout,
-        )
-    prepared["known"] = {
-        "condition": "A2_Known_error_correction_upper_bound",
-        "correction": "raw_channel_2_fractional_delay",
-        "correction_source": "truth_evaluation_only",
-        "delay_truth_ns": delay_truth,
-        "delay_estimate_ns": delay_truth,
-        "correction_applied": True,
-        "truth_used_in_estimator": False,
-        "truth_used_to_apply_correction": True,
-        "known_error_use": "evaluator_only",
-        "period_paths_by_role": {role: list(item["period_paths"]) for role, item in known.items()},
-        "correction_audit_by_role": {role: item.get("correction_audit", []) for role, item in known.items()},
-        "status": "evaluable",
-    }
     manifest["prepared_inputs"] = {
         kind: {
             key: value if key not in {"period_paths_by_role"} else {
