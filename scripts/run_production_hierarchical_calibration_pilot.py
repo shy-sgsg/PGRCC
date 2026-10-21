@@ -167,14 +167,18 @@ def load_pilot_config(path: Path = CONFIG) -> dict[str, object]:
     return config
 
 
-def build_method_contract(config: Mapping[str, object] | None = None) -> list[dict[str, object]]:
-    """Return the immutable C0--PKR method contract."""
+def build_method_contract(
+    config: Mapping[str, object] | None = None,
+    *,
+    method_ids: Sequence[str] | None = None,
+) -> list[dict[str, object]]:
+    """Return the frozen method contract, optionally restricted to a subset."""
 
     source = config if config is not None else load_pilot_config()
     methods = source.get("methods")
     if not isinstance(methods, list):
         raise ValueError("methods must be a list")
-    result: list[dict[str, object]] = []
+    configured: dict[str, dict[str, object]] = {}
     for expected, item in zip(METHOD_IDS, methods):
         if not isinstance(item, Mapping) or str(item.get("method_id")) != expected:
             raise ValueError(f"method contract is missing {expected}")
@@ -182,10 +186,41 @@ def build_method_contract(config: Mapping[str, object] | None = None) -> list[di
         copied.setdefault("truth_used_in_estimator", False)
         if copied["truth_used_in_estimator"] is not False:
             raise ValueError(f"{expected} truth leakage is declared in method contract")
-        result.append(copied)
-    if len(result) != len(METHOD_IDS):
+        configured[expected] = copied
+    if len(configured) != len(METHOD_IDS):
         raise ValueError("method contract must contain exactly nine methods")
-    return result
+    selected_ids = tuple(METHOD_IDS if method_ids is None else (str(value) for value in method_ids))
+    if not selected_ids:
+        raise ValueError("at least one method must be selected")
+    if len(selected_ids) != len(set(selected_ids)):
+        raise ValueError("duplicate method id in method selection")
+    unknown = [method for method in selected_ids if method not in configured]
+    if unknown:
+        raise ValueError(f"unknown method id in selection: {unknown}")
+    selected = set(selected_ids)
+    return [configured[method] for method in METHOD_IDS if method in selected]
+
+
+def resolve_calibration_modes(
+    method_contract: Sequence[Mapping[str, object]],
+    mode_ids: Sequence[str] | None = None,
+) -> dict[str, tuple[str, ...]]:
+    """Resolve selected Mode-A/Mode-B paths without changing method defaults."""
+
+    modes = tuple(("Mode-A", "Mode-B") if mode_ids is None else (str(value) for value in mode_ids))
+    if not modes:
+        raise ValueError("at least one calibration mode must be selected")
+    if len(modes) != len(set(modes)):
+        raise ValueError("duplicate calibration mode in selection")
+    unknown = [mode for mode in modes if mode not in {"Mode-A", "Mode-B"}]
+    if unknown:
+        raise ValueError(f"unknown calibration mode in selection: {unknown}")
+    return {
+        str(method["method_id"]): (
+            modes if str(method["method_id"]) in RESEARCH_METHOD_IDS else ("not_applicable",)
+        )
+        for method in method_contract
+    }
 
 
 def build_paired_input_contract() -> dict[str, object]:
@@ -556,6 +591,46 @@ def _unique_ints(values: object, name: str) -> list[int]:
     return result
 
 
+def _normalize_scene_parameters(value: object) -> dict[str, object]:
+    if value is None:
+        return {}
+    if not isinstance(value, Mapping):
+        raise ValueError("scene_parameters must be an object")
+    allowed = {
+        "beam_id",
+        "expected_bin",
+        "range_m",
+        "texture_sigma",
+        "clutter_rho",
+        "area_mean_power",
+        "noise_power",
+    }
+    unknown = sorted(str(key) for key in value if str(key) not in allowed)
+    if unknown:
+        raise ValueError(f"unknown scene_parameters: {unknown}")
+    result: dict[str, object] = {}
+    for key, raw in value.items():
+        name = str(key)
+        if name in {"beam_id", "expected_bin"}:
+            number = _finite_float(raw, f"scene_parameters.{name}")
+            if not number.is_integer():
+                raise ValueError(f"scene_parameters.{name} must be an integer")
+            integer = int(number)
+            if integer < (1 if name == "beam_id" else 0):
+                raise ValueError(f"scene_parameters.{name} is out of range")
+            result[name] = integer
+            continue
+        number = _finite_float(raw, f"scene_parameters.{name}")
+        if name in {"range_m", "area_mean_power", "noise_power"} and number <= 0.0:
+            raise ValueError(f"scene_parameters.{name} must be positive")
+        if name == "texture_sigma" and number < 0.0:
+            raise ValueError("scene_parameters.texture_sigma must be non-negative")
+        if name == "clutter_rho" and not -1.0 <= number <= 1.0:
+            raise ValueError("scene_parameters.clutter_rho must be in [-1, 1]")
+        result[name] = number
+    return result
+
+
 def _case_matches_overrides(
     case: Mapping[str, object], overrides: Mapping[str, object] | None,
 ) -> bool:
@@ -585,11 +660,9 @@ def resolve_selection(
 ) -> dict[str, object]:
     """Resolve explicit pilot/formal groups without manufacturing a matrix."""
 
-    if mode not in {"pilot", "formal"}:
-        raise ValueError("mode must be pilot or formal")
     section = config.get(mode)
     if not isinstance(section, Mapping):
-        raise ValueError(f"config is missing {mode} selection")
+        raise ValueError(f"config is missing selection {mode!r}")
     selection_mode = str(section.get("selection_mode", ""))
     if not selection_mode or selection_mode == "cartesian":
         raise ValueError("selection must be an explicit targeted selection, not Cartesian")
@@ -625,6 +698,7 @@ def resolve_selection(
                 ),
                 "target_snr_db": _finite_float(raw_case.get("target_snr_db"), "target_snr_db"),
                 "working_point": str(raw_case.get("working_point", "base")),
+                "scene_parameters": _normalize_scene_parameters(raw_case.get("scene_parameters")),
             }
             if case["target_velocity_mps"] <= 0.0:
                 raise ValueError("target_velocity_mps must be positive")
@@ -748,8 +822,10 @@ def source_snapshot() -> dict[str, object]:
 
 
 def require_clean_tracked_source(snapshot: Mapping[str, object], *, mode: str) -> dict[str, object]:
-    if mode == "formal" and bool(snapshot.get("dirty_tracked", snapshot.get("dirty", False))):
-        raise RuntimeError("tracked source is dirty; formal pilot refuses to run")
+    if mode in {"formal", "e1_pilot"} and bool(
+        snapshot.get("dirty_tracked", snapshot.get("dirty", False))
+    ):
+        raise RuntimeError(f"tracked source is dirty; {mode} production run refuses to start")
     return {"status": "passed", "mode": mode, "commit": snapshot.get("commit")}
 
 
@@ -836,8 +912,7 @@ def _scene_template(config: Mapping[str, object]) -> dict[str, object]:
 
 def _point_registry(config: Mapping[str, object]) -> dict[str, dict[str, object]]:
     registry: dict[str, dict[str, object]] = {}
-    for mode in ("pilot", "formal"):
-        section = config.get(mode)
+    for section in config.values():
         if not isinstance(section, Mapping):
             continue
         for group in section.get("case_groups", []):
@@ -860,6 +935,7 @@ def _point_registry(config: Mapping[str, object]) -> dict[str, dict[str, object]
 def _scene_identity(config: Mapping[str, object], case: Mapping[str, object], period_count: int) -> dict[str, object]:
     points = _point_registry(config)
     point = copy.deepcopy(points.get(str(case["working_point"]), points.get("base", {})))
+    point.update(_normalize_scene_parameters(case.get("scene_parameters")))
     return {
         "seed": int(case["seed"]),
         "period_count": int(period_count),
@@ -871,17 +947,21 @@ def _scene_identity(config: Mapping[str, object], case: Mapping[str, object], pe
         "target_velocity_mps": float(case["target_velocity_mps"]),
         "target_snr_db": float(case["target_snr_db"]),
         "target": {"target_id": "PGRCC_DELAY_PILOT_TARGET", "enabled": True},
-        "clutter": {"mean_power": 0.02},
-        "noise": {"noise_power": 0.001},
+        "clutter": {"mean_power": float(point.get("area_mean_power", 0.02))},
+        "noise": {"noise_power": float(point.get("noise_power", 0.001))},
         "production": {"identity": "stage2_production_delay_pilot_v1"},
     }
 
 
-def _missing_branches(reason: str, method_contract: Sequence[Mapping[str, object]]) -> list[dict[str, object]]:
+def _missing_branches(
+    reason: str,
+    method_contract: Sequence[Mapping[str, object]],
+    calibration_modes: Sequence[str] = ("Mode-A", "Mode-B"),
+) -> list[dict[str, object]]:
     rows: list[dict[str, object]] = []
     for method in method_contract:
         method_id = str(method["method_id"])
-        modes = ("Mode-A", "Mode-B") if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
+        modes = tuple(calibration_modes) if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
         for mode in modes:
             for role in ("OFF", "ON", "TO"):
                 contract = build_branch_execution_contract(method_id, mode, role)
@@ -1487,6 +1567,7 @@ def _run_case(
     *,
     input_mode: str,
     skip_cuda: bool,
+    calibration_modes: Sequence[str] = ("Mode-A", "Mode-B"),
 ) -> dict[str, object]:
     """Run one explicit case; all raw outputs stay below ``output_root``."""
 
@@ -1514,12 +1595,16 @@ def _run_case(
         "delay_error_ns": float(case["delay_error_ns"]),
         "production_identity": "stage2_production_delay_pilot_v1",
     }
+    manifest["selected_methods"] = [str(method["method_id"]) for method in method_contract]
+    manifest["selected_calibration_modes"] = list(calibration_modes)
     if skip_cuda:
         manifest.update({
             "status": "skip_cuda",
             "reason": "contract_only_no_simulator_or_production_execution",
             "algorithmic_results_claimed": False,
-            "method_branches": _missing_branches("skip_cuda_contract_only", method_contract),
+            "method_branches": _missing_branches(
+                "skip_cuda_contract_only", method_contract, calibration_modes
+            ),
         })
         _write_json(case_root / "case_manifest.json", manifest)
         return manifest
@@ -1551,15 +1636,43 @@ def _run_case(
             "status": "passed" if rc == 0 else "failed",
             "command": [str(SIMULATOR), "--config", str(scenario_path)],
         }
-    manifest["simulation"] = simulation
-    if not all(item["status"] == "passed" for item in simulation.values()):
-        manifest.update({
-            "status": "completed_with_gaps",
-            "reason": "stage2_simulation_failed",
-            "method_branches": _missing_branches("stage2_simulation_failed", method_contract),
-        })
-        _write_json(case_root / "case_manifest.json", manifest)
-        return manifest
+        manifest["simulation"] = simulation
+        if rc != 0:
+            manifest.update({
+                "status": "stage2_failed",
+                "reason": f"stage2_simulation_failed:{key}",
+                "method_branches": _missing_branches(
+                    f"stage2_simulation_failed:{key}", method_contract, calibration_modes
+                ),
+            })
+            _write_json(case_root / "case_manifest.json", manifest)
+            return manifest
+        if key == "A0_ON":
+            report_path = output_dir / "reports" / "stage2_simulation_report.md"
+            try:
+                report_text = report_path.read_text(encoding="utf-8")
+                scenario = _read_json(scenario_path)
+                clutter_gate = delay_runner.audit_stage2_area_clutter_report(report_text, scenario)
+            except (OSError, ValueError) as exc:
+                clutter_gate = {
+                    "status": "NOT_EVALUABLE",
+                    "reasons": [f"stage2_area_report_unavailable:{exc}"],
+                }
+            clutter_gate["report_path"] = str(report_path)
+            clutter_gate["report_sha256"] = _sha256(report_path) if report_path.is_file() else None
+            clutter_gate["scenario_path"] = str(scenario_path.resolve())
+            clutter_gate["scenario_sha256"] = _sha256(scenario_path)
+            manifest["area_clutter_gate"] = clutter_gate
+            if clutter_gate.get("status") != "passed":
+                manifest.update({
+                    "status": "clutter_gate_failed",
+                    "reason": "stage2_area_clutter_not_proven",
+                    "method_branches": _missing_branches(
+                        "stage2_area_clutter_not_proven", method_contract, calibration_modes
+                    ),
+                })
+                _write_json(case_root / "case_manifest.json", manifest)
+                return manifest
 
     scenario = _read_json(scene_variants["A0_ON"])
     layout = e2e._protocol_layout_from_scenario(scenario)
@@ -1745,7 +1858,7 @@ def _run_case(
         else:
             family = "none"
         prepared_family = prepared[family]
-        modes = ("Mode-A", "Mode-B") if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
+        modes = tuple(calibration_modes) if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
         for mode in modes:
             mode_root = case_root / "references" / mode / method_id
             reference_path = mode_root / "reference_gamma.csv"
@@ -2300,7 +2413,7 @@ def _write_skip_compact_evidence(manifest_path: Path, evidence_root: Path) -> di
 def build_arg_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, default=CONFIG)
-    parser.add_argument("--mode", choices=("pilot", "formal"), default=None)
+    parser.add_argument("--mode", choices=("pilot", "formal", "e1_pilot"), default=None)
     parser.add_argument("--pilot", action="store_true", help="select the targeted pilot group")
     parser.add_argument("--formal", action="store_true", help="select explicit formal targeted groups")
     parser.add_argument("--output-root", type=Path, required=True)
@@ -2311,6 +2424,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--seeds", action="append", default=None)
     parser.add_argument("--target-velocities-mps", action="append", default=None)
     parser.add_argument("--target-snr-db", action="append", default=None)
+    parser.add_argument(
+        "--method-ids", "--methods", dest="method_ids", action="append", default=None,
+        help="comma-separated/repeatable method subset; defaults to the full frozen suite",
+    )
+    parser.add_argument(
+        "--calibration-modes", action="append", default=None,
+        help="comma-separated/repeatable Mode-A and/or Mode-B subset; defaults to both",
+    )
     parser.add_argument("--max-cases", type=int, default=None)
     return parser
 
@@ -2324,6 +2445,21 @@ def _parse_override_values(raw: object, converter: type[int] | type[float]) -> l
         for token in str(item).split(","):
             if token.strip():
                 result.append(converter(token.strip()))
+    return result
+
+
+def _parse_string_values(raw: object, name: str) -> tuple[str, ...] | None:
+    if raw is None:
+        return None
+    values = raw if isinstance(raw, list) else [raw]
+    result = tuple(
+        token.strip()
+        for item in values
+        for token in str(item).split(",")
+        if token.strip()
+    )
+    if not result:
+        raise ValueError(f"{name} selection must not be empty")
     return result
 
 
@@ -2348,6 +2484,10 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
         }
         overrides = {key: value for key, value in overrides.items() if value is not None}
         selection = resolve_selection(config, mode, overrides)
+        method_ids = _parse_string_values(args.method_ids, "method id")
+        method_contract = build_method_contract(config, method_ids=method_ids)
+        calibration_modes = _parse_string_values(args.calibration_modes, "calibration mode")
+        calibration_mode_map = resolve_calibration_modes(method_contract, calibration_modes)
         if args.max_cases is not None:
             if args.max_cases <= 0:
                 raise ValueError("--max-cases must be positive")
@@ -2368,6 +2508,14 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
             raise ValueError("input mode must be local or shm")
         manifest = _initial_manifest(config_path, config, selection, source, output_root, args)
         manifest["input_mode"] = input_mode
+        manifest["method_contract"] = method_contract
+        manifest["selected_methods"] = [str(item["method_id"]) for item in method_contract]
+        manifest["selected_calibration_modes"] = list(
+            calibration_modes if calibration_modes is not None else ("Mode-A", "Mode-B")
+        )
+        manifest["method_mode_selection"] = {
+            method: list(modes) for method, modes in calibration_mode_map.items()
+        }
         manifest_path = output_root / "manifest.json"
         _write_json(manifest_path, manifest)
         method_contract = build_method_contract(config)
@@ -2380,6 +2528,9 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
                     method_contract,
                     input_mode=input_mode,
                     skip_cuda=True,
+                    calibration_modes=(
+                        calibration_modes if calibration_modes is not None else ("Mode-A", "Mode-B")
+                    ),
                 )
                 for case in selection["cases"]
             ]
@@ -2401,13 +2552,23 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
                         method_contract,
                         input_mode=input_mode,
                         skip_cuda=False,
+                        calibration_modes=(
+                            calibration_modes
+                            if calibration_modes is not None
+                            else ("Mode-A", "Mode-B")
+                        ),
                     )
                 except (OSError, RuntimeError, ValueError, KeyError) as exc:
                     result = _case_manifest_base(config, case, output_root / "cases")
                     result.update({
                         "status": "NOT_EVALUABLE",
                         "reason": f"case_exception:{exc}",
-                        "method_branches": _missing_branches(f"case_exception:{exc}", method_contract),
+                        "method_branches": _missing_branches(
+                            f"case_exception:{exc}", method_contract,
+                            calibration_modes
+                            if calibration_modes is not None
+                            else ("Mode-A", "Mode-B"),
+                        ),
                     })
                 cases.append(result)
                 manifest["cases"] = cases

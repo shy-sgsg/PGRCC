@@ -211,6 +211,46 @@
       }
     ]
   },
+  "e1_pilot": {
+    "selection_mode": "targeted",
+    "delay_errors_ns": [0],
+    "seeds": [101, 202, 303],
+    "target_velocities_mps": [0.5, 1.0, 2.0, 4.0],
+    "target_snr_db": [10.0, 30.0],
+    "working_points": ["e1_low_speed"],
+    "period_count": 3,
+    "case_groups": [
+      {
+        "name": "paired_low_speed_velocity_snr_screen",
+        "cases": [
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 0.5, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 0.5, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 1.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 1.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 2.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 2.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 4.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 101, "target_velocity_mps": 4.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 0.5, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 0.5, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 1.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 1.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 2.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 2.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 4.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 202, "target_velocity_mps": 4.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 0.5, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 0.5, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 1.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 1.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 2.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 2.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 4.0, "target_snr_db": 10.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}},
+          {"delay_error_ns": 0, "seed": 303, "target_velocity_mps": 4.0, "target_snr_db": 30.0, "working_point": "e1_low_speed", "scene_parameters": {"beam_id": 50, "expected_bin": 2048, "range_m": 85000.0, "texture_sigma": 0.25, "clutter_rho": 0.98, "area_mean_power": 0.02, "noise_power": 0.001}}
+        ]
+      }
+    ]
+  },
   "production": {
     "input_mode": "local",
     "period_count": 5,

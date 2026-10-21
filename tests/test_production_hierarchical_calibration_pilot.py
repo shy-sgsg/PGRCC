@@ -47,6 +47,123 @@ def test_method_contract_freezes_nine_production_ids_and_roles() -> None:
     assert all(item["truth_used_in_estimator"] is False for item in contract)
 
 
+def test_method_and_mode_subset_keeps_default_contract_but_allows_bounded_pilot() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        build_arg_parser,
+        build_method_contract,
+        resolve_calibration_modes,
+        load_pilot_config,
+    )
+
+    config = load_pilot_config(CONFIG)
+    selected = build_method_contract(config, method_ids=("C0", "C2", "C3"))
+    assert [item["method_id"] for item in selected] == ["C0", "C2", "C3"]
+    assert [item["method_id"] for item in build_method_contract(config)] == [
+        "C0", "C1", "C2", "C3", "C4", "P1", "P2", "PK", "PKR"
+    ]
+
+    mode_map = resolve_calibration_modes(selected, ("Mode-A",))
+    assert mode_map == {
+        "C0": ("not_applicable",),
+        "C2": ("Mode-A",),
+        "C3": ("Mode-A",),
+    }
+    with pytest.raises(ValueError, match="unknown method"):
+        build_method_contract(config, method_ids=("C0", "NOT_A_METHOD"))
+    with pytest.raises(ValueError, match="duplicate"):
+        build_method_contract(config, method_ids=("C0", "C0"))
+    with pytest.raises(ValueError, match="calibration mode"):
+        resolve_calibration_modes(selected, ("Mode-C",))
+
+    args = build_arg_parser().parse_args([
+        "--mode", "e1_pilot", "--output-root", "run",
+        "--methods", "C0,C2,C3", "--calibration-modes", "Mode-A",
+    ])
+    assert args.mode == "e1_pilot"
+    assert args.method_ids == ["C0,C2,C3"]
+    assert args.calibration_modes == ["Mode-A"]
+
+
+def test_scene_identity_accepts_explicit_case_scene_parameters() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _scene_identity,
+        load_pilot_config,
+        resolve_selection,
+    )
+
+    config = load_pilot_config(CONFIG)
+    case = dict(resolve_selection(config, "pilot")["cases"][0])
+    case["scene_parameters"] = {
+        "beam_id": 51,
+        "expected_bin": 2049,
+        "range_m": 86000.0,
+        "texture_sigma": 0.65,
+        "clutter_rho": 0.95,
+        "area_mean_power": 0.0097,
+        "noise_power": 0.002,
+    }
+
+    identity = _scene_identity(config, case, period_count=3)
+    assert identity["beam_id"] == 51
+    assert identity["expected_bin"] == 2049
+    assert identity["range_m"] == pytest.approx(86000.0)
+    assert identity["texture_sigma"] == pytest.approx(0.65)
+    assert identity["clutter_rho"] == pytest.approx(0.95)
+    assert identity["clutter"]["mean_power"] == pytest.approx(0.0097)
+    assert identity["noise"]["noise_power"] == pytest.approx(0.002)
+
+
+def test_invalid_area_injection_stops_after_a0_on_before_production(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import run_production_hierarchical_calibration_pilot as runner
+    from scripts import run_delay_stage1_formal as delay_runner
+
+    config = runner.load_pilot_config(CONFIG)
+    case = dict(runner.resolve_selection(config, "pilot")["cases"][0])
+    case["delay_error_ns"] = 0.0
+    stage2_calls: list[str] = []
+
+    def fake_run_logged(command, log_path, *, timeout_s=1800.0, env=None):
+        scenario_path = Path(str(command[-1]))
+        scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+        output_dir = Path(scenario["output_dir"])
+        report = output_dir / "reports" / "stage2_simulation_report.md"
+        report.parent.mkdir(parents=True, exist_ok=True)
+        report.write_text(
+            "- platform_height_m: 6000\n"
+            "- continuous_area_packets: 0\n"
+            "- continuous_area_samples: 0\n"
+            "- area_mean_power_measured: 0\n",
+            encoding="utf-8",
+        )
+        Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+        Path(log_path).write_text("fake stage2 invocation\n", encoding="utf-8")
+        stage2_calls.append(scenario_path.stem)
+        return 0, 0.01
+
+    monkeypatch.setattr(runner, "_run_logged", fake_run_logged)
+    monkeypatch.setattr(
+        delay_runner,
+        "run_production_branch",
+        lambda *args, **kwargs: pytest.fail("production must not start after failed area gate"),
+    )
+
+    result = runner._run_case(
+        config,
+        case,
+        tmp_path / "run",
+        runner.build_method_contract(config, method_ids=("C0",)),
+        input_mode="local",
+        skip_cuda=False,
+        calibration_modes=("Mode-A",),
+    )
+
+    assert result["status"] == "clutter_gate_failed"
+    assert result["area_clutter_gate"]["status"] == "NOT_EVALUABLE"
+    assert stage2_calls == ["A0_ON"]
+
+
 def test_paired_input_contract_declares_shared_identity_and_two_modes() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         build_paired_input_contract,
@@ -101,6 +218,28 @@ def test_selection_requires_targeted_delay_sweep_and_formal_coverage() -> None:
         * len(formal["target_velocities_mps"])
         * len(formal["target_snr_db"])
     )
+
+
+def test_e1_pilot_is_explicitly_paired_and_does_not_expand_other_selections() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        load_pilot_config,
+        resolve_selection,
+    )
+
+    config = load_pilot_config(CONFIG)
+    e1 = resolve_selection(config, "e1_pilot")
+    assert e1["case_count"] == 24
+    assert {case["target_velocity_mps"] for case in e1["cases"]} == {0.5, 1.0, 2.0, 4.0}
+    assert {case["target_snr_db"] for case in e1["cases"]} == {10.0, 30.0}
+    assert {case["delay_error_ns"] for case in e1["cases"]} == {0.0}
+    assert {case["seed"] for case in e1["cases"]} == {101, 202, 303}
+    assert all(case["period_count"] == 3 for case in e1["cases"])
+    assert all(case["scene_parameters"]["range_m"] == 85000.0 for case in e1["cases"])
+    seed101 = resolve_selection(config, "e1_pilot", overrides={"seeds": [101]})
+    assert seed101["case_count"] == 8
+    assert {case["seed"] for case in seed101["cases"]} == {101}
+    assert resolve_selection(config, "pilot")["case_count"] == 3
+    assert resolve_selection(config, "formal")["case_count"] == 17
 
 
 def test_support_gate_is_not_evaluable_and_never_current_fallback() -> None:
@@ -180,6 +319,11 @@ def test_formal_source_guard_refuses_tracked_dirty_identity() -> None:
         {"commit": "abc", "dirty": False, "dirty_tracked": False},
         mode="pilot",
     )["status"] == "passed"
+    with pytest.raises(RuntimeError, match="tracked source is dirty"):
+        require_clean_tracked_source(
+            {"commit": "abc", "dirty": True, "dirty_tracked": True},
+            mode="e1_pilot",
+        )
 
 
 def test_only_four_decision_labels_are_accepted() -> None:
