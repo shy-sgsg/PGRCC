@@ -102,6 +102,50 @@ def test_selected_methods_only_prepare_their_required_input_families() -> None:
     assert _required_prepared_families(known_methods) == {"ideal", "known"}
 
 
+def test_cli_passes_selected_methods_into_case_runner(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts import run_production_hierarchical_calibration_pilot as runner
+
+    seen: list[tuple[str, ...]] = []
+    monkeypatch.setattr(
+        runner,
+        "source_snapshot",
+        lambda: {"commit": "abc", "dirty": False, "dirty_tracked": False},
+    )
+    monkeypatch.setattr(runner, "require_clean_tracked_source", lambda *args, **kwargs: None)
+
+    def fake_run_case(config, case, output_root, method_contract, **kwargs):
+        seen.append(tuple(str(item["method_id"]) for item in method_contract))
+        return {"case": dict(case), "case_id": "test-case", "status": "completed", "method_branches": []}
+
+    monkeypatch.setattr(runner, "_run_case", fake_run_case)
+    monkeypatch.setattr(runner, "_flatten_rows", lambda cases: ([], [], []))
+    monkeypatch.setattr(runner, "aggregate_case_residual_closures", lambda cases: {})
+
+    def fake_compact(manifest_path, evidence_root):
+        evidence_root.mkdir(parents=True, exist_ok=True)
+        compact_path = evidence_root / "manifest.json"
+        runner._write_json(
+            compact_path,
+            {"analysis": {"decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"}},
+        )
+        return {"manifest.json": str(compact_path)}
+
+    monkeypatch.setattr(runner, "_write_skip_compact_evidence", fake_compact)
+    code = runner.run_cli([
+        "--mode", "e1_pilot",
+        "--seeds", "101",
+        "--methods", "C0,C2,C3",
+        "--calibration-modes", "Mode-A",
+        "--max-cases", "1",
+        "--output-root", str(tmp_path / "run"),
+    ])
+
+    assert code == 0
+    assert seen == [("C0", "C2", "C3")]
+
+
 def test_scene_identity_accepts_explicit_case_scene_parameters() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         _scene_identity,

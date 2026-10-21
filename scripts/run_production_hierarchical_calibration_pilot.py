@@ -2550,7 +2550,6 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
         }
         manifest_path = output_root / "manifest.json"
         _write_json(manifest_path, manifest)
-        method_contract = build_method_contract(config)
         if args.skip_cuda:
             cases = [
                 _run_case(
