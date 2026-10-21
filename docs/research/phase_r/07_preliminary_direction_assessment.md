@@ -38,3 +38,25 @@
 ## 状态标签
 
 `IMPLEMENTED`：相关代码/配置存在；`EXECUTED`：真实 CUDA Production 已运行；`EVALUABLE`：只对明确列出的指标成立；`PERFORMANCE_VERIFIED`：三 seed 的跟踪/定位 RMSE 方向重复。这里的 `PERFORMANCE_VERIFIED` 不表示显著性、Pfa/Pd、径向速度或真实 airborne 系统验证。
+
+## Phase R4：E1/E4/E5 seed-101 对方向的更新
+
+本节只解释 [06 的 R4 实际 pilot](06_minimal_cuda_causal_pilot.md)；R4 固定为 0 ns 通道误差，因此不重复验证或推翻上文 R3 的 +4 ns 结论。
+
+| 问题 | R4 证据允许的结论 |
+|---|---|
+| 未知通道误差是否降低 GMTI？ | R4 没有通道误差，不回答该因果问题。R3 三 seed 的已知结果仍是唯一直接证据。 |
+| Known physical correction 能恢复多少？ | R4 没有 Known-correction 条件；不更新 R3 的恢复比例。 |
+| 传统盲估计距离已知校正还有多少差距？ | R4 没有盲估计条件；不更新 seed 101 D 与 Known correction 的既有差值。 |
+| 是否需要 AI？ | 没有新证据支持 AI。R4 是零失配确定性方法筛查，且低速 P5 和汇总门未通过；不得据此启动 AI 或声称 AI 必要。 |
+| 是否转向低速目标保护/复杂杂波建模？ | 两者仍是待判别的候选瓶颈，但 R4 不足以选定主线。低速 P5 背景 ROI 为空，不能当作低速抑制性能失败；命中 3/3 也受单 seed/三期和高 unmatched detection-record 比例限制。 |
+
+### R4 gate 判定
+
+- **已通过**：8 个 case 的物理可达连续面积杂波注入；120 个 CUDA Production 分支；ideal/none triplet 数值闭合；有真实目标 truth 和逐分支 CFAR valid CUT 记录。
+- **未通过/不可评估**：0.5/1 m/s 的 P5 背景 ROI 为 0/30，2 m/s 为 20/30；聚合 CFAR false-hit/Pfa 因 hit-cell 只有 hashes、缺少唯一 cell union/truth join 而不可评估；residual-closure evaluator 要求本次冻结子集未运行的 PK/PKR。
+- 因这些 gate 未通过，seed 202/303 没有运行，`PERFORMANCE_VERIFIED` 为否。所有结论限于 seed 101 的三期描述性结果；未下调 ROI 或检测质量门槛。
+
+### 建议的下一步（尚未执行）
+
+先修正审查契约而不是扩实验：明确 residual-closure gate 与 C0–C3 冻结子集是否兼容；保留可验证的 CFAR hit-cell 身份/真值 join；重新检查低速 P5 背景 ROI 对活动杂波 Doppler 支持的覆盖。若仍需比较 F1/F2 原始输入功率，须在新 pilot 中保留最小功率摘要，因为本轮可重建 `.bin` 已按授权清理、manifest 仅保留 size/hash。随后只重做受影响的 seed-101 evaluation gate；通过后再按预注册决定是否增加 seed 202/303。期间不训练 AI、不扩展六参数估计。

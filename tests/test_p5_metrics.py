@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import math
+import csv
 from pathlib import Path
 import sys
+import tempfile
 import unittest
 
 import numpy as np
@@ -14,7 +16,11 @@ from gmti_eval_metrics import (  # noqa: E402
     linear_power_ratio_db,
     summarize_power,
 )
-from run_p5_csi_eval import map_frequency_to_dft_axis  # noqa: E402
+from run_p5_csi_eval import (  # noqa: E402
+    load_truth,
+    map_frequency_to_dft_axis,
+    resolve_period_id,
+)
 
 
 class P5MetricTests(unittest.TestCase):
@@ -49,6 +55,48 @@ class P5MetricTests(unittest.TestCase):
     def test_nonuniform_fft_axis_is_rejected(self):
         with self.assertRaises(RuntimeError):
             map_frequency_to_dft_axis(1.0, np.asarray([0.0, 1.0, 2.5]))
+
+    def test_truth_is_filtered_to_tap_period(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            truth_dir = Path(temp_dir)
+            with (truth_dir / "truth_targets_by_beam.csv").open(
+                    "w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=[
+                    "period_id", "beam_id", "target_id", "visible", "expected_bin",
+                ])
+                writer.writeheader()
+                writer.writerows([
+                    {"period_id": 0, "beam_id": 50, "target_id": "T", "visible": 1,
+                     "expected_bin": 100},
+                    {"period_id": 1, "beam_id": 50, "target_id": "T", "visible": 1,
+                     "expected_bin": 101},
+                ])
+            with (truth_dir / "truth_pulse.csv").open(
+                    "w", newline="", encoding="utf-8") as handle:
+                writer = csv.DictWriter(handle, fieldnames=[
+                    "period_id", "beam_id_1based", "target_name", "injection_enabled",
+                    "af_total_truth_hz",
+                ])
+                writer.writeheader()
+                writer.writerows([
+                    {"period_id": 0, "beam_id_1based": 50, "target_name": "T",
+                     "injection_enabled": 1, "af_total_truth_hz": -10.0},
+                    {"period_id": 1, "beam_id_1based": 50, "target_name": "T",
+                     "injection_enabled": 1, "af_total_truth_hz": -20.0},
+                ])
+
+            truths, af_truth = load_truth(truth_dir, period_id=1)
+
+        self.assertEqual(len(truths[50]), 1)
+        self.assertEqual(truths[50][0]["expected_bin"], "101")
+        self.assertEqual(af_truth[(50, "T")], -20.0)
+
+    def test_tap_period_is_inferred_and_mismatch_rejected(self):
+        taps = {50: {"manifest": {"period_id": "2"}}}
+        self.assertEqual(resolve_period_id(taps), 2)
+        self.assertEqual(resolve_period_id(taps, requested_period_id=2), 2)
+        with self.assertRaisesRegex(RuntimeError, "does not match"):
+            resolve_period_id(taps, requested_period_id=1)
 
 
 if __name__ == "__main__":

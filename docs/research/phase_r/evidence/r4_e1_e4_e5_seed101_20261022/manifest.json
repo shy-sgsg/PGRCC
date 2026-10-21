@@ -1,0 +1,1187 @@
+{
+  "schema_version": 1,
+  "stage": "Phase R4 E1/E4/E5 minimal CUDA Production pilot — seed 101",
+  "generated_at_utc": "2026-10-21T10:10:47.542361+00:00",
+  "status": "completed_with_gaps",
+  "decision": "stop_seed_expansion_until_evaluability_gates_are_resolved",
+  "evidence_labels": {
+    "IMPLEMENTED": "runner supports method/mode subsets and a Production-preceding physical-area fail-closed gate; P5 uses period-specific truth/tap alignment",
+    "EXECUTED": "8 valid seed-101 cases × 15 Production branches each, on real CUDA",
+    "EVALUABLE": "area injection; ideal/none causal triplets; ON target opportunity hits and matched TrackManager metrics; P5 metrics only where valid; CFAR valid CUT and hit counts branch-wise",
+    "PERFORMANCE_VERIFIED": "no; one seed and failed gates preclude verified general performance gains"
+  },
+  "design": {
+    "seed": 101,
+    "delay_error_ns": 0.0,
+    "configured_ground_speed_input_mps": [
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "configured_target_snr_db": [
+      10.0,
+      30.0
+    ],
+    "period_count_per_case": 3,
+    "methods": [
+      "C0",
+      "C1",
+      "C2",
+      "C3"
+    ],
+    "calibration_modes": [
+      "Mode-A"
+    ],
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S"
+    }
+  },
+  "source_identity": {
+    "production_commit": "69475e3db0c1bd012f247094daef461d15905fff",
+    "production_worktree_dirty": false,
+    "evidence_aggregator": {
+      "path": "scripts/phase_r/aggregate_r4_evidence.py",
+      "sha256": "a46a8ba82fbbed1bc1b4d8a9ba5d493ba0252fc16c24156340f64ac1050989b1"
+    },
+    "runner": {
+      "path": "scripts/run_production_hierarchical_calibration_pilot.py",
+      "sha256": "dfab0581d23b6b66576a7af9aeb5a6e58223b8a1c4278d6376ee51bfe5b39093"
+    },
+    "p5_evaluator": {
+      "path": "scripts/run_p5_csi_eval.py",
+      "sha256": "3f3596f6d4df7b850e41ffbdc15e3219bb5f3d344bf3701d55d426e66d79e1cb",
+      "working_tree_modified_for_period_specific_truth": true
+    },
+    "p5_config": {
+      "path": "configs/research/production_hierarchical_calibration_delay_pilot.json",
+      "sha256": "6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8"
+    },
+    "stage2_binary_sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b",
+    "production_binary_sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+  },
+  "environment": {
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "driver": "580.178.04",
+    "cuda": "13.0",
+    "evidence": "run-root manifest nvidia-smi probe; all valid runs skip_cuda=false"
+  },
+  "area_clutter": {
+    "model": "continuous_texture",
+    "platform_height_m": 6000.0,
+    "ground_height_m": 0.0,
+    "slant_range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "continuous_area_packets_per_case": 390,
+    "continuous_area_samples_per_case": 1952655,
+    "measured_mean_power_per_case": 0.0223352779188,
+    "rho_lag1_measured": 0.980006534954
+  },
+  "metric_directions": {
+    "SCNR_improvement_dB": "SCNR_after_dB - SCNR_before_dB; negative means SCNR decreased",
+    "CA_ROI_dB": "10*log10(before_mean_power/after_mean_power); negative means ROI background power increased after processing",
+    "target_loss_dB": "-target_gain_dB; negative means target power gain",
+    "CFAR_hit_fraction": "branch-specific hit_cut_count / valid_cut_count; not empirical Pfa",
+    "detection_record_false_alarm_fraction": "unmatched production detection rows / all production detection rows; not CFAR Pfa"
+  },
+  "gates": {
+    "production_branches": "15/15 passed in every valid case",
+    "causal_triplets": "ideal and none passed in each case; 18,439,200 samples/case; max abs error range 1.2102e-6 to 1.3278e-6; frozen tolerance 5e-5",
+    "valid_cut_denominators": "aggregate NOT_EVALUABLE because two detector branches provide hashes, not a unique hit-cell union",
+    "residual_closure": "NOT_EVALUABLE: evaluator requires A0/PK/PKR while frozen method subset ran C0-C3 and omitted PK/PKR",
+    "P5_low_speed": "background ROI has no valid cells for v=0.5 and 1 m/s; quality gate unchanged",
+    "extension": "seed 202/303 not run because correctness/evaluability gates failed"
+  },
+  "cases": [
+    {
+      "case_id": "e1_low_speed__seed_101__v_0.5__snr_10.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "849d282eb331876ee4122225d7e93b6485091f8ec91499c788e595a335308b23",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "9f61ad85e0d7478e4adcf7b6967698240424eeba9639ded03bc74bada288ea67",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "a539e7acd2c9ff57133c7aef027857e13f55aaaf43806b09fce2dd56ab80457a",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "af4432b2a425ec4eb2381af1c4b55aee3b3ae28ec215fff1de2da64bf99d2fec",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "ee6de9c0bfc887c3a4ebbf25f0d0cb95e9917e7e58721dd8007ef8e0310d3c37",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "6e3d6dadbb1bbabb48c76546506840edaa6a6445bdcda11e373ea7b151db5fc7",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 0.48893268407693846,
+        "1": 0.4886123240590538,
+        "2": 0.4882884385745077
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    },
+    {
+      "case_id": "e1_low_speed__seed_101__v_0.5__snr_30.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "be7065de8e609ff3e94cde606e622615b12de7d48e5ce634016ace165e0e32dc",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "c03c376f4cc97568cfb7ba25e05c4aea30fdec0a4f4875023a7f6579875e5ee5",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "76f1a60b3c148b5b31d16b2017ff187fcc03b2357037345579110f451970c391",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "de76e026438a93f972a0628c4e144642fd745bdb741b671f7fe2f9513269ed82",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "d52e20c8737cfffc7c57ea26cfb979079fd8b21e8b38894aa8c311b4f8e3e13b",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "8dfda87acc7599f5c703196bc812c2d8e345f674ff5581652673b8e09543f56b",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 0.48893268407693846,
+        "1": 0.4886123240590538,
+        "2": 0.4882884385745077
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    },
+    {
+      "case_id": "e1_low_speed__seed_101__v_1.0__snr_10.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "694052a08b1951964d4b8d477aec7a2dfe6ba114be9dd7e5f56163afc3243318",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "f9230c9e53aac7c36973fc9b9797b618ac9b1b46c403eae99b4760a4670d5aae",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "c4bef306ec4eb87ab9bd851a1fb85a9c9ec5d581b8829baa2a410dd99780c174",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ef09af81a27c07a761187b2ca1cc22282b5431e2f37bf4be843b5ee746285832",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "75b28b64b7ad944ca3d0495ea548b1e720208e805421d19b59bbaf2ecd40358f",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "10ed53aaba31c2526a919a5a4bc62c4aa6e029d817c115457c490b5ee48016db",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 0.9778653680589154,
+        "1": 0.9772262060998692,
+        "2": 0.9765800723168769
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    },
+    {
+      "case_id": "e1_low_speed__seed_101__v_1.0__snr_30.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "539facfd33d9b2423125c5de1edb89e05a04cd4ba53f8c39c70d96478af9e3e7",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "ef427455cc6d0d02893c1fc0dad296c2edbf5f12623554aba28a0ab725dcf2ff",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "a1996aadd97ceb14a90396c2826637b8a6a7186454c88ac62149b4d5bef5e9e9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "d23b8e8354ad552e2b334f2608b870070cc1ba1657d4bf7a3e34c71ad61f1956",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "75a50d296655e43350444c7eef53eb70b4cc59db4903f610e05560812ad46c71",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "879643f2481de0514c739a06f2f3211b0cf79b65254b583dab8e56a8a5248808",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 0.9778653680589154,
+        "1": 0.9772262060998692,
+        "2": 0.9765800723168769
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    },
+    {
+      "case_id": "e1_low_speed__seed_101__v_2.0__snr_10.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "4cd3567588cec1bed8bb630994791f03dd60c09d2eb5b0a56644764e247548f8",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "1e63fd86559b40684e500a7403b9292fc00c0910bbdeb808694b83fe798c3f8b",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "1722784d6d0a33fe64dc117d24af37635f829ecb8b5b3bef02c388d4d4cc25d7",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "9c7f9e55429f274ab36bb9929c4fd9fdce0d3668effa5e5d6089eebaa2c2b264",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "00682d010d46cf1b62212bb270edacf83e8ffbdbe1f3c19a8d2dbb0dd3745243",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "c27bd6e4de6f763c9ad3e60c73413f6006dd6fc51e04b1b8763925e947322db9",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 1.9557307357383846,
+        "1": 1.9544586431782307,
+        "2": 1.9531729214297693
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    },
+    {
+      "case_id": "e1_low_speed__seed_101__v_2.0__snr_30.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ced4fd2e1c6831827a0f936ad3b0b0c375280e755e6302ad86ef7713b720c898",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "08ba5121abda5d5b4aae35728533fce2ba4e4b90528f9802c1951a89fba7c3ae",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "fce67f98ba6822543fff00793c91e4e6d2d442fb62c2b0ea542f7c8ba9ac1f98",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "75f6f737f2b2a592940a71d1054c4f58b16db9617e31f05e12aa3ce30fcc1850",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "d1b25ebb9445b111d6cbb3e2f27c8613c5b7bc892dd4e7d73b3aa3f8d85aa6f3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "6858bae0b249e746a7a7fb011882e6c302f6d0f065067a78464d6f308ce72b3e",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 1.9557307357383846,
+        "1": 1.9544586431782307,
+        "2": 1.9531729214297693
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    },
+    {
+      "case_id": "e1_low_speed__seed_101__v_4.0__snr_10.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "13f6f3bd2d9d4d96133492a0bf63ace4f2d2b9453da8770ff171c106c19a8b61",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "862dbfabf5460d9d6434d720512b2307eda9f3e8603179df9fb362f9deee72ed",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "703eec14c9c5da3d706574df6ff307962fa8572c975cc18e68dfdc6fc343c54a",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "8c8746b4f1f7134c6461c798aecc6a1fa773ca4e4686b975f5af905acb3ece06",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "f3fd042ba7d68199c96218b48236f741cb868ae3d6a648c6348391ca2358a413",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "7a9c9eb7e8769e26d65cf76161a56891ddc7a199d01fb5aebc0701fe455f2f03",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 3.911461469958,
+        "1": 3.908942202691077,
+        "2": 3.906396919055846
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    },
+    {
+      "case_id": "e1_low_speed__seed_101__v_4.0__snr_30.0__delay_0.0ns",
+      "case_manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/case_manifest.json",
+      "pair_identity": {
+        "seed": 101,
+        "background_id": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A0_background",
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "delay_error_ns": 0.0,
+        "production_identity": "stage2_production_delay_pilot_v1"
+      },
+      "selected_methods": [
+        "C0",
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "input_identity": [
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "ade9235b424f8d37c5f0715e960069a4c6eb0b3e3cf7d1b1f1952dd40cd35fb3",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5debb225efee5c6cf6dd5d6b8b2d5cddeacd585743a8561123c4a73f200aeee9",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "OFF",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "89b1bf3e2626e7870fc6ecb13c37d163e983a60348348a9772c0506f3ede0d56",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "3a7537fb1a4bba7ce84fbac57ee25468af0da695b7d861b51d37bd2c8fcc3375",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "874aa5d27b3b1a5398d51b513f6ca4b558d880eae7179498cfb6a121f1221531",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "ON",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "11d12e448682f7d0cb4712e13bd511b5af5331e4dd78fd22992b5af7d82972ba",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "4bf3b65313d2f23cd8aeee146c290ff201cfeeb7084d82f24c6e27231b2c3aa4",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "9de2700db05bf1ac3a7d2804d6d3f82fe7a63c2a1b1d2b5862b1c2212a080de0",
+          "path_exists_at_aggregation": false
+        },
+        {
+          "role": "TO",
+          "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "7c9794206405891a9c983cec0eada93bd2ebc1457e1a23ca8e6bdffa89f4eb93",
+          "path_exists_at_aggregation": false
+        }
+      ],
+      "stage2_area_report": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "truth_radial_velocity_csv": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/scenes/A0_ON/truth/moving_target_truth.csv",
+      "truth_radial_velocity_period_means_mps": {
+        "0": 3.911461469958,
+        "1": 3.908942202691077,
+        "2": 3.906396919055846
+      },
+      "runtime_xml_count": 15,
+      "stage2_runtime_xml_count": 21
+    }
+  ],
+  "input_retention": {
+    "manifested_input_file_count": 72,
+    "input_files_present_at_aggregation": 0,
+    "input_files_absent_at_aggregation": 72,
+    "f1_f2_numeric_input_power": "NOT_EVALUABLE from retained artifacts; regenerated Stage2 .bin inputs are absent, while path/size/SHA-256 identities remain in case manifests"
+  },
+  "run_roots": [
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps",
+      "manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/manifest.json",
+      "manifest_parse_status": "invalid_truncated_json",
+      "manifest_error": "Unterminated string starting at: line 292237 column 15 (char 12124098)",
+      "status": "NOT_FINALIZED_ROOT_MANIFEST",
+      "source": {
+        "commit": "69475e3db0c1bd012f247094daef461d15905fff",
+        "dirty": false,
+        "dirty_tracked": false,
+        "tracked_status": "",
+        "scope": "tracked_source_only; existing untracked output roots are not scanned",
+        "recovered_from_valid_prefix": true
+      },
+      "command": [
+        "--mode",
+        "e1_pilot",
+        "--seeds",
+        "101",
+        "--methods",
+        "C0,C1,C2,C3",
+        "--calibration-modes",
+        "Mode-A",
+        "--output-root",
+        "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps"
+      ],
+      "gpu_probe_available": true,
+      "build": {
+        "simulate_stage2_statistical": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+          "exists": true,
+          "bytes": 645944,
+          "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+        },
+        "GMTI_pipe_core": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+          "exists": true,
+          "bytes": 6278056,
+          "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+        }
+      },
+      "config": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/production_hierarchical_calibration_delay_pilot.json",
+        "sha256": "6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8"
+      },
+      "runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "dfab0581d23b6b66576a7af9aeb5a6e58223b8a1c4278d6376ee51bfe5b39093"
+      }
+    },
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone",
+      "manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/manifest.json",
+      "manifest_parse_status": "valid",
+      "manifest_error": null,
+      "status": "completed_with_gaps",
+      "source": {
+        "commit": "69475e3db0c1bd012f247094daef461d15905fff",
+        "dirty": false,
+        "dirty_tracked": false,
+        "tracked_status": "",
+        "scope": "tracked_source_only; existing untracked output roots are not scanned"
+      },
+      "command": [
+        "--mode",
+        "e1_pilot",
+        "--seeds",
+        "101",
+        "--target-velocities-mps",
+        "2",
+        "--target-snr-db",
+        "10",
+        "--methods",
+        "C0,C1,C2,C3",
+        "--calibration-modes",
+        "Mode-A",
+        "--output-root",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone"
+      ],
+      "gpu_probe_available": true,
+      "build": {
+        "simulate_stage2_statistical": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+          "exists": true,
+          "bytes": 645944,
+          "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+        },
+        "GMTI_pipe_core": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+          "exists": true,
+          "bytes": 6278056,
+          "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+        }
+      },
+      "config": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/configs/research/production_hierarchical_calibration_delay_pilot.json",
+        "sha256": "6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8"
+      },
+      "runner": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "dfab0581d23b6b66576a7af9aeb5a6e58223b8a1c4278d6376ee51bfe5b39093"
+      }
+    },
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone",
+      "manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/manifest.json",
+      "manifest_parse_status": "valid",
+      "manifest_error": null,
+      "status": "completed_with_gaps",
+      "source": {
+        "commit": "69475e3db0c1bd012f247094daef461d15905fff",
+        "dirty": false,
+        "dirty_tracked": false,
+        "tracked_status": "",
+        "scope": "tracked_source_only; existing untracked output roots are not scanned"
+      },
+      "command": [
+        "--mode",
+        "e1_pilot",
+        "--seeds",
+        "101",
+        "--target-velocities-mps",
+        "2",
+        "--target-snr-db",
+        "30",
+        "--methods",
+        "C0,C1,C2,C3",
+        "--calibration-modes",
+        "Mode-A",
+        "--output-root",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone"
+      ],
+      "gpu_probe_available": true,
+      "build": {
+        "simulate_stage2_statistical": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+          "exists": true,
+          "bytes": 645944,
+          "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+        },
+        "GMTI_pipe_core": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+          "exists": true,
+          "bytes": 6278056,
+          "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+        }
+      },
+      "config": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/configs/research/production_hierarchical_calibration_delay_pilot.json",
+        "sha256": "6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8"
+      },
+      "runner": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "dfab0581d23b6b66576a7af9aeb5a6e58223b8a1c4278d6376ee51bfe5b39093"
+      }
+    },
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone",
+      "manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/manifest.json",
+      "manifest_parse_status": "valid",
+      "manifest_error": null,
+      "status": "completed_with_gaps",
+      "source": {
+        "commit": "69475e3db0c1bd012f247094daef461d15905fff",
+        "dirty": false,
+        "dirty_tracked": false,
+        "tracked_status": "",
+        "scope": "tracked_source_only; existing untracked output roots are not scanned"
+      },
+      "command": [
+        "--mode",
+        "e1_pilot",
+        "--seeds",
+        "101",
+        "--target-velocities-mps",
+        "4",
+        "--target-snr-db",
+        "10",
+        "--methods",
+        "C0,C1,C2,C3",
+        "--calibration-modes",
+        "Mode-A",
+        "--output-root",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone"
+      ],
+      "gpu_probe_available": true,
+      "build": {
+        "simulate_stage2_statistical": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+          "exists": true,
+          "bytes": 645944,
+          "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+        },
+        "GMTI_pipe_core": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+          "exists": true,
+          "bytes": 6278056,
+          "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+        }
+      },
+      "config": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/configs/research/production_hierarchical_calibration_delay_pilot.json",
+        "sha256": "6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8"
+      },
+      "runner": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "dfab0581d23b6b66576a7af9aeb5a6e58223b8a1c4278d6376ee51bfe5b39093"
+      }
+    },
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone",
+      "manifest": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/manifest.json",
+      "manifest_parse_status": "valid",
+      "manifest_error": null,
+      "status": "completed_with_gaps",
+      "source": {
+        "commit": "69475e3db0c1bd012f247094daef461d15905fff",
+        "dirty": false,
+        "dirty_tracked": false,
+        "tracked_status": "",
+        "scope": "tracked_source_only; existing untracked output roots are not scanned"
+      },
+      "command": [
+        "--mode",
+        "e1_pilot",
+        "--seeds",
+        "101",
+        "--target-velocities-mps",
+        "4",
+        "--target-snr-db",
+        "30",
+        "--methods",
+        "C0,C1,C2,C3",
+        "--calibration-modes",
+        "Mode-A",
+        "--output-root",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone"
+      ],
+      "gpu_probe_available": true,
+      "build": {
+        "simulate_stage2_statistical": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+          "exists": true,
+          "bytes": 645944,
+          "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+        },
+        "GMTI_pipe_core": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+          "exists": true,
+          "bytes": 6278056,
+          "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+        }
+      },
+      "config": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/configs/research/production_hierarchical_calibration_delay_pilot.json",
+        "sha256": "6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8"
+      },
+      "runner": {
+        "path": "/tmp/pgrcc-pilot-clean-NdXjTB/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "dfab0581d23b6b66576a7af9aeb5a6e58223b8a1c4278d6376ee51bfe5b39093"
+      }
+    }
+  ],
+  "excluded_or_nonprimary_evidence": [
+    {
+      "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns",
+      "reason": "partial case directory has no case_manifest; preserved, not counted among the eight completed frozen cases"
+    },
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022",
+      "reason": "partial initial attempt has no complete case_manifest; preserved as failure evidence"
+    },
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry1",
+      "reason": "no valid case_manifest; startup/retry root not counted"
+    },
+    {
+      "root": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_final",
+      "reason": "duplicate v=0.5 m/s, SNR=10 dB case with no P5 evaluation; 15 production branches preserved but excluded from the frozen 8-case summary"
+    },
+    {
+      "path": "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/manifest.json",
+      "reason": "truncated/invalid JSON after ENOSPC; individual case manifests and branch evidence remain parseable and are used"
+    },
+    {
+      "case": "v=0.5 m/s, SNR=10 dB in maps root",
+      "reason": "one legacy P5 report outside p5_period_specific excluded; exactly 30 period-specific method × role × period reports used"
+    }
+  ],
+  "files": {
+    "case_summary": "case_summary.csv",
+    "production_branch_summary": "production_branch_summary.csv",
+    "p5_period_summary": "p5_period_summary.csv",
+    "p5_method_role_summary": "p5_method_role_summary.csv",
+    "cfar_off_branch_summary": "cfar_off_branch_summary.csv",
+    "figure_png": "pilot_metric_coverage.png"
+  },
+  "validation": {
+    "valid_case_count": 8,
+    "production_branch_row_count": 120,
+    "p5_period_row_count": 240,
+    "cfar_branch_row_count": 16,
+    "p5_grain": "case × method × role × period; P5 invalid/missing values remain blank",
+    "cfar_grain": "case × A0_OFF × detector branch, periods summed only within that branch"
+  },
+  "reproduction": {
+    "aggregation_command_template": "python3 scripts/phase_r/aggregate_r4_evidence.py --output-dir <new-output-directory>",
+    "production_runner": "scripts/run_production_hierarchical_calibration_pilot.py",
+    "config": "configs/research/production_hierarchical_calibration_delay_pilot.json",
+    "p5_evaluator": "scripts/run_p5_csi_eval.py",
+    "case_root_manifests": [
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_10__delay_0ns/case_manifest.json",
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/case_manifest.json",
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_10__delay_0ns/case_manifest.json",
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_maps/cases/e1_low_speed__seed_101__v_1__snr_30__delay_0ns/case_manifest.json",
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr10_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_10__delay_0ns/case_manifest.json",
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v2_snr30_cleanclone/cases/e1_low_speed__seed_101__v_2__snr_30__delay_0ns/case_manifest.json",
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr10_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_10__delay_0ns/case_manifest.json",
+      "outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry_v4_snr30_cleanclone/cases/e1_low_speed__seed_101__v_4__snr_30__delay_0ns/case_manifest.json"
+    ],
+    "production_commands_and_source_identity": "preserved in each run-root manifest; the maps root manifest is truncated, but its command/source prefix is intact",
+    "stage2_and_runtime_configuration": "per-case Stage2 reports, scenario JSONs, period XMLs, branch runtime XMLs, and logs remain under the listed case roots"
+  }
+}

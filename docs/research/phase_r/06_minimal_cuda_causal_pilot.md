@@ -97,3 +97,87 @@ python3 scripts/phase_r/evaluate_r3_minimal_cuda_causal_pilot.py \
 ```
 
 Evaluation artifacts: [`evaluation JSON`](evidence/r3_minimal_cuda_causal_pilot_20261021/r3_minimal_cuda_causal_evaluation.json)、[`cross-seed CSV`](evidence/r3_minimal_cuda_causal_pilot_20261021/r3_cross_seed_condition_metrics.csv)、[`figure`](evidence/r3_minimal_cuda_causal_pilot_20261021/r3_cross_seed_comparison.png)。
+
+## Phase R4：E1/E4/E5 seed-101 实际 pilot
+
+本节是对 R3 报告的独立追加，不改写上面的 +4 ns 因果结果。设计冻结见 [05 实验设计](05_experiment_design.md) 的 Phase R4 节；本次使用 0 ns 通道误差，不能用来更新 R3 的未知误差/已知校正效应。
+
+### 结论与状态
+
+seed 101 的 8 个速度输入 × SNR case 均在真实 CUDA Production 上执行；120/120 Production 分支通过，Stage2 连续面积地杂波在每个 case 均有效。但完整性能门没有通过：低速 case 的 P5 背景 ROI 无有效单元，valid-CUT 的跨分支唯一命中集合不可评估，残余闭合评价器要求本次冻结子集未运行的 PK/PKR 分支。因此本轮只形成正确性与可行性证据，不扩展 seed 202/303，不声称 Pd/Pfa 或性能收益已验证。
+
+| 标签 | 状态 | 证据边界 |
+|---|---|---|
+| `IMPLEMENTED` | 是 | runner 支持方法/模式子集和 Production 前面积杂波 fail-closed gate；P5 使用 period-specific truth/tap 对齐。 |
+| `EXECUTED` | 是 | seed 101、0 ns、4 个配置地速 × 2 个 SNR、C0–C3/Mode-A；8 case × 15 个真实 CUDA Production 分支。 |
+| `EVALUABLE` | 部分 | 面积杂波注入、ideal/none triplet、Production 命中与有限的 TrackManager 参数记录、逐分支 CFAR CUT/hit 计数、有效 P5 行。CFAR 虚警率、低速 P5 背景指标和 radial-velocity RMSE 不可评估。 |
+| `PERFORMANCE_VERIFIED` | 否 | 单 seed；P5 和聚合 CFAR/残余闭合 gate 未完整通过。 |
+
+### 场景、径向真值与真实地杂波
+
+配置的 `target_velocity_mps` 是地速输入，不是径向速度。下表的 `v_r` 是从每期 `moving_target_truth.csv` 的 `vr_self_mps` 按 period 求均值后再汇总；同一地速的两个 SNR 配对使用相同运动真值。
+
+| 配置地速输入 (m/s) | Stage2 径向真值：3 期均值 (m/s) | 3 期均值范围 (m/s) |
+|---:|---:|---:|
+| 0.5 | 0.48861 | 0.48829–0.48893 |
+| 1 | 0.97722 | 0.97658–0.97787 |
+| 2 | 1.95445 | 1.95317–1.95573 |
+| 4 | 3.90893 | 3.90640–3.91146 |
+
+所有 8 case 使用 6,000 m 平台、0 m 地面高程和可达斜距窗 `[84,500, 85,500] m`（对应地距 `[84,286.713, 85,289.214] m`）。每个 case 的 Stage2 报告均为 `continuous_area_packets=390`、`continuous_area_samples=1,952,655`、实测面积功率 `0.02233528`、lag-1 相关 `0.98000653`；数值跨 case 相同，面积门全部通过。OFF/ON/TO 的 seed、背景身份、目标身份和 Production identity 由 case manifest 配对记录，C1–C3 使用 Mode-A 的 OFF reference。
+
+配对输入的路径、字节数和 SHA-256 保存在 case manifests 与紧凑 manifest 中，但清理后 72 个已记录的 Stage2 protocol-IQ `.bin` 输入文件均不在目录中。因此 F1/F2 原始输入的数值功率无法从保留文件独立重算，报告不宣称其数值功率完全相等；目前可审查的是配对身份/哈希、Stage2 实测杂波功率、CSI tap 与下游结果。该保留边界也写入 [manifest](evidence/r4_e1_e4_e5_seed101_20261022/manifest.json) 的 `input_retention`。
+
+### Production、CFAR 与 E5 记录
+
+- 每个 case 的 15/15 Production 分支均通过，实际 runtime XML、production log、逐 period stage 记录、CSI tap、CFAR geometry、检测和 track 审计仍保存在对应本地 case 根目录；关键路径与源码/二进制身份列于 manifest。
+- 40 个 ON 分支（5 个方法/基线 × 8 case）各有 3 个可见目标机会，合计命中 120/120。每分支只有 3 个相邻 period；这不是统计性 Pd。TrackManager 的 `track_pd_all_visible` 均为 2/3，`track_pd_after_confirmation` 均为 1.0。Production detection record 中 unmatched 行占比为 90.93%–98.42%（unmatched rows / all detection rows），不是 CFAR Pfa。
+- 40 个 ON 分支均有有限的 truth-matched angle、track ground-speed 和 position RMSE；范围分别为 `0.0104–0.2674°`、`2.423–20.649 m/s` 和 `16.22–419.47 m`。这些是跨不同速度/SNR/方法的描述范围，不作方法间因果优劣排序。Radial-velocity RMSE 未出现在 Production branch metrics 中，状态为 `NOT_REPORTED`，不以地速误差代替。
+- A0_OFF 的两条 CFAR detector branch 各有 `1,581,840` valid CUT（3 period 合计）。所有 case 的 `union_dynamic_in_band` 为 `47,356 / 1,581,840 = 2.9937%`，`union_full_band` 为 `51,275 / 1,581,840 = 3.2415%`。这些是按 branch 计算的观测 hit fraction；hit-cell 身份只保留 hashes，未提供可合并的唯一 cell union/truth join，不能称为 false-hit rate 或 Pfa。case-level `valid_cut_denominators` 聚合 gate 因此为 `NOT_EVALUABLE`。
+
+ideal 与 none causal triplet 每 case 均为 `18,439,200` samples，最大绝对误差范围 `1.2102e-6–1.3278e-6`，低于冻结容差 `5e-5`。但 residual closure evaluator 要求 A0/PK/PKR；冻结实验只运行 C0–C3，因此闭合状态是 `NOT_EVALUABLE (residual_branch_missing_or_ambiguous:PK)`。这是实验子集与 evaluator 契约不匹配，不是 CUDA Production 崩溃；不能通过放宽 gate 来绕过。
+
+### P5 覆盖与可评估的 v_g=4 m/s ON 指标
+
+每个 case 有 30 条 period-specific P5 报告（方法 × ON/TO × 3 period）。背景 ROI / target metric 有效记录数如下；“incomplete”保持原评价结果，不用零填补，也未调低有效单元门槛。
+
+| 配置地速 (m/s) | SNR (dB) | 背景 ROI 有效 / 30 | 目标指标有效 / 30 | P5 状态 |
+|---:|---:|---:|---:|---|
+| 0.5 | 10 | 0 | 15 | 30 incomplete |
+| 0.5 | 30 | 0 | 15 | 30 incomplete |
+| 1 | 10 | 0 | 15 | 30 incomplete |
+| 1 | 30 | 0 | 15 | 30 incomplete |
+| 2 | 10 | 20 | 30 | 20 ok, 10 incomplete |
+| 2 | 30 | 20 | 30 | 20 ok, 10 incomplete |
+| 4 | 10 | 30 | 30 | 30 ok |
+| 4 | 30 | 30 | 30 | 30 ok |
+
+0.5/1 m/s 的背景 ROI 与活动杂波 Doppler 支持不相交（目标中心行落在 ROI 外，活动支持约为 row 46–84），故背景有效数为 0；这是评价几何覆盖失败，不是把质量门槛调严后产生的算法退化。2 m/s 仍有 10 条报告不完整。完整逐 period 行在 [`p5_period_summary.csv`](evidence/r4_e1_e4_e5_seed101_20261022/p5_period_summary.csv)。
+
+只有配置地速 4 m/s 的两个 SNR 均有 30/30 背景和目标记录可评价。指标方向：`SCNR improvement = after − before`，负值表示输出 SCNR 下降；`CA_ROI = 10 log10(before power / after power)`，负值表示背景 ROI 功率处理后增加；`target_loss = -target_gain`，负值表示目标功率轻微增加。
+
+| 方法 | SNR (dB) | SCNR change (dB) | CA_ROI (dB) | target_loss (dB) |
+|---|---:|---:|---:|---:|
+| C0 | 10 | -4.148 | -1.091 | -0.086 |
+| C1 | 10 | -5.763 | -1.622 | -0.086 |
+| C2 | 10 | -3.742 | -1.150 | -0.086 |
+| C3 | 10 | -5.563 | -1.554 | -0.092 |
+| C0 | 30 | -4.148 | -1.054 | -0.085 |
+| C1 | 30 | -5.763 | -1.609 | -0.085 |
+| C2 | 30 | -3.742 | -1.124 | -0.085 |
+| C3 | 30 | -5.550 | -1.579 | -0.105 |
+
+C2 的 SCNR 下降幅度在这一个 seed 的 v_g=4 m/s case 中小于 C0/C1/C3；所有方法的 SCNR change 和 CA_ROI 仍为负值。三个 period 属于同一个 seed，故这里只是描述性结果，不能说 C2 有显著或可泛化收益。概览图见 [`pilot_metric_coverage.png`](evidence/r4_e1_e4_e5_seed101_20261022/pilot_metric_coverage.png)；完整 branch/P5/CFAR 表分别见 [`production_branch_summary.csv`](evidence/r4_e1_e4_e5_seed101_20261022/production_branch_summary.csv)、[`p5_method_role_summary.csv`](evidence/r4_e1_e4_e5_seed101_20261022/p5_method_role_summary.csv) 和 [`cfar_off_branch_summary.csv`](evidence/r4_e1_e4_e5_seed101_20261022/cfar_off_branch_summary.csv)。
+
+### 源码身份、失败现场与复现
+
+- Production source commit：`69475e3db0c1bd012f247094daef461d15905fff`，run manifest 记录 `dirty=false`；GPU 为 NVIDIA RTX 3050 Laptop、driver `580.178.04`、CUDA `13.0`，有效运行 `skip_cuda=false`。
+- Production runner SHA-256：`dfab0581d23b6b66576a7af9aeb5a6e58223b8a1c4278d6376ee51bfe5b39093`；P5 evaluator SHA-256：`3f3596f6d4df7b850e41ffbdc15e3219bb5f3d344bf3701d55d426e66d79e1cb`；配置 SHA-256：`6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8`。Stage2/Production binary hashes 与实际命令在 manifest/run-root manifests 中。
+- maps 根 `manifest.json` 因 ENOSPC 截断，原文件保留；紧凑 manifest 从有效 JSON 前缀恢复了该 root 的 command、GPU probe、build、config 和 runner 身份。无 case manifest 的 partial v=2/SNR10 目录、初次失败根和重复 final 根均排除在八 case 汇总外，仍保留作审计。
+- 本轮未运行 seed 202/303、未训练 AI。下一步须先由用户决定是否修正 evaluator 的分支契约及低速 P5 ROI 覆盖；只有 seed101 关键 gate 全通过后才考虑增加独立 seed。
+
+原 Production 逐 root 命令和输入 identities 见 [`manifest.json`](evidence/r4_e1_e4_e5_seed101_20261022/manifest.json)。重新汇总（写到一个全新目录，不覆盖现有证据）的入口：
+
+```bash
+python3 scripts/phase_r/aggregate_r4_evidence.py --output-dir docs/research/phase_r/evidence/r4_e1_e4_e5_seed101_20261022_rebuilt
+```
