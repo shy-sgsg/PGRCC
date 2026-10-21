@@ -501,6 +501,7 @@ def test_mode_b_off_fixed_reference_generates_research_operator_xml(tmp_path: Pa
         ROOT / "config/gmti.xml",
         method,
         {},
+        layout={"beam_id": 50},
         mode="Mode-B",
         role="OFF",
         reference_path=Path(str(contract["reference_artifact"])),
@@ -510,6 +511,15 @@ def test_mode_b_off_fixed_reference_generates_research_operator_xml(tmp_path: Pa
     assert xml_record["overrides"]["research_calibration_enable"] == "true"
     assert xml_record["overrides"]["research_calibration_method"] == "robust_ddc_rb"
     assert xml_record["overrides"]["research_calibration_reference_gamma_csv"] == str(reference.resolve())
+    assert xml_record["overrides"]["csi_metrics_enable"] == "true"
+    assert xml_record["overrides"]["csi_metrics_dump_power_maps"] == "true"
+    assert xml_record["overrides"]["csi_metrics_dump_intermediate_maps"] == "true"
+    assert xml_record["overrides"]["csi_metrics_beam_id"] == 50
+    generated_xml = ET.parse(xml_record["path"])
+    assert generated_xml.findtext(".//csi_metrics_enable") == "true"
+    assert generated_xml.findtext(".//csi_metrics_dump_power_maps") == "true"
+    assert generated_xml.findtext(".//csi_metrics_dump_intermediate_maps") == "true"
+    assert generated_xml.findtext(".//csi_metrics_beam_id") == "50"
 
 
 def test_flatten_rows_rejects_mode_b_current_off_as_noncomparable() -> None:

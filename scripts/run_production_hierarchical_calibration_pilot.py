@@ -1397,6 +1397,7 @@ def _method_xml(
     method: Mapping[str, object],
     production: Mapping[str, object],
     *,
+    layout: Mapping[str, object],
     mode: str = "not_applicable",
     role: str = "ALL",
     reference_path: Path | None = None,
@@ -1418,6 +1419,10 @@ def _method_xml(
         "research_calibration_reference_gamma_csv": (
             str(Path(reference_path).resolve()) if reference_path is not None else ""
         ),
+        "csi_metrics_enable": "true",
+        "csi_metrics_dump_power_maps": "true",
+        "csi_metrics_dump_intermediate_maps": "true",
+        "csi_metrics_beam_id": int(layout["beam_id"]),
     }
     command: list[object] = [
         sys.executable,
@@ -1963,6 +1968,7 @@ def _run_case(
                     source_xml,
                     method,
                     production,
+                    layout=layout,
                     mode=mode,
                     role=role,
                     reference_path=(
