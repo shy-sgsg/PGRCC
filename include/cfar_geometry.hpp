@@ -115,6 +115,7 @@ struct CfarGeometryDiagnostics {
     std::size_t threshold_test_count = 0U;
     std::size_t valid_cut_count = 0U;
     std::size_t hit_cut_count = 0U;
+    std::size_t direct_fallback_direction_count = 0U;
     std::uint64_t hit_index_hash = 0U;
     bool hit_hash_available = false;
     float configured_pfa = 0.0f;

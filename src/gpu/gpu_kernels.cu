@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cctype>
+#include <numeric>
 #include <string>
 #include <limits>
 #include <thrust/device_vector.h>
@@ -28,6 +29,7 @@
 #include "doppler_center.hpp"
 #include "p38_phase_fit.hpp"
 #include "go_cfar_alpha.hpp"
+#include "go_cfar_device.cuh"
 #include "trig_lut.hpp"
 #include "trig_lut_device.cuh"
 #include "production_calibration_adapter.hpp"
@@ -2533,10 +2535,11 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
     d_cfar_maps_valid_ = false;
     cuFloatComplex* d_detect = nullptr;
     float* d_power = nullptr;
-    float* d_row_prefix = nullptr;
-    float* d_integral = nullptr;
+    void* d_row_prefix_storage = nullptr;
+    void* d_integral_storage = nullptr;
     float* d_mydata = nullptr;
     float* d_threshold = nullptr;
+    std::uint8_t* d_numerical_fallbacks = nullptr;
 
     if (gpu_ptrs_.csi != nullptr) {
         d_csi = reinterpret_cast<cuFloatComplex*>(gpu_ptrs_.csi);
@@ -2549,11 +2552,14 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
     if (!ensureCfarMaps(total)) return false;
     d_mydata = d_cfar_maps_;
     d_power = d_cfar_maps_ + d_cfar_map_elements_;
+    const size_t prefix_element_size = use_go ? sizeof(double) : sizeof(float);
+    const size_t fallback_bytes =
+        use_go && geometry_diagnostics != nullptr ? total * sizeof(std::uint8_t) : 0U;
     const size_t detection_needed =
         total * sizeof(cudacd) +
-        total * sizeof(float) +
-        total * sizeof(float) +
-        integral_count * sizeof(float) + 5U * 256U;
+        total * prefix_element_size +
+        integral_count * prefix_element_size +
+        total * sizeof(float) + fallback_bytes + 6U * 256U;
     if (!ensureDetectionWorkspace(detection_needed)) return false;
     size_t detection_offset = 0;
     auto take_detection = [&](size_t bytes) -> void* {
@@ -2564,10 +2570,13 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
     };
     d_detect = static_cast<cuFloatComplex*>(
         take_detection(total * sizeof(cudacd)));
-    d_row_prefix = static_cast<float*>(take_detection(total * sizeof(float)));
-    d_integral = static_cast<float*>(
-        take_detection(integral_count * sizeof(float)));
+    d_row_prefix_storage = take_detection(total * prefix_element_size);
+    d_integral_storage = take_detection(integral_count * prefix_element_size);
     d_threshold = static_cast<float*>(take_detection(total * sizeof(float)));
+    if (fallback_bytes != 0U) {
+        d_numerical_fallbacks = static_cast<std::uint8_t*>(
+            take_detection(fallback_bytes));
+    }
 
     if (owns_csi) {
         if (CSI_out.empty()) {
@@ -2588,6 +2597,8 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
         band_st, band_ed, cut_band_mode);
     std::vector<float> geometry_hits;
     if (geometry_diagnostics != nullptr) geometry_hits.resize(total);
+    std::vector<std::uint8_t> numerical_fallbacks;
+    if (d_numerical_fallbacks != nullptr) numerical_fallbacks.resize(total);
 
     int threads = 256;
     int blocks = static_cast<int>((total + threads - 1) / threads);
@@ -2608,45 +2619,44 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
         total);
     CUDA_CHECK(cudaGetLastError());
 
-    CUDA_CHECK(cudaMemsetAsync(d_integral, 0, (static_cast<size_t>(H) + 1) * (static_cast<size_t>(W) + 1) * sizeof(float), stream_compute_));
-
     int row_blocks = (H + threads - 1) / threads;
-    row_prefix_kernel<<<row_blocks, threads, 0, stream_compute_>>>(
-        d_power,
-        d_row_prefix,
-        H,
-        W);
-    CUDA_CHECK(cudaGetLastError());
-
     int col_blocks = (W + threads - 1) / threads;
-    col_prefix_to_integral_kernel<<<col_blocks, threads, 0, stream_compute_>>>(
-        d_row_prefix,
-        d_integral,
-        H,
-        W);
-    CUDA_CHECK(cudaGetLastError());
-
     CUDA_CHECK(cudaMemsetAsync(d_mydata, 0, total * sizeof(float), stream_compute_));
-
-    cfar_detect_kernel<<<blocks, threads, 0, stream_compute_>>>(
-        d_detect,
-        d_integral,
-        d_mydata,
-        H,
-        W,
-        g,
-        b,
-        total_bg,
-        alpha,
-        d_threshold,
-        use_go,
-        cfg.cfar_doppler_circular,
-        cfg.cfar_exclude_row_start,
-        cfg.cfar_exclude_row_end,
-        band_st,
-        band_ed,
-        cut_band_mode);
-    CUDA_CHECK(cudaGetLastError());
+    if (use_go) {
+        double* d_row_prefix = static_cast<double*>(d_row_prefix_storage);
+        double* d_integral = static_cast<double*>(d_integral_storage);
+        CUDA_CHECK(cudaMemsetAsync(
+            d_integral, 0, integral_count * sizeof(double), stream_compute_));
+        gmti::cfar::device::row_prefix_kernel<<<row_blocks, threads, 0, stream_compute_>>>(
+            d_power, d_row_prefix, H, W);
+        CUDA_CHECK(cudaGetLastError());
+        gmti::cfar::device::col_prefix_to_integral_kernel<<<col_blocks, threads, 0, stream_compute_>>>(
+            d_row_prefix, d_integral, H, W);
+        CUDA_CHECK(cudaGetLastError());
+        gmti::cfar::device::cfar_detect_go_kernel<<<blocks, threads, 0, stream_compute_>>>(
+            d_detect, d_power, d_integral, d_mydata, d_threshold,
+            d_numerical_fallbacks, H, W, g, b, alpha,
+            cfg.cfar_doppler_circular, cfg.cfar_exclude_row_start,
+            cfg.cfar_exclude_row_end, band_st, band_ed, cut_band_mode);
+        CUDA_CHECK(cudaGetLastError());
+    } else {
+        float* d_row_prefix = static_cast<float*>(d_row_prefix_storage);
+        float* d_integral = static_cast<float*>(d_integral_storage);
+        CUDA_CHECK(cudaMemsetAsync(
+            d_integral, 0, integral_count * sizeof(float), stream_compute_));
+        row_prefix_kernel<<<row_blocks, threads, 0, stream_compute_>>>(
+            d_power, d_row_prefix, H, W);
+        CUDA_CHECK(cudaGetLastError());
+        col_prefix_to_integral_kernel<<<col_blocks, threads, 0, stream_compute_>>>(
+            d_row_prefix, d_integral, H, W);
+        CUDA_CHECK(cudaGetLastError());
+        cfar_detect_kernel<<<blocks, threads, 0, stream_compute_>>>(
+            d_detect, d_integral, d_mydata, H, W, g, b, total_bg,
+            alpha, d_threshold, false, cfg.cfar_doppler_circular,
+            cfg.cfar_exclude_row_start, cfg.cfar_exclude_row_end,
+            band_st, band_ed, cut_band_mode);
+        CUDA_CHECK(cudaGetLastError());
+    }
 
     d_cfar_maps_valid_ = true;
     std::size_t measured_hit_count = 0U;
@@ -2695,6 +2705,12 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
         CUDA_CHECK(cudaMemcpyAsync(geometry_hits.data(), d_mydata,
                                    total * sizeof(float),
                                    cudaMemcpyDeviceToHost, stream_compute_));
+        if (d_numerical_fallbacks != nullptr) {
+            CUDA_CHECK(cudaMemcpyAsync(
+                numerical_fallbacks.data(), d_numerical_fallbacks,
+                total * sizeof(std::uint8_t), cudaMemcpyDeviceToHost,
+                stream_compute_));
+        }
     }
     if (download_maps || detect_map != nullptr || hit_count != nullptr ||
         geometry_diagnostics != nullptr) {
@@ -2719,6 +2735,10 @@ bool GMTIProcessor::dpca_cfar2_fast_cuda(const std::vector<std::complex<float>> 
         geometry_diagnostics->threshold_test_count = geometry.threshold_test_count;
         geometry_diagnostics->valid_cut_count = geometry.valid_cut_count;
         geometry_diagnostics->hit_cut_count = measured_hit_count;
+        geometry_diagnostics->direct_fallback_direction_count =
+            static_cast<std::size_t>(std::accumulate(
+                numerical_fallbacks.begin(), numerical_fallbacks.end(),
+                std::uint64_t(0)));
         geometry_diagnostics->hit_index_hash = gmti::cfar::hash_hit_indices(geometry_hits);
         geometry_diagnostics->hit_hash_available = true;
         geometry_diagnostics->configured_pfa = pf;

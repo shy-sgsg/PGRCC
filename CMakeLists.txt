@@ -483,6 +483,20 @@ add_executable(cfar_geometry_selftest
   tests/cfar_geometry_selftest.cpp
 )
 
+if(NOT USE_COREX)
+  add_executable(cfar_cuda_numerical_selftest
+    tests/go_cfar_cuda_numerical_selftest.cu
+  )
+  target_include_directories(cfar_cuda_numerical_selftest PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+  )
+  target_link_libraries(cfar_cuda_numerical_selftest PRIVATE CUDA::cudart)
+  set_target_properties(cfar_cuda_numerical_selftest PROPERTIES
+    CUDA_STANDARD 11
+    CUDA_STANDARD_REQUIRED ON
+  )
+endif()
+
 add_executable(channel_impairments_selftest
   tests/channel_impairments_selftest.cpp
   simulator/target_injection/channel_impairments.cpp
@@ -914,6 +928,21 @@ if(BUILD_TESTING)
   add_test(NAME production_calibration_config_selftest
            COMMAND production_calibration_config_selftest ${CMAKE_SOURCE_DIR}/gmti.xml)
   add_test(NAME cfar_geometry_selftest COMMAND cfar_geometry_selftest)
+  if(NOT USE_COREX)
+    add_test(NAME cfar_cuda_numerical_selftest
+      COMMAND cfar_cuda_numerical_selftest
+        ${CMAKE_SOURCE_DIR}/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_power.f32
+        ${CMAKE_SOURCE_DIR}/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_geometry.csv
+    )
+    set_tests_properties(cfar_cuda_numerical_selftest PROPERTIES SKIP_RETURN_CODE 77)
+    add_test(NAME cfar_cuda_numerical_selftest_rejects_missing_fixture
+      COMMAND cfar_cuda_numerical_selftest
+        ${CMAKE_CURRENT_BINARY_DIR}/r7_fixture_must_not_exist.f32
+        ${CMAKE_CURRENT_BINARY_DIR}/r7_fixture_must_not_exist.csv
+    )
+    set_tests_properties(cfar_cuda_numerical_selftest_rejects_missing_fixture
+      PROPERTIES WILL_FAIL TRUE)
+  endif()
   add_test(NAME channel_impairments_selftest COMMAND channel_impairments_selftest)
   add_test(NAME channel_geometry_selftest COMMAND channel_geometry_selftest)
   add_test(NAME p38_phase_fit_selftest COMMAND p38_phase_fit_selftest)

@@ -19,10 +19,10 @@ from scripts.phase_r.go_cfar_reference import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-R6_RESULT = ROOT / "outputs/phase_r6_stagewise_divergence_20261022/production/A0_ON_rep1/result"
-POWER_FILE = R6_RESULT / "debug/cfar_GMTI01_beam050_power.f32"
-THRESHOLD_FILE = R6_RESULT / "debug/cfar_GMTI01_beam050_threshold.f32"
-GEOMETRY_FILE = R6_RESULT / "debug/cfar_geometry_diagnostics.csv"
+PRE_FIX_DYNAMIC_RESULT = ROOT / "outputs/phase_r7_cfar_correctness_20261022/pre_fix_focused/branch_dynamic/result"
+POWER_FILE = PRE_FIX_DYNAMIC_RESULT / "debug/cfar_GMTI01_beam050_power.f32"
+THRESHOLD_FILE = PRE_FIX_DYNAMIC_RESULT / "debug/cfar_GMTI01_beam050_threshold.f32"
+GEOMETRY_FILE = PRE_FIX_DYNAMIC_RESULT / "debug/cfar_geometry_diagnostics.csv"
 HEIGHT, WIDTH = 130, 4096
 GUARD, BACKGROUND = 4, 16
 R6_CUT = (111, 3337)
@@ -49,6 +49,49 @@ def production_alpha() -> float:
     if len(values) != 1:
         raise AssertionError(f"period-0 Production alpha is ambiguous: {sorted(values)}")
     return values.pop()
+
+
+def legacy_float32_threshold(power: np.ndarray, geom: CfarGeometry, alpha: float, row: int, col: int) -> float:
+    """Reproduce the old CUDA float32 prefix arithmetic for one GO-CFAR CUT."""
+    row_prefix = np.cumsum(power, axis=1, dtype=np.float32)
+    integral = np.zeros((geom.height + 1, geom.width + 1), dtype=np.float32)
+    integral[1:, 1:] = np.cumsum(row_prefix, axis=0, dtype=np.float32)
+
+    def rect(r0: int, r1: int, c0: int, c1: int) -> np.float32:
+        return (
+            integral[r1 + 1, c1 + 1]
+            - integral[r0, c1 + 1]
+            - integral[r1 + 1, c0]
+            + integral[r0, c0]
+        )
+
+    def doppler_rect(r0: int, r1: int, c0: int, c1: int) -> np.float32:
+        if not geom.doppler_circular:
+            return rect(r0, r1, c0, c1)
+        while r0 < 0:
+            r0 += geom.height
+            r1 += geom.height
+        while r0 >= geom.height:
+            r0 -= geom.height
+            r1 -= geom.height
+        if r1 < geom.height:
+            return rect(r0, r1, c0, c1)
+        return rect(r0, geom.height - 1, c0, c1) + rect(0, r1 - geom.height, c0, c1)
+
+    guard, radius = geom.guard_cells, geom.radius
+    r0, r1 = row - radius, row + radius
+    c0, c1 = col - radius, col + radius
+    row_guard0, row_guard1 = row - guard, row + guard
+    col_guard0, col_guard1 = col - guard, col + guard
+    counts = (geom.window_size * geom.background_cells,) * 4
+    sums = (
+        doppler_rect(r0, r1, c0, col_guard0 - 1),
+        doppler_rect(r0, r1, col_guard1 + 1, c1),
+        doppler_rect(r0, row_guard0 - 1, c0, c1),
+        doppler_rect(row_guard1 + 1, r1, c0, c1),
+    )
+    means = tuple(value / count for value, count in zip(sums, counts))
+    return float(np.float32(alpha) * max(means))
 
 
 class TestGoCfarFloat64Reference(unittest.TestCase):
@@ -117,7 +160,7 @@ class TestGoCfarFloat64Reference(unittest.TestCase):
         self.assertEqual(result.details[(10, 20)].threshold, 13.0)
 
     @unittest.skipUnless(POWER_FILE.is_file() and THRESHOLD_FILE.is_file(), "R6 Production map fixture unavailable")
-    def test_r6_saved_cuda_error_is_reproduced_by_both_cpu_references(self) -> None:
+    def test_r6_dynamic_branch_negative_threshold_is_reproduced_by_legacy_float32_and_fixed_references(self) -> None:
         power = np.fromfile(POWER_FILE, dtype="<f4").reshape(HEIGHT, WIDTH)
         old_threshold = np.fromfile(THRESHOLD_FILE, dtype="<f4").reshape(HEIGHT, WIDTH)
         geom = CfarGeometry(HEIGHT, WIDTH, GUARD, BACKGROUND, True)
@@ -126,10 +169,11 @@ class TestGoCfarFloat64Reference(unittest.TestCase):
 
         self.assertAlmostEqual(float(power[row, col]), 17.0784569, delta=1.0e-5)
         self.assertAlmostEqual(float(old_threshold[row, col]), -2.6239653, delta=1.0e-5)
+        self.assertEqual(legacy_float32_threshold(power, geom, alpha, row, col), float(old_threshold[row, col]))
         direct = threshold_detail_direct_f64(power, geom, alpha, row, col)
         integral = threshold_detail_integral_f64(power, geom, alpha, row, col)
         np.testing.assert_allclose(direct.directional_means, integral.directional_means, rtol=1.0e-8, atol=1.0e-12)
-        self.assertAlmostEqual(direct.threshold, 136.0440673, delta=5.0e-4)
+        self.assertAlmostEqual(direct.threshold, 114.8018334, delta=5.0e-4)
         self.assertGreater(direct.threshold, float(power[row, col]))
         self.assertLess(float(old_threshold[row, col]), 0.0)
         self.assertGreater(abs(float(old_threshold[row, col]) - direct.threshold), 100.0)

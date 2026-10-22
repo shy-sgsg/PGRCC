@@ -301,6 +301,51 @@ void writeCfarDiagnostic(const Config &cfg,
     }
 }
 
+void writeCfarBranchDiagnostic(const Config &cfg,
+                               int beam_id,
+                               const char *branch,
+                               const std::vector<float> &hits,
+                               const std::vector<float> &power,
+                               const std::vector<float> &threshold,
+                               const gmti::cfar::CfarGeometryDiagnostics *geometry)
+{
+    if (!cfg.runtime_diagnostics_enabled || !cfarDumpSelectedBeam(beam_id) ||
+        cfg.result_add.empty() || hits.empty() || power.size() != hits.size() ||
+        threshold.size() != hits.size() || geometry == nullptr) {
+        return;
+    }
+    const std::string debug_dir = joinPathLocal(cfg.result_add, "debug");
+    if (!ensureDirLocal(debug_dir)) return;
+    const std::string stem = cfarDiagnosticStem(cfg, beam_id) + "_" + branch;
+    const auto write_map = [&](const std::string &suffix,
+                               const std::vector<float> &values) {
+        std::ofstream output(joinPathLocal(debug_dir, stem + suffix + ".f32").c_str(),
+                             std::ios::binary | std::ios::trunc);
+        if (output) {
+            output.write(reinterpret_cast<const char *>(values.data()),
+                         static_cast<std::streamsize>(values.size() * sizeof(float)));
+        }
+    };
+    write_map("_hits", hits);
+    write_map("_power", power);
+    write_map("_threshold", threshold);
+    std::ofstream metadata(joinPathLocal(debug_dir, stem + "_meta.txt").c_str());
+    if (metadata) {
+        metadata << std::setprecision(17)
+                 << "rows=" << effectivePulseNum(cfg) << '\n'
+                 << "cols=" << cfg.rg_len << '\n'
+                 << "branch=" << branch << '\n'
+                 << "cfar_type=" << geometry->cfar_type << '\n'
+                 << "cfar_pfa_configured=" << geometry->configured_pfa << '\n'
+                 << "cfar_alpha=" << geometry->alpha << '\n'
+                 << "threshold_precision="
+                 << (geometry->cfar_type == "GO"
+                         ? "float64_accumulation_float32_output"
+                         : "float32_accumulation_float32_output")
+                 << '\n';
+    }
+}
+
 void writeCfarGeometryDiagnostics(
     const Config &cfg,
     const std::vector<gmti::cfar::CfarGeometryDiagnostics> &rows,
@@ -355,6 +400,24 @@ void writeCfarGeometryDiagnostics(
         output << cluster_count << ',' << protocol_detection_row_count
                << ",NOT_EVALUABLE,NOT_EVALUABLE,NOT_EVALUABLE,"
                << "truth_join_required_for_false_counts\n";
+    }
+
+    const std::string numerical_path =
+        joinPathLocal(debug_dir, "cfar_numerical_diagnostics.csv");
+    std::ifstream numerical_existing(numerical_path.c_str());
+    const bool numerical_header = !numerical_existing.good();
+    std::ofstream numerical_output(numerical_path.c_str(), std::ios::app);
+    if (numerical_output) {
+        if (numerical_header) {
+            numerical_output << "schema_version,period_id,beam_id,branch,cfar_type,"
+                             << "threshold_test_count,direct_fallback_direction_count\n";
+        }
+        for (const auto &row : rows) {
+            numerical_output << row.schema_version << ',' << row.period_id << ','
+                             << row.beam_id << ',' << row.branch << ','
+                             << row.cfar_type << ',' << row.threshold_test_count << ','
+                             << row.direct_fallback_direction_count << '\n';
+        }
     }
 }
 
@@ -2907,6 +2970,12 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
                             (dynamic_complex.size() == dynamic_power.size() &&
                              full_complex.size() == full_power.size()));
             if (cfarSuccess1) {
+                writeCfarBranchDiagnostic(cfg, periodIdx, "dynamic_in_band",
+                                           dynamic_hits, dynamic_power, dynamic_threshold,
+                                           dynamic_geometry);
+                writeCfarBranchDiagnostic(cfg, periodIdx, "full_band",
+                                           full_hits, full_power, full_threshold,
+                                           full_geometry);
                 mydata.resize(dynamic_hits.size());
                 power_map.resize(dynamic_power.size());
                 threshold_map.resize(dynamic_threshold.size());
@@ -4534,6 +4603,12 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                        (dynamic_complex.size() == dynamic_power.size() &&
                         full_complex.size() == full_power.size()));
             if (cfar_ok) {
+                writeCfarBranchDiagnostic(cfg, periodIdx, "dynamic_in_band",
+                                           dynamic_hits, dynamic_power, dynamic_threshold,
+                                           dynamic_geometry);
+                writeCfarBranchDiagnostic(cfg, periodIdx, "full_band",
+                                           full_hits, full_power, full_threshold,
+                                           full_geometry);
                 mydata.resize(dynamic_hits.size());
                 power_map.resize(dynamic_power.size());
                 threshold_map.resize(dynamic_threshold.size());
