@@ -145,7 +145,7 @@ R2 建立了 PGRCC 当前的信息边界、几何投影、多普勒模糊和 CSI
 
 R3 的 A↔C F1/F2 复数输入闭合在 ON/OFF/TO 三种配对角色均通过预设相对 RMS `1e-3`；这是该仿真干预的物理校正闭合，不是实机校准精度。方向在 3 个 seed 上重复，但单一仿真场景不等于真实系统误差分布，也不构成显著性检验或普适 Pd/Pfa 结论。R3 的 D 条件、目标/杂波指标和失败项见 [`06_minimal_cuda_causal_pilot.md`](06_minimal_cuda_causal_pilot.md) 与 [`06_bottleneck_experiment_results.md`](06_bottleneck_experiment_results.md)。
 
-本阶段未运行新实验、未改变运行代码，也未改动或删除任何历史 scratch/output/package。下一阶段先完成 R3 评价链审计，再冻结 R4 最小实验设计；在这两项完成前不启动实验。
+R2 阶段记录时未运行新实验、未改变运行代码，也未改动或删除任何历史 scratch/output/package。当时计划先完成 R3 评价链审计，再冻结 R4 最小实验设计；后续实际执行状态见下方 R3 补充、[04 评价审计](04_evaluation_pipeline_audit.md)和[06 结果合并](06_bottleneck_experiment_results.md)。
 
 ## 2026-10-21 补充：Phase-I 敏感度证据修正
 
