@@ -22,7 +22,7 @@
 
 5. **是否应调整为低速目标保护或复杂杂波建模主线？**
 
-   暂不能把其中任何一个定为唯一主线。本试验目标 6.7 m/s，H0 分支出现大量结构杂波 hit/false clusters，且径向速度输出处于 ambiguity unresolved；这使低速目标保护、虚警统计和复杂杂波建模值得作为竞争瓶颈进一步审查。但当前 H0 命中比例不是经校准的 Pfa，且单场景缺少不同目标速度/杂波分布对照；这些信号不足以推翻已观察到的通道时延因果损失。
+   暂不能把其中任何一个定为唯一主线。本试验目标 6.7 m/s，R3 与 R4 的 target-free H0 都出现高比例 CFAR CUT 超阈：R3 动态带约 `1.11%–1.46%`，R4 target-free H0 false-CUT fraction 在两个分支约 `2.9937%` / `3.2415%`。R4 H0 由 A0_OFF 目标关闭并复用 A0_ON 目标注入前保存的 C+N 背景；该值是本场景的分支级 observed hits/valid CUTs，不是检测级虚警率或经统计校准的 empirical Pfa。R4 的八个速度/SNR 行重复同一 branch hit-hash 签名，只有一个 seed、三个相关 period；这提高了 CFAR/相关杂波建模的审查优先级，却没有证明根因是非均匀杂波，也不足以推翻 R3 已观察到的通道时延因果损失。
 
 ## 阶段门控结论
 
@@ -54,9 +54,9 @@
 ### R4 gate 判定
 
 - **已通过**：8 个 case 的物理可达连续面积杂波注入；120 个 CUDA Production 分支；ideal/none triplet 数值闭合；有真实目标 truth 和逐分支 CFAR valid CUT 记录。
-- **未通过/不可评估**：0.5/1 m/s 的 P5 背景 ROI 为 0/30，2 m/s 为 20/30；聚合 CFAR false-hit/Pfa 因 hit-cell 只有 hashes、缺少唯一 cell union/truth join 而不可评估；residual-closure evaluator 要求本次冻结子集未运行的 PK/PKR。
+- **仍未通过/不可评估**：0.5/1 m/s 的 P5 背景 ROI 为 0/30，2 m/s 为 20/30；R4 的分支级 target-free H0 false-CUT fraction 可评估为 `2.9937%` / `3.2415%`，但跨 branch 唯一 hit-cell union、检测级虚警和统计性 Pfa 因只留 hashes/单 seed/相关 period 而不可评估。Residual-closure evaluator 原始输出因缺 PK/PKR 仍是 `NOT_EVALUABLE`；但在 delay=0 ns 的 E1/E4/E5 中，物理校正 residual closure 为 `NOT_APPLICABLE`，不是本轮性能失败门。
 - 因这些 gate 未通过，seed 202/303 没有运行，`PERFORMANCE_VERIFIED` 为否。所有结论限于 seed 101 的三期描述性结果；未下调 ROI 或检测质量门槛。
 
 ### 建议的下一步（尚未执行）
 
-先修正审查契约而不是扩实验：明确 residual-closure gate 与 C0–C3 冻结子集是否兼容；保留可验证的 CFAR hit-cell 身份/真值 join；重新检查低速 P5 背景 ROI 对活动杂波 Doppler 支持的覆盖。若仍需比较 F1/F2 原始输入功率，须在新 pilot 中保留最小功率摘要，因为本轮可重建 `.bin` 已按授权清理、manifest 仅保留 size/hash。随后只重做受影响的 seed-101 evaluation gate；通过后再按预注册决定是否增加 seed 202/303。期间不训练 AI、不扩展六参数估计。
+先修正剩余评价契约而不是扩实验：明确 branch H0 false-CUT fraction 可由 target-free 角色解释、而唯一 cell identity 仅用于跨 branch union/检测级统计；将零时延 R4 residual closure 记为 `NOT_APPLICABLE`，但保留原 evaluator 的 `NOT_EVALUABLE` 记录。修正低速 P5 背景 ROI 对活动杂波 Doppler 支持的覆盖后，才重审受影响的 seed-101 gate。若后续需比较 F1/F2 原始输入功率，新 pilot 应保留最小功率摘要；本轮 `.bin` 已按授权清理，manifest 仅保留 size/hash。全部预注册 gate 通过后，再决定是否增加 seed 202/303。期间不训练 AI、不扩展六参数估计，也不改写历史 evaluator 输出。

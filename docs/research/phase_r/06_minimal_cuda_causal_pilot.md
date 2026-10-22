@@ -104,14 +104,14 @@ Evaluation artifacts: [`evaluation JSON`](evidence/r3_minimal_cuda_causal_pilot_
 
 ### 结论与状态
 
-seed 101 的 8 个速度输入 × SNR case 均在真实 CUDA Production 上执行；120/120 Production 分支通过，Stage2 连续面积地杂波在每个 case 均有效。但完整性能门没有通过：低速 case 的 P5 背景 ROI 无有效单元，valid-CUT 的跨分支唯一命中集合不可评估，残余闭合评价器要求本次冻结子集未运行的 PK/PKR 分支。因此本轮只形成正确性与可行性证据，不扩展 seed 202/303，不声称 Pd/Pfa 或性能收益已验证。
+seed 101 的 8 个速度输入 × SNR case 均在真实 CUDA Production 上执行；120/120 Production 分支通过，Stage2 连续面积地杂波在每个 case 均有效。但完整性能门没有通过：低速 case 的 P5 背景 ROI 无有效单元，valid-CUT 的跨分支唯一命中集合不可评估，且仅有一个 H0 seed/三个相关 period，无法完成检测级虚警与统计校准 Pfa。分支级 target-free H0 false-CUT fraction 可计算。原 residual-closure evaluator 要求本次未运行的 PK/PKR，但 R4 为零时延，物理残余闭合对此不适用；该原始 evaluator 状态不作为失败门。本轮只形成正确性与可行性证据，不扩展 seed 202/303，不声称 Pd/Pfa 或整体性能收益已验证。
 
 | 标签 | 状态 | 证据边界 |
 |---|---|---|
 | `IMPLEMENTED` | 是 | runner 支持方法/模式子集和 Production 前面积杂波 fail-closed gate；P5 使用 period-specific truth/tap 对齐。 |
 | `EXECUTED` | 是 | seed 101、0 ns、4 个配置地速 × 2 个 SNR、C0–C3/Mode-A；8 case × 15 个真实 CUDA Production 分支。 |
-| `EVALUABLE` | 部分 | 面积杂波注入、ideal/none triplet、Production 命中与有限的 TrackManager 参数记录、逐分支 CFAR CUT/hit 计数、有效 P5 行。CFAR 虚警率、低速 P5 背景指标和 radial-velocity RMSE 不可评估。 |
-| `PERFORMANCE_VERIFIED` | 否 | 单 seed；P5 和聚合 CFAR/残余闭合 gate 未完整通过。 |
+| `EVALUABLE` | 部分 | 面积杂波注入、ideal/none triplet、Production 命中与有限的 TrackManager 参数记录、逐分支 CFAR CUT/hit 计数及 target-free H0 false-CUT fraction、有效 P5 行。检测级虚警/统计校准 Pfa、低速 P5 背景指标和 radial-velocity RMSE 不可评估。 |
+| `PERFORMANCE_VERIFIED` | 否 | 单 seed；低速 P5 背景与跨分支/检测级 CFAR 评价未闭合，且没有统计性 Pd/Pfa。R4 零时延物理残余闭合为 `NOT_APPLICABLE`，不计作失败。 |
 
 ### 场景、径向真值与真实地杂波
 
@@ -133,9 +133,10 @@ seed 101 的 8 个速度输入 × SNR case 均在真实 CUDA Production 上执�
 - 每个 case 的 15/15 Production 分支均通过，实际 runtime XML、production log、逐 period stage 记录、CSI tap、CFAR geometry、检测和 track 审计仍保存在对应本地 case 根目录；关键路径与源码/二进制身份列于 manifest。
 - 40 个 ON 分支（5 个方法/基线 × 8 case）各有 3 个可见目标机会，合计命中 120/120。每分支只有 3 个相邻 period；这不是统计性 Pd。TrackManager 的 `track_pd_all_visible` 均为 2/3，`track_pd_after_confirmation` 均为 1.0。Production detection record 中 unmatched 行占比为 90.93%–98.42%（unmatched rows / all detection rows），不是 CFAR Pfa。
 - 40 个 ON 分支均有有限的 truth-matched angle、track ground-speed 和 position RMSE；范围分别为 `0.0104–0.2674°`、`2.423–20.649 m/s` 和 `16.22–419.47 m`。这些是跨不同速度/SNR/方法的描述范围，不作方法间因果优劣排序。Radial-velocity RMSE 未出现在 Production branch metrics 中，状态为 `NOT_REPORTED`，不以地速误差代替。
-- A0_OFF 的两条 CFAR detector branch 各有 `1,581,840` valid CUT（3 period 合计）。所有 case 的 `union_dynamic_in_band` 为 `47,356 / 1,581,840 = 2.9937%`，`union_full_band` 为 `51,275 / 1,581,840 = 3.2415%`。这些是按 branch 计算的观测 hit fraction；hit-cell 身份只保留 hashes，未提供可合并的唯一 cell union/truth join，不能称为 false-hit rate 或 Pfa。case-level `valid_cut_denominators` 聚合 gate 因此为 `NOT_EVALUABLE`。
+- **H0 的地杂波与目标自由来源**：紧凑 manifest 的 `area_clutter_gate` 引用 A0_ON 的 Stage2 报告，8 个 case 均记录 `390` 个连续面积包、`1,952,655` 个样本；A0_ON 将 `A0_background` 设为 paired-background 输出。Stage2 生成器在目标注入前冻结 C+N packet 并写入该 sidecar（`simulate_stage2_main.cpp` 的 `target_background_packet` / `background_out.write` 路径）；A0_OFF 的运行配置关闭目标，并从同一 `A0_background` 目录复用输入。因此 A0_OFF 是本实验的 target-free H0。A0_OFF 报告中的 `continuous_area_packets=0` 是因为该次运行复用背景而未二次生成，且仍写入 390 个 packet；不能单独据此判定 H0 无面积杂波。共享背景的 `scenario_resolved.json` 仍保留源运行的 `target.enabled=true`，这是元数据歧义；实际 sidecar 的目标自由属性由 `empty_background_c_plus_n` 角色、A0_OFF 关闭目标、以及目标注入前复制的源码路径共同支持。原始 protocol-IQ 已按清理记录移除，故当前不能再对其内容做数值重放。
+- **H0 的 CFAR 命中**：两条 detector branch 各有 `1,581,840` valid CUT（3 个相邻 period 合计）。因为上述 H0 无目标，`union_dynamic_in_band` 的 `47,356 / 1,581,840 = 2.9937%` 与 `union_full_band` 的 `51,275 / 1,581,840 = 3.2415%` 可报告为本次 **target-free H0 false-CUT fraction**（分支级 observed hits/valid CUTs）。它不是聚类/检测级虚警率，也不是经统计校准的 empirical Pfa；每分支仅一个 seed、3 个相关 period，且跨 branch 只留 hit-index hashes，不能计算唯一 cell union。八个速度/SNR 汇总行在每个 branch 上具有完全相同的 hit 数与 hash 签名，不能视作八个独立 H0 复验。聚合 Pfa/跨 branch union 仍为 `NOT_EVALUABLE`。
 
-ideal 与 none causal triplet 每 case 均为 `18,439,200` samples，最大绝对误差范围 `1.2102e-6–1.3278e-6`，低于冻结容差 `5e-5`。但 residual closure evaluator 要求 A0/PK/PKR；冻结实验只运行 C0–C3，因此闭合状态是 `NOT_EVALUABLE (residual_branch_missing_or_ambiguous:PK)`。这是实验子集与 evaluator 契约不匹配，不是 CUDA Production 崩溃；不能通过放宽 gate 来绕过。
+ideal 与 none causal triplet 每 case 均为 `18,439,200` samples，最大绝对误差范围 `1.2102e-6–1.3278e-6`，低于冻结容差 `5e-5`。原 evaluator 对本次冻结子集仍输出 `NOT_EVALUABLE (residual_branch_missing_or_ambiguous:PK)`；但 R4 是零时延条件，A0/PK/PKR 的物理校正残差闭合对这组 E1/E4/E5 **`NOT_APPLICABLE`**，不是一项通过，也不应作为性能失败门。保留原始 evaluator 状态供审计，且不改评价器代码；R3 的非零时延比较仍须分别检查 A0↔PK 物理闭合及 PK↔PKR 的额外残差抑制。
 
 ### P5 覆盖与可评估的 v_g=4 m/s ON 指标
 

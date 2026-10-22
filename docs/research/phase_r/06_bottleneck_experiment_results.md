@@ -9,8 +9,8 @@
 | E1：低速目标边界（R4，0 ns） | 是 | 是，8 case，seed 101 | 部分；命中/跟踪记录可用，但 0.5、1 m/s 的 P5 背景 ROI 无有效单元，2 m/s 部分缺失 | 否 | 已跑通零误差低速网格的一部分生产路径；单 seed 且背景评价不完整，不能判定方法性能排序 |
 | E2：未知时延失配（R3，通道 2 +4 ns） | 是 | 是；A/B/C 为 101、202、303，D 为 101 | 是，限杂波、物理闭合、CSI、目标传递代理、角度/跟踪地速/位置及分支 hit fraction | 有限：三个 seed 的三项任务 RMSE 方向重复；统计区间跨 0 | 本场景中失配与任务误差恶化同向，已知物理校正把误差拉回；不是显著性或泛化结论 |
 | E3：有限样本/复杂杂波 | 有历史实现 | 是，历史 128 场景 CUDA 研究 | 否，属于 R3 CFAR 修复前口径，且原性能门失败 | 否 | 仅作历史失败证据；不能据此评价当前生产性能 |
-| E4：CSI 残余与目标保持 | 是 | 是；R3 三 seed，R4 seed 101 | 部分；R3 配对指标可用；R4 P5 背景 ROI 仅部分有效，残余闭合缺 PK/PKR | 否 | CSI 残余、Output SCNR 与任务指标并不等价；R4 可评估的 4 m/s 行中 SCNR/背景 ROI 指标为负向 |
-| E5：检测与参数边界 | 是 | 是；R3 A/B/C，R4 8 case | 部分；角度、跟踪地速、位置有 truth-matched 结果；径向速度 RMSE 未报告，虚警身份/分母不完整 | 否 | 目标机会命中与条件参数误差须分开；当前不具备可报告的径向速度误差或统计性 Pd/Pfa |
+| E4：CSI 残余与目标保持 | 是 | 是；R3 三 seed，R4 seed 101 | 部分；R3 配对指标可用；R4 P5 背景 ROI 仅部分有效；零时延物理残余闭合不适用 | 否 | CSI 残余、Output SCNR 与任务指标并不等价；R4 可评估的 4 m/s 行中 SCNR/背景 ROI 指标为负向 |
+| E5：检测与参数边界 | 是 | 是；R3 A/B/C，R4 8 case | 部分；角度、跟踪地速、位置有 truth-matched 结果；径向速度 RMSE 未报告；R4 可算分支 H0 false-CUT fraction，但跨分支身份/检测级虚警与校准 Pfa 不完整 | 否 | 目标机会命中与条件参数误差须分开；当前不具备可报告的径向速度误差或统计性 Pd/Pfa |
 
 标签仅适用于该行所列范围。`EXECUTED` 不自动推出 `EVALUABLE`，`EVALUABLE` 也不自动推出 `PERFORMANCE_VERIFIED`。
 
@@ -54,8 +54,10 @@ D 只在 seed 101 执行，估计器仅读取 A1_OFF 的融合 F1/F2，不读取
 | 地杂波 | 每 case `390` packets、`1,952,655` samples；实测均值功率 `0.0223352779188`、lag-1 `0.980006534954`。斜距 `[84.5,85.5] km` 对应地距 `[84.2867,85.2892] km` | 8/8 case 注入有效且数值一致 |
 | Production | `120/120` selected branches passed；保留 runtime XML、log、逐 period stage、CSI tap、CFAR geometry、检测/跟踪记录 | 执行门通过；不代表完整评价门通过 |
 | 理想/none causal triplet | 每 case `18,439,200` samples；最大绝对误差 `1.2102e−6–1.3278e−6`，冻结容差 `5e−5` | 8/8 case 通过 |
-| 残余闭合 | evaluator 要求 A0/PK/PKR；冻结子集仅包含 C0–C3，缺 PK/PKR | `NOT_EVALUABLE`，不放宽门槛 |
-| CFAR valid CUT | A0_OFF 两个 detector branch 各 `1,581,840` valid CUT（每分支三 period）；dynamic-band hits `47,356`，full-band hits `51,275` | 每 branch hit fraction 分别 `2.9937%`、`3.2415%`；唯一 hit-cell union 只有 hashes，无法完成跨分支去重/真值关联，aggregate false-hit/Pfa `NOT_EVALUABLE` |
+| 残余闭合 | 原 evaluator 要求 A0/PK/PKR；本次 R4 固定零时延，仅运行 C0–C3 | evaluator 原始状态保留为 `NOT_EVALUABLE`；对零时延 R4 物理校正残差闭合为 `NOT_APPLICABLE`，不是 pass，也不作本轮性能门 |
+| CFAR valid CUT | A0_OFF 两个 detector branch 各 `1,581,840` valid CUT（每 branch 三个相邻 period）；target-free H0 由 A0_ON 的有效面积报告、pre-target paired-background 写入路径及 A0_OFF 复用/目标关闭配置闭合 | **target-free H0 false-CUT fraction** 可评估：`47,356 / 1,581,840 = 2.9937%`、`51,275 / 1,581,840 = 3.2415%`；只有一个 seed/3 个相关 period，且每 branch 的 8 个 case 行重复同一 hit-hash 签名。跨 branch 唯一 cell union、检测级虚警及经统计校准的 empirical Pfa 仍 `NOT_EVALUABLE` |
+
+H0 provenance 需按生成链解释：A0_OFF 本次 Stage2 报告自身显示新生成面积包为 0、写入 packet 为 390，因为它通过 `background_input_dir` 复用 A0_ON 生成的 `A0_background`。Stage2 源码在插入目标前复制 clutter/noise packet 到 paired background；共享背景的 `scenario_resolved.json` 仍带源运行 `target.enabled=true`，所以该字段不能单独代表 sidecar 实际内容。原始 protocol-IQ 已清理，当前证据是留存报告、场景/配对清单、生成代码和真实 Production tap/CFAR 输出，无法重新读回 IQ 作独立数值复算。
 
 配置地速并非径向真值。Stage2 三期均值径向速度依次约为：配置 `0.5/1/2/4 m/s` 对应 `0.48861/0.97722/1.95445/3.90893 m/s`。
 
@@ -94,7 +96,7 @@ P5 每 case 共 30 条记录（方法 × ON/TO × 3 period）。背景 ROI 有�
 ## 不确定性、失败项与输入保留
 
 - R3 独立统计单位是 3 个 seed，而不是每 seed 的 3 个 period/CUT。三项 RMSE 的预注册 paired-t 95% CI 均跨 0；R3 单 seed D、R4 单 seed 及其 period 结果均不作显著性推断。
-- R4 不扩展 seed 202/303：valid-CUT 聚合、A0/PK/PKR 残余闭合以及低速 P5 背景 ROI 门未全部满足。失败/不可评估按原门保留，没有降低阈值。
+- R4 不扩展 seed 202/303：低速 P5 背景 ROI 仍无有效支持；跨 detector branch 的唯一 hit union/总体虚警也无法从 hash 重建，且本轮仅一个 H0 seed。零时延 residual closure 不适用，不再把通用 evaluator 缺少 PK/PKR 记作物理闭合失败。所有失败/不可评估项保留，未降低阈值。
 - R3 清理了可重建的协议 `.bin` 中间件，四个指定 case 的 cleanup ledger 合计记录删除 `12,400,174,666` bytes；配置、manifest、XML、日志、Stage2 报告、CSI/CFAR/航迹审计和指标汇总保留。
 - R4 compact manifest 记录 72 个 Stage2 protocol-IQ `.bin` 输入的路径、字节数和 SHA-256，但聚合时文件均不存在。因此输入配对身份可审计，F1/F2 输入功率不能从留存 IQ 独立重算；结论仅基于保留的 Stage2 实测杂波、生产 tap 和下游记录。
 - R3 的初次 CFAR period identity 失败及 seed 202 沙箱不可见 CUDA 失败均有记录；修复/受限 CUDA 重跑分别完成。R4 聚合 gate 失败属于评价契约/覆盖缺口，不是 120 个 Production 分支崩溃。

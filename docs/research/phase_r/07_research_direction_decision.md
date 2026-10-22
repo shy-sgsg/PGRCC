@@ -5,8 +5,8 @@
 ## 决策摘要
 
 - **AI 必要性：尚未建立。** 这不等于 AI 已被证明无价值。当前没有把盲确定性估计的残差证明为跨独立 seed、跨误差/场景稳定且可由额外可观测信息改善；不训练网络、不启动 Router、不做 image-to-image 或六参数联合估计。
-- **候选方向的本地证据排序：C > A > B；不是最终论文主线选择。** C（未知物理时延误差）有唯一的修复后、有效地杂波条件下三 seed A/B/C 因果证据；A（低速/目标保护）的 R4 低速背景评价缺失；B（非均匀杂波/有限样本）的当前生产口径 E3 不可评估。排序表示“下一步先核验什么”，不表示 C 已是 GMTI 的主导瓶颈。
-- **总体研究主线状态：`INCONCLUSIVE`。** R3 只改变一个通道时延、一个目标场景；R4 只有 seed 101，且低速 P5、CFAR 唯一命中集合及 residual-closure 契约未闭合。没有真实机载原始数据证明仿真误差的代表性。
+- **候选方向的本地证据排序：不能再概括为 C > A > B。** C（未知物理时延误差）仍有唯一修复后、有效地杂波条件下的三 seed A/B/C 任务级因果方向证据。R4 的 **target-free H0 false-CUT fraction** 为 `2.9937%` / `3.2415%`，使 CFAR/相关杂波成为优先审查的测量风险；但只有一个 seed/三个相关 period，且八个摘要行重复相同 hit-hash 签名，不能据此确认普遍 Pfa 失配或非均匀杂波根因。A（低速/目标保护）仍因低速背景 ROI 缺失而不可排序。这里的优先级是“先修复/验证哪些测量门”，不是论文主线胜者排序。
+- **总体研究主线状态：`INCONCLUSIVE`。** R3 只改变一个通道时延、一个目标场景；R4 只有 seed 101，且低速 P5 背景 ROI 与跨 branch 唯一 hit union 未闭合。R4 的通用 residual-closure evaluator 原始输出虽为 `NOT_EVALUABLE`，但零时延 E1/E4/E5 的物理校正残差闭合为 `NOT_APPLICABLE`，不构成该 pilot 的失败门。没有真实机载原始数据证明仿真误差的代表性。
 - **近期优先事项：先修复/冻结 E1/E4/E5 评价契约并只重审 seed 101；未过门不扩 seed。** 若评价门通过，再以独立 seed 扩展预注册的零时延条件；盲估计器 D3 的独立 seed 复验是另一项有条件候选，不自动启动。
 
 ## A/B/C 候选方向比较
@@ -16,7 +16,7 @@
 | 评价维度 | A：低速目标/目标保护 | B：非均匀杂波/有限样本 | C：未知物理系统失配 | 暂定判断 |
 |---|---|---|---|---|
 | 科学问题与 GMTI 普遍性 | 高：低速目标与地杂波空时重叠是基础问题，但依赖雷达几何、PRF、自由度与处理域 | 高：非平稳/有限样本可使模型和训练区失配，但依赖杂波统计和处理器 | 高：幅相/时延/运动补偿误差普遍存在，影响程度取决于误差分布与校准链 | 三者都是真问题，不能据此判定本机瓶颈 |
-| PGRCC 当前存在性与损失量化 | 部分：R4 覆盖径向真值约 0.49–3.91 m/s；选中 ON 分支目标机会命中 120/120，但 0.5/1 m/s 背景 ROI 为 0/30，单 seed，不能建立低速性能边界 | 不足：当前有效面积杂波是同一连续纹理模型；历史 128 场景 E3 在 CFAR/目标保持 gate 上失败，不能归因于非均匀性 | 最强：R3 通道 2 +4 ns，A/B/C 在 3 个 seed 的角度、跟踪地速、位置 RMSE 同向恶化/恢复；仍只是一类误差和一个目标 operating point | C 的本地因果证据领先；A/B 仍未排除 |
+| PGRCC 当前存在性与损失量化 | 部分：R4 覆盖径向真值约 0.49–3.91 m/s；选中 ON 分支目标机会命中 120/120，但 0.5/1 m/s 背景 ROI 为 0/30，单 seed，不能建立低速性能边界 | 有强但窄的质量信号：target-free H0 两 detector branch 的 false-CUT fraction 为 `2.9937%` / `3.2415%`，远高于 configured Pfa 的数值；但仅一个独立 H0 realization、三期相关且八行重复相同 hashes，不能当作 calibrated empirical Pfa，也不能归因为非均匀杂波。历史 128 场景 E3 仍因 CFAR/目标保持 gate 失败而不可作当前性能归因 | 最强：R3 通道 2 +4 ns，A/B/C 在 3 个 seed 的角度、跟踪地速、位置 RMSE 同向恶化/恢复；仍只是一类误差和一个目标 operating point | C 的任务级因果证据最强；B/CFAR 和 A 都有未闭合的关键风险，无法作完整主线排序 |
 | 可恢复空间和传统方法边界 | 未量化：需有效的 low-speed P5/CFAR/正确关联参数记录；CSI 解析响应提示相位接近杂波参考会造成自对消，但不是实测 Pd 曲线 | 未量化：须用受控 H0/H1/H2 杂波、匹配训练样本与真实 valid CUT；当前没有 R3 后合格 E3 | Known correction 对 B 的三 seed 中位 RMSE 降幅约 89.5%/86.0%/89.6%，A↔C F1/F2 闭合；D3 只在 seed 101，误差仍高于 C | C 已见可恢复空间；配对 t 区间仍宽且跨 0 |
 | 传统基线与信息上限 | 需在同一双通道输入上比较当前 CSI、普通减法/SCC/Robust DDC，并区分空间信息不足与估计算法；不得拿四通道 STAP 作信息匹配基线 | 需验证当前 row-wise 两通道 CSI 是否受支持区异质性/有效独立样本数影响；当前不是高维 STAP 协方差求逆 | 已有物理逆时延与一项 target-free Huber 加权 LS；还需独立 seed 盲估计与可观测性/不确定度，Known correction 是上限参考不是可部署算法 | C 的下一步最容易形成公平对照；PK/PKR 与 Mode-B 仍未在当前 pilot 中执行 |
 | AI 必要性与可发表空间 | 无：低速/目标保持有大量传统与模型驱动研究；需先定位可分离信息及传统基线差距 | 无：文献方法丰富；需先证明 PGRCC 的杂波异质性损失与结构，再谈学习 | 尚无：物理时延模型可显式估计，D3 多 seed 表现未知。若确定性估计存在稳定、可观测且有任务影响的残差，才可能研究带物理输出/置信度的学习估计 | 当前都不进入 AI；C 只具备继续确定性验证资格 |
@@ -57,9 +57,9 @@
 
 ### Q5：传统杂波对消的不足来自哪里？
 
-**直接证据：** 当前 CSI 是双通道 row-wise 相位参考/幅度均衡/差分，不是高维样本协方差逆；R3 的 `+4 ns` 会改变通道跨频相位并降低 B 的 H0 cancellation，Known physical inverse 可恢复闭合。R4 C0–C3 零误差结果中，低速背景 ROI 缺失；4 m/s P5 的各方法 SCNR change 与 CA_ROI 均为负，残余闭合 evaluator 缺少 PK/PKR。
+**直接证据：** 当前 CSI 是双通道 row-wise 相位参考/幅度均衡/差分，不是高维样本协方差逆；R3 的 `+4 ns` 会改变通道跨频相位并降低 B 的 H0 cancellation，Known physical inverse 可恢复闭合。R4 C0–C3 零误差结果中，低速背景 ROI 缺失；4 m/s P5 的各方法 SCNR change 与 CA_ROI 均为负。通用残余闭合 evaluator 因缺 PK/PKR 输出 `NOT_EVALUABLE`，但零时延物理 residual closure 对该 pilot 为 `NOT_APPLICABLE`。
 
-**结论/未知：** 现有数据不能在“估计不准、模型不对、训练样本不足、目标与杂波不可分”之间选出唯一原因。E3 修复前历史结果不具备当前生产归因资格。须在正确的目标保护/背景/CFAR 分母门下做受控单因素对照。
+**结论/未知：** R4 target-free H0 的两个 CFAR 分支分别观察到 `47,356/1,581,840=2.9937%` 和 `51,275/1,581,840=3.2415%` CUT 超阈；因 H0 无目标，可作为该场景的分支级 false-CUT fraction。它高于 configured Pfa `1e−6`，但不是经相关性/独立 seed 校准的 empirical Pfa；分支 hash 只有摘要，跨 detector branch 的唯一 cell union 仍未知。该现象使门限/背景统计匹配成为真实候选问题，但不能单独归因于空间非均匀性，也不能据此估计一般 false-alarm 性能。E3 修复前历史结果仍不具备当前生产归因资格。须在明确目标保护、H0 身份、背景支持和分母口径的受控单因素对照下继续判别。
 
 ### Q6：杂波抑制比越高，检测一定越好？是否损害参数估计？
 
@@ -67,9 +67,9 @@
 
 ### Q7：传统方法还有多少可恢复空间，哪些强基线缺失？
 
-**已量化部分：** 在 R3 这一 `+4 ns` 设定，Known correction 相对 B 的三项 RMSE 中位降幅约 86%–90%，CSI cancellation 从 B 回到 A 附近；seed 101 的 D3 blind 仍比 C 高约 `2.57×–4.11×`，但只有一个 seed。
+**已量化部分：** 在 R3 这一 `+4 ns` 设定，Known correction 相对 B 的三项 RMSE 中位降幅约 86%–90%，CSI cancellation 从 B 回到 A 附近；seed 101 的 D3 blind 仍比 C 高约 `2.57×–4.11×`，但只有一个 seed。R4 的 target-free H0 分支 false-CUT fraction 可描述性计算，但 pooled/跨分支检测虚警与 statistically calibrated Pfa 仍不可评估。
 
-**缺口：** R4 未完成 PK/PKR 残余闭合；Mode-B 仅源码/测试核验，没有 Production 运行；C4/scan 完整门未在本轮复验。目标保护、low-speed 对照、有效经验虚警和径向速度误差尚未闭合。Known correction 是 evaluator-only 上限，不是可部署基线。
+**缺口：** R4 的低速背景 ROI、跨分支 hit-cell union/检测级虚警及统计校准 Pfa 尚未闭合；零时延物理残余闭合不适用。Mode-B 仅源码/测试核验，没有 Production 运行；C4/scan 完整门未在本轮复验。目标保护、low-speed 对照和径向速度误差尚未闭合。Known correction 是 evaluator-only 上限，不是可部署基线。
 
 ### Q8：近年研究解决了什么，哪些已不新颖，仍有什么空间？
 
@@ -91,7 +91,7 @@
 - **实验基础：** R3 三 seed 的 B/A 任务 RMSE方向和 C/B 恢复方向，且 A/C 输入闭合通过；D3 seed101 给出有限盲估计残差。
 - **可能贡献：** 建立观测可辨识性、target-free 物理时延估计/不确定度和生产端任务级因果收益之间的可审查闭环，而非单纯降低 CSI 残差。
 - **主要风险：** 单误差/单场景不代表真实设备；R3 任务 CI 跨 0；D 仅一个 seed；两路观测下多个 nuisance 参数可能混淆；Pfa、径向速度和真实 airborne 外部验证缺失；近年校准/学习文献较多。
-- **反对证据：** B 的 Output SCNR proxy 较高且 H1 hit 不变；R4 零误差低速 P5 未闭合；A/B 仍可能是更主要瓶颈；确定性估计可能已足够。
+- **反对证据：** B 的 Output SCNR proxy 较高且 H1 hit 不变；R4 零误差低速 P5 未闭合，且 H0 false-CUT fraction 很高但只有单一相关 H0 realization，提示应先核实 CFAR/背景模型而非直接确认 B；A/B 仍可能是更主要瓶颈；确定性估计可能已足够。
 - **可否证条件：** 修复所有评价门后，若 B 相对 A 的关键任务误差不再同向恶化，或 C 相对 B 不呈重复改善/已知校正不能闭合，则暂停 C 主线；若盲 D3 跨独立 seed 接近 C 且残差不产生任务损失，则不进入 AI；若低速/杂波控制实验显示更稳定的任务损失，则重排为 A 或 B。
 
 ### Q11：下一步先复现哪一种方法？
@@ -102,7 +102,7 @@
 
 ### Q12：下一阶段任务如何安排？
 
-按[08 下一阶段计划](08_next_stage_plan.md)执行：先只读盘点留存数据；修复 P5 ROI、CFAR 唯一 hit 身份和 residual-closure 适用范围的契约/测试；只重审 seed 101；全部数据/Production/真值关联/评价 gates 通过后才扩展预注册独立 seed；之后再单独复验盲 D3；AI 仅在确定性残差门通过后审议。每项均有输入、输出、测试和停止条件，当前没有新 GPU 运行获批。
+按[08 下一阶段计划](08_next_stage_plan.md)执行：先只读盘点留存数据；修复低速 P5 ROI，并区分已可报告的分支 H0 false-CUT fraction 与仍缺唯一 cell union 的跨 branch/检测级统计；将 R4 零时延 residual closure 标为 `NOT_APPLICABLE`（保留 evaluator 原始 `NOT_EVALUABLE` 输出），非零时延 R3 仍按 A0↔PK 与 PK↔PKR 分别审查；只重审 seed 101。全部数据/Production/真值关联/评价 gates 通过后才扩展预注册独立 seed；之后再单独复验盲 D3；AI 仅在确定性残差门通过后审议。每项均有输入、输出、测试和停止条件，当前没有新增 seed 或盲估计 CUDA 运行授权。
 
 ## 结论边界
 
