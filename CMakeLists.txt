@@ -934,7 +934,11 @@ if(BUILD_TESTING)
         ${CMAKE_SOURCE_DIR}/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_power.f32
         ${CMAKE_SOURCE_DIR}/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_geometry.csv
     )
-    set_tests_properties(cfar_cuda_numerical_selftest PROPERTIES SKIP_RETURN_CODE 77)
+    set_tests_properties(cfar_cuda_numerical_selftest PROPERTIES
+      SKIP_RETURN_CODE 77
+      PASS_REGULAR_EXPRESSION
+        "CFAR-SELFTEST-NEAR.*case=strict_cut_greater_than_threshold.*row=0 col=3.*reference_hit=0 actual_hit=0 hit_flip=0"
+    )
     add_test(NAME cfar_cuda_numerical_selftest_rejects_missing_fixture
       COMMAND cfar_cuda_numerical_selftest
         ${CMAKE_CURRENT_BINARY_DIR}/r7_fixture_must_not_exist.f32

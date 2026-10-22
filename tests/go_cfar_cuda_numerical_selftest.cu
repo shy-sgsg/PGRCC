@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstring>
 #include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <random>
@@ -261,7 +262,7 @@ bool run_case(const std::string &name,
     }
 
     std::size_t valid_cuts = 0U, zero_thresholds = 0U, near_threshold_cuts = 0U;
-    std::size_t hit_flips = 0U, fallback_windows = 0U;
+    std::size_t hit_flips = 0U, near_threshold_hit_flips = 0U, fallback_windows = 0U;
     std::uint32_t max_ulp = 0U;
     std::string first_error;
     for (int row = 0; row < g.height; ++row) {
@@ -302,9 +303,23 @@ bool run_case(const std::string &name,
             near_threshold_cuts += near ? 1U : 0U;
             const bool expected_hit = power[index] > expected_threshold && cut_enabled(g, row);
             const bool actual_hit = hits[index] > 0.0f;
+            if (near) {
+                const bool hit_flip = expected_hit != actual_hit;
+                std::cout << std::setprecision(std::numeric_limits<float>::max_digits10)
+                          << "[CFAR-SELFTEST-NEAR] case=" << name
+                          << " row=" << row << " col=" << col
+                          << " cut_power_f32=" << power[index]
+                          << " reference_threshold_f32=" << expected_threshold
+                          << " cuda_threshold_f32=" << actual_threshold
+                          << " threshold_error_ulp=" << error_ulp
+                          << " reference_hit=" << static_cast<int>(expected_hit)
+                          << " actual_hit=" << static_cast<int>(actual_hit)
+                          << " hit_flip=" << static_cast<int>(hit_flip) << '\n';
+            }
             if (expected_hit != actual_hit) {
                 ++hit_flips;
-                if (!near && first_error.empty()) {
+                if (near) ++near_threshold_hit_flips;
+                else if (first_error.empty()) {
                     std::ostringstream message;
                     message << "hit flip away from threshold at (" << row << ',' << col << ')';
                     first_error = message.str();
@@ -319,7 +334,8 @@ bool run_case(const std::string &name,
               << " direct_fallback_windows=" << fallback_windows
               << " true_zero_thresholds=" << zero_thresholds
               << " near_threshold_cuts=" << near_threshold_cuts
-              << " near_threshold_hit_flips=" << hit_flips
+              << " near_threshold_hit_flips=" << near_threshold_hit_flips
+              << " total_hit_flips=" << hit_flips
               << " status=" << (passed ? "PASS" : "FAIL") << '\n';
     if (!passed) std::cerr << "[CFAR-SELFTEST][FAIL] case=" << name << " reason=" << first_error << '\n';
     return passed;

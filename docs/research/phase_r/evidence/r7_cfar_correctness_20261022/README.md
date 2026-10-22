@@ -9,6 +9,7 @@ This compact package contains the auditable R7 pre/post run manifests, the actua
 - `analysis/r7_pair/`: nine A0/B/C × OFF/ON/TO pre/post numeric comparisons, CSV and full JSON.
 - `analysis/r6_history/`: all 36 saved historical R6 branch-period comparisons, CSV and full JSON.
 - `analysis/r7_three_period/`: all 27 final Production case-period float64 threshold and unique-union hit comparisons, with paired input/config identities, CSV and full JSON.
+- `analysis/cuda_near_threshold_cuts_20261022.log`: 3,671 per-CUT records from the post-update real CUDA selftest, including CUT power, reference/CUDA float32 thresholds, ULP error, both hit decisions and each decision flip.
 - `analysis/r6_history/counterexample_cut_111_3337.json`: exact four-direction windows, direct/integral sums and means, reference threshold, saved Production CUDA threshold, and fixture identities for the specified R6 failure CUT.
 - `csi_metrics/`: the production `csi_metric_tap_summary.csv` from each repaired A0/B/C × OFF/ON/TO run; files retain the original rows and run ID.
 - `fixtures/`: a 130×4096 float32 power map plus its actual geometry CSV from the pre-fix R6 seed101 A0_ON dynamic branch. The CUDA selftest and CPU direct/integral reference regression both use these versioned files, so the R6 counterexample is exercised on a clean checkout.
