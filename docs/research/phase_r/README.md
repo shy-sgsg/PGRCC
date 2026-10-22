@@ -8,6 +8,7 @@
 - **E2/R3：** 修复后的 CUDA Production 在 seed 101/202/303 上执行通道 2 `+4 ns` A/B/C。三 seed 的角度、TrackManager 地速和位置 RMSE 方向均为失配变差、Known physical correction 恢复；三项 paired-t 95% CI 均跨 0。径向速度 RMSE、统计性 Pd/Pfa 未验证。详见[合并结果](06_bottleneck_experiment_results.md)和[R3 逐条件报告](06_minimal_cuda_causal_pilot.md)。
 - **E1/E4/E5/R4：** seed 101 的 8 case、120 个 CUDA Production 分支已执行且分支通过；连续面积地杂波有效。但低速 P5 背景 ROI、CFAR 唯一 hit-cell/false-hit 聚合、residual-closure 的 PK/PKR 条件未闭合，因此不扩展 seed 202/303、不作方法排名或 Pd/Pfa 性能结论。详见[结果合并](06_bottleneck_experiment_results.md)与[R4 紧凑证据](evidence/r4_e1_e4_e5_seed101_20261022/)。
 - **下一步：** 先冻结并修正评价契约，只重审 seed 101；全体数据、Production、真值关联和评价 gate 通过后，才按预注册决定是否扩展。D3 盲时延估计复验另行登记，不自动启动。见[方向决策](07_research_direction_decision.md)与[下一阶段计划](08_next_stage_plan.md)。
+- **R5 证据审计补充：** R3 A0/C 的精确首个差异级因生产 CSI 阵列已清理而不能定位；R4 低速背景 ROI 的空集来自目标 Doppler 窗与活动 CSI 带不相交，而配对 H0 的目标 ROI SCNR 仍可单独评价；CFAR 的分支级 H0 false-CUT fraction 可算，但不是 cell-union、detection、track Pfa。见下方五份审计与单一下一步方案。
 - **历史证据：** 修复前 E3 128-scene 结果、旧 raw-IQ pilot 和 Phase-I 旧敏感度矩阵均保持原身份/日期；不得与当前 R3/R4 的 seed、分母、源码身份拼接。Phase-I 圆周相位差分已于 2026-10-21 修正并重算，见[复核报告](phase_i_observability_reanalysis.md)。
 
 ## 推荐阅读顺序：01–08
@@ -24,6 +25,14 @@
 ## 证据状态标签
 
 `IMPLEMENTED` 表示代码/配置/评价能力存在；`EXECUTED` 表示对应路径确已运行；`EVALUABLE` 只对定义、配对、真值和分母完整的具体指标成立；`PERFORMANCE_VERIFIED` 仅限报告明示的场景与指标。测试通过、退出码为 0、case 数量或产物存在本身不证明算法效果。Observed hit fraction、unmatched detection fraction 和 configured Pfa 不能互相替代。
+
+## R5 补充审计（2026-10-22）
+
+1. [R3 A0/C 首个差异级审计](R3_A0_C_divergence_audit.md)：同一 fusion-cache Production 调度、CSI 标量 tap 近闭合、CFAR/hit 与检测数有差别；因全图 CSI `.npy` 不在留存证据中，精确首个差异级 `NOT_EVALUABLE`。
+2. [R4 低速 P5 支持域审计](R4_low_speed_P5_audit.md)：区分无效的局部背景 CA ROI 与仍有效的配对 H0 target-ROI SCNR。
+3. [R4 H0 CFAR 分层审计](R4_CFAR_H0_audit.md)：GO-CFAR 几何、阈值标定、分支分母、H0 复用与后续虚警层状态。
+4. [Phase R 可评估性裁决](Phase_R_evaluability_decision.md)：汇总可保留结论、不可外推结论及 AI/主线门控。
+5. [唯一下一最小实验方案](Next_minimal_experiment_plan.md)：同 seed A0/C 阶段定位复跑草案；不是本次 CUDA 授权。
 
 ## 主要证据位置与保留边界
 
