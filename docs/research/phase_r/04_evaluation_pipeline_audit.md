@@ -135,3 +135,17 @@ manifest 记录的 simulator SHA-256 与当前保留的 `build/simulate_stage2_s
 历史 54 份观测 JSON 与 manifest 内嵌值逐一相同；重新计算复现了旧条件数和余弦，圆周修正后给出不同结果。故“观测→差分矩阵”的软件修复为 `IMPLEMENTED/EXECUTED/EVALUABLE`；“IQ→观测”、噪声下误差估计和下游 production 效果仍未由本次复核验证。完整输入快照和结果已放入本专题证据目录，支持脱离本地 outputs 的独立复算。
 
 本补充的软件验证为 `python3 -m pytest -q`：408 passed、18 skipped；定向观测性/重放测试 27/27 通过；相关 Python 编译检查、文档本地链接和差异检查通过。独立临时目录的重放数值与发布材料一致。未更改 C++/CUDA 生产代码。
+
+## 2026-10-21 补充：R3/R4 当前 Production 证据
+
+上方 R2 状态表和“修复后尚无 CUDA production”结论保留为 2026-10-18 的历史快照；本节更新 R3 修复后实际运行与 R4 当前可评估范围，不改写旧 pilot 的失败事实。
+
+| 检查项 | 当前证据与状态 |
+|---|---|
+| CFAR geometry 指针生命周期 / 有效 CUT | 当前代码用成对 append 后的索引取回诊断行，避免 vector 扩容导致保存指针失效；valid CUT 按边缘、排除行及 CUT-band mask 后计数，hit fraction 仅在 `valid_cut_count > 0` 时计算。R3 修复后 CUDA smoke 留有 runtime XML、日志、逐 beam stage、CSI tap 和 CFAR geometry；三周期各有 527,280 个有效 CUT，合计每 branch 1,581,840。定向 CTest 3/3 和 Python 回归 100/100 通过。 |
+| A0 与 Known physical correction | R3 evaluator-only 已知校正对 A0 的 F1/F2 相对复数 RMS 在预设 `1e-3` 门内，ON/OFF/TO 闭合通过。R4 冻结子集为 C0–C3，没有运行 PK/PKR；要求 A0/PK/PKR 三条件的 R4 residual-closure 指标因此为 `NOT_EVALUABLE`，不能把 R3 闭合替代成 R4 PK/PKR 结果。 |
+| Mode-B 一致性和真值边界 | runner 的 contract 将 Mode-B 固定为先由 ON 估计，再以同一个参考处理 OFF/TO；truth、目标位置、注入误差标签、已知误差及回退到 Current 均不允许进入估计器。对应 Python tests 已通过；R3/R4 生产矩阵没有执行 Mode-B，因此运行时性能仍未验证。 |
+| Scan beam quality gate | 保留的旧 C4 失败行显示 phase support `6 < configured minimum 8`，原因是 `insufficient_phase_support`，随后出现 `valid=0/1 required=1 min_ratio=0.95`。这是未满足估计支持门后触发的 scan 失败，不是检测 Pd/Pfa，也不授权下调门槛。R4 的 120 个实际 CUDA Production branches 均通过其已选路径，但不等于 C4/Mode-B 全扫描质量门已重新验证。 |
+| CUT 聚合 / 下游 provenance | R4 各 CFAR branch 的 valid-CUT 与 hit 计数可逐 branch 读取；最终 detector 需要去重 hit-cell union 的聚合分母未闭合，故总体 detector/empirical-Pfa 仍 `NOT_EVALUABLE`。R3 有生产 detection、TrackManager 与 PIPE 追溯记录，但少量独立 target opportunity 和未解析径向速度限制 Pd/Pfa 与 radial-velocity RMSE；不能把跟踪地速 RMSE 当径向速度误差。 |
+
+R4 另有有效面积杂波注入证据：每 case `continuous_area_packets=390`、`continuous_area_samples=1,952,655`；但 Stage2 输入 `.bin` 已按清理记录删除，清单中的 72 个文件路径、大小和 SHA-256 保留，F1/F2 输入功率不能从当前留存文件独立复算。R4 整体状态为 `completed_with_gaps`，故不扩展 seed，也不声称普适性能改善。运行命令、逐项数据和当前判读见 [`06_bottleneck_experiment_results.md`](06_bottleneck_experiment_results.md) 与 [`evidence/r4_e1_e4_e5_seed101_20261022/manifest.json`](evidence/r4_e1_e4_e5_seed101_20261022/manifest.json)。

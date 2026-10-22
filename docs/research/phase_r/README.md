@@ -1,56 +1,38 @@
 # PGRCC Phase R：研究审查与证据导航
 
-本目录用于判断 PGRCC 的 GMTI 性能瓶颈、可恢复空间和研究方向。阅读时要区分理论推导、软件验证、历史仿真和生产 CUDA 结果；它们不能互相替代。
+更新日期：2026-10-22。本目录判断 GMTI 瓶颈、可恢复空间和研究方向。请区分理论推导、外部文献、软件测试、历史仿真和本轮真实 CUDA Production 结果；它们不可互相替代。
 
-## 当前判读
+## 当前决策
 
-- **AI 必要性尚未建立。** 修复后的 CUDA Production A/B/C 在 seed 101、202、303 上显示 +4 ns 通道时延使角度、跟踪地速和位置 RMSE 同向变差，已知物理校正则逐 seed 恢复；这支持继续验证确定性未知时延估计，不支持直接进入 AI。
-- R3 的修复后 Production smoke 和最小因果 pilot 已在真实 CUDA 上执行。`PERFORMANCE_VERIFIED` 仅指上述三个跟踪/定位 RMSE 方向在三 seed 重复；Pd/Pfa 显著性、径向速度精度及 AI 增益均未验证。详见 [R3 执行报告](06_minimal_cuda_causal_pilot.md) 与[方向评估](07_preliminary_direction_assessment.md)。
-- R4 E1/E4/E5 seed-101 零误差 pilot 已执行 8 case / 120 个 CUDA Production 分支，面积杂波和生产分支 gate 通过；但低速 P5 背景 ROI、CFAR 唯一 hit-cell 汇总和 residual-closure gate 未完整通过。只作部分可评估的可行性结果，seed 202/303 未运行，也不改变 R3 通道误差结论。见 [R4 执行证据](evidence/r4_e1_e4_e5_seed101_20261022/) 与 [R4 方向更新](07_preliminary_direction_assessment.md)。
-- Phase-I 相位跨 ±π 的差分错误已用 54 组保存观测复算确认并修复。旧 delay–servo 近混淆判读需撤回；修正后的汇总条件数约 3.99，仍有明显 seed/特征/尺度依赖。参见[复核报告与可独立复算的输入](phase_i_observability_reanalysis.md)。
-- 四条件 raw-IQ Stage2 pilot 的方向归一化恢复率约为 1，但地面面积杂波注入计数为 0：平台高 6000 m、地面高 0 m，配置斜距窗 2500–5000 m 不可达。相位残差是越低越好，恢复率按 `(Current−Estimated)/(Current−Known)` 计算；原始 `Known−Current` 和 `Estimated−Current` 均为负。该结果只支持配对参考下的确定性基线相位校正，不支持杂波抑制收益或 AI 必要性，详见[带方向定义的数值摘要](phase_ii_raw_iq_pilot_summary.json)。
-- 此前 raw-IQ pilot 的面积杂波注入计数为 0，不能支持杂波收益。新 R3 pilot 已改用物理可达斜距窗并验证非零连续面积注入；历史无效结果仍保留为历史，不回写。
-- R3 因果任务已完成；R4 seed-101 pilot 以 `completed_with_gaps` 停止。下一步先由用户审阅是否修正评价契约与 ROI 覆盖，不自动扩展 seed、启动 AI 或扩大参数矩阵。
+- **总体方向：`INCONCLUSIVE`。AI 必要性尚未建立，亦未证明 AI 无价值。** C（未知物理通道时延）是当前本地证据最强、应优先继续验证的候选，但尚不能定为 GMTI 的主要瓶颈或最终论文主线；不训练 AI、不开发 Router、不扩展六参数联合估计。
+- **E2/R3：** 修复后的 CUDA Production 在 seed 101/202/303 上执行通道 2 `+4 ns` A/B/C。三 seed 的角度、TrackManager 地速和位置 RMSE 方向均为失配变差、Known physical correction 恢复；三项 paired-t 95% CI 均跨 0。径向速度 RMSE、统计性 Pd/Pfa 未验证。详见[合并结果](06_bottleneck_experiment_results.md)和[R3 逐条件报告](06_minimal_cuda_causal_pilot.md)。
+- **E1/E4/E5/R4：** seed 101 的 8 case、120 个 CUDA Production 分支已执行且分支通过；连续面积地杂波有效。但低速 P5 背景 ROI、CFAR 唯一 hit-cell/false-hit 聚合、residual-closure 的 PK/PKR 条件未闭合，因此不扩展 seed 202/303、不作方法排名或 Pd/Pfa 性能结论。详见[结果合并](06_bottleneck_experiment_results.md)与[R4 紧凑证据](evidence/r4_e1_e4_e5_seed101_20261022/)。
+- **下一步：** 先冻结并修正评价契约，只重审 seed 101；全体数据、Production、真值关联和评价 gate 通过后，才按预注册决定是否扩展。D3 盲时延估计复验另行登记，不自动启动。见[方向决策](07_research_direction_decision.md)与[下一阶段计划](08_next_stage_plan.md)。
+- **历史证据：** 修复前 E3 128-scene 结果、旧 raw-IQ pilot 和 Phase-I 旧敏感度矩阵均保持原身份/日期；不得与当前 R3/R4 的 seed、分母、源码身份拼接。Phase-I 圆周相位差分已于 2026-10-21 修正并重算，见[复核报告](phase_i_observability_reanalysis.md)。
 
-## 推荐阅读顺序
+## 推荐阅读顺序：01–08
 
-1. [交给 ChatGPT 的下一步审查提示词](00_ChatGPT_next_step_prompt_20261019.md)：聚焦当前 AI 必要性证据、Phase-I 圆周相位敏感度疑点和唯一优先下一步。
-2. [R0 系统架构审计](01_system_architecture_audit.md)：四路协议 IQ 到 F1/F2、CSI、CFAR、检测及航迹的实际数据流与信息自由度。
-3. [R1 文献审查](02_literature_review.md)及 [文献矩阵](literature_matrix.csv)：研究先例、适用条件和 PGRCC 适配边界。
-4. [R2 物理边界分析](03_physical_limits.md)：双通道响应、速度投影/模糊、时延敏感性和可辨识性限制；附带由理想模型生成、明确非 Pd/实测指标的单像素响应曲线及[生成数据](figures/idealized_target_response.csv)。
-5. [R3 评价流水线审计](04_evaluation_pipeline_audit.md)：历史结果可评估性、代码修复和生产路径验收要求。
-6. [R3 最小四条件实验设计](05_experiment_design.md)：冻结的配对对照与门控。
-7. [R3/R4 CUDA pilot 执行报告](06_minimal_cuda_causal_pilot.md)：R3 三 seed 通道时延因果结果，以及 R4 seed-101 E1/E4/E5 的 gate、指标、失败现场和复现入口；紧凑数据分别见 [R3 证据](evidence/r3_minimal_cuda_causal_pilot_20261021/) 与 [R4 证据](evidence/r4_e1_e4_e5_seed101_20261022/)。
-8. [方向评估](07_preliminary_direction_assessment.md)：R3 研究问题答案及 R4 对低速、复杂杂波与未知系统误差主线的有限更新。
-9. [Phase-II raw-IQ pilot 摘要](phase_ii_raw_iq_pilot_summary.json)：历史几何配置、零杂波注入和解释边界；不含原始 IQ。
-10. [Phase-I 局部敏感度复核](phase_i_observability_reanalysis.md)：圆周差分修正、逐 seed 矩阵、FFT 格点与尺度对照；附历史观测 manifest、结果及复算命令。
+1. [01 系统架构审计](01_system_architecture_audit.md)：四路协议 IQ 融合 F1/F2、CSI、CFAR、检测、航迹的当前生产信息流与自由度。
+2. [02 文献审查](02_literature_review.md)及[文献矩阵](literature_matrix.csv)：六类 GMTI 问题的原始来源、适用条件和 PGRCC 适配；全文访问状态逐条标注。
+3. [03 物理边界](03_physical_limits.md)：双通道响应、速度/LOS 投影、多普勒模糊、时延敏感性和不可辨识边界；附明确标为解析模型、非实测 Pd 的曲线与[生成数据](figures/idealized_target_response.csv)。
+4. [04 评价流水线审计](04_evaluation_pipeline_audit.md)：当前修复、历史失败根因、CFAR 分母、Mode-B 可比性和仍不可评估项目。
+5. [05 冻结实验设计](05_experiment_design.md)：E1–E5 假设、配对条件、统计单位与停止门。
+6. [06 实验结果合并](06_bottleneck_experiment_results.md)：按 E1–E5 汇总当前数字、分母、不确定性、缺口与输入保留范围；其后是[R3/R4 详细执行报告](06_minimal_cuda_causal_pilot.md)，并链接 compact evidence。
+7. [07 研究方向决策](07_research_direction_decision.md)：回答原始任务 Q1–Q12，比较 A/B/C，明确 AI 入口及当前 `INCONCLUSIVE` 边界。[07 初步方向评估](07_preliminary_direction_assessment.md)是较早的 R3/R4 阶段快照，不替代本文件。
+8. [08 下一阶段计划](08_next_stage_plan.md)：按评价门、seed 扩展、D3 盲估计和 AI 决策门排序的输入/输出/测试/停止计划；当前仅为建议，尚未执行。
 
-此前的 `00_ChatGPT_review_request_20261019.md`、`00_minimal_review_brief_20261019.md` 和 ZIP 快照保留为历史材料，不属于当前 GitHub 阅读入口。其中 Phase-I 的线性相位差分跨越 ±π；旧敏感度矩阵及 delay–servo 混淆结论已由 2026-10-21 复核修正。外审应同时读取新复核报告，不能把旧包数值直接当作当前结论。
+## 证据状态标签
 
-## 阶段与交付物状态
+`IMPLEMENTED` 表示代码/配置/评价能力存在；`EXECUTED` 表示对应路径确已运行；`EVALUABLE` 只对定义、配对、真值和分母完整的具体指标成立；`PERFORMANCE_VERIFIED` 仅限报告明示的场景与指标。测试通过、退出码为 0、case 数量或产物存在本身不证明算法效果。Observed hit fraction、unmatched detection fraction 和 configured Pfa 不能互相替代。
 
-| 阶段 | 主要文件 | 当前状态 |
-|---|---|---|
-| R0 系统架构 | `01_system_architecture_audit.md` | 已审计；不是新的 production 运行结果 |
-| R1 文献调研 | `02_literature_review.md`、`literature_matrix.csv` | 已完成本轮审查；全文访问限制按文档标记 |
-| R2 物理边界 | `03_physical_limits.md` | 已完成基于源码/配置的计算；不是理论 CRLB 或新实测 |
-| R3 评价链与实验 | `04_evaluation_pipeline_audit.md`、`05_experiment_design.md`、`06_minimal_cuda_causal_pilot.md` | A/B/C 三 seed 已执行；tracking/localization RMSE 方向重复；Pd/Pfa 显著性和径向速度未验证 |
-| R4 E1/E4/E5 pilot | `05_experiment_design.md` 的 R4 预注册、`06_minimal_cuda_causal_pilot.md` 的 R4 执行节、R4 evidence 目录 | seed 101 的 8 case / 120 分支已执行；面积杂波有效；P5/CFAR/residual-closure gate 有缺口；未扩展 seed |
-| 方向初判 | `07_preliminary_direction_assessment.md` | R3 支持窄化确定性未知时延评估；R4 不支持 AI 必要性或切换主线结论 |
-| 后续阶段 | 由用户审阅后确定 | 暂停于 R4 seed-101；未训练 AI、未开发 Router、未扩展六参数估计 |
-| 导航与阶段结论 | 本文件 | 提供 R3/R4 阅读入口；不替代最终全研究问题审查 |
+## 主要证据位置与保留边界
 
-R3 文档使用 `IMPLEMENTED`、`EXECUTED`、`EVALUABLE`、`PERFORMANCE_VERIFIED` 区分软件与算法证据。特别是 `completed_with_gaps`、测试通过或产物存在均不单独证明算法有效。
+- R3 compact 证据：[`evidence/r3_minimal_cuda_causal_pilot_20261021/`](evidence/r3_minimal_cuda_causal_pilot_20261021/)（evaluation JSON、逐 seed CSV、图、runtime smoke、XML、manifests 和失败现场）；完整 case 产物在本地 `outputs/phase_r_minimal_cuda_causal_pilot_20261021/`。可重建的原始 `.bin` 已依 cleanup ledger 清理。
+- R4 compact 证据：[`evidence/r4_e1_e4_e5_seed101_20261022/`](evidence/r4_e1_e4_e5_seed101_20261022/)（manifest、case/branch/P5/CFAR 表和图）；完整 case roots 在本地 `outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_*`。72 个 Stage2 protocol-IQ 文件已清理，仅保留路径、size、hash；因此输入配对可审计，但 F1/F2 输入功率不能独立重算。
+- 历史 equivalent-vs-physical pilot：[`report.md`](../../evidence/equivalent_vs_physical_pilot/report.md)与相邻 manifest。其源码身份为历史提交，`completed_with_gaps`，不能当作 R3 修复后重跑。
+- 历史四条件 Stage2 raw-IQ pilot：[`phase_ii_raw_iq_pilot_summary.json`](phase_ii_raw_iq_pilot_summary.json)记录面积杂波注入为 0；平台 6,000 m、地面 0 m、2.5–5 km 斜距窗不可达。它只支持窄范围相位残差判读，不支持杂波收益。
+- Phase-I 观测复核：[`evidence/phase_i_observability_reanalysis_20261021/`](evidence/phase_i_observability_reanalysis_20261021/)含已派生观测、manifest 和重算结果；不含原始 IQ，也不证明全局可辨识或端到端估计精度。
 
-## 关键证据入口
+## 尚待决策的门
 
-- 四条件 raw-IQ Stage2 pilot：可引用的紧凑摘要在[本目录摘要](phase_ii_raw_iq_pilot_summary.json)。活动 worktree 的 `outputs/unknown_system_error_pilot_20260913_v5/` 保留配置、日志和观测汇总，其 `raw/` 子树及原始 IQ 不在本工作树或 GitHub 发布材料中；逐 case Stage2 原报告的历史取证位置见摘要。摘要只支持限定的几何与相位残差判读。
-- Phase-I 观测到矩阵复算：[源 manifest](evidence/phase_i_observability_reanalysis_20261021/source_manifest.json)和[完整结果](evidence/phase_i_observability_reanalysis_20261021/summary.json)。包含 54 组已派生观测；不含原始 IQ。
-- 2026-09-14 clean-labelled 重跑与有效斜距控制：几何、注入计数及范围已记入[紧凑摘要](phase_ii_raw_iq_pilot_summary.json)。控制结果来自另一 servo pilot，不是四条件 pilot 的等价复验；逐 case 输出未纳入本次 GitHub 发布。
-- 历史 production calibration pilot：[`report.md`](../../evidence/equivalent_vs_physical_pilot/report.md) 与相邻 manifest。该历史矩阵为 `completed_with_gaps`，不能当成 R3 修复后的 CUDA 验证。
-- 修复后 R3 最小因果 pilot：紧凑 JSON、逐条件 CSV、跨 seed 图和 smoke 原始审计文件见 [`evidence/r3_minimal_cuda_causal_pilot_20261021/`](evidence/r3_minimal_cuda_causal_pilot_20261021/)。可复现 Stage2/Production case 的其余详细日志、CSI 数组和 CFAR/航迹文件保存在本地 `outputs/phase_r_minimal_cuda_causal_pilot_20261021/`；原始可重建 `.bin` 已按清理台账移除。
-- R4 seed-101 E1/E4/E5 pilot：[`manifest、逐 case/branch/P5/CFAR CSV 与图`](evidence/r4_e1_e4_e5_seed101_20261022/)。逐 case runtime XML、Production logs、CSI taps 和详细诊断仍在本地 `outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_*`；原始可重建 `.bin` 已按清理审计移除，输入 SHA/size 仍在 manifests。
-
-## 尚未完成的决策门
-
-本次结果回答的是单一 `+4 ns` 时延场景下的因果可行性，不是原任务 Q1–Q12 的最终结论。还不能把该失配视为唯一或主要系统瓶颈，也不能把单 seed D 与已知上限的差距解释为 AI 优势。未启动 MLP、通用复权残差、image-to-image 或 Router 训练。
+本轮完成了 01–08 研究交付和 R3/R4 证据合并；下一阶段计划尚未获批/执行。仍需闭合 R4 低速 P5 背景 ROI、CFAR 唯一 hit-cell 与 false-hit 真值关系、C0–C3 子集与 PK/PKR residual-closure evaluator 契约；之后再判断是否扩大 E1/E4/E5 seed。未知时延主线只有一个受控仿真误差条件；缺真实 airborne 误差分布及多误差条件。任何 gate 不通过时保持 `NOT_EVALUABLE`/`INCONCLUSIVE`，不通过降低门槛或改用 AI 绕开。

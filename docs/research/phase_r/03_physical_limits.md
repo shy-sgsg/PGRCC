@@ -133,6 +133,18 @@ R2 建立了 PGRCC 当前的信息边界、几何投影、多普勒模糊和 CSI
 
 四条件 raw-IQ pilot 的相位残差指标为 lower-is-better。按原任务的方向定义，原始差值 `Known−Current = −0.2004197161 rad`、`Estimated−Current = −0.2004197159 rad`；等价的正向改善量为 `Current−Known = 0.2004197161 rad`、`Current−Estimated = 0.2004197159 rad`，故方向归一化恢复率 `(Current−Estimated)/(Current−Known) = 0.9999999991`。该比例只表示这个无面积杂波、配对参考相位残差条件下，Estimated 与 Known-error correction upper bound 的差距很小；不能解读为杂波抑制率、Pd 增益或 Physics-AI 收益。详细输入与计算量见 [`phase_ii_raw_iq_pilot_summary.json`](phase_ii_raw_iq_pilot_summary.json)。
 
+## 2026-10-21 补充：R3 的单一时延因果证据
+
+本节更新上述 R2 时点的“未知误差是否已导致任务性能退化”判断；原段落对 2026-10-18 以前历史 pilot 的限制仍然成立。R3 在有效连续面积杂波的 CUDA Production 链路中，对 seed 101/202/303 注入单一 `+4 ns` 通道时延误差。三 seed 的角度、跟踪地速和位置 RMSE 均呈 `B(Current + unknown error) > A(0 ns)` 且 `C(Known physical correction) < B` 的同向关系；以下是跨 seed 描述性中位数：
+
+| 指标（越低越好） | A：0 ns | B：+4 ns Current | C：Known correction |
+|---|---:|---:|---:|
+| Angle RMSE (deg) | 0.044153 | 0.125759 | 0.013185 |
+| Track ground-speed RMSE (m/s) | 5.1659 | 9.1097 | 1.2792 |
+| Position RMSE (m) | 82.524 | 197.823 | 20.566 |
+
+R3 的 A↔C F1/F2 复数输入闭合在 ON/OFF/TO 三种配对角色均通过预设相对 RMS `1e-3`；这是该仿真干预的物理校正闭合，不是实机校准精度。方向在 3 个 seed 上重复，但单一仿真场景不等于真实系统误差分布，也不构成显著性检验或普适 Pd/Pfa 结论。R3 的 D 条件、目标/杂波指标和失败项见 [`06_minimal_cuda_causal_pilot.md`](06_minimal_cuda_causal_pilot.md) 与 [`06_bottleneck_experiment_results.md`](06_bottleneck_experiment_results.md)。
+
 本阶段未运行新实验、未改变运行代码，也未改动或删除任何历史 scratch/output/package。下一阶段先完成 R3 评价链审计，再冻结 R4 最小实验设计；在这两项完成前不启动实验。
 
 ## 2026-10-21 补充：Phase-I 敏感度证据修正
