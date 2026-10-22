@@ -21,7 +21,18 @@
 
 A0_ON 与 A0_ON_repeat 使用相同 Release binary、三份输入和 runtime XML。两次 CFAR/CSI `.f32`、geometry/numerical 和 cluster lineage 结果一致；检测 CSV 忽略运行 ID/输出路径后逐行一致；TrackManager frames/detections/payload 忽略运行 ID 后逐行一致。三周期 repeatability `EVALUABLE`，不外推到其他 seed。Diagnostics-off 运行仍保留 detections 与 TrackManager 输出，且没有生成 diagnostics lineage sidecar。
 
-三周期矩阵每个 period 都有 geometry 与 numerical summary，但 CFAR threshold/hit `.f32` sidecar 在 case 目录中没有 period 分文件；故逐 CUT 数值分析仍只按前文九组单周期地图范围报告，不能把 valid-CUT / hit-flip 统计扩展到全部三周期。
+### 三周期 CFAR 地图数值闭合
+
+地图文件按 Production result ID 保存为 `GMTI01/02/03`；与 manifest 中 period ID `0/1/2` 的对应关系已逐 case 核实，并用输入 SHA、runtime XML/配置身份及每 period geometry 的 hit count 交叉校验。先前将文件视为每 case 仅一张 map 的判断有误，现已用全部三周期真实保存的 power/threshold/hit `.f32` 地图重算，不需重新运行 CUDA。
+
+完整 27 条 case-period 记录和聚合结果见[三周期 CFAR 数值 JSON/CSV](evidence/r7_cfar_correctness_20261022/analysis/r7_three_period/)。每个模式 9 张 union map、每张 `527,280` valid CUT，共 `4,745,520` CUT；三种模式合计 `14,236,560` union CUT。post branch threshold 在 `28,473,120` 个 branch-CUT、post union threshold 在 `14,236,560` 个 union-CUT 上均精确等于 float64 GO 参考转 float32；所有 post branch/union hit flips 均为 0。旧 union map 相对 reference 共多 `695,232` 个 hit、少 `1,431` 个 hit；按 OFF/ON/TO 的分项数值、旧门限正负/零计数和 branch-map 覆盖范围见[数值根因报告](R7_CUDA_CFAR_numerical_root_cause.md#最终三周期-production-数值复验)。pre-fix B 没有独立分支地图，所以只做 union 级比较；A0/C branch-specific pre maps 可逐 branch 核对。以上是数值与 CUT 决策正确性，不是统计 Pfa 或跨 seed 性能结论。
+
+当前工作区复现入口（不覆盖已提交审查证据）：
+
+```bash
+python3 scripts/phase_r/analyze_r7_three_period_numerics.py \
+  --output-dir /tmp/r7_three_period_recheck
+```
 
 矩阵前 GPU：RTX 3050 Laptop，P0、1500/6001 MHz、20.04 W、55 °C、86% 利用率、1391/4096 MiB 显存。运行时间仅是受设备负载影响的 wall-time 记录；性能 `NOT_EVALUABLE`。double accumulation 与 diagnostics 的约 4.6 MiB/map 是按尺寸估算的显存增量，不是峰值实测。R7 五份报告、compact evidence 与本地完整输出目录互相区分；本阶段到此停止。
 

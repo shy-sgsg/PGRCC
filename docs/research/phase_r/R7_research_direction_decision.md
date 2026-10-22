@@ -5,16 +5,16 @@
 
 ## 结论摘要
 
-R7 发现并修复了 CUDA GO-CFAR float32 积分前缀求和的消去误差；保存的 R6 全部 36 张分支-period 地图和 R7 九组单周期配对数值地图支持该数值根因。修复后三周期 Production 矩阵完成了 A0/B/C × OFF/ON/TO 任务评价并加入 cluster→detection lineage。结果显示此 seed 的 +4 ns Current 条件三期都没有通过冻结目标检测门限，A0 与 Known Correction 均三期通过；但三期来自同一 seed，且 A0/C 仅 2/3 期形成目标关联 confirmed track，因此不能称为统计上可重复的 GMTI 性能改善。
+R7 发现并修复了 CUDA GO-CFAR float32 积分前缀求和的消去误差；历史 R6 分支地图、早期单周期比较及最终 27 张三周期 union 地图均支持该数值根因。修复后三周期 Production 矩阵完成了 A0/B/C × OFF/ON/TO 任务评价并加入 cluster→detection lineage。结果显示此 seed 的 +4 ns Current 条件三期都没有通过冻结目标检测门限，A0 与 Known Correction 均三期通过；但三期来自同一 seed，且 A0/C 仅 2/3 期形成目标关联 confirmed track，因此不能称为统计上可重复的 GMTI 性能改善。
 
 ### 对 R7 指定问题的回答
 
 | 问题 | 结论 | 证据与限定 |
 |---|---|---|
 | Q1：负门限是否由单精度积分图数值消去导致？ | 是。 | 大量 prefix sum 做包含—排除时，小窗口和成为大数相减残差。保存的 R6 真实功率图复现负门限反例；根因与数学定义、几何和 alpha 无关。见[数值根因](R7_CUDA_CFAR_numerical_root_cause.md)。 |
-| Q2：修复后是否与独立 float64 参考一致？ | 已验证地图范围内一致。 | 九组 pre/post 单周期地图上，修复后 threshold 等于独立 float64 参考转 float32，分支 hit flips 为 0。三周期 Production 每期均有几何、CUT 计数和 hit-index hash，但 map `.f32` 未逐 period 分文件保存，故不声称三周期每个 CUT 均已重算。 |
-| Q3：R6 有多少虚假命中来自错误门限？ | 36 张 R6 branch-period map 合计 610,185 个额外 hit flips，另有 3,074 个漏 hit flips。 | R7 九组单周期地图另有 312,779 个额外、215 个漏 hit flips。均为分支 hit 决策差异，不是独立虚警事件、unique union hits 或 Pd/Pfa。 |
-| Q4：修复后 OFF 仍有多少命中、虚假检测和虚假航迹？ | 三周期 branch-hit-cell 和为 A0/B/C `679/674/676`；post-filter clusters 与 final detections 为 `24/27/24`；false confirmed tracks 均为 `4`。 | branch hit-cell 和可能重复计算两分支重叠；完整三周期 unique union hit 数不可评估。描述计数不是 Pfa。 |
+| Q2：修复后是否与独立 float64 参考一致？ | 最终三周期地图逐 CUT 闭合。 | 27 个 case-period 的 14,236,560 个 union CUT 上，post threshold 等于参考转 float32，unique union hit flips 为 0；54 张 branch map 的 28,473,120 个有效 CUT 同样逐点闭合。逐 period map 身份、输入 hash、result-ID 映射和 geometry hit counts 均交叉核验。 |
+| Q3：错误门限造成多少 CUT 命中决策差异？ | 最终三周期 pre-fix union map 有 695,232 extra、1,431 missed；post-fix 为 0/0。 | 历史 R6 36 张 branch-period map 有 610,185 extra、3,074 missed；早期 R7 单周期九张图有 312,779 extra、215 missed。不同 map 集合不可相加；这些是 CUT 决策翻转，不是独立虚警事件或 Pd/Pfa。 |
+| Q4：OFF 仍有多少命中、虚警候选和虚假航迹？ | pre→post unique union hits：A0 `31,193→404`、B `35,296→442`、C `30,935→403`；post branch-hit-cell 和为 `679/674/676`，clusters/detections 为 `24/27/24`，false confirmed tracks 均为 `4`。 | unique union CUT counts 已由 period-separated hit maps 评估；branch sum 会重复计入重叠格。H0 detections/tracks 是描述性候选，hit 数不是统计 Pfa。 |
 | Q5：R3 的 A0/C 任务 RMSE 大幅差异是否仍存在？ | 不存在于本轮冻结的一对一评价中。 | 三周期 post-fix A0/C：position RMSE `40.338603/40.338642 m`，angle `0.02632572/0.02632575°`，ground-speed `0.382643/0.382627 m/s`；径向速度均未解析。 |
 | Q6：差异是否受单条边界关联 payload 主导？ | A0/C 差异已近零，不能再归因于边界关联。 | period 0 的 68.7 m 位置误差占 A0/C 各自总平方误差约 96.79%，但该匹配为 range Δ0、Doppler Δ1，不在门限边缘；period 2 是 Doppler Δ2 边界匹配，位置误差仅约 3.33 m。所有记录均保留，未剔除样本。 |
 | Q7：+4 ns 是否仍造成可重复任务损失？ | 本 seed 的 3 个 period 都观察到损失：B 为 0/3 门内 detection，A0 为 3/3。 | pre/post CFAR 修复后结果相同；这说明差异不是 CFAR 修复制造的。但 period 共享一个 seed/场景，不能替代独立 seed 复验或显著性检验。 |
@@ -32,7 +32,7 @@ H0/OFF 每个修复后 case 有 24–27 条 final detection、4 条 false confir
 
 - `IMPLEMENTED`：GO-CFAR 稳定双精度累计与误差界直接重算；三周期 runner、冻结的一对一 truth evaluator、per-opportunity 参数误差和 diagnostics-gated cluster→detection lineage。
 - `EXECUTED`：RTX 3050 Laptop 真实 CUDA numerical selftest；九条件 pre/post 三周期 Production 回放；同二进制 A0_ON repeat；diagnostics-off 控制。最终核心矩阵每个 case 的 3 个 period 顺序完整、exit code 0。
-- `EVALUABLE`：被保存的 pre/post 数值地图与 float64 reference；三周期目标候选、逐期参数误差、cluster/detection lineage、H0 描述计数、TO complex transfer。统计 Pd/Pfa、unique union hit、总体错误率和 D3 差距仍不可评估。
+- `EVALUABLE`：保存的 pre/post branch 与 union 数值地图对 float64 reference 的三周期逐 CUT 复核、unique union hit 和 hit flips；三周期目标候选、逐期参数误差、cluster/detection lineage、H0 描述计数、TO complex transfer。统计 Pd/Pfa、跨 seed 总体性能和 D3 差距仍不可评估。
 - `PERFORMANCE_VERIFIED`：否。GPU 矩阵前 86% 利用率，wall time 不作性能基准；无 kernel/传输隔离、无干净三次性能测量，也没有独立 seed 的统计性能验证。
 
 完整三周期产物位于本机 `outputs/phase_r7_cfar_correctness_20261022/`。轻量审查证据和逐期任务指标位于 [`evidence/r7_cfar_correctness_20261022/`](evidence/r7_cfar_correctness_20261022/)；配对、配置和二进制身份见其中 manifest。最终 Production binary SHA-256：`de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`。

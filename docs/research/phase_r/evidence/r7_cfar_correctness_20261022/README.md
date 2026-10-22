@@ -1,6 +1,6 @@
 # R7 GO-CFAR compact evidence
 
-This compact package contains the auditable R7 pre/post run manifests, the actual runtime XMLs used for A0/C processing, branch-specific numeric analyses, historical R6 branch-map reanalysis, and the small R6 Production power-map fixture required by the CUDA regression. It does not include large Stage2 IQ inputs, full CFAR/CSI map sets, plots, or per-run logs. Those remain in the local `outputs/phase_r7_cfar_correctness_20261022/` tree and are identified by path/SHA in the manifests.
+This compact package contains the auditable R7 pre/post run manifests, the actual runtime XMLs used for A0/C processing, branch-specific numeric analyses, historical R6 branch-map reanalysis, and the small R6 Production power-map fixture required by the CUDA regression. It does not include large Stage2 IQ inputs, full CFAR/CSI map sets, plots, or complete per-run logs. Those remain in the local `outputs/phase_r7_cfar_correctness_20261022/` tree and are identified by path/SHA in the manifests; selected representative logs are included below.
 
 ## Contents
 
@@ -8,8 +8,10 @@ This compact package contains the auditable R7 pre/post run manifests, the actua
 - `runtime_configs/`: exact runtime XML files, copied byte-for-byte from the R6 Production config snapshots used by R7. B uses the A0 Current runtime config for its matched mode; only its input carries +4 ns error.
 - `analysis/r7_pair/`: nine A0/B/C × OFF/ON/TO pre/post numeric comparisons, CSV and full JSON.
 - `analysis/r6_history/`: all 36 saved historical R6 branch-period comparisons, CSV and full JSON.
+- `analysis/r7_three_period/`: all 27 final Production case-period float64 threshold and unique-union hit comparisons, with paired input/config identities, CSV and full JSON.
+- `analysis/r6_history/counterexample_cut_111_3337.json`: exact four-direction windows, direct/integral sums and means, reference threshold, saved Production CUDA threshold, and fixture identities for the specified R6 failure CUT.
 - `csi_metrics/`: the production `csi_metric_tap_summary.csv` from each repaired A0/B/C × OFF/ON/TO run; files retain the original rows and run ID.
-- `fixtures/`: a 130×4096 float32 power map plus its actual geometry CSV from the pre-fix R6 seed101 A0_ON dynamic branch. The CUDA selftest uses these to recheck the saved Production case on a clean checkout.
+- `fixtures/`: a 130×4096 float32 power map plus its actual geometry CSV from the pre-fix R6 seed101 A0_ON dynamic branch. The CUDA selftest and CPU direct/integral reference regression both use these versioned files, so the R6 counterexample is exercised on a clean checkout.
 - `metadata_smoke/`: GO branch metadata, geometry CSV, and manifest from one post-matrix A0_ON CUDA smoke using the final diagnostic writer. This verifies metadata serialization only; it is not part of the nine-run numerical matrix or a performance measurement.
 - `manifests/post_fix_matrix_3period_final.json` and `manifests/pre_fix_B_matrix_3period.json`: full three-period CUDA execution manifests for the authoritative task-level matrix and legacy B replay.
 - `task_metrics_3period/`: the frozen evaluator manifest, summary CSV, and per-case pre/post metrics, one-to-one target association records, and cluster lineage for all 9 A0/B/C × OFF/ON/TO pairs. The package is 2.8 MB and contains no raw IQ or full CFAR/CSI maps.
@@ -54,7 +56,7 @@ The authoritative three-period task matrix used Release binary SHA-256 `de3026ed
 
 ## Evidence interpretation
 
-The saved R6 maps contain 471,017 valid CUTs with erroneous nonpositive thresholds across OFF/ON/TO. R7 post-fix threshold maps match float64 references rounded to float32 and all nine compared post-fix branch hit maps have zero decision flips against the references. These are numerical-correctness results, not statistical Pd/Pfa improvements. The subsequent three-period target association and its limits are described in `R7_H0_detection_association_audit.md`; the one-period numerical map files do not provide per-CUT numeric comparison for all periods in the later matrix.
+The saved R6 maps contain 471,017 valid CUTs with erroneous nonpositive thresholds across OFF/ON/TO. The final three-period reanalysis verifies 27 period-specific union maps and all saved post-fix branch maps against float64 references; post-fix threshold values match after float32 rounding and branch/unique-union hit flips are zero. The pre-fix union maps contain 695,232 extra and 1,431 missed hit decisions across the matrix. These are numerical-correctness results, not statistical Pd/Pfa improvements. The corresponding records are in `analysis/r7_three_period/`; target-association results and limits are described in `R7_H0_detection_association_audit.md`.
 
 CSI coherence and phase-RMSE values in the direction report are extracted from each file's `active_support_unmasked` row (beam 050, 159,705 cells; status `diagnostic_noise_and_clutter_mixed`). These mixed-support diagnostics are not target-only performance metrics.
 

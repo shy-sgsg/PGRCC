@@ -19,10 +19,9 @@ from scripts.phase_r.go_cfar_reference import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PRE_FIX_DYNAMIC_RESULT = ROOT / "outputs/phase_r7_cfar_correctness_20261022/pre_fix_focused/branch_dynamic/result"
-POWER_FILE = PRE_FIX_DYNAMIC_RESULT / "debug/cfar_GMTI01_beam050_power.f32"
-THRESHOLD_FILE = PRE_FIX_DYNAMIC_RESULT / "debug/cfar_GMTI01_beam050_threshold.f32"
-GEOMETRY_FILE = PRE_FIX_DYNAMIC_RESULT / "debug/cfar_geometry_diagnostics.csv"
+FIXTURE_DIR = ROOT / "docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures"
+POWER_FILE = FIXTURE_DIR / "r6_seed101_a0_on_dynamic_power.f32"
+GEOMETRY_FILE = FIXTURE_DIR / "r6_seed101_a0_on_dynamic_geometry.csv"
 HEIGHT, WIDTH = 130, 4096
 GUARD, BACKGROUND = 4, 16
 R6_CUT = (111, 3337)
@@ -159,26 +158,24 @@ class TestGoCfarFloat64Reference(unittest.TestCase):
         self.assertFalse(result.valid_cut[15, 20])  # outside the configured cut band
         self.assertEqual(result.details[(10, 20)].threshold, 13.0)
 
-    @unittest.skipUnless(POWER_FILE.is_file() and THRESHOLD_FILE.is_file(), "R6 Production map fixture unavailable")
     def test_r6_dynamic_branch_negative_threshold_is_reproduced_by_legacy_float32_and_fixed_references(self) -> None:
         power = np.fromfile(POWER_FILE, dtype="<f4").reshape(HEIGHT, WIDTH)
-        old_threshold = np.fromfile(THRESHOLD_FILE, dtype="<f4").reshape(HEIGHT, WIDTH)
         geom = CfarGeometry(HEIGHT, WIDTH, GUARD, BACKGROUND, True)
         row, col = R6_CUT
         alpha = production_alpha()
 
         self.assertAlmostEqual(float(power[row, col]), 17.0784569, delta=1.0e-5)
-        self.assertAlmostEqual(float(old_threshold[row, col]), -2.6239653, delta=1.0e-5)
-        self.assertEqual(legacy_float32_threshold(power, geom, alpha, row, col), float(old_threshold[row, col]))
+        # This literal is the saved R6 Production CUDA threshold at the counterexample CUT.
+        old_threshold = -2.623965263366699
+        self.assertAlmostEqual(legacy_float32_threshold(power, geom, alpha, row, col), old_threshold, delta=1.0e-7)
         direct = threshold_detail_direct_f64(power, geom, alpha, row, col)
         integral = threshold_detail_integral_f64(power, geom, alpha, row, col)
         np.testing.assert_allclose(direct.directional_means, integral.directional_means, rtol=1.0e-8, atol=1.0e-12)
         self.assertAlmostEqual(direct.threshold, 114.8018334, delta=5.0e-4)
         self.assertGreater(direct.threshold, float(power[row, col]))
-        self.assertLess(float(old_threshold[row, col]), 0.0)
-        self.assertGreater(abs(float(old_threshold[row, col]) - direct.threshold), 100.0)
+        self.assertLess(old_threshold, 0.0)
+        self.assertGreater(abs(old_threshold - direct.threshold), 100.0)
 
-    @unittest.skipUnless(POWER_FILE.is_file(), "R6 Production power-map fixture unavailable")
     def test_r6_saved_map_direct_and_integral_references_agree_at_every_valid_cut(self) -> None:
         power = np.fromfile(POWER_FILE, dtype="<f4").reshape(HEIGHT, WIDTH)
         geom = CfarGeometry(HEIGHT, WIDTH, GUARD, BACKGROUND, True)

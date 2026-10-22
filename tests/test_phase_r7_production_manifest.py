@@ -7,6 +7,7 @@ import hashlib
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from scripts.phase_r.run_r7_minimal_production_matrix import (
     validated_existing_run_record,
@@ -51,14 +52,18 @@ class TestExistingProductionRunManifest(unittest.TestCase):
             root = Path(temp_dir)
             manifest_path, config, input_path, result_dir = self._fixture(root)
 
-            record = validated_existing_run_record(
-                manifest_path,
-                config,
-                input_path,
-                result_dir,
-                "f50ce8a1ceb5ecbe15e903fd4eb946d4b1c1af86",
-                root,
-            )
+            with patch(
+                "scripts.phase_r.run_r7_minimal_production_matrix.subprocess.run"
+            ) as run_git:
+                run_git.return_value.returncode = 0
+                record = validated_existing_run_record(
+                    manifest_path,
+                    config,
+                    input_path,
+                    result_dir,
+                    "f50ce8a1ceb5ecbe15e903fd4eb946d4b1c1af86",
+                    root,
+                )
 
         self.assertEqual(record["status"], "EXECUTED")
         self.assertEqual(record["binary_identity_status"], "NOT_RECORDED_IN_RUN_MANIFEST")
@@ -81,11 +86,15 @@ class TestExistingProductionRunManifest(unittest.TestCase):
             root = Path(temp_dir)
             manifest_path, config, input_path, result_dir = self._fixture(root, git_commit="deadbeef")
 
-            with self.assertRaisesRegex(ValueError, "source revision differs"):
-                validated_existing_run_record(
-                    manifest_path, config, input_path, result_dir,
-                    "f50ce8a1ceb5ecbe15e903fd4eb946d4b1c1af86", root,
-                )
+            with patch(
+                "scripts.phase_r.run_r7_minimal_production_matrix.subprocess.run"
+            ) as run_git:
+                run_git.return_value.returncode = 1
+                with self.assertRaisesRegex(ValueError, "source revision differs"):
+                    validated_existing_run_record(
+                        manifest_path, config, input_path, result_dir,
+                        "f50ce8a1ceb5ecbe15e903fd4eb946d4b1c1af86", root,
+                    )
 
 
 if __name__ == "__main__":

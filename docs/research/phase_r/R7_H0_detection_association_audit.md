@@ -9,18 +9,18 @@ ON 关联门限在查看修复后结果前冻结：同 period、同 beam，range
 
 ### H0 / OFF
 
-以下 hit 是 dynamic 与 full 两个分支的 hit-cell 计数之和，重叠格可能重复计数；完整三周期唯一 union hit 数没有保存，故不可评估。OFF 的全部最终 detection / confirmed track 均为 H0 输出的描述性假警候选，不据此推算统计 Pfa。
+`GMTI01/02/03` 分别对应 period 0/1/2，saved hit maps 足以恢复逐 CUT 的 unique union（dynamic OR full）；因此下表同时列 branch hit-cell 和与不重复的 union hit 数。OFF 的 detection / confirmed track 是 H0 输出中的描述性虚警候选，不据此推算统计 Pfa。
 
-| 条件 | 阶段 | 分支 hit-cell 和 | post-filter cluster | final detection | false confirmed track |
-|---|---|---:|---:|---:|---:|
-| A0 | pre-fix | 37,498 | 不可评估（legacy 无 lineage） | 362 | 149 |
-| A0 | post-fix | 679 | 24 | 24 | 4 |
-| B (+4 ns) | pre-fix | 41,947 | 不可评估（legacy 无 lineage） | 369 | 152 |
-| B (+4 ns) | post-fix | 674 | 27 | 27 | 4 |
-| C (Known Correction) | pre-fix | 37,240 | 不可评估（legacy 无 lineage） | 345 | 137 |
-| C (Known Correction) | post-fix | 676 | 24 | 24 | 4 |
+| 条件 | 阶段 | unique union hit cells | 分支 hit-cell 和 | post-filter cluster | final detection | false confirmed track |
+|---|---|---:|---:|---:|---:|---:|
+| A0 | pre-fix | 31,193 | 37,498 | 不可评估（legacy 无 lineage） | 362 | 149 |
+| A0 | post-fix | 404 | 679 | 24 | 24 | 4 |
+| B (+4 ns) | pre-fix | 35,296 | 41,947 | 不可评估（legacy 无 lineage） | 369 | 152 |
+| B (+4 ns) | post-fix | 442 | 674 | 27 | 27 | 4 |
+| C (Known Correction) | pre-fix | 30,935 | 37,240 | 不可评估（legacy 无 lineage） | 345 | 137 |
+| C (Known Correction) | post-fix | 403 | 676 | 24 | 24 | 4 |
 
-修复后每个 case 的 cluster 与最终 detection 一一对应；lineage 完整。修复前后这些计数只作同一场景下的实现差异描述，既不是按独立 CUT 计算的 Pfa，也不是独立 seed 统计。
+逐 period 的 pre/post unique union hits 为：A0 `10,903/129`、`10,095/176`、`10,195/99`；B `11,968/145`、`11,135/186`、`12,193/111`；C `11,013/129`、`9,370/175`、`10,552/99`。27 条 case-period 数值记录见 [CFAR 数值 CSV](evidence/r7_cfar_correctness_20261022/analysis/r7_three_period/three_period_numerical_revalidation.csv)。修复后每个 case 的 cluster 与最终 detection 一一对应；lineage 完整。pre-fix cluster 缺少 lineage，仍不可评估。unique union hit 是 CUT 计数，不是独立虚警事件；修复前后计数只作同一场景下的实现差异描述，不代表统计 Pfa 或独立 seed 统计。
 
 ### ON / 目标检测与航迹关联
 

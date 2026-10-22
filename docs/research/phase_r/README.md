@@ -44,10 +44,10 @@
 
 ## R7 CUDA GO-CFAR 数值修复（2026-10-22）
 
-1. [R7 数值根因](R7_CUDA_CFAR_numerical_root_cause.md)：R6 36 张历史 branch-period 地图与 R7 九组配对的错误门限/命中差异。
+1. [R7 数值根因](R7_CUDA_CFAR_numerical_root_cause.md)：历史 R6/R7 数值对照及最终 27 张 period-separated Production union 地图的逐 CUT 参考复核。
 2. [R7 修复与测试](R7_CUDA_CFAR_fix_and_tests.md)：双精度积分、误差界直接重算、真实 CUDA selftest、资源成本和性能限制。
-3. [R7 H0/目标关联审计](R7_H0_detection_association_audit.md)：逐模式 detections/tracks 描述计数、冻结目标门限、未闭合的关联 stage。
-4. [R7 Production 复验](R7_minimal_production_revalidation.md)：九个条件、输入/程序身份、运行产物和复现入口。
+3. [R7 H0/目标关联审计](R7_H0_detection_association_audit.md)：逐 period unique union hits、detections/tracks 描述计数、冻结目标门限与未闭合的关联 stage。
+4. [R7 Production 复验](R7_minimal_production_revalidation.md)：九个条件、输入/程序身份、完整三周期数值复核、运行产物和复现入口。
 5. [R7 方向裁决](R7_research_direction_decision.md)：逐项回答 Q1–Q10，区分数值正确性、三周期任务候选、航迹结果与独立 seed 统计限制。
 
 ## 主要证据位置与保留边界
