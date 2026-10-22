@@ -10,7 +10,7 @@ import json
 import sys
 from collections import defaultdict
 from pathlib import Path
-from typing import Any
+from typing import Any, TextIO
 
 import numpy as np
 
@@ -41,6 +41,7 @@ CASE_IDS = (
     "C_OFF", "C_ON", "C_TO",
 )
 BRANCHES = ("dynamic_in_band", "full_band")
+ERROR_QUANTILES = ("p50", "p90", "p95", "p99", "p99_9")
 HEIGHT, WIDTH = 130, 4096
 
 
@@ -217,9 +218,17 @@ def _threshold_metrics(
     ulp = np.abs(np.spacing(reference_f32).astype(np.float64))
     error = np.abs(actual64 - reference64)
     ulp_error = error / np.where(ulp > 0.0, ulp, np.inf)
+    quantiles = (
+        np.quantile(error, (0.5, 0.9, 0.95, 0.99, 0.999))
+        if error.size
+        else np.zeros(len(ERROR_QUANTILES), dtype=np.float64)
+    )
     return {
         "max_abs_error": float(np.max(error)) if error.size else 0.0,
-        "p99_abs_error": float(np.quantile(error, 0.99)) if error.size else 0.0,
+        **{
+            f"{name}_abs_error": float(value)
+            for name, value in zip(ERROR_QUANTILES, quantiles, strict=True)
+        },
         "max_float32_ulp_error": float(np.max(ulp_error)) if error.size else 0.0,
         "cuts_over_2_float32_ulp": int(np.count_nonzero(ulp_error > 2.0)),
         "exact_float32_reference_cuts": int(
@@ -662,23 +671,48 @@ def _flatten_rows(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
             "post_union_max_abs_threshold_error": row["post_union_threshold_error"]["max_abs_error"],
             "pre_branch_maps_available": row["pre_branch_metrics"] is not None,
         }
+        for quantile in ERROR_QUANTILES:
+            item[f"pre_union_{quantile}_abs_threshold_error"] = row[
+                "pre_union_threshold_error"
+            ][f"{quantile}_abs_error"]
+            item[f"post_union_{quantile}_abs_threshold_error"] = row[
+                "post_union_threshold_error"
+            ][f"{quantile}_abs_error"]
         for branch in BRANCHES:
             key = "dynamic" if branch == "dynamic_in_band" else "full"
             post_metrics = row["post_branch_metrics"][branch]
             item[f"post_{key}_extra_hits"] = post_metrics["hit_flips"]["extra_hits"]
             item[f"post_{key}_missed_hits"] = post_metrics["hit_flips"]["missed_hits"]
             item[f"post_{key}_max_abs_threshold_error"] = post_metrics["threshold_error"]["max_abs_error"]
+            for quantile in ERROR_QUANTILES:
+                item[f"post_{key}_{quantile}_abs_threshold_error"] = post_metrics[
+                    "threshold_error"
+                ][f"{quantile}_abs_error"]
             if row["pre_branch_metrics"] is None:
                 item[f"pre_{key}_extra_hits"] = ""
                 item[f"pre_{key}_missed_hits"] = ""
                 item[f"pre_{key}_max_abs_threshold_error"] = ""
+                for quantile in ERROR_QUANTILES:
+                    item[f"pre_{key}_{quantile}_abs_threshold_error"] = ""
             else:
                 pre_metrics = row["pre_branch_metrics"][branch]
                 item[f"pre_{key}_extra_hits"] = pre_metrics["hit_flips"]["extra_hits"]
                 item[f"pre_{key}_missed_hits"] = pre_metrics["hit_flips"]["missed_hits"]
                 item[f"pre_{key}_max_abs_threshold_error"] = pre_metrics["threshold_error"]["max_abs_error"]
+                for quantile in ERROR_QUANTILES:
+                    item[f"pre_{key}_{quantile}_abs_threshold_error"] = pre_metrics[
+                        "threshold_error"
+                    ][f"{quantile}_abs_error"]
         flat.append(item)
     return flat
+
+
+def _write_csv_rows(stream: TextIO, rows: list[dict[str, Any]]) -> None:
+    writer = csv.DictWriter(
+        stream, fieldnames=list(rows[0]), lineterminator="\n"
+    )
+    writer.writeheader()
+    writer.writerows(rows)
 
 
 def main() -> int:
@@ -696,9 +730,7 @@ def main() -> int:
     json_path.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     flat_rows = _flatten_rows(result["case_period_results"])
     with csv_path.open("w", newline="", encoding="utf-8") as stream:
-        writer = csv.DictWriter(stream, fieldnames=list(flat_rows[0]))
-        writer.writeheader()
-        writer.writerows(flat_rows)
+        _write_csv_rows(stream, flat_rows)
     print(f"wrote {json_path}")
     print(f"wrote {csv_path}")
     print(json.dumps(result["summary"], indent=2, ensure_ascii=False))

@@ -9,6 +9,7 @@ This compact package contains the auditable R7 pre/post run manifests, the actua
 - `analysis/r7_pair/`: nine A0/B/C × OFF/ON/TO pre/post numeric comparisons, CSV and full JSON.
 - `analysis/r6_history/`: all 36 saved historical R6 branch-period comparisons, CSV and full JSON.
 - `analysis/r7_three_period/`: all 27 final Production case-period float64 threshold and unique-union hit comparisons, with paired input/config identities, CSV and full JSON.
+- `analysis/r7_three_period_quantiles_20261022/`: per-map absolute threshold-error distribution summaries for all 27 case-period union maps and available branch maps: p50/p90/p95/p99/p99.9/max, with valid-CUT denominators. Each row represents one map, not a pooled cross-condition distribution; pre-fix B branch maps were not retained and remain blank.
 - `analysis/cuda_near_threshold_cuts_20261022.log`: 3,671 per-CUT records from the post-update real CUDA selftest, including CUT power, reference/CUDA float32 thresholds, ULP error, both hit decisions and each decision flip.
 - `analysis/r6_history/counterexample_cut_111_3337.json`: exact four-direction windows, direct/integral sums and means, reference threshold, saved Production CUDA threshold, and fixture identities for the specified R6 failure CUT.
 - `csi_metrics/`: the production `csi_metric_tap_summary.csv` from each repaired A0/B/C × OFF/ON/TO run; files retain the original rows and run ID.
@@ -59,6 +60,8 @@ The authoritative three-period task matrix used Release binary SHA-256 `de3026ed
 
 The saved R6 maps contain 471,017 valid CUTs with erroneous nonpositive thresholds across OFF/ON/TO. The final three-period reanalysis verifies 27 period-specific union maps and all saved post-fix branch maps against float64 references; post-fix threshold values match after float32 rounding and branch/unique-union hit flips are zero. The pre-fix union maps contain 695,232 extra and 1,431 missed hit decisions across the matrix. These are numerical-correctness results, not statistical Pd/Pfa improvements. The corresponding records are in `analysis/r7_three_period/`; target-association results and limits are described in `R7_H0_detection_association_audit.md`.
 
+The per-CUT absolute-error distributions are summarized at map grain in `analysis/r7_three_period_quantiles_20261022/`; every case-period union map has 527,280 valid CUTs. These quantiles compare the saved float32 CUDA threshold with the unrounded float64 reference, so the post-fix absolute error includes expected float32 representation rounding even though the CUDA threshold equals the reference rounded to float32. Full maps remain in the local outputs tree and are the reproducible source for these summaries.
+
 CSI coherence and phase-RMSE values in the direction report are extracted from each file's `active_support_unmasked` row (beam 050, 159,705 cells; status `diagnostic_noise_and_clutter_mixed`). These mixed-support diagnostics are not target-only performance metrics.
 
 Analysis rerun commands (write to a new output directory if the default already exists):
@@ -66,4 +69,5 @@ Analysis rerun commands (write to a new output directory if the default already 
 ```bash
 python3 scripts/phase_r/analyze_r7_cfar_numerics.py --output-dir /tmp/r7_pair_recheck
 python3 scripts/phase_r/analyze_r7_cfar_numerics.py --legacy-r6-only --output-dir /tmp/r6_history_recheck
+python3 scripts/phase_r/analyze_r7_three_period_numerics.py --output-dir /tmp/r7_three_period_quantiles_recheck
 ```
