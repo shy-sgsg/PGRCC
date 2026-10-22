@@ -17,6 +17,8 @@ ON 的三项 R6 数字与 R3 精确一致。A0/A0 两次重复、CSI/CFAR 诊断
 
 这些结果是冻结 evaluator 定义下的指标，不代表三 period 的统计性 Pd/Pfa。`3/3` 只表示每个可见 truth period 至少有一个 Production detection row 落在上述宽 association gate；它不等于 3 个独立 Pd 样本，更不等于 CFAR hit-cell Pd。
 
+逐周期 cluster→selected→detection 计数也可直接从 Production 日志与 `GMTI01/02/03` 检测 CSV 复核：三者逐周期相等。A0/C cluster 与 detection 数分别为 ON `140/130,133/127,229/220`，OFF `105/110,146/131,111/104`，TO `178/178,221/229,301/302`（A0/C、period 0/1/2）；A0_ON 的四个重复/插桩控制逐期完全相同。此为计数级 lineage，不包含可持续追踪的 cluster ID；不可据此补造特定目标候选的 cluster 身份。
+
 ## RMSE 差值由一个弱关联 payload 主导
 
 A0 ON 的 16 个 matched protocol payload 来自 periods 1、2，且 evaluator 对匹配 gate 内的**所有**输出 payload 计算 RMSE，不只取每 period 的最佳目标航迹。最大 A0 payload 为 period 2、track 30、matched detection 68：

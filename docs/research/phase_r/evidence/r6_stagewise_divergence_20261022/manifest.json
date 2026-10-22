@@ -31,12 +31,13 @@
   "input_identity": {
     "r3_registered_files_reconstructed_and_sha256_matched": 27,
     "r3_registered_files_expected": 27,
+    "r3_original_bin_files_at_registered_paths_present": false,
     "mapping": {
       "A0": "reconstruction/stages/A0_ON, A0_OFF_bg_replay1, A0_TO_bg_replay1",
       "A1_plus_4ns": "reconstruction/stages/A1_ON_bg_replay1, A1_OFF_bg_replay1, A1_TO_bg_replay1",
       "known_corrected_C": "reconstruction/corrected_C/{ON,OFF,TO}/prepared_inputs/A2_Known_error_correction_upper_bound/period_000N.bin"
     },
-    "sha256_gate": "27/27 exact; source values are recorded in the R3 case manifest"
+    "sha256_gate": "27/27 exact; each reconstructed file matches the SHA-256 registered in the R3 case manifest; per-file values are recorded in input_sha256_matches.csv. The original R3 bin paths are absent; this is a manifest-hash reconstruction check, not a byte reread of those original paths."
   },
   "stage2_area_clutter": {
     "continuous_area_packets": 390,
@@ -69,6 +70,14 @@
     "diagnostics_off_on_scientific_output_parity": true,
     "track_manager_audit_all_six_conditions": "pass, zero violations"
   },
+  "cluster_detection_audit": {
+    "period_rows": 27,
+    "all_selected_equal_cluster_count": true,
+    "all_detection_rows_equal_selected_count": true,
+    "a0_on_repeat_and_diagnostic_controls_cluster_counts_exact": true,
+    "per_candidate_cluster_id_lineage_persisted": false,
+    "source": "production/*/logs/gmt_pipe_core.log plus result/detection_results_GMTI01-03.csv"
+  },
   "cfar_audit": {
     "branch_period_maps": 36,
     "valid_cut_per_map": 527280,
@@ -90,6 +99,7 @@
     "task_metrics": "r6_task_metrics.csv"
   },
   "known_limitations": [
+    "The original R3 Stage2 bin files at their case-manifest paths are absent; reconstructed R6 inputs match the registered SHA-256 values 27/27.",
     "R3 historical binary identity cannot be reconstructed from the dirty historical manifest.",
     "Production runner run_manifest.json does not serialize the complete argv; runtime XML, logs, forced IDs and CLI replay form are retained/documented.",
     "No durable per-cluster ID lineage exists for the specific disappearing candidate; attribution is localized to post-CFAR candidate selection, not one exact suppression predicate.",

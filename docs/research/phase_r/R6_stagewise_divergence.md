@@ -32,7 +32,9 @@ R6 A0_ON rep1、rep2 相对 A0_ON_complexdiag 的 36 个全图 tap 比较行全�
 
 在 CFAR 之前，CSI 全图差异仍为小量；完整门限图经 32-bit integral-image CFAR 计算后，A0/C 的 valid-CUT hit mask 已有成千至数万项变化。六个 A0/C 条件共 36 个 branch-period maps，每图 527,280 个 valid CUT；所有分支的 OR hit mask 均与各自 Production union hit map 精确一致。精确门限敏感性见 [R6 CFAR 审计](R6_cfar_threshold_sensitivity.md)。
 
-对目标候选的具体追踪表明：ON 的 `row=119,col=2201` 在 A0 和 C 的 dynamic CFAR 都命中，但只进入 A0 的最终 detection 列表；周边 hit topology 也不同，A0 在该邻域额外命中 `col=2202`。现存产物没有逐 cluster ID 的持久 lineage，因此可定位到 **CFAR 之后的 cluster/detection selection**，但不能声称已经证明是哪一条 cluster 子规则删除了 C 的候选。具体目标任务影响见 [R6 任务误差归因](R6_task_error_attribution.md)。
+Production 日志中的逐期 cluster 计数与对应 `detection_results_GMTI01/02/03.csv` 行数一致；A0/C 的 cluster/detection rows 为：ON `140/130, 133/127, 229/220`，OFF `105/110, 146/131, 111/104`，TO `178/178, 221/229, 301/302`（每对按 A0/C、period 0/1/2）。A0_ON rep1、rep2、诊断关闭与复杂诊断四次运行的全部 3 期计数均完全相同。机器可读逐运行记录见 [`r6_cluster_detection_counts.csv`](evidence/r6_stagewise_divergence_20261022/stagewise/r6_cluster_detection_counts.csv)。
+
+对目标候选的具体追踪表明：ON 的 `row=119,col=2201` 在 A0 和 C 的 dynamic CFAR 都命中，但只进入 A0 的最终 detection 列表；周边 hit topology 也不同，A0 在该邻域额外命中 `col=2202`。cluster 与 detection 的数量级变化已由逐期日志验证；现存产物没有逐 cluster ID 的持久 lineage，因此可定位到 **CFAR 之后的 cluster/detection selection**，但不能声称已经证明是哪一条 cluster 子规则删除了 C 的候选。具体目标任务影响见 [R6 任务误差归因](R6_task_error_attribution.md)。
 
 ## 证据
 

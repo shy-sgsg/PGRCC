@@ -23,7 +23,7 @@ R6 在 seed 101、同一冻结 Release Production 程序和配对输入下，逐
 
 - 场景：seed 101，3 periods，beam 50，16 GHz，50 MHz 带宽，60 MHz 采样，1300 Hz PRF，平台高度 6000 m；注册目标速度 6.7 m/s、目标 SNR 30 dB、目标距离 85 km。
 - 条件：A0 为 0 ns；C 为注入 +4 ns 后用真值物理逆校正，属于 evaluator-only known-correction upper bound。ON/OFF/TO 分别为目标+杂波+噪声、杂波+噪声、目标-only。
-- 历史 R3 登记的 6 组 A0/A1 Stage2 period 数据和 3 组 Known-C period 数据，共 27 个文件，重建后 SHA-256 为 **27/27 匹配**。A0/A1 的原始输入和 C 的校正输入均可追溯到 R3 `case_manifest.json`。
+- 历史 R3 登记的 6 组 A0/A1 Stage2 period 数据和 3 组 Known-C period 数据，共 27 个文件；原 R3 `.bin` 路径现已不在，R6 重建文件逐文件与仍保留的 R3 `case_manifest.json` SHA-256 **27/27 匹配**，因此是按已登记哈希重建，不是重新读取旧 `.bin`。逐文件值见 [输入 hash 清单](evidence/r6_stagewise_divergence_20261022/input_sha256_matches.csv)。
 - Stage2 有效面积杂波：连续面积散射注入 390 packets、1,952,655 samples；测得平均功率 0.111676、lag-1 相关系数 0.9800065。未以 `area_enabled` 替代有效注入检查。
 - 六个 A0/C runtime XML 的语义比较显示，每一配对仅 `GMTI_data_new`、`result_add`、`track_debug_dir` 三个路径字段不同；算法参数相同。
 - 所有 R6 Production runs 使用 commit `3492cde` 的 Release `build/GMTI_pipe_core`，SHA-256 `f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962`。`src/processOnePeriod.cpp` SHA-256 `07d875c9ba7cd727b6f33dc69eda234a6ea2d49924bea509aea90d170bb62957`；时延校正实现 `scripts/estimate_channel_delay.py` SHA-256 `c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7`。
@@ -37,6 +37,8 @@ A0_ON_rep1、A0_ON_rep2、A0_ON_complexdiag 和 A0_ON_diagoff 使用同一 A0_ON
 配对的 A0/C 运行在当前生产 XML、三 period 的有效输入、同一 binary 下完成。完整 CSI taps 为 130×4096，每支 3 periods。A0/C 的具体 stagewise 数值、CFAR 几何、阈值和命中索引见本目录其余报告及 [紧凑证据目录](evidence/r6_stagewise_divergence_20261022/README.md)。
 
 TrackManager 使用正式 `audit_track_manager_run.audit_debug_dir` 审计，6 个条件均为 `pass`、0 violations；任务误差使用现有 `run_track_manager_e2e._evaluate_branch`，不是简化 tracker。
+
+逐周期 Production 日志还保留了 cluster 阶段计数：27 行中 `selected == cluster_count == detection CSV rows`；A0_ON 的 rep1/rep2/诊断开关四个控制的三周期 cluster 与 detection 计数完全一致。A0/C 的逐期差异及计数级证据见 [cluster/detection 表](evidence/r6_stagewise_divergence_20261022/stagewise/r6_cluster_detection_counts.csv)。Production 没有持久化逐候选 cluster ID lineage，因此可定位候选变化经过 cluster/selection 传入 detection，但不能把特定 hit cell 映射到某个持久 cluster ID 或精确 suppression predicate。
 
 ## 失败现场及排除项
 
