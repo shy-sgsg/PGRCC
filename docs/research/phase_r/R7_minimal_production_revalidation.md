@@ -3,6 +3,32 @@
 日期：2026-10-22
 范围：seed101、A0/B/C × OFF/ON/TO；只修复并复验 GO-CFAR，不训练 AI、不跑 seed202/303。
 
+## 最终三周期任务复验（当前权威）
+
+在早期单周期地图数值比较之后，最终 CUDA Production 矩阵对每个 A0/B/C × OFF/ON/TO 条件使用匹配的 period 0/1/2；另执行同 binary 的 A0_ON 重复和诊断关闭控制。9 个配对 case、A0_ON repeat 和 diagnostics-off 共 11 个三周期记录全部为真实 CUDA Production、exit code 0、period 顺序可评估。另有一条较早 focused run，因此最终 manifest 共 12 条记录。B pre-fix 三周期输入由保存的旧 Production 程序回放；A0/C pre-fix 来自 R6 同输入运行。九个 pre/post 配对的三个输入 SHA 与 runtime XML SHA 均一致。
+
+最终矩阵位置和身份：
+
+- 修复后：`outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/experiment_manifest.json`
+- 修复前 B：`outputs/phase_r7_cfar_correctness_20261022/pre_fix_matrix_3period_id_only/experiment_manifest.json`
+- 逐机会评价：`outputs/phase_r7_cfar_correctness_20261022/task_metrics_final_v4/evaluation_manifest.json`
+- 修复前 Production binary SHA-256：`f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962`
+- 最终三周期 Production binary SHA-256：`de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`；manifest 记录 Git revision `04958a996f6a1449fa3d9f158a4765493c85038d`，构建时工作树有 R7 未提交代码，因此以 binary SHA 确认实际程序。
+
+本地完整 case 目录保留全量 maps、CSI arrays 与日志；Git 内的 [`production_runs_3period/`](evidence/r7_cfar_correctness_20261022/production_runs_3period/) 紧凑审查包另保存 20 个 pre/post/repeat/control case 的真实 runtime XML/log、run manifest、运行时配置快照、per-period CFAR geometry/numerical/axis diagnostics、lineage、CSI summaries/taps、检测表和 TrackManager CSV。该包约 14 MB；大块 IQ、全 CSI NPY 与 CFAR map 不上传，完整路径/身份仍由 manifest 关联。
+
+最终任务结果：A0/C 各 3/3 期有唯一门内 detection，B 为 0/3；A0/C 各 2/3 期进一步关联到 confirmed matched-this-frame track，B 为 0/3。pre-fix 已有同样的 detection 候选格局，说明 CFAR 数值修复减少了大量 H0/非目标候选，但没有改变这组场景的目标门内 detection 数。完整三周期逐期参数和 lineage 解释见 [H0/目标关联审计](R7_H0_detection_association_audit.md)。
+
+A0_ON 与 A0_ON_repeat 使用相同 Release binary、三份输入和 runtime XML。两次 CFAR/CSI `.f32`、geometry/numerical 和 cluster lineage 结果一致；检测 CSV 忽略运行 ID/输出路径后逐行一致；TrackManager frames/detections/payload 忽略运行 ID 后逐行一致。三周期 repeatability `EVALUABLE`，不外推到其他 seed。Diagnostics-off 运行仍保留 detections 与 TrackManager 输出，且没有生成 diagnostics lineage sidecar。
+
+三周期矩阵每个 period 都有 geometry 与 numerical summary，但 CFAR threshold/hit `.f32` sidecar 在 case 目录中没有 period 分文件；故逐 CUT 数值分析仍只按前文九组单周期地图范围报告，不能把 valid-CUT / hit-flip 统计扩展到全部三周期。
+
+矩阵前 GPU：RTX 3050 Laptop，P0、1500/6001 MHz、20.04 W、55 °C、86% 利用率、1391/4096 MiB 显存。运行时间仅是受设备负载影响的 wall-time 记录；性能 `NOT_EVALUABLE`。double accumulation 与 diagnostics 的约 4.6 MiB/map 是按尺寸估算的显存增量，不是峰值实测。R7 五份报告、compact evidence 与本地完整输出目录互相区分；本阶段到此停止。
+
+## 早期单周期数值复验（保留为历史范围）
+
+以下配对设计、binary `3f58a553...`、单周期任务观察及 wall-time 记录属于早期单周期数值验证，不是上方最终三周期任务评价的替代。其数值结论只覆盖所保存的单周期地图。
+
 ## 配对设计与身份
 
 | 条件 | 处理 | OFF 输入 SHA-256 | ON 输入 SHA-256 | TO 输入 SHA-256 |
@@ -13,7 +39,7 @@
 
 每个 pre/post 配对的 Stage2 input SHA 和 runtime XML SHA 均一致。Pre-fix Production binary SHA-256：`f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962`；post-fix Release binary SHA-256：`3f58a55330b4afec75e595ce3c6238d5471bbb4f7cda119605c53b4fc141c040`。两个 manifest 记录的 Git revision 都是 `f50ce8a1ceb5ecbe15e903fd4eb946d4b1c1af86`；修复源在当时为未提交工作树内容，因此以 binary SHA 区分程序身份。
 
-Production manifest 另包含 A0_ON 首次输出、相同输入重复运行、runtime diagnostic 关闭控制；总计 11 个修复后记录。九个核心条件各有一组旧/新二进制配对回放。首次 A0_ON 的运行级 `run_manifest.json` 没有记录 executable SHA，故修正后的矩阵 manifest 将它标记为 `NOT_RECORDED_IN_RUN_MANIFEST`，不再借用当前二进制 hash；paired A0_ON 使用有 SHA 的 repeat run。首次/重复输出仍可逐位比较，但 same-binary repeatability `NOT_EVALUABLE`。
+该早期 Production manifest 包含 A0_ON 首次输出、重复运行和 diagnostics-off 控制；总计 11 个修复后记录。首次 A0_ON 的旧 `run_manifest.json` 没有记录 executable SHA，故早期矩阵将其标记为 `NOT_RECORDED_IN_RUN_MANIFEST`；该次不能作为同 binary repeatability 证据。最终三周期重复性已在上文由同 binary hash 的两次执行另行验证。
 
 ## 处理链与采集
 

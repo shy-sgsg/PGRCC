@@ -35,3 +35,9 @@ R7 在 A0/B/C × OFF/ON/TO 九组前/后配对上复核；每组 527,280 个有�
 - 根因和修复的数值正确性：在保存地图、合成测试和当前九组 Production 地图上 `EVALUABLE`。
 - Hit-map 的变化表示检测候选输入改变，不等同于聚类/检测/Pd/Pfa 的改善。
 - R6/R7 是有限 seed/period 的仿真证据；不支持总体统计显著性结论。
+
+## 三周期 Production 复验的数值证据边界
+
+随后完成的最终 Production 矩阵对 A0/B/C × OFF/ON/TO 每个条件处理 3 个配对 period；每 period 的 CFAR geometry / numerical diagnostics 都记录了 527,280 个有效 CUT、命中计数与 hit-index hash。实际可逐 CUT 重算的 pre/post power、threshold、hit `.f32` 地图仍是每个 case/beam 一套文件，没有 period 独立文件身份。因此，本报告前述 `4,745,520` CUT、`312,779` extra hits / `215` misses 和修复后 0 branch-hit flips，严格限定于此前保存的九组数值比较地图，不能乘以 3 或解释成完整三周期所有 CUT 的误差统计。
+
+三周期 task-level detection/track 结果已单独在 [H0/目标关联审计](R7_H0_detection_association_audit.md)和[方向裁决](R7_research_direction_decision.md)评价。最终三周期矩阵 binary SHA-256 为 `de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`；对应完整 manifest 在本地 `outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/experiment_manifest.json`。

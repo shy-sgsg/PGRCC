@@ -1,33 +1,42 @@
 # R7：研究方向阶段裁决
 
 日期：2026-10-22
-结论级别：单 seed、单 period 可行性检查；不是统计性能裁决。
+结论等级：seed101 单场景、3 个 period 的 CUDA Production 可行性与正确性验证；不是独立 seed 统计裁决。
 
 ## 结论摘要
 
-本阶段先发现并修复了一个足以污染虚警、检测候选和任务归因的 CUDA GO-CFAR 数值错误。修复后阈值/分支 hit-map 在当前九组真实 CUDA Production 回放上闭合到独立 float64 reference。当前数据因此能够支持“旧 CFAR 数值实现错误且已修复”，但还不能回答整体 GMTI 的统计 Pd/Pfa 或航迹性能。
+R7 发现并修复了 CUDA GO-CFAR float32 积分前缀求和的消去误差；保存的 R6 全部 36 张分支-period 地图和 R7 九组单周期配对数值地图支持该数值根因。修复后三周期 Production 矩阵完成了 A0/B/C × OFF/ON/TO 任务评价并加入 cluster→detection lineage。结果显示此 seed 的 +4 ns Current 条件三期都没有通过冻结目标检测门限，A0 与 Known Correction 均三期通过；但三期来自同一 seed，且 A0/C 仅 2/3 期形成目标关联 confirmed track，因此不能称为统计上可重复的 GMTI 性能改善。
 
-| 问题 | 当前证据与结论 | 状态 |
+### 对 R7 指定问题的回答
+
+| 问题 | 结论 | 证据与限定 |
 |---|---|---|
-| +4 ns 未知通道时延是否降低 GMTI 性能？ | `active_support_unmasked` CSI summary 中，B 相对 A0 的 coherence / phase RMSE：OFF `0.859473/0.589802` → `0.843101/0.628112`；ON `0.994269/0.139912` → `0.973719/0.245405`；TO `0.998277/0.068185` → `0.976468/0.221840`。ON 有 15 个目标邻域 hit cells，但无 target-gated raw detection，而 A0 有一个候选。提示相干性和单次候选链路受损，但这些 CSI cells 混合诊断噪声/杂波，一个 seed/period、一个 target、无 confirmed track，不能升级为总体任务性能结论。 | CSI 指标 `EVALUABLE`；任务统计 `NOT_EVALUABLE` |
-| Known Physical Correction 恢复多少？ | C 的 coherence / phase RMSE 接近 A0：OFF `0.859414/0.589910`，ON `0.994269/0.139912`，TO `0.998277/0.068185`。A0/C 的三个模式 union hits 相同，ON 候选相同。说明已知校正在该 CSI summary 口径下恢复了大部分相干性差值；任务级恢复比例因无 confirmed tracks/统计分母而不可计算。 | CSI 相干性恢复 `EVALUABLE`；任务恢复率 `NOT_EVALUABLE` |
-| 传统盲估计离已知校正上限多远？ | 本 R7 矩阵没有 Estimated/Blind 条件，故没有可计算的盲估计差距。 | `NOT_AVAILABLE` / `NOT_EVALUABLE` |
-| 是否需继续研究未知物理状态估计？ | 仍是值得保留的假设；先补足 cluster-to-detection lineage、目标航迹闭环并用独立 seed 复验。当前不具备估计器/AI 开发门槛。 | 暂缓扩展 |
-| 是否转向低速目标保护或复杂杂波建模？ | 本阶段先修复了检测前置数值错误，旧 false hits 会污染方向比较。当前证据不足以因结果差异就转主线；应在正确 CFAR 上先完成 H0 和任务关联，再用误差来源分解决定。 | 不作方向切换 |
+| Q1：负门限是否由单精度积分图数值消去导致？ | 是。 | 大量 prefix sum 做包含—排除时，小窗口和成为大数相减残差。保存的 R6 真实功率图复现负门限反例；根因与数学定义、几何和 alpha 无关。见[数值根因](R7_CUDA_CFAR_numerical_root_cause.md)。 |
+| Q2：修复后是否与独立 float64 参考一致？ | 已验证地图范围内一致。 | 九组 pre/post 单周期地图上，修复后 threshold 等于独立 float64 参考转 float32，分支 hit flips 为 0。三周期 Production 每期均有几何、CUT 计数和 hit-index hash，但 map `.f32` 未逐 period 分文件保存，故不声称三周期每个 CUT 均已重算。 |
+| Q3：R6 有多少虚假命中来自错误门限？ | 36 张 R6 branch-period map 合计 610,185 个额外 hit flips，另有 3,074 个漏 hit flips。 | R7 九组单周期地图另有 312,779 个额外、215 个漏 hit flips。均为分支 hit 决策差异，不是独立虚警事件、unique union hits 或 Pd/Pfa。 |
+| Q4：修复后 OFF 仍有多少命中、虚假检测和虚假航迹？ | 三周期 branch-hit-cell 和为 A0/B/C `679/674/676`；post-filter clusters 与 final detections 为 `24/27/24`；false confirmed tracks 均为 `4`。 | branch hit-cell 和可能重复计算两分支重叠；完整三周期 unique union hit 数不可评估。描述计数不是 Pfa。 |
+| Q5：R3 的 A0/C 任务 RMSE 大幅差异是否仍存在？ | 不存在于本轮冻结的一对一评价中。 | 三周期 post-fix A0/C：position RMSE `40.338603/40.338642 m`，angle `0.02632572/0.02632575°`，ground-speed `0.382643/0.382627 m/s`；径向速度均未解析。 |
+| Q6：差异是否受单条边界关联 payload 主导？ | A0/C 差异已近零，不能再归因于边界关联。 | period 0 的 68.7 m 位置误差占 A0/C 各自总平方误差约 96.79%，但该匹配为 range Δ0、Doppler Δ1，不在门限边缘；period 2 是 Doppler Δ2 边界匹配，位置误差仅约 3.33 m。所有记录均保留，未剔除样本。 |
+| Q7：+4 ns 是否仍造成可重复任务损失？ | 本 seed 的 3 个 period 都观察到损失：B 为 0/3 门内 detection，A0 为 3/3。 | pre/post CFAR 修复后结果相同；这说明差异不是 CFAR 修复制造的。但 period 共享一个 seed/场景，不能替代独立 seed 复验或显著性检验。 |
+| Q8：Known Correction 是否恢复损失？ | 在这三个机会中，C 由 B 的 0/3 恢复至 3/3 门内 detection，并与 A0 参数误差几乎闭合。 | A0/C 均 2/3 目标 detection 关联到 confirmed matched-this-frame track；B 为 0/3。只能称本场景可行性信号，不能宣称总体恢复率。 |
+| Q9：是否具备继续研究传统盲时延估计 D3 的条件？ | 当前不具备。 | 缺少独立 seed 的任务损失/恢复复验；本轮无 D3 估计器条件，无法测其与 Known Correction 上限的差距。先不启动 D3。 |
+| Q10：是否已找到可作为论文主线的核心性能瓶颈？ | 尚未。 | GO-CFAR 问题属于已修复的实现数值 bug；+4 ns 任务损失值得继续检验，但统计单位仍单一。修复后仍有 H0 候选与目标航迹闭环问题，但此结果不足以据此切换到低速保护或复杂杂波主线。 |
 
-## 阶段门控
+## 目标与 H0 细节
 
-- `IMPLEMENTED`：GO-CFAR double accumulation、基于舍入误差界的直接方向回退、数值诊断字段、CPU float64 references 与 CUDA test harness。
-- `EXECUTED`：RTX 3050 Laptop 上真实 CUDA selftest；旧/新 Production 二进制的 seed101 A0/B/C × OFF/ON/TO 配对回放；A0 ON 首次/重复输出对比。
-- `EVALUABLE`：当前输入上所有有效 CUT 的阈值数值和 branch hit decisions；本次 H0 描述计数；CSI coherence/tap 对比；冻结门限内的单次 raw detection 候选。A0 首次/重复输出一致，但首次 executable SHA 缺失，所以 same-binary repeatability `NOT_EVALUABLE`。
-- `PERFORMANCE_VERIFIED`：本阶段没有可声明的性能指标；吞吐因 GPU 100% 忙碌未验证，Pd/Pfa、confirmed-track 航迹和速度性能也未验证。CFAR 数值正确性属于 `EVALUABLE`，不是性能验证。
+ON 三期严格一对一关联：A0/C 各有 3 个正确候选、0 miss；B 有 3 miss。post-fix A0/C 各有 175 条 final detection，其中 172 条未与三次真值机会关联；各有 29 条 confirmed track，其中 2 条正确关联到目标。B 有 161 条 final detection、42 条 confirmed track，但均未与目标关联。`radial_velocity` 三期全未解析，不能以其它速度字段替代。
 
-上述相干性来自每个 post-fix run 的 `csi_metric_tap_summary.csv` 的 `active_support_unmasked` 行（159,705 cells，beam 050）；这些 cell 的 status 是 `diagnostic_noise_and_clutter_mixed`。压缩证据副本位于 [`evidence/r7_cfar_correctness_20261022/csi_metrics/`](evidence/r7_cfar_correctness_20261022/csi_metrics/)，保留原始 summary 行和 run ID，不把混合 ROI 指标解释为独立目标性能。
+H0/OFF 每个修复后 case 有 24–27 条 final detection、4 条 false confirmed track。分支 hit 数、cluster、检测与航迹的逐期计数见[H0 与关联审计](R7_H0_detection_association_audit.md)。TO 的 truth-centered CSI complex transfer 幅度比/相位误差为 A0 `0.062682 / 0.364889 rad`、B `0.075411 / 0.028992 rad`、C `0.062682 / 0.364889 rad`；这是 pre-CSI→CSI 输出的 5×5 ROI transfer，不是独立目标检测性能。CFAR 修复前后这些值相同。
 
-## 下一步建议
+## 证据状态
 
-1. 在明确的检测/目标关卡上保存最小逐 cluster lineage，能从 CFAR hit 追到选择、过滤和最终 detection；没有 lineage 前不猜测 B 丢失目标的具体 stage。
-2. 在线路审计完毕后，在相同处理链和正确 CFAR 上运行冻结 seed101 回归，再选独立 seed 扩展 A0/B/C，报告 H0、ON 目标、位置/角度/速度和 confirmed-track 指标；预先冻结独立统计单位和停止门。
-3. 只有当未知误差产生可重复的任务损失、Known correction 可重复恢复且确定性盲估计存在可量化缺口时，才研究估计器。届时先比较可解释的传统估计；现阶段不训练 AI、不开发 Router、不扩展六参数联合估计。
+- `IMPLEMENTED`：GO-CFAR 稳定双精度累计与误差界直接重算；三周期 runner、冻结的一对一 truth evaluator、per-opportunity 参数误差和 diagnostics-gated cluster→detection lineage。
+- `EXECUTED`：RTX 3050 Laptop 真实 CUDA numerical selftest；九条件 pre/post 三周期 Production 回放；同二进制 A0_ON repeat；diagnostics-off 控制。最终核心矩阵每个 case 的 3 个 period 顺序完整、exit code 0。
+- `EVALUABLE`：被保存的 pre/post 数值地图与 float64 reference；三周期目标候选、逐期参数误差、cluster/detection lineage、H0 描述计数、TO complex transfer。统计 Pd/Pfa、unique union hit、总体错误率和 D3 差距仍不可评估。
+- `PERFORMANCE_VERIFIED`：否。GPU 矩阵前 86% 利用率，wall time 不作性能基准；无 kernel/传输隔离、无干净三次性能测量，也没有独立 seed 的统计性能验证。
 
-R7 原始 CUDA 结果和 manifest 留在本地 `outputs/phase_r7_cfar_correctness_20261022/`；关键机器可读数值见同目录 `numeric_analysis/` 与 `numeric_analysis_r6/`。本裁决不覆盖或改写 R3–R6 历史报告。
+完整三周期产物位于本机 `outputs/phase_r7_cfar_correctness_20261022/`。轻量审查证据和逐期任务指标位于 [`evidence/r7_cfar_correctness_20261022/`](evidence/r7_cfar_correctness_20261022/)；配对、配置和二进制身份见其中 manifest。最终 Production binary SHA-256：`de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`。
+
+## 阶段门控与停止
+
+R7 目标已完成。本轮不自动追加 seed202/303、不运行 D3、不训练 AI、不开发 Router，也不扩展六参数估计。后续方向需在用户审阅上述证据后另行决定。当前证据只支持：先前 A0/C RMSE 大差异不再出现；该单 seed 下 +4 ns 目标检测损失与 Known Correction 恢复值得独立 seed 验证；还不足以宣告 AI 必要性或新的论文瓶颈。

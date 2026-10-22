@@ -1,7 +1,64 @@
 # R7：H0 虚警与目标关联审计
 
 日期：2026-10-22
-数据：seed101、一个 period 的 CUDA Production 修复后输出。
+最终结论以 seed101、三个配对 period 的 CUDA Production 复验为准。下文原有单周期数字保留为历史快照，不可与三周期计数混用。
+
+## 最终三周期复验（当前权威结果）
+
+ON 关联门限在查看修复后结果前冻结：同 period、同 beam，range 与 circular Doppler 各 ±2 bins；按最大匹配数优先、再最小化归一化欧氏残差做一对一分配。OFF 没有目标，不计算 Pd 或目标参数误差。修复后 lineage 对每个最终 detection 均可精确反查 cluster 行列；legacy pre-fix 输出没有该 lineage，因此旧 cluster 数标为不可评估。
+
+### H0 / OFF
+
+以下 hit 是 dynamic 与 full 两个分支的 hit-cell 计数之和，重叠格可能重复计数；完整三周期唯一 union hit 数没有保存，故不可评估。OFF 的全部最终 detection / confirmed track 均为 H0 输出的描述性假警候选，不据此推算统计 Pfa。
+
+| 条件 | 阶段 | 分支 hit-cell 和 | post-filter cluster | final detection | false confirmed track |
+|---|---|---:|---:|---:|---:|
+| A0 | pre-fix | 37,498 | 不可评估（legacy 无 lineage） | 362 | 149 |
+| A0 | post-fix | 679 | 24 | 24 | 4 |
+| B (+4 ns) | pre-fix | 41,947 | 不可评估（legacy 无 lineage） | 369 | 152 |
+| B (+4 ns) | post-fix | 674 | 27 | 27 | 4 |
+| C (Known Correction) | pre-fix | 37,240 | 不可评估（legacy 无 lineage） | 345 | 137 |
+| C (Known Correction) | post-fix | 676 | 24 | 24 | 4 |
+
+修复后每个 case 的 cluster 与最终 detection 一一对应；lineage 完整。修复前后这些计数只作同一场景下的实现差异描述，既不是按独立 CUT 计算的 Pfa，也不是独立 seed 统计。
+
+### ON / 目标检测与航迹关联
+
+| 条件 | 阶段 | truth opportunities | 唯一门内 detection | misses | 未关联 final detections | confirmed tracks | 正确关联 confirmed track |
+|---|---|---:|---:|---:|---:|---:|---:|
+| A0 | pre-fix | 3 | 3 | 0 | 499 | 192 | 2 |
+| A0 | post-fix | 3 | 3 | 0 | 172 | 29 | 2 |
+| B (+4 ns) | pre-fix | 3 | 0 | 3 | 477 | 201 | 0 |
+| B (+4 ns) | post-fix | 3 | 0 | 3 | 161 | 42 | 0 |
+| C (Known Correction) | pre-fix | 3 | 3 | 0 | 474 | 170 | 2 |
+| C (Known Correction) | post-fix | 3 | 3 | 0 | 172 | 29 | 2 |
+
+每个条件跨 3 个 period 的配对输入、配置与输出评价记录见 `outputs/phase_r7_cfar_correctness_20261022/task_metrics_final_v4/evaluation_manifest.json` 及同目录 `task_metrics_summary.csv`；本地逐 case 的 `metrics.json` 和 `associations.csv` 保存每期真值、匹配、漏检与误差。
+
+在 post-fix A0/C 中，period 0、1、2 均各有唯一门内 detection；period 1、2 关联到 confirmed matched-this-frame track，period 0 的 detection 没有对应 confirmed track。B 三期均无门内 detection，confirmed tracks 42 条但没有一条可关联到目标。
+
+| 条件（post-fix） | 期 | range Δ bins | circular Doppler Δ bins | 位置误差 (m) | 方位误差 (°) | 地速误差 (m/s) | 径向速度 |
+|---|---:|---:|---:|---:|---:|---:|---|
+| A0 | 0 | 0 | 1 | 68.7378 | 0.0448771 | 不适用（无目标航迹） | 未解析 |
+| A0 | 1 | 0 | 0 | 12.0669 | 0.0077847 | +0.252687 | 未解析 |
+| A0 | 2 | 1 | 2 | 3.3330 | 0.0021394 | −0.478519 | 未解析 |
+| C | 0 | 0 | 1 | 68.7379 | 0.0448771 | 不适用（无目标航迹） | 未解析 |
+| C | 1 | 0 | 0 | 12.0670 | 0.0077848 | +0.252687 | 未解析 |
+| C | 2 | 1 | 2 | 3.3327 | 0.0021392 | −0.478493 | 未解析 |
+
+A0 与 C 的 post-fix RMSE 分别为：位置 `40.338603` / `40.338642 m`，方位 `0.02632572` / `0.02632575°`，ground speed `0.382643` / `0.382627 m/s`；径向速度三次均未解析。两个位置 RMSE 几乎相同。period 0 的 68.7 m 误差贡献两者各自约 96.79% 的位置平方误差和（只作为影响诊断：period 1–2 的 position RMSE 约 8.852 m；原数据未删除），但并不能解释 R3 先前 A0/C 的大幅差异。所有记录均保留。
+
+### TO / 目标-only 响应
+
+用真值中心 5×5 ROI 内的 pre-CSI 输入与 CSI 输出估计复标量传递系数 `sum(after * conj(before))/sum(|before|²)`；它是 CSI tap 响应诊断，不是 detection Pd 或真值幅度恢复率。pre/post CFAR 修复前后数值完全相同，因为 CFAR 位于该 CSI 输出之后。
+
+| 条件 | 幅度比 | 能量比 | 传递相位 (rad) | 状态 |
+|---|---:|---:|---:|---|
+| A0 | 0.062682 | 0.014924 | 0.364889 | evaluable |
+| B (+4 ns) | 0.075411 | 0.049537 | 0.028992 | evaluable |
+| C | 0.062682 | 0.014924 | 0.364889 | evaluable |
+
+## 历史单周期快照（下列内容不代表最终三周期计数）
 
 ## 判定口径
 

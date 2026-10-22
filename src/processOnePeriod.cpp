@@ -71,6 +71,109 @@ bool ensureDirLocal(const std::string &dir)
     return true;
 }
 
+std::uint64_t clusterCoordinateKey(int row, int col)
+{
+    return (static_cast<std::uint64_t>(static_cast<std::uint32_t>(row)) << 32U) |
+           static_cast<std::uint32_t>(col);
+}
+
+void writeClusterLineageDiagnostics(
+    const Config &cfg,
+    int period_id,
+    int beam_id,
+    const std::vector<int> &cluster_rows,
+    const std::vector<int> &cluster_cols,
+    const std::vector<int> &selected_rows,
+    const std::vector<int> &selected_cols,
+    const std::vector<int> &raw_rows,
+    const std::vector<int> &raw_cols,
+    const std::vector<double> &doppler_axis)
+{
+    if (!cfg.runtime_diagnostics_enabled || cfg.result_add.empty()) return;
+    if (cluster_rows.size() != cluster_cols.size() ||
+        selected_rows.size() != selected_cols.size() ||
+        raw_rows.size() != raw_cols.size()) {
+        std::cerr << "[CFAR][LINEAGE][ERR] inconsistent coordinate vector sizes"
+                  << " period=" << period_id << " beam=" << beam_id << std::endl;
+        return;
+    }
+    const std::string debug_dir = joinPathLocal(cfg.result_add, "debug");
+    if (!ensureDirLocal(debug_dir)) {
+        std::cerr << "[CFAR][LINEAGE][ERR] cannot create diagnostics directory: "
+                  << debug_dir << std::endl;
+        return;
+    }
+
+    static std::mutex lineage_mutex;
+    std::lock_guard<std::mutex> lock(lineage_mutex);
+    const std::string path = joinPathLocal(debug_dir, "cluster_detection_lineage.csv");
+    std::ifstream existing(path.c_str(), std::ios::in | std::ios::binary);
+    const bool write_header = !existing.good() || existing.peek() == std::ifstream::traits_type::eof();
+    existing.close();
+    std::ofstream output(path.c_str(), std::ios::out | std::ios::app);
+    if (!output) {
+        std::cerr << "[CFAR][LINEAGE][ERR] cannot open diagnostics file: "
+                  << path << std::endl;
+        return;
+    }
+    if (write_header) {
+        output << "record_type,period_id,beam_id,cluster_index,cluster_row,cluster_col,"
+                  "selected,raw_detection,postfilter_cluster_count,"
+                  "selected_candidate_count,raw_detection_count,"
+                  "doppler_axis_first_hz,doppler_bin_spacing_hz,doppler_row_count,"
+                  "doppler_axis_uniform\n";
+    }
+    std::unordered_set<std::uint64_t> selected;
+    std::unordered_set<std::uint64_t> raw;
+    selected.reserve(selected_rows.size());
+    raw.reserve(raw_rows.size());
+    for (std::size_t i = 0; i < selected_rows.size(); ++i) {
+        selected.insert(clusterCoordinateKey(selected_rows[i], selected_cols[i]));
+    }
+    for (std::size_t i = 0; i < raw_rows.size(); ++i) {
+        raw.insert(clusterCoordinateKey(raw_rows[i], raw_cols[i]));
+    }
+    bool doppler_axis_uniform = doppler_axis.size() >= 2U;
+    double doppler_axis_first_hz = std::numeric_limits<double>::quiet_NaN();
+    double doppler_bin_spacing_hz = std::numeric_limits<double>::quiet_NaN();
+    if (doppler_axis_uniform) {
+        doppler_axis_first_hz = doppler_axis.front();
+        doppler_bin_spacing_hz = doppler_axis[1] - doppler_axis[0];
+        const double axis_tolerance =
+            std::max(1.0e-9, std::abs(doppler_bin_spacing_hz) * 1.0e-9);
+        doppler_axis_uniform = std::isfinite(doppler_axis_first_hz) &&
+                               std::isfinite(doppler_bin_spacing_hz) &&
+                               std::abs(doppler_bin_spacing_hz) > 0.0;
+        for (std::size_t i = 0; doppler_axis_uniform && i < doppler_axis.size(); ++i) {
+            const double expected = doppler_axis_first_hz +
+                static_cast<double>(i) * doppler_bin_spacing_hz;
+            doppler_axis_uniform = std::isfinite(doppler_axis[i]) &&
+                std::abs(doppler_axis[i] - expected) <= axis_tolerance;
+        }
+    }
+    const std::streamsize previous_precision = output.precision();
+    output << "beam_summary," << period_id << ',' << beam_id << ",,,,,,"
+           << cluster_rows.size() << ',' << selected_rows.size() << ','
+           << raw_rows.size() << ',' << std::setprecision(17);
+    if (doppler_axis_uniform) output << doppler_axis_first_hz;
+    output << ',';
+    if (doppler_axis_uniform) output << doppler_bin_spacing_hz;
+    output << ',' << doppler_axis.size() << ','
+           << (doppler_axis_uniform ? 1 : 0) << '\n';
+    output.precision(previous_precision);
+    for (std::size_t i = 0; i < cluster_rows.size(); ++i) {
+        const std::uint64_t key = clusterCoordinateKey(cluster_rows[i], cluster_cols[i]);
+        output << "cluster," << period_id << ',' << beam_id << ',' << i << ','
+               << cluster_rows[i] << ',' << cluster_cols[i] << ','
+               << (selected.count(key) ? 1 : 0) << ',' << (raw.count(key) ? 1 : 0)
+               << ",,,\n";
+    }
+    if (!output) {
+        std::cerr << "[CFAR][LINEAGE][ERR] failed writing diagnostics file: "
+                  << path << std::endl;
+    }
+}
+
 bool loadPairedRangePhaseOverride(const std::string &path,
                                   std::size_t expected_size,
                                   std::vector<float> &phi)
@@ -2677,6 +2780,8 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
 
     // --- 10) CFAR 处理 ---
     GMTIOutput::Detect targetSel;
+    std::vector<int> lineage_raw_rows;
+    std::vector<int> lineage_raw_cols;
     bool targetDetection = false;
     const int dynamic_band_st =
         std::max(0, std::min(az_st, effectivePulseNum(cfg) - 1));
@@ -3768,6 +3873,8 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
         rec.motion_comp_status = motion_comp_status;
         rec.motion_comp_solver = motion.solver;
         out.detection_records.push_back(rec);
+        lineage_raw_rows.push_back(rec.row);
+        lineage_raw_cols.push_back(rec.col);
         ++n_output;
         DBG("目标 " << i << " 定位成功: Lat=" << lat << " Lng=" << lng);
     }
@@ -3782,6 +3889,20 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
                   << " n_both_valid=" << n_both_valid
                   << " n_both_invalid=" << n_both_invalid
                   << " n_output=" << n_output << std::endl;
+    }
+
+    if (cfg.runtime_diagnostics_enabled) {
+        const int lineage_period_id = cfg.echo_cycle_view.valid()
+            ? static_cast<int>(cfg.echo_cycle_view.acquisition_cycle_id)
+            : (cfg.stage2_period_id >= 0
+                   ? cfg.stage2_period_id
+                   : ((cfg.INFO_Type && !cfg.GMTI_Data_new.empty())
+                          ? cfg.new_protocol_file_period_index : 0));
+        const int lineage_beam_id = cfg.scan_mode == ScanMode::Mechanical ? -1 : periodIdx;
+        writeClusterLineageDiagnostics(
+            cfg, lineage_period_id, lineage_beam_id, prow_new, pcol_new,
+            targetSel.prow, targetSel.pcol, lineage_raw_rows, lineage_raw_cols,
+            faAxis);
     }
 
     out.detect = targetSel;
@@ -5033,6 +5154,28 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
             d.utc_mid = beamMeta.utc_mid;
             raw.push_back(d);
         }
+    }
+
+    if (cfg.runtime_diagnostics_enabled && slot < ctx.detections.size()) {
+        const int lineage_period_id = cfg.echo_cycle_view.valid()
+            ? static_cast<int>(cfg.echo_cycle_view.acquisition_cycle_id)
+            : (cfg.stage2_period_id >= 0
+                   ? cfg.stage2_period_id
+                   : ((cfg.INFO_Type && !cfg.GMTI_Data_new.empty())
+                          ? cfg.new_protocol_file_period_index : 0));
+        const int lineage_beam_id = cfg.scan_mode == ScanMode::Mechanical ? -1 : periodIdx;
+        std::vector<int> raw_rows;
+        std::vector<int> raw_cols;
+        const auto &raw = ctx.detections[slot];
+        raw_rows.reserve(raw.size());
+        raw_cols.reserve(raw.size());
+        for (const auto &detection : raw) {
+            raw_rows.push_back(detection.prow);
+            raw_cols.push_back(detection.pcol);
+        }
+        writeClusterLineageDiagnostics(
+            cfg, lineage_period_id, lineage_beam_id, prow_new, pcol_new,
+            targetSel.prow, targetSel.pcol, raw_rows, raw_cols, faAxis);
     }
 
     if (slot < ctx.beam_meta.size()) {

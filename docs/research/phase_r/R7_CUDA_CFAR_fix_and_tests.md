@@ -27,6 +27,16 @@ Follow-up smoke 摘要与轻量产物在 [`evidence/r7_cfar_correctness_20261022
 
 CUDA 自检的保存输入和实际几何已逐字节保存在 [`evidence/r7_cfar_correctness_20261022/fixtures/`](evidence/r7_cfar_correctness_20261022/fixtures/)；生产矩阵复现命令见 [最小 Production 复验](R7_minimal_production_revalidation.md)。
 
+## 最终三周期 Production 复验补充
+
+之后为冻结的一对一目标评价执行了 3-period 最终矩阵：A0/B/C × OFF/ON/TO 共 9 个 case，另有同二进制 A0_ON repeat 与 diagnostics-off 控制。11 个 case 均真实执行于 CUDA，退出码为 0，period 0/1/2 顺序完整；加上早期 focused run，最终 manifest 共 12 条记录。最终三周期二进制 SHA-256 为 `de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`，与本节前述单周期 numerical matrix 的 `3f58a553...` 是不同构建，不能混用身份。
+
+A0_ON 与 repeat 的该 binary SHA 相同。两次运行的 CFAR/CSI float32 地图、数值/几何与 lineage CSV 逐字节相同；检测 CSV 忽略动态 `run_id` 和输出路径后内容相同；TrackManager frames/detections/payload 忽略运行 ID 后内容相同。故三周期 A0_ON 重复性 `EVALUABLE`，仅限这组固定输入与输出字段。Diagnostics-off 控制保留检测和航迹产物，且未生成诊断 lineage 侧车，确认诊断开关隔离。
+
+矩阵运行前 GPU 记录为 RTX 3050 Laptop、P0、1500/6001 MHz、20.04 W、55 °C、86% 利用率、1391/4096 MiB 显存。设备忙碌，运行 wall time 不是基准；未量测 kernel/传输分离或干净重复吞吐，故 CUDA 性能 `NOT_EVALUABLE` / `PERFORMANCE_VERIFIED = NO`。额外约 4.6 MiB/map 的 double accumulation 与 diagnostics storage 是按 map 几何计算的理论增量，不是峰值显存实测。
+
+Final closeout verification: `cmake --build build_r7 -j4` succeeded; seven relevant Python test files passed (`45 passed`); the regular 25-test CTest run reported 24 passed and skipped the CUDA selftest because the sandbox could not see the device, then the restricted-device rerun of `cfar_cuda_numerical_selftest` passed 1/1. The authoritative `build_r7/GMTI_pipe_core` SHA remained `de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`. These are build/correctness checks, not a performance claim.
+
 ## 资源开销与性能边界
 
 对 130×4096 map，仅把 row-prefix 和 (H+1)×(W+1) integral 从 float 改 double，额外约 4,276,748 bytes；启用数值诊断的 fallback byte map 再需约 532,480 bytes，总增量约 4.6 MiB/被诊断分支，另计既有检测与 map buffer。具体尺寸由运行配置决定。
