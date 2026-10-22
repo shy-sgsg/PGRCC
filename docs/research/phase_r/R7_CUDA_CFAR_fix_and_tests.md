@@ -51,7 +51,9 @@ Earlier closeout verification (before the per-CUT logging assertion) had a sandb
 
 对 130×4096 map，仅把 row-prefix 和 (H+1)×(W+1) integral 从 float 改 double，额外约 4,276,748 bytes；启用数值诊断的 fallback byte map 再需约 532,480 bytes，总增量约 4.6 MiB/被诊断分支，另计既有检测与 map buffer。具体尺寸由运行配置决定。
 
-本轮设备在 Production 矩阵前报告 RTX 3050 Laptop、P0、GPU 100% 利用率、约 1,813/4,096 MiB 显存占用；因此 2–4 秒级 wall time 不是干净性能基准。未报告 kernel-only/传输分离，也未完成至少三次干净设备计时：性能开销 `NOT_EVALUABLE`，不可标为 `PERFORMANCE_VERIFIED`。
+2026-10-23 对同一 period-0 A0_ON 输入、runtime XML 和两版 Release 二进制补做了一次 warm-up + 3+3 交错 A/B。修复前/后外部 process wall median 分别为 1.41/1.33 s，日志内 `algorithm_process_ms` median 分别为 1095.104/1030.419 ms；但过滤 detection 数从 140 变为 19，后续工作量不同，因此表观约 6% 的耗时下降不能归因于修复。设备采样也从运行前 P8/210 MHz、8% 利用率变化到运行后 P0/1500 MHz、5%，且没有 per-run 遥测、kernel/传输分离或 VRAM high-water 记录。完整命令身份、样本和日志见[性能 A/B pilot manifest](evidence/r7_cfar_correctness_20261022/performance_ab_20261023/manifest.json)。因此本次只得到受限的端到端描述性测量，性能开销仍 `NOT_EVALUABLE`，`PERFORMANCE_VERIFIED = NO`。
+
+上述运行中两版都记录 CUDA trig-LUT device upload、CUDA worker-pool prewarm `cuda_free=3304MB / total=3759MB`；该值是启动期、取整后的空闲量，不是峰值显存。进程最大 RSS median 为 253,568/253,272 KB，属于主机内存，不代表 VRAM 增量。双精度积分图约 4,276,748 bytes/map、诊断 fallback byte map 约 532,480 bytes/map 仍为按几何计算的理论量；本次没有测得峰值显存差。
 
 ## 限制
 

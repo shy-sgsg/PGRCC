@@ -34,7 +34,7 @@ python3 scripts/phase_r/analyze_r7_three_period_numerics.py \
   --output-dir /tmp/r7_three_period_recheck
 ```
 
-矩阵前 GPU：RTX 3050 Laptop，P0、1500/6001 MHz、20.04 W、55 °C、86% 利用率、1391/4096 MiB 显存。运行时间仅是受设备负载影响的 wall-time 记录；性能 `NOT_EVALUABLE`。double accumulation 与 diagnostics 的约 4.6 MiB/map 是按尺寸估算的显存增量，不是峰值实测。R7 五份报告、compact evidence 与本地完整输出目录互相区分；本阶段到此停止。
+矩阵前 GPU：RTX 3050 Laptop，P0、1500/6001 MHz、20.04 W、55 °C、86% 利用率、1391/4096 MiB 显存；该矩阵 wall time 仅作运行记录。2026-10-23 另对 period-0 A0_ON 做了修复前/后 3+3 次 CUDA 端到端 pilot：外部 wall median 1.41/1.33 s，内部算法计时 median 1095.104/1030.419 ms；但过滤 detection 数为 140/19，处理工作量不同，且 GPU 从 P8/8% 变为 P0/5%，不能将表观差异解释为 CFAR 性能收益。未分离 kernel/传输，也没有 VRAM high-water，故仍为 `PERFORMANCE_VERIFIED = NO`。样本、GPU 前后状态与逐次实际日志见[性能 pilot evidence](evidence/r7_cfar_correctness_20261022/performance_ab_20261023/)。double accumulation 与 diagnostics 的约 4.6 MiB/map 是按尺寸估算的显存增量，不是峰值实测。
 
 ## 早期单周期数值复验（保留为历史范围）
 

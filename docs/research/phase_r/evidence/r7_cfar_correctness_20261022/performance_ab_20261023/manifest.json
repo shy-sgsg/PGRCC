@@ -1,0 +1,113 @@
+{
+  "experiment_id": "r7_cfar_pre_post_one_period_performance_pilot_20261023",
+  "date_local": "2026-10-23",
+  "purpose": "Descriptive one-period end-to-end A/B timing and resource pilot for the GO-CFAR numerical fix; not a kernel benchmark.",
+  "status": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": "Descriptive timings and output workload are evaluable for this single A0_ON period.",
+    "PERFORMANCE_VERIFIED": false
+  },
+  "worktree": {
+    "branch": "codex/unknown-system-error-next-stage",
+    "head_at_run": "aa56575da1064652b29e486d12e93c03f688a908",
+    "tracked_worktree_clean": true
+  },
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "power_adapter_online": true,
+    "before": {
+      "utilization_percent": 8,
+      "memory_used_mb": 376,
+      "memory_total_mb": 4096,
+      "pstate": "P8",
+      "temperature_c": 40,
+      "power_w": 6.17,
+      "sm_clock_mhz": 210,
+      "memory_clock_mhz": 405
+    },
+    "after": {
+      "utilization_percent": 5,
+      "memory_used_mb": 376,
+      "memory_total_mb": 4096,
+      "pstate": "P0",
+      "temperature_c": 42,
+      "power_w": 11.22,
+      "sm_clock_mhz": 1500,
+      "memory_clock_mhz": 6001
+    },
+    "device_snapshots": "Only before/after snapshots were taken; no per-run GPU utilization or VRAM high-water sampling."
+  },
+  "input": {
+    "path": "outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+    "size_bytes": 49204480,
+    "sha256": "ac124e51df49292a7dcd1b00b43f8d7e701a2a50c461ab10ddf7bf6223d609fc",
+    "scope": "seed101 A0_ON, one saved period (period 0)"
+  },
+  "runtime_xml": {
+    "path": "docs/research/phase_r/evidence/r7_cfar_correctness_20261022/production_runs_3period/post_fix/A0_ON/runtime/runtime.xml",
+    "sha256": "352a69c22edc3f073d1686ad2684a1da3a5c18dbac3af3d22c23219479fef558",
+    "note": "The same XML was used for both binaries; per-run --result-dir overrides isolated outputs, and --local-test supplied the same period-0 input."
+  },
+  "binaries": {
+    "pre_fix": {
+      "path": "build/GMTI_pipe_core",
+      "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962",
+      "build_type": "Release",
+      "USE_COREX": false
+    },
+    "post_fix": {
+      "path": "build_r7/GMTI_pipe_core",
+      "sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "build_type": "Release",
+      "USE_COREX": false,
+      "source_commit_recorded_in_authoritative_matrix": "04958a996f6a1449fa3d9f158a4765493c85038d"
+    }
+  },
+  "command_template": "env GMTI_CFAR_DUMP_BEAM=50 <binary> --config <runtime.xml> --result-dir <unique-run-dir>/result --track-debug-dir <unique-run-dir>/track_debug --track-debug-dump on --runtime-mode=debug --runtime-diagnostics=off --local-test 1=<period-0-input>",
+  "run_order": [
+    "pre_warmup",
+    "post_warmup",
+    "pre_1",
+    "post_1",
+    "post_2",
+    "pre_2",
+    "pre_3",
+    "post_3"
+  ],
+  "summary": {
+    "all_runs_exit_code_zero": true,
+    "pre_process_wall_median_s": 1.41,
+    "post_process_wall_median_s": 1.33,
+    "process_wall_median_delta_s": -0.08,
+    "pre_algorithm_process_median_ms": 1095.1037,
+    "post_algorithm_process_median_ms": 1030.4194,
+    "algorithm_process_median_delta_ms": -64.6843,
+    "pre_max_rss_median_kb": 253568,
+    "post_max_rss_median_kb": 253272,
+    "max_rss_median_delta_kb": -296,
+    "pre_filtered_detection_count_each_run": 140,
+    "post_filtered_detection_count_each_run": 19,
+    "cuda_path_evidence": "All run logs contain the TRIG-LUT device upload and CUDA worker-pool line; each reported cuda_free=3304MB, total=3759MB at prewarm."
+  },
+  "memory_assessment": {
+    "host_max_rss_is_not_vram": true,
+    "measured_peak_vram_delta": null,
+    "cuda_free_snapshot_is_startup_only": true,
+    "interpretation": "No VRAM high-water or per-kernel allocation measurement was taken; identical rounded startup free-memory values do not prove equal peak memory."
+  },
+  "limitations": [
+    "One condition and one period only; not a task-performance experiment.",
+    "The numerical fix changed filtered detections from 140 to 19, so downstream workload differed; the lower observed time cannot be causally attributed to the fix or interpreted as a speedup.",
+    "GPU state changed from P8/210 MHz and 8% utilization before to P0/1500 MHz and 5% after; no per-run device telemetry was captured.",
+    "No kernel-only versus transfer timing separation was collected.",
+    "Host max RSS is not a measurement of GPU memory overhead."
+  ],
+  "evidence_files": {
+    "samples": "samples.csv",
+    "logs": "logs/",
+    "gpu_before": "gpu_before.csv",
+    "gpu_after": "gpu_after.csv",
+    "hashes": "sha256.txt"
+  }
+}

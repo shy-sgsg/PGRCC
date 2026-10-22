@@ -18,6 +18,7 @@ This compact package contains the auditable R7 pre/post run manifests, the actua
 - `manifests/post_fix_matrix_3period_final.json` and `manifests/pre_fix_B_matrix_3period.json`: full three-period CUDA execution manifests for the authoritative task-level matrix and legacy B replay.
 - `task_metrics_3period/`: the frozen evaluator manifest, summary CSV, and per-case pre/post metrics, one-to-one target association records, and cluster lineage for all 9 A0/B/C × OFF/ON/TO pairs. The package is 2.8 MB and contains no raw IQ or full CFAR/CSI maps.
 - `production_runs_3period/`: selected actual runtime XML/logs, per-run `run_manifest` and runtime config dump, timing CSVs, per-period CFAR geometry/numerical/branch-axis records, post-filter cluster lineage, CSI summary/tap sidecars, per-period detections, and TrackManager CSVs. It covers the 9 task pairs, A0 repeat, diagnostics-off control, and pre-fix A0/B/C records. The package is 14 MB; full Stage2 IQ, complete CSI NPY arrays, and CFAR power/threshold maps remain local and are not copied into Git.
+- `performance_ab_20261023/`: a one-period A0_ON CUDA end-to-end timing pilot with one warm-up per binary, three measured runs per binary, exact hashes, device snapshots, concise samples, and per-run runtime logs. Detection work differs 140 vs 19, so the observed timing difference is not a CFAR speedup claim; VRAM peak was not measured.
 
 Regression fixture SHA-256:
 
@@ -63,6 +64,8 @@ The saved R6 maps contain 471,017 valid CUTs with erroneous nonpositive threshol
 The per-CUT absolute-error distributions are summarized at map grain in `analysis/r7_three_period_quantiles_20261022/`; every case-period union map has 527,280 valid CUTs. These quantiles compare the saved float32 CUDA threshold with the unrounded float64 reference, so the post-fix absolute error includes expected float32 representation rounding even though the CUDA threshold equals the reference rounded to float32. Full maps remain in the local outputs tree and are the reproducible source for these summaries.
 
 CSI coherence and phase-RMSE values in the direction report are extracted from each file's `active_support_unmasked` row (beam 050, 159,705 cells; status `diagnostic_noise_and_clutter_mixed`). These mixed-support diagnostics are not target-only performance metrics.
+
+The 2026-10-23 performance pilot reports medians and every measured sample in `performance_ab_20261023/samples.csv`. Both binaries execute the CUDA path, but the fixed binary emitted 19 filtered detections versus 140 pre-fix, changing downstream work; GPU state also changed between the before/after snapshots. Treat the timing as descriptive feasibility evidence only. The startup free-memory line and host RSS are not VRAM high-water measurements; `PERFORMANCE_VERIFIED` remains false.
 
 Analysis rerun commands (write to a new output directory if the default already exists):
 
