@@ -1,13 +1,13 @@
 # PGRCC Phase R：研究审查与证据导航
 
-更新日期：2026-10-22。本目录判断 GMTI 瓶颈、可恢复空间和研究方向。请区分理论推导、外部文献、软件测试、历史仿真和本轮真实 CUDA Production 结果；它们不可互相替代。
+更新日期：2026-10-23。本目录判断 GMTI 瓶颈、可恢复空间和研究方向。请区分理论推导、外部文献、软件测试、历史仿真和本轮真实 CUDA Production 结果；它们不可互相替代。
 
 ## 当前决策
 
-- **当前方向：`INCONCLUSIVE`。AI 必要性尚未建立，亦未证明 AI 无价值。** R7 修复了 CUDA GO-CFAR float32 积分图相消错误；所保存的数值比较地图在修复后与独立 float64 reference 闭合。最终三周期真实 CUDA Production 任务评价显示，同 seed 的 3 个 period 中，+4 ns Current 为 0/3 门内目标 detection，A0 与 Known Correction 均 3/3；但仅一个 seed，A0/C 也只有 2/3 关联到 confirmed track，且 H0 仍有候选输出。结果尚不能作为统计性能裁决或论文主线；不自动扩展 seed、不运行 D3、不训练 AI。
+- **当前方向：继续验证未知物理时延估计，AI 必要性尚未建立。** R7 修复了 CUDA GO-CFAR 数值错误；R8 随后复用 seed101 并新增 seed202/303 的本机 CUDA Production A0/B/C 对照。三个 seed 合计正确目标 detection 为 A0 `8/9`、未知 `+4 ns` Current `0/9`、Known Correction `8/9`；物理闭合、输入身份与地杂波门通过。结果为描述性可行性证据，`PERFORMANCE_VERIFIED=false`；盲 D3 未运行，不训练 AI。详见 [R8 方向裁决](R8_research_direction_decision.md)。
 - **E2/R3：** 修复后的 CUDA Production 在 seed 101/202/303 上执行通道 2 `+4 ns` A/B/C。三 seed 的角度、TrackManager 地速和位置 RMSE 方向均为失配变差、Known physical correction 恢复；三项 paired-t 95% CI 均跨 0。径向速度 RMSE、统计性 Pd/Pfa 未验证。详见[合并结果](06_bottleneck_experiment_results.md)和[R3 逐条件报告](06_minimal_cuda_causal_pilot.md)。
 - **E1/E4/E5/R4：** seed 101 的 8 case、120 个 CUDA Production 分支已执行且分支通过；连续面积地杂波有效。但低速 P5 背景 ROI、CFAR 唯一 hit-cell/false-hit 聚合、residual-closure 的 PK/PKR 条件未闭合，因此不扩展 seed 202/303、不作方法排名或 Pd/Pfa 性能结论。详见[结果合并](06_bottleneck_experiment_results.md)与[R4 紧凑证据](evidence/r4_e1_e4_e5_seed101_20261022/)。
-- **R6/R7：** R7 完成 GO-CFAR 修复、九组单周期地图数值比较、seed101 A0/B/C × OFF/ON/TO 三周期 pre/post Production 复验、冻结的一对一目标评价与 diagnostics-gated cluster-to-detection lineage。方向裁决、每期误差与限制见下方五份 R7 报告。独立 seed 与 D3 均未运行，等待用户审阅后再决定。
+- **R6/R7/R8：** R8 已在 R7 修复版二进制上完成 seed202/303 × A0/B/C × OFF/ON/TO 的三周期本机 CUDA Production，seed101 复用 R7 证据；12 组新增 seed/condition/role CFAR 数值审计和 A0/C 物理闭合均通过。D3 盲估计未运行，差距尚不可评估。执行、结果、阶段归因和后续决策见下方 R8 报告。
 - **R5/R6 证据审计：** R6 保留了输入 SHA 指纹、全 CSI maps、CFAR branch/cell 指标与 TrackManager 链路；R7 重新核算的部分历史输入指纹未能与原 run manifest 逐项交叉核验。R3 历史 binary SHA 缺失，R6 不能宣称与旧二进制相同；R6 当前 CFAR 的非正门限影响虚警和任务归因。R4 低速 ROI/false-CUT 边界仍见原审计报告。
 - **历史证据：** 修复前 E3 128-scene 结果、旧 raw-IQ pilot 和 Phase-I 旧敏感度矩阵均保持原身份/日期；不得与当前 R3/R4 的 seed、分母、源码身份拼接。Phase-I 圆周相位差分已于 2026-10-21 修正并重算，见[复核报告](phase_i_observability_reanalysis.md)。
 
@@ -50,6 +50,15 @@
 4. [R7 Production 复验](R7_minimal_production_revalidation.md)：九个条件、输入/程序身份、完整三周期数值复核、运行产物和复现入口。
 5. [R7 方向裁决](R7_research_direction_decision.md)：逐项回答 Q1–Q10，区分数值正确性、三周期任务候选、航迹结果与独立 seed 统计限制。
 
+## R8 未知时延多 seed CUDA 因果复验（2026-10-23）
+
+1. [R8 冻结实验设计](R8_experiment_design.md)：A0/B/C、配对 OFF/ON/TO、面积杂波、处理链和停止门。
+2. [R8 Native CUDA 执行记录](R8_native_cuda_execution.md)：源码/二进制身份、运行门、真实设备、完整本地原始结果位置与失败恢复记录。
+3. [R8 目标检出因果结果](R8_detection_causal_results.md)：三个 seed 的正确检出、CSI/目标保持、参数误差与 H0 描述计数。
+4. [R8 差异级分析](R8_mechanism_analysis.md)：邻域 CFAR hit、冻结关联门外偏移、F1/F2 输入功率及归因边界。
+5. [R8 研究方向裁决](R8_research_direction_decision.md)：回答未知误差损失、Known Correction 恢复量、D3 可评估性、AI 与主线选择。
+6. [R8 紧凑证据包](evidence/r8_unknown_delay_multiseed_20261023/)：机器 manifest、seed-condition CSV、逐期任务/关联/lineage 证据和图；约 9 GB 完整 runtime/CSI/CFAR 原始数据留在本地 `outputs/phase_r8_unknown_delay_multiseed_20261023/`。
+
 ## 主要证据位置与保留边界
 
 - R3 compact 证据：[`evidence/r3_minimal_cuda_causal_pilot_20261021/`](evidence/r3_minimal_cuda_causal_pilot_20261021/)（evaluation JSON、逐 seed CSV、图、runtime smoke、XML、manifests 和失败现场）；完整 case 产物在本地 `outputs/phase_r_minimal_cuda_causal_pilot_20261021/`。可重建的原始 `.bin` 已依 cleanup ledger 清理。
@@ -62,4 +71,4 @@
 
 ## 尚待决策的门
 
-R7 的数值地图正确性门、三周期 cluster→detection lineage 与冻结目标关联均已完成；是否追加独立 seed 或 D3 等待用户决策，本阶段不自动启动。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合。未知时延证据仍限 seed101 和一个受控仿真误差，缺真实 airborne 误差分布与多误差条件；在证据补齐前不启动 AI。
+R8 已完成 seed101/202/303 的受控 `+4 ns` 描述性复验。下一步仅建议定义并审查不读取真实时延、目标真值或配对无误差参考的 deterministic target-free blind delay estimator；D3 尚未实现或执行，因此传统盲估计与 Known Correction 的性能差距仍为 `NOT_AVAILABLE`。是否进入下一阶段等待用户决定，本阶段不自动启动。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合；当前证据不支持 AI 训练，也不足以切换至低速目标或复杂杂波主线。
