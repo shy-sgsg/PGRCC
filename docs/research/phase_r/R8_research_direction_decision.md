@@ -1,36 +1,52 @@
 # R8 阶段研究方向裁决
 
 日期：2026-10-23
-裁决级别：三 seed 描述性 CUDA 因果可行性证据；不是总体性能或统计显著性结论。
 
-## 对研究问题的回答
+裁决依据：seed101/202/303 的 A0/B/C 配对任务结果、seed202/303 本机 CUDA Production 与 CFAR 审计、Known Correction 物理闭合。三个 seed 支持受控场景内的重复性判断；不构成总体统计显著性结论。
 
-### 1. 未知通道时延是否降低 GMTI 任务表现？
+## Q1–Q7 裁决
 
-在本次固定仿真场景、通道 2 注入 `+4 ns`、真实连续面积地杂波存在的条件下，结果支持“是”：A0/B/C 三 seed 门内正确目标 detection 分别为 `8/9、0/9、8/9`。B 三 seed 均为 `0/3`，而 A0 与 C 各 seed 为 `3/3、2/3、3/3`。这说明所测误差可导致该 Production 任务链无法把目标关联进冻结门；不应外推成任意机载时延都造成同等下降。
+### Q1：修复 GO-CFAR 后，+4 ns 失配是否在不同 seed 上持续造成正确目标检出损失？
 
-### 2. 已知物理校正恢复多少？
+**是，在本次固定仿真配置和冻结关联门内三个 seed 都观察到损失。** A0/B/C 正确 detection 机会分别为 `8/9、0/9、8/9`；每个 seed 的 B 都是 `0/3`，A0/C 分别为 `3/3、2/3、3/3`。seed202 的 A0 自身有一个漏检，说明场景/目标候选也会影响绝对检出率。此结论只适用于本次通道2 `+4 ns` 条件，不外推为任意 airborne 时延分布的普遍效果。
 
-Known Correction 将观察到的 A0−B 检出计数差 `8` 全部恢复，C 达到 A0 的 `8/9` 总计数。confirmed current track matched 计数也由 B 的 `0/9` 回到 A0/C 各 `7/9`。三个 seed、ON/OFF/TO 的 A0/C 融合输入复 RMS 最大约 `9.56e-5`，优于冻结 `1e-3` 闭合限。该恢复量只对当前注入、场景、目标及冻结生产门成立。
+### Q2：已知物理逆校正是否持续恢复检测与参数估计？
 
-### 3. 传统盲估计离已知校正还有多远？
+**检测计数恢复到 A0 水平。** C 比 B 多 8 个正确 detection，补回本次全部 `8` 个 A0−B 计数差；A0 与 C 各为 `8/9`。正确 confirmed-track 关联也由 B 的 `0/9` 回到 A0/C 各 `5/9`（seed101/202/303 为 `2/3、1/3、2/3`）。正确关联目标上的角度、位置和地速误差在 A0/C 闭合；B 没有正确 detection，参数 RMSE 为 `NOT_EVALUABLE`。三 seed 的 F1/F2 最大相对复 RMS 约 `9.56e-5`，低于冻结 `1e-3` 闭合门。
 
-本阶段没有合格盲估计器，D 条件为 `NOT_AVAILABLE`；未运行，也没有盲估计误差、恢复率或与 Known Correction 的差距数据。不能把 Known Correction 的结果冒充盲估计能力。
+### Q3：主要可观测损失发生在哪一层？
 
-### 4. 是否继续未知物理状态估计？是否需要 AI？
+证据显示损失不是“目标在 CSI/CFAR 前完全消失”：B 在 seed202/303 的目标 5×5 邻域仍分别有 `41/44` 个 CFAR hit，但三个 period 的最近候选 Doppler 偏差均在冻结 ±2-bin 门外。目标关联失败出现在候选形成/选择至 detection 的阶段；TrackManager 因没有门内目标 detection 而没有正确目标航迹关联。CSI 层也有变化：B 的 H0 cancellation 比 A0 低约 `0.44–0.49 dB`，输入融合 F2 功率降低约 `0.22–0.25 dB`。因此 CSI/CFAR 输入变化与门外候选同时存在；当前证据不能将唯一根因拆分到某个内部算子。
 
-建议继续验证**确定性的未知时延/通道状态估计**：B 的任务损失在三个 seed 重复出现，C 在相同输入误差下闭合并恢复观察到的检出缺口。这证明“估计并校正未知状态”值得下一步检验，但还没证明任何盲方法能做到。
+### Q4：损失是稳定物理后果，还是高度依赖场景与关联？
 
-当前没有 AI 必要性证据：没有盲估计基线与残差、跨场景恢复能力或显式物理估计失败证据。因此不训练 AI、不启用 Router。下一项若获批准，应先实现/审查一个 target-free 的确定性时延估计，再以盲条件 D 对照 A/B/C；估计器不得读取真实时延、目标真值、配对无误差参考或其他 oracle 信息。
+**损失方向在三个独立 seed 上一致，损失大小和候选位置仍依赖场景。** B 的正确 detection 均为 `0/3`，但门外 Doppler 偏移 seed202 为 `[-6,+24,+25]`、seed303 为 `[-6,+23,+29]` bins；A0 自身在 seed202 也有一个 period 未过冻结门。故可称为本实验设置下的重复因果效应，不能称作与场景无关的固定偏移或通用概率结论。
 
-### 5. 是否转向低速目标保护或复杂杂波建模？
+### Q5：是否已确定双通道 GMTI 的最大可恢复性能瓶颈？
 
-现在不足以改变主线。面积杂波门确实有效，但只有一种场景配置；本实验没有速度 sweep、低速目标分层，也没有统计 Pfa 闭合。B 的目标邻域有 CFAR hits，但最近检测 Doppler 偏差落在 ±2-bin 门外，提示后续可检查候选保护与关联敏感性。该信号尚不能证明低速保护或复杂杂波建模是首要瓶颈。
+**没有。** R8 只测一种时延误差、一个目标/速度配置和一种连续面积杂波设置；未比较其他失配、低速 sweep 或统计校准 Pfa。结果证明未知时延是当前受控场景中的可恢复性能贡献因素，不足以认定它是系统最大瓶颈。
 
-## 阶段门结论
+### Q6：是否具备进入传统盲时延估计器 D3 多 seed 验证的条件？
 
-- `IMPLEMENTED=true`，`EXECUTED=true`，`EVALUABLE=true`，`PERFORMANCE_VERIFIED=false`。
-- 有效面积地杂波：每个新 seed 390 packets、1,952,655 samples；输入历史身份 27/27 匹配；ON/OFF/TO 处理链、CFAR 几何/数值、物理闭合门通过。
-- **本阶段在此停止。** 建议下一阶段先定义 blind deterministic delay estimator 的可观测量、允许输入/禁止信息、失败判据及 evaluator，再决定是否实现和执行；不自动启动后续实验或训练。
+**具备进入 D3 方案与代码审查的科学依据，尚无可执行的合格 D3 估计器。** B/C 的重复损失/恢复满足继续研究 target-free 确定性时延估计的前置动机；本阶段 D 条件为 `NOT_AVAILABLE`，未运行，因此 D 与 Known Correction 的差距未知。下一阶段需先定义允许观测、真值隔离、失败判据并审查估计器，再安排盲验证。
 
-详见：[检出结果](R8_detection_causal_results.md)、[差异级分析](R8_mechanism_analysis.md)、[CUDA 执行记录](R8_native_cuda_execution.md)、[机器 manifest](evidence/r8_unknown_delay_multiseed_20261023/evaluation/r8_experiment_manifest.json)。
+### Q7：是否存在充分证据证明 AI 必要？
+
+**`AI_NOT_JUSTIFIED`。** 当前没有盲估计误差、确定性估计残差或跨场景失败证据。Known Correction 是注入真值的 evaluator-only 上限，不能证明 AI 必要，也不能替代盲估计结果。
+
+## 三条候选主线的证据与优先级
+
+| 方向 | 当前证据等级 | 研究价值与局限 | 优先级 |
+|---|---|---|---:|
+| C：未知系统物理失配 | 中等、受控因果重复 | 三个 seed 的 +4 ns 任务损失方向一致，Known Correction 恢复计数且输入闭合；尚缺盲估计器、其他误差参数和真实 airborne 分布。 | **1**：先做 target-free 确定性时延估计的可观测性与代码审查，再设计 D3 多 seed 验证。 |
+| B：复杂杂波与检测统计 | 初步线索 | H0 仍有候选，B 的 H0 unique union hits 增加；没有统计 Pfa 校准、杂波模型 sweep 或检测阈值敏感性因果试验。 | **2**：作为后续竞争瓶颈审查，不据本轮宣称 Pfa 变化。 |
+| A：低速目标保护 | R8 未检验 | 单一 6.7 m/s 配置不是低速 sweep，也没有低速分层目标保护对照。 | **3**：本证据不足以把主线转到低速目标保护。 |
+
+## 阶段结论与停止
+
+- `IMPLEMENTED=true`、`EXECUTED=true`、`EVALUABLE=true`、`PERFORMANCE_VERIFIED=false`。
+- R8 支持继续研究未知物理时延的确定性盲估计；D3 尚未实现/执行，性能差距 `NOT_AVAILABLE`。
+- 当前没有 AI 必要性证据；不训练 AI、不开发 Router、不扩展六参数联合估计。
+- **本阶段到此停止。** 仅建议下一阶段先完成 blind estimator 的观测边界与代码审查；不自动运行 D3 或启动 R9。
+
+详见：[检出与任务级明细](R8_detection_causal_results.md)、[差异级分析](R8_mechanism_analysis.md)、[CUDA 执行记录](R8_native_cuda_execution.md)、[机器 manifest](evidence/r8_unknown_delay_multiseed_20261023/evaluation/r8_experiment_manifest.json)。

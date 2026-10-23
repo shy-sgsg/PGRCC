@@ -1,5 +1,7 @@
 import unittest
+import math
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -10,6 +12,7 @@ from scripts.phase_r.evaluate_r8_multiseed_causal_pilot import (
     _truth_path,
     _metrics_row,
     _normalize_csv_line_endings,
+    _write_comparison_figure,
     normalized_runtime_xml,
 )
 
@@ -27,6 +30,7 @@ class TargetNeighborhoodTests(unittest.TestCase):
 
     def test_metrics_row_records_f1_f2_input_power_for_each_role(self):
         csi = {
+            "target_transfer": {"target_only_csi_retention_db": -5.25},
             "input_fusion_power": {
                 "ON": {"F1_mean_power": 10.0, "F2_mean_power": 11.0},
                 "OFF": {"F1_mean_power": 7.0, "F2_mean_power": 8.0},
@@ -34,13 +38,60 @@ class TargetNeighborhoodTests(unittest.TestCase):
             }
         }
         roles = {
-            "ON": {"metrics": {"parameter_errors": {}}},
-            "OFF": {"metrics": {}},
+            "ON": {"metrics": {
+                "parameter_errors": {},
+                "misses": 2,
+                "false_associations": 4,
+                "correct_track_associations": 1,
+                "false_track_associations": 3,
+                "cfar_branch_hit_cells": 100,
+                "final_detections": 7,
+                "confirmed_tracks": 4,
+            }},
+            "OFF": {"metrics": {"cfar_branch_hit_cells": 50}},
         }
         result = _metrics_row(202, "A", csi, roles)
         self.assertEqual(result["input_f1_mean_power_on"], 10.0)
         self.assertEqual(result["input_f2_mean_power_off"], 8.0)
         self.assertEqual(result["input_f1_mean_power_to"], 2.0)
+        self.assertEqual(result["target_only_csi_retention_db"], -5.25)
+        self.assertEqual(result["target_misses"], 2)
+        self.assertEqual(result["on_non_target_detections"], 4)
+        self.assertEqual(result["correct_track_associations"], 1)
+        self.assertEqual(result["unassociated_confirmed_tracks"], 3)
+        self.assertEqual(result["cfar_branch_hit_cells_on"], 100)
+        self.assertEqual(result["cfar_branch_hit_cells_off"], 50)
+        self.assertEqual(result["on_final_detections"], 7)
+        self.assertEqual(result["on_confirmed_tracks"], 4)
+
+    def test_comparison_figure_keeps_unavailable_condition_as_gap(self):
+        import matplotlib.pyplot  # noqa: F401
+        import tempfile
+        from matplotlib.axes import Axes
+
+        rows = [
+            {"seed": 202, "condition": "A", "angle_rmse_deg": 1.0},
+            {"seed": 202, "condition": "B", "angle_rmse_deg": None},
+            {"seed": 202, "condition": "C", "angle_rmse_deg": 3.0},
+        ]
+        original_plot = Axes.plot
+        plot_calls = []
+
+        def capture_plot(axis, *args, **kwargs):
+            plot_calls.append((args, kwargs))
+            return original_plot(axis, *args, **kwargs)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            with patch("matplotlib.axes.Axes.plot", new=capture_plot):
+                _write_comparison_figure(Path(temp_dir) / "unused.png", rows)
+        angle_series = [
+            args[1]
+            for args, _kwargs in plot_calls
+            if len(args) > 1 and len(args[1]) == 3
+            and args[1][0] == 1.0 and args[1][2] == 3.0
+        ]
+        self.assertTrue(angle_series)
+        self.assertTrue(math.isnan(angle_series[0][1]))
 
     def test_runtime_xml_comparison_ignores_only_run_output_paths(self):
         base = "<root><result_add>/run/A/result</result_add><threshold>13.4</threshold><track_debug_dir>/run/A/track</track_debug_dir></root>"

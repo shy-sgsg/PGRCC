@@ -29,6 +29,7 @@ Known Correction 使用注入的时延真值，只由 evaluator/输入校正阶�
 
 - B 的输出 SCNR proxy 并未下降：seed202 `70.65→72.85 dB`，seed303 `74.46→75.05 dB`。该 proxy 是目标 ROI 与 H0 ROI 的功率比，受分母及输入融合影响，不等于 Pd。
 - paired complex transfer amplitude 在 B 相对 A0 的变化跨 seed 不同：seed101 下降约 `1.98 dB`，seed202/303 分别上升约 `3.42/3.35 dB`。该 ROI 传递量不是固定物理增益，不能证明或排除所有形式的目标泄漏；但现有数值不支持一致的幅度自对消解释。
+- TO 目标功率经 CSI 保持量在 B 三 seed 都比 A0 少衰减：A0/B 分别为 seed101 `-18.18/-12.01 dB`、seed202 `-13.04/-10.27 dB`、seed303 `-9.97/-8.72 dB`。这项 S-only 指标也不支持“B 因目标能量被 CSI 一致性自对消而漏检”；它不能替代 ON 检测表现。
 - 可直接观察到的稳定差别是 B 在目标附近保留 CFAR hits，却把最近候选推到冻结 Doppler 关联门外；A0/C 的候选偏差回到门附近，检出计数同步恢复。
 
 ## 归因边界

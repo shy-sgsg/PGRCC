@@ -945,11 +945,20 @@ def _metrics_row(seed: int, label: str, csi: Mapping[str, Any], roles: Mapping[s
         "seed": seed, "condition": label,
         "csi_h0_cancellation_db": csi.get("csi_h0_active_support", {}).get("cancellation_db"),
         "output_scnr_proxy_db": transfer.get("output_scnr_proxy_db"),
+        "target_only_csi_retention_db": transfer.get("target_only_csi_retention_db"),
         "target_amplitude_ratio_db": coef.get("amplitude_ratio_db"),
         "target_phase_error_deg": coef.get("phase_error_deg"),
         "target_detections": on.get("unique_correct_detections"),
         "target_opportunities": on.get("truth_opportunities"),
         "target_detection_rate": on.get("detection_rate"),
+        "target_misses": on.get("misses"),
+        "on_final_detections": on.get("final_detections"),
+        "on_non_target_detections": on.get("false_associations"),
+        "correct_track_associations": on.get("correct_track_associations"),
+        "unassociated_confirmed_tracks": on.get("false_track_associations"),
+        "on_confirmed_tracks": on.get("confirmed_tracks"),
+        "cfar_branch_hit_cells_on": on.get("cfar_branch_hit_cells"),
+        "cfar_branch_hit_cells_off": off.get("cfar_branch_hit_cells"),
         "false_h0_clusters": off.get("false_clusters"),
         "false_h0_detections": off.get("false_detections"),
         "false_h0_confirmed_tracks": off.get("false_confirmed_tracks"),
@@ -981,6 +990,7 @@ def _write_comparison_figure(path: Path, rows: Sequence[Mapping[str, Any]]) -> N
         ("output_scnr_proxy_db", "Output SCNR proxy (dB)"),
         ("target_amplitude_ratio_db", "Paired target transfer amplitude (dB)"),
         ("target_phase_error_deg", "Paired target transfer phase error (deg)"),
+        ("target_only_csi_retention_db", "TO target power retention through CSI (dB)"),
         ("angle_rmse_deg", "Correctly associated target angle RMSE (deg)"),
         ("ground_speed_rmse_mps", "Confirmed-track ground-speed RMSE (m/s)"),
         ("position_rmse_m", "Correctly associated target position RMSE (m)"),
@@ -993,16 +1003,15 @@ def _write_comparison_figure(path: Path, rows: Sequence[Mapping[str, Any]]) -> N
                 for row in rows if int(row["seed"]) == seed
             }
             values = [by_condition.get(label) for label in ("A", "B", "C")]
-            xs, ys = [], []
-            for x, value in enumerate(values):
-                if value is not None and math.isfinite(float(value)):
-                    xs.append(x)
-                    ys.append(float(value))
+            xs = list(range(3))
+            ys = [
+                float(value) if value is not None and math.isfinite(float(value)) else math.nan
+                for value in values
+            ]
             axis.plot(xs, ys, marker="o", label=f"seed {seed}")
         axis.set_xticks([0, 1, 2], ["A0", "B +4 ns", "C known correction"])
         axis.set_title(title, fontsize=9)
         axis.grid(True, alpha=0.3)
-    axes.flat[7].set_visible(False)
     axes[0, 0].legend(fontsize=8)
     fig.suptitle("R8 native CUDA production pilot — descriptive, not significance-tested")
     fig.tight_layout()
@@ -1099,11 +1108,14 @@ def run_evaluation(
                     row["h0_union_valid_cut_count_total"] = sum(int(item["valid_cut_count"]) for item in union)
                 on_audit = _audit_manifests(next(path.resolve() for path in seed_roots if int(read_json(_seed_case_root(path.resolve()) / "case_manifest.json")["scene_identity"]["seed"]) == seed)).get((CONDITIONS[label], "ON"))
                 if on_audit:
-                    row["h1_unique_union_hit_cells_total"] = sum(int(item["unique_union_hit_cells"]) for item in _audit_union_rows(*on_audit))
+                    on_union = _audit_union_rows(*on_audit)
+                    row["h1_unique_union_hit_cells_total"] = sum(int(item["unique_union_hit_cells"]) for item in on_union)
+                    row["h1_union_valid_cut_count_total"] = sum(int(item["valid_cut_count"]) for item in on_union)
             else:
                 row["h0_unique_union_hit_cells_total"] = None
                 row["h0_union_valid_cut_count_total"] = None
                 row["h1_unique_union_hit_cells_total"] = None
+                row["h1_union_valid_cut_count_total"] = None
             metric_rows.append(row)
     write_csv(output_dir / "r8_seed_condition_metrics.csv", metric_rows)
     _write_comparison_figure(output_dir / "r8_seed_condition_comparison.png", metric_rows)
@@ -1159,6 +1171,9 @@ def run_evaluation(
             "PERFORMANCE_VERIFIED_reason": "three seeds are descriptive only; task changes are not declared statistically significant",
         },
     }
+    experiment_manifest_path = output_dir / "r8_experiment_manifest.json"
+    campaign["experiment_manifest"] = str(experiment_manifest_path.resolve())
+    write_json(output_dir / "r8_multiseed_causal_evaluation.json", campaign)
     experiment_manifest = _build_experiment_manifest(
         seed_roots=seed_roots,
         seed101_case_root=seed101_case_root,
@@ -1166,10 +1181,7 @@ def run_evaluation(
         output_dir=output_dir,
         campaign=campaign,
     )
-    experiment_manifest_path = output_dir / "r8_experiment_manifest.json"
     write_json(experiment_manifest_path, experiment_manifest)
-    campaign["experiment_manifest"] = str(experiment_manifest_path.resolve())
-    write_json(output_dir / "r8_multiseed_causal_evaluation.json", campaign)
     _normalize_csv_line_endings(output_dir)
     return campaign
 

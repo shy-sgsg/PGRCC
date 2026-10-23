@@ -19,6 +19,7 @@
 - 仓库基线提交：`c5200b2f280f01f5e2e46f3a6fe5983a936a633f`；运行 manifest 记录运行前后源码身份与工作树状态。
 - Production：`build_r7/GMTI_pipe_core`，SHA-256 `de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`。
 - Stage2：`build/simulate_stage2_statistical`，SHA-256 `5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b`。
+- 两轮的 R8 外层 runner 源码身份不同：seed202 使用修复前版本（4,958 bytes，SHA-256 `6b51aed8ef2b6fe66a536e970d88074baf66d526fce556dd9fc65b13a83cf45e`）；seed303 使用修复后版本（6,593 bytes，SHA-256 `a91c5bff9d1782e5f76901ea9a11a8718ee15c098c258dbec178db195d7f0712`）。对账记录将变化定位为 CLI 成功判定未识别上游 `status=completed`，修复了退出码映射；seed303 的 9 个 Production 分支均有返回码 0 且通过门控的记录。两轮使用相同 Production/Stage2 二进制；seed202 旧 runner 源文件未归档，因此不能声称两轮编排源码完全相同，复现时应使用当前修复版 runner。
 - 本机 Native CUDA，NVIDIA GeForce RTX 3050 Laptop GPU；构建缓存 `CMAKE_BUILD_TYPE=Release`、`USE_COREX=OFF`。运行前后原始 GPU 状态快照保存在 manifest。
 - CUDA Production 全部使用同一修复版二进制；每个 seed 9 个分支门均通过。运行时 XML 在每个条件内 ON/OFF/TO 归一化后相同，只忽略逐运行输出目录字段 `result_add` 与 `track_debug_dir`。
 

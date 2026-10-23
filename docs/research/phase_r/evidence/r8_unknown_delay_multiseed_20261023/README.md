@@ -6,7 +6,7 @@
 
 - `evaluation/r8_experiment_manifest.json`：源码/二进制/Stage2 身份、GPU 与磁盘快照、分支 XML/log/CSI/CFAR/lineage 路径、失败现场和历史输入摘要。
 - `evaluation/r8_multiseed_causal_evaluation.json`：三 seed 的结构化条件结果、逐期任务关联、四个阶段状态标签和统计限制。
-- `evaluation/r8_seed_condition_metrics.csv`：每 seed×A/B/C 条件的 CSI、目标、参数误差、H0 描述计数、H0/H1 union hits 与 F1/F2 输入融合功率；seed101 原始 Stage2 IQ 已清理，功率列为 `NOT_EVALUABLE`，新 seed202/303 可重算。
+- `evaluation/r8_seed_condition_metrics.csv`：每 seed×A/B/C 条件的 CSI、目标机会/漏检、非目标 detections、confirmed-track 关联、CFAR branch hits、H0/H1 union hits、目标功率保持、参数误差和 F1/F2 输入融合功率；seed101 原始 Stage2 IQ 已清理，输入功率列为 `NOT_EVALUABLE`，新 seed202/303 可重算。
 - `evaluation/target_neighborhood_cfar.csv`：seed202/303 每条件、ON/OFF、每期目标邻域 hit、最近候选偏移、冻结门匹配与阶段归因。
 - `evaluation/r8_seed_condition_comparison.png`：目标检出率、SCNR proxy、目标复传递幅相与正确关联目标参数误差图。
 - `evaluation/seed*/`：每角色 task metrics、关联/lineage CSV、CSI transfer 和历史输入 SHA 对照。
