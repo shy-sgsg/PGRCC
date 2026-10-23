@@ -4,7 +4,7 @@
 
 ## 当前决策
 
-- **当前方向：固定离线标定已恢复本次留出场景的检测计数，在线估计必要性和 AI 必要性均未建立。** R9 用 R3 seed101 target-free D3 `3.409965 ns` 标定值，在 R8 seed202/303 上将正确 detection 从未知 `+4 ns` 的 `0/6` 恢复到 `5/6`，与 A0/Known 的观察计数一致；F2 物理闭合和部分参数误差仍落后 Known。R9 ON 数据 D3 批量候选也可执行，但未证明实时部署价值。以上是两组留出 seed 的描述性 CUDA 结果，不是统计显著性 Pd/Pfa。当前建议先审查固定标定跨时间/温度的稳定性和目标关联稳健性；不训练 AI。详见 [R9 方向裁决](R9_research_direction_decision.md)。
+- **R10 更新：固定 D3 恢复本次 5/6 个正确检测机会，但没有恢复高精度测角/定位；没有证据表明必须使用在线 AI。** 三个正确 period 的 A0/D3 候选 cell 相同，production raw-phase 局部 Jacobian 对 cross-range 条件差的闭合残差不超过 0.35 m；另外两个 seed303 period 的候选 row 改变，需单独看待。Known 校正的定位 RMSE 接近 A0，且优于固定 D3，支持优先提高物理通道 2 的确定性标定精度和模型匹配。残余 phase 的所有物理来源仍未完全分离。以上仅为两个 seed 的描述性 CUDA 结果，无统计显著性 Pd/Pfa。R10 没有新增 CUDA 运行；不训练 AI。详见 [R10 方向裁决](R10_research_direction_decision.md)。
 - **E2/R3：** 修复后的 CUDA Production 在 seed 101/202/303 上执行通道 2 `+4 ns` A/B/C。三 seed 的角度、TrackManager 地速和位置 RMSE 方向均为失配变差、Known physical correction 恢复；三项 paired-t 95% CI 均跨 0。径向速度 RMSE、统计性 Pd/Pfa 未验证。详见[合并结果](06_bottleneck_experiment_results.md)和[R3 逐条件报告](06_minimal_cuda_causal_pilot.md)。
 - **E1/E4/E5/R4：** seed 101 的 8 case、120 个 CUDA Production 分支已执行且分支通过；连续面积地杂波有效。但低速 P5 背景 ROI、CFAR 唯一 hit-cell/false-hit 聚合、residual-closure 的 PK/PKR 条件未闭合，因此不扩展 seed 202/303、不作方法排名或 Pd/Pfa 性能结论。详见[结果合并](06_bottleneck_experiment_results.md)与[R4 紧凑证据](evidence/r4_e1_e4_e5_seed101_20261022/)。
 - **R6/R7/R8/R9：** R8 完成 A0/B/C 三 seed 因果复验；R9 随后完成静态 D3 与 ON 数据 D3 候选回放。R9 新增 12 个 Production 分支、8 组 CFAR 数值审计，均通过对应质量门；两 seed 静态校正已恢复本次正确检测计数。D3 的物理闭合、任务级参数差距和部署边界见下方 R9 报告。
@@ -68,6 +68,15 @@
 5. [R9 研究方向裁决](R9_research_direction_decision.md)：逐项回答 Q1–Q10；没有 AI 必要性证据，本阶段停止。
 6. [R9 紧凑证据包](evidence/r9_deterministic_delay_estimator_20261023/)：估计输入 SHA、production branch/runtime/log/tap 索引、8 组 CFAR 数值审计、task metrics、target lineage、失败记录和复现入口。完整运行文件留在本机 `outputs/phase_r_r9_deterministic_delay_20261023/`。
 
+## R10 固定 D3 后测角与定位误差归因（2026-10-23）
+
+1. [目标候选与航迹关联一致性](R10_target_association_consistency.md)：逐 seed/period 对齐 A0、Known、固定 D3、在线 D3 的 target cell、cluster/detection、TrackManager 状态和 CFAR margin。
+2. [测角与位置误差归因](R10_angle_position_error_attribution.md)：生产 CTDR/EN 几何公式、逐期误差、RMSE 与局部 phase→cross-range Jacobian 闭合。
+3. [通道时延可观测性](R10_channel_delay_observability.md)：固定标定残差、分数延迟频率响应、融合估计与物理通道校正的可辨识边界。
+4. [检测恢复与任务精度敏感度](R10_task_sensitivity_analysis.md)：正确 detection/Confirmed Track 分母、CSI target-only response、CFAR margin、测角/定位/地速敏感度。
+5. [R10 研究方向裁决](R10_research_direction_decision.md)：逐项回答 Q1–Q8；建议优先提升物理 ch2 标定模型，不训练 AI，阶段结束后停止。
+6. 复用 [R8 compact evidence](evidence/r8_unknown_delay_multiseed_20261023/) 和 [R9 compact evidence](evidence/r9_deterministic_delay_estimator_20261023/)；完整 production/TrackManager 数据保留在本机忽略的 R8/R9 outputs。
+
 ## 主要证据位置与保留边界
 
 - R3 compact 证据：[`evidence/r3_minimal_cuda_causal_pilot_20261021/`](evidence/r3_minimal_cuda_causal_pilot_20261021/)（evaluation JSON、逐 seed CSV、图、runtime smoke、XML、manifests 和失败现场）；完整 case 产物在本地 `outputs/phase_r_minimal_cuda_causal_pilot_20261021/`。可重建的原始 `.bin` 已依 cleanup ledger 清理。
@@ -80,4 +89,4 @@
 
 ## 尚待决策的门
 
-R9 已完成本阶段冻结范围，不存在自动启动的后续任务。下一步若继续，应先由用户决定是否检查固定标定的跨时间/温度稳定性、通道融合下的时延可观测性或冻结检测/关联门对低速目标的影响。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合；R9 也没有统计性 Pfa 结果。当前证据不支持 AI 训练，也不足以直接切换为低速目标或复杂杂波主线。
+R10 已完成冻结范围，不存在自动启动的 R11。若继续，建议先由用户批准一个单 period、固定校正量的 Native CUDA 局部验证，检验融合时延估计到物理 ch2 修正的 residual phase 来源；R10 文档中的扫描点和必要 taps 是方案建议，没有执行。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合；R9 也没有统计性 Pfa 结果。当前证据不支持 AI 训练，也不足以直接切换为低速目标或复杂杂波主线。
