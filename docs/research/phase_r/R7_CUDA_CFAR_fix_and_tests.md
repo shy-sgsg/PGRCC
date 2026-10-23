@@ -43,9 +43,9 @@ Earlier closeout verification (before the per-CUT logging assertion) had a sandb
 
 本次真实 CUDA 完整 CTest（命令 `ctest --test-dir build_r7 --output-on-failure`）的逐项明细保存在 [`evidence/r7_cfar_correctness_20261022/analysis/cuda_near_threshold_cuts_20261022.log`](evidence/r7_cfar_correctness_20261022/analysis/cuda_near_threshold_cuts_20261022.log)：共 3,671 个 CUT（稀疏零背景 1,815；严格相等 1,856），记录中 reference/CUDA threshold 均为 0 ULP，hit flips 为 0。设备为 NVIDIA GeForce RTX 3050 Laptop GPU，driver 580.178.04 / CUDA 13.0，测试时 GPU 使用率约 98%；该运行仅作正确性验收，不用于性能比较。运行时源码基线为提交 `07f75e0375c90b43c59149561d1726fa44ac2838` 加本次自检/CMake 测试改动。日志 SHA-256 为 `a83c1a454143c1c1dbbb80d7312fb8fcfea2cedf2867259c569c1757d0f1cd1e`，自检二进制 SHA-256 为 `011189d196b82cecb849ddc7af9989e63afd400fc6861d1d39106d95908eb412`。
 
-### CoreX 状态
+### 构建后端范围
 
-本机缺少 `/usr/local/corex-4.3.7`，且 `ivcore` 与 `clang++` 均不在 PATH；因此本轮只做了 CMake 条件/源文件路径的静态检查，没有执行 CoreX 编译或运行。Native CUDA 编译与真实 RTX 3050 测试已执行；CoreX 兼容性仍为 `NOT_EXECUTED`，不可据此宣称已验证。
+本项目 R7 使用原生 CUDA/nvcc 路径：`CMakeLists.txt` 中 `USE_COREX` 默认关闭，实际 `build_r7/CMakeCache.txt` 记录 `USE_COREX=OFF`、`CMAKE_CUDA_COMPILER=/usr/bin/nvcc`。Native CUDA Release 构建、真实 RTX 3050 数值自检和 Production 矩阵均已执行。CoreX 是仓库提供的可选替代后端，不属于本次 CUDA R7 验收范围；本报告不声称验证了该可选后端。
 
 ## 资源开销与性能边界
 

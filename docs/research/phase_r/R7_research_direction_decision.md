@@ -32,11 +32,11 @@ H0/OFF 每个修复后 case 有 24–27 条 final detection、4 条 false confir
 
 - `IMPLEMENTED`：GO-CFAR 稳定双精度累计与误差界直接重算；三周期 runner、冻结的一对一 truth evaluator、per-opportunity 参数误差和 diagnostics-gated cluster→detection lineage。
 - `EXECUTED`：RTX 3050 Laptop 真实 CUDA numerical selftest；九条件 pre/post 三周期 Production 回放；同二进制 A0_ON repeat；diagnostics-off 控制；以及 A0_ON period-0 修复前/后各 1 次 warm-up、3 次计时的端到端性能 pilot。最终核心矩阵每个 case 的 3 个 period 顺序完整，以上运行 exit code 均为 0。
-- `EVALUABLE`：保存的 pre/post branch 与 union 数值地图对 float64 reference 的三周期逐 CUT 复核、unique union hit 和 hit flips；三周期目标候选、逐期参数误差、cluster/detection lineage、H0 描述计数、TO complex transfer；以及单周期 pilot 的描述性时间、输出候选数与主机 RSS。pilot 的候选数不同且设备前后状态变化，不能用来验证 CFAR 性能增益。CoreX 仅完成 CMake/source 静态检查，实际编译和运行 `NOT_EXECUTED`。统计 Pd/Pfa、跨 seed 总体性能和 D3 差距仍不可评估。
+- `EVALUABLE`：保存的 pre/post branch 与 union 数值地图对 float64 reference 的三周期逐 CUT 复核、unique union hit 和 hit flips；三周期目标候选、逐期参数误差、cluster/detection lineage、H0 描述计数、TO complex transfer；以及单周期 pilot 的描述性时间、输出候选数与主机 RSS。pilot 的候选数不同且设备前后状态变化，不能用来验证 CFAR 性能增益。CoreX 是可选替代后端，不属于本次 Native CUDA 验收范围。统计 Pd/Pfa、跨 seed 总体性能和 D3 差距仍不可评估。
 - `PERFORMANCE_VERIFIED`：否。补做的 period-0 A0_ON 修复前/后 3+3 次 pilot 得到外部 wall median 1.41/1.33 s、内部算法计时 median 1095.104/1030.419 ms；但过滤 detection 数 140/19 不同，GPU 状态运行前后也由 P8/8% 变化到 P0/5%，所以不能把表观耗时差归因于修复或宣称提速。没有 kernel/传输隔离、VRAM high-water 或独立 seed 的统计性能验证。逐次数据和日志见[性能 A/B pilot](evidence/r7_cfar_correctness_20261022/performance_ab_20261023/)。
 
 完整三周期产物位于本机 `outputs/phase_r7_cfar_correctness_20261022/`。轻量审查证据和逐期任务指标位于 [`evidence/r7_cfar_correctness_20261022/`](evidence/r7_cfar_correctness_20261022/)；配对、配置和二进制身份见其中 manifest。最终 Production binary SHA-256：`de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`。
 
 ## 阶段门控与停止
 
-R7 的数值修复、真实 CUDA 正确性测试、三周期任务评价和阶段裁决已完成；但 CoreX 编译/运行兼容性仍为 `NOT_EXECUTED`，因此完整阶段关闭门尚未通过。当前机器缺少 CoreX SDK/compiler；需在可访问的 CoreX 环境补做后才能关闭该项。本轮不自动追加 seed202/303、不运行 D3、不训练 AI、不开发 Router，也不扩展六参数估计。后续科学方向需在用户审阅上述证据后另行决定。当前证据只支持：先前 A0/C RMSE 大差异不再出现；该单 seed 下 +4 ns 目标检测损失与 Known Correction 恢复值得独立 seed 验证；还不足以宣告 AI 必要性或新的论文瓶颈。
+R7 按项目原生 CUDA/nvcc 工作流完成：数值修复、真实 CUDA 正确性测试、三周期任务评价和阶段裁决均有记录。CoreX 是仓库提供的可选替代后端，不属于本次验收；其单独兼容性未验证，也不阻止 Native CUDA R7 关闭。`PERFORMANCE_VERIFIED` 仍为 `NO`，原因与证据边界见上文。R7 到此停止，不自动追加 seed202/303、不运行 D3、不训练 AI、不开发 Router，也不扩展六参数估计。后续科学方向需在用户审阅上述证据后另行决定。当前证据只支持：先前 A0/C RMSE 大差异不再出现；该单 seed 下 +4 ns 目标检测损失与 Known Correction 恢复值得独立 seed 验证；还不足以宣告 AI 必要性或新的论文瓶颈。
