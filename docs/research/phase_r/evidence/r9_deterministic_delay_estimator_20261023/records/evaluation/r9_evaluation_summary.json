@@ -1,0 +1,2129 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-23T09:01:06.834738+00:00",
+  "seeds": {
+    "202": {
+      "conditions": {
+        "R9_Static_R3_D3": {
+          "roles": {
+            "ON": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_ON/task_metrics.json",
+              "metrics": {
+                "truth_opportunities": 3,
+                "unique_correct_detections": 2,
+                "detection_rate": 0.6666666666666666,
+                "false_associations": 194,
+                "misses": 1,
+                "correct_track_associations": 1,
+                "false_track_associations": 47,
+                "track_association_status": "evaluable",
+                "parameter_errors": {
+                  "position_2d_rmse_m": 164.05761832582743,
+                  "position_error_count": 2,
+                  "angle_rmse_deg": 0.10692522266672488,
+                  "angle_error_count": 2,
+                  "ground_speed_rmse_mps": 1.8445836474273705,
+                  "ground_speed_error_count": 1,
+                  "radial_velocity": {
+                    "status": "NOT_EVALUABLE",
+                    "rmse_mps": null,
+                    "count": 0,
+                    "unresolved_count": 2
+                  }
+                },
+                "association_status": "evaluable",
+                "candidate_final_detections": 196,
+                "cfar_branch_hit_cells": 3091,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 1086
+                },
+                "cfar_status": "evaluable",
+                "postfilter_clusters": 196,
+                "selected_candidates": 196,
+                "raw_detections": 196,
+                "final_detections": 196,
+                "tracks": 253,
+                "confirmed_tracks": 48,
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_ON/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_ON/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_ON/track_debug_runs/local_test_20261023_165755_887041_pid294167",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_ON/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_ON/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_ON/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_ON/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_ON/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "OFF": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_OFF/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 699,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 181
+                },
+                "postfilter_clusters": 30,
+                "false_clusters": 30,
+                "final_detections": 30,
+                "false_detections": 30,
+                "tracks": 62,
+                "false_confirmed_tracks": 5,
+                "cluster_status": "evaluable",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable",
+                "lineage_status": "complete"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_OFF/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_OFF/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_OFF/track_debug_runs/local_test_20261023_165800_436580_pid294189",
+                "truth_csv": null,
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_OFF/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_OFF/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_OFF/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_OFF/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_OFF/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "TO": {
+              "audit_status": "NOT_REQUIRED_FOR_TARGET_ONLY",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_TO/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 11598,
+                "unique_union_hit_cells": {
+                  "status": "NOT_EVALUABLE",
+                  "count": null
+                },
+                "postfilter_clusters": 119,
+                "postfilter_cluster_status": "evaluable",
+                "final_detections": 119,
+                "target_only_response": {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 75,
+                  "observable": true,
+                  "input_energy": 11726450625.507849,
+                  "output_energy": 596708155.5285146,
+                  "energy_ratio": 0.05088565795267418,
+                  "amplitude_ratio": 0.09369443857123487,
+                  "phase_error_rad": 0.042156015748170815,
+                  "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+                  "per_period": [
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 4424280136.593859,
+                      "output_energy": 99698849.53000577,
+                      "energy_ratio": 0.022534479384653385,
+                      "amplitude_ratio": 0.14211595135213304,
+                      "phase_error_rad": -2.285151182462884,
+                      "period_id": 0,
+                      "target_row": 50,
+                      "target_col": 2048,
+                      "target_range_m": 87919.1348495,
+                      "target_af_total_truth_hz": -4633.1002422,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3940538971.9314227,
+                      "output_energy": 95766475.75660388,
+                      "energy_ratio": 0.024302887609728353,
+                      "amplitude_ratio": 0.14302617231814774,
+                      "phase_error_rad": 0.512234958741527,
+                      "period_id": 1,
+                      "target_row": 48,
+                      "target_col": 2154,
+                      "target_range_m": 88184.3543384,
+                      "target_af_total_truth_hz": -4648.73314311,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3361631516.9825683,
+                      "output_energy": 401242830.24190485,
+                      "energy_ratio": 0.11935955151981206,
+                      "amplitude_ratio": 0.3115943905065333,
+                      "phase_error_rad": 0.23618961371764216,
+                      "period_id": 2,
+                      "target_row": 46,
+                      "target_col": 2261,
+                      "target_range_m": 88450.4631906,
+                      "target_af_total_truth_hz": -4664.22539336,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    }
+                  ]
+                },
+                "parameter_observability": "evaluable",
+                "lineage_status": "complete",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_TO/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_TO/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_TO/track_debug_runs/local_test_20261023_165804_327691_pid294250",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_TO/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_TO/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_TO/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Static_R3_D3_TO/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_TO/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_TO/target_only_response.json"
+              }
+            }
+          },
+          "csi": {
+            "csi_h0_active_support": {
+              "status": "evaluable",
+              "valid_cells": 479115,
+              "before_mean_power": 658.3000925622185,
+              "csi_output_mean_power": 172.94490171638836,
+              "cancellation_db": 5.80516152287875,
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 660.7780130166168,
+                  "csi_output_mean_power": 178.39851843328728,
+                  "cancellation_db": 5.6866434035034,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 661.6949284835282,
+                  "csi_output_mean_power": 168.2092958310487,
+                  "cancellation_db": 5.948078132858827,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 652.4273361865106,
+                  "csi_output_mean_power": 172.22689088482912,
+                  "cancellation_db": 5.784311877587697,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                }
+              ]
+            },
+            "target_transfer": {
+              "status": "evaluable",
+              "paired_complex_transfer": {
+                "status": "evaluable",
+                "sample_count": 75,
+                "coefficient_real": 0.4868418685690987,
+                "coefficient_imag": 0.008465695930154402,
+                "amplitude_ratio": 0.4869154680223595,
+                "amplitude_ratio_db": -6.250928576855614,
+                "phase_error_rad": 0.017387253136457028,
+                "phase_error_deg": 0.9962162220445909,
+                "normalized_residual_rms": 0.4737011942458232
+              },
+              "target_only_output_power_mean": 7956108.740380194,
+              "h0_output_power_mean": 0.6328927652721381,
+              "output_scnr_proxy_db": 70.99370579034165,
+              "target_only_pre_csi_power_mean": 148746079.4351367,
+              "target_only_csi_retention_db": -12.717448174364092,
+              "periods": [
+                {
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_truth_hz": -4633.1002422,
+                  "target_only_csi_power": 3987953.981200231,
+                  "h0_csi_power": 0.6644915574125488,
+                  "target_only_before_power": 168544120.81884766
+                },
+                {
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_truth_hz": -4648.73314311,
+                  "target_only_csi_power": 3830659.0302641555,
+                  "h0_csi_power": 0.5081451196410819,
+                  "target_only_before_power": 149078704.91
+                },
+                {
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_truth_hz": -4664.22539336,
+                  "target_only_csi_power": 16049713.209676195,
+                  "h0_csi_power": 0.7260416187627837,
+                  "target_only_before_power": 128615412.5765625
+                }
+              ],
+              "definitions": {
+                "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+                "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+                "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+              }
+            }
+          },
+          "csi_metrics_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Static_R3_D3_csi_metrics.json"
+        },
+        "R9_Online_D3": {
+          "roles": {
+            "ON": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_ON/task_metrics.json",
+              "metrics": {
+                "truth_opportunities": 3,
+                "unique_correct_detections": 2,
+                "detection_rate": 0.6666666666666666,
+                "false_associations": 190,
+                "misses": 1,
+                "correct_track_associations": 1,
+                "false_track_associations": 47,
+                "track_association_status": "evaluable",
+                "parameter_errors": {
+                  "position_2d_rmse_m": 178.49799801648714,
+                  "position_error_count": 2,
+                  "angle_rmse_deg": 0.1163369767589729,
+                  "angle_error_count": 2,
+                  "ground_speed_rmse_mps": 2.0173160266583707,
+                  "ground_speed_error_count": 1,
+                  "radial_velocity": {
+                    "status": "NOT_EVALUABLE",
+                    "rmse_mps": null,
+                    "count": 0,
+                    "unresolved_count": 2
+                  }
+                },
+                "association_status": "evaluable",
+                "candidate_final_detections": 192,
+                "cfar_branch_hit_cells": 3186,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 1116
+                },
+                "cfar_status": "evaluable",
+                "postfilter_clusters": 192,
+                "selected_candidates": 192,
+                "raw_detections": 192,
+                "final_detections": 192,
+                "tracks": 255,
+                "confirmed_tracks": 48,
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_ON/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_ON/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_ON/track_debug_runs/local_test_20261023_165808_310048_pid294275",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_ON/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_ON/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_ON/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_ON/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_ON/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "OFF": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_OFF/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 700,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 182
+                },
+                "postfilter_clusters": 30,
+                "false_clusters": 30,
+                "final_detections": 30,
+                "false_detections": 30,
+                "tracks": 62,
+                "false_confirmed_tracks": 5,
+                "cluster_status": "evaluable",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable",
+                "lineage_status": "complete"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_OFF/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_OFF/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_OFF/track_debug_runs/local_test_20261023_165812_703208_pid294297",
+                "truth_csv": null,
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_OFF/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_OFF/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_OFF/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_OFF/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_OFF/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "TO": {
+              "audit_status": "NOT_REQUIRED_FOR_TARGET_ONLY",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_TO/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 11435,
+                "unique_union_hit_cells": {
+                  "status": "NOT_EVALUABLE",
+                  "count": null
+                },
+                "postfilter_clusters": 119,
+                "postfilter_cluster_status": "evaluable",
+                "final_detections": 119,
+                "target_only_response": {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 75,
+                  "observable": true,
+                  "input_energy": 11726450625.507849,
+                  "output_energy": 601334018.2792051,
+                  "energy_ratio": 0.051280139019317494,
+                  "amplitude_ratio": 0.09400466282811655,
+                  "phase_error_rad": 0.03949592813334745,
+                  "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+                  "per_period": [
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 4424280136.593859,
+                      "output_energy": 100621997.30146512,
+                      "energy_ratio": 0.022743134294143375,
+                      "amplitude_ratio": 0.14126010911878314,
+                      "phase_error_rad": -2.2823400634747433,
+                      "period_id": 0,
+                      "target_row": 50,
+                      "target_col": 2048,
+                      "target_range_m": 87919.1348495,
+                      "target_af_total_truth_hz": -4633.1002422,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3940538971.9314227,
+                      "output_energy": 97043847.6038616,
+                      "energy_ratio": 0.02462704931866119,
+                      "amplitude_ratio": 0.14257992965654928,
+                      "phase_error_rad": 0.5093832817898556,
+                      "period_id": 1,
+                      "target_row": 48,
+                      "target_col": 2154,
+                      "target_range_m": 88184.3543384,
+                      "target_af_total_truth_hz": -4648.73314311,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3361631516.9825683,
+                      "output_energy": 403668173.3738783,
+                      "energy_ratio": 0.12008102950445164,
+                      "amplitude_ratio": 0.3116407789038844,
+                      "phase_error_rad": 0.2339662626659909,
+                      "period_id": 2,
+                      "target_row": 46,
+                      "target_col": 2261,
+                      "target_range_m": 88450.4631906,
+                      "target_af_total_truth_hz": -4664.22539336,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    }
+                  ]
+                },
+                "parameter_observability": "evaluable",
+                "lineage_status": "complete",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_TO/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_TO/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_TO/track_debug_runs/local_test_20261023_165816_618516_pid294319",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_TO/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_TO/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_TO/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/production/R9_Online_D3_TO/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_TO/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_TO/target_only_response.json"
+              }
+            }
+          },
+          "csi": {
+            "csi_h0_active_support": {
+              "status": "evaluable",
+              "valid_cells": 479115,
+              "before_mean_power": 657.0784261130804,
+              "csi_output_mean_power": 172.81280488450307,
+              "cancellation_db": 5.800412890251313,
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 659.5398442659481,
+                  "csi_output_mean_power": 178.24214098091085,
+                  "cancellation_db": 5.682306472534569,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 660.4702216074917,
+                  "csi_output_mean_power": 168.0969163031057,
+                  "cancellation_db": 5.942934950205183,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 651.2252124658013,
+                  "csi_output_mean_power": 172.09935736949262,
+                  "cancellation_db": 5.77951957459407,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                }
+              ]
+            },
+            "target_transfer": {
+              "status": "evaluable",
+              "paired_complex_transfer": {
+                "status": "evaluable",
+                "sample_count": 75,
+                "coefficient_real": 0.48645363898758726,
+                "coefficient_imag": 0.00854578203510356,
+                "amplitude_ratio": 0.4865286972778249,
+                "amplitude_ratio_db": -6.257830766624258,
+                "phase_error_rad": 0.017565709014636104,
+                "phase_error_deg": 1.0064409906935528,
+                "normalized_residual_rms": 0.47189629074489353
+              },
+              "target_only_output_power_mean": 8017786.910389401,
+              "h0_output_power_mean": 0.6305203742949795,
+              "output_scnr_proxy_db": 71.04355385082071,
+              "target_only_pre_csi_power_mean": 147929954.71211588,
+              "target_only_csi_retention_db": -12.660016145187818,
+              "periods": [
+                {
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_truth_hz": -4633.1002422,
+                  "target_only_csi_power": 4024879.892058605,
+                  "h0_csi_power": 0.6599921802697396,
+                  "target_only_before_power": 167677225.11478516
+                },
+                {
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_truth_hz": -4648.73314311,
+                  "target_only_csi_power": 3881753.904154464,
+                  "h0_csi_power": 0.5040797101749311,
+                  "target_only_before_power": 148101544.04
+                },
+                {
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_truth_hz": -4664.22539336,
+                  "target_only_csi_power": 16146726.934955135,
+                  "h0_csi_power": 0.7274892324402678,
+                  "target_only_before_power": 128011094.9815625
+                }
+              ],
+              "definitions": {
+                "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+                "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+                "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+              }
+            }
+          },
+          "csi_metrics_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed202/R9_Online_D3_csi_metrics.json"
+        }
+      }
+    },
+    "303": {
+      "conditions": {
+        "R9_Static_R3_D3": {
+          "roles": {
+            "ON": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_ON/task_metrics.json",
+              "metrics": {
+                "truth_opportunities": 3,
+                "unique_correct_detections": 3,
+                "detection_rate": 1.0,
+                "false_associations": 202,
+                "misses": 0,
+                "correct_track_associations": 2,
+                "false_track_associations": 64,
+                "track_association_status": "evaluable",
+                "parameter_errors": {
+                  "position_2d_rmse_m": 138.2473555836007,
+                  "position_error_count": 3,
+                  "angle_rmse_deg": 0.09007199178622283,
+                  "angle_error_count": 3,
+                  "ground_speed_rmse_mps": 0.3094174677982299,
+                  "ground_speed_error_count": 2,
+                  "radial_velocity": {
+                    "status": "NOT_EVALUABLE",
+                    "rmse_mps": null,
+                    "count": 0,
+                    "unresolved_count": 3
+                  }
+                },
+                "association_status": "evaluable",
+                "candidate_final_detections": 205,
+                "cfar_branch_hit_cells": 4475,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 1289
+                },
+                "cfar_status": "evaluable",
+                "postfilter_clusters": 205,
+                "selected_candidates": 205,
+                "raw_detections": 205,
+                "final_detections": 205,
+                "tracks": 303,
+                "confirmed_tracks": 66,
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_ON/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_ON/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_ON/track_debug_runs/local_test_20261023_165820_487702_pid294342",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_ON/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_ON/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_ON/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_ON/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_ON/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "OFF": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_OFF/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 657,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 141
+                },
+                "postfilter_clusters": 27,
+                "false_clusters": 27,
+                "final_detections": 27,
+                "false_detections": 27,
+                "tracks": 53,
+                "false_confirmed_tracks": 5,
+                "cluster_status": "evaluable",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable",
+                "lineage_status": "complete"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_OFF/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_OFF/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_OFF/track_debug_runs/local_test_20261023_165825_293556_pid294365",
+                "truth_csv": null,
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_OFF/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_OFF/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_OFF/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_OFF/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_OFF/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "TO": {
+              "audit_status": "NOT_REQUIRED_FOR_TARGET_ONLY",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_TO/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 10533,
+                "unique_union_hit_cells": {
+                  "status": "NOT_EVALUABLE",
+                  "count": null
+                },
+                "postfilter_clusters": 100,
+                "postfilter_cluster_status": "evaluable",
+                "final_detections": 100,
+                "target_only_response": {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 75,
+                  "observable": true,
+                  "input_energy": 10608429195.940159,
+                  "output_energy": 1042441722.9025893,
+                  "energy_ratio": 0.0982654174004886,
+                  "amplitude_ratio": 0.14144275623305846,
+                  "phase_error_rad": -0.021132730936618927,
+                  "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+                  "per_period": [
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 4004752451.2573714,
+                      "output_energy": 76976626.39813927,
+                      "energy_ratio": 0.0192213195035241,
+                      "amplitude_ratio": 0.1277082079657971,
+                      "phase_error_rad": -2.28635482045797,
+                      "period_id": 0,
+                      "target_row": 50,
+                      "target_col": 2048,
+                      "target_range_m": 87919.1348495,
+                      "target_af_total_truth_hz": -4633.1002422,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3336204703.4667544,
+                      "output_energy": 29415367.243507646,
+                      "energy_ratio": 0.008817015098906018,
+                      "amplitude_ratio": 0.07421395608916587,
+                      "phase_error_rad": 0.5353306496037656,
+                      "period_id": 1,
+                      "target_row": 48,
+                      "target_col": 2154,
+                      "target_range_m": 88184.3543384,
+                      "target_af_total_truth_hz": -4648.73314311,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3267472041.2160335,
+                      "output_energy": 936049729.2609426,
+                      "energy_ratio": 0.28647520696537593,
+                      "amplitude_ratio": 0.5015062398468687,
+                      "phase_error_rad": 0.1395831118450216,
+                      "period_id": 2,
+                      "target_row": 46,
+                      "target_col": 2261,
+                      "target_range_m": 88450.4631906,
+                      "target_af_total_truth_hz": -4664.22539336,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    }
+                  ]
+                },
+                "parameter_observability": "evaluable",
+                "lineage_status": "complete",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_TO/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_TO/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_TO/track_debug_runs/local_test_20261023_165829_338303_pid294387",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_TO/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_TO/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_TO/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Static_R3_D3_TO/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_TO/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_TO/target_only_response.json"
+              }
+            }
+          },
+          "csi": {
+            "csi_h0_active_support": {
+              "status": "evaluable",
+              "valid_cells": 479115,
+              "before_mean_power": 638.3671302373504,
+              "csi_output_mean_power": 182.80170982309363,
+              "cancellation_db": 5.430902633727431,
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 643.9041449838743,
+                  "csi_output_mean_power": 176.94118975095213,
+                  "cancellation_db": 5.609922776339042,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 640.7370231060413,
+                  "csi_output_mean_power": 179.45532541080587,
+                  "cancellation_db": 5.527234684189491,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 630.4602226221352,
+                  "csi_output_mean_power": 192.0086143075229,
+                  "cancellation_db": 5.163369776001812,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                }
+              ]
+            },
+            "target_transfer": {
+              "status": "evaluable",
+              "paired_complex_transfer": {
+                "status": "evaluable",
+                "sample_count": 75,
+                "coefficient_real": 0.43199591869234544,
+                "coefficient_imag": 0.03429020155083851,
+                "amplitude_ratio": 0.4333546950123428,
+                "amplitude_ratio_db": -7.263129877610723,
+                "phase_error_rad": 0.07921013834065993,
+                "phase_error_deg": 4.5384066215672,
+                "normalized_residual_rms": 0.43511492402397317
+              },
+              "target_only_output_power_mean": 13899222.972034523,
+              "h0_output_power_mean": 0.4965412252047583,
+              "output_scnr_proxy_db": 74.47035210439086,
+              "target_only_pre_csi_power_mean": 134617603.1191146,
+              "target_only_csi_retention_db": -9.861113316770215,
+              "periods": [
+                {
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_truth_hz": -4633.1002422,
+                  "target_only_csi_power": 3079065.0559255695,
+                  "h0_csi_power": 0.5914106295657587,
+                  "target_only_before_power": 151988944.725
+                },
+                {
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_truth_hz": -4648.73314311,
+                  "target_only_csi_power": 1176614.689740306,
+                  "h0_csi_power": 0.3431440213108077,
+                  "target_only_before_power": 126825541.73625
+                },
+                {
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_truth_hz": -4664.22539336,
+                  "target_only_csi_power": 37441989.17043769,
+                  "h0_csi_power": 0.5550690247377085,
+                  "target_only_before_power": 125038322.89609376
+                }
+              ],
+              "definitions": {
+                "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+                "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+                "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+              }
+            }
+          },
+          "csi_metrics_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Static_R3_D3_csi_metrics.json"
+        },
+        "R9_Online_D3": {
+          "roles": {
+            "ON": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_ON/task_metrics.json",
+              "metrics": {
+                "truth_opportunities": 3,
+                "unique_correct_detections": 3,
+                "detection_rate": 1.0,
+                "false_associations": 183,
+                "misses": 0,
+                "correct_track_associations": 2,
+                "false_track_associations": 62,
+                "track_association_status": "evaluable",
+                "parameter_errors": {
+                  "position_2d_rmse_m": 195.30224459139006,
+                  "position_error_count": 3,
+                  "angle_rmse_deg": 0.1272455702903746,
+                  "angle_error_count": 3,
+                  "ground_speed_rmse_mps": 1.608195089742075,
+                  "ground_speed_error_count": 2,
+                  "radial_velocity": {
+                    "status": "NOT_EVALUABLE",
+                    "rmse_mps": null,
+                    "count": 0,
+                    "unresolved_count": 3
+                  }
+                },
+                "association_status": "evaluable",
+                "candidate_final_detections": 186,
+                "cfar_branch_hit_cells": 5039,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 1463
+                },
+                "cfar_status": "evaluable",
+                "postfilter_clusters": 186,
+                "selected_candidates": 186,
+                "raw_detections": 186,
+                "final_detections": 186,
+                "tracks": 272,
+                "confirmed_tracks": 64,
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_ON/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_ON/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_ON/track_debug_runs/local_test_20261023_165834_806018_pid294408",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_ON/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_ON/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_ON/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_ON/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_ON/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "OFF": {
+              "audit_status": "passed",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_OFF/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 652,
+                "unique_union_hit_cells": {
+                  "status": "evaluable",
+                  "count": 141
+                },
+                "postfilter_clusters": 27,
+                "false_clusters": 27,
+                "final_detections": 27,
+                "false_detections": 27,
+                "tracks": 53,
+                "false_confirmed_tracks": 5,
+                "cluster_status": "evaluable",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable",
+                "lineage_status": "complete"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_OFF/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_OFF/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_OFF/track_debug_runs/local_test_20261023_165841_491555_pid294436",
+                "truth_csv": null,
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_OFF/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_OFF/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_OFF/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_OFF/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_OFF/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": null
+              }
+            },
+            "TO": {
+              "audit_status": "NOT_REQUIRED_FOR_TARGET_ONLY",
+              "task_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_TO/task_metrics.json",
+              "metrics": {
+                "cfar_branch_hit_cells": 10564,
+                "unique_union_hit_cells": {
+                  "status": "NOT_EVALUABLE",
+                  "count": null
+                },
+                "postfilter_clusters": 127,
+                "postfilter_cluster_status": "evaluable",
+                "final_detections": 127,
+                "target_only_response": {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 75,
+                  "observable": true,
+                  "input_energy": 10608429195.940159,
+                  "output_energy": 1044074414.5907558,
+                  "energy_ratio": 0.09841932253177715,
+                  "amplitude_ratio": 0.14090135121149153,
+                  "phase_error_rad": -0.030049817009842546,
+                  "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+                  "per_period": [
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 4004752451.2573714,
+                      "output_energy": 82542998.80924506,
+                      "energy_ratio": 0.02061126119876125,
+                      "amplitude_ratio": 0.12270364779806929,
+                      "phase_error_rad": -2.2690414499489746,
+                      "period_id": 0,
+                      "target_row": 50,
+                      "target_col": 2048,
+                      "target_range_m": 87919.1348495,
+                      "target_af_total_truth_hz": -4633.1002422,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3336204703.4667544,
+                      "output_energy": 35669915.66925617,
+                      "energy_ratio": 0.01069176469662981,
+                      "amplitude_ratio": 0.07168091869826652,
+                      "phase_error_rad": 0.5102970128524029,
+                      "period_id": 1,
+                      "target_row": 48,
+                      "target_col": 2154,
+                      "target_range_m": 88184.3543384,
+                      "target_af_total_truth_hz": -4648.73314311,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    },
+                    {
+                      "status": "evaluable",
+                      "reason": "truth_centered_target_only_complex_transfer",
+                      "sample_count": 25,
+                      "observable": true,
+                      "input_energy": 3267472041.2160335,
+                      "output_energy": 925861500.1122544,
+                      "energy_ratio": 0.2833571300483669,
+                      "amplitude_ratio": 0.49445735466231533,
+                      "phase_error_rad": 0.13327206868781197,
+                      "period_id": 2,
+                      "target_row": 46,
+                      "target_col": 2261,
+                      "target_range_m": 88450.4631906,
+                      "target_af_total_truth_hz": -4664.22539336,
+                      "target_roi_shape": [
+                        5,
+                        5
+                      ]
+                    }
+                  ]
+                },
+                "parameter_observability": "evaluable",
+                "lineage_status": "complete",
+                "cfar_status": "evaluable",
+                "track_status": "evaluable"
+              },
+              "provenance": {
+                "manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_TO/evaluation_manifest.json",
+                "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_TO/result",
+                "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_TO/track_debug_runs/local_test_20261023_165848_909631_pid294464",
+                "truth_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/truth/truth_targets_by_beam.csv",
+                "detection_csvs": [
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_TO/result/detection_results_GMTI01.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_TO/result/detection_results_GMTI02.csv",
+                  "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_TO/result/detection_results_GMTI03.csv"
+                ],
+                "lineage_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/production/R9_Online_D3_TO/result/debug/cluster_detection_lineage.csv",
+                "cfar_geometry_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_TO/cfar_geometry_with_unique_union.csv",
+                "target_only_response_json": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_TO/target_only_response.json"
+              }
+            }
+          },
+          "csi": {
+            "csi_h0_active_support": {
+              "status": "evaluable",
+              "valid_cells": 479115,
+              "before_mean_power": 632.5501327665112,
+              "csi_output_mean_power": 183.53907588075924,
+              "cancellation_db": 5.373664105238845,
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 637.8863857941371,
+                  "csi_output_mean_power": 180.20364914351927,
+                  "cancellation_db": 5.489797519979937,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 634.7897956534653,
+                  "csi_output_mean_power": 178.83124779876974,
+                  "cancellation_db": 5.501865299277835,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                },
+                {
+                  "status": "evaluable",
+                  "valid_cells": 159705,
+                  "before_mean_power": 624.9742168519313,
+                  "csi_output_mean_power": 191.58233069998877,
+                  "cancellation_db": 5.135066486318208,
+                  "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+                }
+              ]
+            },
+            "target_transfer": {
+              "status": "evaluable",
+              "paired_complex_transfer": {
+                "status": "evaluable",
+                "sample_count": 75,
+                "coefficient_real": 0.4522259915905492,
+                "coefficient_imag": 0.032490979028920494,
+                "amplitude_ratio": 0.4533916752525494,
+                "amplitude_ratio_db": -6.870529164784295,
+                "phase_error_rad": 0.07172353302268901,
+                "phase_error_deg": 4.109455733967269,
+                "normalized_residual_rms": 0.4382405993633547
+              },
+              "target_only_output_power_mean": 13920992.194543412,
+              "h0_output_power_mean": 0.5165728370336685,
+              "output_scnr_proxy_db": 74.30538624045894,
+              "target_only_pre_csi_power_mean": 131189042.88932292,
+              "target_only_csi_retention_db": -9.742273736484394,
+              "periods": [
+                {
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_truth_hz": -4633.1002422,
+                  "target_only_csi_power": 3301719.9523698026,
+                  "h0_csi_power": 0.6593475858142769,
+                  "target_only_before_power": 148189685.366875
+                },
+                {
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_truth_hz": -4648.73314311,
+                  "target_only_csi_power": 1426796.6267702472,
+                  "h0_csi_power": 0.34541232786848025,
+                  "target_only_before_power": 123093726.57625
+                },
+                {
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_truth_hz": -4664.22539336,
+                  "target_only_csi_power": 37034460.00449018,
+                  "h0_csi_power": 0.5449585974182485,
+                  "target_only_before_power": 122283716.72484376
+                }
+              ],
+              "definitions": {
+                "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+                "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+                "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+              }
+            }
+          },
+          "csi_metrics_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/seed303/R9_Online_D3_csi_metrics.json"
+        }
+      }
+    }
+  },
+  "frozen_r8_baseline_task_metrics": {
+    "202": {
+      "A": {
+        "ON": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/A_ON/task_metrics.json",
+          "metrics": {
+            "truth_opportunities": 3,
+            "unique_correct_detections": 2,
+            "detection_rate": 0.6666666666666666,
+            "false_associations": 181,
+            "misses": 1,
+            "correct_track_associations": 1,
+            "false_track_associations": 30,
+            "track_association_status": "evaluable",
+            "parameter_errors": {
+              "position_2d_rmse_m": 61.39550923859287,
+              "position_error_count": 2,
+              "angle_rmse_deg": 0.039996545602811996,
+              "angle_error_count": 2,
+              "ground_speed_rmse_mps": 0.08518786557962965,
+              "ground_speed_error_count": 1,
+              "radial_velocity": {
+                "status": "NOT_EVALUABLE",
+                "rmse_mps": null,
+                "count": 0,
+                "unresolved_count": 2
+              }
+            },
+            "association_status": "evaluable",
+            "candidate_final_detections": 183,
+            "cfar_branch_hit_cells": 2501,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 893
+            },
+            "cfar_status": "evaluable",
+            "postfilter_clusters": 183,
+            "selected_candidates": 183,
+            "raw_detections": 183,
+            "final_detections": 183,
+            "tracks": 212,
+            "confirmed_tracks": 31,
+            "track_status": "evaluable"
+          }
+        },
+        "OFF": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/A_OFF/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 705,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 181
+            },
+            "postfilter_clusters": 28,
+            "false_clusters": 28,
+            "final_detections": 28,
+            "false_detections": 28,
+            "tracks": 59,
+            "false_confirmed_tracks": 4,
+            "cluster_status": "evaluable",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable",
+            "lineage_status": "complete"
+          }
+        },
+        "TO": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/A_TO/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 12198,
+            "unique_union_hit_cells": {
+              "status": "NOT_EVALUABLE",
+              "count": null
+            },
+            "postfilter_clusters": 169,
+            "postfilter_cluster_status": "evaluable",
+            "final_detections": 169,
+            "target_only_response": {
+              "status": "evaluable",
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 75,
+              "observable": true,
+              "input_energy": 11726450625.507849,
+              "output_energy": 571680988.8156847,
+              "energy_ratio": 0.04875140885104152,
+              "amplitude_ratio": 0.09103488457931604,
+              "phase_error_rad": 0.054622891135075236,
+              "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 4424280136.593859,
+                  "output_energy": 99330584.62272203,
+                  "energy_ratio": 0.022451242135674107,
+                  "amplitude_ratio": 0.14805277782761941,
+                  "phase_error_rad": -2.2989047535258447,
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_total_truth_hz": -4633.1002422,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3940538971.9314227,
+                  "output_energy": 89970615.01400658,
+                  "energy_ratio": 0.022832058166375204,
+                  "amplitude_ratio": 0.14628438961084286,
+                  "phase_error_rad": 0.5290333866158063,
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_total_truth_hz": -4648.73314311,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3361631516.9825683,
+                  "output_energy": 382379789.178956,
+                  "energy_ratio": 0.11374827587355071,
+                  "amplitude_ratio": 0.30829352603603927,
+                  "phase_error_rad": 0.24988674995244373,
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_total_truth_hz": -4664.22539336,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                }
+              ]
+            },
+            "parameter_observability": "evaluable",
+            "lineage_status": "complete",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable"
+          }
+        }
+      },
+      "B": {
+        "ON": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/B_ON/task_metrics.json",
+          "metrics": {
+            "truth_opportunities": 3,
+            "unique_correct_detections": 0,
+            "detection_rate": 0.0,
+            "false_associations": 189,
+            "misses": 3,
+            "correct_track_associations": 0,
+            "false_track_associations": 52,
+            "track_association_status": "evaluable",
+            "parameter_errors": {
+              "position_2d_rmse_m": null,
+              "position_error_count": 0,
+              "angle_rmse_deg": null,
+              "angle_error_count": 0,
+              "ground_speed_rmse_mps": null,
+              "ground_speed_error_count": 0,
+              "radial_velocity": {
+                "status": "NOT_EVALUABLE",
+                "rmse_mps": null,
+                "count": 0,
+                "unresolved_count": 0
+              }
+            },
+            "association_status": "evaluable",
+            "candidate_final_detections": 189,
+            "cfar_branch_hit_cells": 3790,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 1266
+            },
+            "cfar_status": "evaluable",
+            "postfilter_clusters": 189,
+            "selected_candidates": 189,
+            "raw_detections": 189,
+            "final_detections": 189,
+            "tracks": 246,
+            "confirmed_tracks": 52,
+            "track_status": "evaluable"
+          }
+        },
+        "OFF": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/B_OFF/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 708,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 196
+            },
+            "postfilter_clusters": 31,
+            "false_clusters": 31,
+            "final_detections": 31,
+            "false_detections": 31,
+            "tracks": 67,
+            "false_confirmed_tracks": 4,
+            "cluster_status": "evaluable",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable",
+            "lineage_status": "complete"
+          }
+        },
+        "TO": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/B_TO/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 14568,
+            "unique_union_hit_cells": {
+              "status": "NOT_EVALUABLE",
+              "count": null
+            },
+            "postfilter_clusters": 199,
+            "postfilter_cluster_status": "evaluable",
+            "final_detections": 199,
+            "target_only_response": {
+              "status": "evaluable",
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 75,
+              "observable": true,
+              "input_energy": 11726450625.507849,
+              "output_energy": 863899258.1437539,
+              "energy_ratio": 0.07367099267570064,
+              "amplitude_ratio": 0.10053757731889097,
+              "phase_error_rad": -0.13499443434885897,
+              "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 4424280136.593859,
+                  "output_energy": 212879986.59313017,
+                  "energy_ratio": 0.04811629915392769,
+                  "amplitude_ratio": 0.1289606544973179,
+                  "phase_error_rad": -2.1105849749002847,
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_total_truth_hz": -4633.1002422,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3940538971.9314227,
+                  "output_energy": 173101509.236551,
+                  "energy_ratio": 0.04392838402806272,
+                  "amplitude_ratio": 0.1354603632693734,
+                  "phase_error_rad": 0.3773205056093877,
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_total_truth_hz": -4648.73314311,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3361631516.9825683,
+                  "output_energy": 477917762.3140728,
+                  "energy_ratio": 0.14216839647643958,
+                  "amplitude_ratio": 0.2898882282307788,
+                  "phase_error_rad": 0.1380500145397176,
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_total_truth_hz": -4664.22539336,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                }
+              ]
+            },
+            "parameter_observability": "evaluable",
+            "lineage_status": "complete",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable"
+          }
+        }
+      },
+      "C": {
+        "ON": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/C_ON/task_metrics.json",
+          "metrics": {
+            "truth_opportunities": 3,
+            "unique_correct_detections": 2,
+            "detection_rate": 0.6666666666666666,
+            "false_associations": 181,
+            "misses": 1,
+            "correct_track_associations": 1,
+            "false_track_associations": 30,
+            "track_association_status": "evaluable",
+            "parameter_errors": {
+              "position_2d_rmse_m": 61.39562133912239,
+              "position_error_count": 2,
+              "angle_rmse_deg": 0.03999661926895735,
+              "angle_error_count": 2,
+              "ground_speed_rmse_mps": 0.08518786557962965,
+              "ground_speed_error_count": 1,
+              "radial_velocity": {
+                "status": "NOT_EVALUABLE",
+                "rmse_mps": null,
+                "count": 0,
+                "unresolved_count": 2
+              }
+            },
+            "association_status": "evaluable",
+            "candidate_final_detections": 183,
+            "cfar_branch_hit_cells": 2500,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 892
+            },
+            "cfar_status": "evaluable",
+            "postfilter_clusters": 183,
+            "selected_candidates": 183,
+            "raw_detections": 183,
+            "final_detections": 183,
+            "tracks": 212,
+            "confirmed_tracks": 31,
+            "track_status": "evaluable"
+          }
+        },
+        "OFF": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/C_OFF/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 705,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 181
+            },
+            "postfilter_clusters": 28,
+            "false_clusters": 28,
+            "final_detections": 28,
+            "false_detections": 28,
+            "tracks": 59,
+            "false_confirmed_tracks": 4,
+            "cluster_status": "evaluable",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable",
+            "lineage_status": "complete"
+          }
+        },
+        "TO": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed202/C_TO/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 12198,
+            "unique_union_hit_cells": {
+              "status": "NOT_EVALUABLE",
+              "count": null
+            },
+            "postfilter_clusters": 169,
+            "postfilter_cluster_status": "evaluable",
+            "final_detections": 169,
+            "target_only_response": {
+              "status": "evaluable",
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 75,
+              "observable": true,
+              "input_energy": 11726450625.507849,
+              "output_energy": 571679492.194653,
+              "energy_ratio": 0.048751281223246935,
+              "amplitude_ratio": 0.09103466760887267,
+              "phase_error_rad": 0.054622617623841734,
+              "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 4424280136.593859,
+                  "output_energy": 99330725.29885815,
+                  "energy_ratio": 0.022451273932063975,
+                  "amplitude_ratio": 0.1480528842488965,
+                  "phase_error_rad": -2.2989045722090653,
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_total_truth_hz": -4633.1002422,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3940538971.9314227,
+                  "output_energy": 89970861.38928145,
+                  "energy_ratio": 0.022832120689617992,
+                  "amplitude_ratio": 0.14628459959180404,
+                  "phase_error_rad": 0.5290333618557268,
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_total_truth_hz": -4648.73314311,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3361631516.9825683,
+                  "output_energy": 382377905.5065134,
+                  "energy_ratio": 0.11374771552883922,
+                  "amplitude_ratio": 0.3082926253465707,
+                  "phase_error_rad": 0.24988709202707887,
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_total_truth_hz": -4664.22539336,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                }
+              ]
+            },
+            "parameter_observability": "evaluable",
+            "lineage_status": "complete",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable"
+          }
+        }
+      }
+    },
+    "303": {
+      "A": {
+        "ON": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/A_ON/task_metrics.json",
+          "metrics": {
+            "truth_opportunities": 3,
+            "unique_correct_detections": 3,
+            "detection_rate": 1.0,
+            "false_associations": 244,
+            "misses": 0,
+            "correct_track_associations": 2,
+            "false_track_associations": 71,
+            "track_association_status": "evaluable",
+            "parameter_errors": {
+              "position_2d_rmse_m": 27.33279506879027,
+              "position_error_count": 3,
+              "angle_rmse_deg": 0.017718301187951733,
+              "angle_error_count": 3,
+              "ground_speed_rmse_mps": 4.777780406957612,
+              "ground_speed_error_count": 2,
+              "radial_velocity": {
+                "status": "NOT_EVALUABLE",
+                "rmse_mps": null,
+                "count": 0,
+                "unresolved_count": 3
+              }
+            },
+            "association_status": "evaluable",
+            "candidate_final_detections": 247,
+            "cfar_branch_hit_cells": 3330,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 1017
+            },
+            "cfar_status": "evaluable",
+            "postfilter_clusters": 247,
+            "selected_candidates": 247,
+            "raw_detections": 247,
+            "final_detections": 247,
+            "tracks": 354,
+            "confirmed_tracks": 73,
+            "track_status": "evaluable"
+          }
+        },
+        "OFF": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/A_OFF/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 653,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 143
+            },
+            "postfilter_clusters": 26,
+            "false_clusters": 26,
+            "final_detections": 26,
+            "false_detections": 26,
+            "tracks": 50,
+            "false_confirmed_tracks": 5,
+            "cluster_status": "evaluable",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable",
+            "lineage_status": "complete"
+          }
+        },
+        "TO": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/A_TO/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 11375,
+            "unique_union_hit_cells": {
+              "status": "NOT_EVALUABLE",
+              "count": null
+            },
+            "postfilter_clusters": 193,
+            "postfilter_cluster_status": "evaluable",
+            "final_detections": 193,
+            "target_only_response": {
+              "status": "evaluable",
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 75,
+              "observable": true,
+              "input_energy": 10608429195.940159,
+              "output_energy": 1043055263.4445878,
+              "energy_ratio": 0.09832325259273679,
+              "amplitude_ratio": 0.14142809045867252,
+              "phase_error_rad": -0.012838084527328493,
+              "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 4004752451.2573714,
+                  "output_energy": 75349291.41008438,
+                  "energy_ratio": 0.018814968547288605,
+                  "amplitude_ratio": 0.1343624127949561,
+                  "phase_error_rad": -2.302891077832737,
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_total_truth_hz": -4633.1002422,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3336204703.4667544,
+                  "output_energy": 23452853.1864188,
+                  "energy_ratio": 0.007029800408244797,
+                  "amplitude_ratio": 0.07712762347698547,
+                  "phase_error_rad": 0.5624309177742262,
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_total_truth_hz": -4648.73314311,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3267472041.2160335,
+                  "output_energy": 944253118.8480847,
+                  "energy_ratio": 0.2889858296986891,
+                  "amplitude_ratio": 0.508097157748101,
+                  "phase_error_rad": 0.1473500048262203,
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_total_truth_hz": -4664.22539336,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                }
+              ]
+            },
+            "parameter_observability": "evaluable",
+            "lineage_status": "complete",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable"
+          }
+        }
+      },
+      "B": {
+        "ON": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/B_ON/task_metrics.json",
+          "metrics": {
+            "truth_opportunities": 3,
+            "unique_correct_detections": 0,
+            "detection_rate": 0.0,
+            "false_associations": 226,
+            "misses": 3,
+            "correct_track_associations": 0,
+            "false_track_associations": 84,
+            "track_association_status": "evaluable",
+            "parameter_errors": {
+              "position_2d_rmse_m": null,
+              "position_error_count": 0,
+              "angle_rmse_deg": null,
+              "angle_error_count": 0,
+              "ground_speed_rmse_mps": null,
+              "ground_speed_error_count": 0,
+              "radial_velocity": {
+                "status": "NOT_EVALUABLE",
+                "rmse_mps": null,
+                "count": 0,
+                "unresolved_count": 0
+              }
+            },
+            "association_status": "evaluable",
+            "candidate_final_detections": 226,
+            "cfar_branch_hit_cells": 5018,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 1603
+            },
+            "cfar_status": "evaluable",
+            "postfilter_clusters": 226,
+            "selected_candidates": 226,
+            "raw_detections": 226,
+            "final_detections": 226,
+            "tracks": 360,
+            "confirmed_tracks": 84,
+            "track_status": "evaluable"
+          }
+        },
+        "OFF": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/B_OFF/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 660,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 156
+            },
+            "postfilter_clusters": 28,
+            "false_clusters": 28,
+            "final_detections": 28,
+            "false_detections": 28,
+            "tracks": 59,
+            "false_confirmed_tracks": 4,
+            "cluster_status": "evaluable",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable",
+            "lineage_status": "complete"
+          }
+        },
+        "TO": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/B_TO/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 10779,
+            "unique_union_hit_cells": {
+              "status": "NOT_EVALUABLE",
+              "count": null
+            },
+            "postfilter_clusters": 207,
+            "postfilter_cluster_status": "evaluable",
+            "final_detections": 207,
+            "target_only_response": {
+              "status": "evaluable",
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 75,
+              "observable": true,
+              "input_energy": 10608429195.940159,
+              "output_energy": 1123871900.4666655,
+              "energy_ratio": 0.1059414056226883,
+              "amplitude_ratio": 0.13798169767791546,
+              "phase_error_rad": -0.1088067592353013,
+              "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 4004752451.2573714,
+                  "output_energy": 163259656.74440628,
+                  "energy_ratio": 0.04076647900999416,
+                  "amplitude_ratio": 0.08904869411224502,
+                  "phase_error_rad": -2.029406804689779,
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_total_truth_hz": -4633.1002422,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3336204703.4667544,
+                  "output_energy": 96223372.88026829,
+                  "energy_ratio": 0.02884216690309188,
+                  "amplitude_ratio": 0.058338390426579664,
+                  "phase_error_rad": 0.24456953934916376,
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_total_truth_hz": -4648.73314311,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3267472041.2160335,
+                  "output_energy": 864388870.8419908,
+                  "energy_ratio": 0.2645436165753072,
+                  "amplitude_ratio": 0.43724386879790633,
+                  "phase_error_rad": 0.07965898709805011,
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_total_truth_hz": -4664.22539336,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                }
+              ]
+            },
+            "parameter_observability": "evaluable",
+            "lineage_status": "complete",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable"
+          }
+        }
+      },
+      "C": {
+        "ON": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/C_ON/task_metrics.json",
+          "metrics": {
+            "truth_opportunities": 3,
+            "unique_correct_detections": 3,
+            "detection_rate": 1.0,
+            "false_associations": 244,
+            "misses": 0,
+            "correct_track_associations": 2,
+            "false_track_associations": 70,
+            "track_association_status": "evaluable",
+            "parameter_errors": {
+              "position_2d_rmse_m": 27.332837645869887,
+              "position_error_count": 3,
+              "angle_rmse_deg": 0.017718329362250748,
+              "angle_error_count": 3,
+              "ground_speed_rmse_mps": 4.777780406957612,
+              "ground_speed_error_count": 2,
+              "radial_velocity": {
+                "status": "NOT_EVALUABLE",
+                "rmse_mps": null,
+                "count": 0,
+                "unresolved_count": 3
+              }
+            },
+            "association_status": "evaluable",
+            "candidate_final_detections": 247,
+            "cfar_branch_hit_cells": 3331,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 1018
+            },
+            "cfar_status": "evaluable",
+            "postfilter_clusters": 247,
+            "selected_candidates": 247,
+            "raw_detections": 247,
+            "final_detections": 247,
+            "tracks": 355,
+            "confirmed_tracks": 72,
+            "track_status": "evaluable"
+          }
+        },
+        "OFF": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/C_OFF/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 653,
+            "unique_union_hit_cells": {
+              "status": "evaluable",
+              "count": 144
+            },
+            "postfilter_clusters": 26,
+            "false_clusters": 26,
+            "final_detections": 26,
+            "false_detections": 26,
+            "tracks": 50,
+            "false_confirmed_tracks": 5,
+            "cluster_status": "evaluable",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable",
+            "lineage_status": "complete"
+          }
+        },
+        "TO": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/seed303/C_TO/task_metrics.json",
+          "metrics": {
+            "cfar_branch_hit_cells": 11375,
+            "unique_union_hit_cells": {
+              "status": "NOT_EVALUABLE",
+              "count": null
+            },
+            "postfilter_clusters": 193,
+            "postfilter_cluster_status": "evaluable",
+            "final_detections": 193,
+            "target_only_response": {
+              "status": "evaluable",
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 75,
+              "observable": true,
+              "input_energy": 10608429195.940159,
+              "output_energy": 1043055037.0650511,
+              "energy_ratio": 0.09832323125314611,
+              "amplitude_ratio": 0.14142810213341717,
+              "phase_error_rad": -0.012837941554869472,
+              "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+              "per_period": [
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 4004752451.2573714,
+                  "output_energy": 75349189.95680463,
+                  "energy_ratio": 0.018814943214067393,
+                  "amplitude_ratio": 0.13436232052714542,
+                  "phase_error_rad": -2.3028910750555207,
+                  "period_id": 0,
+                  "target_row": 50,
+                  "target_col": 2048,
+                  "target_range_m": 87919.1348495,
+                  "target_af_total_truth_hz": -4633.1002422,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3336204703.4667544,
+                  "output_energy": 23452856.249799855,
+                  "energy_ratio": 0.0070298013264681455,
+                  "amplitude_ratio": 0.077127624576444,
+                  "phase_error_rad": 0.5624309300059642,
+                  "period_id": 1,
+                  "target_row": 48,
+                  "target_col": 2154,
+                  "target_range_m": 88184.3543384,
+                  "target_af_total_truth_hz": -4648.73314311,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                },
+                {
+                  "status": "evaluable",
+                  "reason": "truth_centered_target_only_complex_transfer",
+                  "sample_count": 25,
+                  "observable": true,
+                  "input_energy": 3267472041.2160335,
+                  "output_energy": 944252990.8584466,
+                  "energy_ratio": 0.28898579052784495,
+                  "amplitude_ratio": 0.5080971175869999,
+                  "phase_error_rad": 0.14734997663988925,
+                  "period_id": 2,
+                  "target_row": 46,
+                  "target_col": 2261,
+                  "target_range_m": 88450.4631906,
+                  "target_af_total_truth_hz": -4664.22539336,
+                  "target_roi_shape": [
+                    5,
+                    5
+                  ]
+                }
+              ]
+            },
+            "parameter_observability": "evaluable",
+            "lineage_status": "complete",
+            "cfar_status": "evaluable",
+            "track_status": "evaluable"
+          }
+        }
+      }
+    }
+  },
+  "delay_estimator_evaluation": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/delay_estimator_evaluation.json",
+  "task_metrics_comparison": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/task_metrics_comparison.csv",
+  "target_lineage_audit": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/evaluation/target_lineage_audit.csv"
+}

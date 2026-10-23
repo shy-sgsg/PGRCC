@@ -1,0 +1,64 @@
+{
+  "evaluation_attempts": [
+    {
+      "status": "stopped_before_numeric_audit",
+      "reason": "ordinary Production result/debug contains geometry and numeric summaries but not raw CFAR float32 maps; R8 obtains maps through a separate Native CUDA diagnostic replay",
+      "attempted_entrypoint": "initial R9 evaluator used audit_dumped_maps directly on the ordinary result directory",
+      "disposition": "replaced with the R8 frozen separate-map-audit replay; no Production output was changed"
+    }
+  ],
+  "target_loss_cases": {
+    "B_ON_R8_target_neighborhood_source": "R8 target_neighborhood_cfar.csv; six rows retained in evaluation/target_neighborhood_B_ON.csv",
+    "B_ON_hit_counts_of_25": {
+      "seed202": [
+        11,
+        15,
+        15
+      ],
+      "seed303": [
+        13,
+        13,
+        18
+      ]
+    },
+    "B_ON_local_cluster_count": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "nearest_candidate_doppler_offsets_bins": {
+      "seed202": [
+        -6,
+        24,
+        25
+      ],
+      "seed303": [
+        -6,
+        23,
+        29
+      ]
+    },
+    "interpretation": "Nearest detections have production cluster/final-detection lineage but are not truth matched; offsets must not be attributed to physical target Doppler."
+  },
+  "residual_R9_miss": {
+    "seed": 202,
+    "period_id": 1,
+    "conditions": [
+      "A0",
+      "C_Known",
+      "R9_Static_D3",
+      "R9_Online_D3"
+    ],
+    "reason": "nearest candidate is outside frozen Doppler association gate; candidate is linked to production final-detection cluster"
+  },
+  "historical_calibration_input": {
+    "seed": 101,
+    "path_recorded_in_R3_manifest": true,
+    "sha256": "d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6",
+    "raw_file_available": false
+  },
+  "formula_audit_timing": "Synthetic formula/unit check was run after CUDA Production and is labeled as such."
+}
