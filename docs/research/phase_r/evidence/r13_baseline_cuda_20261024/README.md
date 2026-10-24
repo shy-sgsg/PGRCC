@@ -16,7 +16,7 @@
 - `manifests/`：两个 runner manifest、完整 case manifest、Stage2 scene manifest 和 compact-evidence manifest/report/CSV。原始 manifest 中保留执行时输入路径、SHA、配置、命令、二进制和状态字段。
 - `records/stage2/`：scenario JSON、resolved config/XML、逐 period XML、Stage2 日志、面积杂波报告/时序诊断、真值和 `period_files.csv`。IQ 数据本体不在包中。
 - `records/production/`：逐 branch 实际 `production.xml`、配置与 core 日志、运行时配置快照、CFAR geometry/meta、逐期 CSI tap/ROI manifest、校准 adapter/reference、detection 与 TrackManager CSV。全图 CSI `.npy` 和 final union `.f32` 不在包中。
-- `analysis/`：最终离线 evaluator 的完整 CSV/JSON，包括逐图 CFAR audit、F1/F2 输入 hash audit、paired Stage2 input audit、目标 ROI samples、关联、summary 和 manifest。
+- `analysis/`：最终离线 evaluator 的完整 CSV/JSON，包括逐图 CFAR audit、F1/F2 输入 hash audit、paired Stage2 input audit、目标 ROI samples、关联、summary 和 manifest；`historical_cfar_impact.csv` 记录 R8/R9/R12 的修复前后逐角色重算。
 - `figures/r13_seed101_target_metrics.png`：TO 目标响应及正确目标检测机会的描述图；错误检测行数不是 Pfa。
 - `reproduce.sh`：从仓库根目录重建两 case 并执行本包 evaluator 的命令。完整原始结果会重新生成在一个新 outputs 目录。
 - `CHATGPT_REVIEW_PROMPT.md`：固定到本包审查 commit 的可复制提示词，规定 ChatGPT 核验哪些代码/证据并按仓库审查协议作出方向判断。
@@ -38,3 +38,5 @@ Production/Stage2 CSV、日志与运行时文本保留生成时的 CRLF 和列�
 - `PERFORMANCE_VERIFIED=false`。不据此训练 AI，也不自动启动后续 seed。
 
 查看方式：先读 `../../R13_minimal_experiment_design.md`、`../../R13_minimal_comparison_results.md`、`../../R13_research_direction_assessment.md`，再沿本包 manifests 与逐 branch records 核对决定性结果。
+
+历史 CFAR 重算入口：从仓库根目录运行 `python3 scripts/phase_r/audit_r7_historical_cfar_impact.py`。该命令使用 R8/R12 紧凑评价清单和本机 `outputs/phase_r_r9_deterministic_delay_20261023/evaluation/`；若原始 R9 outputs 不在当前机器，需用 `--r9-evaluation-root` 指向相同 schema 的保留目录。它只写此包中的 `analysis/historical_cfar_impact.csv`，不会改写历史 evaluation 文件。历史 raw maps 未纳入此紧凑包，CSV 中的当前值是基于已保存 map-audit sidecars 由当前 R7 evaluator 重算的结果。

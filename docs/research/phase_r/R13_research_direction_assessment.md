@@ -4,9 +4,9 @@
 
 ## 结论
 
-**裁决：`CONTINUE` 一项有边界的独立 seed 复核；R13 完成后停止，不自动启动。** 正常速度 6.7 m/s 的 TO 数据出现 target-only CSI retention 从 C0 `−18.18 dB` 到 C2 `−4.11 dB`、C3 `+3.25 dB`，且正确 target detections 从 2/3 到 3/3 的候选差异。C2 与 C3 的输入和 OFF-reference 信息类别相同，C0 不消费该参考；所以不能把 C0→C2/C3 解释成纯算法因果收益。ON 三者都是 3/3，输出错误 detection 很多。一个 seed 的三机会不足以决定瓶颈或论文主线。
+**裁决：`CONTINUE` 一项有边界的独立 seed 复核；R13 完成后停止，不自动启动。** 正常速度 6.7 m/s 的 TO 数据出现 target-only CSI retention 从 C0 `−18.18 dB` 到 C2 `−4.11 dB`、C3 `+3.25 dB`，且正确 target detections 从 2/3 到 3/3 的候选差异。共同成功机会的参数比较显示这是任务权衡而非已验证净收益：C0→C2 在 2 个共同机会上的位置 RMSE 为 `8.613→28.523 m`、方位 `0.00555→0.01846°`、地速 `0.339→3.934 m/s`，折叠 Doppler 则 `17.413→3.801 Hz`；C0→C3 的位置/方位同样变差，地速为 `0.339→0.413 m/s`，折叠 Doppler同样降低。C2 与 C3 的输入和 OFF-reference 信息类别相同，C0 不消费该参考；所以 C0→C2/C3 也不是纯算法因果对比。ON 三者都是 3/3，错误 detection 行数较多。一个 seed、两个共同参数机会不足以决定瓶颈或论文主线。
 
-建议后续唯一任务：冻结一个新独立 seed，只复核正常速度场景的 C0/C2/C3 配对 OFF/ON/TO；把 C2 与 C3 作为同信息类别的主要比较、C0 作为 Production operational anchor；复用同一 F1/F2/GO-CFAR/TrackManager 与 target gate，重点检查 TO target preservation 是否复现，并同时约束 ON 正确检测、错误输出、H0 描述计数、定位/角度、折叠 Doppler 和地速。若 target retention 差异不复现或只改善中间 CSI、没有可接受的任务收益，则 STOP 该候选，不扩成低速/复杂杂波矩阵。这个后续任务尚未执行。
+建议后续唯一任务：冻结一个新独立 seed，只复核正常速度场景的 C0/C2/C3 配对 OFF/ON/TO；把 C2 与 C3 作为同信息类别的主要比较、C0 作为 Production operational anchor；复用同一 F1/F2/GO-CFAR/TrackManager 与 target gate。预先将共同成功机会上的位置、方位、折叠 Doppler、地速与正确检测/错误输出一起列为任务判据，检查 TO target preservation 是否复现且是否值得其余参数代价。若 retention/检测差异不复现，或只改善 CSI/SCNR 与折叠 Doppler但造成不可接受的定位/速度或错误输出代价，则 STOP 该候选，不扩成低速/复杂杂波矩阵。这个后续任务尚未执行；本轮单次耗时只作执行记录，不作运行性能结论。
 
 ## 对研究问题的回答
 
