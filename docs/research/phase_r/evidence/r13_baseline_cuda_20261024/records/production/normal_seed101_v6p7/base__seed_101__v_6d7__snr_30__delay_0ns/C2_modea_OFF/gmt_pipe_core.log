@@ -1,0 +1,399 @@
+$ /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core --config /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/production.xml --result-dir /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result --track-debug-dir /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/track_debug_runs --track-debug-dump on --runtime-mode=debug --runtime-diagnostics=on --local-test 1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin 2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin 3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin
+[LOCAL-TEST] track_debug=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/track_debug_runs/local_test_20261024_233000_813899_pid259771
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/production.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[TRIG-LUT] uploaded 16384-entry sin/cos/asin/atan tables to device memory
+[TRIG-LUT][CPU] mode=lut iterations=4194304 std_sin_cos_ms=52.10991 lut_sin_cos_ms=18.767631 speedup=2.7765843 mean_abs_err=1.7888371e-08 max_abs_err=7.8646936e-08 sink=7066.5895
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/production.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[STARTUP][CYCLE] prt_bytes=378496 prts_per_beam=130 beam_count=1 prts_per_cycle=130 cycle_bytes=49204480
+[STARTUP] XML absolute path: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/production.xml
+[STARTUP] XML read: success
+[STARTUP] echo_input_mode: file
+[STARTUP] test_mode: 0 (shared-memory real echo)
+[STARTUP] shm_name: /time_seq_shm
+[STARTUP] pipe_root_path: /home/raco
+[STARTUP] prt_bytes: 378496
+[STARTUP] acquisition_unit: complete_scan
+[STARTUP] scan_first_beam: 50
+[STARTUP] scan_beam_count: 1
+[STARTUP] processing_beam_count: 1
+[STARTUP] prts_per_beam: 130
+[STARTUP] prts_per_scan: 130
+[STARTUP] scan_bytes: 49204480
+[STARTUP] payload_buffer_bytes: 98408960
+[STARTUP] available_memory: 7784288256
+[STARTUP] channel_count: 4
+[STARTUP] four_channel_fusion: enabled
+[STARTUP] new_protocol_gpu_preprocess: enabled
+[STARTUP] selected_channels: 1,2
+[STARTUP] result_add: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result
+[STARTUP] result_return: enabled
+[STARTUP] test_cycle_data_files: 0 playback=once
+[STARTUP] track_output_state_source: measurement
+[STARTUP] config_generation: 1
+[fusion][WORKER-POOL] rebuild workers=1 process_pulse_num=130 pulse_dec=1 rg_len=4096 range_fft_len=12288
+[fusion][WORKER-POOL] prewarm workers=1 cuda_free=2653MB total=3759MB
+[LOCAL-TEST] XML snapshot: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/production.xml
+[LOCAL-TEST] Echo files: 3
+
+[LOCAL-TEST] ===== 1/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin result_id=1 =====
+[LOCAL-TEST] Use forced result id 1 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin
+[PARAM_DUMP] runtime_config_dump = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/runtime_config_dump.json
+[PARAM_DUMP] pulse_len=11820, read_pulse_num=130, fc=1.6e+10, Br=50000000, fs=60000000, Tr=0.00013, PRF=1300
+[PARAM_DUMP] scan_min=-60, scan_max=60, az_count=61, pc_crop_start=3864, pc_crop_len=4096
+[MANIFEST] run_manifest = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/run_manifest.json
+[TIMING] timing_metrics = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/timing_metrics.csv
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=4.9000001 t_last=4.9992309 e_first=498806.59 e_last=498806.59 n_first=4479923.9 n_last=4479928.7 vx_mps=0 vy_mps=48.372073 vz_mps=0 speed_mps=48.372073
+[imu-interp] beam_id=-1 t_start=4.9000001 t_end=4.9992309 imu_before_start=0@4.9000001 imu_after_start=0@4.9000001 imu_before_end=129@4.9992309 imu_after_end=129@4.9992309 P_start_E=498806.59 P_start_N=4479923.9 P_start_U=6000 P_end_E=498806.59 P_end_N=4479928.7 P_end_U=6000 V_E_mps=0 V_N_mps=48.372073 V_U_mps=0 speed_mps=48.372073
+[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=2.4934082GiB/3.6716309GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.0019836426GiB
+[TIMING-SCOPE] data_read: 40 ms
+[TIMING-SCOPE] pulse_compression: 36 ms
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=4.9000001 t_last=4.9992309 e_first=498806.59 e_last=498806.59 n_first=4479923.9 n_last=4479928.7 vx_mps=0 vy_mps=48.372073 vz_mps=0 speed_mps=48.372073
+[imu-interp] beam_id=50 t_start=4.9000001 t_end=4.9992309 imu_before_start=0@4.9000001 imu_after_start=0@4.9000001 imu_before_end=129@4.9992309 imu_after_end=129@4.9992309 P_start_E=498806.59 P_start_N=4479923.9 P_start_U=6000 P_end_E=498806.59 P_end_N=4479928.7 P_end_U=6000 V_E_mps=0 V_N_mps=48.372073 V_U_mps=0 speed_mps=48.372073
+[fd-center][robust] fd_ctr_hz=-34.632034 valid_range_bins=4096 clipped_range_bins=82 magnitude_cap=134899.23
+[fd-center][theory-guard] observed_hz=-34.632034 theory_wrapped_hz=-578.82013 theory_unwrapped_hz=-3178.8201 sin_theta=0.61566148 speed_mps=48.372073 lambda_m=0.018737029 prf_hz=1300 circular_error_hz=544.1881 limit_hz=122.72533 theta_cmd_deg=38 action=use_theory
+[CSI][CANCELLATION] period=0 beam=50 support_rows=[46,84] before_mean_power=129.5932 after_mean_power=209.51523 improvement_db=-2.0863337 strong_top1pct_improvement_db=-1.1854592 phase_coherence=0.8603175 phase_rmse_rad=0.58821629
+[TIMING-SCOPE] csi_metrics: 118 ms
+[TIMING-SCOPE] channel_cancellation: 146 ms
+[CFAR][CSI-BAND] mode=union dynamic=[46,84] applied=dynamic+full
+[TIMING-SCOPE] detection: 336 ms
+[CFAR][SUMMARY] beam=50 slot=0 hit_cells=25175 clusters=144 selected=144 min_points=3 strong_small_kept=0 small_rejected=0 global_median_power=nan pf=1e-06
+[fusion] active DBS beams for bias: 50
+[fusion] estimate_error_angle disabled, using XML beam_pointing_bias=0 deg
+[fusion] beam_pointing_bias=0 deg
+[fusion][loc][total] raw=144 kept=144 drop_sin=0 drop_px=0 drop_gate=0 n_selected=144 n_old_valid=108 n_comp_valid=144 n_old_invalid_comp_valid=36 n_old_valid_comp_invalid=0 n_both_valid=108 n_both_invalid=0 n_duplicate_raw=0 n_output=144
+[TIMING-SCOPE] gmti_processing: 688 ms
+[fusion][dbs] imaging start: beams=1 rd=130x4096 rd_amp_cache~0.0019836426 GiB PRF=1300 Rmin=82802.7 fs=60000000 out_res=25 range_skip=200 beam_skip=1 useGpu=0
+[fusion][dbs] active nonzero beams for mosaic: 50 (1 / 1)
+[fusion][dbs][extent] B=1 M=4096 nEff=130 boundsX=[418845.19, 440946.03] boundsY=[4413975.5, 4437637] marginX=1524.1975m marginY=1631.8m grid=885x947 dx=25 host_mosaic_min~0.0046832208 GiB
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs][diag][grid] boundsX=[420369.38,439421.84] boundsY=[4415607.5,4436005] nx=885 ny=947 dx=25 dy=25 pixels=838095 max_pixels=300000000
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result
+[TIMING-SCOPE] dbs_processing: 74 ms
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=144 removed_low_velocity=0 removed_nonfinite=0 output=144
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=144 removed_upper_bound=0 removed_nonfinite=0 output=144
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=144 removed_duplicates=0 output=144
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/GMTI01.bin，目标数: 144
+[TIMING-SCOPE] result_write: 0 ms
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/detection_results.csv，目标数: 144，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/detection_results_GMTI01.csv
+[TIMING-SCOPE] detection_result_csv_write: 477 ms
+[TRACK_CONFIG]
+distance_mode=MahalanobisSquared
+assignment_mode=GreedyNearestNeighbor
+output_state_source=measurement
+
+costs:
+distance=on weight=1
+speed=on weight=0.3
+heading=on weight=0.5
+detection_speed=off weight=0
+
+gates:
+euclidean=on threshold=300m
+mahalanobis=on threshold=9.21
+max_speed=on threshold=50m/s
+heading=off threshold=90deg
+detection_speed=off threshold=30m/s
+
+dummy_cost=1.5 invalid_cost=1e+12
+[TRACK] result_id=1 dets=144 active=144 tentative=144 confirmed=0 coasted=0 deleted=0 outputs=0 new=144 suppressed_coasted_speed_outliers=0 matched=0 unmatched_dets=144
+[TRACK_ONLINE] 当前周期确认输出目标数: 0 (result_id=1, raw_dets=144)
+
+[TRACK] 目标信息列表
+-----------------------------------------------------------------------------------------------
+TrackID Lon(deg)      Lat(deg)      Speed(m/s)  Dir(deg)    Range(m)    UTC(s)        
+-----------------------------------------------------------------------------------------------
+(empty)
+-----------------------------------------------------------------------------------------------
+
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/GMTI01_track.bin，目标数: 0
+[TIMING-SCOPE] tracking: 7 ms
+[GMTI][RESULT] filtered_detection_count=144 confirmed_current_detection_count=0 protocol_target_count=0
+[TIMING-SCOPE] main_total: 1335 ms
+[FILE][CYCLE] result_file_id=1 period_index=0 algorithm_process_ms=1335.5429 end_to_end_ms=1335.5462 success=true
+
+[LOCAL-TEST] ===== 2/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin result_id=2 =====
+[LOCAL-TEST] Use forced result id 2 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin
+[PARAM_DUMP] runtime_config_dump = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/runtime_config_dump.json
+[PARAM_DUMP] pulse_len=11820, read_pulse_num=130, fc=1.6e+10, Br=50000000, fs=60000000, Tr=0.00013, PRF=1300
+[PARAM_DUMP] scan_min=-60, scan_max=60, az_count=61, pc_crop_start=3864, pc_crop_len=4096
+[MANIFEST] run_manifest = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/run_manifest.json
+[TIMING] timing_metrics = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/timing_metrics.csv
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=11 t_last=11.099231 e_first=498806.59 e_last=498806.59 n_first=4480291.1 n_last=4480295.9 vx_mps=-4.6927108e-09 vy_mps=48.372072 vz_mps=0 speed_mps=48.372072
+[imu-interp] beam_id=-1 t_start=11 t_end=11.099231 imu_before_start=0@11 imu_after_start=0@11 imu_before_end=129@11.099231 imu_after_end=129@11.099231 P_start_E=498806.59 P_start_N=4480291.1 P_start_U=6000 P_end_E=498806.59 P_end_N=4480295.9 P_end_U=6000 V_E_mps=-4.6927108e-09 V_N_mps=48.372072 V_U_mps=0 speed_mps=48.372072
+[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=2.4484863GiB/3.6716309GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.0019836426GiB
+[TIMING-SCOPE] data_read: 10 ms
+[TIMING-SCOPE] pulse_compression: 11 ms
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=11 t_last=11.099231 e_first=498806.59 e_last=498806.59 n_first=4480291.1 n_last=4480295.9 vx_mps=-4.6927108e-09 vy_mps=48.372072 vz_mps=0 speed_mps=48.372072
+[imu-interp] beam_id=50 t_start=11 t_end=11.099231 imu_before_start=0@11 imu_after_start=0@11 imu_before_end=129@11.099231 imu_after_end=129@11.099231 P_start_E=498806.59 P_start_N=4480291.1 P_start_U=6000 P_end_E=498806.59 P_end_N=4480295.9 P_end_U=6000 V_E_mps=-4.6927108e-09 V_N_mps=48.372072 V_U_mps=0 speed_mps=48.372072
+[fd-center][robust] fd_ctr_hz=-32.74119 valid_range_bins=4096 clipped_range_bins=82 magnitude_cap=141133.14
+[fd-center][theory-guard] observed_hz=-32.74119 theory_wrapped_hz=-578.82012 theory_unwrapped_hz=-3178.8201 sin_theta=0.61566148 speed_mps=48.372072 lambda_m=0.018737029 prf_hz=1300 circular_error_hz=546.07893 limit_hz=122.72533 theta_cmd_deg=38 action=use_theory
+[CSI][CANCELLATION] period=1 beam=50 support_rows=[46,84] before_mean_power=133.57548 after_mean_power=209.14324 improvement_db=-1.9471707 strong_top1pct_improvement_db=-1.1862595 phase_coherence=0.86744507 phase_rmse_rad=0.56811523
+[TIMING-SCOPE] csi_metrics: 120 ms
+[TIMING-SCOPE] channel_cancellation: 144 ms
+[CFAR][CSI-BAND] mode=union dynamic=[46,84] applied=dynamic+full
+[TIMING-SCOPE] detection: 30 ms
+[CFAR][SUMMARY] beam=50 slot=0 hit_cells=24102 clusters=121 selected=121 min_points=3 strong_small_kept=0 small_rejected=0 global_median_power=nan pf=1e-06
+[fusion] active DBS beams for bias: 50
+[fusion] estimate_error_angle disabled, using XML beam_pointing_bias=0 deg
+[fusion] beam_pointing_bias=0 deg
+[fusion][loc][total] raw=121 kept=121 drop_sin=0 drop_px=0 drop_gate=0 n_selected=121 n_old_valid=94 n_comp_valid=121 n_old_invalid_comp_valid=27 n_old_valid_comp_invalid=0 n_both_valid=94 n_both_invalid=0 n_duplicate_raw=0 n_output=121
+[TIMING-SCOPE] gmti_processing: 301 ms
+[fusion][dbs] imaging start: beams=1 rd=130x4096 rd_amp_cache~0.0019836426 GiB PRF=1300 Rmin=82802.7 fs=60000000 out_res=25 range_skip=200 beam_skip=1 useGpu=0
+[fusion][dbs] active nonzero beams for mosaic: 50 (1 / 1)
+[fusion][dbs][extent] B=1 M=4096 nEff=130 boundsX=[418845.19, 440946.03] boundsY=[4414341.5, 4438003] marginX=1524.1975m marginY=1631.8m grid=885x947 dx=25 host_mosaic_min~0.0046832208 GiB
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs][diag][grid] boundsX=[420369.38,439421.84] boundsY=[4415973.5,4436371] nx=885 ny=947 dx=25 dy=25 pixels=838095 max_pixels=300000000
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result
+[TIMING-SCOPE] dbs_processing: 65 ms
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=121 removed_low_velocity=0 removed_nonfinite=0 output=121
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=121 removed_upper_bound=0 removed_nonfinite=0 output=121
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=121 removed_duplicates=0 output=121
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/GMTI02.bin，目标数: 121
+[TIMING-SCOPE] result_write: 0 ms
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/detection_results.csv，目标数: 121，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/detection_results_GMTI02.csv
+[TIMING-SCOPE] detection_result_csv_write: 395 ms
+[TRACK] result_id=2 dets=121 active=192 tentative=119 confirmed=73 coasted=0 deleted=0 outputs=73 new=48 suppressed_coasted_speed_outliers=0 matched=73 unmatched_dets=48
+[TRACK_ONLINE] 当前周期确认输出目标数: 73 (result_id=2, raw_dets=121)
+
+[TRACK] 目标信息列表
+-----------------------------------------------------------------------------------------------
+TrackID Lon(deg)      Lat(deg)      Speed(m/s)  Dir(deg)    Range(m)    UTC(s)        
+-----------------------------------------------------------------------------------------------
+2       116.203713    39.981653     37.53       -128.15     84978.40    11.050        
+7       116.179901    39.973128     37.98       -127.80     87159.64    11.050        
+8       116.178793    39.970827     5.22        -127.90     87392.52    11.050        
+9       116.176221    39.968459     38.99       -127.94     87728.07    11.050        
+10      116.176718    39.968159     22.41       -127.98     87715.55    11.050        
+13      116.179100    39.963057     26.38       -128.35     87910.87    11.050        
+14      116.179306    39.966244     15.59       -128.18     87675.49    11.050        
+15      116.181281    39.968459     18.64       -128.12     87390.02    11.050        
+16      116.177831    39.967772     47.00       -128.04     87667.97    11.050        
+18      116.167730    39.966101     8.52        -127.78     88459.25    11.050        
+19      116.168127    39.951699     19.31       -128.60     89433.27    11.050        
+21      116.182914    39.962869     44.37       -128.49     87670.48    11.050        
+22      116.171071    39.965870     23.92       -127.91     88251.41    11.050        
+23      116.172982    39.971210     39.07       -127.67     87755.62    11.050        
+24      116.172276    39.951994     31.07       -128.73     89137.81    11.050        
+25      116.166819    39.968850     11.64       -127.60     88331.54    11.050        
+27      116.167874    39.970007     17.90       -127.57     88181.30    11.050        
+31      116.167272    39.955125     12.57       -128.38     89250.48    11.050        
+34      116.173754    39.963388     8.38        -128.14     88243.90    11.050        
+35      116.168680    39.964089     6.76        -127.93     88534.36    11.050        
+36      116.174052    39.964366     9.78        -128.10     88156.26    11.050        
+37      116.159600    39.965665     22.39       -127.53     89035.15    11.050        
+38      116.172257    39.967732     11.00       -127.85     88043.58    11.050        
+40      116.168728    39.952810     40.30       -128.56     89315.59    11.050        
+41      116.165305    39.955602     32.81       -128.29     89348.14    11.050        
+42      116.160998    39.950912     43.68       -128.40     89961.57    11.050        
+44      116.164010    39.967587     13.67       -127.57     88606.98    11.050        
+45      116.160761    39.965329     28.10       -127.59     88980.06    11.050        
+46      116.175977    39.959751     22.29       -128.42     88349.07    11.050        
+47      116.164311    39.964157     20.37       -127.78     88822.32    11.050        
+48      116.161252    39.967846     19.59       -127.46     88774.74    11.050        
+49      116.169148    39.965667     36.90       -127.86     88394.14    11.050        
+50      116.167075    39.947095     28.97       -128.82     89826.37    11.050        
+51      116.164917    39.971527     15.31       -127.38     88276.45    11.050        
+56      116.162289    39.967009     38.61       -127.55     88762.22    11.050        
+57      116.151751    39.961309     17.21       -127.51     89861.42    11.050        
+58      116.158292    39.969523     26.38       -127.27     88859.88    11.050        
+60      116.168960    39.966904     47.54       -127.78     88321.53    11.050        
+62      116.175535    39.956840     9.90        -128.57     88581.94    11.050        
+66      116.160148    39.969706     29.28       -127.32     88722.16    11.050        
+67      116.159785    39.966691     47.89       -127.48     88952.52    11.050        
+68      116.157395    39.964357     18.79       -127.53     89273.02    11.050        
+69      116.147383    39.963568     36.11       -127.24     90001.63    11.050        
+71      116.169185    39.943209     12.29       -129.10     89961.57    11.050        
+72      116.174003    39.965353     18.93       -128.04     88091.16    11.050        
+73      116.162233    39.961744     19.48       -127.84     89127.79    11.050        
+74      116.162787    39.958164     30.61       -128.06     89338.12    11.050        
+75      116.160498    39.947483     25.75       -128.57     90234.48    11.050        
+76      116.157920    39.967503     10.90       -127.37     89022.63    11.050        
+80      116.178735    39.953683     12.91       -128.86     88591.96    11.050        
+81      116.157589    39.970737     10.30       -127.18     88824.82    11.050        
+84      116.162569    39.959098     48.44       -128.00     89288.04    11.050        
+90      116.180931    39.951348     13.22       -129.07     88611.99    11.050        
+91      116.175280    39.956796     12.94       -128.57     88601.97    11.050        
+94      116.176333    39.949118     18.56       -129.03     89072.71    11.050        
+97      116.160814    39.966630     9.24        -127.52     88887.42    11.050        
+98      116.163188    39.950585     30.07       -128.49     89838.89    11.050        
+100     116.154310    39.956804     24.63       -127.85     89999.13    11.050        
+101     116.154853    39.944177     15.47       -128.56     90840.38    11.050        
+103     116.177018    39.950462     32.33       -128.98     88932.49    11.050        
+107     116.147704    39.940475     47.90       -128.52     91573.95    11.050        
+111     116.159461    39.965582     7.93        -127.53     89050.17    11.050        
+112     116.168746    39.959147     31.18       -128.21     88872.40    11.050        
+113     116.152169    39.953150     38.62       -127.98     90394.72    11.050        
+117     116.146613    39.959447     33.95       -127.44     90334.63    11.050        
+124     116.150434    39.963157     8.27        -127.36     89823.86    11.050        
+129     116.147509    39.930377     37.85       -129.05     92297.47    11.050        
+131     116.119629    39.951054     48.28       -127.02     92728.07    11.050        
+132     116.155156    39.969729     20.64       -127.15     89057.69    11.050        
+136     116.152586    39.960562     7.93        -127.58     89856.41    11.050        
+138     116.136826    39.963620     36.76       -126.88     90712.69    11.050        
+139     116.144205    39.967109     32.32       -126.93     89976.59    11.050        
+144     116.148475    39.931884     12.76       -129.00     92127.23    11.050        
+-----------------------------------------------------------------------------------------------
+
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/GMTI02_track.bin，目标数: 73
+[TIMING-SCOPE] tracking: 35 ms
+[GMTI][RESULT] filtered_detection_count=121 confirmed_current_detection_count=73 protocol_target_count=73
+[TIMING-SCOPE] main_total: 876 ms
+[FILE][CYCLE] result_file_id=2 period_index=1 algorithm_process_ms=876.232 end_to_end_ms=876.234 success=true
+
+[LOCAL-TEST] ===== 3/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin result_id=3 =====
+[LOCAL-TEST] Use forced result id 3 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin
+[PARAM_DUMP] runtime_config_dump = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/runtime_config_dump.json
+[PARAM_DUMP] pulse_len=11820, read_pulse_num=130, fc=16000000000.000, Br=50000000.000, fs=60000000.000, Tr=0.000, PRF=1300.000
+[PARAM_DUMP] scan_min=-60.000, scan_max=60.000, az_count=61, pc_crop_start=3864, pc_crop_len=4096
+[MANIFEST] run_manifest = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/run_manifest.json
+[TIMING] timing_metrics = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/timing_metrics.csv
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=17.100 t_last=17.199 e_first=498806.588 e_last=498806.588 n_first=4480655.901 n_last=4480660.701 vx_mps=-0.000 vy_mps=48.373 vz_mps=0.000 speed_mps=48.373
+[imu-interp] beam_id=-1 t_start=17.100 t_end=17.199 imu_before_start=0@17.100 imu_after_start=0@17.100 imu_before_end=129@17.199 imu_after_end=129@17.199 P_start_E=498806.588 P_start_N=4480655.901 P_start_U=6000.000 P_end_E=498806.588 P_end_N=4480660.701 P_end_U=6000.000 V_E_mps=-0.000 V_N_mps=48.373 V_U_mps=0.000 speed_mps=48.373
+[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=2.448GiB/3.672GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.002GiB
+[TIMING-SCOPE] data_read: 10 ms
+[TIMING-SCOPE] pulse_compression: 10 ms
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=17.100 t_last=17.199 e_first=498806.588 e_last=498806.588 n_first=4480655.901 n_last=4480660.701 vx_mps=-0.000 vy_mps=48.373 vz_mps=0.000 speed_mps=48.373
+[imu-interp] beam_id=50 t_start=17.100 t_end=17.199 imu_before_start=0@17.100 imu_after_start=0@17.100 imu_before_end=129@17.199 imu_after_end=129@17.199 P_start_E=498806.588 P_start_N=4480655.901 P_start_U=6000.000 P_end_E=498806.588 P_end_N=4480660.701 P_end_U=6000.000 V_E_mps=-0.000 V_N_mps=48.373 V_U_mps=0.000 speed_mps=48.373
+[fd-center][robust] fd_ctr_hz=-32.684 valid_range_bins=4096 clipped_range_bins=82 magnitude_cap=131512.174
+[fd-center][theory-guard] observed_hz=-32.684 theory_wrapped_hz=-578.851 theory_unwrapped_hz=-3178.851 sin_theta=0.616 speed_mps=48.373 lambda_m=0.019 prf_hz=1300.000 circular_error_hz=546.166 limit_hz=122.726 theta_cmd_deg=38.000 action=use_theory
+[CSI][CANCELLATION] period=2 beam=50 support_rows=[46,84] before_mean_power=130.44302847 after_mean_power=207.93746340 improvement_db=-2.02511869 strong_top1pct_improvement_db=-1.15574028 phase_coherence=0.86294214 phase_rmse_rad=0.58321588
+[TIMING-SCOPE] csi_metrics: 118 ms
+[TIMING-SCOPE] channel_cancellation: 140 ms
+[CFAR][CSI-BAND] mode=union dynamic=[46,84] applied=dynamic+full
+[TIMING-SCOPE] detection: 18 ms
+[CFAR][SUMMARY] beam=50 slot=0 hit_cells=26756 clusters=128 selected=128 min_points=3 strong_small_kept=0 small_rejected=0 global_median_power=nan pf=0.00000100
+[fusion] active DBS beams for bias: 50
+[fusion] estimate_error_angle disabled, using XML beam_pointing_bias=0.00000000 deg
+[fusion] beam_pointing_bias=0.00000000 deg
+[fusion][loc][total] raw=128 kept=128 drop_sin=0 drop_px=0 drop_gate=0 n_selected=128 n_old_valid=64 n_comp_valid=128 n_old_invalid_comp_valid=64 n_old_valid_comp_invalid=0 n_both_valid=64 n_both_invalid=0 n_duplicate_raw=0 n_output=128
+[TIMING-SCOPE] gmti_processing: 288 ms
+[fusion][dbs] imaging start: beams=1 rd=130x4096 rd_amp_cache~0.00198364 GiB PRF=1300.00000000 Rmin=82802.70000000 fs=60000000.00000001 out_res=25.00000000 range_skip=200 beam_skip=1 useGpu=0
+[fusion][dbs] active nonzero beams for mosaic: 50 (1 / 1)
+[fusion][dbs][extent] B=1 M=4096 nEff=130 boundsX=[418845.25000000, 440945.96875000] boundsY=[4414707.50000000, 4438368.50000000] marginX=1524.18750000m marginY=1631.76000000m grid=885x947 dx=25.00000000 host_mosaic_min~0.00468322 GiB
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6.00000000 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs][diag][grid] boundsX=[420369.43750000,439421.78125000] boundsY=[4416339.50000000,4436736.50000000] nx=885 ny=947 dx=25.00000000 dy=25.00000000 pixels=838095 max_pixels=300000000
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6.00000000 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result
+[TIMING-SCOPE] dbs_processing: 67 ms
+[LOW-VR-FILTER] enabled=0 threshold_mps=1.00000000 input=128 removed_low_velocity=0 removed_nonfinite=0 output=128
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.00050000 input=128 removed_upper_bound=0 removed_nonfinite=0 output=128
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30.00000000 velocity_gate_mps=0.35000000 input=128 removed_duplicates=0 output=128
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/GMTI03.bin，目标数: 128
+[TIMING-SCOPE] result_write: 0 ms
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/detection_results.csv，目标数: 128，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/detection_results_GMTI03.csv
+[TIMING-SCOPE] detection_result_csv_write: 415 ms
+[TRACK] result_id=3 dets=128 active=195 tentative=57 confirmed=90 coasted=48 deleted=35 outputs=90 new=38 suppressed_coasted_speed_outliers=0 matched=90 unmatched_dets=38
+[TRACK_ONLINE] 当前周期确认输出目标数: 90 (result_id=3, raw_dets=128)
+
+[TRACK] 目标信息列表
+-----------------------------------------------------------------------------------------------
+TrackID Lon(deg)      Lat(deg)      Speed(m/s)  Dir(deg)    Range(m)    UTC(s)        
+-----------------------------------------------------------------------------------------------
+5       116.180663    39.970756     5.01        -128.15     87497.70    17.150        
+6       116.180600    39.968475     13.68       -128.28     87660.46    17.150        
+8       116.179378    39.970766     2.05        -128.11     87582.84    17.150        
+9       116.176022    39.971038     35.81       -127.98     87788.17    17.150        
+11      116.177799    39.971528     3.05        -128.01     87635.42    17.150        
+12      116.176236    39.959469     8.61        -128.63     88579.44    17.150        
+17      116.163458    39.969665     1.56        -127.62     88724.66    17.150        
+18      116.167250    39.965938     7.92        -127.96     88727.17    17.150        
+20      116.150795    39.954150     13.90       -128.06     90642.59    17.150        
+23      116.171169    39.971936     30.50       -127.76     88051.09    17.150        
+25      116.165895    39.969725     15.83       -127.70     88556.90    17.150        
+26      116.180644    39.957212     21.15       -128.91     88446.73    17.150        
+27      116.166623    39.970582     18.83       -127.68     88449.23    17.150        
+28      116.181947    39.967440     14.34       -128.39     87642.93    17.150        
+29      116.169259    39.960328     22.38       -128.34     88982.57    17.150        
+30      116.165974    39.958039     19.82       -128.36     89360.65    17.150        
+31      116.165622    39.956329     13.32       -128.44     89503.37    17.150        
+32      116.175119    39.956101     8.86        -128.78     88889.92    17.150        
+33      116.165905    39.965248     13.00       -127.95     88864.88    17.150        
+34      116.174899    39.962563     15.16       -128.42     88451.73    17.150        
+36      116.174286    39.964117     7.66        -128.31     88384.13    17.150        
+37      116.159738    39.966812     21.51       -127.66     89170.36    17.150        
+38      116.173584    39.969157     21.20       -128.00     88081.14    17.150        
+39      116.171812    39.955972     8.91        -128.67     89117.78    17.150        
+43      116.177117    39.952139     14.21       -129.07     89037.65    17.150        
+44      116.164727    39.966716     5.60        -127.83     88842.35    17.150        
+45      116.163805    39.965614     31.83       -127.86     88980.06    17.150        
+51      116.162628    39.971247     23.88       -127.51     88672.08    17.150        
+52      116.173381    39.960385     18.16       -128.48     88704.63    17.150        
+53      116.165358    39.963423     14.59       -128.04     89027.64    17.150        
+54      116.155862    39.949266     21.31       -128.49     90645.09    17.150        
+55      116.156221    39.943612     12.70       -128.81     91018.14    17.150        
+58      116.156688    39.968636     24.93       -127.45     89250.48    17.150        
+59      116.167660    39.956220     32.56       -128.52     89375.68    17.150        
+60      116.171962    39.967684     45.91       -128.03     88291.48    17.150        
+62      116.175175    39.954911     21.89       -128.85     88970.05    17.150        
+64      116.143412    39.934339     11.27       -128.88     92517.78    17.150        
+65      116.154083    39.962861     36.01       -127.69     89821.36    17.150        
+66      116.158252    39.970319     28.73       -127.41     89030.14    17.150        
+70      116.164901    39.973697     11.64       -127.44     88351.57    17.150        
+73      116.161925    39.960913     17.34       -128.06     89430.76    17.150        
+78      116.158760    39.955658     20.73       -128.24     90006.64    17.150        
+80      116.179372    39.953014     9.94        -129.10     88827.33    17.150        
+85      116.159620    39.942738     11.61       -128.98     90855.40    17.150        
+86      116.154090    39.958602     10.73       -127.92     90114.30    17.150        
+89      116.156244    39.966475     17.60       -127.56     89428.26    17.150        
+92      116.161140    39.947707     18.01       -128.76     90404.74    17.150        
+96      116.156393    39.948513     6.95        -128.55     90662.62    17.150        
+98      116.162764    39.952991     30.09       -128.53     89926.52    17.150        
+102     116.152813    39.947328     11.16       -128.50     90983.09    17.150        
+107     116.146559    39.938281     39.56       -128.77     92032.10    17.150        
+108     116.173773    39.948955     16.03       -129.13     89483.34    17.150        
+109     116.176889    39.957535     29.45       -128.77     88672.08    17.150        
+110     116.152510    39.961374     15.24       -127.72     90029.17    17.150        
+111     116.159605    39.963303     20.72       -127.85     89420.75    17.150        
+128     116.167281    39.945620     11.48       -129.09     90146.85    17.150        
+130     116.161115    39.944675     15.12       -128.92     90620.06    17.150        
+132     116.152211    39.970568     31.99       -127.19     89420.75    17.150        
+140     116.133677    39.955702     15.96       -127.40     91684.10    17.150        
+142     116.173942    39.942499     24.43       -129.49     89931.53    17.150        
+144     116.150425    39.931106     15.21       -129.29     92284.95    17.150        
+145     116.201261    39.983151     37.11       -128.17     85263.90    17.150        
+146     116.208835    39.989625     44.07       -128.07     84309.70    17.150        
+150     116.181612    39.973818     35.58       -128.01     87222.24    17.150        
+152     116.172453    39.972868     11.86       -127.75     87900.85    17.150        
+154     116.158229    39.958585     17.70       -128.06     89838.89    17.150        
+155     116.174893    39.971188     17.22       -127.93     87853.27    17.150        
+156     116.176463    39.963908     11.46       -128.39     88253.92    17.150        
+157     116.168907    39.965857     29.00       -128.02     88622.00    17.150        
+158     116.169394    39.967886     21.64       -127.93     88449.23    17.150        
+159     116.161124    39.961650     15.36       -127.99     89433.27    17.150        
+160     116.179317    39.967256     4.70        -128.31     87830.74    17.150        
+161     116.176008    39.962619     18.84       -128.45     88374.11    17.150        
+162     116.171747    39.962229     4.61        -128.32     88684.60    17.150        
+163     116.152011    39.969993     33.82       -127.22     89473.33    17.150        
+165     116.163052    39.951788     29.22       -128.60     89991.62    17.150        
+166     116.166752    39.977926     26.83       -127.27     87938.41    17.150        
+167     116.162627    39.961429     34.14       -128.06     89348.14    17.150        
+169     116.171628    39.961768     19.82       -128.35     88724.66    17.150        
+171     116.134054    39.940051     19.04       -128.26     92738.09    17.150        
+177     116.147426    39.965052     26.56       -127.34     90119.31    17.150        
+178     116.145300    39.969931     35.71       -127.00     89931.53    17.150        
+179     116.153268    39.971913     39.81       -127.15     89258.00    17.150        
+181     116.151012    39.975873     23.88       -126.85     89142.82    17.150        
+182     116.143265    39.965868     15.41       -127.16     90344.65    17.150        
+184     116.135819    39.969820     42.71       -126.69     90582.50    17.150        
+187     116.155874    39.974408     16.78       -127.10     88912.46    17.150        
+190     116.125101    39.954642     24.39       -127.18     92335.02    17.150        
+191     116.120012    39.957476     47.70       -126.86     92487.74    17.150        
+192     116.161674    39.934250     26.75       -129.50     91323.59    17.150        
+-----------------------------------------------------------------------------------------------
+
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/normal_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/GMTI03_track.bin，目标数: 90
+[TIMING-SCOPE] tracking: 53 ms
+[GMTI][RESULT] filtered_detection_count=128 confirmed_current_detection_count=90 protocol_target_count=90
+[TIMING-SCOPE] main_total: 900 ms
+[FILE][CYCLE] result_file_id=3 period_index=2 algorithm_process_ms=900.213 end_to_end_ms=900.216 success=true
+
+[exit_code]=0
+[elapsed_sec]=3.671

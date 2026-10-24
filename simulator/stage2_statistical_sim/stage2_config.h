@@ -119,7 +119,16 @@ struct Stage2Config {
     // samples. Samples [acquired_pulse_len, pulse_len) are zero on wire.
     int acquired_pulse_len = 0;
     double platform_height_m = 6000.0;
+    // Legacy configs expose one platform speed.  Keep that field as a
+    // compatibility alias, but make the physical and reported states
+    // explicit for unknown-velocity studies.  The loader populates both
+    // explicit fields from the legacy value when no split is requested.
     double platform_speed_mps = 60.0;
+    double platform_velocity_true_mps = std::numeric_limits<double>::quiet_NaN();
+    double platform_velocity_reported_mps = std::numeric_limits<double>::quiet_NaN();
+    // `header` is required by the true/report pilot so the reported velocity
+    // fields reach the production CTDR/P38/motion-compensation path.
+    std::string new_protocol_velocity_source = "position_delta";
     double platform_origin_lat_deg = 40.45121057;
     double platform_origin_lon_deg = 116.98377429;
     double platform_origin_alt_m = 0.0;

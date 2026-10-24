@@ -31,7 +31,10 @@ struct GeometrySample {
 };
 
 double pulseTimeSec(const RadarConfig &radar, int period_id, int beam_id, int pulse_id);
+double effectivePlatformVelocityTrueMps(const TargetGlobalConfig &global);
+double effectivePlatformVelocityReportedMps(const TargetGlobalConfig &global);
 PlatformState evaluatePlatformState(const TargetGlobalConfig &global, double time_sec);
+PlatformState evaluateReportedPlatformState(const TargetGlobalConfig &global, double time_sec);
 GeometrySample evaluateGeometry(const RadarConfig &radar,
                                 const TargetGlobalConfig &global,
                                 const TargetConfig &target,
