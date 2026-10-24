@@ -19,6 +19,7 @@
 - `analysis/`：最终离线 evaluator 的完整 CSV/JSON，包括逐图 CFAR audit、F1/F2 输入 hash audit、paired Stage2 input audit、目标 ROI samples、关联、summary 和 manifest。
 - `figures/r13_seed101_target_metrics.png`：TO 目标响应及正确目标检测机会的描述图；错误检测行数不是 Pfa。
 - `reproduce.sh`：从仓库根目录重建两 case 并执行本包 evaluator 的命令。完整原始结果会重新生成在一个新 outputs 目录。
+- `CHATGPT_REVIEW_PROMPT.md`：固定到本包审查 commit 的可复制提示词，规定 ChatGPT 核验哪些代码/证据并按仓库审查协议作出方向判断。
 - `cleanup_ledger.md`：本次仅对这两个新 R13 case root 清除的派生大数组和保留材料记录。
 
 Production/Stage2 CSV、日志与运行时文本保留生成时的 CRLF 和列对齐空格；证据包 `.gitattributes` 允许这些输出格式，未改写其记录内容。
