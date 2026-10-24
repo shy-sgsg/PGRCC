@@ -7,11 +7,11 @@
 
 仓库：https://github.com/shy-sgsg/PGRCC
 分支：codex/unknown-system-error-next-stage
-审查 commit：74fc5a9f640ef9f2d415ef16b7ffaadbb375dc23
+审查 commit：bb0b5feff6852059a1075cfda614d578a73e1692
 执行源码 commit：3289c13bab6457bd1b190e393ddb01d51e9448e5
 阶段：Phase R13，传统 GMTI Baseline 公平比较与最小 Native CUDA Production pilot
 
-先确认 GitHub 上实际读取到的 branch、commit 和文件。必须读取：README.md、AGENTS.md、docs/research/RESEARCH_MASTER_PLAN.md、docs/research/RESEARCH_DECISION_LOG.md、docs/research/CHATGPT_REVIEW_PROTOCOL.md、docs/research/phase_r/README.md、R13 六份报告，以及本提示词所列的实现、配置和证据。重点沿结果主张追溯到 manifests、runtime XML/config dump、日志、Stage2 几何/杂波报告、CFAR geometry/map audit、CSI taps、detection 与 TrackManager CSV。无需无差别读取仓库全部文件。
+先确认 GitHub 上实际读取到的 branch、commit 和文件。必须读取：README.md、AGENTS.md、docs/research/RESEARCH_MASTER_PLAN.md、docs/research/RESEARCH_DECISION_LOG.md、docs/research/CHATGPT_REVIEW_PROTOCOL.md、docs/research/phase_r/README.md、R13 六份报告，以及本提示词所列的实现、配置和证据。重点沿结果主张追溯到 manifests、runtime XML/config dump、日志、Stage2 几何/杂波报告、CFAR geometry/map audit、CSI taps、detection 与 TrackManager CSV。另核对 R8/R9/R12 历史 CFAR 重算 CSV 与脚本、R13 common-opportunity 参数比较和单次耗时表、三个既有 Baseline runner 的方法信息矩阵。无需无差别读取仓库全部文件。
 
 主要入口：
 - docs/research/phase_r/R13_evaluation_contract.md
@@ -21,6 +21,9 @@
 - docs/research/phase_r/R13_minimal_comparison_results.md
 - docs/research/phase_r/R13_research_direction_assessment.md
 - docs/research/phase_r/evidence/r13_baseline_cuda_20261024/
+- docs/research/phase_r/evidence/r13_baseline_cuda_20261024/analysis/historical_cfar_impact.csv
+- scripts/phase_r/audit_r7_historical_cfar_impact.py
+- scripts/run_baseline_benchmark.py、scripts/run_baseline_v2.py、scripts/run_equivalent_vs_physical_calibration.py
 - scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py
 - scripts/run_production_hierarchical_calibration_pilot.py
 - scripts/analyze_production_hierarchical_calibration_pilot.py
@@ -34,11 +37,14 @@
 3. 面积地杂波由 A0_ON writer 实际注入：390 continuous-area packets、1,952,655 samples，实测均功率约 0.0223353；OFF 重用配对背景，故需联合 A0_ON Stage2 报告及 OFF/background 逐期 SHA 才能判断杂波真实存在。不能把 A0_OFF 自己“新注入 0”误读为 OFF 没有杂波，也不能仅凭 area_enabled=true。
 4. 报告称 72/72 final-union CFAR 图通过 geometry、日志和有效 CUT 审计；18 个 F1/F2 scene/role/period 输入组跨 A0/C0/C2/C3 一致；A0/C0 的 map、CSI taps、ROI 闭合。请检查 evaluator 是否使用 final union map 唯一 hit cells 和有效 CUT，而非把 branch counts 相加或用 max 代替跨期统计。
 5. C2/C3 在目标自由 OFF 上拟合并把固定参考应用于 ON/TO，truth-used=false；C0 不读取 paired OFF。故 C2/C3 属相同参考信息类，C0 对比包含额外 OFF 信息，不能直接解释为纯算法因果收益。请判断任务设计是否足以支持各层比较，C1 ordinary subtraction 未运行是否显著限制结论。
-6. 正常速度 TO：target-only CSI retention C0 −18.18 dB、C2 −4.11 dB、C3 +3.25 dB；正确目标 detections 分别 2/3、3/3、3/3。ON 三者均 3/3，但 false detection rows 较多。低速 TO 三者均 3/3，CSI retention 都约 +0.019 dB；C3 的 TrackManager 地速 RMSE 约 5.15 m/s，但只有 2 个严格关联机会。请检查这些数字是否可追溯、定义是否合适以及是否存在任务代价。
+6. 正常速度 TO：target-only CSI retention C0 −18.18 dB、C2 −4.11 dB、C3 +3.25 dB；正确目标 detections 分别 2/3、3/3、3/3。ON 三者均 3/3，但 false detection rows 较多。检查 common-success pairwise 参数 CSV：TO 上 C0→C2 的共同机会 n=2，位置 RMSE 8.613→28.523 m、方位 0.00555→0.01846°、折叠 Doppler 17.413→3.801 Hz、地速 0.339→3.934 m/s；C0→C3 的位置/方位及 Doppler 相同，地速 0.339→0.413 m/s。低速 TO 三者均 3/3、CSI retention 都约 +0.019 dB；C3 的 TrackManager 地速 RMSE 约 5.15 m/s，但只有 2 个严格关联机会。请判断 CSI/检测候选收益是否抵得上参数代价；不要用不同成功样本的 RMSE 直接作配对因果结论。
 7. H0 observed cell hit fraction 不是 Pfa；缺少 truth-filtered false-CUT probability estimator，因此经验 Pfa=`NOT_EVALUABLE`。Doppler 未解模糊，因此 LOS radial velocity RMSE=`NOT_EVALUABLE`；TrackManager ground speed 不能替代它们。
 8. 只有一个独立 seed，三个 periods 不是独立重复；报告必须保持 `PERFORMANCE_VERIFIED=false`，不能宣称统计显著 Pd/Pfa 或通用收益。
 9. 旧 runner 的 aggregate manifest 为 `completed_with_gaps`，因为其 legacy residual-closure 要求未纳入 R13 子集的 A0/PK/PKR；R13 选中分支的 Production gate 均通过。请判断报告是否充分区分这两个状态，不能隐藏 gap，也不能把它错误当作所选分支失败。
 10. 原始 `.bin`、`.npy`、`.f32` 在归档前已从本地两个新 R13 roots 清理；包内保留完整 manifest/config/XML/log/CSV/true input hash/核心图。若某个主张必须依赖已不在仓库的原始数组，应标 `NOT_VERIFIED`，不可假称独立重算。
+11. 用 `analysis/historical_cfar_impact.csv` 审核 R7 CFAR 修复对历史派生结果的影响。R8/R9 的历史 per-role `unique_union_hit_cells.count` 是逐期最大值，不能当三期总数；R8 汇总表已使用正确总和，R9 旧表把最大值标为“三期总数”。R12 没有逐期 final-union map audit，修复后 15/15 仍须为 NOT_EVALUABLE。区分 branch hit sum 与 unique union；不要把观测比例改称 Pfa。该 CSV 是使用当前 evaluator 对存档审计 sidecar 重算的结果，历史 raw maps / 部分 audit manifests 未纳入 GitHub 包；超出 CSV 直接覆盖的判断应标 `NOT_VERIFIED`。
+12. 审查方法矩阵对 `run_baseline_benchmark.py`、`run_baseline_v2.py`、`run_equivalent_vs_physical_calibration.py` 的实际输入通道、自由度、拟合/paired-C+N 信息、Known-truth evaluator 条件、Production 与测试边界是否准确。它们的 CPU/offline 或 synthetic 结果不得混作 R13 Native CUDA Production 排名。
+13. 检查 Production 单次耗时汇总是否明确标成非 benchmark（每角色仅一次，未 warm-up 重复），且没有据此声称稳定性能排序。
 
 研究方向审查边界：
 - 本次 delay=0 ns，不回答未知通道误差是否降低 GMTI、Known correction 能恢复多少、盲估计离 Known 多远。
