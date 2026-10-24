@@ -1,5 +1,7 @@
 # Channel-delay calibration novelty audit
 
+> **历史文献新颖性审计（检索日期 2026-09-17）。** 本文评估的是当时的 channel-delay Paper-1 候选，不代表 R12 后的当前论文方向；当前研究定位见[研究总纲](../research/RESEARCH_MASTER_PLAN.md)和[研究决策日志](../research/RESEARCH_DECISION_LOG.md)。
+
 **检索日期：** 2026-09-17
 
 **审计范围：** 经典多通道校准、multichannel SAR / SAR-GMTI、airborne GMTI/STAP，以及约近 5–10 年的通道不一致/幅相/时延校准工作。

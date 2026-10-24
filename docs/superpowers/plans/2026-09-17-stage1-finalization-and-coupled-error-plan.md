@@ -1,5 +1,7 @@
 # Stage-1 Channel-Delay Finalization and Stage-2A Coupled-Error Implementation Plan
 
+> **历史执行计划快照（2026-09-17）。** 本文的任务范围与复选状态仅描述该计划形成时的阶段任务，不代表当前仍待执行或授权重启；当前研究主题与优先任务以[研究总纲](../../research/RESEARCH_MASTER_PLAN.md)和[研究决策日志](../../research/RESEARCH_DECISION_LOG.md)为准。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:executing-plans` for the implementation, inline in the current session. Use `superpowers:subagent-driven-development` only when the user explicitly requests delegation; this task does not require subagents. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在生产等效 `4ch protocol IQ → F1/F2 → two-channel CSI → production GO-CFAR → clustering/positioning → TrackManager/PIPE` 链路上，完成 channel-delay Paper-1 的 Stage-1.1 最终收口、clean Formal-v2 和三种 Stage-2A coupled-error deterministic baseline；保留可复现证据，停止在 Stage-2B NN 实现之前。

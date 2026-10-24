@@ -1,5 +1,7 @@
 # Unknown System Error Phase0–7 实施与验收计划
 
+> **历史执行计划快照（2026-09-14）。** 本文的任务范围与复选状态仅描述该计划形成时的阶段任务，不代表当前仍待执行或授权重启；当前研究主题与优先任务以[研究总纲](../../research/RESEARCH_MASTER_PLAN.md)和[研究决策日志](../../research/RESEARCH_DECISION_LOG.md)为准。
+
 > 本计划对应 2026-09-14 的真实系统未知误差建模主线。历史
 > `2026-09-13-unknown-system-error-characterization.md` 保留其原始阶段记录，
 > 不回写旧实验数字。

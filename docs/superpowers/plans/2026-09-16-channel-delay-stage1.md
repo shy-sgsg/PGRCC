@@ -1,5 +1,7 @@
 # 单一通道时延确定性自校准阶段实施计划
 
+> **历史执行计划快照（2026-09-16）。** 本文的任务范围与复选状态仅描述该计划形成时的阶段任务，不代表当前仍待执行或授权重启；当前研究主题与优先任务以[研究总纲](../../research/RESEARCH_MASTER_PLAN.md)和[研究决策日志](../../research/RESEARCH_DECISION_LOG.md)为准。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans. Steps use checkbox (\`- [ ]\`) syntax for tracking.
 
 **Goal:** 在生产等效 4ch protocol IQ → F1/F2 → CSI → GO-CFAR → TrackManager/PIPE 链路上完成 channel delay error 的单误差 A0/A1/A2/A3 闭环、传统估计器对照、参数级 Monte Carlo、目标开关配对控制、ID-switch 审计和可复现 compact evidence。

@@ -1,5 +1,7 @@
 # Equivalent Calibration Hierarchy Implementation Plan
 
+> **历史执行计划快照（2026-09-20）。** 本文的任务范围与复选状态仅描述该计划形成时的阶段任务，不代表当前仍待执行或授权重启；当前研究主题与优先任务以[研究总纲](../../research/RESEARCH_MASTER_PLAN.md)和[研究决策日志](../../research/RESEARCH_DECISION_LOG.md)为准。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 在生产等效 F1/F2 Phase-I 边界内实现并验证传统等效复校准 baseline，完成合成 sanity 与小规模 mechanism pilot/evidence，同时把研究主线改写为 physical coarse correction 加 robust residual calibration。
