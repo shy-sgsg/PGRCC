@@ -2,6 +2,8 @@
 
 日期：2026-10-22。状态：**建议方案，尚未执行，也不授权启动新 CUDA 运行或 AI 训练。** 依据[方向决策](07_research_direction_decision.md)和[合并实验结果](06_bottleneck_experiment_results.md)。目标是先使 E1/E4/E5 的关键指标可解释，再决定 A/B/C；不是增加实验数量。
 
+> **历史阶段计划。** 本计划形成于 R3/R4，已由 R12 的 PIVOT 取代。当前优先任务见[研究总纲](../RESEARCH_MASTER_PLAN.md)和[研究决策日志](../RESEARCH_DECISION_LOG.md)；下文仅保留当时的执行边界与历史方案。
+
 ## 总决策与固定边界
 
 近期唯一优先项是**修复/冻结 E1/E4/E5 的评价契约，并只重审 seed 101 既有结果**。不降低 CFAR、ROI、扫描波束或目标支持门。R4 零时延物理校正 residual closure 属 `NOT_APPLICABLE`；原 evaluator 的 `NOT_EVALUABLE` 记录保留，不能记为通过或作为性能失败。没有完整有效性门证据，不扩 seed、不做新算法比较。

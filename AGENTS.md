@@ -47,6 +47,15 @@ git status --short --untracked-files=all
 复杂任务应维护可执行计划。计划描述当前要解决的问题和验证闭环，不应抄录大段
 历史需求；完成一项即更新状态，发现根因变化时同步调整。
 
+### 2.1 研究任务定位
+
+正式制定研究任务计划前，先读取 `docs/research/RESEARCH_MASTER_PLAN.md`、
+`docs/research/RESEARCH_DECISION_LOG.md` 和当前阶段证据导航。简洁说明本任务对应的
+总体目标/模块、已有证据、科学或工程验收门和停止条件。简单维护任务做轻量对照即可。
+若最新用户任务与总纲的短期优先级不同，按用户任务执行并说明关系；不得用旧阶段计划
+覆盖最新决策。若任务可能改变总体研究主题或目标，先提供证据和方案供用户审阅，不能
+静默改写总纲。
+
 ## 3. 实施纪律
 
 ### 3.1 先建立可信基线
@@ -89,78 +98,51 @@ git status --short --untracked-files=all
 
 ### 3.5 研究主线、比较口径与 AI 使用边界
 
-本仓库当前及后续阶段的 Phase-I 主线固定为“等效复校准 + 物理系统校准”的层次化
-自校准，而不是把每个现象都强行解释成独立物理状态，也不是把复系数校准写成 AI
-创新。当前长期主线固定为：
+当前研究主题、目标、阶段计划和唯一下一项优先任务以
+[`docs/research/RESEARCH_MASTER_PLAN.md`](docs/research/RESEARCH_MASTER_PLAN.md) 为准；方向
+变化按 [`docs/research/RESEARCH_DECISION_LOG.md`](docs/research/RESEARCH_DECISION_LOG.md)
+追加记录。总体主题是物理模型驱动的 GMTI 稳健杂波抑制、动目标检测与参数估计；这是
+当前建议，不把任何单个阶段、误差参数、算法或模型结构固定为永久主线。
+
+当前仓库可追溯的生产处理链是：
 
 ```text
-真实系统未知误差
-  → 多通道回波观测
-  → 未知误差/状态参数估计
-  → 物理模型修正与通道自校准
-  → 恢复杂波通道相干性
-  → 生产 F1/F2 两通道 CSI 等杂波抑制
-  → CFAR / Pd / Pfa / 目标保持评价
+4-channel protocol IQ
+  → (1,3)/(2,4) channel-pair fusion to F1/F2
+  → production CSI
+  → GO-CFAR / clustering / positioning
+  → TrackManager / PIPE
 ```
 
-长期工作必须围绕真实 airborne GMTI 中可能未知的 INS、伺服/波束指向、平台运动、
-通道时延、幅相、时钟同步、基线几何和杂波时间统计等误差展开。不得把“在理想
-Current 上叠加 AI”或 `AI Router` 的专家选择写成当前主线。`NO_GO_AI_ROUTER_VALUE`
-只表示 Current/J5/J6 三者之间 Router 的安全平均增益不足，不表示 Physics-AI、
-未知系统误差估计或物理模型自校准方向被否定。
+四路输入经通道对融合后是 F1/F2 双通道生产 CSI；四通道 raw pair 诊断量不能未经说明
+就算成生产算法可用的额外自由度。STAP/JDL 或其他不同信息条件的方法，应按任务要求
+单独审计并与 F1/F2 生产 Current 分层或匹配信息比较。Phase-I/Phase-II、Class-P/E/D
+等标签是历史阶段或分析视角，不构成永久禁止/强制路线；是否开展某类工作由当前总纲、
+最新决策、用户任务和证据共同确定。
 
-Phase-I 的层次化校准分类固定如下：
-
-- `Class-E / equivalent complex calibration`：在当前 F1/F2 处理域内可近似写成
-  `F2(r,fD) ~= Gamma(r,fD) F1(r,fD)` 的局部乘性失配。`clutter-derived` Gamma、
-  SCC、DDC、DDC-RB、robust DDC 和 robust DDC-RB 是强传统 baseline，不得把普通
-  complex LS、per-Doppler Gamma 或 range-Doppler Gamma 本身写成创新。
-- `Class-P / physical-state calibration`：fast-time registration、Doppler registration、
-  指向/几何、平台速度、定位和航迹状态等会改变物理配准、运动学或下游语义的误差。
-  channel-delay 默认保留为 Class-P：即使某些窄域残差可被 Gamma 吸收，正式解释仍须
-  记录 delay estimate、fractional-delay correction、符号、单位和 TrackManager/PIPE
-  传播证据。
-- `Class-D / decorrelation limit`：真实时间变化杂波、不可约失相干或信息损失。此类
-  问题应报告 coherence floor、target transfer 和稳健对消边界，不得伪装成可完全拟合
-  的系统误差。
+未知误差、杂波非均匀性、有限样本、低速目标、自消、速度模糊、定位偏差等均须先用
+当前代码、数据和测量证明其适用性及任务影响。不得将所有损失归因于系统失配，也不得
+把“在理想 Current 上叠加 AI”或 `AI Router` 的专家选择预设为主线。
 
 比较必须同时区分信息条件和算法能力：
 
 - Current 的生产口径是四通道协议 IQ 先按 `(1,3)`、`(2,4)` 融合为 F1/F2，再进入
-  两通道 CSI。native four-channel STAP 保留四个空间自由度，但属于冻结的 Phase-II
-  独立课题；其历史/离线结果可做归档 reference，不能写成当前 production STAP 进展。
-  信息量匹配层只用于后续阶段拆分算法改进与融合/空间自由度增加的贡献。本文档中的
-  `Phase-II native four-channel freeze` 表示 native four-channel STAP/JDL、协方差/
-  加载、额外空间自由度和相关 CUDA 优化继续冻结到 Phase-II。
+  两通道 CSI。不同方法如有额外观测、自由度或外部先验，应显式注明并分层报告；不得
+  将信息量差异误写为算法优势。
 - 用 `Known-error correction upper bound / 已知误差校正上限`，不使用含义不清的
   `Oracle` 作为默认术语。每个场景优先保留 Ideal/No-error、Current+unknown-error、
   Known-error correction、Estimated-error correction 四个条件，并报告
   `recoverable space = Known − Current`、`actual recovered = Estimated − Current`、
   `recovery ratio = actual/recoverable`；符号和指标方向必须在报告中明示。
 - AI 只有在“多通道观测 → 难以显式解析的系统误差/状态 → 确定性估计值、残差和置信度”
-  的链路中，在确定性估计不足且已有误差退化—真值恢复—估计残差证据后才可进入。未
-  满足前置证据时，不训练 MLP、通用 `Δα`/复权残差、RD image-to-image 或 Router。
+  的链路中，须先有稳定任务退化、Known-error correction 可恢复空间、强确定性方法的
+  任务相关残差、推理可用且无泄漏的输入，以及独立场景上的公平比较。AI 是可选方法；
+  前置证据不成立时不训练模型、不开发 Router。`NO_GO_AI_ROUTER_VALUE` 仅针对历史
+  Current/J5/J6 Router 安全平均材料性，不等于对所有 Physics-AI 问题作结论。
 
-下一阶段的永久工作边界是 `Unknown System Error Characterization / 真实系统未知误差
-建模与可观测性分析`：先盘点参数、来源、传播、观测量和可辨识性，再做小规模四条件
-实验；正式 CUDA 运行必须建立在代码审计和可复现 pilot 设计之后。历史报告中的数字、
-源码身份和实验结论不得回写，只能通过 framing note 说明其在新主线中的位置。
-
-### PGRCC Phase-I / Phase-II 执行栅栏
-
-- Phase-I 只处理生产等效 `4ch protocol IQ → (1,3)/(2,4) F1/F2 → 两通道 CSI →
-  GO-CFAR → clustering/positioning → TrackManager/PIPE`，重点是未知系统误差表征、
-  确定性自校准、稳健 CSI 和目标/航迹安全性。
-- native four-channel STAP/JDL、协方差/加载、额外空间自由度和相关 CUDA 优化全部冻结
-  为 Phase-II；已有四通道结果只作为归档 reference，不能成为当前主线的新增待办。
-- AI 的顺序固定为“物理退化 → 已知误差校正上限 → 确定性盲估计 → 实际校准 → 系统恢复
-  与残差审计 → 仅对稳定且推理可见的剩余误差评估 AI”。前置证据未闭合前保持
-  `ai_training=false`、`router_enabled=false`，不训练 MLP、通用复权残差、RD image-to-image
-  或 Router。
-
-当前 Phase-I 的实现边界是生产等效 F1/F2 两通道失配表征、确定性误差校正和稳健 CSI；
-native four-channel STAP/JDL、协方差/加载、空间自由度扩展及其 CUDA 优化属于冻结的
-Phase-II，不得因一次实验结果提前混入当前主线。
+生产/受控 CUDA 结论必须来自真实 CUDA 路径；先审计代码、冻结可复现设计并检查输入和
+设备。历史报告中的数字、源码身份与结论保持原样；若新证据修正解释，追加新的 framing
+或决策记录，不回写历史运行身份。
 
 ## 4. 验证规则
 
@@ -217,6 +199,10 @@ bash -n scripts/<changed_script>.sh
 
 需要 GPU 才能证明结果的任务，必须在真实 CUDA 设备上运行。CPU smoke、仅编译或
 代码审查不能替代 CUDA 实验。
+
+需要 CUDA 的任务开始时主动探测设备和权限。若普通环境中的 `nvidia-smi` 或生产运行因
+沙箱权限而看不到 GPU/设备文件，应立即通过当前执行环境申请受限提权并重试，不等用户
+提醒；不能将 CPU、历史结果或其他后端冒充本次 CUDA 证据。
 
 若当前具有受限提权或 GPU 运行额度：
 
@@ -326,6 +312,15 @@ nvidia-smi
 - 使用非交互式命令，并保持每项改动可审查。
 
 ## 11. 自主性与沟通
+
+### 科研任务收尾回顾
+
+每个科研任务交付前，除工程实现和验证外，还要简要回答：本次证据对总体目标的实际
+贡献、哪些结论仍不可支持、当前路线是否值得继续、应 `CONTINUE / STOP / PIVOT` 哪一个、
+下一项唯一优先任务是什么，以及是否需要追加 `RESEARCH_DECISION_LOG.md`。小型维护任务
+可以说明与研究目标无关并采用轻量回顾。不能因为代码提交或测试通过就跳过科学价值审查。
+若本次证据足以改变总体主题/目标，先给用户可审查的证据与调整方案；获用户决定后再改
+`RESEARCH_MASTER_PLAN.md`。普通阶段结论追加决策日志，不反复复制总纲。
 
 工作过程中提供简短进度，说明当前是在审查、复现、修改、运行还是分析。不要因任务
 耗时而静默，也不要用频繁确认代替推进。

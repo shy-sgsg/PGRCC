@@ -2,6 +2,8 @@
 
 日期：2026-10-22。证据截至 R3/R4 当前归档，不包含新实验。本报告回答原始研究任务 Q1–Q12；相关证据入口为[架构审计](01_system_architecture_audit.md)、[文献综述](02_literature_review.md)、[物理边界](03_physical_limits.md)、[评价链路审计](04_evaluation_pipeline_audit.md)、[冻结实验设计](05_experiment_design.md)和[合并结果](06_bottleneck_experiment_results.md)。旧的[初步方向评估](07_preliminary_direction_assessment.md)保留为 R3/R4 当时的阶段记录，不以新报告覆盖。
 
+> **R3/R4 历史方向快照。** 本报告的阶段建议不能作为 R12 后的当前下一步；后续结论以[研究总纲](../RESEARCH_MASTER_PLAN.md)、[研究决策日志](../RESEARCH_DECISION_LOG.md)和 R12 裁决为准。原证据与当时判断不回写。
+
 ## 决策摘要
 
 - **AI 必要性：尚未建立。** 这不等于 AI 已被证明无价值。当前没有把盲确定性估计的残差证明为跨独立 seed、跨误差/场景稳定且可由额外可观测信息改善；不训练网络、不启动 Router、不做 image-to-image 或六参数联合估计。

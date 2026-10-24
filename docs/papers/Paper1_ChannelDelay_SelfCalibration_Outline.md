@@ -1,6 +1,8 @@
 # Paper 1 outline — Target-free channel-delay self-calibration for production two-channel GMTI
 
-状态：论文草稿框架，不是已投稿稿件。Formal-v2 135-case evidence 已完成并回填到
+状态：历史论文候选提纲，不是当前默认的 Paper 1，也不是已投稿稿件。R12 已决定停止将固定静态时延估计作为主要创新方向；本提纲仅保留为方法与证据的历史组织草案，若要重启须由新的研究决策明确说明理由。当前主题和论文方向以[研究总纲](../research/RESEARCH_MASTER_PLAN.md)及[研究决策日志](../research/RESEARCH_DECISION_LOG.md)为准。
+
+Formal-v2 135-case evidence 已完成并回填到
 `outputs/formal_evidence/stage1_delay_v2_full_20260917/`；Formal-v1
 `outputs/formal_evidence/stage1_delay/` 保持不可变历史参考。仍不得把 pilot 数字、历史
 Oracle 术语或未验证的 novelty 写成结论。工程 materiality threshold 和硬件实测标定尚未声明。

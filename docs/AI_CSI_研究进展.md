@@ -1,36 +1,18 @@
-# 物理模型驱动的智能 GMTI 杂波对消：历史基线与 Phase-I 双通道收束
+# GMTI 研究进展与历史证据索引
 
-## 当前状态
+> 本文下方按日期保留历史阶段记录、复现入口和原始结论，不再承担当前总体研究计划的权威职责。当前方向以[研究总纲](research/RESEARCH_MASTER_PLAN.md)和[研究决策日志](research/RESEARCH_DECISION_LOG.md)为准。
 
-当前主线已从“理想/当前链路上的 AI 候选”转为
-`Phase-I Unknown System Error Characterization / 双通道系统失配与稳健 CSI`：
+## 当前状态（R12 后，2026-10-24）
 
-```text
-真实系统未知误差 → 多通道回波观测 → 误差/状态参数估计
-→ 物理模型修正与通道自校准 → 恢复杂波相干性
-→ 生产 F1/F2 两通道 CSI → CFAR / Pd / Pfa / 目标保持
-```
+当前建议主题是“物理模型驱动的 GMTI 稳健杂波抑制、动目标检测与参数估计”。研究对象和任务导向长期稳定，具体优先瓶颈根据证据动态调整；系统误差估计是可复用模块，不是永久唯一主线。AI 是可选方法，现有 R3–R12 证据没有建立其必要性。
 
-本轮已完成源码审计、误差参数清单、传播关系、六对紧凑观测量、true/report 几何、
-unknown-only geometry estimator、几何扩展矩阵，以及 B0/B1/B1K 生产 CUDA CSI/CFAR、
-目标因果传递、Pfa 分母审计、信息量匹配 baseline 和 B2/B3/B3K 离线 STAP reference；
-还完成了 target-assisted servo pilot、target-free clutter-only formal、true/report
-velocity、yaw-first attitude 和生产 TrackManager/PIPE 连续目标审计，没有训练 AI。机器可读
-证据在 `outputs/system_error_inventory/`、`outputs/unknown_system_error_geometry_matrix_20260914_v2/`、
-`outputs/unknown_system_error_end_to_end_20260914/`、
-`outputs/unknown_system_error_pilot_20260914_clean/`、
-`outputs/clutter_only_servo_formal_compact_v2_20260914/`、
-`outputs/servo_gmti_e2e_formal_compact_20260914/`、
-`outputs/velocity_error_formal_compact_v2_20260915/`、
-`outputs/yaw_error_formal_compact_20260915/` 和
-`outputs/track_manager_e2e_formal_compact_20260915/`；统一轻量证据入口为
-`outputs/formal_evidence/`，详细边界见
-[`AI_CSI_33_真实系统误差参数与可观测性分析.md`](AI_CSI_33_真实系统误差参数与可观测性分析.md)。
+R12 最终决定为 `PIVOT`：固定静态 C2 时延估计停止作为主要创新方向，保留为确定性 Baseline；转向其他 GMTI 瓶颈的公平 Baseline 评价。seed404 仅支持一个受控场景的正确性/可行性观察，统计性 Pd/Pfa、CFAR unique-union hit-cell 与径向速度 RMSE 尚不可评估。当前没有证据足以优先选择低速目标或复杂杂波。
 
-当前生产 Current 是四通道协议 IQ 经 `(1,3)`、`(2,4)` 融合成 F1/F2 后进入 CSI；
-四通道 native STAP 保留四个空间自由度，但已冻结为 Phase-II 独立课题。历史报告中
-strict 组与四通道 academic reference 不混排；reference 只用于信息条件审计，不表示
-当前 Phase-I 已启动 production STAP。
+**下一项唯一优先工作：** 冻结小规模传统 Baseline 比较的共享评价契约，先审计现有 CFAR unique-union false-hit/Pfa 与径向速度可评估性；再限定可公平比较的任务、方法与场景。Pfa 若未闭合，限制对应结论，不把 hit fraction 当作 Pfa，也不阻塞其它有效指标支持的限定比较。当前仅记录计划，不自动启动 CUDA 实验或 AI 训练。
+
+关键阶段结果、源码/输入身份及证据限制见 [Phase R 证据导航](research/phase_r/README.md) 与 [R12 最终裁决](research/phase_r/R12_final_research_direction_decision.md)。本文件后续内容是对应日期的历史记录；旧段落中的“当前/下一步”只描述当时状态，不覆盖 R12 后的决策。
+
+以下日期分节按原始时间保留历史状态、运行记录和旧计划：
 
 ## 2026-09-17 channel-delay Stage-1.1 收口阅读顺序（历史收口）
 
@@ -47,7 +29,7 @@ strict 组与四通道 academic reference 不混排；reference 只用于信息�
 截至历史记录时，Formal-v2 尚未冻结；当前状态见下节。固定开关为
 `ai_training=false`、`router_enabled=false`、`native_four_channel_stap=false`。
 
-## 2026-09-20 Formal-v2 当前状态
+## 2026-09-20 Formal-v2 历史状态快照
 
 独立 Formal-v2 已完成 `135/135` 个 case，覆盖 15 个 physical block 和 9 个 delay，证据
 已压缩到 `outputs/formal_evidence/stage1_delay_v2_full_20260917/`，分层统计在
@@ -325,7 +307,7 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 | Production CFAR formal 泛化统计 | 完成，1792 条 production CFAR 记录，held-out scene-block bootstrap | [`AI_CSI_23_ProductionCFAR与泛化统计.md`](AI_CSI_23_ProductionCFAR与泛化统计.md)、`outputs/production_cfar_formal/production_cfar_rows.csv` |
 | Router Opportunity 研究基础设施 | 历史分支已完成 32-scene CUDA/Materiality；因 `NO_GO_AI_ROUTER_VALUE` 停止扩展，未启动 Learnability | [`AI_CSI_32_RouterOpportunity与Materiality审计.md`](AI_CSI_32_RouterOpportunity与Materiality审计.md)、[`AI_CSI_33_RouterLearnability审计.md`](AI_CSI_33_RouterLearnability审计.md) |
 
-## 当前阶段启动清单
+## Unknown System Error 主线时期的阶段启动清单（历史）
 
 | 项目 | 当前状态 | 证据/下一步 |
 |---|---|---|
@@ -364,7 +346,7 @@ Router 的安全平均材料性不足；不否定未知 INS、伺服、平台运
 - 负差距不是把结果修剪成“Oracle 更好”，而是记录了当前非线性最小幅度算子
   与背景-only 线性复权之间的真实性能/统计权衡。
 
-## V2 当前实验事实
+## V2 历史实验事实
 
 - V2 screen 产出 1080 行（90 cases × 12 methods），0 case failure；每个因素水平
   都有 5 个独立 seed。production replay 180 行与 scientific controlled 900 行
@@ -477,7 +459,7 @@ regenerated-velocity 汇总，ROC 目录保留 `baseline_v2_roc_points.csv`、
 Pd/Pfa/target-loss 证据，但尚不能替代多场景生产统计评价。CPU gate 语义另有
 `csi_gate_cpu_selftest` 直接回归，当前全量 CTest 为 18/18 通过。
 
-## 下一步（Phase-I 后续，Phase-II 保持冻结）
+## Phase-I/Phase-II 历史下一步建议（已由 R12 取代）
 
 channel-delay correction 的 5-period、多 seed/目标速度/SCNR TrackManager/PIPE formal 已
 完成；下一步启动 `two_channel_decorrelation_study.json` 的 temporal-rho/internal-motion
