@@ -103,4 +103,6 @@ Q'(f)=Q(f)H(d,f)/H(d',f)
 - R8 物理位置、4 通道布局及运行输入：`configs/research/unknown_system_error_end_to_end_pilot.json`、`outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/case_manifest.json`
 - R9 固定值与评估证据：`docs/research/phase_r/R9_online_blind_estimation.md`、`docs/research/phase_r/R10_channel_delay_observability.md`
 
-本报告为源码推导；除列明的历史输入与配置外，本文尚未声称 R12 合成门或 CUDA 生产比较已执行。
+## R12 执行状态更新
+
+本分析提出的条件模型已通过 42 项公式/回归检查，并于 seed404 完成一次 Native CUDA Production pilot；执行、数据闭合和任务结果见 [R12 盲估计验证](R12_blind_validation.md)、[Production 任务比较](R12_production_task_comparison.md)及[紧凑证据包](evidence/r12_physics_matched_delay_20261024/README.md)。这些结果只验证受控模拟器条件下的可行性，不证明真实机载频响平坦或总体性能。

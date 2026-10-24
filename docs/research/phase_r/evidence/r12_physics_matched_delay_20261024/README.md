@@ -3,6 +3,8 @@
 这是 R12 seed404 的可审查小包。完整本地运行根目录：
 `outputs/phase_r_r12_physics_matched_delay_20261024/`。
 
+研究方向裁决：`PIVOT` 到其他 GMTI 瓶颈的公平 Baseline 评价；停止将固定时延估计作为主要创新方向。十项问题的逐项回答见[方向裁决](../../R12_final_research_direction_decision.md)。
+
 ## 阅读顺序
 
 1. [Pilot summary](pilot_summary.json)：状态标签、运行身份、GPU、面积杂波门、Known closure、M1 输入和估计、处理链 fingerprint、分支 gate 汇总。
