@@ -4,6 +4,7 @@
 
 ## 当前决策
 
+- **R12 更新：** Native CUDA seed404 确认本场景未知 C2 `+4 ns` 使冻结任务检测从 A0 的 2/3 降至 0/3；Known correction 输入闭合并返回 2/3。M1 盲估计误差 0.241 ns，固定 D3 0.590 ns，两者均恢复 3/3 检测，但参数 RMSE 互有胜负；本轮只有一个 seed，统计 Pd/Pfa 和性能验证未完成。不支持 AI，也不支持转向低速/复杂杂波主线。详见 [R12 盲估计验证](R12_blind_validation.md)、[生产任务比较](R12_production_task_comparison.md)、[阶段方向裁决](R12_final_research_direction_decision.md) 与 [R12 紧凑证据包](evidence/r12_physics_matched_delay_20261024/README.md)。
 - **R10 更新：固定 D3 恢复本次 5/6 个正确检测机会，但没有恢复高精度测角/定位；没有证据表明必须使用在线 AI。** 三个正确 period 的 A0/D3 候选 cell 相同，production raw-phase 局部 Jacobian 对 cross-range 条件差的闭合残差不超过 0.35 m；另外两个 seed303 period 的候选 row 改变，需单独看待。Known 校正的定位 RMSE 接近 A0，且优于固定 D3，支持优先提高物理通道 2 的确定性标定精度和模型匹配。残余 phase 的所有物理来源仍未完全分离。以上仅为两个 seed 的描述性 CUDA 结果，无统计显著性 Pd/Pfa。R10 没有新增 CUDA 运行；不训练 AI。详见 [R10 方向裁决](R10_research_direction_decision.md)。
 - **E2/R3：** 修复后的 CUDA Production 在 seed 101/202/303 上执行通道 2 `+4 ns` A/B/C。三 seed 的角度、TrackManager 地速和位置 RMSE 方向均为失配变差、Known physical correction 恢复；三项 paired-t 95% CI 均跨 0。径向速度 RMSE、统计性 Pd/Pfa 未验证。详见[合并结果](06_bottleneck_experiment_results.md)和[R3 逐条件报告](06_minimal_cuda_causal_pilot.md)。
 - **E1/E4/E5/R4：** seed 101 的 8 case、120 个 CUDA Production 分支已执行且分支通过；连续面积地杂波有效。但低速 P5 背景 ROI、CFAR 唯一 hit-cell/false-hit 聚合、residual-closure 的 PK/PKR 条件未闭合，因此不扩展 seed 202/303、不作方法排名或 Pd/Pfa 性能结论。详见[结果合并](06_bottleneck_experiment_results.md)与[R4 紧凑证据](evidence/r4_e1_e4_e5_seed101_20261022/)。
@@ -102,3 +103,12 @@ R11 已按冻结范围完成，不自动启动后续阶段。R4 低速 P5 背景
 7. [Phase R 更新方向裁决](Phase_R_updated_research_direction_decision.md)：综合 R3–R11 证据，只选一个后续优先方向并说明 AI 门控。
 8. [R11 CUDA 生产证据](evidence/r11_local_delay_scan_20261024/README.md)：原始机器 manifest、runtime XML/config/log、CFAR geometry、CSI tap summary、检测/lineage、图表和入口失败现场。原始 IQ 与全图 CSI maps 不纳入 Git。
 9. [R11 evaluator consistency 证据包](evidence/r11_evaluator_consistency_20261024/)：离线重评 JSON/CSV、逐候选 gate 记录、R8/R9 历史指标复算、脚本可重复使用的紧凑输入 bundle。
+
+## R12 物理匹配盲时延估计与独立 seed404 CUDA pilot（2026-10-24）
+
+1. [R12 可观测性分析](R12_observability_analysis.md)：C2 时延单参数的观测条件和未知宽带频响不可辨识边界。
+2. [R12 物理匹配估计器](R12_physics_matched_estimator.md)：Stage2 分数时延响应、估计隔离、支持/拒绝门和合成及开发数据验证。
+3. [R12 盲估计验证](R12_blind_validation.md)：seed404 的盲估计结果、同输入 D1/D2/D3 对照、Known 输入闭合差距和已知失败边界。
+4. [R12 Production 任务比较](R12_production_task_comparison.md)：15 个 Native CUDA branch、面积杂波、CSI/目标保持、H0 描述计数、检测及参数误差。
+5. [R12 阶段方向裁决](R12_final_research_direction_decision.md)：明确统计限制、AI 门控和下一步建议；阶段停止，不自动扩 seed。
+6. [R12 紧凑证据包](evidence/r12_physics_matched_delay_20261024/README.md)：manifest、source/config 身份、15 个分支 runtime XML/config/log、CSI tap、CFAR geometry、检测/TrackManager 记录、关键 CSV、图表和失败案例。原始 IQ 与全 CSI maps 留在本机 `outputs/phase_r_r12_physics_matched_delay_20261024/`。

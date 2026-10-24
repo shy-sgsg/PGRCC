@@ -1,0 +1,529 @@
+{
+  "schema_version": 1,
+  "experiment": "PGRCC Phase R12 independent seed-404 physics-matched delay production pilot",
+  "created_at_utc": "2026-10-24T08:32:44.680908+00:00",
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": true,
+    "PERFORMANCE_VERIFIED": false,
+    "note": "single independent seed is feasibility evidence only; population Pd/Pfa is not verified"
+  },
+  "baseline_commit": "3e23235180f59fbb09b890af000544ae7a7c9fd0",
+  "git": {
+    "commit": "3e23235180f59fbb09b890af000544ae7a7c9fd0",
+    "branch": "codex/unknown-system-error-next-stage",
+    "tracked_status": ""
+  },
+  "native_cuda": {
+    "binary": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+      "sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "build_cache": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/CMakeCache.txt",
+        "exists": true,
+        "bytes": 33211,
+        "sha256": "724453a62758e18a150723620a19eb66bb24b8739309e41628eadbd2951917bc"
+      },
+      "use_corex": false,
+      "backend": "Native CUDA"
+    },
+    "gpu": {
+      "available": true,
+      "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+      "returncode": 0,
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P5, 7.51, 48, 29, 510",
+      "stderr": ""
+    },
+    "disk": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024",
+      "total_bytes": 497777065984,
+      "used_bytes": 421547687936,
+      "free_bytes": 50868469760
+    }
+  },
+  "production_binary": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+    "sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+    "build_cache": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/CMakeCache.txt",
+      "exists": true,
+      "bytes": 33211,
+      "sha256": "724453a62758e18a150723620a19eb66bb24b8739309e41628eadbd2951917bc"
+    },
+    "use_corex": false,
+    "backend": "Native CUDA"
+  },
+  "design": {
+    "seed": 404,
+    "period_count": 3,
+    "delay_error_ns": 4.0,
+    "conditions": [
+      "A0_Ideal",
+      "A1_Current_unknown_error",
+      "A2_Known_error_correction_upper_bound",
+      "R12_D3_R9_Fixed",
+      "R12_M1_Physics_Matched"
+    ],
+    "roles": [
+      "ON",
+      "OFF",
+      "TO"
+    ],
+    "blind_estimator_input": "A1_Current_unknown_error ON raw physical C1/C2 only",
+    "known_truth_used_only_for_A2_correction_and_evaluation": true,
+    "d3_fixed_calibration_ns": 3.4099650318669545,
+    "ai_training": false,
+    "router_enabled": false,
+    "six_parameter_estimation": false,
+    "corex": false
+  },
+  "scene_identity": {
+    "case_id": "base__seed_404__v_p6d7__snr_p30__delay_p4ns",
+    "working_point": "base",
+    "group": "base",
+    "seed": 404,
+    "period_count": 3,
+    "beam_id": 50,
+    "expected_bin": 2048,
+    "range_m": 85000.0,
+    "target_velocity_mps": 6.7,
+    "target_snr_db": 30.0,
+    "texture_sigma": 0.25,
+    "clutter_rho": 0.98,
+    "target": {
+      "target_id": "stage1_target_1",
+      "enabled": true
+    },
+    "clutter": {
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98
+    },
+    "delay_error_ns": 4.0
+  },
+  "source_identity_before": {
+    "git": {
+      "commit": "3e23235180f59fbb09b890af000544ae7a7c9fd0",
+      "dirty": false,
+      "dirty_tracked": false,
+      "untracked_count": 79,
+      "untracked_output_count": 32,
+      "untracked_non_output_count": 47,
+      "untracked_non_output_examples": [
+        ".pytest_cache/",
+        ".scratch/",
+        "\"Failed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\n/\"",
+        "build_r7/",
+        "docs/research/phase_r/00_ChatGPT_review_request_20261019.md",
+        "docs/research/phase_r/00_external_review_addendum.md",
+        "docs/research/phase_r/00_minimal_review_brief_20261019.md",
+        "docs/research/phase_r/R12_observability_analysis.md",
+        "docs/research/phase_r/R12_physics_matched_estimator.md",
+        "docs/research/phase_r/evidence/r11_local_delay_scan_20261024/device/",
+        "docs/research/phase_r/evidence/r7_cfar_correctness_20261022/production_runs_3period/post_fix/A0_ON_diagoff/cfar_geometry/",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v5.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v6.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v7.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v8.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current.zip"
+      ]
+    },
+    "tracked_status": [],
+    "files": {
+      "pilot_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r3_minimal_cuda_causal_pilot.py",
+        "exists": true,
+        "bytes": 35837,
+        "sha256": "61355e1d8b385b73f8b7fe51f4c3765b8058469dabe35e1a2ce954483874419e"
+      },
+      "stage1_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "exists": true,
+        "bytes": 138173,
+        "sha256": "cdff90d8ef7266687f1c1d3b6d05913e8fec07780163b3d0ca2ac64ae548ed94"
+      },
+      "production_cfar_period_identity_source": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/src/processOnePeriod.cpp",
+        "exists": true,
+        "bytes": 273400,
+        "sha256": "2616339a9f711f38d0b4656468ccf1dbe6cbe08eadae10641a0c4b4320159692"
+      },
+      "stage2_delay_correction_operator": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/estimate_channel_delay.py",
+        "exists": true,
+        "bytes": 26432,
+        "sha256": "c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7"
+      },
+      "stage1_config": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/channel_delay_stage1_formal.json",
+        "exists": true,
+        "bytes": 3595,
+        "sha256": "ad47b0d02b05ddc4839da39a7498faf1af25ca3ba8eec678597c0ce7a0f651f6"
+      },
+      "scene_template": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/simulator/scenarios/beam50_one_targets_continuous.run.json",
+        "exists": true,
+        "bytes": 2543,
+        "sha256": "1f4f9c8b9383614601dc019414b8c8a8788b195301526438b95a672b1ee13998"
+      },
+      "design": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/05_experiment_design.md",
+        "exists": true,
+        "bytes": 16395,
+        "sha256": "5106baa10a839089f50af52aa0898d5399d6a883d9df2e4fd945d897c2c4851c"
+      }
+    },
+    "build": {
+      "simulate_stage2_statistical": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+        "exists": true,
+        "bytes": 645944,
+        "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+      },
+      "GMTI_pipe_core": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+        "exists": true,
+        "bytes": 6278056,
+        "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+      }
+    }
+  },
+  "source_identity_after": {
+    "git": {
+      "commit": "3e23235180f59fbb09b890af000544ae7a7c9fd0",
+      "dirty": false,
+      "dirty_tracked": false,
+      "untracked_count": 79,
+      "untracked_output_count": 32,
+      "untracked_non_output_count": 47,
+      "untracked_non_output_examples": [
+        ".pytest_cache/",
+        ".scratch/",
+        "\"Failed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\n/\"",
+        "build_r7/",
+        "docs/research/phase_r/00_ChatGPT_review_request_20261019.md",
+        "docs/research/phase_r/00_external_review_addendum.md",
+        "docs/research/phase_r/00_minimal_review_brief_20261019.md",
+        "docs/research/phase_r/R12_observability_analysis.md",
+        "docs/research/phase_r/R12_physics_matched_estimator.md",
+        "docs/research/phase_r/evidence/r11_local_delay_scan_20261024/device/",
+        "docs/research/phase_r/evidence/r7_cfar_correctness_20261022/production_runs_3period/post_fix/A0_ON_diagoff/cfar_geometry/",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v5.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v6.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v7.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v8.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current.zip"
+      ]
+    },
+    "tracked_status": [],
+    "files": {
+      "pilot_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r3_minimal_cuda_causal_pilot.py",
+        "exists": true,
+        "bytes": 35837,
+        "sha256": "61355e1d8b385b73f8b7fe51f4c3765b8058469dabe35e1a2ce954483874419e"
+      },
+      "stage1_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "exists": true,
+        "bytes": 138173,
+        "sha256": "cdff90d8ef7266687f1c1d3b6d05913e8fec07780163b3d0ca2ac64ae548ed94"
+      },
+      "production_cfar_period_identity_source": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/src/processOnePeriod.cpp",
+        "exists": true,
+        "bytes": 273400,
+        "sha256": "2616339a9f711f38d0b4656468ccf1dbe6cbe08eadae10641a0c4b4320159692"
+      },
+      "stage2_delay_correction_operator": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/estimate_channel_delay.py",
+        "exists": true,
+        "bytes": 26432,
+        "sha256": "c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7"
+      },
+      "stage1_config": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/channel_delay_stage1_formal.json",
+        "exists": true,
+        "bytes": 3595,
+        "sha256": "ad47b0d02b05ddc4839da39a7498faf1af25ca3ba8eec678597c0ce7a0f651f6"
+      },
+      "scene_template": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/simulator/scenarios/beam50_one_targets_continuous.run.json",
+        "exists": true,
+        "bytes": 2543,
+        "sha256": "1f4f9c8b9383614601dc019414b8c8a8788b195301526438b95a672b1ee13998"
+      },
+      "design": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/05_experiment_design.md",
+        "exists": true,
+        "bytes": 16395,
+        "sha256": "5106baa10a839089f50af52aa0898d5399d6a883d9df2e4fd945d897c2c4851c"
+      }
+    },
+    "build": {
+      "simulate_stage2_statistical": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+        "exists": true,
+        "bytes": 645944,
+        "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+      },
+      "GMTI_pipe_core": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+        "exists": true,
+        "bytes": 6278056,
+        "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+      }
+    }
+  },
+  "area_clutter_gate": {
+    "status": "passed",
+    "reasons": [],
+    "area_enabled": true,
+    "area_model": "continuous_texture",
+    "platform_height_m": 6000.0,
+    "ground_height_m": 0.0,
+    "minimum_slant_range_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_max_m": 85289.213854977,
+    "continuous_area_packets": 390,
+    "continuous_area_samples": 1952655,
+    "area_mean_power_measured": 0.112371464724,
+    "report_values": {
+      "area_rho_lag1_measured": "0.980018727371",
+      "area_rho_at_CTDR_lag": "0.960435926191",
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "2.05062451196",
+      "mean_noise_power_per_complex_sample": "0.0100038604763"
+    },
+    "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "e18101f5a46f899f4a78a84778642c22917ad3a18ed0ab7c03b7f468696e545b"
+  },
+  "known_correction_physical_closure": {
+    "status": "passed",
+    "by_role": {
+      "ON": {
+        "status": "passed",
+        "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+        "tolerance_relative_rms": 0.001,
+        "channels": {
+          "F1": {
+            "sample_count": 4609800,
+            "reference_mean_power": 29.675375987451453,
+            "error_mean_power": 0.0,
+            "relative_rms_error": 0.0,
+            "max_abs_error": 0.0,
+            "phase_rms_rad": 2.9541373688218806e-18,
+            "phase_sample_count": 4609800,
+            "status": "passed"
+          },
+          "F2": {
+            "sample_count": 4609800,
+            "reference_mean_power": 29.566999742146404,
+            "error_mean_power": 2.2553635897404574e-07,
+            "relative_rms_error": 8.7338283791458e-05,
+            "max_abs_error": 0.14002672876618955,
+            "phase_rms_rad": 0.010715778984793879,
+            "phase_sample_count": 4609800,
+            "status": "passed"
+          }
+        }
+      },
+      "OFF": {
+        "status": "passed",
+        "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+        "tolerance_relative_rms": 0.001,
+        "channels": {
+          "F1": {
+            "sample_count": 4609800,
+            "reference_mean_power": 26.833471330712978,
+            "error_mean_power": 0.0,
+            "relative_rms_error": 0.0,
+            "max_abs_error": 0.0,
+            "phase_rms_rad": 3.778639990329551e-18,
+            "phase_sample_count": 4609800,
+            "status": "passed"
+          },
+          "F2": {
+            "sample_count": 4609800,
+            "reference_mean_power": 26.725118190071857,
+            "error_mean_power": 2.2553634545712173e-07,
+            "relative_rms_error": 9.186465581153579e-05,
+            "max_abs_error": 0.14002672876618955,
+            "phase_rms_rad": 0.010715778984796686,
+            "phase_sample_count": 4609800,
+            "status": "passed"
+          }
+        }
+      },
+      "TO": {
+        "status": "passed",
+        "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+        "tolerance_relative_rms": 0.001,
+        "channels": {
+          "F1": {
+            "sample_count": 4609800,
+            "reference_mean_power": 2.841872330521844,
+            "error_mean_power": 0.0,
+            "relative_rms_error": 0.0,
+            "max_abs_error": 0.0,
+            "phase_rms_rad": 1.5315406294940725e-18,
+            "phase_sample_count": 3042000,
+            "status": "passed"
+          },
+          "F2": {
+            "sample_count": 4609800,
+            "reference_mean_power": 2.841838357138251,
+            "error_mean_power": 1.4503325041855864e-14,
+            "relative_rms_error": 7.143879233860944e-08,
+            "max_abs_error": 5.331201499700045e-07,
+            "phase_rms_rad": 5.673703411998739e-08,
+            "phase_sample_count": 3042000,
+            "status": "passed"
+          }
+        }
+      }
+    }
+  },
+  "blind_estimator": {
+    "method": "M1_Physics_Matched_Delay",
+    "status": "ok",
+    "delta_tau_ns": 3.7593574022514233,
+    "delay_samples": 0.2255614441350854,
+    "fallback_reason": null,
+    "support_count": 2364,
+    "frequency_span_hz": 21812182.741116755,
+    "normalized_model_residual": 0.04571005880976371,
+    "phase_rmse_rad": 0.04287726734985965,
+    "fitted_conjugate_gain": {
+      "real": 0.894280616035578,
+      "imag": 0.02450634781011703,
+      "magnitude": 0.8946163318987438,
+      "phase_rad": 0.027396564128440798
+    },
+    "geometry_delay_sec_min": 3.481985800396609e-10,
+    "geometry_delay_sec_max": 3.481985800396609e-10,
+    "relative_response_model": "constant_complex_gain",
+    "delay_bounds_samples": [
+      -0.49,
+      0.49
+    ],
+    "truth_used_in_estimator": false,
+    "baselines": {
+      "D1_ordinary_LS": {
+        "delta_tau_ns": 3.596080537950757,
+        "support_count": 2364,
+        "phase_rmse_rad": 0.04276786297430371,
+        "r2": 0.8738273610262379
+      },
+      "D2_weighted_LS": {
+        "delta_tau_ns": 3.6060941997544376,
+        "support_count": 2364,
+        "phase_rmse_rad": 0.042812219284692886,
+        "r2": 0.8718601032385749
+      },
+      "D3_Huber_weighted_LS": {
+        "delta_tau_ns": 3.5880556759918814,
+        "support_count": 2364,
+        "phase_rmse_rad": 0.039966759415389644,
+        "r2": 0.8856231080867502
+      }
+    },
+    "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+    "input_pulse_count": 390,
+    "geometry_reference_range_m": 82802.7,
+    "beam_angle_deg_min": 38.0,
+    "beam_angle_deg_max": 38.0,
+    "reported_geometry_delay_ns": 0.3481985800396609,
+    "evaluator_only_truth_ns": 4.0,
+    "evaluator_only_error_ns": -0.24064259774857666,
+    "input_files": [
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "exists": true,
+        "bytes": 49204480,
+        "sha256": "6a5706ec3f53eab4e1673f24de5ee3421e0b03f18943839d116f7f329ab45d3f"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "exists": true,
+        "bytes": 49204480,
+        "sha256": "b28dccc88a27d66259393a529945c8b3e950f4096086ca81da7a05a89e625c3c"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+        "exists": true,
+        "bytes": 49204480,
+        "sha256": "0b292841fd4ffce9c524a065b005bc079866d7b9aded72d4d37281d1b820d2c1"
+      }
+    ],
+    "runtime_xml": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/production/A1_Current_unknown_error_ON/production.xml",
+      "exists": true,
+      "bytes": 13874,
+      "sha256": "50544a1d0eca907219fc0113d19547f71262a140b1804e7632d1f3b4f86473fb"
+    }
+  },
+  "processing_chain_comparability": {
+    "status": "passed",
+    "fingerprints": {
+      "A0_Ideal/ON": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A0_Ideal/OFF": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A0_Ideal/TO": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A1_Current_unknown_error/ON": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A1_Current_unknown_error/OFF": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A1_Current_unknown_error/TO": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A2_Known_error_correction_upper_bound/ON": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A2_Known_error_correction_upper_bound/OFF": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "A2_Known_error_correction_upper_bound/TO": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "R12_D3_R9_Fixed/ON": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "R12_D3_R9_Fixed/OFF": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "R12_D3_R9_Fixed/TO": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "R12_M1_Physics_Matched/ON": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "R12_M1_Physics_Matched/OFF": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2",
+      "R12_M1_Physics_Matched/TO": "345b7600c4856ff2d71d85966962a03d99471586f50a8a68e9a3a927c57e2bd2"
+    },
+    "normalization": "R8 normalized runtime XML; result_add and track_debug_dir output paths ignored"
+  },
+  "evaluation_status": {
+    "single_seed_population_pd_pfa": "NOT_EVALUABLE",
+    "false_alarm_scope": "descriptive H0 OFF counts only; no pooled or statistical Pfa claim"
+  },
+  "production_branch_count": 15,
+  "branch_gate_summary": {
+    "A0_Ideal_OFF": "passed",
+    "A0_Ideal_ON": "passed",
+    "A0_Ideal_TO": "passed",
+    "A1_Current_unknown_error_OFF": "passed",
+    "A1_Current_unknown_error_ON": "passed",
+    "A1_Current_unknown_error_TO": "passed",
+    "A2_Known_error_correction_upper_bound_OFF": "passed",
+    "A2_Known_error_correction_upper_bound_ON": "passed",
+    "A2_Known_error_correction_upper_bound_TO": "passed",
+    "R12_D3_R9_Fixed_OFF": "passed",
+    "R12_D3_R9_Fixed_ON": "passed",
+    "R12_D3_R9_Fixed_TO": "passed",
+    "R12_M1_Physics_Matched_OFF": "passed",
+    "R12_M1_Physics_Matched_ON": "passed",
+    "R12_M1_Physics_Matched_TO": "passed"
+  },
+  "archived_files": 425,
+  "raw_iq_and_full_csi_maps_in_git": false,
+  "raw_artifacts_local_root": "outputs/phase_r_r12_physics_matched_delay_20261024",
+  "archived_bytes": 16007048
+}
