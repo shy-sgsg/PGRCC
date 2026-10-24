@@ -1,6 +1,7 @@
 import numpy as np
 
 from scripts.phase_r.evaluate_r7_task_metrics import (
+    _cfar_counts,
     evaluate_case,
     summarize_target_only_response,
     track_associations_from_debug,
@@ -58,6 +59,108 @@ def _lineage(row, col, *, selected=1, raw=1):
         "selected": str(selected),
         "raw_detection": str(raw),
     }
+
+
+def test_unique_union_hit_cells_sum_validated_counts_across_periods():
+    rows = []
+    for period, dynamic_hits, full_hits, union_hits in (
+        (0, 134, 157, 181),
+        (1, 99, 109, 124),
+        (2, 98, 108, 127),
+    ):
+        rows.extend([
+            {"period_id": period, "beam_id": 50, "branch": "union_dynamic_in_band",
+             "hit_cut_count": dynamic_hits, "valid_cut_count": 527280},
+            {"period_id": period, "beam_id": 50, "branch": "union_full_band",
+             "hit_cut_count": full_hits, "valid_cut_count": 527280},
+            {"period_id": period, "beam_id": 50, "branch": "unique_union_audit",
+             "unique_union_hit_cells": union_hits, "valid_cut_count": 527280,
+             "audit_verified": True},
+        ])
+
+    result = _cfar_counts(rows, expected_period_beam_keys={(0, 50), (1, 50), (2, 50)})
+
+    assert result["cfar_branch_hit_cells"] == 705
+    assert result["unique_union_hit_cells"]["count"] == 432
+    assert result["unique_union_hit_cells"]["valid_cut_count"] == 1_581_840
+    assert result["unique_union_hit_cells"]["observed_hit_fraction"] == 432 / 1_581_840
+
+
+def test_unique_union_hit_cells_cover_multiple_beams_without_branch_overlap_sum():
+    rows = []
+    expected = {(period, beam) for period in (0, 1) for beam in (50, 51)}
+    for period, beam in sorted(expected):
+        rows.extend([
+            {"period_id": period, "beam_id": beam, "branch": "union_dynamic_in_band",
+             "hit_cut_count": 10, "valid_cut_count": 100},
+            {"period_id": period, "beam_id": beam, "branch": "union_full_band",
+             "hit_cut_count": 12, "valid_cut_count": 100},
+            {"period_id": period, "beam_id": beam, "branch": "unique_union_audit",
+             "unique_union_hit_cells": 15, "valid_cut_count": 100, "audit_verified": True},
+        ])
+
+    result = _cfar_counts(rows, expected_period_beam_keys=expected)
+
+    assert result["cfar_branch_hit_cells"] == 88
+    assert result["unique_union_hit_cells"]["count"] == 60
+    assert result["unique_union_hit_cells"]["valid_cut_count"] == 400
+
+
+def test_unique_union_rows_with_duplicates_are_not_evaluable():
+    row = {
+        "period_id": 0, "beam_id": 50, "branch": "unique_union_audit",
+        "unique_union_hit_cells": 7, "valid_cut_count": 100, "audit_verified": True,
+    }
+
+    result = _cfar_counts(
+        [row, dict(row)], expected_period_beam_keys={(0, 50)},
+    )
+
+    assert result["unique_union_hit_cells"]["status"] == "NOT_EVALUABLE_DUPLICATE_UNION_ROWS"
+    assert result["unique_union_hit_cells"]["count"] is None
+
+
+def test_conflicting_unique_union_rows_are_not_evaluable():
+    first = {
+        "period_id": 0, "beam_id": 50, "branch": "unique_union_audit",
+        "unique_union_hit_cells": 7, "valid_cut_count": 100, "audit_verified": True,
+    }
+    second = {**first, "unique_union_hit_cells": 8}
+
+    result = _cfar_counts(
+        [first, second], expected_period_beam_keys={(0, 50)},
+    )
+
+    assert result["unique_union_hit_cells"]["status"] == "NOT_EVALUABLE_CONFLICTING_UNION_ROWS"
+    assert result["unique_union_hit_cells"]["count"] is None
+
+
+def test_unique_union_rows_missing_expected_period_beam_are_not_evaluable():
+    row = {
+        "period_id": 0, "beam_id": 50, "branch": "unique_union_audit",
+        "unique_union_hit_cells": 7, "valid_cut_count": 100, "audit_verified": True,
+    }
+
+    result = _cfar_counts(
+        [row], expected_period_beam_keys={(0, 50), (1, 50)},
+    )
+
+    assert result["unique_union_hit_cells"]["status"] == "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS"
+    assert result["unique_union_hit_cells"]["count"] is None
+
+
+def test_unique_union_rows_without_verified_numeric_audit_are_not_evaluable():
+    row = {
+        "period_id": 0, "beam_id": 50, "branch": "unique_union_audit",
+        "unique_union_hit_cells": 7, "valid_cut_count": 100,
+    }
+
+    result = _cfar_counts(
+        [row], expected_period_beam_keys={(0, 50)},
+    )
+
+    assert result["unique_union_hit_cells"]["status"] == "NOT_EVALUABLE_UNVERIFIED_AUDIT"
+    assert result["unique_union_hit_cells"]["count"] is None
 
 
 def test_on_assignment_is_one_to_one_and_minimizes_normalized_bin_residual():
@@ -153,6 +256,12 @@ def test_recorded_production_doppler_axis_maps_signed_truth_row_to_the_actual_cf
     assert association["truth_row"] == 50
     assert association["detection_row"] == 49
     assert association["doppler_delta_bins"] == 1
+    assert association["signed_doppler_delta_bins"] == -1
+    assert abs(association["folded_doppler_frequency_error_hz"] - (-5.7199)) < 0.001
+    assert abs(
+        result["metrics"]["parameter_errors"]["folded_doppler_frequency_rmse_hz"]
+        - 5.7199
+    ) < 0.001
     assert result["metrics"]["unique_correct_detections"] == 1
 
 
@@ -274,6 +383,24 @@ def test_unresolved_radial_velocity_is_not_given_a_fabricated_error():
     radial = result["metrics"]["parameter_errors"]["radial_velocity"]
     assert radial["status"] == "NOT_EVALUABLE"
     assert radial["unresolved_count"] == 1
+    assert radial["count"] == 0
+    assert radial["rmse_mps"] is None
+
+
+def test_unknown_ambiguity_status_does_not_make_radial_velocity_evaluable():
+    result = evaluate_case(
+        mode="ON",
+        truths=[_truth()],
+        final_detections=[
+            _detection(0, 50, 100, ambiguity_status="unknown",
+                       radial_velocity_mps="2.5")
+        ],
+        lineage_rows=[_lineage(50, 100)],
+        doppler_rows=130,
+    )
+
+    radial = result["metrics"]["parameter_errors"]["radial_velocity"]
+    assert radial["status"] == "NOT_EVALUABLE"
     assert radial["count"] == 0
     assert radial["rmse_mps"] is None
 

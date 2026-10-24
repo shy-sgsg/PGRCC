@@ -228,6 +228,40 @@ def circular_doppler_distance(lhs: int, rhs: int, row_count: int) -> int:
     return min(difference, row_count - difference)
 
 
+def signed_circular_doppler_delta(lhs: int, rhs: int, row_count: int) -> int:
+    if row_count <= 0:
+        return lhs - rhs
+    half = row_count // 2
+    return ((lhs - rhs + half) % row_count) - half
+
+
+def folded_doppler_frequency_error_hz(
+    truth: Mapping[str, Any],
+    detection: Mapping[str, Any],
+    doppler_axis: Mapping[str, Any] | None,
+    doppler_rows: int,
+) -> float | None:
+    """Compare the detected Production axis frequency with truth modulo PRF."""
+
+    if doppler_axis is None or not _flag(doppler_axis, "doppler_axis_uniform"):
+        return None
+    first_hz = _float(doppler_axis, "doppler_axis_first_hz")
+    spacing_hz = _float(doppler_axis, "doppler_bin_spacing_hz")
+    axis_rows = _int(doppler_axis, "doppler_row_count")
+    detection_row = _int(detection, "row")
+    truth_hz = _float(truth, "af_total_truth_hz")
+    prf_hz = _float(detection, "prf_hz")
+    if (
+        first_hz is None or spacing_hz is None or spacing_hz == 0.0
+        or axis_rows != doppler_rows or detection_row is None
+        or truth_hz is None or prf_hz is None or prf_hz <= 0.0
+    ):
+        return None
+    production_hz = first_hz + detection_row * spacing_hz
+    difference = production_hz - truth_hz
+    return (difference + 0.5 * prf_hz) % prf_hz - 0.5 * prf_hz
+
+
 def _hungarian(costs: Sequence[Sequence[float]]) -> list[int]:
     """Minimum-cost column assignment for each row; rows must not exceed columns."""
 
@@ -377,31 +411,162 @@ def _cluster_summary(
     }
 
 
-def _cfar_counts(cfar_rows: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+def _cfar_counts(
+    cfar_rows: Sequence[Mapping[str, Any]],
+    *,
+    expected_period_beam_keys: set[tuple[int, int]] | None = None,
+) -> dict[str, Any]:
     branch_hits: dict[tuple[int, int, str], int] = {}
-    unique_union_values: list[int] = []
+    duplicate_branch_keys: set[tuple[int, int, str]] = set()
+    conflicting_branch_keys: set[tuple[int, int, str]] = set()
+    union_rows: dict[tuple[int, int], dict[str, Any]] = {}
+    duplicate_union_keys: set[tuple[int, int]] = set()
+    conflicting_union_keys: set[tuple[int, int]] = set()
+    malformed_union_rows = 0
     for row in cfar_rows:
         period = _int(row, "period_id")
         beam = _int(row, "beam_id")
+        branch = str(_get(row, "branch", "unknown"))
+        if branch == "unique_union_audit":
+            if period is None or beam is None:
+                malformed_union_rows += 1
+                continue
+            key = (period, beam)
+            if key in union_rows:
+                duplicate_union_keys.add(key)
+                previous = union_rows[key]
+                current = {
+                    "hit_count": _int(row, "unique_union_hit_cells"),
+                    "valid_cut_count": _int(row, "valid_cut_count"),
+                    "audit_verified": _flag(row, "audit_verified"),
+                }
+                if current != previous:
+                    conflicting_union_keys.add(key)
+                continue
+            union_rows[key] = {
+                "hit_count": _int(row, "unique_union_hit_cells"),
+                "valid_cut_count": _int(row, "valid_cut_count"),
+                "audit_verified": _flag(row, "audit_verified"),
+            }
+            continue
         if period is None or beam is None:
             continue
-        branch = str(_get(row, "branch", "unknown"))
         hits = _int(row, "hit_cut_count")
         if hits is not None:
             key = (period, beam, branch)
-            if key in branch_hits and branch_hits[key] != hits:
-                raise ValueError(f"conflicting CFAR hit counts for {key}")
-            branch_hits[key] = hits
-        union_count = _int(row, "unique_union_hit_cells")
-        if union_count is not None:
-            unique_union_values.append(union_count)
+            if key in branch_hits:
+                duplicate_branch_keys.add(key)
+                if branch_hits[key] != hits:
+                    conflicting_branch_keys.add(key)
+                    branch_hits[key] = -1
+            else:
+                branch_hits[key] = hits
+
+    expected_keys = (
+        {(int(period), int(beam)) for period, beam in expected_period_beam_keys}
+        if expected_period_beam_keys is not None
+        else None
+    )
+    observed_keys = set(union_rows)
+    missing_keys = sorted(expected_keys - observed_keys) if expected_keys is not None else []
+    unexpected_keys = sorted(observed_keys - expected_keys) if expected_keys is not None else []
+    invalid_union_keys = sorted(
+        key for key, row in union_rows.items()
+        if row["hit_count"] is None or row["hit_count"] < 0
+        or row["valid_cut_count"] is None or row["valid_cut_count"] <= 0
+        or row["hit_count"] > row["valid_cut_count"]
+    )
+    unverified_union_keys = sorted(
+        key for key, row in union_rows.items() if not row["audit_verified"]
+    )
+
+    if expected_keys is None:
+        union_status = "NOT_EVALUABLE_NO_EXPECTED_PERIOD_BEAM_SET"
+    elif conflicting_union_keys:
+        union_status = "NOT_EVALUABLE_CONFLICTING_UNION_ROWS"
+    elif duplicate_union_keys:
+        union_status = "NOT_EVALUABLE_DUPLICATE_UNION_ROWS"
+    elif malformed_union_rows:
+        union_status = "NOT_EVALUABLE_MALFORMED_UNION_ROWS"
+    elif missing_keys or unexpected_keys:
+        union_status = "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS"
+    elif invalid_union_keys:
+        union_status = "NOT_EVALUABLE_INVALID_UNION_COUNTS"
+    elif unverified_union_keys:
+        union_status = "NOT_EVALUABLE_UNVERIFIED_AUDIT"
+    else:
+        union_status = "evaluable"
+
+    valid_cut_count = (
+        sum(int(row["valid_cut_count"]) for row in union_rows.values())
+        if union_status == "evaluable"
+        else None
+    )
+    union_hit_count = (
+        sum(int(row["hit_count"]) for row in union_rows.values())
+        if union_status == "evaluable"
+        else None
+    )
+    branch_status = (
+        "NOT_EVALUABLE_CONFLICTING_BRANCH_ROWS" if conflicting_branch_keys
+        else "NOT_EVALUABLE_DUPLICATE_BRANCH_ROWS" if duplicate_branch_keys
+        else "evaluable" if branch_hits else "NOT_EVALUABLE"
+    )
+    branch_totals_by_name = {
+        branch: sum(
+            max(0, hits) for (period, beam, row_branch), hits in branch_hits.items()
+            if row_branch == branch
+        )
+        for branch in sorted({key[2] for key in branch_hits})
+    }
+    observed_branch_total = sum(branch_totals_by_name.values())
     return {
-        "cfar_branch_hit_cells": sum(branch_hits.values()),
-        "unique_union_hit_cells": (
-            {"status": "evaluable", "count": max(unique_union_values)}
-            if unique_union_values
-            else {"status": "NOT_EVALUABLE", "count": None}
-        ),
+        "cfar_branch_hit_cells": observed_branch_total if branch_status == "evaluable" else None,
+        "cfar_branch_hit_cells_observed": observed_branch_total,
+        "cfar_branch_hit_status": branch_status,
+        "cfar_branch_hit_cells_by_branch": branch_totals_by_name,
+        "unique_union_hit_cells": {
+            "status": union_status,
+            "count": union_hit_count,
+            "valid_cut_count": valid_cut_count,
+            "observed_hit_fraction": (
+                union_hit_count / valid_cut_count
+                if union_hit_count is not None and valid_cut_count
+                else None
+            ),
+            "period_beam_rows": [
+                {
+                    "period_id": period,
+                    "beam_id": beam,
+                    "hit_count": row["hit_count"],
+                    "valid_cut_count": row["valid_cut_count"],
+                    "audit_verified": row["audit_verified"],
+                }
+                for (period, beam), row in sorted(union_rows.items())
+            ],
+            "expected_period_beam_keys": (
+                [{"period_id": period, "beam_id": beam} for period, beam in sorted(expected_keys)]
+                if expected_keys is not None else None
+            ),
+            "missing_period_beam_keys": [
+                {"period_id": period, "beam_id": beam} for period, beam in missing_keys
+            ],
+            "unexpected_period_beam_keys": [
+                {"period_id": period, "beam_id": beam} for period, beam in unexpected_keys
+            ],
+            "duplicate_period_beam_keys": [
+                {"period_id": period, "beam_id": beam}
+                for period, beam in sorted(duplicate_union_keys)
+            ],
+            "conflicting_period_beam_keys": [
+                {"period_id": period, "beam_id": beam}
+                for period, beam in sorted(conflicting_union_keys)
+            ],
+            "unverified_period_beam_keys": [
+                {"period_id": period, "beam_id": beam}
+                for period, beam in unverified_union_keys
+            ],
+        },
         "status": "evaluable" if cfar_rows else "NOT_EVALUABLE",
     }
 
@@ -644,6 +809,7 @@ def _on_metrics(
     position_errors: list[float] = []
     angle_errors: list[float] = []
     speed_errors: list[float] = []
+    folded_doppler_errors: list[float] = []
     radial_errors: list[float] = []
     radial_unresolved = 0
     correct_tracks = 0
@@ -659,6 +825,10 @@ def _on_metrics(
             "truth_row": None,
             "detection_row": None,
             "doppler_delta_bins": None,
+            "signed_doppler_delta_bins": None,
+            "truth_doppler_frequency_hz": _float(truth, "af_total_truth_hz"),
+            "production_doppler_frequency_hz": None,
+            "folded_doppler_frequency_error_hz": None,
             "normalized_residual": None,
             "track_id": None,
             "position_error_m": None,
@@ -680,6 +850,25 @@ def _on_metrics(
                 "doppler_delta_bins": dd,
                 "normalized_residual": cost,
             })
+            if expected_row is not None and doppler_rows > 0:
+                row["signed_doppler_delta_bins"] = signed_circular_doppler_delta(
+                    int(_int(detection, "row", -1)), int(expected_row), doppler_rows,
+                )
+            truth_period = _int(truth, "period_id")
+            truth_beam = _int(truth, "beam_id")
+            axis = doppler_axes.get((int(truth_period), int(truth_beam)))
+            if axis is not None:
+                first_hz = _float(axis, "doppler_axis_first_hz")
+                spacing_hz = _float(axis, "doppler_bin_spacing_hz")
+                detection_row = _int(detection, "row")
+                if first_hz is not None and spacing_hz is not None and detection_row is not None:
+                    row["production_doppler_frequency_hz"] = first_hz + detection_row * spacing_hz
+            folded_error = folded_doppler_frequency_error_hz(
+                truth, detection, axis, doppler_rows,
+            )
+            if folded_error is not None:
+                folded_doppler_errors.append(folded_error)
+                row["folded_doppler_frequency_error_hz"] = folded_error
             track_key = (
                 int(_int(truth, "period_id", -1)),
                 int(_int(truth, "beam_id", -1)),
@@ -722,9 +911,12 @@ def _on_metrics(
                 row["angle_error_deg"] = angle_error
             status = str(_get(detection, "ambiguity_status", "")).strip().lower()
             radial, truth_radial = _float(detection, "radial_velocity_mps"), _float(truth, "vr_self_mps")
-            if status in {"unresolved", "ambiguous", "low_confidence"} or radial is None or truth_radial is None:
+            if status != "resolved" or radial is None or truth_radial is None:
                 radial_unresolved += 1
-                row["radial_velocity_status"] = "unresolved"
+                row["radial_velocity_status"] = (
+                    "unresolved" if status in {"unresolved", "ambiguous", "low_confidence"}
+                    else "NOT_EVALUABLE_AMBIGUITY_STATUS"
+                )
             else:
                 radial_error = radial - truth_radial
                 radial_errors.append(radial_error)
@@ -748,6 +940,8 @@ def _on_metrics(
         "angle_error_count": len(angle_errors),
         "ground_speed_rmse_mps": _rmse(speed_errors),
         "ground_speed_error_count": len(speed_errors),
+        "folded_doppler_frequency_rmse_hz": _rmse(folded_doppler_errors),
+        "folded_doppler_frequency_error_count": len(folded_doppler_errors),
         "radial_velocity": {
             "status": radial_status,
             "rmse_mps": _rmse(radial_errors),
@@ -824,6 +1018,7 @@ def evaluate_case(
     track_associations: Sequence[Mapping[str, Any]] = (),
     track_frames: Sequence[Mapping[str, Any]] = (),
     cfar_rows: Sequence[Mapping[str, Any]] = (),
+    expected_cfar_period_beam_keys: set[tuple[int, int]] | None = None,
     doppler_axis_rows: Sequence[Mapping[str, Any]] = (),
     doppler_rows: int = 0,
     target_only_response: Mapping[str, Any] | None = None,
@@ -832,7 +1027,10 @@ def evaluate_case(
     if mode not in {"ON", "OFF", "TO"}:
         raise ValueError(f"mode must be ON, OFF, or TO; got {mode!r}")
     detections = [dict(row) for row in final_detections]
-    cfar = _cfar_counts(cfar_rows)
+    cfar = _cfar_counts(
+        cfar_rows,
+        expected_period_beam_keys=expected_cfar_period_beam_keys,
+    )
     track_counts = _track_counts(track_associations, track_frames)
     lineage = _cluster_summary(lineage_rows, cfar_rows, detections)
     doppler_axes = _doppler_axis_map(lineage_rows, doppler_axis_rows, doppler_rows)
@@ -862,6 +1060,8 @@ def evaluate_case(
         )
         metrics["candidate_final_detections"] = len(candidate_rows)
         metrics["cfar_branch_hit_cells"] = cfar["cfar_branch_hit_cells"]
+        metrics["cfar_branch_hit_status"] = cfar["cfar_branch_hit_status"]
+        metrics["cfar_branch_hit_cells_by_branch"] = cfar["cfar_branch_hit_cells_by_branch"]
         metrics["unique_union_hit_cells"] = cfar["unique_union_hit_cells"]
         metrics["cfar_status"] = cfar["status"]
         metrics["postfilter_clusters"] = lineage.get("postfilter_clusters")
@@ -881,6 +1081,8 @@ def evaluate_case(
         )
         metrics = {
             "cfar_branch_hit_cells": cfar["cfar_branch_hit_cells"],
+            "cfar_branch_hit_status": cfar["cfar_branch_hit_status"],
+            "cfar_branch_hit_cells_by_branch": cfar["cfar_branch_hit_cells_by_branch"],
             "unique_union_hit_cells": cfar["unique_union_hit_cells"],
             "postfilter_clusters": cluster_count,
             "false_clusters": cluster_count,
@@ -896,6 +1098,8 @@ def evaluate_case(
     else:
         metrics = {
             "cfar_branch_hit_cells": cfar["cfar_branch_hit_cells"],
+            "cfar_branch_hit_status": cfar["cfar_branch_hit_status"],
+            "cfar_branch_hit_cells_by_branch": cfar["cfar_branch_hit_cells_by_branch"],
             "unique_union_hit_cells": cfar["unique_union_hit_cells"],
             "postfilter_clusters": lineage.get("postfilter_clusters"),
             "postfilter_cluster_status": (
@@ -957,6 +1161,156 @@ def _read_csv_many(manifest: Mapping[str, Any], key: str, base: Path) -> list[di
     return rows
 
 
+def _manifest_path(value: Any, base: Path) -> Path | None:
+    if not value:
+        return None
+    path = Path(str(value))
+    return (path if path.is_absolute() else base / path).resolve()
+
+
+def _expected_cfar_period_beam_keys(
+    manifest: Mapping[str, Any], base: Path,
+) -> set[tuple[int, int]] | None:
+    source_path = _manifest_path(manifest.get("source_case_manifest"), base)
+    if source_path is None or not source_path.is_file():
+        return None
+    try:
+        source = json.loads(source_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    identity = source.get("scene_identity", {}) if isinstance(source, dict) else {}
+    period_count = identity.get("period_count")
+    beam_id = identity.get("beam_id")
+    try:
+        period_count = int(period_count)
+        beam_id = int(beam_id)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    if period_count <= 0:
+        return None
+    return {(period, beam_id) for period in range(period_count)}
+
+
+def _union_audit_is_verified(
+    *,
+    item: Mapping[str, Any],
+    manifest: Mapping[str, Any],
+    base: Path,
+    expected_period: int,
+    expected_beam: int,
+    expected_count: int | None,
+    expected_valid_count: int | None,
+) -> bool:
+    if str(item.get("audit_status", "")).lower() != "passed":
+        return False
+    declared_beam = _int(item, "beam_id")
+    if declared_beam is not None and declared_beam != expected_beam:
+        return False
+    audit_manifest_path = _manifest_path(item.get("audit_manifest"), base)
+    audit_json_path = _manifest_path(item.get("audit_json"), base)
+    branch_manifest_path = _manifest_path(item.get("branch_manifest"), base)
+    if None in (audit_manifest_path, audit_json_path, branch_manifest_path):
+        return False
+    if not all(path.is_file() for path in (audit_manifest_path, audit_json_path, branch_manifest_path)):
+        return False
+    try:
+        audit_manifest = json.loads(audit_manifest_path.read_text(encoding="utf-8"))
+        numeric = json.loads(audit_json_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    expected_case_manifest = _manifest_path(manifest.get("source_case_manifest"), base)
+    linked_branch_manifest = _manifest_path(audit_manifest.get("branch_manifest"), base)
+    linked_case_manifest = _manifest_path(audit_manifest.get("case_manifest"), base)
+    if (
+        audit_manifest.get("status") != "passed"
+        or audit_manifest.get("role") != manifest.get("mode")
+        or audit_manifest.get("condition") != manifest.get("condition")
+        or audit_manifest.get("cfar_numeric_audit", {}).get("status") != "passed"
+        or audit_manifest.get("production_binary", {}).get("backend") != "Native CUDA"
+        or audit_manifest.get("production_binary", {}).get("use_corex") is not False
+        or linked_branch_manifest != branch_manifest_path
+        or (expected_case_manifest is not None and linked_case_manifest != expected_case_manifest)
+        or audit_json_path != audit_manifest_path.parent / "cfar_reference_audit.json"
+        or numeric.get("status") != "passed"
+    ):
+        return False
+    matches = [
+        row for row in numeric.get("union_period_rows", [])
+        if _int(row, "period_id") == expected_period
+        and _int(row, "result_id") == _int(item, "result_id")
+    ]
+    if len(matches) != 1:
+        return False
+    audited = matches[0]
+    return (
+        audited.get("status") == "passed"
+        and _int(audited, "production_union_hit_count") == expected_count
+        and _int(audited, "valid_cut_count") == expected_valid_count
+        and _int(item, "period_id") == expected_period
+        and _int(item, "unique_union_hit_cells") == expected_count
+        and _int(item, "valid_cut_count") == expected_valid_count
+    )
+
+
+def _attach_verified_union_audits(
+    cfar_rows: Sequence[Mapping[str, Any]],
+    manifest: Mapping[str, Any],
+    base: Path,
+    expected_keys: set[tuple[int, int]] | None,
+) -> list[dict[str, Any]]:
+    sidecars = manifest.get("unique_union_hit_rows", [])
+    sidecars_by_key: dict[tuple[int, int], list[Mapping[str, Any]]] = {}
+    expected_beams_by_period: dict[int, set[int]] = {}
+    if expected_keys is not None:
+        for period, beam in expected_keys:
+            expected_beams_by_period.setdefault(period, set()).add(beam)
+    for item in sidecars if isinstance(sidecars, list) else []:
+        period = _int(item, "period_id")
+        beam = _int(item, "beam_id")
+        if beam is None and period is not None:
+            beams = expected_beams_by_period.get(period, set())
+            beam = next(iter(beams)) if len(beams) == 1 else None
+        if period is not None and beam is not None:
+            sidecars_by_key.setdefault((period, beam), []).append(item)
+
+    verified_by_key: dict[tuple[int, int], bool] = {}
+    for key, items in sidecars_by_key.items():
+        if len(items) != 1:
+            verified_by_key[key] = False
+            continue
+        item = items[0]
+        verified_by_key[key] = _union_audit_is_verified(
+            item=item,
+            manifest=manifest,
+            base=base,
+            expected_period=key[0],
+            expected_beam=key[1],
+            expected_count=_int(item, "unique_union_hit_cells"),
+            expected_valid_count=_int(item, "valid_cut_count"),
+        )
+
+    result: list[dict[str, Any]] = []
+    for source in cfar_rows:
+        row = dict(source)
+        if str(_get(row, "branch", "")) == "unique_union_audit":
+            period, beam = _int(row, "period_id"), _int(row, "beam_id")
+            key = (period, beam) if period is not None and beam is not None else None
+            items = sidecars_by_key.get(key, []) if key is not None else []
+            row["audit_verified"] = bool(
+                key is not None
+                and verified_by_key.get(key, False)
+                and len(items) == 1
+                and _int(row, "unique_union_hit_cells") == _int(items[0], "unique_union_hit_cells")
+                and _int(row, "valid_cut_count") == _int(items[0], "valid_cut_count")
+                and (
+                    _int(row, "result_id") is None
+                    or _int(row, "result_id") == _int(items[0], "result_id")
+                )
+            )
+        result.append(row)
+    return result
+
+
 def evaluate_manifest(manifest_path: Path) -> dict[str, Any]:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if not isinstance(manifest, dict):
@@ -968,6 +1322,8 @@ def evaluate_manifest(manifest_path: Path) -> dict[str, Any]:
     tracks = _read_csv_many(manifest, "track_associations_csv", base)
     frames = _read_csv_many(manifest, "track_frames_csv", base)
     cfar = _read_csv_many(manifest, "cfar_geometry_csv", base)
+    expected_cfar_keys = _expected_cfar_period_beam_keys(manifest, base)
+    cfar = _attach_verified_union_audits(cfar, manifest, base, expected_cfar_keys)
     if not tracks and (manifest.get("track_detections_csvs") or manifest.get("track_payload_csvs")):
         tracks = track_associations_from_debug(
             track_detections=_read_csv_many(manifest, "track_detections_csvs", base),
@@ -989,6 +1345,7 @@ def evaluate_manifest(manifest_path: Path) -> dict[str, Any]:
         track_associations=tracks,
         track_frames=frames,
         cfar_rows=cfar,
+        expected_cfar_period_beam_keys=expected_cfar_keys,
         doppler_axis_rows=manifest.get("doppler_axis_rows", []),
         doppler_rows=int(manifest.get("doppler_rows", 0)),
         target_only_response=response,
