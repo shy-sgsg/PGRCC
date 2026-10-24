@@ -102,6 +102,51 @@ def test_selected_methods_only_prepare_their_required_input_families() -> None:
     assert _required_prepared_families(known_methods) == {"ideal", "known"}
 
 
+def test_zero_delay_stage2_reuses_only_physically_identical_off_and_to_roles(
+    tmp_path: Path,
+) -> None:
+    from scripts.run_delay_stage1_formal import build_scene_variants
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _zero_delay_stage2_reuse_aliases,
+    )
+
+    config = {
+        "case_id": "template",
+        "output_dir": str(tmp_path / "template_output"),
+        "waveform": {"new_protocol_channel_count": 4, "iq_data_type": "float32"},
+        "random": {"random_seed": 999, "beam_start": 1, "period_count": 2},
+        "scene": {"mode": "full", "output_signal_domain": "raw_lfm"},
+        "targets": [{"target_id": "target", "enabled": True}],
+        "channel_impairments": {"enabled": False, "channel_time_delay_ns": 0.0},
+        "production": {"identity": "same"},
+    }
+    identity = {
+        "seed": 101,
+        "period_count": 3,
+        "beam_id": 50,
+        "target_velocity_mps": 6.7,
+        "target_snr_db": 30.0,
+        "target": {"target_id": "target", "enabled": True},
+        "production": {"identity": "same"},
+    }
+
+    zero_delay = build_scene_variants(config, identity, 0.0, tmp_path / "zero")
+    assert _zero_delay_stage2_reuse_aliases(zero_delay, 0.0) == {
+        "A1_OFF": "A0_OFF",
+        "A1_TO": "A0_TO",
+    }
+    assert _zero_delay_stage2_reuse_aliases(zero_delay, 4.0) == {}
+
+    changed_target_only = json.loads(zero_delay["A1_TO"].read_text(encoding="utf-8"))
+    changed_target_only["targets"][0]["motion"]["ve_mps"] += 0.1
+    zero_delay["A1_TO"].write_text(
+        json.dumps(changed_target_only), encoding="utf-8"
+    )
+    assert _zero_delay_stage2_reuse_aliases(zero_delay, 0.0) == {
+        "A1_OFF": "A0_OFF",
+    }
+
+
 def test_cli_passes_selected_methods_into_case_runner(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

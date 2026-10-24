@@ -1000,6 +1000,45 @@ def _required_prepared_families(
     return required
 
 
+def _zero_delay_stage2_reuse_aliases(
+    scenario_paths: Mapping[str, Path], delay_error_ns: float
+) -> dict[str, str]:
+    """Reuse duplicate A1 OFF/TO Stage2 inputs only for a zero-delay pair.
+
+    The generated role documents must match after removing only output and
+    pairing labels.  Any physical/configuration difference keeps the Stage2
+    invocation, and non-zero delay cases never use these aliases.
+    """
+
+    if float(delay_error_ns) != 0.0:
+        return {}
+
+    audit_fields = {
+        "case_id",
+        "output_dir",
+        "stage1_condition",
+        "stage1_pair_id",
+        "stage1_background_source_condition",
+        "stage1_pairing",
+        "pairing_provenance",
+    }
+
+    def physical_payload(key: str) -> dict[str, object] | None:
+        path = scenario_paths.get(key)
+        if path is None or not Path(path).is_file():
+            return None
+        payload = _read_json(Path(path))
+        return {name: value for name, value in payload.items() if name not in audit_fields}
+
+    aliases: dict[str, str] = {}
+    for alias, source in (("A1_OFF", "A0_OFF"), ("A1_TO", "A0_TO")):
+        alias_payload = physical_payload(alias)
+        source_payload = physical_payload(source)
+        if alias_payload is not None and alias_payload == source_payload:
+            aliases[alias] = source
+    return aliases
+
+
 def _prepare_raw_input_record(
     role_paths: Mapping[str, Sequence[Path]],
     *,
@@ -1646,9 +1685,30 @@ def _run_case(
     manifest["scene_variants"] = {key: str(path) for key, path in scene_variants.items()}
     simulation: dict[str, dict[str, object]] = {}
     simulation_order = ["A0_ON", "A0_OFF", "A0_TO", "A1_ON", "A1_OFF", "A1_TO"]
+    simulation_aliases = _zero_delay_stage2_reuse_aliases(
+        scene_variants, float(case["delay_error_ns"])
+    )
     for key in simulation_order:
         scenario_path = scene_variants[key]
         output_dir = delay_runner._scenario_output_dir(scenario_path)
+        if key in simulation_aliases:
+            source_key = simulation_aliases[key]
+            source_run = simulation[source_key]
+            simulation[key] = {
+                "scenario": str(scenario_path),
+                "scenario_sha256": _sha256(scenario_path),
+                "output_dir": source_run["output_dir"],
+                "returncode": 0,
+                "elapsed_sec": 0.0,
+                "status": "reused",
+                "command": [],
+                "reused_from": source_key,
+                "executed_scenario": source_run["scenario"],
+                "executed_scenario_sha256": source_run["scenario_sha256"],
+                "reuse_basis": "zero_delay_normalized_scenario_equivalence",
+            }
+            manifest["simulation"] = simulation
+            continue
         rc, elapsed = _run_logged(
             [SIMULATOR, "--config", scenario_path],
             case_root / "scenes" / "logs" / f"{key}.simulate.log",
