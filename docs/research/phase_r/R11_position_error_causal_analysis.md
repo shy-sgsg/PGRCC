@@ -2,11 +2,13 @@
 
 ## 结论范围
 
-本报告按冻结评价器分别呈现注册 cell `(48,2154)` 的 Production 几何诊断和真实 one-to-one 评价器匹配到的 detection。两者不能互相替代。固定 cell 在六个条件下都被 Production 检出且 cluster selected，但前五个条件的冻结评价器把 truth 配给 `(129,2155)`；只有 4 ns 配回 `(48,2154)`。没有强制匹配或按结果改动门限。
+**评价器一致性修订：** 原 R11 分析把 `gmti_eval_match.one_to_one_match()` 的几何定位结果误称为 R7/R8 冻结任务匹配。离线重评复用 `evaluate_r7_task_metrics.evaluate_case()` 后确认，六个校正条件的正确任务 detection 都是 `(48,2154)`；`(129,2155)` 因 circular Doppler 差 `−49` bins 被 ±2-bin 冻结门拒绝。Production 数据、R11 原始图表和旧 `scan_metrics.csv` 均未覆盖；旧几何候选数据在下节作为独立诊断保留。机器化审计和复现命令见 [R11 评价器一致性审计](R11_evaluator_consistency_audit.md)。
+
+本报告更新后的任务参数误差遵循 R7/R8 冻结门；固定 cell `(48,2154)` 在此场景中也正是六次通过任务门的 detection。因此下表既是同一 cell 的 Production 局部几何响应，也是当前六个条件的正确关联目标参数记录。结论限 seed303、period 1、beam 50 的一个目标机会。
 
 ## 固定 cell 的相位到几何响应
 
-A0 fixed-cell cross-range Jacobian 为 `1968.12214084135 m/rad`。预注册预测为 `J_A0 × wrap(phase_i − phase_A0)`，并与同一固定 cell 的实际 EN 位置投影比较。下表的角度、横向/距离/二维误差是该 cell 相对 truth 的诊断量；在前五点它们不是评价器认定的目标 detection 性能。
+A0 fixed-cell cross-range Jacobian 为 `1968.12214084135 m/rad`。预注册预测为 `J_A0 × wrap(phase_i − phase_A0)`，并与同一固定 cell 的实际 EN 位置投影比较。下表的角度、横向/距离/二维误差来自该 cell 相对 truth 的 Production 几何；经冻结 R7/R8 evaluator 重评后，六点该 cell 全部是有效目标 detection，故这些误差也是当前任务关联的条件性参数记录。
 
 | 校正 (ns) | 相位差 A0 (rad) | 预测 Δcross-range (m) | 实测 Δcross-range (m) | Jacobian 闭合残差 (m) | 固定 cell 角度误差 (deg) | 固定 cell 二维位置误差 (m) |
 |---:|---:|---:|---:|---:|---:|---:|
@@ -19,13 +21,28 @@ A0 fixed-cell cross-range Jacobian 为 `1968.12214084135 m/rad`。预注册预�
 
 六个闭合残差最大 `0.01449 m`，低于设计冻结的 `1.0 m` 门槛。3.409965 ns（R10 固定 D3 值）到 4 ns，fixed-cell 二维误差从 `45.6401 m` 降到 `10.7570 m`，角度误差从 `0.0297031°` 降到 `0.00692256°`。4 ns 的角度和位置误差分别与 A0 相差 `5.73e-8°`、`8.69e-5 m`，Known-to-A0 门均通过。A0 本身仍有约 10.76 m 的绝对定位误差，因此 Known Correction 是恢复到 A0，不是恢复到零误差。
 
-![固定 cell 与评价器候选误差](evidence/r11_local_delay_scan_20261024/charts/R11_angle_position.png)
+原图中的空心 matched-candidate 标记来自 R11 几何匹配器，不能按 R7/R8 任务关联解读；实线固定 cell 是本次冻结门接受的目标。以本报告下方的冻结门数值表为准。
+
+![固定 cell 与旧几何诊断候选误差](evidence/r11_local_delay_scan_20261024/charts/R11_angle_position.png)
 
 ![生产 Jacobian 闭合](evidence/r11_local_delay_scan_20261024/charts/R11_jacobian_closure.png)
 
-## 评价器实际匹配的 detection
+## R7/R8 冻结任务门下的实际目标 detection
 
-| 校正 (ns) | 评价器匹配 cell | matched 角度误差 (deg) | matched cross-range 误差 (m) | matched range 误差 (m) | matched 2D 误差 (m) | CFAR margin (dB) |
+| 校正 (ns) | 接受 cell | Δrange (bins) | 真值/检测 row | circular ΔDoppler (bins) | 角度误差 (deg) | 2D 位置误差 (m) |
+|---:|:---:|---:|:---:|---:|---:|---:|
+| 3.009965 | (48,2154) | 0 | 48 / 48 | 0 | 0.04399793 | 67.580839 |
+| 3.209965 | (48,2154) | 0 | 48 / 48 | 0 | 0.03695747 | 56.773732 |
+| 3.409965 | (48,2154) | 0 | 48 / 48 | 0 | 0.02970307 | 45.640135 |
+| 3.609965 | (48,2154) | 0 | 48 / 48 | 0 | 0.02222123 | 34.161463 |
+| 3.809965 | (48,2154) | 0 | 48 / 48 | 0 | 0.01449814 | 22.323475 |
+| 4.000000 | (48,2154) | 0 | 48 / 48 | 0 | 0.00692256 | 10.756963 |
+
+六个条件各有 `1/1` 冻结门内 detection，正好是同一 seed/period 的同一真值机会；不构成六次独立 Pd 观测。
+
+## R11 原几何定位匹配器选择的诊断候选
+
+| 校正 (ns) | 几何诊断 cell | 几何诊断角误差 (deg) | cross-range 误差 (m) | range 误差 (m) | 几何诊断 2D 误差 (m) | CFAR margin (dB) |
 |---:|:---:|---:|---:|---:|---:|---:|
 | 3.009965 | (129,2155) | 0.00210783 | 3.236792 | 4.152461 | 5.264955 | 1.442610 |
 | 3.209965 | (129,2155) | 0.00199165 | 3.058384 | 4.152468 | 5.157199 | 1.440659 |
@@ -34,13 +51,13 @@ A0 fixed-cell cross-range Jacobian 为 `1968.12214084135 m/rad`。预注册预�
 | 3.809965 | (129,2155) | 0.00015542 | 0.238665 | 4.152520 | 4.159373 | 1.421511 |
 | 4.000000 | (48,2154) | 0.00692256 | 10.629998 | 1.647844 | 10.756963 | 13.327383 |
 
-该序列不是同一个 cell 的性能曲线：前五点和 4 ns 的候选不同。冻结 one-to-one matcher 的 cost 同时归一化 EN 位置误差与距离误差（配置最大值分别为 1000 m 和 100 m，关闭速度门）。D3 的 `(129,2155)` cost 为 `0.0260465`，小于 `(48,2154)` 的 `0.0494373`；4 ns 时 `(48,2154)` cost 为 `0.0145541`，低于仍存在的 `(129,2155)` 的 `0.0255960`。因此最后一个点换候选由冻结 cost 的复合距离/位置项决定，不应改 matcher 来维持候选。
+上述几何候选由 `configs/eval/localization_match_config.json` 的位置/距离归一化 cost 选出（最大位置误差 1000 m、range error 100 m、速度门关闭）。例如 3.409965 ns 时，`(129,2155)` 的几何 cost `0.0260465` 小于 `(48,2154)` 的 `0.0494373`；4 ns 时 `(48,2154)` 的 `0.0145541` 小于 `(129,2155)` 的 `0.0255960`。这解释旧报告为何选到不同几何候选。该 cost 没有 Doppler gate，因此不是 R7/R8 冻结任务 matcher 的 cost，也不应用于计算目标检出或任务参数误差。
 
-4 ns 的 `(129,2155)` detection 仍在 Production 输出中，且其单独 EN 误差约 `4.41 m`；但冻结评价器没有将 truth 配给它，所以此值只能作为 alternate-candidate 诊断，不能用来覆盖冻结的正式匹配记录。完整候选、CFAR、detection 和 cluster lineage 均在证据包中。
+逐候选重评显示 `(129,2155)` 六次均在 Production 输出并有 selected/raw lineage，但真值 Doppler row 为 48，该候选 row129 的圆周有符号差为 `−49` bins，全部被冻结 Doppler gate 拒绝。它的几何误差只作为 alternate-candidate 诊断保留，不能覆盖 `(48,2154)` 的正式任务关联。完整逐候选门限、detection 和 lineage 见 [r11_candidate_pair_audit.csv](evidence/r11_evaluator_consistency_20261024/r11_candidate_pair_audit.csv)。
 
 ## 因果解读与限制
 
 1. ch2 逆校正量改变后，F2 输入、CSI、固定 cell raw phase 和固定 cell 几何误差按预期连续收敛；同 seed/period 的操纵输入及 A0 对照支持该场景内的因果解释。
 2. Jacobian 闭合检验的是生产局部相位—几何映射是否与该生产输出自洽。它不独立证明真实平台只有通道时延一种误差，也不分离分数延迟插值、四通道融合及 CTDR 解算各自的误差份额。
-3. 评价器匹配候选在 4 ns 切换，导致匹配目标的二维误差从前一点 `4.159 m` 变为 `10.757 m`。这不是单调的端到端任务改善证据。它与 fixed-cell 几何响应是不同的结果，应在下一步核查定位 cost 对 target candidate 的敏感度，但本阶段不改变评价器。
+3. R7/R8 冻结任务关联六次都是 `(48,2154)`，所以正确关联目标的 2D 误差随时延校正改善而单调回到 A0；原分析的 `(129,2155)` 候选切换是几何匹配口径所致，不能再作为任务级反弹或候选不稳定证据。
 4. 单 seed、单目标、单 period 不支持统计显著性、普遍 Pd/Pfa 或跨场景结论。CFAR margin 是具体 detection 的输出记录，不是虚警率估计。

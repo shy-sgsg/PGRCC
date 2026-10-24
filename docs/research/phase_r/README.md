@@ -89,12 +89,16 @@
 
 ## 尚未闭合的外围评价项
 
-R11 已按冻结范围完成，不自动启动后续阶段。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合；R9/R11 均没有统计性 Pfa 结果。R11 只验证一个 seed/period 中受控通道 2 时延校正对固定 cell CSI、相位与几何的作用；候选切换和 A0 绝对定位残差仍限制任务级解释。现有证据不支持 AI 训练，也不足以据此切换到低速目标或复杂杂波主线。
+R11 已按冻结范围完成，不自动启动后续阶段。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合；R9/R11 均没有统计性 Pfa 结果。R11 的离线一致性复核确认冻结 R7/R8 任务门六次都接受同一个 seed/period 目标 cell，正确关联位置误差随已知时延校正改善；旧报告中的候选切换来自另一个几何匹配口径。单个真值机会仍不支持统计性 Pd/Pfa 或跨场景结论，Known/A0 还保留约 10.76 m 绝对定位误差。现有证据不支持 AI 训练；低速目标或复杂杂波也没有足够评价证据取代当前时延标定主线。
 
 ## R11 通道时延误差到测角/定位的因果验证（2026-10-24）
 
 1. [R11 冻结设计](R11_experiment_design.md)：seed303 period 1 的六点 ch2 校正量、物理输入门、固定 cell 指标、Known-to-A0 门及失败停止条件；设计冻结在新增 CUDA Production 之前。
 2. [R11 时延—相位敏感度](R11_delay_phase_sensitivity.md)：ch2/F2 closure、目标 cell CSI 复响应、Production raw/corrected CTDR phase 和 Native CUDA 执行状态。
-3. [R11 固定 cell 与定位归因](R11_position_error_causal_analysis.md)：分开报告 fixed-cell diagnostic 和冻结 matcher 实际匹配候选，保留候选切换、CFAR margin、Jacobian closure 与评价器 cost。
-4. [R11 方向裁决](R11_research_direction_decision.md)：逐项回答 Q1–Q8，限定固定 cell 机制证据与任务级结论，停止于 R11，不自动训练 AI 或启动 R12。
-5. [R11 紧凑审查证据](evidence/r11_local_delay_scan_20261024/README.md)：机器 manifest、实际 runtime XML/config/log、CFAR geometry、CSI tap summary 和 fixed-cell 复响应、全部检测与 lineage、图表及首次入口失败。49 MB 原始协议 IQ 和全图 CSI maps 不纳入 Git；输入 hash 和 map SHA/大小保留供本机复核。
+3. [R11 固定 cell 与定位归因](R11_position_error_causal_analysis.md)：更新为 R7/R8 冻结门下同一目标的实际参数误差；旧几何定位候选保留为独立诊断。
+4. [R11 评价器一致性审计](R11_evaluator_consistency_audit.md)：说明旧几何 matcher 与 R7/R8 任务 gate 的口径差异、回归覆盖及 R8/R9 历史复算。
+5. [R11 冻结门重评](R11_frozen_gate_reanalysis.md)：列出六条件的正确关联、候选 gate 证据、CTDR/Jacobian 闭合和参数误差。
+6. [R11 方向裁决](R11_research_direction_decision.md)：逐项回答 Q1–Q8，使用修正后的任务级关联解释。
+7. [Phase R 更新方向裁决](Phase_R_updated_research_direction_decision.md)：综合 R3–R11 证据，只选一个后续优先方向并说明 AI 门控。
+8. [R11 CUDA 生产证据](evidence/r11_local_delay_scan_20261024/README.md)：原始机器 manifest、runtime XML/config/log、CFAR geometry、CSI tap summary、检测/lineage、图表和入口失败现场。原始 IQ 与全图 CSI maps 不纳入 Git。
+9. [R11 evaluator consistency 证据包](evidence/r11_evaluator_consistency_20261024/)：离线重评 JSON/CSV、逐候选 gate 记录、R8/R9 历史指标复算、脚本可重复使用的紧凑输入 bundle。
