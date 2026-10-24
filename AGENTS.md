@@ -134,11 +134,13 @@ git status --short --untracked-files=all
   Known-error correction、Estimated-error correction 四个条件，并报告
   `recoverable space = Known − Current`、`actual recovered = Estimated − Current`、
   `recovery ratio = actual/recoverable`；符号和指标方向必须在报告中明示。
-- AI 只有在“多通道观测 → 难以显式解析的系统误差/状态 → 确定性估计值、残差和置信度”
-  的链路中，须先有稳定任务退化、Known-error correction 可恢复空间、强确定性方法的
-  任务相关残差、推理可用且无泄漏的输入，以及独立场景上的公平比较。AI 是可选方法；
-  前置证据不成立时不训练模型、不开发 Router。`NO_GO_AI_ROUTER_VALUE` 仅针对历史
-  Current/J5/J6 Router 安全平均材料性，不等于对所有 Physics-AI 问题作结论。
+- AI 是可选方法，适用对象可包括系统状态、杂波统计以及目标/任务模型；不得将 AI 预设
+  为主线。只有在重复任务级退化、强传统方法仍有稳定任务相关残差、实际推理可获得且无
+  真值/未来/配对参考泄漏的输入，以及独立场景公平收益均有证据后，才进入小规模 AI 评估。
+  `Known-error correction upper bound` 只为特定误差校正问题提供参考，不是所有 GMTI 指标
+  的绝对上界；普通 Baseline 对照不强制使用四条件结构。前置证据不成立时不训练模型、
+  不开发 Router。`NO_GO_AI_ROUTER_VALUE` 仅针对历史 Current/J5/J6 Router 安全平均材料性，
+  不等于对所有 Physics-AI 问题作结论。
 
 生产/受控 CUDA 结论必须来自真实 CUDA 路径；先审计代码、冻结可复现设计并检查输入和
 设备。历史报告中的数字、源码身份与结论保持原样；若新证据修正解释，追加新的 framing

@@ -52,7 +52,7 @@
 
 ### 模块四：物理模型与数据驱动方法协同（可选）
 
-AI 仅在以下证据链完整后进入小规模独立评估：真实或代表性条件下存在可重复的任务退化；Known-error correction upper bound 显示有可恢复空间；确定性强 Baseline 留下稳定、可归因且任务相关的残差；学习方法使用的输入在实际推理时可获得；对照不存在真值、配对参考或未来信息泄漏；收益在独立场景中超过更简单的确定性替代方法。模型输出应是有明确物理意义的估计量/残差/不确定度，并具备拒绝失败输入的机制。任一前置条件不成立，则暂缓或停止 AI。
+AI 是可选方法，适用对象可包括系统状态、杂波统计以及目标/任务模型。只有在真实或代表性条件下存在可重复的任务退化、强传统 Baseline 留下稳定且任务相关的残差、学习方法的输入在部署时确实可获得且不存在真值/配对参考/未来信息泄漏，并且独立场景任务收益超过更简单的确定性替代方法时，才进入小规模独立评估。模型输出应有明确物理含义并具备拒绝失败输入的机制。Known-error correction upper bound 只适用于特定误差校正问题，不能作为所有 GMTI 检测/估计指标的绝对上界；普通方法比较不强制套用四条件结构。任一前置条件不成立，则暂缓或停止 AI。
 
 过去使用的 `Class-P / Class-E / Class-D` 可以作为区分物理状态、等效乘性校准和真实去相关的局部分析词汇，但不是研究模块、强制处理顺序或永久课题分类；使用时须定义该场景中的含义与证据边界。
 
@@ -104,11 +104,11 @@ GMTI 任务与物理模型
 
 杂波功率、有效支持单元、目标传递、每个 CFAR 分支与最终唯一检测单元、H0 false-hit 分母、truth association 和航迹载荷必须各自保留定义。`hit_cut_count / valid_cut_count` 仅表示分支测试命中比例；没有 H0、false-hit 规则和有效分母时不能称为经验 Pfa。径向速度、地速、沿航向/跨航迹速度也不能互相替代，速度模糊状态须随指标报告。
 
-算法比较优先采用适用时的四条件：Ideal/No-error、Current+unknown-error、Known-error correction upper bound、Estimated-error correction。Known 条件只供 evaluator 使用；对每项指标明示方向，并报告 `recoverable space = Known − Current`、`actual recovered = Estimated − Current` 和 `recovery ratio = actual/recoverable`。指标不适用、分母无效或关联缺失时，状态为 `NOT_EVALUABLE`，不以别的指标代替。
+误差校正问题适用时，优先采用四条件：Ideal/No-error、Current+unknown-error、Known-error correction upper bound、Estimated-error correction。Known 条件只供 evaluator 使用；对每项指标明示方向，并报告 `recoverable space = Known − Current`、`actual recovered = Estimated − Current` 和 `recovery ratio = actual/recoverable`。Known correction 是该误差干预问题的参考条件，不是所有任务指标的绝对上界；普通方法对照不强制加入 Known 条件。指标不适用、分母无效或关联缺失时，状态为 `NOT_EVALUABLE`，不以别的指标代替。
 
-## 7. R3–R12 证据归纳与当前状态
+## 7. R3–R13 证据归纳与当前状态
 
-R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数传播的历史证据，不等同于整个博士课题。
+R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数传播的阶段证据，不等同于整个博士课题。
 
 - R3/R8 的受控 CUDA Production 结果表明，在本仓库特定仿真场景中，C2 `+4 ns` 条件相对无误差条件出现任务级退化；Known physical correction 恢复了相应检测/参数结果。R3 三 seed 的参数误差方向描述性一致；R8 的正确检测机会为 A0/B/C `8/9、0/9、8/9`。这些结果不是实机通道误差分布的证明，也不是统计显著性或总体 Pd/Pfa 结论。
 - R7 修复并核验了 CUDA GO-CFAR 数值问题，说明实现错误须先和物理/算法效果分开；R4 低速 ROI 和跨分支唯一 hit-cell 聚合仍存在评估边界。
@@ -116,8 +116,9 @@ R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数
 - Phase-I 早期敏感度矩阵的圆周相位差分已在后续复核中修正：汇总条件数从 `37.32835` 改为 `3.99259`，delay–servo 列余弦从 `−0.91995` 改为 `−0.06815`。旧“delay–servo 近混淆”不再作为当前证据；新值仍是代理观测域、seed/尺度相关的离线矩阵，不证明生产链物理可辨识性或稳定估计能力。原矩阵和报告保持原样，后续引用应指向[复核报告](phase_r/phase_i_observability_reanalysis.md)。
 - R12 在 seed404 的一个 `+4 ns` 场景中执行了 15 条 Native CUDA Production 分支。B 未校正条件为 0/3 正确检测，A0/Known 为 2/3，M1 与固定 D3 各为 3/3；M1 同输入时延误差 0.2406 ns，D3 为 0.4119 ns，但 M1 的角度/位置与地速指标方向不一致，且其 F2 RMS 尚未闭合到 Known。只有一个 seed、每条件三个目标机会，统计性 Pd/Pfa、CFAR unique-union hit-cell 与径向速度 RMSE 未闭合。
 - R12 的当前方向决定是 `PIVOT`：固定静态时延估计不再作为主要创新方向，保留为确定性 Baseline；转向其他 GMTI 瓶颈的公平 Baseline 评价。AI 必要性尚未建立；低速目标或复杂杂波的优先级也尚未由本地证据判定。
+- R13 在 seed101 两个零时延场景运行了 24 条 Native CUDA Production branches，确认 C0/C2/C3 使用同源四通道 IQ 与相同 F1/F2 maps，final-union CFAR map、有效 CUT、日志和 geometry 闭合。正常速度 TO target-only retention / detection 出现 C0 与 Mode-A SCC/Robust DDC 的候选差异；C2/C3 使用配对 OFF 标定信息、C0 不用，且只有单 seed。低速挑战样例未提供稳定方法优势；Pfa 和未解模糊径向速度仍不可评估。R13 建议只做一次有界独立 seed 复核，未自动启动；不训练 AI。详见 [R13 方向评估](phase_r/R13_research_direction_assessment.md) 和 [证据包](phase_r/evidence/r13_baseline_cuda_20261024/README.md)。
 
-细节、指标定义及运行身份见 [Phase R 证据导航](phase_r/README.md)、[R12 最终方向裁决](phase_r/R12_final_research_direction_decision.md) 和 [R12 紧凑证据包](phase_r/evidence/r12_physics_matched_delay_20261024/README.md)。历史结论不回写；后续若修订判断，追加到决策日志并注明新证据。
+细节、指标定义及运行身份见 [Phase R 证据导航](phase_r/README.md)、[R12 最终方向裁决](phase_r/R12_final_research_direction_decision.md)、[R13 方向评估](phase_r/R13_research_direction_assessment.md) 和对应紧凑证据包。历史结论不回写；后续若修订判断，追加到决策日志并注明新证据。
 
 ## 8. 长期计划与阶段门
 
@@ -164,9 +165,9 @@ R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数
 
 ## 9. 当前唯一优先任务
 
-遵循 R12 `PIVOT`，下一项优先工作是：**冻结一份面向小规模传统 GMTI Baseline 比较的共享评价契约，先对现有 CFAR unique-union false-hit/Pfa 与径向速度可评估性做源码和留存证据审计，再确定哪些任务指标已可用于受控比较。**
+R13 已冻结共享评价契约并完成最小 Baseline pilot。当前建议的唯一下一项工作是：**使用一个新独立 seed，复核正常速度场景 C0/C2/C3 的配对 OFF/ON/TO 结果；以相同 OFF-reference 信息类别的 C2 对 C3 为主要比较，C0 仅作生产 Current operational anchor，重点验证 TO target preservation 是否转化为可接受的任务收益。**
 
-本任务先复用已有报告、代码和保存证据；只改必要评价/记录能力，不启动完整传统 Baseline 矩阵或 AI 训练。Pfa 若仍不可评估，应在契约中标明并限制结论，不能因此阻止所有有效任务指标下的限定 Baseline，也不能把 hit fraction 写成 Pfa。只有评价契约冻结并审阅后，才为后续受控 CUDA 比较另行设计实验。当前文档重构本身不启动该后续任务。
+该建议尚未执行，不自动扩大为低速/复杂杂波矩阵或 AI 训练。若独立 seed 不复现 target-preservation 差异，或差异只在 CSI 中间量、没有可接受的检测/错误输出/参数收益，则停止此候选方向。即使差异复现，也需在决策日志评估其任务价值后再决定下一阶段。
 
 ## 10. 研究方向变更与阅读入口
 
@@ -182,7 +183,7 @@ R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数
 
 1. 本总纲：研究目标、当前计划与阶段门；
 2. [研究决策日志](RESEARCH_DECISION_LOG.md)：方向变化的时间顺序；
-3. [Phase R 证据导航](phase_r/README.md)：R3–R12 的方法、证据与限制；
+3. [Phase R 证据导航](phase_r/README.md)：R3–R13 的方法、证据与限制；
 4. [R12 最终方向裁决](phase_r/R12_final_research_direction_decision.md)及对应紧凑证据包；
 5. [Phase R 文献审查](phase_r/02_literature_review.md)：截至其标注日期的定向文献来源，需随具体瓶颈补充，不是系统综述；
 6. 相关历史阶段报告、代码、配置和原始审计产物。
