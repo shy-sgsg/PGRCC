@@ -87,6 +87,14 @@
 - 历史四条件 Stage2 raw-IQ pilot：[`phase_ii_raw_iq_pilot_summary.json`](phase_ii_raw_iq_pilot_summary.json)记录面积杂波注入为 0；平台 6,000 m、地面 0 m、2.5–5 km 斜距窗不可达。它只支持窄范围相位残差判读，不支持杂波收益。
 - Phase-I 观测复核：[`evidence/phase_i_observability_reanalysis_20261021/`](evidence/phase_i_observability_reanalysis_20261021/)含已派生观测、manifest 和重算结果；不含原始 IQ，也不证明全局可辨识或端到端估计精度。
 
-## 尚待决策的门
+## 尚未闭合的外围评价项
 
-R10 已完成冻结范围，不存在自动启动的 R11。若继续，建议先由用户批准一个单 period、固定校正量的 Native CUDA 局部验证，检验融合时延估计到物理 ch2 修正的 residual phase 来源；R10 文档中的扫描点和必要 taps 是方案建议，没有执行。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合；R9 也没有统计性 Pfa 结果。当前证据不支持 AI 训练，也不足以直接切换为低速目标或复杂杂波主线。
+R11 已按冻结范围完成，不自动启动后续阶段。R4 低速 P5 背景 ROI、unique union false-hit 真值关系及 PK/PKR evaluator 缺口仍未闭合；R9/R11 均没有统计性 Pfa 结果。R11 只验证一个 seed/period 中受控通道 2 时延校正对固定 cell CSI、相位与几何的作用；候选切换和 A0 绝对定位残差仍限制任务级解释。现有证据不支持 AI 训练，也不足以据此切换到低速目标或复杂杂波主线。
+
+## R11 通道时延误差到测角/定位的因果验证（2026-10-24）
+
+1. [R11 冻结设计](R11_experiment_design.md)：seed303 period 1 的六点 ch2 校正量、物理输入门、固定 cell 指标、Known-to-A0 门及失败停止条件；设计冻结在新增 CUDA Production 之前。
+2. [R11 时延—相位敏感度](R11_delay_phase_sensitivity.md)：ch2/F2 closure、目标 cell CSI 复响应、Production raw/corrected CTDR phase 和 Native CUDA 执行状态。
+3. [R11 固定 cell 与定位归因](R11_position_error_causal_analysis.md)：分开报告 fixed-cell diagnostic 和冻结 matcher 实际匹配候选，保留候选切换、CFAR margin、Jacobian closure 与评价器 cost。
+4. [R11 方向裁决](R11_research_direction_decision.md)：逐项回答 Q1–Q8，限定固定 cell 机制证据与任务级结论，停止于 R11，不自动训练 AI 或启动 R12。
+5. [R11 紧凑审查证据](evidence/r11_local_delay_scan_20261024/README.md)：机器 manifest、实际 runtime XML/config/log、CFAR geometry、CSI tap summary 和 fixed-cell 复响应、全部检测与 lineage、图表及首次入口失败。49 MB 原始协议 IQ 和全图 CSI maps 不纳入 Git；输入 hash 和 map SHA/大小保留供本机复核。
