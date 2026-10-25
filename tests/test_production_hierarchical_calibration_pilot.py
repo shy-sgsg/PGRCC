@@ -1081,6 +1081,59 @@ def test_flatten_rows_emits_compact_gamma_summary_row() -> None:
     assert gamma_rows[0]["source_paths"] == "/scratch/reference_gamma.csv"
 
 
+def test_flatten_rows_preserves_off_cfar_denominator_and_final_union_evidence() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import _flatten_rows
+
+    denominator_audit = {
+        "status": "passed",
+        "row_count": 6,
+        "reason": None,
+        "definition": "per branch, not pooled",
+    }
+    union_audit = {
+        "status": "passed",
+        "expected_period_count": 3,
+        "summary_count": 3,
+        "hit_cells_by_production_order": [12, 18, 9],
+        "total_hit_cells": 39,
+        "source": "production_cfar_summary",
+        "definition": "final merged CFAR hit counts; descriptive, not Pfa",
+    }
+    _, _, clutter_rows = _flatten_rows(
+        [
+            {
+                "case_id": "case-1",
+                "method_branches": [
+                    {
+                        "method_id": "C0",
+                        "mode": "not_applicable",
+                        "role": "OFF",
+                        "status": "passed",
+                        "metrics": {},
+                        "artifacts": {},
+                        "cfar_geometry": {},
+                        "target_off_waterfall": {
+                            "cell_false_hit_fraction": {
+                                "status": "NOT_EVALUABLE",
+                                "value": None,
+                            },
+                            "valid_cut_denominators": denominator_audit,
+                            "unique_final_union_hits": union_audit,
+                            "false_clusters": {},
+                            "protocol_false_detections": {},
+                            "false_tracks": {},
+                        },
+                    }
+                ],
+            }
+        ]
+    )
+
+    off = next(row for row in clutter_rows if row.get("layer") == "OFF_waterfall")
+    assert off.get("valid_cut_denominators") == denominator_audit
+    assert off.get("unique_final_union_hits") == union_audit
+
+
 def test_geometry_aggregation_keeps_hit_fraction_distinct_from_pfa(tmp_path: Path) -> None:
     from scripts.run_production_hierarchical_calibration_pilot import aggregate_branch_cfar_geometry
 

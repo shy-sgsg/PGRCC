@@ -2213,18 +2213,36 @@ def _run_case(
         isinstance(value, Mapping) and value.get("status") == "passed"
         for value in manifest.get("causal_triplets", {}).values()
     )
-    denominator_ok = all(
-        not isinstance(branch.get("target_off_waterfall"), Mapping)
-        or (
-            isinstance(branch["target_off_waterfall"].get("cell_false_hit_fraction"), Mapping)
-            and branch["target_off_waterfall"]["cell_false_hit_fraction"].get("status") != "NOT_EVALUABLE"
-        )
+    off_branches = [
+        branch
         for branch in method_branches
         if isinstance(branch, Mapping) and str(branch.get("role")) == "OFF"
+    ]
+    denominator_ok = bool(off_branches) and all(
+        isinstance(branch.get("target_off_waterfall"), Mapping)
+        and isinstance(
+            branch["target_off_waterfall"].get("valid_cut_denominators"), Mapping
+        )
+        and branch["target_off_waterfall"]["valid_cut_denominators"].get("status")
+        == "passed"
+        for branch in off_branches
+    )
+    final_union_hits_ok = bool(off_branches) and all(
+        isinstance(branch.get("target_off_waterfall"), Mapping)
+        and isinstance(
+            branch["target_off_waterfall"].get("unique_final_union_hits"), Mapping
+        )
+        and branch["target_off_waterfall"]["unique_final_union_hits"].get("status")
+        == "passed"
+        for branch in off_branches
     )
     manifest["evidence_gate"] = {
         "causal_triplets": "passed" if causal_ok else "NOT_EVALUABLE",
         "valid_cut_denominators": "passed" if denominator_ok else "NOT_EVALUABLE",
+        "unique_final_union_hits": (
+            "passed" if final_union_hits_ok else "NOT_EVALUABLE"
+        ),
+        "empirical_pfa": "NOT_EVALUABLE",
         "truth_used_in_estimator": False,
         "fallback_to_current": False,
     }
@@ -2233,6 +2251,7 @@ def _run_case(
         if all(str(item.get("status")) == "passed" for item in method_branches)
         and causal_ok
         and denominator_ok
+        and final_union_hits_ok
         else "completed_with_gaps"
     )
     manifest["algorithmic_results_claimed"] = False
@@ -2451,6 +2470,12 @@ def _flatten_rows(cases: Sequence[Mapping[str, object]]) -> tuple[list[dict[str,
                         "cell_false_hit_fraction": cell_map.get("value"),
                         "hit_cut_count": cell_map.get("hit_cell_count"),
                         "valid_cut_count": cell_map.get("valid_cut_count"),
+                        "valid_cut_denominators": waterfall.get(
+                            "valid_cut_denominators"
+                        ),
+                        "unique_final_union_hits": waterfall.get(
+                            "unique_final_union_hits"
+                        ),
                         "cluster_layer": waterfall.get("false_clusters"),
                         "protocol_detection_layer": waterfall.get("protocol_false_detections"),
                         "track_layer": waterfall.get("false_tracks"),

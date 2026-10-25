@@ -56,6 +56,9 @@ PIPE = configured_executable_path("PGRCC_GMTI_PIPE_CORE", ROOT / "build/GMTI_pip
 SHM_INTEGRATION = ROOT / "scripts/run_shm_phase1_integration.sh"
 DEFAULT_THEORETICAL_PFA = 1.0e-6
 DEFAULT_ADDITIVE_TOLERANCE = 5.0e-5
+_EXPECTED_UNION_CFAR_GEOMETRY_BRANCHES = frozenset(
+    {"union_dynamic_in_band", "union_full_band"}
+)
 _CONDITIONS = (
     "A0_Ideal",
     "A1_Current_unknown_error",
@@ -771,6 +774,9 @@ def summarize_cfar_geometry_rows(
                 "cell_pfa_status": "NOT_EVALUABLE",
                 "reason": "geometry_branch_missing",
                 "branch_summaries": {},
+                "valid_cut_denominator_status": "NOT_EVALUABLE",
+                "valid_cut_denominator_row_count": len(rows),
+                "valid_cut_denominator_reason": "geometry_branch_missing",
             }
         try:
             period_id = int(row["period_id"])
@@ -785,6 +791,9 @@ def summarize_cfar_geometry_rows(
                 "cell_pfa_status": "NOT_EVALUABLE",
                 "reason": "geometry_counts_or_identity_invalid",
                 "branch_summaries": {},
+                "valid_cut_denominator_status": "NOT_EVALUABLE",
+                "valid_cut_denominator_row_count": len(rows),
+                "valid_cut_denominator_reason": "geometry_counts_or_identity_invalid",
             }
         if valid < 0 or hits < 0 or hits > valid:
             return {
@@ -794,6 +803,9 @@ def summarize_cfar_geometry_rows(
                 "cell_pfa_status": "NOT_EVALUABLE",
                 "reason": "geometry_counts_out_of_range",
                 "branch_summaries": {},
+                "valid_cut_denominator_status": "NOT_EVALUABLE",
+                "valid_cut_denominator_row_count": len(rows),
+                "valid_cut_denominator_reason": "geometry_counts_out_of_range",
             }
         key = (period_id, beam_id, branch)
         if key in seen_keys:
@@ -810,6 +822,8 @@ def summarize_cfar_geometry_rows(
         branch_status = "evaluable" if valid > 0 and not branch_has_duplicates else "NOT_EVALUABLE"
         branch_summaries[branch] = {
             "status": branch_status,
+            "period_count": len({int(row["period_id"]) for row in branch_rows}),
+            "period_ids": sorted({int(row["period_id"]) for row in branch_rows}),
             "threshold_test_count": threshold_tests,
             "valid_cut_count": valid,
             "hit_cut_count": hits,
@@ -850,6 +864,19 @@ def summarize_cfar_geometry_rows(
         hit_cut_count = None
         hit_fraction = None
 
+    if not rows:
+        valid_cut_denominator_status = "NOT_EVALUABLE"
+        valid_cut_denominator_reason = "cfar_geometry_diagnostics_missing"
+    elif duplicate_keys:
+        valid_cut_denominator_status = "NOT_EVALUABLE"
+        valid_cut_denominator_reason = "duplicate_period_beam_branch_rows"
+    elif any(int(row["valid_cut_count"]) <= 0 for row in rows):
+        valid_cut_denominator_status = "NOT_EVALUABLE"
+        valid_cut_denominator_reason = "valid_cut_count_missing_or_non_positive"
+    else:
+        valid_cut_denominator_status = "passed"
+        valid_cut_denominator_reason = None
+
     return {
         "status": aggregate_status,
         "branch_geometry_status": "evaluable" if grouped else "NOT_EVALUABLE",
@@ -861,6 +888,9 @@ def summarize_cfar_geometry_rows(
         "cell_pfa": None,
         "cell_pfa_status": "NOT_EVALUABLE",
         "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+        "valid_cut_denominator_status": valid_cut_denominator_status,
+        "valid_cut_denominator_row_count": len(rows),
+        "valid_cut_denominator_reason": valid_cut_denominator_reason,
         "definition": (
             "hit_cut_count / valid_cut_count for one unique detector branch; not empirical Pfa"
             if aggregate_status == "evaluable" else None
@@ -885,6 +915,110 @@ def evaluate_target_off_waterfall(
     hit_raw = cfar_summary.get("hit_cells")
     aggregate_hit_status = cfar_summary.get("aggregate_hit_fraction_status")
     aggregate_hit_reason = cfar_summary.get("aggregate_hit_fraction_reason")
+    denominator_status = cfar_summary.get("valid_cut_denominator_status")
+    denominator_reason = cfar_summary.get("valid_cut_denominator_reason")
+    try:
+        denominator_row_count = int(cfar_summary.get("valid_cut_denominator_row_count", 0))
+    except (TypeError, ValueError):
+        denominator_row_count = 0
+    try:
+        expected_period_count = int(cfar_summary.get("expected_period_count", 0))
+    except (TypeError, ValueError):
+        expected_period_count = 0
+    branch_summaries = cfar_summary.get("branch_summaries")
+    branch_summaries = branch_summaries if isinstance(branch_summaries, Mapping) else {}
+    expected_period_ids = list(range(max(0, expected_period_count)))
+    branch_names = {str(name) for name in branch_summaries}
+    missing_geometry_branches = _EXPECTED_UNION_CFAR_GEOMETRY_BRANCHES - branch_names
+    unexpected_geometry_branches = branch_names - _EXPECTED_UNION_CFAR_GEOMETRY_BRANCHES
+    branch_period_coverage = bool(branch_summaries) and all(
+        isinstance(item, Mapping)
+        and item.get("status") == "evaluable"
+        and item.get("period_count") == expected_period_count
+        and item.get("period_ids") == expected_period_ids
+        for item in branch_summaries.values()
+    )
+    expected_denominator_rows = (
+        expected_period_count * len(_EXPECTED_UNION_CFAR_GEOMETRY_BRANCHES)
+    )
+    if expected_period_count <= 0:
+        denominator_coverage_reason = "expected_period_count_missing_or_invalid"
+    elif missing_geometry_branches:
+        denominator_coverage_reason = "required_geometry_branch_missing"
+    elif unexpected_geometry_branches:
+        denominator_coverage_reason = "unexpected_geometry_branch_present"
+    elif not branch_period_coverage or denominator_row_count != expected_denominator_rows:
+        denominator_coverage_reason = (
+            "valid_cut_denominator_period_coverage_missing_or_incomplete"
+        )
+    else:
+        denominator_coverage_reason = None
+    denominator_complete = (
+        denominator_status == "passed"
+        and expected_period_count > 0
+        and not missing_geometry_branches
+        and not unexpected_geometry_branches
+        and branch_period_coverage
+        and denominator_row_count == expected_denominator_rows
+    )
+    valid_cut_denominators = {
+        "status": (
+            "passed" if denominator_complete else "NOT_EVALUABLE"
+        ),
+        "row_count": max(0, denominator_row_count),
+        "reason": (
+            None
+            if denominator_complete
+            else str(denominator_reason or denominator_coverage_reason)
+        ),
+        "definition": (
+            "each recorded period/beam/branch has a positive valid CUT denominator; "
+            "overlapping branch denominators are not summed"
+        ),
+    }
+    summaries = cfar_summary.get("summaries")
+    summaries = (
+        list(summaries)
+        if isinstance(summaries, Sequence) and not isinstance(summaries, (str, bytes))
+        else []
+    )
+    try:
+        summary_count = int(cfar_summary.get("summary_count", 0))
+    except (TypeError, ValueError):
+        summary_count = 0
+    final_union_hit_counts: list[int] = []
+    summaries_valid = True
+    for item in summaries:
+        hit_count = item.get("hit_cells") if isinstance(item, Mapping) else None
+        if type(hit_count) is not int or hit_count < 0:
+            summaries_valid = False
+            break
+        final_union_hit_counts.append(hit_count)
+    final_union_status = (
+        "passed"
+        if cfar_summary.get("status") == "passed"
+        and expected_period_count > 0
+        and summary_count == expected_period_count
+        and len(summaries) == expected_period_count
+        and summaries_valid
+        else "NOT_EVALUABLE"
+    )
+    unique_final_union_hits = {
+        "status": final_union_status,
+        "expected_period_count": max(0, expected_period_count),
+        "summary_count": max(0, summary_count),
+        "hit_cells_by_production_order": (
+            final_union_hit_counts if final_union_status == "passed" else None
+        ),
+        "total_hit_cells": (
+            sum(final_union_hit_counts) if final_union_status == "passed" else None
+        ),
+        "source": "production_cfar_summary",
+        "definition": (
+            "positive CUT cells in the merged final CFAR hit map, in production period order; "
+            "descriptive counts, not Pfa"
+        ),
+    }
     try:
         valid_cut = int(valid_cut_raw) if valid_cut_raw is not None else 0
         hit_cells = int(hit_raw) if hit_raw is not None else 0
@@ -994,12 +1128,16 @@ def evaluate_target_off_waterfall(
     return {
         "schema_version": 1,
         "theoretical_go_cfar_cell_pfa": pfa,
+        "valid_cut_denominators": valid_cut_denominators,
+        "unique_final_union_hits": unique_final_union_hits,
         "cell_false_hit_fraction": cell,
         "empirical_structured_clutter_false_hit_fraction": cell,
         "false_clusters": clusters,
         "protocol_false_detections": protocol,
         "false_tracks": tracks,
         "layer_definitions": {
+            "valid_cut_denominators": valid_cut_denominators["definition"],
+            "unique_final_union_hits": unique_final_union_hits["definition"],
             "cell_false_hit_fraction": "hit_cells / valid_cut_count when the denominator is exported",
             "false_clusters": "explicit OFF CFAR cluster count or IDs",
             "protocol_false_detections": "rows in production detection CSV",
@@ -1378,6 +1516,11 @@ def run_production_branch(
     cfar_summary.update({
         "aggregate_hit_fraction_status": geometry_summary["tested_cut_hit_fraction_status"],
         "aggregate_hit_fraction_reason": geometry_summary["reason"],
+        "expected_period_count": int(period_count),
+        "valid_cut_denominator_status": geometry_summary["valid_cut_denominator_status"],
+        "valid_cut_denominator_row_count": geometry_summary["valid_cut_denominator_row_count"],
+        "valid_cut_denominator_reason": geometry_summary["valid_cut_denominator_reason"],
+        "branch_summaries": geometry_summary["branch_summaries"],
         "valid_cut_count": geometry_summary["valid_cut_count"],
         "threshold_test_count": geometry_summary["threshold_test_count"],
         "hit_cut_count": geometry_summary["hit_cut_count"],

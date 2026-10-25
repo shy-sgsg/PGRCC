@@ -383,6 +383,22 @@ def test_cfar_geometry_summary_keeps_branch_hits_separate_when_cut_sets_overlap(
     assert result["reason"] == "multiple_detector_branches_require_unique_hit_union"
     assert result["branch_summaries"]["union_dynamic_in_band"]["hit_fraction"] == 0.04
     assert result["branch_summaries"]["union_full_band"]["hit_fraction"] == 0.05
+    assert result.get("valid_cut_denominator_status") == "passed"
+    assert result.get("valid_cut_denominator_row_count") == len(rows)
+
+    invalid = summarize_cfar_geometry_rows([
+        {
+            "period_id": 0,
+            "beam_id": 50,
+            "branch": "union_full_band",
+            "valid_cut_count": 0,
+            "hit_cut_count": 0,
+        }
+    ])
+    assert invalid.get("valid_cut_denominator_status") == "NOT_EVALUABLE"
+
+    duplicated = summarize_cfar_geometry_rows([rows[0], rows[0]])
+    assert duplicated.get("valid_cut_denominator_status") == "NOT_EVALUABLE"
 
 
 def test_cfar_geometry_summary_pools_one_branch_and_never_labels_it_pfa() -> None:
@@ -415,24 +431,152 @@ def test_cfar_geometry_summary_pools_one_branch_and_never_labels_it_pfa() -> Non
 def test_target_off_waterfall_rejects_ambiguous_multibranch_geometry(tmp_path: Path) -> None:
     from scripts.run_delay_stage1_formal import evaluate_target_off_waterfall
 
+    summary = {
+        "status": "passed",
+        "hit_cells": None,
+        "valid_cut_count": None,
+        "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+        "aggregate_hit_fraction_reason": (
+            "multiple_detector_branches_require_unique_hit_union"
+        ),
+        "valid_cut_denominator_status": "passed",
+        "valid_cut_denominator_row_count": 4,
+        "valid_cut_denominator_reason": None,
+        "branch_summaries": {
+            "union_dynamic_in_band": {
+                "status": "evaluable", "period_count": 2, "period_ids": [0, 1]
+            },
+            "union_full_band": {
+                "status": "evaluable", "period_count": 2, "period_ids": [0, 1]
+            },
+        },
+        "expected_period_count": 2,
+        "summary_count": 2,
+        "summaries": [
+            {"hit_cells": 7, "clusters": 2, "selected": 1},
+            {"hit_cells": 9, "clusters": 3, "selected": 2},
+        ],
+    }
     result = evaluate_target_off_waterfall(
         tmp_path,
         None,
-        {
-            "status": "passed",
-            "hit_cells": None,
-            "valid_cut_count": None,
-            "aggregate_hit_fraction_status": "NOT_EVALUABLE",
-            "aggregate_hit_fraction_reason": (
-                "multiple_detector_branches_require_unique_hit_union"
-            ),
-        },
+        summary,
         1e-6,
     )
 
     assert result["cell_false_hit_fraction"]["status"] == "NOT_EVALUABLE"
     assert result["cell_false_hit_fraction"]["reason"] == (
         "multiple_detector_branches_require_unique_hit_union"
+    )
+    assert result.get("valid_cut_denominators") == {
+        "status": "passed",
+        "row_count": 4,
+        "reason": None,
+        "definition": (
+            "each recorded period/beam/branch has a positive valid CUT denominator; "
+            "overlapping branch denominators are not summed"
+        ),
+    }
+    incomplete = evaluate_target_off_waterfall(
+        tmp_path,
+        None,
+        {**summary, "valid_cut_denominator_row_count": 3},
+        1e-6,
+    )
+    assert incomplete["valid_cut_denominators"]["status"] == "NOT_EVALUABLE"
+    assert incomplete["unique_final_union_hits"]["status"] == "passed"
+    incomplete_union = evaluate_target_off_waterfall(
+        tmp_path,
+        None,
+        {**summary, "summary_count": 1},
+        1e-6,
+    )
+    assert incomplete_union["unique_final_union_hits"]["status"] == "NOT_EVALUABLE"
+    assert result.get("unique_final_union_hits") == {
+        "status": "passed",
+        "expected_period_count": 2,
+        "summary_count": 2,
+        "hit_cells_by_production_order": [7, 9],
+        "total_hit_cells": 16,
+        "source": "production_cfar_summary",
+        "definition": (
+            "positive CUT cells in the merged final CFAR hit map, in production period order; "
+            "descriptive counts, not Pfa"
+        ),
+    }
+
+
+def test_target_off_waterfall_rejects_missing_union_geometry_branch(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import evaluate_target_off_waterfall
+
+    result = evaluate_target_off_waterfall(
+        tmp_path,
+        None,
+        {
+            "status": "passed",
+            "valid_cut_denominator_status": "passed",
+            "valid_cut_denominator_row_count": 3,
+            "valid_cut_denominator_reason": None,
+            "expected_period_count": 3,
+            "branch_summaries": {
+                "union_dynamic_in_band": {
+                    "status": "evaluable",
+                    "period_count": 3,
+                    "period_ids": [0, 1, 2],
+                },
+            },
+            "summary_count": 3,
+            "summaries": [
+                {"hit_cells": 4},
+                {"hit_cells": 5},
+                {"hit_cells": 6},
+            ],
+        },
+        1e-6,
+    )
+
+    assert result["valid_cut_denominators"]["status"] == "NOT_EVALUABLE"
+    assert result["valid_cut_denominators"]["reason"] == "required_geometry_branch_missing"
+
+
+def test_target_off_waterfall_rejects_noncontiguous_geometry_period_ids(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import evaluate_target_off_waterfall
+
+    branch_summaries = {
+        "union_dynamic_in_band": {
+            "status": "evaluable",
+            "period_count": 3,
+            "period_ids": [0, 1, 3],
+        },
+        "union_full_band": {
+            "status": "evaluable",
+            "period_count": 3,
+            "period_ids": [0, 1, 2],
+        },
+    }
+    result = evaluate_target_off_waterfall(
+        tmp_path,
+        None,
+        {
+            "status": "passed",
+            "valid_cut_denominator_status": "passed",
+            "valid_cut_denominator_row_count": 6,
+            "valid_cut_denominator_reason": None,
+            "expected_period_count": 3,
+            "branch_summaries": branch_summaries,
+            "summary_count": 3,
+            "summaries": [
+                {"hit_cells": 4},
+                {"hit_cells": 5},
+                {"hit_cells": 6},
+            ],
+        },
+        1e-6,
+    )
+
+    assert result["valid_cut_denominators"]["status"] == "NOT_EVALUABLE"
+    assert result["valid_cut_denominators"]["reason"] == (
+        "valid_cut_denominator_period_coverage_missing_or_incomplete"
     )
 
 
