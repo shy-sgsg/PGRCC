@@ -1578,3 +1578,40 @@ def test_runner_aggregates_case_closures_into_manifest_evidence() -> None:
     assert closure["status"] == "passed"
     assert closure["actual_production_artifacts"] is True
     assert closure["source_paths"]["A0"] == ["a0.csv"]
+
+
+def test_isolated_runtime_executable_path_can_be_selected_without_touching_default_build(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _configured_executable_path,
+    )
+
+    executable = tmp_path / "native-release" / "GMTI_pipe_core"
+    executable.parent.mkdir()
+    executable.write_bytes(b"isolated native CUDA executable")
+    monkeypatch.setenv("PGRCC_GMTI_PIPE_CORE", str(executable))
+
+    selected = _configured_executable_path(
+        "PGRCC_GMTI_PIPE_CORE", ROOT / "build/GMTI_pipe_core"
+    )
+
+    assert selected == executable.resolve()
+    assert selected != (ROOT / "build/GMTI_pipe_core").resolve()
+
+
+def test_pinned_executable_identity_fails_closed_after_binary_changes(tmp_path: Path) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _artifact_identity,
+        _assert_artifact_sha256,
+    )
+
+    executable = tmp_path / "GMTI_pipe_core"
+    executable.write_bytes(b"release A")
+    pinned = _artifact_identity(executable)
+    assert pinned["exists"] is True
+
+    _assert_artifact_sha256(executable, str(pinned["sha256"]), "GMTI_pipe_core")
+    executable.write_bytes(b"release B")
+    with pytest.raises(RuntimeError, match="GMTI_pipe_core.*identity mismatch"):
+        _assert_artifact_sha256(executable, str(pinned["sha256"]), "GMTI_pipe_core")

@@ -47,8 +47,12 @@ from scripts.estimate_channel_delay import rewrite_float32_protocol_delay
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/research/channel_delay_stage1_formal.json"
 TEMPLATE = ROOT / "simulator/scenarios/beam50_one_targets_continuous.run.json"
-SIMULATOR = ROOT / "build/simulate_stage2_statistical"
-PIPE = ROOT / "build/GMTI_pipe_core"
+from scripts.runtime_binary_identity import configured_executable_path
+
+SIMULATOR = configured_executable_path(
+    "PGRCC_STAGE2_SIMULATOR", ROOT / "build/simulate_stage2_statistical"
+)
+PIPE = configured_executable_path("PGRCC_GMTI_PIPE_CORE", ROOT / "build/GMTI_pipe_core")
 SHM_INTEGRATION = ROOT / "scripts/run_shm_phase1_integration.sh"
 DEFAULT_THEORETICAL_PFA = 1.0e-6
 DEFAULT_ADDITIVE_TOLERANCE = 5.0e-5

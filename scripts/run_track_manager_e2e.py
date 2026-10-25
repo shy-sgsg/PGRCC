@@ -43,12 +43,18 @@ from scripts.estimate_channel_delay import (
     estimate_from_raw_time_arrays,
     rewrite_float32_protocol_delay,
 )
+from scripts.runtime_binary_identity import (
+    assert_artifact_sha256,
+    configured_executable_path,
+)
 from scripts.analyze_four_channel_observables import iter_raw_packets
 from scripts.audit_two_channel_error_observability import fuse_protocol_channels_to_f1_f2
 
 TEMPLATE = ROOT / "simulator/scenarios/beam50_one_targets_continuous.run.json"
-SIMULATOR = ROOT / "build/simulate_stage2_statistical"
-PIPE = ROOT / "build/GMTI_pipe_core"
+SIMULATOR = configured_executable_path(
+    "PGRCC_STAGE2_SIMULATOR", ROOT / "build/simulate_stage2_statistical"
+)
+PIPE = configured_executable_path("PGRCC_GMTI_PIPE_CORE", ROOT / "build/GMTI_pipe_core")
 SHM_INTEGRATION = ROOT / "scripts/run_shm_phase1_integration.sh"
 
 PERIOD_COUNT = 5
@@ -257,7 +263,22 @@ def _run_logged(
     with log_path.open("w", encoding="utf-8") as stream:
         stream.write("$ " + _command_text(command) + "\n")
         stream.flush()
+        binary_pin: tuple[Path, str, str] | None = None
         try:
+            if command:
+                executable = Path(str(command[0])).resolve()
+                configured = (
+                    (SIMULATOR.resolve(), "PGRCC_EXPECTED_STAGE2_SIMULATOR_SHA256", "Stage2 simulator"),
+                    (PIPE.resolve(), "PGRCC_EXPECTED_GMTI_PIPE_CORE_SHA256", "GMTI_pipe_core"),
+                )
+                for candidate, env_name, label in configured:
+                    if executable == candidate:
+                        before = _sha256(executable)
+                        expected = os.environ.get(env_name) or before
+                        assert_artifact_sha256(executable, expected, label)
+                        binary_pin = (executable, expected, label)
+                        stream.write(f"[binary_sha256_before]={before}\n")
+                        break
             result = subprocess.run(
                 [str(item) for item in command],
                 cwd=cwd,
@@ -271,6 +292,10 @@ def _run_logged(
         except subprocess.TimeoutExpired:
             stream.write("\n[timeout_expired]=true\n")
             returncode = 124
+        finally:
+            if binary_pin is not None:
+                after = assert_artifact_sha256(*binary_pin)
+                stream.write(f"[binary_sha256_after]={after}\n")
     elapsed = time.monotonic() - started
     with log_path.open("a", encoding="utf-8") as stream:
         stream.write(f"\n[exit_code]={returncode}\n[elapsed_sec]={elapsed:.3f}\n")

@@ -37,10 +37,18 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
+from scripts.runtime_binary_identity import (
+    BinaryIdentityMismatch,
+    assert_artifact_sha256 as _assert_artifact_sha256,
+    configured_executable_path as _configured_executable_path,
+)
+
 CONFIG = ROOT / "configs/research/production_hierarchical_calibration_delay_pilot.json"
 TEMPLATE = ROOT / "simulator/scenarios/beam50_one_targets_continuous.run.json"
-SIMULATOR = ROOT / "build/simulate_stage2_statistical"
-PIPE = ROOT / "build/GMTI_pipe_core"
+SIMULATOR = _configured_executable_path(
+    "PGRCC_STAGE2_SIMULATOR", ROOT / "build/simulate_stage2_statistical"
+)
+PIPE = _configured_executable_path("PGRCC_GMTI_PIPE_CORE", ROOT / "build/GMTI_pipe_core")
 CONFIGURE_XML = ROOT / "scripts/configure_gmti_xml.py"
 
 METHOD_IDS = ("C0", "C1", "C2", "C3", "C4", "P1", "P2", "PK", "PKR")
@@ -847,7 +855,16 @@ def _run_logged(
     with log_path.open("w", encoding="utf-8") as stream:
         stream.write(f"$ {shlex.join(str(item) for item in command)}\n")
         stream.flush()
+        binary_pin: tuple[Path, str, str] | None = None
         try:
+            if command:
+                executable = Path(str(command[0])).resolve()
+                if executable == SIMULATOR.resolve():
+                    expected = os.environ.get("PGRCC_EXPECTED_STAGE2_SIMULATOR_SHA256")
+                    before = _sha256(executable)
+                    _assert_artifact_sha256(executable, expected or before, "Stage2 simulator")
+                    binary_pin = (executable, expected or before, "Stage2 simulator")
+                    stream.write(f"[binary_sha256_before]={before}\n")
             completed = subprocess.run(
                 [str(item) for item in command],
                 cwd=ROOT,
@@ -863,6 +880,10 @@ def _run_logged(
         except subprocess.TimeoutExpired:
             returncode = 124
             stream.write("\n[timeout_expired]=true\n")
+        finally:
+            if binary_pin is not None:
+                after = _assert_artifact_sha256(*binary_pin)
+                stream.write(f"[binary_sha256_after]={after}\n")
         elapsed = time.monotonic() - start
         stream.write(f"\n[exit_code]={returncode}\n[elapsed_sec]={elapsed:.3f}\n")
     return returncode, time.monotonic() - start
@@ -905,6 +926,28 @@ def _build_identity() -> dict[str, object]:
         "simulate_stage2_statistical": _artifact_identity(SIMULATOR),
         "GMTI_pipe_core": _artifact_identity(PIPE),
     }
+
+
+def _pin_build_identity() -> dict[str, object]:
+    """Require runnable build artifacts and pin their identities for the run."""
+
+    identity = _build_identity()
+    expected_env = {
+        "simulate_stage2_statistical": "PGRCC_EXPECTED_STAGE2_SIMULATOR_SHA256",
+        "GMTI_pipe_core": "PGRCC_EXPECTED_GMTI_PIPE_CORE_SHA256",
+    }
+    for name, env_name in expected_env.items():
+        item = identity[name]
+        if not isinstance(item, Mapping) or item.get("exists") is not True:
+            raise BinaryIdentityMismatch(f"{name} identity mismatch: executable is missing")
+        path = Path(str(item["path"]))
+        digest = str(item.get("sha256") or "")
+        if not os.access(path, os.X_OK):
+            raise BinaryIdentityMismatch(f"{name} identity mismatch: not executable: {path}")
+        configured_expected = os.environ.get(env_name)
+        _assert_artifact_sha256(path, configured_expected or digest, name)
+        os.environ[env_name] = digest
+    return identity
 
 
 def _scene_template(config: Mapping[str, object]) -> dict[str, object]:
@@ -2058,6 +2101,8 @@ def _run_case(
                         truth_path=truth_root,
                         xml_overrides=xml_record["overrides"],
                     )
+                except BinaryIdentityMismatch:
+                    raise
                 except (OSError, RuntimeError, ValueError, KeyError) as exc:
                     record = {
                         "status": "NOT_EVALUABLE",
@@ -2066,6 +2111,10 @@ def _run_case(
                         "xml_overrides": xml_record["overrides"],
                     }
                 base_record.update(record)
+                expected_pipe_sha256 = os.environ.get("PGRCC_EXPECTED_GMTI_PIPE_CORE_SHA256")
+                if expected_pipe_sha256:
+                    _assert_artifact_sha256(PIPE, expected_pipe_sha256, "GMTI_pipe_core")
+                    base_record["production_binary_identity"] = _artifact_identity(PIPE)
                 base_record["input_dir"] = str(input_dir)
                 base_record["input_paths"] = [str(path) for path in paths_by_role[role]]
                 base_record["input_sha256"] = [_sha256(Path(path)) for path in paths_by_role[role]]
@@ -2597,6 +2646,7 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
             selection["cases"] = selection["cases"][: args.max_cases]
             selection["case_count"] = len(selection["cases"])
             selection["truncated_by_max_cases"] = True
+        pinned_build_identity = None if args.skip_cuda else _pin_build_identity()
         source = source_snapshot()
         require_clean_tracked_source(source, mode=mode)
         output_root = Path(args.output_root).resolve()
@@ -2610,6 +2660,8 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
         if input_mode not in {"local", "shm"}:
             raise ValueError("input mode must be local or shm")
         manifest = _initial_manifest(config_path, config, selection, source, output_root, args)
+        if pinned_build_identity is not None:
+            manifest["build_identity_pinned"] = pinned_build_identity
         manifest["input_mode"] = input_mode
         manifest["method_contract"] = method_contract
         manifest["selected_methods"] = [str(item["method_id"]) for item in method_contract]
@@ -2660,6 +2712,8 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
                             else ("Mode-A", "Mode-B")
                         ),
                     )
+                except BinaryIdentityMismatch:
+                    raise
                 except (OSError, RuntimeError, ValueError, KeyError) as exc:
                     result = _case_manifest_base(config, case, output_root / "cases")
                     result.update({
@@ -2675,6 +2729,15 @@ def run_cli(argv: Sequence[str] | None = None) -> int:
                 cases.append(result)
                 manifest["cases"] = cases
                 _write_json(manifest_path, manifest)
+            if pinned_build_identity is not None:
+                final_build_identity = _build_identity()
+                for name, pinned in pinned_build_identity.items():
+                    if not isinstance(pinned, Mapping):
+                        raise BinaryIdentityMismatch(f"{name} identity mismatch: missing pinned identity")
+                    _assert_artifact_sha256(
+                        Path(str(pinned["path"])), str(pinned.get("sha256") or ""), name
+                    )
+                manifest["build_identity_after_run"] = final_build_identity
             manifest["status"] = (
                 "completed"
                 if all(case.get("status") == "completed" for case in cases)
