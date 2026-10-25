@@ -382,7 +382,7 @@ def csi_clutter_metrics(
                 "output_power_relative_to_C0_db": 10.0 * math.log10(
                     values["csi_output_mean_power"] / c0_after
                 ),
-                "definition": "H0 C0 OFF 95%-excess Doppler support × 84.5–85.5 km range; same output CSI map across methods",
+                "definition": "Method-specific H0 OFF CSI output on shared C0 OFF 95%-excess Doppler support × 84.5–85.5 km range",
             })
     return result
 
