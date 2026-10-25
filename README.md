@@ -11,10 +11,10 @@
 | 最终目标是什么？ | 找到可复现的性能瓶颈，解释其物理/算法机制，建立公平传统 Baseline，并针对证据最充分的问题提出能改善任务性能的方法。 |
 | 有哪些研究模块？ | 物理处理链与传统能力边界；瓶颈识别与机制归因；物理模型约束的稳健抑制/参数估计；满足证据门后可选的物理与数据驱动协同。 |
 | 总体技术路线？ | 物理与任务建模 → 生产链/信息边界审计 → 评价契约 → 公平 Baseline → 瓶颈归因 → 单一创新问题 → 强基线对照 → 独立场景验证。 |
-| 当前做到哪里？ | Phase R 的 R3–R12 已审查受控 C2 `+4 ns` 时延损失、已知校正、确定性估计和生产评价链。R12 最终决定 `PIVOT` 到其他 GMTI 瓶颈的公平 Baseline 评价。 |
+| 当前做到哪里？ | 本表中的阶段叙述是历史快照；最新阶段、结论和当前任务见[动态研究状态](docs/research/RESEARCH_STATUS.md)。 |
 | 哪些方向已停止或未成立？ | 固定静态时延估计不再是主要创新方向，保留为确定性 Baseline；当前证据未建立 AI 必要性，也未判定低速目标或复杂杂波谁是优先瓶颈。 |
-| 下一项优先任务？ | 冻结小规模传统 Baseline 比较的共享评价契约，先审计 CFAR unique-union false-hit/Pfa 与径向速度可评估性，再界定公平可比的任务指标。 |
-| 从哪里读长期计划？ | [研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)；方向变化见[研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)。 |
+| 下一项优先任务？ | 以[动态研究状态](docs/research/RESEARCH_STATUS.md)为准；阶段建议不构成自动启动授权。 |
+| 从哪里读研究规划与状态？ | 长期目标以[研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)为准，当前进展见[动态研究状态](docs/research/RESEARCH_STATUS.md)，方向决定见[研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)。 |
 
 上述阶段结果仅适用于报告中注明的源码、配置、场景与指标。R3/R8 的时延退化与 Known 恢复属于受控仿真证据，不证明真实机载误差分布，也不等于统计显著的总体 Pd/Pfa 提升。R12 仅一个 seed、每条件三个目标机会；统计性 Pfa、最终 CFAR 唯一 hit-cell 和径向速度 RMSE 仍不可评估。详见 [Phase R 证据导航](docs/research/phase_r/README.md) 和 [R12 方向裁决](docs/research/phase_r/R12_final_research_direction_decision.md)。
 
@@ -40,16 +40,18 @@
 4. **可选数据驱动方法：** 仅在确定性方法留下稳定、任务相关且推理时可观测的残差后评估 AI。
 5. **独立验证与论文：** 在未参与方法选择的场景验证任务收益、目标保持、错误输出和计算代价。
 
-分阶段目标、进入/退出/停止条件及方向变更规则见[研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)。完整阶段审查按[ChatGPT 科研审查规范](docs/research/CHATGPT_REVIEW_PROTOCOL.md)执行。
+分阶段目标、长期进入/退出原则及方向变更规则见[研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)；最新阶段状态见[动态研究状态](docs/research/RESEARCH_STATUS.md)。科研任务启动按[Codex 科研任务协议](docs/research/CODEX_TASK_PROTOCOL.md)执行，完整阶段审查按[ChatGPT 科研审查规范](docs/research/CHATGPT_REVIEW_PROTOCOL.md)执行。
 
 ## 推荐阅读顺序
 
-1. [研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)：当前唯一有效的总体研究计划；
-2. [研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)：阶段结论如何改变当前方向；
-3. [Phase R 证据导航](docs/research/phase_r/README.md)：R3–R12 报告、实验身份和限制；
-4. [ChatGPT 科研审查规范](docs/research/CHATGPT_REVIEW_PROTOCOL.md)：完整审查流程与可复制提示词；
-5. [研究进展](docs/AI_CSI_研究进展.md)：历史阶段记录；
-6. 具体阶段报告、源码、配置和对应证据包。
+1. [研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)：长期研究目标、科学问题和技术路线；正文修改须事先获得用户明确批准；
+2. [动态研究状态](docs/research/RESEARCH_STATUS.md)：最新阶段、结论、未决问题和当前任务状态；
+3. [研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)：按时间追加的方向决定；
+4. [Codex 科研任务协议](docs/research/CODEX_TASK_PROTOCOL.md)：任务启动、目标对齐、执行与汇报要求；
+5. [ChatGPT 科研审查规范](docs/research/CHATGPT_REVIEW_PROTOCOL.md)：独立双层审查流程；
+6. [Phase R 证据导航](docs/research/phase_r/README.md)：阶段报告、实验身份和限制；
+7. [研究进展](docs/AI_CSI_研究进展.md)：历史阶段记录；
+8. 具体阶段报告、源码、配置和对应证据包。
 
 ## 源码和研究材料导航
 
@@ -182,9 +184,10 @@ V2.1 物理修正、sanity 门禁、Expert Map 和 PGRCC-v1 边界见
 
 ## Phase-I 双通道未知误差与稳健 CSI（历史阶段快照）
 
-> 以下记录保留 Phase-I 当时的处理定义、实验数字和复现入口，不代表 R12 之后的当前
-> 研究主线或下一步计划。当前方向以[研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)
-> 与[研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)为准。
+> 以下记录保留 Phase-I 当时的处理定义、实验数字和复现入口，不代表当前研究状态或下一步计划。
+> 长期目标以[研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)为准，当前进展以
+> [动态研究状态](docs/research/RESEARCH_STATUS.md)为准，方向决定见
+> [研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)。
 
 推荐阅读顺序是 [双通道研究框架](docs/AI_CSI_34_双通道系统失配与稳健CSI研究框架.md) →
 [双通道可观测性报告](docs/AI_CSI_35_双通道系统误差可观测性分析.md) →
@@ -328,9 +331,22 @@ Routing Oracle；两者分别为 `NO_GO_COMPLEX_WEIGHT_RESIDUAL` 和
 `NO_GO_SUPPORT_ROUTING`，仍不启动 AI 训练。复现命令、资源检查、exact 统计和产物导航见
 [`AI_CSI_10_PGRCC_V1.1与Support_Routing审计报告.md`](docs/AI_CSI_10_PGRCC_V1.1与Support_Routing审计报告.md)。
 
+## 研究治理与文档入口
+
+- [研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)：最高层级科研指导文件；正文任何修改均须事先取得用户明确批准。
+- [动态研究状态](docs/research/RESEARCH_STATUS.md)：记录当前阶段和短期任务，不覆盖总纲中的长期目标。
+- [Codex 科研任务协议](docs/research/CODEX_TASK_PROTOCOL.md)：每次科研任务启动、证据定位、停止门与阶段汇报。
+- [ChatGPT 科研审查规范](docs/research/CHATGPT_REVIEW_PROTOCOL.md)：总纲优先读取、阶段正确性与总体科研价值双层审查。
+- [ChatGPT 审查请求模板](docs/research/templates/CHATGPT_REVIEW_REQUEST.md)：阶段交付时填写的独立审查材料。
+- [研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)：追加方向决策；历史条目保持原样。
+- [Phase R 证据导航](docs/research/phase_r/README.md)：阶段证据与限制索引。
+
 ## 研究文档
 
-- [PGRCC 研究总纲（当前唯一有效计划）](docs/research/RESEARCH_MASTER_PLAN.md)
+- [PGRCC 研究总纲（最高层级长期科研指导文件）](docs/research/RESEARCH_MASTER_PLAN.md)
+- [动态研究状态](docs/research/RESEARCH_STATUS.md)
+- [Codex 科研任务协议](docs/research/CODEX_TASK_PROTOCOL.md)
+- [ChatGPT 阶段审查请求模板](docs/research/templates/CHATGPT_REVIEW_REQUEST.md)
 - [研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)
 - [ChatGPT 科研审查规范与提示词](docs/research/CHATGPT_REVIEW_PROTOCOL.md)
 - [Phase R：GMTI 性能瓶颈与 AI 必要性审查入口](docs/research/phase_r/README.md)
