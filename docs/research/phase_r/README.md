@@ -159,3 +159,4 @@ R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度
 3. [R17 Baseline 可比性契约](R17_baseline_comparability_contract.md)：规定后续跨方法比较的 binary、输入、运行配置、CFAR 中间量、评价器与信息条件身份要求。
 4. [R17 研究方向评估](R17_research_direction_assessment.md)：判断 R14/R15 历史结果的适用边界及唯一有界后续建议；本阶段无新 CUDA 执行。
 5. 本次未运行 CUDA。R14 原始 CFAR power/threshold maps 已清理，故虽已定位旧版 executable 与数值缺陷，无法统计 R14 每个 CUT 的错误门限数。
+6. [ChatGPT 独立审查请求](00_ChatGPT_review_request_R17.md)：审查 R17 固定 commit `902572c7a9a6f7b91b14ff9db32514be664a58d0`，要求先读取该提交的研究总纲并完成阶段正确性与总体科研价值双层审查。
