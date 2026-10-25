@@ -94,3 +94,15 @@
 - **下一项建议与停止条件：** 当前阶段停止。若用户之后启动新的方法比较，先统一 Production executable/source 身份和可评价任务门，再决定是否开展同 binary 的有限对照；不可把历史不同 binary 结果并列排名。若经验 Pfa/目标分母或处理链身份未闭合，收窄对应主张并停止排名。
 - **总纲变更：** 仅依本阶段授权更新第 9 节当前状态与建议；其它章节未改。
 - **来源：** [R16 冻结设计](phase_r/R16_experiment_design.md)、[R16 结果](phase_r/R16_minimal_c1_results.md)、[R16 方向评估](phase_r/R16_research_direction_assessment.md)、[R16 证据包](phase_r/evidence/r16_c1_gamma1_seed505/README.md)。
+
+## 2026-10-25｜R17：定位 R14 使用修复前 GO-CFAR executable，停止跨版本排名
+
+- **审计身份：** 基于工作分支 `codex/unknown-system-error-next-stage`、起始 commit `5d6d237732871ea98d27398754d02f4454198bf9`。本阶段仅做离线 manifest/XML/源码/证据审计；未运行 CUDA、未修改算法或参数。
+- **研究问题：** R14 与 R16 的同输入 C0 Production CFAR maps 为什么相差约两个数量级，最早可以把分歧定位到哪一级？
+- **关键证据：** R14 Production binary `f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962` 与 R7 `pre_fix_experiment_manifest.json` 的旧版 executable SHA 完全相同。R7 已证明该旧版 GO-CFAR float32 prefix/integral subtraction 会形成负/零门限并制造额外 hit。修复提交 `04958a996f6a1449fa3d9f158a4765493c85038d` 早于 R14/R16 所声明的源码提交；R16 数值诊断则记录 GO 方向直接重算路径。Stage2 输入、F1/F2 taps、CSI 输出 real/imag hashes、CFAR XML 参数和 geometry 均匹配，R14/R16 C0 CFAR maps 9/9 不同。
+- **结论与边界：** 已确认 R14 实际使用修复前 binary，足以解释它与 R16 修复后处理路径不可比。R14 专属 power/threshold maps 已清理，无法逐 CUT 计量 R14 的旧版门限错误数或将每个 hit 标为错误；R14 复用该 executable 的具体构建/缓存操作因旧 CMake cache、编译器和完整构建日志未留存而不可追溯。
+- **研究裁决：** `STOP` 将 R14 与 R16 的跨 executable C2/C3/C1 结果并列排名，也停止把 R14/R15 的 track replay 当作修复后 Production 证据。保留各报告为其真实历史运行记录。R16 同 binary C0/C1 的冻结单 seed 比较不受该跨版本身份问题影响。
+- **对总体方向的影响：** 改善 GMTI Production 结果的数值与可比性审计；不改变长期研究主题，不回答未知系统失配因果问题，不建立 AI 必要性，也不确认低速/复杂杂波主线。
+- **下一项建议（未授权）：** 若用户继续 C0/C2/C3 比较，先用同一个修复后 Native CUDA executable 完成一个 seed505 OFF/ON/TO 有界复验，并保留实际 CFAR 输入、power、threshold、geometry 和 map 身份；不得自动运行。
+- **总纲治理记录：** 本 R17 任务获得用户对总纲第 9 节原 R16 前三段的明确、有限恢复授权。现已恢复到 R16 前 blob `e637e3769bde7814298ff012d0f42301884e2985`，仅该范围有改动；R16 实验事实和报告未被回写。之后任何总纲正文改动仍须事先获得用户明确批准。
+- **来源：** [R17 binary 身份审计](phase_r/R17_production_identity_audit.md)、[R17 CFAR 分歧分析](phase_r/R17_CFAR_divergence_analysis.md)、[R17 可比性契约](phase_r/R17_baseline_comparability_contract.md)、[R17 方向评估](phase_r/R17_research_direction_assessment.md)、[R7 数值根因](phase_r/R7_CUDA_CFAR_numerical_root_cause.md)、[R14 证据包](phase_r/evidence/r14_scc_robust_ddc_seed505/README.md)、[R16 证据包](phase_r/evidence/r16_c1_gamma1_seed505/README.md)。

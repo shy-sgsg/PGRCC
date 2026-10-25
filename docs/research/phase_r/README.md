@@ -93,7 +93,7 @@
 
 ## 尚未闭合的外围评价项
 
-R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度仍不可评估。R14 的 C3 target-retention / 非目标候选差异在 seed101/505 两个独立 seed 上方向一致，但 seed505 出现 TrackManager 地速代价。R15 将该代价追到候选集合、Greedy 关联与历史 EN 速度估计；单 seed 关联反事实不足以证明通用算法瓶颈。当前方向为停止把这一次 track switch 当作 Robust DDC 创新依据。若后续启动最小 Production 对照，建议先评估不依赖 paired OFF 的 C1 ordinary subtraction；不自动扩 seed 或启动完整矩阵。Pfa、真实 paired OFF 部署可得性及 AI 必要性均未闭合，见[研究总纲](../RESEARCH_MASTER_PLAN.md)。
+R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度仍不可评估。R17 离线审计发现 R14 实际运行的 `GMTI_pipe_core` 与 R7 修复前 GO-CFAR binary 完全同 SHA；R14/R15 的候选与航迹记录因此是修复前处理链的历史观察，不能直接作为修复后 Production 方法排名依据。若用户后续启动 C0/C2/C3 比较，应在同一修复后 binary 上进行有界复验，并保存实际 CFAR 输入/power/threshold；本建议不自动授权 CUDA。Pfa、真实 paired OFF 部署可得性及 AI 必要性仍未闭合，见[研究总纲](../RESEARCH_MASTER_PLAN.md)与[动态研究状态](../RESEARCH_STATUS.md)。
 
 ## R11 通道时延误差到测角/定位的因果验证（2026-10-24）
 
@@ -151,3 +151,11 @@ R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度
 2. [R16 最小 C1 Production 结果](R16_minimal_c1_results.md)：真实本机 CUDA 的 9 branches、有效面积杂波、CSI/CFAR/Detection/TrackManager 结果与跨 binary 可比性限制。
 3. [R16 方向评估](R16_research_direction_assessment.md)：区分固定 C1 基线失败、未知误差因果问题和 AI 必要性；没有自动启动后续实验。
 4. [R16 紧凑证据包](evidence/r16_c1_gamma1_seed505/README.md)：执行与 case manifests、runtime XML/log、真值、CSI/CFAR/航迹审计、27 张无损压缩 final-union maps、源码快照和清理账本。Stage2/Production 原始 IQ 与完整 CSI maps 已清理。
+
+## R17 Production executable 身份与 CFAR 可比性离线审计（2026-10-25）
+
+1. [R17 Production 身份审计](R17_production_identity_audit.md)：以 R7 pre-fix manifest 的 binary SHA 定位 R14 实际执行文件，并记录源码/构建身份边界。
+2. [R17 CFAR 分歧分析](R17_CFAR_divergence_analysis.md)：核对两阶段 hit 数、有效 CUT、GO-CFAR 参数及旧数值缺陷，区分已证原因与不可逐 CUT 重算的部分。
+3. [R17 Baseline 可比性契约](R17_baseline_comparability_contract.md)：规定后续跨方法比较的 binary、输入、运行配置、CFAR 中间量、评价器与信息条件身份要求。
+4. [R17 研究方向评估](R17_research_direction_assessment.md)：判断 R14/R15 历史结果的适用边界及唯一有界后续建议；本阶段无新 CUDA 执行。
+5. 本次未运行 CUDA。R14 原始 CFAR power/threshold maps 已清理，故虽已定位旧版 executable 与数值缺陷，无法统计 R14 每个 CUT 的错误门限数。
