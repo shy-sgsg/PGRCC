@@ -16,6 +16,8 @@
 | 下一项优先任务？ | 以[动态研究状态](docs/research/RESEARCH_STATUS.md)为准；阶段建议不构成自动启动授权。 |
 | 从哪里读研究规划与状态？ | 长期目标以[研究总纲](docs/research/RESEARCH_MASTER_PLAN.md)为准，当前进展见[动态研究状态](docs/research/RESEARCH_STATUS.md)，方向决定见[研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)。 |
 
+研究总纲第 7、9 节中的阶段进展、当前状态和建议是该版本形成时的记录；最新阶段与短期任务以[动态研究状态](docs/research/RESEARCH_STATUS.md)为准，方向变化以[研究决策日志](docs/research/RESEARCH_DECISION_LOG.md)记录。若动态记录与总纲中的长期目标冲突，必须明确提交用户讨论，不能借状态文件或阶段裁决改写总纲。
+
 上述阶段结果仅适用于报告中注明的源码、配置、场景与指标。R3/R8 的时延退化与 Known 恢复属于受控仿真证据，不证明真实机载误差分布，也不等于统计显著的总体 Pd/Pfa 提升。R12 仅一个 seed、每条件三个目标机会；统计性 Pfa、最终 CFAR 唯一 hit-cell 和径向速度 RMSE 仍不可评估。详见 [Phase R 证据导航](docs/research/phase_r/README.md) 和 [R12 方向裁决](docs/research/phase_r/R12_final_research_direction_decision.md)。
 
 ## 当前生产处理链
