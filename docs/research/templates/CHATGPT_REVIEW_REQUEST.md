@@ -1,6 +1,8 @@
 # 【PGRCC 科研阶段独立审查请求】
 
-请首先读取本次 Git 提交对应版本的 `docs/research/RESEARCH_MASTER_PLAN.md`，完整理解 PGRCC 的研究主题、总体研究目标、核心科学问题、研究内容、总体研究思路与长期技术路线，然后结合这些内容审查本阶段的代码、实验、数据和科研结论。不能只评价阶段任务是否完成，还必须判断本阶段是否推动了整个 GMTI 研究目标，以及当前研究方向是否需要调整。
+> **请首先读取本次 Git 提交对应版本的 `docs/research/RESEARCH_MASTER_PLAN.md`，完整理解 PGRCC 的研究主题、总体研究目标、核心科学问题、研究内容、总体研究思路与长期技术路线，然后结合这些内容审查本阶段的代码、实验、数据和科研结论。不能只评价阶段任务是否完成，还必须判断本阶段是否推动了整个 GMTI 研究目标，以及当前研究方向是否需要调整。**
+
+然后从同一审查 commit 依序读取 `docs/research/RESEARCH_STATUS.md`、`docs/research/RESEARCH_DECISION_LOG.md`、`docs/research/CHATGPT_REVIEW_PROTOCOL.md`、`AGENTS.md`、`README.md`、`docs/research/phase_r/README.md`，以及本阶段设计、结果、源码、配置、manifest、日志和关键评价产物。若某材料无法读取，明确标记相关判断为 `NOT_VERIFIED`。
 
 ## 审查快照与任务定位
 
@@ -26,6 +28,7 @@
 - 执行后端与运行环境：`[例如 Native CUDA Production、设备和运行身份；未执行则明确写未执行]`
 - 关键日志与结果：`[路径]`
 - 评价产物与复现入口：`[路径、命令、manifest]`
+- ChatGPT 审查入口与最小核验证据：`[阶段报告、证据导航、核心 manifest/结果表及必要源码]`
 - 失败案例与未闭合项目：`[路径和简述；没有则说明]`
 
 ## 结果与阶段判断

@@ -4,12 +4,24 @@
 
 ## 状态身份
 
-- 状态核对基线：`5d6d237732871ea98d27398754d02f4454198bf9`（工作分支 `codex/unknown-system-error-next-stage`）。
+- 本次动态状态修订基线：`c57c6e53598b9ab4087a7764a392244873a8fe66`（工作分支 `codex/unknown-system-error-next-stage`）；该 SHA 是状态更新前的代码/文档基线。
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；R17 仅按用户明确范围恢复总纲第 9 节的三段文字至 R16 前版本，其他正文不变。
 - 本状态整理日期：2026-10-25。
-- 最新阶段：R17 Production executable / GO-CFAR 跨版本身份审计；这是离线证据审查，不是新实验。详见[研究决策日志](RESEARCH_DECISION_LOG.md)与[Phase R 导航](phase_r/README.md)。
+- 最近完成的方向裁决：R17 Production executable / GO-CFAR 跨版本身份审计；这是离线证据审查，不是新实验。详见[研究决策日志](RESEARCH_DECISION_LOG.md)与[Phase R 导航](phase_r/README.md)。
+- 当前在研阶段：R18 传统方法 Production 最小比较；实验矩阵已冻结，seed101 技术 pilot 尚未闭合，尚无正式矩阵结论或方向裁决。
 
-## 当前研究阶段
+## 当前研究阶段：R18 pilot gate（未闭环）
+
+R18 的长期研究定位仍遵循总纲中的 GMTI 任务瓶颈识别与公平传统 Baseline 评价。已提交的冻结设计和配置见 [R18 总实施计划](phase_r/R18/00_master_execution_plan.md) 与 [R18 实验矩阵](phase_r/R18/04_experiment_matrix.md)。当前状态只记录已有执行，不代表本次治理修订启动了 R18 实验。
+
+- **执行源码身份：** R18 设计/runner identity 改动在 `4c6d4d303621324f5e174db0ba1811c5691df2e2`；适配器 tap 审计根因修复在 `c57c6e53598b9ab4087a7764a392244873a8fe66`。修复有对应回归测试；它不改信号处理或检测参数。
+- **pilot 已运行的证据：** seed101、6.7 m/s、30 dB、0 ns、3 periods 的本地 pilot manifest 位于被忽略的 `.scratch/r18_gate_pilot_seed101_retry_20261025/manifest.json`，状态为 `completed_with_gaps`；记录 21 个 Production branches 均返回 passed。Stage2 area gate 与 target triplet gate 通过：390 continuous-area packets、1,952,655 samples、实测 mean power 0.0223353；triplet 最大误差约 `1.35e-6`，小于冻结容差 `5e-5`。
+- **尚未闭合：** 同一 manifest 将 `valid_cut_denominators` 标为 `NOT_EVALUABLE`。原始运行位于本地忽略目录，R18 紧凑证据包尚未完成并提交；因此这些 pilot 数字是待审计的运行状态，不是可供独立审查的阶段结果。首个 seed101 尝试因 tap-audit runner 符号错误退出，失败记录保留在 [R18 pilot 失败记录](phase_r/R18/evidence/pilot_seed101/pilot_failure_record.md)，后由上述提交修复。
+- **正式矩阵状态：** 3 seeds × 2 speeds × 2 SNR 的 12 场景正式矩阵尚未执行；不作方法性能排名，不形成新的 `CONTINUE / STOP / PIVOT` 科研裁决。
+- **当前证据状态：** 冻结设计与配置、runner 身份入口及修复为 `IMPLEMENTED`；seed101 pilot 分支为 `EXECUTED`；area/triplet 门在该 pilot 内可评估并通过；有效 CUT denominator 门为 `NOT_EVALUABLE`；`PERFORMANCE_VERIFIED=false`。
+- **阶段停止条件：** 在 valid-CUT denominator 标签及其根因被审计、pilot 关键产物被紧凑化并可独立核查之前，不进入 R18 正式矩阵；不得以 branch 状态 passed、area gate 通过或退出码代替任务性能结论。
+
+## 最近完成阶段：R17
 
 R17 审计 R14 与 R16 的 C0 Production CFAR 大幅分歧。审计没有运行 CUDA，没有改变算法、处理参数或历史实验结果。R14/R16 使用同一组 9 个 Stage2 role-period 输入；留存比较记录显示其 F1/F2 tap 与 CSI 输出实虚部 hash 相同、运行 XML 的算法参数相同，但 Production binary 和 CFAR maps 不同。
 
@@ -47,10 +59,11 @@ R17 的状态为：`IMPLEMENTED` 不适用（未改算法/软件）；`EXECUTED`
 
 ## 当前唯一优先任务与阶段门
 
-- **当前唯一优先任务：暂无已授权的科研执行任务。** R17 离线审计已完成；任何 CUDA 复验、方法比较或新增实验都需用户明确启动。
-- **最近一次阶段建议（非活动授权）：** 若用户希望继续比较 C0/C2/C3，使用同一个修复后 Native CUDA Production executable，在一个固定 seed505 场景中进行有边界的 OFF/ON/TO 对照；原 Stage2 文件已清理，需按同一场景配置重新生成并记录新输入身份。保留实际 CFAR 消费复数输入、power、threshold、geometry 与 map hash。该建议不自动启动。
-- **停止条件：** executable/source/build/runtime identity 或真实任务分母未闭合时停止方法排名；observed hit fraction 不得表述为 Pfa；单 seed 不得升级为统计性能结论。
+- **当前唯一优先任务：** 闭合 R18 seed101 pilot 的有效 CUT denominator 门，并完成可独立审查的紧凑证据。pilot gate 通过前不启动冻结的 12 场景正式矩阵。
+- **当前阶段建议：** 先核查 pilot 中 CFAR geometry、valid CUT 数量、H0 false-hit 指标与 `NOT_EVALUABLE` 判定的关系，确认统计口径后再决定 pilot 是否满足进入门；不得降低门槛或仅重标状态。
+- **停止条件：** valid CUT denominator、truth association、生产输入身份或紧凑证据任一无法闭合时，停止性能比较并记录原因；observed hit fraction 不得表述为 Pfa；单 seed 不得升级为统计性能结论。
+- **后续任务授权：** R18 冻结设计中已有的正式矩阵属于先前阶段计划；本次治理修订没有启动或扩展其运行，也没有授权 AI 训练或新的研究方向。
 
 ## 总纲修订讨论
 
-R17 没有提出长期研究主题或技术路线修改建议。总纲第 9 节已按用户明确批准范围恢复为 R16 前版本，实验证据与历史报告保持原样；除此之外总纲没有变化。未来如有新证据提示总纲其他内容需要修改，应先在动态状态或单独提案中列明证据、拟改范围及对既有成果的影响，并等待用户对具体内容或清晰范围明确批准。
+本次治理修订和 R18 pilot 状态记录均未改动研究总纲。R17 对第 9 节的恢复仅限当时用户明确批准范围，实验事实与历史报告保持原样。未来如有新证据提示总纲其他内容需要修改，应先在动态状态或单独提案中列明证据、拟改范围及对既有成果的影响，并等待用户对具体内容或清晰范围明确批准。

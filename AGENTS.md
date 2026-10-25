@@ -49,6 +49,8 @@ git status --short --untracked-files=all
 
 ### 2.1 研究总纲优先与任务定位
 
+docs/research/phase_r/README.md 是证据导航；其中带日期的“当前决策”和阶段建议是形成时的历史快照，不作为当前研究状态或任务授权来源。最新阶段、短期任务以 RESEARCH_STATUS.md 为准；长期研究目标和路线以研究总纲为准。若阶段导航、旧计划或报告与二者冲突，须指出冲突并提交用户讨论。
+
 `docs/research/RESEARCH_MASTER_PLAN.md` 是整个 PGRCC 的最高层级科研指导文件，定义研究主题、
 总体目标、核心科学问题、研究内容、总体思路、长期技术路线、模块关系、长期阶段安排、基本评价原则、
 成功标准和创新性边界。科研任务的定位、价值判断、执行和阶段汇报还必须遵守
@@ -58,7 +60,8 @@ git status --short --untracked-files=all
 
 每次科研任务开始，在完成工作树状态检查后，第一份研究文档必须是当前工作分支版本的研究总纲。
 随后依次读取 `docs/research/RESEARCH_STATUS.md`、`docs/research/RESEARCH_DECISION_LOG.md`、
-`docs/research/CHATGPT_REVIEW_PROTOCOL.md`、阶段证据导航和本次任务所需的最小历史证据。
+`docs/research/CODEX_TASK_PROTOCOL.md`、`docs/research/CHATGPT_REVIEW_PROTOCOL.md`、README、
+阶段证据导航和本次任务所需的最小历史证据。
 不得只根据最近报告、TODO 或用户最后一句描述直接安排研究工作。
 
 任务启动时应简要说明：
@@ -82,8 +85,9 @@ git status --short --untracked-files=all
 
 **修改研究总纲正文的事先批准门：** 任何对 `docs/research/RESEARCH_MASTER_PLAN.md` 正文的修改，
 无论大小，均须在编辑前取得用户对具体内容或清晰范围的明确批准。标题、链接、错字、阶段进展、
-当前任务、下一步建议和历史结论均适用此规则。一般任务授权、用户最新任务、阶段
-`CONTINUE / STOP / PIVOT`、ChatGPT 建议、自动提交/推送授权，都不构成该批准。
+当前任务、下一步建议和历史结论均适用此规则。“继续研究”“完善项目”“同步进展”
+“按计划执行”等泛化请求、用户最新任务、Codex 自行判断、ChatGPT 建议或裁决、阶段
+`CONTINUE / STOP / PIVOT`、自动提交/推送授权，都不构成该批准。
 
 发现总纲可能过时或与新证据冲突时，只能先在动态状态或单独提案中记录问题、证据、拟改范围和
 对既有目标/成果的影响，并请求用户批准；未获批准前不得产生总纲差异、暂存、提交或推送。
