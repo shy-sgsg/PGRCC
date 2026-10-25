@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Evaluate the frozen R13 Native CUDA baseline pilot from its case manifests.
+"""Evaluate the frozen Native CUDA baseline contract from case manifests.
 
 The evaluator combines verified Production final-union CFAR maps, the frozen
 R7 task association contract, confirmed/current-frame TrackManager joins, and
-the retained CSI tap maps. It does not estimate empirical Pfa from H0 hit rate.
+the retained CSI tap maps. It accepts one normal-scene manifest or the original
+normal-plus-challenge pair. It does not estimate empirical Pfa from H0 hit rate.
 """
 
 from __future__ import annotations
@@ -1364,15 +1365,20 @@ def _pairwise_rows(scene_results: Sequence[Mapping[str, Any]]) -> list[dict[str,
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--normal-case-manifest", required=True, type=Path)
-    parser.add_argument("--challenge-case-manifest", required=True, type=Path)
+    parser.add_argument("--challenge-case-manifest", type=Path)
+    parser.add_argument("--normal-scene-label", default="normal_seed101_v6p7")
+    parser.add_argument("--challenge-scene-label", default="low_speed_seed101_v0p5")
     parser.add_argument("--output-dir", required=True, type=Path)
     args = parser.parse_args()
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=True)
-    scene_results = [
-        evaluate_case_manifest(args.normal_case_manifest, "normal_seed101_v6p7"),
-        evaluate_case_manifest(args.challenge_case_manifest, "low_speed_seed101_v0p5"),
-    ]
+    scene_results = [evaluate_case_manifest(
+        args.normal_case_manifest, args.normal_scene_label
+    )]
+    if args.challenge_case_manifest is not None:
+        scene_results.append(evaluate_case_manifest(
+            args.challenge_case_manifest, args.challenge_scene_label
+        ))
     _write_csv(output / "summary.csv", _summary_rows(scene_results))
     _write_csv(output / "period_metrics.csv", _period_rows(scene_results))
     _write_csv(output / "pairwise_common_opportunities.csv", _pairwise_rows(scene_results))

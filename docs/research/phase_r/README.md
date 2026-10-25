@@ -4,6 +4,7 @@
 
 ## 当前决策
 
+- **R14 更新：** 独立 seed505 Native CUDA pilot 复现 R13 的 C3/C2 TO CSI retention 差（+7.175 dB），并观察到 C3 ON 非目标 detection rows 减少 29.3%、false current-frame associations 减少 38.5%；ON 目标检测仍为两方法 3/3。但 R14 C3 TrackManager ground-speed RMSE 为 9.259 m/s，C2 为 1.086 m/s（共同机会 n=2），且末期目标关联从 track 6 切到 64。只裁决 `CONTINUE` 有界 C2/C3 任务权衡复核；当前不宣称整体性能胜出，经验 Pfa 仍 `NOT_EVALUABLE`，不训练 AI。该 seed 的 delay=0 ns，不改变未知系统误差主线。详见 [R14 结果](R14_minimal_comparison_results.md)、[方向评估](R14_research_direction_assessment.md)、[紧凑证据包](evidence/r14_scc_robust_ddc_seed505/README.md)。
 - **R13 更新：** seed101 的两个零时延场景、24 个 Native CUDA branches 已执行。Normal-speed TO target-only CSI retention / detection 出现候选差异，但共同成功机会的参数比较显示位置、方位、地速与折叠 Doppler 有权衡；C2/C3 使用 paired OFF 标定信息、Current 不使用，只有一个独立 seed，因此没有验证净任务收益。0.5 m/s 挑战场景没有形成稳定方法差异；经验 Pfa 和径向速度 RMSE 仍 `NOT_EVALUABLE`。裁决为 `CONTINUE` 一次有界独立 seed 复核；R13 阶段停止、不自动启动；无 AI 必要性证据。R8/R9 历史 union count 已由当前 evaluator 复核，R12 因无 final-map audit 继续不可评估。详见 [R13 方向评估](R13_research_direction_assessment.md)、[结果](R13_minimal_comparison_results.md)、[CFAR 历史影响审计](R13_CFAR_and_velocity_audit.md) 和 [紧凑证据包](evidence/r13_baseline_cuda_20261024/README.md)。
 - **R12 更新：** Native CUDA seed404 确认本场景未知 C2 `+4 ns` 使冻结任务检测从 A0 的 2/3 降至 0/3；Known correction 输入闭合并返回 2/3。M1 盲估计误差 0.241 ns，固定 D3 0.590 ns，两者均恢复 3/3 检测，但参数 RMSE 互有胜负；本轮只有一个 seed，统计 Pd/Pfa 和性能验证未完成。最终裁决为 `PIVOT`：固定时延估计保留为确定性 Baseline，不作为主要创新方向；转向其他 GMTI 瓶颈的公平 Baseline 评价，不训练 AI，也不预选低速/复杂杂波为下一主线。详见 [R12 盲估计验证](R12_blind_validation.md)、[生产任务比较](R12_production_task_comparison.md)、[阶段方向裁决](R12_final_research_direction_decision.md) 与 [R12 紧凑证据包](evidence/r12_physics_matched_delay_20261024/README.md)。
 - **R10 更新：固定 D3 恢复本次 5/6 个正确检测机会，但没有恢复高精度测角/定位；没有证据表明必须使用在线 AI。** 三个正确 period 的 A0/D3 候选 cell 相同，production raw-phase 局部 Jacobian 对 cross-range 条件差的闭合残差不超过 0.35 m；另外两个 seed303 period 的候选 row 改变，需单独看待。Known 校正的定位 RMSE 接近 A0，且优于固定 D3，支持优先提高物理通道 2 的确定性标定精度和模型匹配。残余 phase 的所有物理来源仍未完全分离。以上仅为两个 seed 的描述性 CUDA 结果，无统计显著性 Pd/Pfa。R10 没有新增 CUDA 运行；不训练 AI。详见 [R10 方向裁决](R10_research_direction_decision.md)。
@@ -126,3 +127,10 @@ R13 已闭合所选 seed101 pilot 的 valid-CUT / final-union map、Production d
 6. [R13 方向裁决](R13_research_direction_assessment.md)：独立 seed 建议、AI/低速/杂波主线判断。
 7. [R13 紧凑证据包](evidence/r13_baseline_cuda_20261024/README.md)：manifest、脚本、运行记录、历史 CFAR 重算 CSV、关键图和清理账本；Stage2 IQ、全 CSI `.npy` 与 CFAR `.f32` 不纳入 Git。
 8. [R8/R9/R12 历史 CFAR 重算入口](../../../scripts/phase_r/audit_r7_historical_cfar_impact.py)：读取历史 evaluation manifests，以当前 R7 evaluator 汇总；R9 本地 outputs 缺失时按证据包 README 指定 `--r9-evaluation-root`。
+
+## R14 SCC / Robust DDC 独立 seed 任务收益复核（2026-10-25）
+
+1. [R14 冻结设计](R14_experiment_design.md)：seed505、C0/C2/C3、Mode-A paired OFF、阶段门与复现命令。
+2. [R14 最小比较结果](R14_minimal_comparison_results.md)：生产闭合、CSI/CFAR、检测、TrackManager、共同机会参数和运行限制。
+3. [R14 方向评估](R14_research_direction_assessment.md)：逐项回答十个问题，明确 `CONTINUE` 仅限有界传统方法任务复核；长期主线不变、AI 未获证据支持。
+4. [R14 紧凑证据包](evidence/r14_scc_robust_ddc_seed505/README.md)：12 branches 的 runtime XML/log、manifest、输入/CFAR/CSI/TrackManager 审计、target cell map 闭合、绘图脚本及清理账本；大体量可复现派生产物已清理。

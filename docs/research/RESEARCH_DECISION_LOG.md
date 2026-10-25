@@ -58,3 +58,14 @@
 - **对路线的影响：** R13 完成 R12 后的 Baseline 评价 pilot；不证明未知系统误差普遍导致损失，也不回答 Known correction 或 blind estimator 与 Known 的差距。未证明低速/复杂杂波为主线，未证明 AI 有必要。Known-error correction upper bound 只作为特定误差校正问题参考，普通 Baseline 比较不强制套用四条件。
 - **停止/重开条件：** 新 seed 的 C2/C3 target preservation 若不复现、对检测/参数无任务收益，或输出代价不可接受，则 `STOP` 此候选，不扩完整矩阵。若复现，仍需先审查任务重要性和替代解释，再决定研究方向；不自动训练 AI。
 - **来源：** [R13 评价契约](phase_r/R13_evaluation_contract.md)、[R13 结果](phase_r/R13_minimal_comparison_results.md)、[R13 方向评估](phase_r/R13_research_direction_assessment.md)、[R13 证据包](phase_r/evidence/r13_baseline_cuda_20261024/README.md)。
+
+## 2026-10-25｜R14：继续有限的 SCC / Robust DDC 任务级复核
+
+- **决策编号与身份：** `D-2026-10-25-R14`。seed505、6.7 m/s、30 dB、0 ns delay、3 periods；执行源码基线 `095221bbfa458fd5f65bc1d095401cd04445aa9f`，R14 单场景 evaluator 的 tracked dirty 改动已纳入阶段变更。Native CUDA、`USE_COREX=OFF`；12 个 A0/C0/C2/C3 × OFF/ON/TO branches 通过。清理后的机器证据见 [R14 紧凑证据包](phase_r/evidence/r14_scc_robust_ddc_seed505/README.md)。
+- **研究问题：** seed101 的 Robust DDC 相对 SCC 的 target-only CSI retention 候选差异，是否能在独立 seed 上复现并影响最终检测/航迹任务？
+- **直接证据：** seed505 Stage2 真实生成 390 continuous-area packets、1,952,655 samples，平均功率 0.0234967；paired OFF/ON 与 C2/C3 F1/F2 identities 闭合，12 branches 及 36 张 CFAR map audit 通过。C3−C2 TO retention 为 +7.175 dB；ON target detection 两者均 3/3，C3 的非目标 detection rows 少 289（29.3%），false confirmed current-frame associations 少 177（38.5%）。但共同 ON 机会地速 RMSE C2/C3 为 1.086/9.259 m/s（n=2），末期目标候选 track ID 从 C2 的 6 变为 C3 的 64。经验 Pfa 与径向速度均不可评估，OFF 统计是 reference-in-sample。R13 seed101 同方向 retention 和 ON non-target rows 差异复现；两个 seed 仍不支持统计显著性或总体性能 claim。
+- **判断：** `CONTINUE`，只继续有界的 C2/C3 确定性任务权衡复核。C3 的 false-candidate reduction 值得验证；地速/track continuity 代价、相对 C0 Current 的输出水平及 paired OFF 的部署可得性尚未闭合，故不判定 C3 整体胜出。
+- **对总体目标与研究计划的影响：** R14 delay=0 ns，不改变 Unknown System Error Characterization 长期主线，也不能回答未知失配是否损害 GMTI。继续传统方法审查，不训练 AI、不开发 Router；R14 阶段到此结束，建议不自动执行。
+- **下一项优先工作：** 若用户后续启动，优先用预注册的有限独立 seed 集合核验 C2/C3 的 ON 非目标候选与 current-frame false associations，并把 target track identity continuity 和 ground-speed error 作为共同任务指标；评估前确认 target-free paired OFF 的现实来源。H0/CFAR 仍须显式区分 in-sample hit fraction 与真实 Pfa。
+- **停止条件：** 若 C3 false-candidate/target-retention 差异不再复现，或其 tracking/速度代价持续抵消收益，则停止把 C3 排在 SCC 前；只有多 seed 任务证据和可部署配对 reference 均成立时，才重开广泛研究价值评估。此证据不足以启动 AI。
+- **来源：** [R14 设计](phase_r/R14_experiment_design.md)、[结果](phase_r/R14_minimal_comparison_results.md)、[方向评估](phase_r/R14_research_direction_assessment.md)、[证据包](phase_r/evidence/r14_scc_robust_ddc_seed505/README.md)。
