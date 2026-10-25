@@ -61,6 +61,26 @@ C2/C3 三期选择了相同的目标 row/col；C3 margin 高 4.50–5.21 dB，�
 
 H0 的 C2/C3 OFF 样本同时是 Mode-A reference 的拟合输入，故这些 H0 数字是 **reference-in-sample**，不是独立背景泛化统计。`observed_hit_fraction` 不是 Pfa；实测经验 Pfa 固定为 `NOT_EVALUABLE`，配置里的 `1e-6` 不是实测值。
 
+按冻结口径补列 ON 与 TO 的正确关联机会：
+
+| 方法 | ON truth-matched detection | ON 当前周期 Confirmed 目标关联 | TO truth-matched detection | TO 当前周期 Confirmed 目标关联 |
+|---|---:|---:|---:|---:|
+| C0 Current | 3/3 | 2/3 | 3/3 | 2/3 |
+| C2 SCC | 3/3 | 2/3 | 3/3 | 2/3 |
+| C3 Robust DDC | 3/3 | 2/3 | 3/3 | 2/3 |
+
+Detection 分母是三个 period truth opportunities；Confirmed 目标关联也以这三期为分母，其中首期尚无当前周期 Confirmed track association。上表与前表的 current-frame association 总数/正确目标数/其余关联数相互补充；TO 仅是 target-only 传递控制，不替代 ON 主任务。
+
+### 单次 Production 分支耗时
+
+| 方法 | OFF (s) | ON (s) | TO (s) |
+|---|---:|---:|---:|
+| C0 Current | 3.472 | 4.324 | 4.626 |
+| C2 SCC | 3.523 | 6.629 | 5.176 |
+| C3 Robust DDC | 3.422 | 5.176 | 4.976 |
+
+这些是每个分支一次运行的完整 Production elapsed time，包含该分支处理链，未单独计时 Adapter 拟合阶段；因此仅作本次工程代价记录，不用于估计器开销归因或稳定速度排名。运行前 GPU 状态见上文和证据包。
+
 ## 共同正确机会的参数比较
 
 | ON 参数 | C2 SCC RMSE | C3 Robust DDC RMSE | 共同机会数 | 判断 |
