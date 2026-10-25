@@ -69,3 +69,16 @@
 - **下一项优先工作：** 若用户后续启动，优先用预注册的有限独立 seed 集合核验 C2/C3 的 ON 非目标候选与 current-frame false associations，并把 target track identity continuity 和 ground-speed error 作为共同任务指标；评估前确认 target-free paired OFF 的现实来源。H0/CFAR 仍须显式区分 in-sample hit fraction 与真实 Pfa。
 - **停止条件：** 若 C3 false-candidate/target-retention 差异不再复现，或其 tracking/速度代价持续抵消收益，则停止把 C3 排在 SCC 前；只有多 seed 任务证据和可部署配对 reference 均成立时，才重开广泛研究价值评估。此证据不足以启动 AI。
 - **来源：** [R14 设计](phase_r/R14_experiment_design.md)、[结果](phase_r/R14_minimal_comparison_results.md)、[方向评估](phase_r/R14_research_direction_assessment.md)、[证据包](phase_r/evidence/r14_scc_robust_ddc_seed505/README.md)。
+
+
+## 2026-10-25｜R15：STOP 将 seed505 track switch 作为 Robust DDC 创新依据
+
+- **决策编号与身份：** `D-2026-10-25-R15`。基线 `2b1942453b002045aaba4c1e35a8b93e75d0c38b`；复用 R14 seed505、0 ns delay 的 Native CUDA Production 记录；R15 固定检测回放为 CPU TrackManager counterfactual，没有新跑 CUDA。源码身份、输入 SHA 和回放配置见 [R15 证据包](phase_r/evidence/r15_seed505_track_association/README.md)。
+- **研究问题：** C2/C3 面对相同正确目标 Detection 时，为何末期使用不同 track，且 C3 地速 RMSE 增大？这是否证明 DDC 有独立任务瓶颈？
+- **直接证据：** C2/C3 三期 truth-matched D0 坐标相同。R15 Greedy replay 逐条复现生产 Detection-to-track edges：C2 `990/990`、C3 `701/701`。p0/p1 非目标候选使 track 7/64 的空间历史不同；p2 D3 与 D0 竞争时 C2 track 7 先取 D3、track 6 取 D0，C3 track 6 取 D3、track 64 取 D0。`updateMotionHistoryFromEN` 使用保留测量历史计算地速。p2 目标地速误差 C2/C3 为 1.523/13.092 m/s。Hungarian 改变 582/990 与 483/701 条关联；C3 末期误差下降到 5.389 m/s，C2 则升到 6.138 m/s，仍有 ID 切换且方向不一致。C3 的 151,087 CFAR unique hits 经聚类输出 701 detections，C2 的 97,155 hits 输出 990；不能据此宣称 Pfa 下降。
+- **OFF reference 与限制：** C2/C3 Mode-A OFF hashes 与 H0 背景逐期相同，属于 reference-in-sample；实机 paired OFF 来源未验证。C0 不需 OFF、C1 ordinary subtraction 已实现但尚未运行。一个 0 ns seed 的关联反事实不能证明跨场景性能或未知通道误差效应。
+- **判断：** `STOP` 把此次 track switch 当作 Robust DDC 本身的独立创新依据。它是候选生成、既有 Greedy 关联与历史地速估计的常规处理链交互；Hungarian 不是本例的通用修复。保留更宽的杂波抑制—候选分布—航迹连续性关系为待证问题，不因单例启动算法创新。
+- **对总体目标与研究计划的影响：** 研究总纲维持广义 GMTI 物理处理链与任务瓶颈识别；未知系统误差仍是候选模块之一，不再写成唯一长期主线。R14/R15 的零时延 evidence 不能支持或反驳未知误差方向。AI 必要性未建立。
+- **下一项建议与停止条件：** 若后续启动最小 Production 对照，优先评估 C1 `Gamma=1` reference-free ordinary subtraction 的 OFF/ON/TO 三角色，与 seed505 已有 C0/C2/C3 结果并列看 target preservation、非目标 Detection、current-frame association 和地速；只作单 seed 可行性检查，不自动扩 seed或完整矩阵。真实 paired OFF 获取方案不清楚时，先设计测量，不把仿真 OFF 当作实机能力。
+- **总纲变更：** 是。更新 R14/R15 当前状态、删除过期的 seed505 复核建议，并明确广义 GMTI 目标及待用户启动的 C1 最小候选。
+- **来源：** [R15 航迹关联分析](phase_r/R15_track_association_divergence_analysis.md)、[R15 CFAR 传播分析](phase_r/R15_cfar_detection_track_propagation.md)、[R15 OFF reference 审查](phase_r/R15_off_reference_deployability_review.md)、[R15 阶段裁决](phase_r/R15_research_direction_assessment.md)。

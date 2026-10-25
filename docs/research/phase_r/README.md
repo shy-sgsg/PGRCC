@@ -92,7 +92,7 @@
 
 ## 尚未闭合的外围评价项
 
-R13 已闭合所选 seed101 pilot 的 valid-CUT / final-union map、Production detection、当前周期 TrackManager join 和 F1/F2 输入口径，但经验 Pfa 与未解模糊径向速度仍不可评估。历史 R4 低速 P5 背景 ROI 与 PK/PKR evaluator 边界继续保留原报告，不由本阶段代替。R13 的单 seed 结果不支持统计性 Pd/Pfa 或跨场景结论；AI 必要性、低速目标与复杂杂波主线优先级均未建立。当前唯一建议是一次正常速度独立 seed 复核，见[研究总纲](../RESEARCH_MASTER_PLAN.md)；本阶段不自动运行该建议。
+R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度仍不可评估。R14 的 C3 target-retention / 非目标候选差异在 seed101/505 两个独立 seed 上方向一致，但 seed505 出现 TrackManager 地速代价。R15 将该代价追到候选集合、Greedy 关联与历史 EN 速度估计；单 seed 关联反事实不足以证明通用算法瓶颈。当前方向为停止把这一次 track switch 当作 Robust DDC 创新依据。若后续启动最小 Production 对照，建议先评估不依赖 paired OFF 的 C1 ordinary subtraction；不自动扩 seed 或启动完整矩阵。Pfa、真实 paired OFF 部署可得性及 AI 必要性均未闭合，见[研究总纲](../RESEARCH_MASTER_PLAN.md)。
 
 ## R11 通道时延误差到测角/定位的因果验证（2026-10-24）
 
@@ -134,3 +134,12 @@ R13 已闭合所选 seed101 pilot 的 valid-CUT / final-union map、Production d
 2. [R14 最小比较结果](R14_minimal_comparison_results.md)：生产闭合、CSI/CFAR、检测、TrackManager、共同机会参数和运行限制。
 3. [R14 方向评估](R14_research_direction_assessment.md)：逐项回答十个问题，明确 `CONTINUE` 仅限有界传统方法任务复核；长期主线不变、AI 未获证据支持。
 4. [R14 紧凑证据包](evidence/r14_scc_robust_ddc_seed505/README.md)：12 branches 的 runtime XML/log、manifest、输入/CFAR/CSI/TrackManager 审计、target cell map 闭合、绘图脚本及清理账本；大体量可复现派生产物已清理。
+
+
+## R15 杂波对消对航迹关联与参数估计的影响机制审查（2026-10-25）
+
+1. [航迹关联分歧分析](R15_track_association_divergence_analysis.md)：逐期目标与竞争候选 lineage、Euclidean/Mahalanobis gate、Greedy 代价顺序、历史速度来源和固定输入 Hungarian 反事实。
+2. [CFAR → Detection → TrackManager 传播审查](R15_cfar_detection_track_propagation.md)：解释 hit cells 增多而 Detection 变少的聚类路径及其对候选集合、关联和地速的传播边界。
+3. [OFF reference 部署审查](R15_off_reference_deployability_review.md)：核对 H0/reference 同源身份、reference-in-sample 限制和无 paired OFF 的确定性候选。
+4. [阶段研究方向裁决](R15_research_direction_assessment.md)：`STOP` 将该次 track switch 作为 Robust DDC 创新依据；明确广义 GMTI 主线与未启动的下一项建议。
+5. [R15 离线关联证据包](evidence/r15_seed505_track_association/README.md)：紧凑 replay 表、p2 候选代价摘录、源代码/输入身份及 CPU 复现命令；复用 R14 Native CUDA Production 数据，不含大体量候选矩阵。

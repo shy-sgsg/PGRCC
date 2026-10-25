@@ -1,6 +1,6 @@
 # PGRCC 研究总纲
 
-> **权威状态：** 本文是 PGRCC 当前唯一有效的总体研究计划，更新于 2026-10-24。阶段报告、旧论文提纲和阶段实施计划保留其形成时的证据与判断；如它们与本文或更新的决策记录冲突，以最新的 [研究决策日志](RESEARCH_DECISION_LOG.md) 和本总纲为准。本文中的研究题目是当前建议，不是不可修改的最终博士论文题目。
+> **权威状态：** 本文是 PGRCC 当前唯一有效的总体研究计划，更新于 2026-10-25。阶段报告、旧论文提纲和阶段实施计划保留其形成时的证据与判断；如它们与本文或更新的决策记录冲突，以最新的 [研究决策日志](RESEARCH_DECISION_LOG.md) 和本总纲为准。本文中的研究题目是当前建议，不是不可修改的最终博士论文题目。
 
 ## 1. 研究主题与范围
 
@@ -106,7 +106,7 @@ GMTI 任务与物理模型
 
 误差校正问题适用时，优先采用四条件：Ideal/No-error、Current+unknown-error、Known-error correction upper bound、Estimated-error correction。Known 条件只供 evaluator 使用；对每项指标明示方向，并报告 `recoverable space = Known − Current`、`actual recovered = Estimated − Current` 和 `recovery ratio = actual/recoverable`。Known correction 是该误差干预问题的参考条件，不是所有任务指标的绝对上界；普通方法对照不强制加入 Known 条件。指标不适用、分母无效或关联缺失时，状态为 `NOT_EVALUABLE`，不以别的指标代替。
 
-## 7. R3–R13 证据归纳与当前状态
+## 7. R3–R15 证据归纳与当前状态
 
 R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数传播的阶段证据，不等同于整个博士课题。
 
@@ -118,7 +118,11 @@ R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数
 - R12 的当前方向决定是 `PIVOT`：固定静态时延估计不再作为主要创新方向，保留为确定性 Baseline；转向其他 GMTI 瓶颈的公平 Baseline 评价。AI 必要性尚未建立；低速目标或复杂杂波的优先级也尚未由本地证据判定。
 - R13 在 seed101 两个零时延场景运行了 24 条 Native CUDA Production branches，确认 C0/C2/C3 使用同源四通道 IQ 与相同 F1/F2 maps，final-union CFAR map、有效 CUT、日志和 geometry 闭合。正常速度 TO target-only retention / detection 出现 C0 与 Mode-A SCC/Robust DDC 的候选差异；C2/C3 使用配对 OFF 标定信息、C0 不用，且只有单 seed。低速挑战样例未提供稳定方法优势；Pfa 和未解模糊径向速度仍不可评估。R13 建议只做一次有界独立 seed 复核，未自动启动；不训练 AI。详见 [R13 方向评估](phase_r/R13_research_direction_assessment.md) 和 [证据包](phase_r/evidence/r13_baseline_cuda_20261024/README.md)。
 
-细节、指标定义及运行身份见 [Phase R 证据导航](phase_r/README.md)、[R12 最终方向裁决](phase_r/R12_final_research_direction_decision.md)、[R13 方向评估](phase_r/R13_research_direction_assessment.md) 和对应紧凑证据包。历史结论不回写；后续若修订判断，追加到决策日志并注明新证据。
+
+- R14 在 seed505 完成 12 条 Native CUDA Production branches，独立复现了 C3 相对 C2 的 TO retention 增益和较少的 ON 非目标 Detection；同时 C3 共同机会地速 RMSE 为 9.259 m/s，C2 为 1.086 m/s，p2 正确目标的 track ID 从 6 变为 64。单 seed 参数机会 `n=2`；OFF reference 同时用于 H0 评价，属于 reference-in-sample。详见 [R14 结果](phase_r/R14_minimal_comparison_results.md)。
+- R15 用固定 seed505 检测输入执行 CPU TrackManager 反事实，Greedy 回放逐条复现 R14 的 C2 `990/990`、C3 `701/701` 关联。源码和候选代价显示，p0/p1 的非目标候选建立不同 track history，p2 的 Greedy 一对一分配将 D3 与目标 D0 分给不同历史轨迹；历史 EN 速度由此出现差异。Hungarian 改变许多关联，但 C3 误差下降、C2 误差上升，不能作为通用修复。R15 `STOP` 把这一个 track switch 当作 Robust DDC 创新证据；这不否定未知系统误差方向，因为本组为 0 ns 条件。详见 [R15 阶段裁决](phase_r/R15_research_direction_assessment.md) 和 [证据包](phase_r/evidence/r15_seed505_track_association/README.md)。
+
+细节、指标定义及运行身份见 [Phase R 证据导航](phase_r/README.md)、[R12 最终方向裁决](phase_r/R12_final_research_direction_decision.md)、[R13 方向评估](phase_r/R13_research_direction_assessment.md)、[R14 结果](phase_r/R14_minimal_comparison_results.md)、[R15 裁决](phase_r/R15_research_direction_assessment.md) 和对应紧凑证据包。历史结论不回写；后续若修订判断，追加到决策日志并注明新证据。
 
 ## 8. 长期计划与阶段门
 
@@ -163,11 +167,13 @@ R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数
 - **退出条件：** 结果可由审查者复现，主张范围与证据范围一致，论文贡献相对相关一手文献清楚。
 - **停止条件：** 独立验证不复现时，收窄主张、修正机制或停止该方法；不以事后改指标、挑场景或回写历史报告维持结论。
 
-## 9. 当前唯一优先任务
+## 9. 当前研究状态与下一项建议
 
-R13 已冻结共享评价契约并完成最小 Baseline pilot。当前建议的唯一下一项工作是：**使用一个新独立 seed，复核正常速度场景 C0/C2/C3 的配对 OFF/ON/TO 结果；以相同 OFF-reference 信息类别的 C2 对 C3 为主要比较，C0 仅作生产 Current operational anchor，重点验证 TO target preservation 是否转化为可接受的任务收益。**
+R15 已完成当前 R14 track switch 归因。方向裁决为 `STOP`：不再以 seed505 这一次 C3 目标 track switch 作为 Robust DDC 的独立创新依据，也不为解释它继续扩 seed 或调关联门。当前没有自动运行中的新实验。
 
-该建议尚未执行，不自动扩大为低速/复杂杂波矩阵或 AI 训练。若独立 seed 不复现 target-preservation 差异，或差异只在 CSI 中间量、没有可接受的检测/错误输出/参数收益，则停止此候选方向。即使差异复现，也需在决策日志评估其任务价值后再决定下一阶段。
+若后续继续最小 Production 比较，建议优先在同一 seed505 输入身份上补充 C1 `Gamma=1` reference-free ordinary subtraction 的 OFF/ON/TO 三角色 pilot，并与 R14 已有 C0/C2/C3 结果并列比较目标保持、非目标 Detection、当前周期错误关联和地速。该建议用于判断无需 paired OFF 的确定性方法是否有任务价值；单 seed 只支持可行性判断，不扩大成完整 Baseline 矩阵。R14 的 paired OFF 部署来源仍需先明确。
+
+长期目标维持广义 GMTI 物理处理链与任务瓶颈识别。未知系统误差、低速目标、复杂杂波和候选/航迹交互都属于待证候选；R14/R15 的零时延证据不能支持或否定未知系统误差效应。AI 仍未通过证据门。任何后续实验须由用户明确启动，并在真实 CUDA 运行需要时使用本机 GPU 提权访问。
 
 ## 10. 研究方向变更与阅读入口
 
