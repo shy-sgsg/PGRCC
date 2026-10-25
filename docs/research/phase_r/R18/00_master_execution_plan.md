@@ -38,9 +38,9 @@
 - [x] 已审计：主 runner 与 TrackManager runner 硬编码 `build/GMTI_pipe_core`；当前缺少直接选择隔离 Release 二进制的入口。
 - [x] 先加失败测试，证明 runner 可选择显式隔离的 simulator/Production binary，并在预期 SHA 与实际 SHA 不一致时 fail closed。
 - [x] 用最小向后兼容实现接入独立 build 路径；记录每次运行的 simulator/Production 文件身份，并在分支运行边界检查身份未变。
-- [ ] 在新的独立 Release build 目录构建；记录命令、CMake cache、编译器/NVCC、架构/flags、目标文件 SHA 和源码 commit。
-- [ ] 运行 CUDA GO-CFAR 数值正确性门：有效 CUT 几何、训练窗背景参考值、门限、GO 方向、fallback/直接重算计数、branch hits、final-union unique hits 与日志 hit counts。
-- [ ] 对单个代表场景完成相同二进制的 C0/C1/C2/C3 Native CUDA 检查；所有处理、CSI、CFAR、检测、航迹和信息隔离门通过后才进入系统矩阵。
+- [x] 在独立 Release build 目录构建；命令、CMake cache、编译器/NVCC、架构/flags、目标文件 SHA 和源码 commit 已记录于 evidence/build/native_release_identity.json。
+- [x] CUDA GO-CFAR 数值 selftest 通过；12 场景的 valid-CUT geometry/分母、branch 与 final-union hit 审计均通过。真实经验 Pfa 仍不可评估，见 WP5。
+- [x] seed101 pilot 及正式矩阵的 C0/C1/C2/C3 Native CUDA 分支使用固定 Production binary；运行日志、CSI、CFAR、Detection、TrackManager 和方法信息合同已归档。
 
 **停止门：** 构建身份、二进制 hash、CFAR reference、CUT 分母/几何、生产日志或基本处理闭合任一失败，暂停方法比较，先定位根因。
 
@@ -51,7 +51,7 @@
 - [x] 审查 DPCA/ATI、相位/幅相校准、SCC/DDC 与稳健权重；LS/Wiener/ridge/稳健估计与有限样本；STAP SMI/加载/降秩/JDL 与协方差异质性。
 - [x] 每篇材料注明 DOI/原始来源、系统/通道、仿真或实测、输入信息/自由度、Baseline、指标、结果与适用限制；SAR-GMTI、宽幅扫描与 MMTI 分层，不将结果直接迁移到本 Production。
 - [x] 对仓库方法逐一标出实际入口、样本来源、估计自由度、输出域、部署信息条件、已有测试和未执行状态；明确并不存在一份“方法名”就等于强 Baseline。
-- [ ] 给出当前可复现强传统方法能力矩阵及最简单可行替代，不增加未授权算法实现。
+- [x] 给出当前可复现强传统方法能力矩阵及最简单可行替代，不增加未授权算法实现。
 
 ## WP3：冻结信息公平性与实验设计
 
@@ -62,42 +62,43 @@
 - [x] 固定 Mode-A C2/C3 为 `PRIVILEGED_PAIRED_OFF_REFERENCE`，只作为信息上限/科学参考，不作为在线部署性能。
 - [x] 审查 secondary data 的模拟可行性与部署限制；预注册独立 seed 909 的 target-free C+N reference，统计同质性尚待执行数据验收。
 - [x] 在查看 R18 正式结果前冻结 606/707/808、6.7/0.5 m/s、30/20 dB、零时延、三期/角色、杂波几何/功率、方法和评价分母。
-- [ ] 核实 12 个正式场景的 Stage2 target truth ROI、杂波 Doppler 支持和 CFAR valid-CUT intersection；须以本次实际场景数据为证。
+- [ ] target truth ROI 与杂波 Doppler 支持的逐期交叠及其对目标保持的共同机会审计未闭合；valid-CUT geometry/分母已通过，但不能代替 truth-filtered intersection。保留为限制，不事后改评价门。
 
 ## WP4：Native CUDA pilot 与冻结矩阵
 
 **文件：** `docs/research/phase_r/R18/evidence/` 下的配置、manifest、实际 XML/log、运行摘要和关键 map/CSV。
 
-- [ ] 第一批：一个代表场景、统一 binary、C0/C1/C2/C3、必要的 Mode-A/Mode-B；确认方法真实生效、目标污染可见、无 NaN/Inf、CFAR/Detection/TrackManager 正常。
-- [ ] 第二批：通过第一批后执行冻结的 12 场景矩阵（3 seed × 2 speed × 2 SNR）；核心 Mode-B 4 方法 × OFF/ON/TO = 最多 144 Production branches。
-- [ ] Mode-A C2/C3 作为单独特权参考子矩阵；按 WP3 预先冻结的场景执行，不把它扩成所有方法/模式笛卡尔积。
-- [ ] 每个 case 均检查 Stage2 报告实际连续面积杂波 packets/samples/power、有效 range/Doppler support、role 输入身份、F1/F2 tap、运行时 XML、CSI/CFAR 输出与 track-debug 证据。
-- [ ] pilot 通过后完成所有冻结 seed/speed/SNR；不能以 pilot、单 seed 或自测完成 R18。
+- [x] seed101 pilot 与代表性 Production 条件已运行；统一 binary、分支、面积杂波、causal triplet 和 CFAR 分母门均留有证据。目标自消的目标专属幅相闭合未通过本轮数据充分验证。
+- [x] 执行冻结 12 场景矩阵（3 seed × 2 speed × 2 SNR）；每 case 21 branches，共 252/252 Production 分支通过执行门。
+- [x] Mode-A C2/C3 配对 OFF 特权参考条件与 Mode-B 分层执行；没有把两种信息条件合并排名。
+- [x] 各 case 的面积杂波报告、role 输入身份、F1/F2/CSI tap、runtime XML、CFAR 输出和 TrackManager 审计已封存；target truth 与 Doppler support 的逐 CUT 交叠仍未闭合。
+- [x] pilot 后完成全部冻结 seed/speed/SNR。阶段执行结束不代表任务性能已验证。
 
 ## WP5：任务评价与失效机制
 
 **文件：** `05_execution_and_quality_audit.md`、`06_signal_and_task_results.md`、`07_failure_mechanism_analysis.md`。
 
-- [ ] 同时报告杂波残余/功率、Gamma 稳定性/有效支持、目标复增益幅相保持、SCNR proxy、CFAR valid unique cells、目标检测/漏检/非目标输出、confirmed matched-track、关联连续性与可评价的角度/位置/速度误差。
-- [ ] 固定 truth opportunity 和共同成功机会分母；分别报告每方法自身正确机会和共同机会；不将 hit-cell fraction 或非目标 detection row 当作 Pfa。
-- [ ] 分析低速杂波重叠、ON 目标对 Gamma 的污染、自消、支持域/相位异质性、样本数、阈值/聚类/参数估计传播；用实际 CSI、CFAR 和候选 lineage 区分物理/算法/生产/评价根因。
-- [ ] 分开 kernel/传输、Production branch wall time、Stage2 与完整 case wall time；若无稳定重复/设备条件不满足，只报告描述计时，不做性能排名。
+- [x] 汇总杂波统计、Gamma 参考 support、CFAR valid unique cells、truth-period Detection、非目标 Detection 行、TrackManager、角度/位置/地速指标；目标专属复增益/相位、SCNR、独立 Pfa、radial velocity 与 PK/PKR residual closure 明确标为 NOT_EVALUABLE。
+- [ ] 每种方法可见 truth-period 的描述机会数已报告；独立 truth-filtered H0 false-CUT 分母和共同成功机会分母未闭合。hit-cell fraction 与非目标 Detection 行未当作 Pfa。
+- [x] 已分析 area-clutter 几何、零误差范围、ON/paired-OFF 信息差、C3 support 变化及 CFAR→Detection→Track 评价缺口；低速/复杂杂波优先级与目标自消因缺少可识别证据，保持未判定。
+- [x] 运行身份与设备状态留存；计时未用于稳定性能排名，未将不同计时口径混算。
 
 ## WP6：机会排序、方向裁决与审查交付
 
 **文件：** `08_research_opportunity_ranking.md`、`09_next_research_direction.md`、`10_ChatGPT_review_request.md`、动态状态和追加决策日志。
 
-- [ ] 按任务收益证据、残余强度、物理可观测性、传统方法缺口、部署可得性和创新必要性排序候选问题。
-- [ ] 以证据给出 `CONTINUE / STOP / PIVOT`，决定是否有必要进入新的确定性物理方法创新；不训练模型、不自动启动下一阶段。
-- [ ] 更新 `RESEARCH_STATUS.md` 和决策日志；总纲保持原 blob。
-- [ ] 按 ChatGPT review template 生成审查请求，首段要求先读指定 commit 的 Master Plan，再做阶段正确性与总体科研价值双层审查。
-- [ ] 完成链接、Markdown、测试、差异与证据清单检查；仅提交 R18 审核后的跟踪文件，普通提交推送至当前分支。
+- [x] 按任务收益证据、残余强度、物理可观测性、传统方法缺口、部署可得性和创新必要性排序候选问题。
+- [x] 阶段裁决为 INCONCLUSIVE，并停止本轮方法性能排名；未训练模型、不自动启动下一阶段。
+- [x] 更新 RESEARCH_STATUS.md 和决策日志；总纲保持原 blob。
+- [x] 生成 ChatGPT 独立审查请求，要求先读指定 commit 的 Master Plan，再做阶段正确性与总体科研价值双层审查。
+- [ ] 提交前完成链接、Markdown、差异和证据清单检查；仅纳入 R18 交付物，随后普通提交并推送当前分支。
 
-## 当前进度
+## 最终进度
 
-- **已读：** R18 指令、当前研究总纲、动态状态、决策日志、`AGENTS.md`、README、Phase R 导航、Codex/ChatGPT 审查规范，以及 R7、R12–R17 的关键设计/结果/审计材料。
-- **已实现：** runner 具备隔离 simulator/Production executable 入口和 SHA fail-closed 检查；定向 Python contract 测试此前运行 `69 passed`。此改动尚待以 R18 独立 Native Release 构建与实际 CUDA 验收。
-- **已完成：** 一手文献/方法能力审查、核心四条件矩阵、独立参考信息边界与正式参数冻结；配置在 `configs/research/phase_r18_native_cuda.json`，冻结 SHA 记录待写入最终 manifest。
-- **环境状态：** 提权 `nvidia-smi` 实读 RTX 3050 Laptop、driver 580.178.04、P8、38°C、6.20 W、6% GPU、551 MiB；普通沙箱不具备 GPU 访问，后续 CUDA 构建/运行均需沿用授权提权。磁盘剩余 26 GB；既有 `outputs/` 29 GB 与 `.scratch/` 278 MB 保持不动。
-- **当前执行门：** 先提交 runner identity 改动与冻结设计，随后隔离 Native Release 构建、GO-CFAR 数值 gate、seed101 执行 pilot，再运行 12 场景正式矩阵并逐 case 紧凑化本轮证据。
-- **未完成：** 新 build、CFAR 数值验收、pilot、正式矩阵、独立 reference 实际同质性、任务结果和方向裁决。
+- **执行完成：** 12 个冻结 CUDA 场景、252 个 Production 分支均完成；每 case 的连续面积杂波、causal triplet、valid-CUT geometry/分母与 final-union hit 门通过。
+- **独立参考次级检查：** seed909 Stage2 和 C2/C3 Gamma Production 检查已运行；预注册 C3 exact-support gate 因 117 组中 116 组 support count 不同而停止评价。没有事后放宽门槛。
+- **性能结论：** 所有 case 的经验 Pfa、PK/PKR residual closure 和 waterfall 均 NOT_EVALUABLE；PERFORMANCE_VERIFIED=false。报告仅给描述性目标周期命中与生产参数输出，不作胜负或显著性声明。
+- **方向裁决：** INCONCLUSIVE；停止本轮方法排名。零时延矩阵不能回答未知误差损失、Known 恢复量或盲估计差距；不证明低速、复杂杂波或 AI 应成为下一主线。
+- **保留证据：** 完整 case snapshot、运行 manifest、XML/log、CSI/CFAR/Detection/TrackManager 审计、summary CSV/图和失败记录均归档于 evidence/。
+- **清理状态：** 2026-10-25 实测整个项目根目录约 2.8 GB，低于 20 GB；R18 可重建数组已在审计文件逐项封存并核验后清理。
+- **总纲身份：** Git blob e637e3769bde7814298ff012d0f42301884e2985，完全未修改。

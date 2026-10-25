@@ -4,6 +4,7 @@
 
 ## 当前决策
 
+- **R18 更新：** 本阶段已完成 12 场景、252 个 Native CUDA Production branches；有效连续面积杂波、输入 causal triplet、CFAR valid-CUT geometry/分母和 final-union-hit 门均通过。经验 Pfa、PK/PKR residual closure、目标专属幅相/SCNR 与 ID-switch lineage 未闭合，seed909 C3 参考因预注册 exact-support gate 失败而停止任务评价。阶段裁决为 INCONCLUSIVE，停止方法性能排名；固定零时延不能回答未知误差因果效应，不支持 AI、低速保护或复杂杂波路线变更。完整证据与报告见 [R18 导航](R18/00_master_execution_plan.md)及下方 R18 阅读入口。
 - **R16 更新：** 本地 Native CUDA seed505、6.7 m/s、30 dB、0 ns pilot 已完成 A0/C0/C1 × OFF/ON/TO 共 9 branches。面积杂波和 27 张 CFAR final-union maps 有效；C1 Gamma=1 在 ON/TO 各正确检测 1/3，C0 为 3/3，C1 的 H0 残余与 TO 目标保持也较差。非目标检测行减少不能解释为 Pfa 改善。R14/R16 输入身份相同，但 Production binary 和 C0 CFAR 输出不同，因此不能用历史 C2/C3 给 C1 排名。该单 seed、零时延结果不回答未知误差因果问题，不支持 AI 或低速/复杂杂波方向变更；阶段结束且不自动扩展。详见 [R16 结果](R16_minimal_c1_results.md)、[方向评估](R16_research_direction_assessment.md)、[冻结设计](R16_experiment_design.md) 和 [紧凑证据包](evidence/r16_c1_gamma1_seed505/README.md)。
 - **R14 更新：** 独立 seed505 Native CUDA pilot 复现 R13 的 C3/C2 TO CSI retention 差（+7.175 dB），并观察到 C3 ON 非目标 detection rows 减少 29.3%、false current-frame associations 减少 38.5%；ON 目标检测仍为两方法 3/3。但 R14 C3 TrackManager ground-speed RMSE 为 9.259 m/s，C2 为 1.086 m/s（共同机会 n=2），且末期目标关联从 track 6 切到 64。只裁决 `CONTINUE` 有界 C2/C3 任务权衡复核；当前不宣称整体性能胜出，经验 Pfa 仍 `NOT_EVALUABLE`，不训练 AI。该 seed 的 delay=0 ns，不改变未知系统误差主线。详见 [R14 结果](R14_minimal_comparison_results.md)、[方向评估](R14_research_direction_assessment.md)、[紧凑证据包](evidence/r14_scc_robust_ddc_seed505/README.md)。
 - **R13 更新：** seed101 的两个零时延场景、24 个 Native CUDA branches 已执行。Normal-speed TO target-only CSI retention / detection 出现候选差异，但共同成功机会的参数比较显示位置、方位、地速与折叠 Doppler 有权衡；C2/C3 使用 paired OFF 标定信息、Current 不使用，只有一个独立 seed，因此没有验证净任务收益。0.5 m/s 挑战场景没有形成稳定方法差异；经验 Pfa 和径向速度 RMSE 仍 `NOT_EVALUABLE`。裁决为 `CONTINUE` 一次有界独立 seed 复核；R13 阶段停止、不自动启动；无 AI 必要性证据。R8/R9 历史 union count 已由当前 evaluator 复核，R12 因无 final-map audit 继续不可评估。详见 [R13 方向评估](R13_research_direction_assessment.md)、[结果](R13_minimal_comparison_results.md)、[CFAR 历史影响审计](R13_CFAR_and_velocity_audit.md) 和 [紧凑证据包](evidence/r13_baseline_cuda_20261024/README.md)。
@@ -160,3 +161,13 @@ R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度
 4. [R17 研究方向评估](R17_research_direction_assessment.md)：判断 R14/R15 历史结果的适用边界及唯一有界后续建议；本阶段无新 CUDA 执行。
 5. 本次未运行 CUDA。R14 原始 CFAR power/threshold maps 已清理，故虽已定位旧版 executable 与数值缺陷，无法统计 R14 每个 CUT 的错误门限数。
 6. [ChatGPT 独立审查请求](00_ChatGPT_review_request_R17.md)：审查 R17 固定 commit `902572c7a9a6f7b91b14ff9db32514be664a58d0`，要求先读取该提交的研究总纲并完成阶段正确性与总体科研价值双层审查。
+
+## R18 Native CUDA 传统方法 Production 矩阵（2026-10-25）
+
+1. [R18 总实施计划与阅读入口](R18/00_master_execution_plan.md)：科研定位、身份、执行范围、质量门和阶段停止状态。
+2. [文献与方法能力审查](R18/01_literature_and_method_review.md)、[Production 基准冻结](R18/02_production_frozen_baseline.md)、[信息公平协议](R18/03_information_fairness_protocol.md)及[实验矩阵](R18/04_experiment_matrix.md)。
+3. [执行与质量审计](R18/05_execution_and_quality_audit.md)：源码/配置/二进制身份、252 个分支及通过/未通过门。
+4. [信号与任务结果](R18/06_signal_and_task_results.md)、[失败机制](R18/07_failure_mechanism_analysis.md)、[机会排序](R18/08_research_opportunity_ranking.md)及[阶段方向裁决](R18/09_next_research_direction.md)。
+5. [ChatGPT 独立审查请求](R18/10_ChatGPT_review_request.md)：先读对应 commit 的研究总纲，再作阶段正确性与总体科研价值双层审查。
+6. [12 场景 gate CSV](R18/evidence/formal_matrix/summary/r18_cuda_case_gate_summary.csv)、[ON 条件描述统计](R18/evidence/formal_matrix/summary/r18_cuda_on_method_descriptive_summary.csv)和[杂波可比性图](R18/evidence/formal_matrix/summary/r18_cuda_clutter_comparability.png)。每场景完整 manifest、XML/log、CSI/CFAR/Detection/TrackManager 审计位于对应的 formal_matrix/seed*/experiment_snapshot/。
+7. [seed909 独立参考次级验证](R18/evidence/independent_seed909_secondary_attempt3/report.md)因 C3 exact-support gate 未通过而为 NOT_EVALUABLE；[清理台账](R18/evidence/cleanup_ledger.md)记录已归档与删除内容。

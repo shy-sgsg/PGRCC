@@ -1,0 +1,50 @@
+# R18 Workspace Cleanup Ledger
+
+清理遵循“先封存报告、manifest、运行配置和审计，再删除可由固定 seed/config 重建的数组数据”。不删除源码、冻结协议、历史结论或输入基准。
+
+## 2026-10-25
+
+- 既有阶段结果：从 `outputs/phase_r8_unknown_delay_multiseed_20261023`、`outputs/phase_r_r12_physics_matched_delay_20261024`、`outputs/phase_r_r9_deterministic_delay_20261023`、`outputs/phase_r7_cfar_correctness_20261022`、`outputs/phase_r6_stagewise_divergence_20261022` 及 `outputs/stage2/data` 中，删除 8,178 个未跟踪、忽略的 `.bin`/`.npy`/`.f32` 生成数组，逻辑大小 28,592,459,150 bytes（约 26.63 GiB）。保留上述目录内的报告、manifest、CSV、JSON、日志、XML、图表和 R7 pre-fix focused 失败审计。
+- 本次 R18 pilot 原始数据：删除任务生成的两个 `.scratch` 根目录；在删除前将成功 pilot 的非数组运行证据（manifest、case/branch manifest、实际 XML、日志、场景报告、CSI/CFAR/检测/跟踪 CSV、图表及冻结配置）封存到 `evidence/pilot_seed101_retry/experiment_snapshot/`，将失败 pilot 的 132 份非数组审计记录封存到 `evidence/pilot_seed101/failed_attempt_snapshot/`；根因另见 `evidence/pilot_seed101/pilot_failure_record.md`。
+
+删除记录（2026-10-25 10:44 UTC）：
+
+- `.scratch/r18_gate_pilot_seed101_20261025`：217 files；逻辑大小 1,292,480,310 bytes；已分配磁盘块 1,293,185,024 bytes。扩展名计数：`{".bin": 26, ".csv": 67, ".f32": 2, ".json": 21, ".log": 11, ".md": 4, ".npy": 57, ".png": 3, ".txt": 4, ".xml": 22}`。原始 `.bin/.npy/.f32` 已无保留副本；必要配置与审计文本已封存，pilot 可用冻结配置和 seed 重新生成。
+
+- `.scratch/r18_gate_pilot_seed101_retry_20261025`：2479 files；逻辑大小 9,417,767,076 bytes；已分配磁盘块 9,425,891,328 bytes。扩展名计数：`{".bin": 226, ".csv": 628, ".f32": 42, ".json": 102, ".log": 71, ".md": 4, ".npy": 1197, ".png": 63, ".txt": 84, ".xml": 62}`。原始 `.bin/.npy/.f32` 已无保留副本；必要配置与审计文本已封存，pilot 可用冻结配置和 seed 重新生成。
+
+删除后总项目大小另见本次交付检查；各阶段应在运行前复查空间，并对每个正式 case 执行“汇总、封存、核验、清理原始数组”。
+
+- R18 正式矩阵场景 `seed606_v6p7_snr20`：在 CUDA 运行完成、21 个生产分支和面积杂波/因果/valid-CUT/并集命中门通过后，将 1,056 份必要运行与审计文件（实际 XML、JSON manifest、CSV、日志、图、文本及 42 个 `.f32` 诊断图）封存到 `evidence/formal_matrix/seed606_v6p7_snr20/experiment_snapshot/`，并逐文件核验拷贝。另存 `snapshot_index.json` 记录快照与省略数组统计。之后删除精确原始目录 `.scratch/r18_formal_seed606_v6p7_snr20`：共 2,479 个文件、逻辑 9,411,848,495 bytes、已分配 9,420,054,528 bytes；其中可重建 `.bin` 226 个/7,085,678,902 bytes，`.npy` 1,197 个/2,282,305,032 bytes。原始数组可由冻结配置、seed 与运行源码重建；运行 manifest、输入身份和完整审计保留。实测 Pfa 仍为 `NOT_EVALUABLE`，残余闭合仍因 PK 分支缺失而不可评估，未将其表述为成功。清理后工作树占用约 8.3 GiB（低于 20 GiB）。
+
+- 清理 `outputs/` 中已完成阶段的未跟踪、可由对应配置/seed 重建的 `.bin/.npy` 生成数组；保留所有已跟踪报告、manifest、配置、CSV、日志、XML、图表及 `.f32` 诊断记录。删除 901 个文件，逻辑 335228274 bytes、已分配 337027072 bytes；分扩展名计数 `{'.bin': 870, '.npy': 31}`，逻辑大小 `{'.bin': 298898826, '.npy': 36329448}`。确认无被 Git 跟踪的数组被删除。
+
+- R18 正式矩阵场景 `seed606_v0p5_snr30`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed606_v0p5_snr30/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed606_v0p5_snr30` 的 2479 个文件（逻辑 9403111590 bytes，分配 9411194880 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367913462 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- 清理 11 个未被研究文档引用的旧 `.scratch/formal_pilot_*` 单场景 pilot 目录。所有 manifest 均为 `completed_with_gaps` 且 `algorithmic_results_claimed=false`；保留文档明确引用的 `.scratch/formal_pilot_4ns_seed101_v12` 作为历史示例。删除 77 个文件，逻辑 143568752 bytes、已分配 143777792 bytes。删除项：.scratch/formal_pilot_4ns_seed101_v6p7 (base__seed_101__v_6.7__snr_30.0__delay_4.0ns, 7 files); .scratch/formal_pilot_4ns_seed202_v12 (base__seed_202__v_12.0__snr_30.0__delay_4.0ns, 7 files); .scratch/formal_pilot_4ns_seed202_v6p7 (base__seed_202__v_6.7__snr_30.0__delay_4.0ns, 7 files); .scratch/formal_pilot_4ns_seed303_v12 (base__seed_303__v_12.0__snr_30.0__delay_4.0ns, 7 files); .scratch/formal_pilot_4ns_seed303_v6p7 (base__seed_303__v_6.7__snr_30.0__delay_4.0ns, 7 files); .scratch/formal_pilot_m4ns_seed101_v12 (base__seed_101__v_12.0__snr_30.0__delay_-4.0ns, 7 files); .scratch/formal_pilot_m4ns_seed101_v6p7 (base__seed_101__v_6.7__snr_30.0__delay_-4.0ns, 7 files); .scratch/formal_pilot_m4ns_seed202_v12 (base__seed_202__v_12.0__snr_30.0__delay_-4.0ns, 7 files); .scratch/formal_pilot_m4ns_seed202_v6p7 (base__seed_202__v_6.7__snr_30.0__delay_-4.0ns, 7 files); .scratch/formal_pilot_m4ns_seed303_v12 (base__seed_303__v_12.0__snr_30.0__delay_-4.0ns, 7 files); .scratch/formal_pilot_m4ns_seed303_v6p7 (base__seed_303__v_6.7__snr_30.0__delay_-4.0ns, 7 files)。相同配置/seed可重建；旧 pilot 不作为当前 R18 证据。
+
+- R18 正式矩阵场景 `seed606_v0p5_snr20`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed606_v0p5_snr20/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed606_v0p5_snr20` 的 2479 个文件（逻辑 9394484875 bytes，分配 9402585088 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367827938 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed707_v6p7_snr30`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed707_v6p7_snr30/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed707_v6p7_snr30` 的 2479 个文件（逻辑 9407265328 bytes，分配 9415393280 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367940958 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed707_v6p7_snr20`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed707_v6p7_snr20/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed707_v6p7_snr20` 的 2479 个文件（逻辑 9411938039 bytes，分配 9420095488 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367990878 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed707_v0p5_snr30`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed707_v0p5_snr30/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed707_v0p5_snr30` 的 2479 个文件（逻辑 9400704523 bytes，分配 9408806912 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367887294 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed707_v0p5_snr20`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed707_v0p5_snr20/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed707_v0p5_snr20` 的 2479 个文件（逻辑 9394309447 bytes，分配 9402585088 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367821330 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed808_v6p7_snr30`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed808_v6p7_snr30/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed808_v6p7_snr30` 的 2479 个文件（逻辑 9416348184 bytes，分配 9424392192 bytes），其中 `.bin/.npy` 1423 个、逻辑 9368028034 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed808_v6p7_snr20`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed808_v6p7_snr20/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed808_v6p7_snr20` 的 2479 个文件（逻辑 9412176923 bytes，分配 9420288000 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367994610 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed808_v0p5_snr30`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed808_v0p5_snr30/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed808_v0p5_snr30` 的 2479 个文件（逻辑 9403856286 bytes，分配 9412030464 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367922626 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- R18 正式矩阵场景 `seed808_v0p5_snr20`：21/21 生产分支通过；面积杂波、因果三元组、valid-CUT 分母与最终并集命中门通过，实测 Pfa 为 `NOT_EVALUABLE`。逐文件封存 1056 份审计/评价证据和所有 `.f32` 诊断图到 `evidence/formal_matrix/seed808_v0p5_snr20/experiment_snapshot/` 并核验；随后删除原始目录 `.scratch/r18_formal_seed808_v0p5_snr20` 的 2479 个文件（逻辑 9394982718 bytes，分配 9403121664 bytes），其中 `.bin/.npy` 1423 个、逻辑 9367828790 bytes，可由冻结 seed/config 重建。快照清单见 `snapshot_index.json`。
+
+- 当前空间巡检（2026-10-25）：整个项目根目录为 8.7 GiB，活动 worktree 为 8.3 GiB，均低于 20 GiB。活动 worktree 的 `outputs/` 为 1,084,121,456 bytes，未发现 `.bin/.npy`，最大单文件约 29 MB；内容为 CSV、JSON、图表和压缩审计记录，保留供历史结果复核。`formal_matrix` 中 11 个场景已有快照；`.scratch/r18_formal_seed606_v6p7_snr30`（约 5.9 GiB）是尚待独立 seed909 参考评估使用的 seed606 配对输入，暂不删除。该评估完成后，先将其必要非数组证据和 `.f32` 诊断封存并逐文件核验，再删除可重建的原始数组并更新本台账。巡检未发现其他可在不丢失当前 R18 证据链的前提下安全删除的大体积数据，本次未删除文件。
+
+- seed909 独立参考次级验证期间清理：首次启动在 Stage2 前因 Python 导入路径失败，未生成实验数组；其 manifest/report 已归档到 `evidence/independent_seed909_secondary_attempt3/preflight_failures/`，移除原两文件目录。第二次运行成功生成 seed909 area-only Stage2 数据（390 packets、1,952,655 samples），但当时 runner 错读 seed606 `A0_OFF` 的背景复用报告，未启动 Production；封存 19 份审计文件（81,999 bytes），删除 3 个 `.bin`（逻辑 147,613,440 bytes）。第三次运行完成 seed909 Stage2 与 C2/C3 参考 Gamma Production 分支；有效面积杂波和统计容差门通过，C2 support 一致，C3 117 个群组 key 一致但 116 组有效拟合 support 数不同，按冻结门槛停止 seed606 评价。逐文件封存 111 份审计/运行文件（1,656,990 bytes），删除 17 个 `.bin`（逻辑 442,841,740 bytes）和 114 个 `.npy`（逻辑 217,362,384 bytes）。两个失败尝试的数组均可由固定 seed/config 重建；Stage2 报告、Production XML/log、Gamma CSV 和 support 对照均保留。该两次 `.scratch` 删除未记录 allocated bytes，manifest 的 snapshot index 记录逻辑字节数。
+
+- R18 seed606 正式场景 `seed606_v6p7_snr30`：独立参考门判为 `NOT_EVALUABLE` 后不再需要原始配对数组。将 1,056 份 manifest、Stage2 报告、Production XML/log、CSI/CFAR/Detection/TrackManager CSV、图表和 `.f32` 诊断逐文件复制并校验到 `evidence/formal_matrix/seed606_v6p7_snr30/experiment_snapshot/`，快照 45,281,326 bytes。之后删除精确目录 `.scratch/r18_formal_seed606_v6p7_snr30`：2,416 个文件，逻辑 6,313,385,744 bytes，已分配 6,321,319,936 bytes；省略可重建 `.bin` 163 个/3,985,799,386 bytes、`.npy` 1,197 个/2,282,305,032 bytes。原 manifest 保留 9 个 OFF/ON/TO 输入的路径和 SHA-256；snapshot index 记录省略数组的扩展名、数量及逻辑大小，未逐文件记录其他派生数组身份。此后 12 个正式矩阵场景均有快照。项目根目录实测 2.8 GB，活动 worktree allocated 2.686 GiB，低于 20 GB。
+
+- 2026-10-25 后续空间核对：项目根目录 `du -sh` 为 2.8G，活动 worktree 为 2.4G；活动 worktree 的 `outputs/` 约 1.1G、`.scratch/` 约 141M。扫描发现活动 `outputs/` 与 `.scratch/` 无 `.bin`/`.npy`，仅少量 `.f32` 诊断文件；已有大目录均为阶段 CSV/JSON/图表、紧凑审计或被研究文档引用的历史 evidence。本次未发现有明确证据可安全删除的额外大体积产物，故未再删除文件。该状态低于用户设定的 20G 上限。

@@ -21,6 +21,7 @@
 - 参考 RNG seed：909；正式评价 case：seed 606、速度 6.7 m/s、SNR 30 dB。
 - 与评价数据使用相同平台/波束/距离/area clutter power、texture、rho、热噪声、period 数、F1/F2 处理 support 和 Production binary；参考 `scene_mode=area_clutter_only`，无目标 truth，不读取主评价数据。
 - 来源路径、resolved scenario、实际 Stage2 报告、参考 IQ SHA、Production XML/log、Gamma CSV SHA、support/group coverage、运行二进制 SHA 都单独留存。
+- 在 seed909 运行前冻结可比性门槛：平台、波束、距离窗、面积杂波与热噪声配置、周期数、处理布局、方法 support 及 Production binary 必须与 seed606 完全一致；两边必须实测到正的连续面积杂波 packets/samples 和正均功率；Gamma group key 与每组 support count 必须完全一致、所有组均 `OK` 且 truth flag 为 false。实测面积均功率相对差 ≤10%、功率 CV 相对差 ≤15%、lag-1 与 CTDR-lag 相关绝对差各 ≤0.02、均噪声功率相对差 ≤5%。这些界限在本次 seed909 运行前固定，覆盖已完成 seed606/707/808 的场景间波动（均功率约 2%、功率 CV 约 7%，相关和噪声差异更小）；Gamma 数值分布另作描述统计，不设事后通过阈值，也不据单次 seed 宣称统计同质或显著性。
 - “随机 seed 不同”只证明模拟器 RNG 输入不同，不能单独证明统计同质。必须对照两组 Stage2 的面积杂波实测均功率、功率 CV、lag-1/lag-2 相关、可用 range/Doppler support、训练群组数及 Gamma 复值分布。如果出现系统性不匹配、失败组或 support 不同，则标 `NOT_EVALUABLE`，不得调参数补救。
 - 即使可评估，该子矩阵仅给出独立模拟参考相对 Mode-B 的条件差值；需要现实 airborne 数据或合理的在线可获得参考机制，才能支撑部署性主张。
 

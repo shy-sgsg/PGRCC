@@ -106,3 +106,15 @@
 - **下一项建议（未授权）：** 若用户继续 C0/C2/C3 比较，先用同一个修复后 Native CUDA executable 完成一个 seed505 OFF/ON/TO 有界复验，并保留实际 CFAR 输入、power、threshold、geometry 和 map 身份；不得自动运行。
 - **总纲治理记录：** 本 R17 任务获得用户对总纲第 9 节原 R16 前三段的明确、有限恢复授权。现已恢复到 R16 前 blob `e637e3769bde7814298ff012d0f42301884e2985`，仅该范围有改动；R16 实验事实和报告未被回写。之后任何总纲正文改动仍须事先获得用户明确批准。
 - **来源：** [R17 binary 身份审计](phase_r/R17_production_identity_audit.md)、[R17 CFAR 分歧分析](phase_r/R17_CFAR_divergence_analysis.md)、[R17 可比性契约](phase_r/R17_baseline_comparability_contract.md)、[R17 方向评估](phase_r/R17_research_direction_assessment.md)、[R7 数值根因](phase_r/R7_CUDA_CFAR_numerical_root_cause.md)、[R14 证据包](phase_r/evidence/r14_scc_robust_ddc_seed505/README.md)、[R16 证据包](phase_r/evidence/r16_c1_gamma1_seed505/README.md)。
+
+## 2026-10-25｜R18：完成零时延传统 Production 矩阵；停止性能排名
+
+- **决策编号与执行身份：** `D-2026-10-25-R18`。Native CUDA Release，`USE_COREX=OFF`；实验 runner 源码 commit `014352ace1c4ad0bade0d759a099a47fe9ecfaa9`，Release build 来源 commit `4c6d4d303621324f5e174db0ba1811c5691df2e2`；Production binary SHA `3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0`。R18 配置 SHA `3af60966332877095e5447247ab08cb39a54ef7a15681f37adf33cc251082ae1`。
+- **研究问题与范围：** 在固定零通道误差的 area-clutter Production 场景中，核验 C0/C1/C2/C3 的处理和任务记录。12 场景为 seed 606/707/808 × 6.7/0.5 m/s × 30/20 dB，每场景 21 branches，共 252 个 Native CUDA Production branches。Mode-A 的 C2/C3 使用 paired-OFF 参考，Mode-B 使用 ON 可观测数据，分层报告。
+- **直接证据：** 12/12 场景都实测生成 390 continuous-area packets、1,952,655 samples；测量面积杂波均功率 0.0227470–0.0232009。12/12 因果 triplet、valid-CUT geometry/分母和 final-union-hit 审计通过。每方法/速度/SNR 组合观察到 9/9 truth-period target matches；该计数是描述值，不是统计 Pd。
+- **未闭合项：** 真实 empirical Pfa、PK/PKR residual closure、目标专属幅相/SCNR、径向速度误差及 ID-switch lineage 不可评估，因此 `PERFORMANCE_VERIFIED=false`。seed909 的 area 与预注册 Stage2 统计门通过，C2 support 一致；C3 的 117 个 group 有 116 个 support count 不匹配冻结的 exact-support 门。按预注册规则停止评价，没有放宽门槛，未得到独立任务性能差值。
+- **裁决：** `INCONCLUSIVE`；完成阶段并停止本轮方法性能排名。零时延结果不能回答未知通道误差是否降低 GMTI、Known correction 恢复多少或盲估计距 Known 多远。当前证据不支持低速目标、复杂杂波或 AI 主线优先级变化。
+- **对总体目标与总纲的影响：** 不改变研究主题或长期路线。Master Plan blob `e637e3769bde7814298ff012d0f42301884e2985` 完全不变。没有启动下一阶段、AI 训练或新实验。
+- **后续建议与停止条件：** 若用户继续，先授权限界的现有证据/评价契约审查，确认 H0 false-CUT、PK/PKR residual 与目标/Detection/TrackManager lineage 的可补性；再决定是否设计单一非零物理误差的四条件因果试验。此建议不是启动授权。
+- **清理：** 保留每场景的非数组审计、manifest、XML/log、CSI/CFAR/Detection/TrackManager 输出和 summary；删除可由 seed/config 重建的原始 arrays，详见 [R18 cleanup ledger](phase_r/R18/evidence/cleanup_ledger.md)。整个项目根目录当前约 2.8 GB，低于 20 GB。
+- **来源：** [R18 结果](phase_r/R18/06_signal_and_task_results.md)、[方向裁决](phase_r/R18/09_next_research_direction.md)、[质量审计](phase_r/R18/05_execution_and_quality_audit.md)、[完整 evidence 导航](phase_r/README.md#r18-native-cuda-传统方法-production-矩阵-2026-10-25)。
