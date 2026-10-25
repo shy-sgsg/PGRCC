@@ -84,6 +84,114 @@ def test_method_and_mode_subset_keeps_default_contract_but_allows_bounded_pilot(
     assert args.calibration_modes == ["Mode-A"]
 
 
+def test_c1_roles_do_not_select_or_require_a_fitted_reference() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        build_branch_execution_contract,
+        build_method_contract,
+        load_pilot_config,
+        resolve_calibration_modes,
+    )
+
+    methods = build_method_contract(
+        load_pilot_config(CONFIG), method_ids=("C0", "C1", "C2", "C3")
+    )
+    modes = resolve_calibration_modes(methods, ("Mode-A",))
+
+    assert modes == {
+        "C0": ("not_applicable",),
+        "C1": ("not_applicable",),
+        "C2": ("Mode-A",),
+        "C3": ("Mode-A",),
+    }
+    for role in ("OFF", "ON", "TO"):
+        contract = build_branch_execution_contract("C1", "not_applicable", role)
+        assert contract["estimator_input_roles"] == []
+        assert contract["reference_source"] == "not_applicable"
+        assert contract["reference_artifact"] is None
+        assert contract["estimator_called"] is False
+        assert contract["fixed_reference_required"] is False
+        assert contract["reference_applied"] is False
+        assert contract["fallback_to_current"] is False
+    with pytest.raises(ValueError, match="only supports not_applicable mode"):
+        build_branch_execution_contract("C1", "Mode-A", "ON", "/tmp/unused_gamma.csv")
+
+    # Mode-A's OFF-fit and fixed-reference application remain frozen for C2/C3.
+    c2_off = build_branch_execution_contract("C2", "Mode-A", "OFF", "/tmp/c2_gamma.csv")
+    c2_on = build_branch_execution_contract("C2", "Mode-A", "ON", "/tmp/c2_gamma.csv")
+    assert c2_off["estimator_called"] is True
+    assert c2_off["fixed_reference_required"] is False
+    assert c2_on["estimator_called"] is False
+    assert c2_on["fixed_reference_required"] is True
+
+
+def test_r13_evaluator_accepts_direct_c1_gamma_one_taps_without_off_reference(
+    tmp_path: Path,
+) -> None:
+    import csv
+
+    from scripts.phase_r.evaluate_r13_minimal_baseline_pilot import _audit_adapter
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        build_branch_execution_contract,
+    )
+
+    adapter_path = tmp_path / "c1_adapter.csv"
+    fields = [
+        "result_id", "beam_id", "method", "group_id", "az_index",
+        "range_start", "range_end", "status", "support_count", "gamma_real",
+        "gamma_imag", "truth_used_in_estimator", "source", "reason",
+    ]
+    with adapter_path.open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        for period in (1, 2, 3):
+            writer.writerow({
+                "result_id": f"GMTI{period:02d}",
+                "beam_id": 50,
+                "method": "ordinary_subtraction",
+                "group_id": "az_-1_range_0_9",
+                "az_index": -1,
+                "range_start": 0,
+                "range_end": 9,
+                "status": "OK",
+                "support_count": 10,
+                "gamma_real": 1.0,
+                "gamma_imag": 0.0,
+                "truth_used_in_estimator": "false",
+                "source": "production_final_f1_f2_after_p38_range_phase",
+                "reason": "",
+            })
+
+    branch = {
+        "method_id": "C1",
+        "mode": "not_applicable",
+        "role": "ON",
+        "branch_name": "C1_not_applicable_ON",
+        "fallback_to_current": False,
+        "execution_contract": build_branch_execution_contract(
+            "C1", "not_applicable", "ON"
+        ),
+        "artifacts": {"adapter_csv": [str(adapter_path)]},
+    }
+
+    status, rows = _audit_adapter(branch, expected_period_count=3)
+
+    assert status == "passed"
+    assert len(rows) == 3
+    assert [int(row["period_id"]) for row in rows] == [0, 1, 2]
+    assert {float(row["gamma_real"]) for row in rows} == {1.0}
+    assert {float(row["gamma_imag"]) for row in rows} == {0.0}
+
+    with adapter_path.open(newline="", encoding="utf-8") as stream:
+        corrupted_rows = list(csv.DictReader(stream))
+    corrupted_rows[-1]["gamma_real"] = "0.9"
+    with adapter_path.open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.DictWriter(stream, fieldnames=fields)
+        writer.writeheader()
+        writer.writerows(corrupted_rows)
+    with pytest.raises(ValueError, match="Gamma=1 adapter evidence failed"):
+        _audit_adapter(branch, expected_period_count=3)
+
+
 def test_selected_methods_only_prepare_their_required_input_families() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         _required_prepared_families,

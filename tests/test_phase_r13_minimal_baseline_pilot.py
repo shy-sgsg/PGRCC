@@ -158,6 +158,32 @@ def test_f1f2_input_audit_requires_identical_maps_for_all_selected_conditions():
     assert mismatch["audit_reasons"] == "f2_hash_mismatch"
 
 
+def test_f1f2_input_audit_accepts_the_selected_c1_gamma_one_subset():
+    conditions = ("A0", "C0", "C1")
+    rows = [
+        {
+            "scene": "normal_seed505",
+            "role": role,
+            "period_id": str(period),
+            "method_id": method,
+            "f1_input_sha256": f"f1-{role}-{period}",
+            "f2_input_sha256": f"f2-{role}-{period}",
+            "f1_input_active_support_mean_power": 4.0,
+            "f2_input_active_support_mean_power": 9.0,
+        }
+        for role in ("OFF", "ON", "TO")
+        for period in range(3)
+        for method in conditions
+    ]
+
+    audits = audit_shared_f1f2_inputs(rows, conditions)
+
+    assert len(audits) == 9
+    assert all(row["audit_verified"] for row in audits)
+    assert all(row["method_count"] == 3 for row in audits)
+    assert all(row["methods_present"] == "A0,C0,C1" for row in audits)
+
+
 def test_paired_input_audit_proves_off_uses_area_background_and_on_uses_writer(tmp_path):
     case_root = tmp_path / "case"
     background = case_root / "scenes" / "A0_background"

@@ -60,7 +60,7 @@ ALLOWED_DECISION_LABELS = {
 }
 DEFAULT_ADDITIVE_TOLERANCE = 5.0e-5
 DEFAULT_COHERENCE_THRESHOLD = 0.0
-RESEARCH_METHOD_IDS = frozenset({"C1", "C2", "C3", "C4", "P2", "PKR"})
+REFERENCE_FIT_METHOD_IDS = frozenset({"C2", "C3", "C4", "P2", "PKR"})
 
 
 def _json_safe(value: object) -> object:
@@ -217,7 +217,7 @@ def resolve_calibration_modes(
         raise ValueError(f"unknown calibration mode in selection: {unknown}")
     return {
         str(method["method_id"]): (
-            modes if str(method["method_id"]) in RESEARCH_METHOD_IDS else ("not_applicable",)
+            modes if str(method["method_id"]) in REFERENCE_FIT_METHOD_IDS else ("not_applicable",)
         )
         for method in method_contract
     }
@@ -287,24 +287,29 @@ def build_branch_execution_contract(
     if selected_role not in {"OFF", "ON", "TO"}:
         raise ValueError(f"unknown paired-input role: {selected_role}")
 
-    research_enabled = method in RESEARCH_METHOD_IDS
+    reference_fit_enabled = method in REFERENCE_FIT_METHOD_IDS
+    if method == "C1" and selected_mode != "not_applicable":
+        raise ValueError("C1 Gamma=1 ordinary subtraction only supports not_applicable mode")
     if selected_mode == "Mode-A":
-        estimator_roles = ["OFF"] if research_enabled else []
-        reference_source = "OFF_estimator_output" if research_enabled else "not_applicable"
-        estimator_called = research_enabled and selected_role == "OFF"
-        fixed_reference_required = research_enabled and selected_role in {"ON", "TO"}
+        estimator_roles = ["OFF"] if reference_fit_enabled else []
+        reference_source = "OFF_estimator_output" if reference_fit_enabled else "not_applicable"
+        estimator_called = reference_fit_enabled and selected_role == "OFF"
+        fixed_reference_required = reference_fit_enabled and selected_role in {"ON", "TO"}
     elif selected_mode == "Mode-B":
-        estimator_roles = ["ON"] if research_enabled else []
-        reference_source = "ON_estimator_output" if research_enabled else "not_applicable"
-        estimator_called = research_enabled and selected_role == "ON"
-        fixed_reference_required = research_enabled and selected_role in {"OFF", "TO"}
+        estimator_roles = ["ON"] if reference_fit_enabled else []
+        reference_source = "ON_estimator_output" if reference_fit_enabled else "not_applicable"
+        estimator_called = reference_fit_enabled and selected_role == "ON"
+        fixed_reference_required = reference_fit_enabled and selected_role in {"OFF", "TO"}
     else:
         estimator_roles = []
         reference_source = "not_applicable"
         estimator_called = False
         fixed_reference_required = False
 
-    reference_value = str(Path(reference_path).resolve()) if reference_path is not None else None
+    reference_value = (
+        str(Path(reference_path).resolve())
+        if reference_fit_enabled and reference_path is not None else None
+    )
     return {
         "method_id": method,
         "mode": selected_mode,
@@ -961,7 +966,7 @@ def _missing_branches(
     rows: list[dict[str, object]] = []
     for method in method_contract:
         method_id = str(method["method_id"])
-        modes = tuple(calibration_modes) if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
+        modes = tuple(calibration_modes) if method_id in REFERENCE_FIT_METHOD_IDS else ("not_applicable",)
         for mode in modes:
             for role in ("OFF", "ON", "TO"):
                 contract = build_branch_execution_contract(method_id, mode, role)
@@ -1955,7 +1960,7 @@ def _run_case(
         else:
             family = "none"
         prepared_family = prepared[family]
-        modes = tuple(calibration_modes) if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
+        modes = tuple(calibration_modes) if method_id in REFERENCE_FIT_METHOD_IDS else ("not_applicable",)
         for mode in modes:
             mode_root = case_root / "references" / mode / method_id
             reference_path = mode_root / "reference_gamma.csv"

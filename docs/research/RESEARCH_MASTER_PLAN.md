@@ -169,11 +169,11 @@ R3–R12 是围绕特定时延干预逐步审计生产链、CFAR 和目标参数
 
 ## 9. 当前研究状态与下一项建议
 
-R15 已完成当前 R14 track switch 归因。方向裁决为 `STOP`：不再以 seed505 这一次 C3 目标 track switch 作为 Robust DDC 的独立创新依据，也不为解释它继续扩 seed 或调关联门。当前没有自动运行中的新实验。
+R16 已完成 seed505、6.7 m/s、30 dB、0 ns 条件下 A0/C0/C1 × OFF/ON/TO 的 9 个 Native CUDA Production branches。Stage2 连续面积杂波注入有效；27 张 final-union CFAR map/geometry audit 通过。C1 固定 `Gamma=1+j0` 的 ON 与 TO 正确目标检测均为 1/3，C0 为 3/3；C1 H0 残余与 TO target-only CSI retention 更差。阶段结果只说明这一冻结单 seed 场景下固定 C1 的边界，统计性 `PERFORMANCE_VERIFIED=false`，经验 Pfa 与 radial velocity 未评估。详见 [R16 结果](phase_r/R16_minimal_c1_results.md) 和 [紧凑证据包](phase_r/evidence/r16_c1_gamma1_seed505/README.md)。
 
-若后续继续最小 Production 比较，建议优先在同一 seed505 输入身份上补充 C1 `Gamma=1` reference-free ordinary subtraction 的 OFF/ON/TO 三角色 pilot，并与 R14 已有 C0/C2/C3 结果并列比较目标保持、非目标 Detection、当前周期错误关联和地速。该建议用于判断无需 paired OFF 的确定性方法是否有任务价值；单 seed 只支持可行性判断，不扩大成完整 Baseline 矩阵。R14 的 paired OFF 部署来源仍需先明确。
+R14 与 R16 的九个 Stage2 inputs 逐文件相同，但 Production executable 不同，且 C0 的 final-union CFAR map 九期均不同；因此历史 R14 C2/C3 结果不用于给 R16 C1 排名，本阶段没有重跑 C2/C3。R16 的零时延结果不能回答未知系统误差因果效应，也不证明 AI、低速目标或复杂杂波方向应优先。当前无自动运行中的新实验。若用户之后启动比较，建议先统一当前 Production executable/source 身份及任务评价门，再确定是否有必要做一个边界清晰的同 binary 传统方法对照；该建议不自动授权实验。
 
-长期目标维持广义 GMTI 物理处理链与任务瓶颈识别。未知系统误差、低速目标、复杂杂波和候选/航迹交互都属于待证候选；R14/R15 的零时延证据不能支持或否定未知系统误差效应。AI 仍未通过证据门。任何后续实验须由用户明确启动，并在真实 CUDA 运行需要时使用本机 GPU 提权访问。
+长期目标维持广义 GMTI 物理处理链与任务瓶颈识别。未知系统误差、低速目标、复杂杂波和候选/航迹交互仍是需由各自证据判断的问题。任何后续实验须由用户明确启动，并在真实 CUDA 运行需要时使用本机 GPU 提权访问。
 
 ## 10. 研究方向变更与阅读入口
 

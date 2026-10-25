@@ -82,3 +82,15 @@
 - **下一项建议与停止条件：** 若后续启动最小 Production 对照，优先评估 C1 `Gamma=1` reference-free ordinary subtraction 的 OFF/ON/TO 三角色，与 seed505 已有 C0/C2/C3 结果并列看 target preservation、非目标 Detection、current-frame association 和地速；只作单 seed 可行性检查，不自动扩 seed或完整矩阵。真实 paired OFF 获取方案不清楚时，先设计测量，不把仿真 OFF 当作实机能力。
 - **总纲变更：** 是。更新 R14/R15 当前状态、删除过期的 seed505 复核建议，并明确广义 GMTI 目标及待用户启动的 C1 最小候选。
 - **来源：** [R15 航迹关联分析](phase_r/R15_track_association_divergence_analysis.md)、[R15 CFAR 传播分析](phase_r/R15_cfar_detection_track_propagation.md)、[R15 OFF reference 审查](phase_r/R15_off_reference_deployability_review.md)、[R15 阶段裁决](phase_r/R15_research_direction_assessment.md)。
+
+## 2026-10-25｜R16：STOP 将固定 C1 Gamma=1 作为本场景可接受替代
+
+- **决策编号与身份：** `D-2026-10-25-R16`。seed505、6.7 m/s、30 dB、zero-delay、3 periods；本机 Native CUDA、`USE_COREX=OFF`。执行前 commit `2d2992b8b1fe54d42789c7250917ebac3c658de3`，runner/evaluator 与两组测试在执行时为 dirty；其运行版本源码快照、SHA-256、Production binary identity、device 与 toolchain 见 [R16 证据包](phase_r/evidence/r16_c1_gamma1_seed505/README.md)。A0/C0/C1 × OFF/ON/TO 共 9 branches 均通过。
+- **研究问题：** 不依赖额外 OFF reference 的普通固定复数相减 C1（`Gamma=1+j0`）在 Production GMTI 链路的任务边界如何？
+- **直接证据：** Stage2 连续面积杂波注入 390 packets、1,952,655 samples，测量平均功率 0.0234967；逐角色 3 periods 的 input 与 F1/F2 tap identities 闭合。27 张 CFAR final-union map/geometry audit 通过，每图 527,280 valid CUT。C1 ON/TO 目标正确检测各 1/3，C0 各 3/3；C1 检测行更少，但该值不是 Pfa。C1 H0 cancellation 为 −2.453 dB（C0 +5.582 dB），TO CSI retention −18.223 dB（C0 −0.671 dB），evaluator SCNR proxy 65.013 dB（C0 86.962 dB）。经验 Pfa 与 radial velocity `NOT_EVALUABLE`，单 seed `PERFORMANCE_VERIFIED=false`。
+- **可比性限制：** R14 与 R16 的九个 Stage2 period inputs 及 C0 的 CSI before/F1/F2/after hashes 匹配，但 Production binary SHA 不同，C0 的 final-union CFAR maps 9/9 不同。因此 R14 C2/C3 不用于给 R16 C1 排名；不在本阶段重跑 C2/C3。
+- **判断：** `STOP` 把固定 Gamma=1 C1 当作该场景的可接受整体替代；保留其 reference-free 传统基线结果。C1 非目标 Detection 减少不能宣称 Pfa 改善。该 zero-delay 单 seed 不回答未知失配因果效应，不否定合理盲估计器，也不证明 AI、低速保护或复杂杂波方向有必要。
+- **对总体目标与研究计划的影响：** 不改变长期 GMTI 研究主题与科学目标；R16 是零时延传统 baseline 边界数据，不构成 Unknown System Error 的 A/B/C 证据。没有自动启动新实验或 AI。
+- **下一项建议与停止条件：** 当前阶段停止。若用户之后启动新的方法比较，先统一 Production executable/source 身份和可评价任务门，再决定是否开展同 binary 的有限对照；不可把历史不同 binary 结果并列排名。若经验 Pfa/目标分母或处理链身份未闭合，收窄对应主张并停止排名。
+- **总纲变更：** 仅依本阶段授权更新第 9 节当前状态与建议；其它章节未改。
+- **来源：** [R16 冻结设计](phase_r/R16_experiment_design.md)、[R16 结果](phase_r/R16_minimal_c1_results.md)、[R16 方向评估](phase_r/R16_research_direction_assessment.md)、[R16 证据包](phase_r/evidence/r16_c1_gamma1_seed505/README.md)。

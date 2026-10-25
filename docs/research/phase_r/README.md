@@ -4,6 +4,7 @@
 
 ## 当前决策
 
+- **R16 更新：** 本地 Native CUDA seed505、6.7 m/s、30 dB、0 ns pilot 已完成 A0/C0/C1 × OFF/ON/TO 共 9 branches。面积杂波和 27 张 CFAR final-union maps 有效；C1 Gamma=1 在 ON/TO 各正确检测 1/3，C0 为 3/3，C1 的 H0 残余与 TO 目标保持也较差。非目标检测行减少不能解释为 Pfa 改善。R14/R16 输入身份相同，但 Production binary 和 C0 CFAR 输出不同，因此不能用历史 C2/C3 给 C1 排名。该单 seed、零时延结果不回答未知误差因果问题，不支持 AI 或低速/复杂杂波方向变更；阶段结束且不自动扩展。详见 [R16 结果](R16_minimal_c1_results.md)、[方向评估](R16_research_direction_assessment.md)、[冻结设计](R16_experiment_design.md) 和 [紧凑证据包](evidence/r16_c1_gamma1_seed505/README.md)。
 - **R14 更新：** 独立 seed505 Native CUDA pilot 复现 R13 的 C3/C2 TO CSI retention 差（+7.175 dB），并观察到 C3 ON 非目标 detection rows 减少 29.3%、false current-frame associations 减少 38.5%；ON 目标检测仍为两方法 3/3。但 R14 C3 TrackManager ground-speed RMSE 为 9.259 m/s，C2 为 1.086 m/s（共同机会 n=2），且末期目标关联从 track 6 切到 64。只裁决 `CONTINUE` 有界 C2/C3 任务权衡复核；当前不宣称整体性能胜出，经验 Pfa 仍 `NOT_EVALUABLE`，不训练 AI。该 seed 的 delay=0 ns，不改变未知系统误差主线。详见 [R14 结果](R14_minimal_comparison_results.md)、[方向评估](R14_research_direction_assessment.md)、[紧凑证据包](evidence/r14_scc_robust_ddc_seed505/README.md)。
 - **R13 更新：** seed101 的两个零时延场景、24 个 Native CUDA branches 已执行。Normal-speed TO target-only CSI retention / detection 出现候选差异，但共同成功机会的参数比较显示位置、方位、地速与折叠 Doppler 有权衡；C2/C3 使用 paired OFF 标定信息、Current 不使用，只有一个独立 seed，因此没有验证净任务收益。0.5 m/s 挑战场景没有形成稳定方法差异；经验 Pfa 和径向速度 RMSE 仍 `NOT_EVALUABLE`。裁决为 `CONTINUE` 一次有界独立 seed 复核；R13 阶段停止、不自动启动；无 AI 必要性证据。R8/R9 历史 union count 已由当前 evaluator 复核，R12 因无 final-map audit 继续不可评估。详见 [R13 方向评估](R13_research_direction_assessment.md)、[结果](R13_minimal_comparison_results.md)、[CFAR 历史影响审计](R13_CFAR_and_velocity_audit.md) 和 [紧凑证据包](evidence/r13_baseline_cuda_20261024/README.md)。
 - **R12 更新：** Native CUDA seed404 确认本场景未知 C2 `+4 ns` 使冻结任务检测从 A0 的 2/3 降至 0/3；Known correction 输入闭合并返回 2/3。M1 盲估计误差 0.241 ns，固定 D3 0.590 ns，两者均恢复 3/3 检测，但参数 RMSE 互有胜负；本轮只有一个 seed，统计 Pd/Pfa 和性能验证未完成。最终裁决为 `PIVOT`：固定时延估计保留为确定性 Baseline，不作为主要创新方向；转向其他 GMTI 瓶颈的公平 Baseline 评价，不训练 AI，也不预选低速/复杂杂波为下一主线。详见 [R12 盲估计验证](R12_blind_validation.md)、[生产任务比较](R12_production_task_comparison.md)、[阶段方向裁决](R12_final_research_direction_decision.md) 与 [R12 紧凑证据包](evidence/r12_physics_matched_delay_20261024/README.md)。
@@ -143,3 +144,10 @@ R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度
 3. [OFF reference 部署审查](R15_off_reference_deployability_review.md)：核对 H0/reference 同源身份、reference-in-sample 限制和无 paired OFF 的确定性候选。
 4. [阶段研究方向裁决](R15_research_direction_assessment.md)：`STOP` 将该次 track switch 作为 Robust DDC 创新依据；明确广义 GMTI 主线与未启动的下一项建议。
 5. [R15 离线关联证据包](evidence/r15_seed505_track_association/README.md)：紧凑 replay 表、p2 候选代价摘录、源代码/输入身份及 CPU 复现命令；复用 R14 Native CUDA Production 数据，不含大体量候选矩阵。
+
+## R16 固定 Gamma=1 ordinary subtraction 最小 Native CUDA pilot（2026-10-25）
+
+1. [R16 冻结实验设计](R16_experiment_design.md)：C1 reference-free 传统基线、seed505 零时延场景、输入与停止门。
+2. [R16 最小 C1 Production 结果](R16_minimal_c1_results.md)：真实本机 CUDA 的 9 branches、有效面积杂波、CSI/CFAR/Detection/TrackManager 结果与跨 binary 可比性限制。
+3. [R16 方向评估](R16_research_direction_assessment.md)：区分固定 C1 基线失败、未知误差因果问题和 AI 必要性；没有自动启动后续实验。
+4. [R16 紧凑证据包](evidence/r16_c1_gamma1_seed505/README.md)：执行与 case manifests、runtime XML/log、真值、CSI/CFAR/航迹审计、27 张无损压缩 final-union maps、源码快照和清理账本。Stage2/Production 原始 IQ 与完整 CSI maps 已清理。
