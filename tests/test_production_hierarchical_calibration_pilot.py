@@ -47,6 +47,32 @@ def test_method_contract_freezes_nine_production_ids_and_roles() -> None:
     assert all(item["truth_used_in_estimator"] is False for item in contract)
 
 
+def test_adapter_tap_audit_follows_the_method_enable_contract() -> None:
+    from scripts import run_production_hierarchical_calibration_pilot as runner
+
+    audit_policy = getattr(runner, "method_requires_research_adapter_tap", None)
+    assert callable(audit_policy), "runner must expose its adapter-tap audit policy"
+
+    methods = runner.build_method_contract(
+        runner.load_pilot_config(CONFIG),
+        method_ids=("C0", "C1", "C2", "C3", "C4", "P1", "P2", "PK", "PKR"),
+    )
+    assert {
+        str(method["method_id"]): audit_policy(method)
+        for method in methods
+    } == {
+        "C0": False,
+        "C1": True,
+        "C2": True,
+        "C3": True,
+        "C4": True,
+        "P1": False,
+        "P2": True,
+        "PK": False,
+        "PKR": True,
+    }
+
+
 def test_method_and_mode_subset_keeps_default_contract_but_allows_bounded_pilot() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         build_arg_parser,

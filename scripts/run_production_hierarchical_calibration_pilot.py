@@ -71,6 +71,12 @@ DEFAULT_COHERENCE_THRESHOLD = 0.0
 REFERENCE_FIT_METHOD_IDS = frozenset({"C2", "C3", "C4", "P2", "PKR"})
 
 
+def method_requires_research_adapter_tap(method: Mapping[str, object]) -> bool:
+    """Return whether the configured method enables the research CSI adapter."""
+
+    return bool(method.get("research_calibration_enable", False))
+
+
 def _json_safe(value: object) -> object:
     if isinstance(value, Mapping):
         return {str(key): _json_safe(item) for key, item in value.items()}
@@ -2144,7 +2150,7 @@ def _run_case(
                 reference_gamma_rows = _reference_gamma_rows(
                     reference_gamma_paths, method_id, role  # type: ignore[arg-type]
                 )
-                expects_tap = method_id in RESEARCH_METHOD_IDS
+                expects_tap = method_requires_research_adapter_tap(method)
                 if expects_tap:
                     adapter_validation = validate_reference_gamma_rows(
                         reference_gamma_rows,
