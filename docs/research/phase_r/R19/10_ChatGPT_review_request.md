@@ -1,6 +1,6 @@
 # PGRCC R19 ChatGPT 独立科研审查请求
 
-使用前，将下方 `审查 commit` 填为 Codex 最终交付回复提供的完整 40 位 SHA。该 SHA 必须对应同时包含本提示词、R19 报告、评价脚本和结果证据的提交。ChatGPT 若不能访问该 commit，必须明确标注未读取的文件并将总体方向判断设为 `NOT_VERIFIED`。
+本提示词固定审查 R19 内容快照；后续交付提交仅将此处绑定到该快照的 SHA，不改变实验结论。ChatGPT 若不能访问该 commit，必须明确标注未读取的文件并将总体方向判断设为 `NOT_VERIFIED`。
 
 ```text
 【PGRCC 科研阶段独立审查请求｜R19】
@@ -13,7 +13,7 @@ docs/research/RESEARCH_MASTER_PLAN.md
 
 仓库：https://github.com/shy-sgsg/PGRCC
 分支：codex/unknown-system-error-next-stage
-审查 commit：[填入最终回复提供的完整 40 位 SHA]
+审查 commit：`7f057c46ff215b995a80564e9210a49a3ca8a3c8`（R19 内容与证据快照）
 研究总纲：docs/research/RESEARCH_MASTER_PLAN.md（必须来自上述审查 commit）
 研究总纲 blob（预期）：e637e3769bde7814298ff012d0f42301884e2985
 阶段：R19，R18 saved-data 的离线任务复评与方向审查
