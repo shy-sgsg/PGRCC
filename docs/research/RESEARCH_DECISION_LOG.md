@@ -129,3 +129,14 @@
 - **下一项建议与停止条件：** 按 R19 `r19-task-eval-v1` 离线复评 R8 三 seed 与 R12 单 seed的 +4 ns 记录；身份/真值/逐期 Detection 不足时逐项标不可评估并提交最小 replay 设计，不自动运行 CUDA。R8 的 54 份 Detection 与 12 份 truth 路径当前在本机可读，但未纳入 Git evidence 包。若 strict 结果不能重现失配损失或 Known 恢复，暂停未知状态估计主线并重新评估核心瓶颈；建议未授权自动执行。
 - **总纲与容量：** 未修改 Master Plan；blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`。工作树约 2.0 GB，低于 20 GB；本阶段未清除用户现有数据。
 - **来源：** [R19 总实施计划](phase_r/R19/00_master_execution_plan.md)、[复评结果](phase_r/R19/04_r18_baseline_task_reevaluation.md)、[机制审查](phase_r/R19/05_mode_a_mode_b_failure_mechanism.md)、[方向评估](phase_r/R19/07_research_opportunity_assessment.md)、[执行审计](phase_r/R19/09_execution_and_quality_audit.md)。
+
+## 2026-10-26｜R20：未知 +4 ns 对任务有有限因果证据，静态估计不升为主创新
+
+- **决策编号与研究总纲：** `D-2026-10-26-R20`；研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`，没有修改正文。R20 评价器为 `r20-task-eval-v2`，与 R19 v1 分离。
+- **问题与方法：** 修正 TrackManager result ID/period 归属、truth 与参数分母、present-invalid range_bin fallback、identity schema 和航迹 fragmentation 定义；用物理 Doppler truth + 保存 Production axis/PRF 正控，再离线统一重评 R18、R8、R12。
+- **直接证据：** R18 12-case 的 strict hit/opportunity/miss/hit fraction 与 R19 一致；14/84 条 R18 condition 的 post-confirmation match rate 从 1.0 更正为 0.5。Doppler TO 正控制 3/3 通过冻结 ±2 行门，A0 ON 轴/真值映射 3/3 闭合。R8 seed202/303 的 B 均为 0/3、A0/Known 分别 2/3 与 3/3；R12 seed404 为 B 0/3、A0/Known 2/3、D3/M1 各 3/3。
+- **限制：** R8 seed101 缺保存的 Production Doppler axis，三个条件均不纳入统一命中结论；R8/R12 raw IQ 当前不可读，Known closure 只引用留存 manifest。统计 Pfa、M1 跨 seed 重复性和真实硬件适用性未验证。单 seed 三个 target opportunities 不是三份独立重复。
+- **裁决：** `CONTINUE` 仅限用户独立审查后考虑两个独立 seed 的窄 M1 validation；R20 任务本身结束。+4 ns 物理失配在三个可评价 seed 的相同场景中均对应 B=0/3，Known 在可评价 R8 seeds 与 R12 回到 A0 hit count，支持该场景存在任务损失及可恢复空间；这不构成总体 Pd/Pfa/统计显著性结论。R12 M1/D3 检测各比 Known 多 1 个机会，但共同成功机会参数 RMSE、输入 F2 closure 仍落后 Known，方向不翻转为静态估计主创新。
+- **对长期目标与 AI：** 不调整 GMTI 研究总目标；维持未知物理状态 characterization 作为待验证模块，固定静态 delay estimator 保留作传统 baseline。没有确定性方法稳定失败证据，不训练 AI；低速与复杂杂波也不是本次变量，不能据此改变排序。
+- **下一项与停止条件：** 只有用户/ChatGPT 审查确认后，才考虑固定场景的两独立 seed A0/B/Known/M1 Production 复核，并保存实际 axis、raw inputs、identity、Detection/TrackManager。若失配与 Known 恢复不重复，停止该 error→task claim；若 M1 不重复收益或持续有参数/closure gap，停止扩张窄估计支线并回到公平传统 Baseline 评价；无稳定确定性 residual 时不进入 AI。
+- **来源：** [R20 方向裁决](phase_r/R20/09_research_opportunity_and_direction_decision.md)、[R8 复评](phase_r/R20/07_r8_harmonized_nonzero_delay_causal_review.md)、[R12 复评](phase_r/R20/08_r12_deterministic_estimation_capability_review.md)、[机器结果与身份](phase_r/R20/evidence/)。

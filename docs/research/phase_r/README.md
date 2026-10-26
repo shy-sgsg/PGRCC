@@ -181,3 +181,13 @@ R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度
 4. [总体研究机会评估](R19/07_research_opportunity_assessment.md)、[唯一下一步建议](R19/08_next_research_direction.md)与[执行和质量审计](R19/09_execution_and_quality_audit.md)。
 5. [ChatGPT 独立审查请求](R19/10_ChatGPT_review_request.md)：使用时填入最终交付的完整 40 位审查 commit SHA；提示词要求先从指定 commit 读取研究总纲。
 6. [Formal matrix CSV 与 manifest](R19/evidence/results/formal_matrix/) 保存完整离线表，其中 `candidate_gate_audit.csv` 逐 opportunity 对照旧 range/position 候选和 strict range-bin/Doppler 门；[pilot 结果](R19/evidence/results/pilot_seed606_v6p7_snr30/)保留代表性检查；[审计 manifest](R19/evidence/manifests/)及[汇总图](R19/evidence/figures/r19_mode_a_mode_b_pipeline_seed606_707_808_v6p7_snr30.png)可复核 R19 结果。R19 未运行 CUDA，历史原始 IQ/部分 maps 按 R18 cleanup ledger 已不存在。
+
+## R20 离线评价器修正与 R8/R12 +4 ns 统一复评（2026-10-26）
+
+阅读顺序：
+
+1. [R20 总实施计划](R20/00_master_execution_plan.md)、[证据与身份盘点](R20/01_evidence_inventory_and_identity_audit.md)和[冻结评价契约](R20/04_frozen_r20_evaluation_contract.md)。
+2. [评价器修正与测试](R20/02_evaluator_corrections_and_tests.md)、[Doppler 真值正控制](R20/03_doppler_truth_mapping_and_positive_controls.md)与[R19 v1/v2 回归](R20/05_r19_regression_and_correction_impact.md)。
+3. [历史证据适配/来源审计](R20/06_historical_evidence_adapter_and_provenance.md)、[R8 causal review](R20/07_r8_harmonized_nonzero_delay_causal_review.md)和[R12 估计能力 review](R20/08_r12_deterministic_estimation_capability_review.md)。
+4. [研究方向裁决](R20/09_research_opportunity_and_direction_decision.md)、[执行质量审计](R20/10_execution_and_quality_audit.md)与[ChatGPT 独立审查请求](R20/11_ChatGPT_review_request.md)。审查请求明确绑定阶段证据 commit，要求先读该 commit 的研究总纲。
+5. [机器可读身份 manifest](R20/evidence/manifests/r20_input_identity_manifest.json) 与 [逐机会、轴、回归、参数、track、H0 和 closure 结果](R20/evidence/results/) 支撑报告。R20 不运行 CUDA；R8 seed101 缺 Production Doppler axis，统计 Pfa 和 raw-IQ closure 重算不可评价。
