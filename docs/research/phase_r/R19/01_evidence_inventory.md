@@ -48,8 +48,9 @@ R18 的 12 个 `experiment_snapshot` 均可读取。按各自快照索引核对�
 ## R19 实际评价产物与阶段门结果
 
 - 已对 12/12 场景、84 个 ON 分支以及配套 OFF/TO 分支执行 `r19-task-eval-v1`；正式结果位于 `evidence/results/formal_matrix/`，代表性试评位于 `evidence/results/pilot_seed606_v6p7_snr30/`。
-- 结果包含 Detection 严格一对一任务表、CFAR tested-CUT 与 OFF 描述性统计、Gamma 配对、CSI 混合 clutter/noise 摘要、TrackManager 指标、参数 RMSE、逐指标 evaluability 状态及身份 manifest。
+- 结果包含 Detection 严格一对一任务表、逐 truth-period 旧 range/position 候选与 strict gate 审计（`candidate_gate_audit.csv`）、CFAR tested-CUT 与 OFF 描述性统计、Gamma 配对、CSI 混合 clutter/noise 摘要、TrackManager 指标、参数 RMSE、逐指标 evaluability 状态及身份 manifest。
+- 旧 matcher 对照：seed606、6.7 m/s、30 dB 下 C0 的 315 条 Detection 有 24 条通过旧 range/position 门、strict gate 留 2 条；C3 Mode-B 的 226 条有 23 条通过、strict gate 留 1 条。R18 旧 `3/3` 与 strict 命中差异应先按评价门变化解释，不回写成算法性能差异。
 - 3,336 个指标状态中：2,184 `EVALUABLE`、576 `EVALUABLE_DESCRIPTIVE_MIXED_CLUTTER_NOISE`、84 `EVALUABLE_DESCRIPTIVE_ONLY`、276 `NOT_EVALUABLE`、132 `REPLAY_REQUIRED`、84 `NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG`。
-- 发现并修正了离线评价脚本的直接 CLI 导入路径、Detection 每周期文件选择、Production Doppler axis 兼容、参数样本返回、TrackManager target-track lineage，以及运行时 dirty 状态采集问题；具体测试与命令见 `03_evaluator_implementation_and_tests.md`。
+- 发现并修正了离线评价脚本的直接 CLI 导入路径、Detection 每周期文件选择、Production Doppler axis 兼容、参数样本返回、TrackManager target-track lineage、运行时 dirty 状态采集，并新增旧门候选多重性审计；29 项测试通过，具体命令见 `03_evaluator_implementation_and_tests.md`。
 - 已保留高价值 R19 中间审计、正式结果和单张汇总图；未删除用户已有 `.scratch`、`outputs` 或历史证据。目录现约 2.0 GB，低于 20 GB 上限。
 - 本阶段没有新的 CUDA 执行；R18 CUDA 事实仅作为输入历史证据引用，不能记为 R19 执行。

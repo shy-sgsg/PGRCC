@@ -644,6 +644,11 @@ def evaluate_case(case_dir: Path, snapshot_manifest: Mapping[str, Any]) -> dict[
             result_row["invalid_detection_rows"] = target_result["metrics"]["invalid_detection_rows"]
             result_row["invalid_truth_opportunities"] = target_result["metrics"]["invalid_truth_opportunities"]
             result_row["eligible_candidate_edges"] = target_result["metrics"]["eligible_candidate_edges"]
+            result_row["legacy_range_position_candidate_edges"] = target_result["metrics"]["legacy_range_position_candidate_edges"]
+            result_row["legacy_range_position_duplicate_candidate_count"] = target_result["metrics"]["legacy_range_position_duplicate_candidate_count"]
+            result_row["legacy_candidates_rejected_by_range_bin_gate"] = target_result["metrics"]["legacy_candidates_rejected_by_range_bin_gate"]
+            result_row["legacy_candidates_rejected_by_doppler_gate"] = target_result["metrics"]["legacy_candidates_rejected_by_doppler_gate"]
+            result_row["legacy_candidates_rejected_by_other_strict_requirements"] = target_result["metrics"]["legacy_candidates_rejected_by_other_strict_requirements"]
             result_row["duplicate_candidate_count"] = target_result["metrics"]["duplicate_candidate_count"]
             result_row["truth_unmatched_detection_rows"] = target_result["metrics"]["truth_unmatched_detection_rows"]
             result_row["parameter_metrics_own_success"] = target_result["parameter_metrics_own_success"]
@@ -912,14 +917,39 @@ def run_evaluation(input_root: Path, output_dir: Path, case_key: str | None = No
         to_rows.extend(result["to_rows"])
     common_rows, parameter_rows = _common_and_parameter_tables(all_case_results)
     track_rows = []
+    candidate_gate_rows = []
     for result in all_case_results:
         for label, row in result["conditions"].items():
             if row.get("role") == "ON":
                 track_rows.append({**{k:v for k,v in result["case_meta"].items()}, "condition": label,
                                    **row.get("track_metrics", {})})
+                target_result = row.get("target_result", {})
+                pair_audit = target_result.get("candidate_pair_audit", [])
+                for association in target_result.get("associations", []):
+                    key = (association.get("period_id"), association.get("beam_id"), association.get("target_id"))
+                    legacy_pairs = [pair for pair in pair_audit
+                                    if (pair.get("period_id"), pair.get("beam_id"), pair.get("target_id")) == key
+                                    and pair.get("legacy_range_position_gate_pass")]
+                    candidate_gate_rows.append({
+                        **result["case_meta"], "condition": label, "method": row.get("method"),
+                        "mode": row.get("mode"), "role": "ON",
+                        "period_id": association.get("period_id"), "beam_id": association.get("beam_id"),
+                        "target_id": association.get("target_id"),
+                        "legacy_range_position_candidate_edges": association.get("legacy_range_position_candidate_count"),
+                        "legacy_duplicate_candidate_count": max(0, int(association.get("legacy_range_position_candidate_count") or 0) - 1),
+                        "legacy_candidates_rejected_by_range_bin_gate": sum(pair.get("reason") == "range_bin_gate" for pair in legacy_pairs),
+                        "legacy_candidates_rejected_by_doppler_gate": sum(pair.get("reason") == "doppler_gate" for pair in legacy_pairs),
+                        "legacy_candidates_rejected_by_other_strict_requirements": sum(
+                            not pair.get("eligible") and pair.get("reason") not in {"range_bin_gate", "doppler_gate"}
+                            for pair in legacy_pairs),
+                        "strict_eligible_candidate_edges": association.get("candidate_count"),
+                        "strict_matched": association.get("matched"),
+                        "matched_detection_id": association.get("det_id"),
+                    })
     metric_rows = _metric_evaluability_rows(baseline_rows, h0_rows, parameter_rows, common_rows, csi_rows)
     output_dir.mkdir(parents=True, exist_ok=True)
     _write_csv(output_dir / "baseline_task_metrics.csv", baseline_rows)
+    _write_csv(output_dir / "candidate_gate_audit.csv", candidate_gate_rows)
     _write_csv(output_dir / "baseline_seed_paired_differences.csv", _baseline_differences(baseline_rows))
     _write_csv(output_dir / "baseline_common_opportunity.csv", common_rows)
     _write_csv(output_dir / "cfar_h0_descriptive_metrics.csv", h0_rows)

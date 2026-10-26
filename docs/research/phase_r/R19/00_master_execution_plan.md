@@ -25,9 +25,9 @@
 |---|---|---|
 | WP0 | 盘点 12 个快照、源数据、身份及可重算范围 | `COMPLETE`；见 `01_evidence_inventory.md` 和 `evidence/manifests/` |
 | WP1 | 冻结检测、H0、错误输出、跟踪、参数及统计契约 | `COMPLETE`；契约先于 R19 指标生成冻结 |
-| WP2 | 新增版本化离线评价器与边界测试 | `COMPLETE`；28 项 evaluator 测试通过，未触发 Production |
+| WP2 | 新增版本化离线评价器与边界测试 | `COMPLETE`；29 项 evaluator 测试通过；另输出逐 opportunity 旧门候选计数，不改 frozen strict matcher |
 | WP3 | 先评代表场景 seed606 / 6.7 m/s / 30 dB，再处理 12 个现存场景 | `COMPLETE`；pilot 与 12 场景离线重算完成 |
-| WP4 | 离线分析 Mode-A/Mode-B 的 Gamma、CSI、CFAR、Detection、TrackManager 传播 | `COMPLETE`；可识别层级已分析，底层数组缺失处标为不可归因/需重放 |
+| WP4 | 离线分析 Mode-A/Mode-B 的 Gamma、CSI、CFAR、Detection、TrackManager 传播，并比较旧/新任务匹配门 | `COMPLETE`；候选量与真值命中分开核算；可识别层级已分析，底层数组缺失处标为不可归因/需重放 |
 | WP5 | 依据总纲评估方向，给出唯一下一优先任务 | `COMPLETE`；建议先 harmonize 复评 R8/R12 既有 +4 ns 证据，等待用户授权 |
 
 ## R19 交付入口
@@ -37,3 +37,5 @@
 ## 阶段结论
 
 R19 的严格一对一 Detection 复评已对 12 个场景执行。三个 seed、两种速度和两档 SNR 的 delay error 均为 0 ns，因此本阶段不能检验未知时延误差的性能因果效应。高速度下 Mode-A 与 Mode-B 的目标命中、Gamma 和下游输出存在描述性差异；Mode-A 使用 paired OFF 信息，是 privileged reference，不代表在线可部署估计器。缺少完整 CSI/CFAR maps 限制了空间归因；经验 Pfa、radial velocity 和 ID-switch 根因保持不可评估。完整结论见 `04`–`09` 报告。
+
+追加审计发现，seed606、6.7 m/s、30 dB 的 C0 有 24 条旧 range/position 门候选而 strict gate 仅留 2 条；C3 Mode-B 分别为 23 条和 1 条。旧 R18 `3/3` target counter 与 R19 strict hits 的差值可由 range-bin/Doppler 门变化解释，不能误读成同次实验中新观察到的性能变化。逐 opportunity 证据见 `evidence/results/formal_matrix/candidate_gate_audit.csv`。

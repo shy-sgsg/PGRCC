@@ -362,6 +362,12 @@ def evaluate_targets(
     edge_info: dict[tuple[int, int], tuple[float, dict[str, Any]]] = {}
     pair_audit: list[dict[str, Any]] = []
     edge_counts = [0] * len(ordered_truths)
+    legacy_edge_counts = [0] * len(ordered_truths)
+    legacy_rejections = {
+        "range_bin": 0,
+        "doppler": 0,
+        "other": 0,
+    }
     gated_out = 0
     assignments: dict[int, int] = {}
     for group, truth_indices in sorted(truth_groups.items()):
@@ -377,11 +383,25 @@ def evaluate_targets(
                 eligible, reason, cost, details = _candidate_edge(
                     ordered_truths[ti], valid_detections[di], doppler_rows, doppler_axes.get(group),
                 )
+                legacy_range_delta = _finite(details.get("range_delta_m"))
+                legacy_position_error = _finite(details.get("position_error_m"))
+                legacy_gate_pass = (
+                    legacy_range_delta is not None
+                    and legacy_position_error is not None
+                    and legacy_range_delta <= RANGE_GATE_METERS
+                    and legacy_position_error <= POSITION_GATE_METERS
+                )
+                if legacy_gate_pass:
+                    legacy_edge_counts[ti] += 1
+                    if not eligible:
+                        rejection_key = reason if reason in {"range_bin_gate", "doppler_gate"} else "other"
+                        legacy_rejections[rejection_key.removesuffix("_gate")] += 1
                 pair_audit.append({
                     "period_id": group[0], "beam_id": group[1],
                     "target_id": _truth_key(ordered_truths[ti])[2],
                     "det_id": _detection_key(valid_detections[di])[2],
-                    "eligible": eligible, "reason": reason, **details,
+                    "eligible": eligible, "reason": reason,
+                    "legacy_range_position_gate_pass": legacy_gate_pass, **details,
                 })
                 if eligible and cost is not None:
                     edge_info[(ti, di)] = (cost, details)
@@ -411,6 +431,7 @@ def evaluate_targets(
             "period_id": key[0], "beam_id": key[1], "target_id": key[2],
             "sample_key": sample_key, "matched": di is not None,
             "det_id": None, "candidate_count": edge_counts[ti],
+            "legacy_range_position_candidate_count": legacy_edge_counts[ti],
             "position_error_m": None, "radial_velocity_status": "NOT_EVALUABLE",
             "radial_velocity_error_mps": None,
         }
@@ -441,6 +462,12 @@ def evaluate_targets(
         "valid_detection_rows": len(valid_detections),
         "invalid_detection_rows": invalid_detections,
         "eligible_candidate_edges": sum(edge_counts),
+        "legacy_range_position_candidate_edges": sum(legacy_edge_counts),
+        "legacy_range_position_duplicate_candidate_count": sum(max(0, n - 1) for n in legacy_edge_counts),
+        "legacy_candidates_rejected_by_range_bin_gate": legacy_rejections["range_bin"],
+        "legacy_candidates_rejected_by_doppler_gate": legacy_rejections["doppler"],
+        "legacy_candidates_rejected_by_other_strict_requirements": legacy_rejections["other"],
+        "legacy_candidates_also_strict_eligible": sum(edge_counts),
         "gated_out_candidate_edges": gated_out,
         "unique_hits": hits,
         "misses": len(ordered_truths) - hits,

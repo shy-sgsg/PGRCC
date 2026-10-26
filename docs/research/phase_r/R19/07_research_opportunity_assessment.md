@@ -24,7 +24,13 @@ R19 对 Mode-B 的分析是零时延 C2/C3 Gamma 参考差，不能解释为对 
 
 ## 独立研究判断
 
-R19 值得作为评价与审计基础继续保留，但其结果不能改变长期研究目标。当前有价值的下一步是比较既有 +4 ns 失配、Known correction 与盲确定性估计的任务结果是否在同一严格机会、参数字段和身份规则下仍成立。先做离线证据适配性审计；当证据不能回答时，再讨论最小 Production replay。现有证据不支持直接进入 AI，也不支持宣布低速或复杂杂波优先。
+R19 值得作为评价与审计基础继续保留，但其结果不能改变长期研究目标。R18 的旧 target counter 曾给出每层 9/9；R19 strict one-to-one 重评在高速度下得到不同命中数。新增候选审计显示，seed606 6.7 m/s、30 dB 下，C0/C3 Mode-B 的 315/226 条 Detection 中分别有 24/23 条通过旧 range/position 门，而 strict gate 只保留 2/1 条候选边；因此旧、新命中差异首先是匹配定义差异，不能当成通道误差或算法效应。
+
+R8 先前三 seed 计数是 A0/Current/Known=`8/9、0/9、8/9`；R12 seed404 是 A0/B/Known=`2/3、0/3、2/3`，同时 D3/M1 为 `3/3`。这些历史方向值尚未统一使用 R19 contract 重算；R12 的单 seed 命中优势也伴随参数精度与 Known 输入闭合差距，不能单独说明盲估计整体优于 Known。R19 本轮没有重评 R8/R12。
+
+**方向建议：CONTINUE，仅继续一项边界明确的离线证据统一复评。** 先按同一 strict opportunity、字段、身份与信息隔离规则复核既有 R8 三 seed及 R12 单 seed，不运行 CUDA。当前主机的旧 manifest 引用 R8 54 份逐期 Detection 与 12 份 truth 文件、R12 45 份逐期 Detection 与 10 份 truth 文件路径均可读；但 R8 原始逐期文件没有进入 Git evidence 包，远端审查者不能仅凭当前 commit 复现这一复评。若逐条件 identity/standalone truth/Production axis 不能核验，停止指标对比并提交最小缺失证据及 replay 方案。
+
+现有证据不支持直接进入 AI，也不支持宣布低速保护或复杂杂波优先。低速 R18 命中为 9/9；R18/R8/R12 没有把复杂杂波类型作为冻结因果变量。
 
 ## 研究状态标签
 

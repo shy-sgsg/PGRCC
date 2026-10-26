@@ -11,7 +11,7 @@
 
 `evaluation_manifest.json` 记录 12 个 case keys、R18 运行与构建身份、role-level binary/config/input identities、评价契约 SHA、评价器脚本 SHA、输出清单与执行时工作树 dirty 状态。评价时分析工作树是 dirty 的；其脚本 SHA 被单独固定记录。最终交付提交的源码和文档状态由审查 commit 固定，二者不可混称为“实验执行源码 commit”。
 
-R19 R18 snapshot evaluator SHA-256：`d5b9abc68f4e931ee62fa9dd364b15c220b77a589f37057a13a23e3aeed173c9`；任务 evaluator SHA-256：`0eded8bf739e96d6cde57b652908cfd01f9a1bfdcbb805c1ef62a8e69abf1000`；冻结契约 SHA-256：`0326df0f8c3dee08c01f2e56908fd5c4c075f63679e046d41894f1d0dfd15dd4`。快照核对细节见 `evidence/manifests/r19_wp0_snapshot_hash_audit.json` 和 `r19_wp0_key_file_sha256.json`。
+R19 R18 snapshot evaluator SHA-256：`3c46eec756855e015bd21ad154a40df38bd0b6a8b3528241fc95d58130924be0`；任务 evaluator SHA-256：`c852bb828a561597296f1b1346da1d3e4c4554856435524084f4bb21b967fb14`；冻结契约 SHA-256：`0326df0f8c3dee08c01f2e56908fd5c4c075f63679e046d41894f1d0dfd15dd4`。快照核对细节见 `evidence/manifests/r19_wp0_snapshot_hash_audit.json` 和 `r19_wp0_key_file_sha256.json`。
 
 清理记录：删除了 R19 图表脚本对应的一个 7,506-byte Python `.pyc` cache 及其空 `__pycache__` 目录；未删除实验输入、失败现场或结果表。
 
@@ -20,10 +20,10 @@ R19 R18 snapshot evaluator SHA-256：`d5b9abc68f4e931ee62fa9dd364b15c220b77a589f
 1. **数据/身份盘点：** 12/12 snapshot 的文件数、总字节和扩展名聚合与清理索引一致；可用的旧逐文件 SHA 清单 1,056/1,056 匹配。其余旧快照只有 aggregate index，不能补称逐文件历史哈希审计。
 2. **代表性 pilot：** seed606、6.7 m/s、30 dB 离线评价完成；记录位于 `evidence/results/pilot_seed606_v6p7_snr30/`。
 3. **正式离线矩阵：** 12/12 case 完成；完整 CSV、manifest 位于 `evidence/results/formal_matrix/`。
-4. **Evaluator tests：** `python3 -m pytest tests/test_r19_task_evaluator.py -q`，28 项通过。测试只验证软件语义。
-5. **脚本语法检查：** `python3 -m py_compile scripts/phase_r/r19_task_evaluator.py scripts/phase_r/r19_r18_snapshot_evaluation.py docs/research/phase_r/R19/evidence/figures/generate_r19_pipeline_figure.py`。
+4. **Evaluator tests：** `python3 -m pytest tests/test_r19_task_evaluator.py -q`，29 项通过。新增用例验证旧 range/position 候选多重性与 strict range-bin/Doppler 排除；测试只验证软件语义。
+5. **脚本语法检查：** `python3 -m py_compile scripts/phase_r/r19_task_evaluator.py scripts/phase_r/r19_r18_snapshot_evaluation.py tests/test_r19_task_evaluator.py docs/research/phase_r/R19/evidence/figures/generate_r19_pipeline_figure.py`。
 6. **图表：** 通过 `MPLCONFIGDIR=/tmp/pgrcc-r19-mpl python3 docs/research/phase_r/R19/evidence/figures/generate_r19_pipeline_figure.py` 从汇总表生成；已检查图像内容与标注。
-7. **全量离线重算复核：** 使用最终 CSV LF serializer 与冻结契约格式执行完整 12-case 和单 pilot 重算。与先前正式结果的所有 CSV 按 CSV cell 解析逐值一致，旧/新文件除 CRLF→LF 行尾外无字节差异；输出 manifest 更新为最终 evaluator/契约 SHA。命令输出见 [`full_offline_reevaluation.log`](evidence/test_logs/full_offline_reevaluation.log)，逐文件 SHA 和语义比较见 [`csv_reproducibility_check.log`](evidence/test_logs/csv_reproducibility_check.log)。临时重算输出位于 `/tmp/pgrcc-r19-lf-reeval/`。
+7. **新增候选审计后的重算：** 在 `/tmp/pgrcc-r19-final/` 重跑 12-case，在 `/tmp/pgrcc-r19-pilot-final/` 重跑 seed606 代表场景。原有各表行数和既有字段的全部 CSV cell 与此前结果逐值一致；新增旧门候选计数列和 252 行 `candidate_gate_audit.csv`，未改变 strict 命中及参数指标。正式表和 pilot 表均携带新审计列；manifest 记录本轮脚本 SHA 与输出清单。
 8. **审查容量：** R19 formal matrix CSV 约 1.3 MB，图约 146 KB。工作树实测约 2.0 GB，低于 20 GB 目标。未为满足容量目标删除数据；保留的历史 `.scratch`/`outputs` 不属于本次清理授权范围且不纳入本次提交。
 
 最终执行日志在 `evidence/test_logs/`；提交前的链接、`git diff --check`、Master Plan blob 和工作区容量记录见 [`delivery_checks.log`](evidence/test_logs/delivery_checks.log)。最终审查 SHA 在交付回复中给出。用户工作区中已有的大量未跟踪 `.scratch`/`outputs` 路径不纳入 R19 提交。
@@ -32,7 +32,7 @@ R19 R18 snapshot evaluator SHA-256：`d5b9abc68f4e931ee62fa9dd364b15c220b77a589f
 
 | 类别 | 状态 | 依据/限制 |
 |---|---|---|
-| 评价器软件 | `IMPLEMENTED` / `EXECUTED` | 两个 R19 Python 文件与 28 项测试 |
+| 评价器软件 | `IMPLEMENTED` / `EXECUTED` | 两个 R19 Python 文件与 29 项测试 |
 | 12 场景 R18 saved-data 复评 | `EXECUTED` | R19 formal matrix manifest 与 12 个 case key |
 | 目标 opportunity / 输出链描述 | 指标级 `EVALUABLE` | 冻结契约、独立 truth 与 Production 输出 |
 | 经验 Pfa | `NOT_EVALUABLE` | 缺独立 H0 holdout 与不确定性评估，CUT 相关 |

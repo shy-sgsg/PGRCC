@@ -11,18 +11,19 @@
 - Detection 输入优先使用逐周期 `detection_results_GMTI*.csv`，避免将只含最后周期内容的 aggregate CSV 当作完整逐周期记录；重复主键和非法关键字段不会静默通过。
 - 参数评价在存在 Production Doppler 轴时使用该轴；不因历史表缺少冗余中心频率字段而拒绝有效行。radial velocity 仅在 ambiguity resolved 且值有效时评价。
 - TrackManager 指标来自 Production 的 TrackManager debug；输出目标 track IDs 以供确认时延、碎片及 lineage 评价。不构造替代 tracker。
+- 增加旧版 `range <= 150 m + EN position <= 1000 m` 候选边审计列；它仅量化候选多重性，并与冻结的 range-bin/Doppler 一对一门分开报告。逐 truth-period 结果保存在 `candidate_gate_audit.csv`，不改变 R19 strict matcher。
 - manifest 记录 R18 runner/build/binary/config、各 case role identity、评价契约与脚本 SHA，并记录评价时工作树状态。历史输入 SHA 若只存在于 manifest 而源数组已清理，明确标注为不可重新验证。
 - 派生 CSV 使用 LF 行尾，便于 Git whitespace 审查；行尾格式修正后重跑 12-case 与 pilot，所有 CSV cell 值和行数均与此前结果一致。
 
 ## 测试和执行
 
-测试文件为 `tests/test_r19_task_evaluator.py`，覆盖匹配门、输入校验、重复行、环形 Doppler、样本隔离、参数样本、TrackManager 关联、逐周期 Detection 读取、Doppler 轴回退、CLI 直接启动、CSV LF 行尾和失败状态等边界，共 28 项。测试数据只验证 evaluator 软件语义，不构成 GMTI 性能证据。
+测试文件为 `tests/test_r19_task_evaluator.py`，覆盖匹配门、输入校验、重复行、环形 Doppler、样本隔离、参数样本、TrackManager 关联、逐周期 Detection 读取、Doppler 轴回退、CLI 直接启动、CSV LF 行尾、失败状态，以及旧门候选多重性与 strict gate 剔除计数，共 29 项。测试数据只验证 evaluator 软件语义，不构成 GMTI 性能证据。
 
 ```bash
 python3 -m pytest tests/test_r19_task_evaluator.py -q
 ```
 
-最后一次执行结果：`28 passed`。
+最后一次执行结果：`29 passed`。
 
 离线 R18 snapshot 复评入口：
 
@@ -38,7 +39,8 @@ python3 scripts/phase_r/r19_r18_snapshot_evaluation.py --help
 
 ## 状态
 
-- `IMPLEMENTED`：离线 evaluator、snapshot adapter、28 项语义测试。
+- `IMPLEMENTED`：离线 evaluator、snapshot adapter、29 项语义测试。
+- `IMPLEMENTED`：旧 range/position 候选门的逐 opportunity 审计，不改变冻结任务门。
 - `EXECUTED`：pilot 与 12 个 R18 场景离线复评。
 - `EVALUABLE`：仅适用于契约定义且来源、分母、字段完整的指标，逐项见 `metric_evaluability.csv`。
 - `PERFORMANCE_VERIFIED`：R19 未建立新的统计性能验证；测试通过不代表算法性能。

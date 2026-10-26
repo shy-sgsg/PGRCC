@@ -189,6 +189,26 @@ def test_single_target_multiple_detections_selects_one_and_counts_duplicate():
     assert result["metrics"]["truth_unmatched_detection_rows"] == 1
 
 
+def test_legacy_range_position_gate_audit_exposes_stricter_gate_losses():
+    result = evaluate_targets(
+        [truth()],
+        [
+            detection("D0"),
+            detection("D_range_bin", range_bin=103),
+            detection("D_doppler", row=40),
+        ],
+        doppler_rows=100,
+    )
+    metrics = result["metrics"]
+    assert metrics["legacy_range_position_candidate_edges"] == 3
+    assert metrics["legacy_range_position_duplicate_candidate_count"] == 2
+    assert metrics["legacy_candidates_also_strict_eligible"] == 1
+    assert metrics["legacy_candidates_rejected_by_range_bin_gate"] == 1
+    assert metrics["legacy_candidates_rejected_by_doppler_gate"] == 1
+    assert metrics["eligible_candidate_edges"] == 1
+    assert sum(row["legacy_range_position_gate_pass"] for row in result["candidate_pair_audit"]) == 3
+
+
 def test_multiple_targets_and_candidates_use_global_one_to_one_assignment():
     truths = [truth("T0"), truth("T1", range_bin=102, range_m=10_030.0, e_mid=30.0)]
     detections = [
