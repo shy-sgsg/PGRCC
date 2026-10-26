@@ -1,9 +1,10 @@
 # PGRCC Phase R：研究审查与证据导航
 
-更新日期：2026-10-25。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
+更新日期：2026-10-26。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
 
 ## 当前决策
 
+- **R19 更新（2026-10-26）：** 对 R18 的 12 个零时延场景完成 strict one-to-one task re-evaluation。R19 没有运行 CUDA；高速度 Mode-A/B 检测机会和下游候选数出现描述性差异，但 Mode-A 使用 paired-OFF privileged reference。经验 Pfa、target-only complex CSI/SCNR、CFAR 空间归因、radial velocity 与 ID-switch 根因仍未闭合。R18 全部为 0 ns，故不能回答未知误差因果效应、Known 恢复量或盲估计差距；AI、低速保护和复杂杂波主线均未获证据支持。唯一后续建议是先离线统一复评 R8/R12 的历史 +4 ns 条件，待用户授权。完整交付从 [R19 总实施计划](R19/00_master_execution_plan.md)进入。
 - **R18 更新：** 本阶段已完成 12 场景、252 个 Native CUDA Production branches；有效连续面积杂波、输入 causal triplet、CFAR valid-CUT geometry/分母和 final-union-hit 门均通过。经验 Pfa、PK/PKR residual closure、目标专属幅相/SCNR 与 ID-switch lineage 未闭合，seed909 C3 参考因预注册 exact-support gate 失败而停止任务评价。阶段裁决为 INCONCLUSIVE，停止方法性能排名；固定零时延不能回答未知误差因果效应，不支持 AI、低速保护或复杂杂波路线变更。完整证据与报告见 [R18 导航](R18/00_master_execution_plan.md)及下方 R18 阅读入口。
 - **R16 更新：** 本地 Native CUDA seed505、6.7 m/s、30 dB、0 ns pilot 已完成 A0/C0/C1 × OFF/ON/TO 共 9 branches。面积杂波和 27 张 CFAR final-union maps 有效；C1 Gamma=1 在 ON/TO 各正确检测 1/3，C0 为 3/3，C1 的 H0 残余与 TO 目标保持也较差。非目标检测行减少不能解释为 Pfa 改善。R14/R16 输入身份相同，但 Production binary 和 C0 CFAR 输出不同，因此不能用历史 C2/C3 给 C1 排名。该单 seed、零时延结果不回答未知误差因果问题，不支持 AI 或低速/复杂杂波方向变更；阶段结束且不自动扩展。详见 [R16 结果](R16_minimal_c1_results.md)、[方向评估](R16_research_direction_assessment.md)、[冻结设计](R16_experiment_design.md) 和 [紧凑证据包](evidence/r16_c1_gamma1_seed505/README.md)。
 - **R14 更新：** 独立 seed505 Native CUDA pilot 复现 R13 的 C3/C2 TO CSI retention 差（+7.175 dB），并观察到 C3 ON 非目标 detection rows 减少 29.3%、false current-frame associations 减少 38.5%；ON 目标检测仍为两方法 3/3。但 R14 C3 TrackManager ground-speed RMSE 为 9.259 m/s，C2 为 1.086 m/s（共同机会 n=2），且末期目标关联从 track 6 切到 64。只裁决 `CONTINUE` 有界 C2/C3 任务权衡复核；当前不宣称整体性能胜出，经验 Pfa 仍 `NOT_EVALUABLE`，不训练 AI。该 seed 的 delay=0 ns，不改变未知系统误差主线。详见 [R14 结果](R14_minimal_comparison_results.md)、[方向评估](R14_research_direction_assessment.md)、[紧凑证据包](evidence/r14_scc_robust_ddc_seed505/README.md)。
@@ -171,3 +172,12 @@ R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度
 5. [ChatGPT 独立审查请求](R18/10_ChatGPT_review_request.md)：先读对应 commit 的研究总纲，再作阶段正确性与总体科研价值双层审查。
 6. [12 场景 gate CSV](R18/evidence/formal_matrix/summary/r18_cuda_case_gate_summary.csv)、[ON 条件描述统计](R18/evidence/formal_matrix/summary/r18_cuda_on_method_descriptive_summary.csv)和[杂波可比性图](R18/evidence/formal_matrix/summary/r18_cuda_clutter_comparability.png)。每场景完整 manifest、XML/log、CSI/CFAR/Detection/TrackManager 审计位于对应的 formal_matrix/seed*/experiment_snapshot/。
 7. [seed909 独立参考次级验证](R18/evidence/independent_seed909_secondary_attempt3/report.md)因 C3 exact-support gate 未通过而为 NOT_EVALUABLE；[清理台账](R18/evidence/cleanup_ledger.md)记录已归档与删除内容。
+
+## R19 R18 saved-data 严格离线任务复评（2026-10-26）
+
+1. [R19 总实施计划](R19/00_master_execution_plan.md)与[证据盘点](R19/01_evidence_inventory.md)：范围、快照、生产身份及可重算边界。
+2. [冻结任务评价契约](R19/02_frozen_task_evaluation_contract.md)与[评价器/测试说明](R19/03_evaluator_implementation_and_tests.md)：strict one-to-one matching、H0/CFAR、TrackManager、参数与状态标签。
+3. [12-case 任务复评](R19/04_r18_baseline_task_reevaluation.md)、[Mode-A/B 机制边界](R19/05_mode_a_mode_b_failure_mechanism.md)和[seed909 gate 方法审查](R19/06_independent_reference_methodology_review.md)。
+4. [总体研究机会评估](R19/07_research_opportunity_assessment.md)、[唯一下一步建议](R19/08_next_research_direction.md)与[执行和质量审计](R19/09_execution_and_quality_audit.md)。
+5. [ChatGPT 独立审查请求](R19/10_ChatGPT_review_request.md)：使用时填入最终交付的完整 40 位审查 commit SHA；提示词要求先从指定 commit 读取研究总纲。
+6. [Formal matrix CSV 与 manifest](R19/evidence/results/formal_matrix/) 保存完整离线表；[pilot 结果](R19/evidence/results/pilot_seed606_v6p7_snr30/)保留代表性检查；[审计 manifest](R19/evidence/manifests/)及[汇总图](R19/evidence/figures/r19_mode_a_mode_b_pipeline_seed606_707_808_v6p7_snr30.png)可复核 R19 结果。R19 未运行 CUDA，历史原始 IQ/部分 maps 按 R18 cleanup ledger 已不存在。

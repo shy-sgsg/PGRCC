@@ -6,21 +6,20 @@
 
 - R18 执行源码版本：`014352ace1c4ad0bade0d759a099a47fe9ecfaa9`（工作分支 `codex/unknown-system-error-next-stage`）；完整阶段报告随当前交付提交。
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；R17 仅按用户明确范围恢复总纲第 9 节的三段文字至 R16 前版本，其他正文不变。
-- 本状态整理日期：2026-10-25。
-- 最近完成的方向裁决：R18 正式矩阵完成后判为 INCONCLUSIVE，并停止本轮方法性能排名。详见[研究决策日志](RESEARCH_DECISION_LOG.md)与[Phase R 导航](phase_r/README.md)。
-- 当前在研阶段：无。R18 已结束；下一项建议待用户决定，不自动启动实验或 AI 训练。
+- 本状态整理日期：2026-10-26。
+- 最近完成的方向裁决：R19 完成 R18 saved-data 的严格离线任务复评，仍不能由零时延数据回答未知误差因果问题。详见[研究决策日志](RESEARCH_DECISION_LOG.md)与[Phase R 导航](phase_r/README.md)。
+- 当前在研阶段：无。R19 已结束；下一项建议为离线统一复评 R8/R12 的 +4 ns 历史证据，等待用户决定，不自动启动实验或 AI 训练。
 
-## 当前研究阶段：R18 完成；性能结论未闭合
+## 当前研究阶段：R19 完成；未知误差问题仍未闭合
 
-R18 依照冻结设计完成 Native CUDA 正式矩阵。完整报告从 [R18 总实施计划](phase_r/R18/00_master_execution_plan.md)开始，结果与审计分别见阶段导航。研究主题和长期目标仍由研究总纲定义。
+R19 仅对 R18 已保存数据离线重评，没有运行 CUDA、生成新 IQ、训练 AI 或改 Production 算法。完整报告从 [R19 总实施计划](phase_r/R19/00_master_execution_plan.md)开始，冻结契约、结果、机制边界、方向评估和 ChatGPT 审查请求列于 [R19 导航](phase_r/README.md)。研究主题和长期目标仍由研究总纲定义。
 
-- **执行源码身份：** 正式 runner manifest 记录源码 commit `014352ace1c4ad0bade0d759a099a47fe9ecfaa9`；独立 Release build identity 记录 build 源码 commit `4c6d4d303621324f5e174db0ba1811c5691df2e2`。配置、runner、analyzer 和 Production 二进制 SHA 在 R18 执行报告中列明。
-- **正式矩阵：** seed 606/707/808 × 6.7/0.5 m/s × 30/20 dB，共 12 场景、每场景 21 branches、总计 252/252 Production 分支通过执行门。每 case 390 continuous-area packets、1,952,655 samples。
-- **可评估门：** 12/12 area、因果 triplet、valid-CUT denominator/geometry 与 final-union hit gate 通过。真实 Pfa、PK/PKR residual closure、目标专属幅相/SCNR、ID-switch 归因及径向速度误差未闭合。
-- **独立参考：** seed909 Stage2 及 C2/C3 Gamma 检查已执行。C3 的 117 个 group 中 116 个 support count 不同，违反预注册 exact-support gate；没有启动后续任务评价，结果为 NOT_EVALUABLE。
-- **方向裁决：** INCONCLUSIVE；停止本轮性能排名。矩阵 delay error 固定为 0 ns，不能回答未知误差退化、Known 恢复量或盲估计差距。低速、复杂杂波和 AI 优先级均未建立。
-- **清理与容量：** R18 可重建数组在保存/核验非数组审计快照后清理；整个项目根目录实测约 2.8 GB，低于用户要求的 20 GB。清理台账记录在 [R18 cleanup ledger](phase_r/R18/evidence/cleanup_ledger.md)。
-- **证据状态：** IMPLEMENTED=冻结配置、runner 与评价路径；EXECUTED=12 场景矩阵和 seed909 次级检查；EVALUABLE=上述物理/生产门及描述性任务计数；PERFORMANCE_VERIFIED=false。
+- **输入实验身份：** R18 runner commit `014352ace1c4ad0bade0d759a099a47fe9ecfaa9`，Release build 源码 commit `4c6d4d303621324f5e174db0ba1811c5691df2e2`，Production binary SHA `3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0`；R18 的配置和输入身份见 R19 evaluation manifest。R19 evaluator 源码 SHA 另见 [R19 执行审计](phase_r/R19/09_execution_and_quality_audit.md)。
+- **复评范围：** 12 个 seed/speed/SNR 场景，delay error 全部为 0 ns；按冻结的一对一任务门重算最终 Detection、TrackManager 和字段可用的参数指标。高速度 Mode-A/B 在命中、Gamma 与下游候选数量上出现描述性差异；Mode-A 使用 paired OFF，是 privileged reference。
+- **可评估性：** 3,336 项指标状态中，2,184 `EVALUABLE`、576 `EVALUABLE_DESCRIPTIVE_MIXED_CLUTTER_NOISE`、84 `EVALUABLE_DESCRIPTIVE_ONLY`、276 `NOT_EVALUABLE`、132 `REPLAY_REQUIRED`、84 `NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG`。统计 Pfa、目标专属复 CSI/SCNR、CFAR 空间归因、radial velocity 与 ID-switch 根因未闭合。
+- **方向裁决：** R19 不能回答非零未知误差损失、Known correction 恢复率或盲估计差距；也未证明 AI、低速保护或复杂杂波优先。建议下一步先离线统一复评 R8/R12 已有 +4 ns 四条件证据，若记录不足再提出最小 replay 设计；该建议未获自动执行授权。
+- **磁盘与保留：** 工作树当前约 2.0 GB，低于 20 GB 目标；本阶段未删除数据。高价值 R19 结果、manifest、测试记录、审查图及报告位于 `phase_r/R19/`。
+- **证据状态：** `IMPLEMENTED`=R19 offline evaluator/contract；`EXECUTED`=12-case saved-data reevaluation；`EVALUABLE`=契约定义且字段完整的指标；`PERFORMANCE_VERIFIED=false`=本阶段无新 CUDA，也无未知误差因果验证。
 
 ## 最近完成阶段：R17
 
