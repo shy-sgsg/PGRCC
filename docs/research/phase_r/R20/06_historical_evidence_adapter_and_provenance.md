@@ -20,8 +20,16 @@ XML semantic hash 只归一化 `result_add`、`track_debug_dir` 两个输出路�
 
 未提交或已不可用的原始 IQ 不通过把 path/hash 列入新清单伪装成可复现输入。历史 Detection/track/truth 表足够支持本次离线表级重评，但不支持重新生成产品。
 
+R20 将所需的 R8 seed101/202/303 与 R12 seed404 保存记录打包到 Git 路径 `evidence/inputs/`：bundle manifest 列出 566 个文件（当前约 30 MB），逐文件保存 size 与 SHA-256；另记录 42 个与 `GMTI03` byte-identical 的 aggregate Detection 重复文件及对应 SHA，适配器直接读取逐期文件。raw protocol IQ、中间数组、maps、binary 与可重建 Stage2 产物均未纳入。bundle 完整性由 `test_compact_input_bundle_matches_its_file_hash_manifest` 自动核验。离线 runner 从这个 Git 输入包即可重新生成全部统一表，不再依赖 ignored `outputs/` 目录。
+
 ## 运行身份
 
-R8 frozen Production binary SHA=`de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00`，来自 R8 `r8_experiment_manifest.json`。R12 SHA 同值，来自 R12 `source_manifests/run_manifest.json`。R8 experiment base commit=`c5200b2f280f01f5e2e46f3a6fe5983a936a633f`；R12 baseline commit=`3e23235180f59fbb09b890af000544ae7a7c9fd0`。这些字段不自动等同于 compiler source commit；字段来源逐项保留在 [input identity manifest](evidence/manifests/r20_input_identity_manifest.json)。
+| 数据 | seed | case/run runner 与 build-audit base commit | Production binary SHA-256 | 配置身份 | build source commit |
+|---|---:|---|---|---|---|
+| R8 | 101（未纳入 target 评价） | case manifest `74877fe1463b9362dfce7c935a136d82a26ad26b`；build-audit base `c5200b2f280f01f5e2e46f3a6fe5983a936a633f` | `de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00` | branch semantic/XML SHA 逐项记录；缺 Production axis | manifest 未提供 |
+| R8 | 202 / 303（可评价） | case manifest 与 build-audit base 均为 `c5200b2f280f01f5e2e46f3a6fe5983a936a633f` | 同上 | 各 case 内 A0/B/Known semantic config 一致；跨 seed 分开记录 | manifest 未提供 |
+| R12 | 404 | case manifest 与 build-audit base 均为 `3e23235180f59fbb09b890af000544ae7a7c9fd0` | 同上，来源 `source_manifests/run_manifest.json` | 同 case 五条件 semantic config `399818bf3b996d6cb276c57de7a1ce4eab7a0fdcec1cb02d7b5777bc8e5ee2cd` | manifest 未提供 |
+
+R8 seeds202/303、R12 seed404 的 experiment runner commit 与 build-audit base commit 是已记录的来源字段；这些字段不自动等同于实际 compiler source commit。R8 seed101 的来源身份与可评价 seeds 不同，且缺 Production axis，故保留记录但排除任务效应汇总。字段逐 branch 保存在 [input identity manifest](evidence/manifests/r20_input_identity_manifest.json)。
 
 Known F2 closure retained values：R8 seed202 ON relative RMS `8.68168e-5`、seed303 ON `9.12385e-5`；R12 seed404 ON `8.73383e-5`。这些数来自历史 manifests，不是 R20 本次处理。

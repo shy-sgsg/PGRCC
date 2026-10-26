@@ -11,6 +11,7 @@ import math
 import re
 import sys
 from collections import defaultdict
+from functools import lru_cache
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
@@ -36,10 +37,13 @@ from scripts.phase_r.r20_historical_evidence_adapter import (
 )
 from scripts.phase_r.r20_task_evaluator import (
     CONTRACT_VERSION,
+    causal_effects_from_hit_fractions,
     evaluate_targets_v2,
     expected_doppler_row_from_physics,
+    range_rate_doppler_from_history,
     summarize_track_lineage_v2,
     validate_comparison_identity_v2,
+    _truthy,
 )
 
 
@@ -168,6 +172,52 @@ def _non_doppler_candidates(
     ))
 
 
+@lru_cache(maxsize=64)
+def _physical_truth_inputs(
+    case_root: str, role: str,
+) -> tuple[list[dict[str, str]], dict[str, Any], Path | None, Path | None]:
+    root = Path(case_root)
+    preferred = ("A1_TO", "A0_TO") if role == "TO" else ("A1_ON", "A0_ON")
+    for scene_name in (*preferred, "A1_ON", "A0_ON"):
+        scene = root / "scenes" / scene_name
+        moving_truth_path = scene / "truth/moving_target_truth.csv"
+        scenario_path = scene / "scenario_resolved.json"
+        if moving_truth_path.is_file() and scenario_path.is_file():
+            return read_csv(moving_truth_path), read_json(scenario_path), moving_truth_path, scenario_path
+    return [], {}, None, None
+
+
+def _range_rate_doppler_audit(
+    bundle: Mapping[str, Any], truth: Mapping[str, Any],
+) -> dict[str, Any]:
+    case_root = Path(bundle["case"]["case_root"])
+    history, scenario, source_path, scenario_path = _physical_truth_inputs(
+        str(case_root), str(bundle.get("role", "ON")),
+    )
+    waveform = scenario.get("waveform", {}) if isinstance(scenario, Mapping) else {}
+    result = range_rate_doppler_from_history(
+        history, truth,
+        carrier_frequency_hz=waveform.get("fc_hz"),
+        carrier_phase_sign=scenario.get("carrier_phase_sign") if isinstance(scenario, Mapping) else None,
+        fit_half_window=3,
+    )
+    reported_total = _float(truth.get("af_total_truth_hz"))
+    derived_total = _float(result.get("frequency_hz"))
+    closure_error = derived_total - reported_total if derived_total is not None and reported_total is not None else None
+    closure_tolerance = 0.01
+    closure_verified = closure_error is not None and abs(closure_error) <= closure_tolerance
+    result.update({
+        "source_path": audit_path(source_path),
+        "scenario_source_path": audit_path(scenario_path),
+        "frequency_closure_error_hz": closure_error,
+        "closure_tolerance_hz": closure_tolerance,
+        "closure_verified": closure_verified,
+    })
+    if result.get("status") == "VERIFIED_RANGE_RATE_DOPPLER" and not closure_verified:
+        result["status"] = "RANGE_RATE_DOPPLER_CLOSURE_FAILED"
+    return result
+
+
 def _doppler_audit_row(bundle: Mapping[str, Any], truth: Mapping[str, Any]) -> dict[str, Any]:
     meta = {key: bundle.get(key) for key in (
         "dataset", "dataset_key", "case_id", "seed", "target_velocity_mps", "target_snr_db",
@@ -184,6 +234,7 @@ def _doppler_audit_row(bundle: Mapping[str, Any], truth: Mapping[str, Any]) -> d
     prf = prf_values[0] if prf_values else _float(truth.get("prf_hz"))
     axis_data = {**axis, "prf_hz": prf} if axis else {}
     mapped = expected_doppler_row_from_physics(truth, axis_data)
+    range_rate = _range_rate_doppler_audit(bundle, truth)
     total = _float(truth.get("af_total_truth_hz"))
     component_sum = None
     if _float(truth.get("af_motion_truth_hz")) is not None and _float(truth.get("af_geometry_truth_hz")) is not None:
@@ -205,7 +256,8 @@ def _doppler_audit_row(bundle: Mapping[str, Any], truth: Mapping[str, Any]) -> d
     positive_category = "TARGET_ONLY_POSITIVE_CONTROL" if bundle["role"] == "TO" else (
         "A0_NO_ERROR_ON_CONTROL" if bundle["canonical_condition"] == "A0" else "OTHER"
     )
-    if mapped.get("status") != "VERIFIED_MAPPING" or not component_ok or not axis_prf_ok:
+    if (mapped.get("status") != "VERIFIED_MAPPING" or not component_ok or not axis_prf_ok
+            or not range_rate.get("closure_verified")):
         status = "DOPPLER_TRUTH_MAPPING_NOT_VERIFIED"
     else:
         status = "MAPPING_VERIFIED"
@@ -224,6 +276,17 @@ def _doppler_audit_row(bundle: Mapping[str, Any], truth: Mapping[str, Any]) -> d
         "prf_hz": prf, "axis_prf_closure_hz": prf_closure,
         "folded_truth_hz": mapped.get("folded_truth_hz"), "axis_alias_hz": mapped.get("axis_alias_hz"),
         "expected_cfar_row": mapped.get("expected_row"), "mapping_status": status,
+        "moving_truth_source_path": range_rate.get("source_path"),
+        "scenario_resolved_source_path": range_rate.get("scenario_source_path"),
+        "carrier_frequency_hz": range_rate.get("carrier_frequency_hz"),
+        "wavelength_m": range_rate.get("wavelength_m"),
+        "carrier_phase_sign": range_rate.get("carrier_phase_sign"),
+        "range_rate_fit_sample_count": range_rate.get("sample_count"),
+        "range_rate_from_saved_history_mps": range_rate.get("range_rate_mps"),
+        "doppler_from_range_rate_hz": range_rate.get("frequency_hz"),
+        "range_rate_doppler_closure_error_hz": range_rate.get("frequency_closure_error_hz"),
+        "range_rate_doppler_closure_tolerance_hz": range_rate.get("closure_tolerance_hz"),
+        "range_rate_doppler_status": range_rate.get("status"),
         "non_doppler_gate_candidate_count": len(candidates),
         "best_non_doppler_candidate_det_id": best.get("det_id") if best else None,
         "best_candidate_row": best.get("detection_row") if best else None,
@@ -260,10 +323,15 @@ def _parameter_records(bundle: Mapping[str, Any], target_result: Mapping[str, An
         if association is None or not association.get("matched"):
             ground_reasons["no_matched_detection"] += 1
             continue
-        linked = [row for row in observations if row.get("matched_this_frame") and row.get("output_payload")
+        linked_any_state = [row for row in observations if row.get("matched_this_frame") and row.get("output_payload")
                   and int(row["period_id"]) == int(float(truth["period_id"]))
                   and int(row["beam_id"]) == int(float(truth["beam_id"]))
                   and str(row.get("det_id")) == str(association.get("det_id"))]
+        linked = [row for row in linked_any_state
+                  if str(row.get("state", "")).strip().lower() == "confirmed"]
+        if any((_int(row.get("payload_rows_for_key")) or 0) > 1 for row in linked_any_state):
+            ground_reasons["duplicate_output_payloads"] += 1
+            continue
         if len(linked) == 0:
             ground_reasons["no_confirmed_output_payload"] += 1
             continue
@@ -321,9 +389,14 @@ def _evaluate_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
             (int(row["period_id"]), int(row["beam_id"]), str(row["det_id"]))
             for row in target_result["associations"] if row.get("matched")
         }
+        target_id_by_detection = {
+            (int(row["period_id"]), int(row["beam_id"]), str(row["det_id"])): str(row["target_id"])
+            for row in target_result["associations"] if row.get("matched")
+        }
         track_metrics = summarize_track_lineage_v2(
             observations=bundle["track"]["observations"],
             target_matched_detection_keys=matched_keys,
+            target_id_by_detection=target_id_by_detection,
             visible_truth_periods=_visible_periods(valid_truths),
             payload_duplicate_key_count=bundle["track"].get("payload_duplicate_key_count", 0),
         )
@@ -407,6 +480,147 @@ def _v2_opportunity_rows(bundle: Mapping[str, Any], evaluated: Mapping[str, Any]
             "radial_velocity_error_mps": association.get("radial_velocity_error_mps"),
             "evaluation_status": "EVALUABLE",
         })
+    return output
+
+
+def _paired_r8_causal_opportunity_rows(
+    bundles: Sequence[Mapping[str, Any]],
+    evaluations: Mapping[tuple[str, str, str, str], Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Pivot R8 A0/B/Known results onto the same seed-period truth opportunity."""
+
+    grouped: defaultdict[tuple[str, str], dict[str, Mapping[str, Any]]] = defaultdict(dict)
+    for bundle in bundles:
+        if bundle.get("dataset") == "R8" and bundle.get("role") == "ON":
+            grouped[("R8", str(bundle["dataset_key"]))][str(bundle["canonical_condition"])] = bundle
+    output: list[dict[str, Any]] = []
+    parameter_names = ("angle_deg", "position_m", "range_m", "folded_doppler_hz", "radial_velocity_mps")
+    for case_key, conditions in sorted(grouped.items()):
+        reference_bundle = conditions.get("A0") or conditions.get("B") or conditions.get("Known")
+        if reference_bundle is None:
+            continue
+        truths = [row for row in reference_bundle.get("truths", ()) if _visible_truth(row)]
+        truths.sort(key=lambda row: (_int(row.get("period_id")) or 0, _int(row.get("beam_id")) or 0,
+                                     str(row.get("target_id", ""))))
+        eval_by_condition: dict[str, Mapping[str, Any]] = {}
+        associations_by_condition: dict[str, dict[tuple[int, int, str], Mapping[str, Any]]] = {}
+        samples_by_condition: dict[str, dict[str, dict[str, Any]]] = {}
+        for condition in ("A0", "B", "Known"):
+            bundle = conditions.get(condition)
+            if bundle is None:
+                eval_by_condition[condition] = {"status": "CONDITION_NOT_AVAILABLE"}
+                associations_by_condition[condition] = {}
+                samples_by_condition[condition] = {}
+                continue
+            evaluated = evaluations.get(("R8", str(bundle["dataset_key"]), str(bundle["condition"]), "ON"), {})
+            eval_by_condition[condition] = evaluated
+            target_result = evaluated.get("target_result")
+            associations_by_condition[condition] = {
+                (_int(row.get("period_id")), _int(row.get("beam_id")), str(row.get("target_id", ""))): row
+                for row in (target_result or {}).get("associations", ())
+                if _int(row.get("period_id")) is not None and _int(row.get("beam_id")) is not None
+            }
+            samples: dict[str, dict[str, Any]] = {}
+            for name, values in (target_result or {}).get("parameter_samples", {}).items():
+                for sample in values:
+                    samples.setdefault(str(sample.get("sample_key", "")), {})[name] = sample.get("error")
+            samples_by_condition[condition] = samples
+
+        case_rows: list[dict[str, Any]] = []
+        for truth in truths:
+            period, beam = _int(truth.get("period_id")), _int(truth.get("beam_id"))
+            target_id = str(truth.get("target_id", ""))
+            if period is None or beam is None:
+                continue
+            sample_key = "/".join((target_id, str(period), str(beam)))
+            row: dict[str, Any] = {
+                "dataset": "R8", "dataset_key": case_key[1],
+                "case_id": reference_bundle.get("case_id"), "seed": reference_bundle.get("seed"),
+                "target_velocity_mps": reference_bundle.get("target_velocity_mps"),
+                "target_snr_db": reference_bundle.get("target_snr_db"),
+                "period_id": period, "beam_id": beam, "target_id": target_id,
+                "sample_key": sample_key,
+                "truth_status": "VALID" if all(_float(truth.get(key)) is not None for key in
+                    ("range_bin", "range_m", "e_mid", "n_mid", "af_total_truth_hz")) else "INVALID_TRUTH_FIELDS",
+            }
+            hit_by_condition: dict[str, bool | None] = {}
+            linked_track_by_condition: dict[str, str | None] = {}
+            for condition in ("A0", "B", "Known"):
+                evaluated = eval_by_condition[condition]
+                association = associations_by_condition[condition].get((period, beam, target_id))
+                status = str(evaluated.get("status", "NOT_EVALUABLE"))
+                row[f"{condition}_evaluator_status"] = status
+                matched = bool(association.get("matched")) if association is not None else None
+                hit_by_condition[condition] = matched
+                row[f"{condition}_matched"] = matched
+                row[f"{condition}_det_id"] = association.get("det_id") if association else None
+                row[f"{condition}_candidate_count"] = association.get("candidate_count") if association else None
+                row[f"{condition}_position_error_m"] = association.get("position_error_m") if association else None
+                for metric in parameter_names:
+                    row[f"{condition}_{metric}_error"] = samples_by_condition[condition].get(sample_key, {}).get(metric)
+                bundle = conditions.get(condition)
+                observations = (bundle.get("track") or {}).get("observations", ()) if bundle else ()
+                det_id = str(association.get("det_id")) if association and matched else ""
+                linked = [item for item in observations
+                          if _int(item.get("period_id")) == period and _int(item.get("beam_id")) == beam
+                          and str(item.get("det_id", "")) == det_id and _truthy(item.get("matched_this_frame"))]
+                confirmed_payload = [item for item in linked
+                                     if str(item.get("state", "")).strip().lower() == "confirmed"
+                                     and _truthy(item.get("output_payload"))]
+                confirmed_only = [item for item in linked
+                                  if str(item.get("state", "")).strip().lower() == "confirmed"]
+                if not matched:
+                    track_status = "NO_TARGET_MATCHED_DETECTION"
+                elif not bundle or not (bundle.get("track") or {}).get("observations"):
+                    track_status = "TRACK_DEBUG_NOT_AVAILABLE"
+                elif len(confirmed_payload) == 1:
+                    track_status = "CONFIRMED_MATCHED_OUTPUT_PAYLOAD"
+                elif len(confirmed_payload) > 1:
+                    track_status = "DUPLICATE_CONFIRMED_OUTPUT_PAYLOAD"
+                elif confirmed_only:
+                    track_status = "CONFIRMED_MATCHED_NO_PAYLOAD"
+                elif linked:
+                    track_status = "NOT_CONFIRMED"
+                else:
+                    track_status = "NO_TRACK_OBSERVATION_FOR_DETECTION"
+                track_id = str(confirmed_payload[0].get("track_id")) if len(confirmed_payload) == 1 else None
+                row[f"{condition}_track_status"] = track_status
+                row[f"{condition}_track_id"] = track_id
+                linked_track_by_condition[condition] = track_id
+            hit_vector = tuple(hit_by_condition[name] for name in ("A0", "B", "Known"))
+            if None in hit_vector:
+                transition = "NOT_EVALUABLE"
+            elif hit_vector == (True, False, True):
+                transition = "B_DETECTION_LOSS_KNOWN_RECOVERED"
+            elif hit_vector == (True, False, False):
+                transition = "B_DETECTION_LOSS_NOT_RECOVERED"
+            elif hit_vector == (False, False, True):
+                transition = "KNOWN_ONLY_DETECTION"
+            elif hit_vector == (True, True, True):
+                transition = "ALL_THREE_DETECT"
+            elif hit_vector == (False, False, False):
+                transition = "ALL_THREE_MISS"
+            else:
+                transition = "MIXED_DETECTION_PATTERN"
+            row["transition_type"] = transition
+            case_rows.append(row)
+
+        for condition in ("A0", "B", "Known"):
+            previous_track: str | None = None
+            for row in case_rows:
+                current_track = row.get(f"{condition}_track_id")
+                if current_track is None:
+                    transition = "NO_CONFIRMED_TARGET_TRACK"
+                elif previous_track is None:
+                    transition = "FIRST_CONFIRMED_TARGET_TRACK"
+                elif current_track == previous_track:
+                    transition = "SAME_TRACK_ID"
+                else:
+                    transition = "SEQUENTIAL_TRACK_ID_HANDOFF"
+                row[f"{condition}_track_transition"] = transition
+                if current_track is not None:
+                    previous_track = current_track
+        output.extend(case_rows)
     return output
 
 
@@ -560,9 +774,179 @@ def _pairwise_common_success_rows(
     return output
 
 
+def _metric_evaluability_rows(
+    bundles: Sequence[Mapping[str, Any]],
+    evaluations: Mapping[tuple[str, str, str, str], Mapping[str, Any]],
+    parameter_rows: Sequence[Mapping[str, Any]],
+    track_rows: Sequence[Mapping[str, Any]],
+    h0_rows: Sequence[Mapping[str, Any]],
+    closure_rows: Sequence[Mapping[str, Any]],
+) -> list[dict[str, Any]]:
+    """Record values and explicit blockers for each requested task metric."""
+
+    output: list[dict[str, Any]] = []
+
+    def add(bundle: Mapping[str, Any], metric: str, *, value: Any = None,
+            numerator: Any = None, denominator: Any = None, unit: str | None = None,
+            status: str, reason: str | None = None, source: Any = None) -> None:
+        output.append({
+            **{key: bundle.get(key) for key in (
+                "dataset", "dataset_key", "case_id", "seed", "condition", "canonical_condition", "role",
+            )},
+            "metric": metric, "value": value, "numerator": numerator,
+            "denominator": denominator, "unit": unit, "status": status,
+            "reason": reason, "evidence_source": source,
+        })
+
+    param_index = {
+        (str(row.get("dataset")), str(row.get("dataset_key")), str(row.get("condition")),
+         str(row.get("role")), str(row.get("metric"))): row
+        for row in parameter_rows
+    }
+    track_index = {
+        (str(row.get("dataset")), str(row.get("dataset_key")), str(row.get("condition")), str(row.get("role"))): row
+        for row in track_rows
+    }
+    h0_index: defaultdict[tuple[str, str, str, str], list[Mapping[str, Any]]] = defaultdict(list)
+    for row in h0_rows:
+        h0_index[(str(row.get("dataset")), str(row.get("dataset_key")), str(row.get("condition")),
+                  str(row.get("role")))].append(row)
+
+    for bundle in bundles:
+        if bundle.get("dataset") not in {"R8", "R12"}:
+            continue
+        key = (str(bundle["dataset"]), str(bundle["dataset_key"]),
+               str(bundle["condition"]), str(bundle["role"]))
+        evaluated = evaluations.get(key, {})
+        result = evaluated.get("target_result")
+        metrics = (result or {}).get("metrics", {})
+        eval_status = str(evaluated.get("status", "NOT_EVALUABLE"))
+        if bundle.get("role") in {"ON", "TO"}:
+            task_metrics = (
+                ("target_detection_hits", metrics.get("unique_hits"), metrics.get("unique_hits"), metrics.get("truth_opportunities"), "opportunities"),
+                ("target_detection_misses", metrics.get("misses"), metrics.get("misses"), metrics.get("truth_opportunities"), "opportunities"),
+                ("target_detection_hit_fraction", metrics.get("truth_opportunity_hit_fraction"), metrics.get("unique_hits"), metrics.get("truth_opportunities"), "fraction"),
+                ("unmatched_final_detection_rows", metrics.get("truth_unmatched_detection_rows"), metrics.get("truth_unmatched_detection_rows"), metrics.get("raw_detection_rows"), "rows"),
+                ("final_detection_rows", metrics.get("raw_detection_rows"), metrics.get("raw_detection_rows"), None, "rows"),
+            )
+            for metric, value, numerator, denominator, unit in task_metrics:
+                status = "EVALUABLE" if result is not None and value is not None else eval_status
+                add(bundle, metric, value=value, numerator=numerator, denominator=denominator,
+                    unit=unit, status=status,
+                    reason=None if status == "EVALUABLE" else evaluated.get("reason"),
+                    source="R20 final Detection evaluator")
+        if bundle.get("role") == "ON":
+            add(bundle, "target_complex_retention", unit="linear amplitude ratio", status="NOT_EVALUABLE",
+                reason="Raw IQ is absent from the compact evidence bundle; target-only complex amplitude cannot be recomputed.",
+                source="R20 compact input policy")
+            add(bundle, "target_output_scnr", unit="dB", status="NOT_EVALUABLE",
+                reason="Raw IQ and paired target/clutter complex output are absent; target-specific SCNR cannot be recomputed.",
+                source="R20 compact input policy")
+
+            for metric in ("angle_deg", "position_m", "range_m", "folded_doppler_hz",
+                           "radial_velocity_mps", "ground_speed_mps"):
+                row = param_index.get((*key, metric))
+                if row is None:
+                    add(bundle, f"parameter_{metric}_own_success_rmse", status="NOT_EVALUABLE",
+                        reason="Parameter evaluation record is missing.", source="r20_parameter_evaluability.csv")
+                    continue
+                count = _int(row.get("own_success_count")) or 0
+                opportunities = _int(row.get("truth_opportunities"))
+                missing = row.get("missing_reasons")
+                add(bundle, f"parameter_{metric}_valid_opportunities",
+                    value=row.get("valid_parameter_opportunities"),
+                    numerator=row.get("valid_parameter_opportunities"), denominator=opportunities,
+                    unit="opportunities", status="EVALUABLE" if opportunities is not None else "NOT_EVALUABLE",
+                    reason=json.dumps(missing, ensure_ascii=False, sort_keys=True) if missing else None,
+                    source="r20_parameter_evaluability.csv")
+                add(bundle, f"parameter_{metric}_own_success_rmse", value=row.get("own_success_rmse"),
+                    numerator=count, denominator=opportunities, unit=metric,
+                    status="EVALUABLE" if count > 0 else "NOT_EVALUABLE_NO_VALID_SAMPLES",
+                    reason=json.dumps(missing, ensure_ascii=False, sort_keys=True) if missing else None,
+                    source="r20_parameter_evaluability.csv")
+                common_count = _int(row.get("common_success_opportunities")) or 0
+                add(bundle, f"parameter_{metric}_common_success_rmse", value=row.get("common_success_rmse"),
+                    numerator=common_count, denominator=opportunities, unit=metric,
+                    status="EVALUABLE" if common_count > 0 else "NOT_EVALUABLE_NO_COMMON_SUCCESS",
+                    reason="same truth opportunities detected by every compared condition" if common_count else
+                           "No common successful truth opportunities.",
+                    source="r20_parameter_evaluability.csv")
+
+            track = track_index.get(key, {})
+            track_status = str(track.get("status", "NOT_EVALUABLE"))
+            for metric, field, unit in (
+                ("target_confirmed_unique_period_count", "target_confirmed_unique_period_count", "periods"),
+                ("false_confirmed_track_count", "false_confirmed_track_count", "tracks"),
+                ("post_confirmation_match_rate", "post_confirmation_match_rate", "fraction"),
+                ("simultaneous_target_track_maximum", "maximum_simultaneous_target_track_count", "tracks"),
+                ("sequential_target_track_handoffs", "observed_sequential_target_track_handoffs", "handoffs"),
+            ):
+                value = track.get(field)
+                add(bundle, metric, value=value, unit=unit,
+                    status="EVALUABLE" if track_status == "evaluable" and value is not None else track_status,
+                    reason=track.get("reason") or track.get("track_debug_reason"),
+                    source="r20_track_metrics.csv")
+            first_confirm = _int(track.get("first_target_confirmation_period"))
+            truth_periods = _visible_periods(bundle.get("truths", ()))
+            confirmation_delay = first_confirm - min(truth_periods) if first_confirm is not None and truth_periods else None
+            add(bundle, "target_confirmation_delay_periods", value=confirmation_delay,
+                unit="periods", status="EVALUABLE" if confirmation_delay is not None and track_status == "evaluable" else track_status,
+                reason=None if confirmation_delay is not None else track.get("reason", "confirmation event unavailable"),
+                source="r20_track_metrics.csv + standalone truth periods")
+
+        cut_rows = h0_index.get(key, ()) if bundle.get("role") == "OFF" else _off_h0_rows(bundle)
+        for cut_row in cut_rows:
+            mode = str(cut_row.get("cut_band_mode") or "unknown")
+            cut_status = "EVALUABLE" if cut_row.get("valid_cut_count") not in (None, "") else cut_row.get("status")
+            add(bundle, f"cfar_valid_cut_count:{mode}", value=cut_row.get("valid_cut_count"),
+                unit="CUTs", status=cut_status,
+                reason=None if cut_status == "EVALUABLE" else cut_row.get("interpretation"),
+                source=cut_row.get("source_status"))
+            fraction = cut_row.get("observed_cut_hit_fraction")
+            fraction_status = "EVALUABLE_DESCRIPTIVE_ONLY" if fraction not in (None, "") else cut_row.get("status")
+            add(bundle, f"cfar_observed_cut_fraction:{mode}", value=fraction,
+                numerator=cut_row.get("observed_cut_hit_count"), denominator=cut_row.get("valid_cut_count"),
+                unit="descriptive fraction", status=fraction_status,
+                reason=cut_row.get("interpretation"), source=cut_row.get("source_status"))
+            if bundle.get("role") == "OFF":
+                add(bundle, "statistical_pfa", value=None, unit="probability", status="NOT_EVALUABLE",
+                    reason=cut_row.get("empirical_pfa_status", "No independent H0 sampling unit or statistical holdout."),
+                    source=cut_row.get("source_status"))
+
+    for closure in closure_rows:
+        metadata = {
+            "dataset": closure.get("dataset"), "dataset_key": closure.get("dataset_key"),
+            "case_id": closure.get("case_id"), "seed": closure.get("seed"),
+            "condition": "Known", "canonical_condition": "Known", "role": closure.get("role"),
+        }
+        output.append({
+            **metadata, "metric": f"known_correction_{closure.get('channel')}_closure_relative_rms",
+            "value": closure.get("relative_rms_error"), "numerator": None, "denominator": None,
+            "unit": "relative RMS", "status": "RETAINED_MANIFEST_NOT_RECOMPUTED",
+            "reason": "Raw IQ is unavailable in the compact evidence bundle; this value is retained from the original case manifest.",
+            "evidence_source": closure.get("source"),
+        })
+    return output
+
+
 def _write_manifest(outdir: Path, bundles: Sequence[Mapping[str, Any]], identity_groups: Mapping[tuple[str, str], Mapping[str, Any]], gate: Mapping[str, Any]) -> None:
     entries = []
     for bundle in bundles:
+        case_root = Path(bundle["case"]["case_root"])
+        _, _, moving_truth_path, scenario_path = _physical_truth_inputs(
+            str(case_root), str(bundle["role"]),
+        )
+        source_paths = [path for path in (moving_truth_path, scenario_path) if path and path.is_file()]
+        input_files = file_manifest(
+            bundle["case"], bundle["branch_dir"], bundle["truth_path"], bundle["detections"],
+            bundle["axes"], bundle.get("track"),
+        )
+        recorded_paths = {row["path"] for row in input_files}
+        for source_path in source_paths:
+            relative = audit_path(source_path)
+            if relative not in recorded_paths:
+                input_files.append({"path": relative, "bytes": source_path.stat().st_size,
+                                    "sha256": sha256_file(source_path)})
         entries.append({
             "dataset": bundle["dataset"], "dataset_key": bundle["dataset_key"],
             "case_id": bundle["case_id"], "condition": bundle["condition"], "role": bundle["role"],
@@ -572,10 +956,13 @@ def _write_manifest(outdir: Path, bundles: Sequence[Mapping[str, Any]], identity
             "truth_sha256": sha256_file(bundle["truth_path"]) if bundle["truth_path"] else None,
             "axis_source_status": bundle["axes"]["status"],
             "axis_source_path": audit_path(bundle["axes"]["source_path"]),
-            "input_files": file_manifest(
-                bundle["case"], bundle["branch_dir"], bundle["truth_path"], bundle["detections"],
-                bundle["axes"], bundle.get("track"),
-            ),
+            "physical_doppler_truth_sources": {
+                "moving_truth_path": audit_path(moving_truth_path),
+                "moving_truth_sha256": sha256_file(moving_truth_path) if moving_truth_path else None,
+                "scenario_resolved_path": audit_path(scenario_path),
+                "scenario_resolved_sha256": sha256_file(scenario_path) if scenario_path else None,
+            },
+            "input_files": input_files,
         })
     manifest = {
         "schema_version": "r20-historical-input-manifest-v1",
@@ -728,8 +1115,7 @@ def run_review(outdir: Path) -> dict[str, Any]:
                     "R12_is_single_seed": True,
                 })
         if bundle["role"] == "OFF":
-            h0 = _off_h0_row(bundle)
-            h0_rows.append(h0)
+            h0_rows.extend(_off_h0_rows(bundle))
 
     for case in cases:
         if case["dataset"] not in {"R8", "R12"}:
@@ -745,11 +1131,19 @@ def run_review(outdir: Path) -> dict[str, Any]:
 
     _common_success_parameter_updates(parameter_rows, bundles, evaluations)
     pairwise_parameter_rows = _pairwise_common_success_rows(bundles, evaluations, identity_groups)
+    r8_rows = seed_metrics_for(seed_metrics, "R8")
+    r8_seed_summary = _r8_seed_summary_rows(r8_rows)
+    r8_paired_opportunities = _paired_r8_causal_opportunity_rows(bundles, evaluations)
+    metric_evaluability_rows = _metric_evaluability_rows(
+        bundles, evaluations, parameter_rows, track_rows, h0_rows, known_closure_rows,
+    )
     report_root = outdir / "results"
     _write_csv(report_root / "r20_evaluator_regression.csv", regression_rows)
     _write_csv(report_root / "r20_doppler_truth_mapping_audit.csv", doppler_rows)
     _write_csv(report_root / "r8_opportunity_level_comparison.csv", opportunity_rows["R8"])
-    _write_csv(report_root / "r8_seed_level_causal_metrics.csv", seed_metrics_for(seed_metrics, "R8"))
+    _write_csv(report_root / "r8_seed_level_causal_metrics.csv", r8_rows)
+    _write_csv(report_root / "r8_seed_causal_summary.csv", r8_seed_summary)
+    _write_csv(report_root / "r8_paired_causal_opportunities.csv", r8_paired_opportunities)
     _write_csv(report_root / "r8_known_closure_audit.csv", [row for row in known_closure_rows if row["dataset"] == "R8"])
     _write_csv(report_root / "r12_opportunity_level_comparison.csv", opportunity_rows["R12"])
     _write_csv(report_root / "r12_blind_estimator_comparison.csv", r12_blind_rows)
@@ -758,6 +1152,7 @@ def run_review(outdir: Path) -> dict[str, Any]:
     _write_csv(report_root / "r20_parameter_pairwise_common_success.csv", pairwise_parameter_rows)
     _write_csv(report_root / "r20_track_metrics.csv", track_rows)
     _write_csv(report_root / "r20_h0_descriptive_metrics.csv", h0_rows)
+    _write_csv(report_root / "r20_metric_evaluability.csv", metric_evaluability_rows)
     identity_rows = [{"dataset": dataset, "dataset_key": case_key, **result}
                      for (dataset, case_key), result in identity_groups.items()]
     _write_csv(report_root / "r20_identity_validation.csv", identity_rows)
@@ -794,42 +1189,162 @@ def seed_metrics_for(rows: Sequence[Mapping[str, Any]], dataset: str) -> list[di
     return selected
 
 
-def _off_h0_row(bundle: Mapping[str, Any]) -> dict[str, Any]:
-    if bundle["dataset"] == "R18":
-        cf = _cfar_metrics(bundle["branch_dir"])
-        observed = cf.get("full_cut_hit_fraction")
-        hits, valid = cf.get("full_hit_count"), cf.get("full_valid_cut_count")
-        source_status = cf.get("status")
-    else:
-        cm = bundle["case"]["case_manifest"]
-        condition = cm.get("conditions", {}).get(bundle["condition"], {})
-        metrics = condition.get("metrics", {})
-        observed = metrics.get("raw_empirical_false_hit_fraction", metrics.get("cell_false_hit_fraction"))
-        hits, valid = metrics.get("cell_false_hit_count"), metrics.get("cell_false_hit_valid_cut_count")
-        source_status = condition.get("production_status", condition.get("status"))
-    return {
-        **{key: bundle.get(key) for key in (
-            "dataset", "dataset_key", "case_id", "seed", "condition", "canonical_condition", "role",
-        )},
-        "observed_cut_hit_count": hits,
-        "valid_cut_count": valid,
-        "observed_cut_hit_fraction": observed,
-        "status": "DESCRIPTIVE_ONLY_NOT_STATISTICAL_PFA" if observed is not None else "NOT_EVALUABLE_MISSING_H0_COUNTER",
-        "source_status": source_status,
-        "empirical_pfa_status": "NOT_EVALUABLE",
-        "interpretation": "saved OFF CUT/detection counter is descriptive only; correlated CUTs and no independent H0 holdout",
+def _r8_seed_summary_rows(rows: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    groups: defaultdict[str, dict[str, Mapping[str, Any]]] = defaultdict(dict)
+    for row in rows:
+        if row.get("dataset") == "R8":
+            groups[str(row.get("dataset_key"))][str(row.get("canonical_condition"))] = row
+    output: list[dict[str, Any]] = []
+    evaluable: list[dict[str, Any]] = []
+    for dataset_key, conditions in sorted(groups.items()):
+        metadata = next(iter(conditions.values()))
+        result: dict[str, Any] = {
+            "row_type": "SEED", "dataset": "R8", "dataset_key": dataset_key,
+            "seed": metadata.get("seed"), "target_velocity_mps": metadata.get("target_velocity_mps"),
+            "target_snr_db": metadata.get("target_snr_db"), "delay_error_ns": metadata.get("delay_error_ns"),
+        }
+        fractions: dict[str, Any] = {}
+        condition_valid = True
+        for condition in ("A0", "B", "Known"):
+            row = conditions.get(condition)
+            if row is None:
+                condition_valid = False
+                result[f"{condition}_evaluator_status"] = "CONDITION_NOT_AVAILABLE"
+                result[f"{condition}_identity_status"] = None
+                continue
+            result[f"{condition}_evaluator_status"] = row.get("evaluator_status")
+            result[f"{condition}_identity_status"] = row.get("identity_status")
+            result[f"{condition}_hits"] = row.get("unique_hits")
+            result[f"{condition}_truth_opportunities"] = row.get("truth_opportunities")
+            result[f"{condition}_hit_fraction"] = row.get("truth_opportunity_hit_fraction")
+            fraction = _float(row.get("truth_opportunity_hit_fraction"))
+            valid = (row.get("evaluator_status") == "EVALUABLE"
+                     and row.get("identity_status") == "IDENTITY_VALID" and fraction is not None)
+            condition_valid = condition_valid and valid
+            fractions[condition] = fraction if valid else None
+        if condition_valid:
+            effects = causal_effects_from_hit_fractions(
+                a0=fractions.get("A0"), current=fractions.get("B"), known=fractions.get("Known"),
+            )
+            result.update(effects)
+            result["status"] = "EVALUABLE" if effects["status"] == "EVALUABLE" else effects["status"]
+            evaluable.append(result)
+        else:
+            result.update({
+                "loss_L_A0_minus_B": None, "gain_G_Known_minus_B": None,
+                "residual_E_Known_minus_A0": None, "recovery_ratio_G_over_L": None,
+                "status": "NOT_EVALUABLE",
+            })
+        output.append(result)
+
+    metrics = (
+        ("loss_L_A0_minus_B", "loss_L"),
+        ("gain_G_Known_minus_B", "gain_G"),
+        ("residual_E_Known_minus_A0", "residual_E"),
+        ("recovery_ratio_G_over_L", "recovery_ratio"),
+    )
+    aggregate: dict[str, Any] = {
+        "row_type": "EVALUABLE_SEED_SUMMARY", "dataset": "R8",
+        "dataset_key": "independent_seed_aggregate", "seed": "EVALUABLE_SEEDS_ONLY",
+        "independent_seed_count": len(evaluable),
+        "status": "EVALUABLE_DESCRIPTIVE_ONLY" if evaluable else "NOT_EVALUABLE",
+        "aggregation_unit": "independent seed; three target periods are not independent seeds",
     }
+    for metric, label in metrics:
+        values = sorted(float(row[metric]) for row in evaluable if _float(row.get(metric)) is not None)
+        if values:
+            middle = len(values) // 2
+            med = values[middle] if len(values) % 2 else (values[middle - 1] + values[middle]) / 2.0
+            aggregate[f"{label}_median"] = med
+            aggregate[f"{label}_min"] = values[0]
+            aggregate[f"{label}_max"] = values[-1]
+            aggregate[f"{label}_evaluable_seed_count"] = len(values)
+        else:
+            aggregate[f"{label}_median"] = None
+            aggregate[f"{label}_min"] = None
+            aggregate[f"{label}_max"] = None
+            aggregate[f"{label}_evaluable_seed_count"] = 0
+    output.append(aggregate)
+    return output
+
+
+def _off_h0_rows(bundle: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Read saved Production CUT counters without promoting them to statistical Pfa."""
+
+    metadata = {key: bundle.get(key) for key in (
+        "dataset", "dataset_key", "case_id", "seed", "condition", "canonical_condition", "role",
+    )}
+    path = Path(bundle["branch_dir"]) / "result/debug/cfar_geometry_diagnostics.csv"
+    if not path.is_file():
+        return [{
+            **metadata, "cut_band_mode": None, "observed_cut_hit_count": None,
+            "valid_cut_count": None, "observed_cut_hit_fraction": None,
+            "status": "NOT_EVALUABLE_MISSING_H0_COUNTER",
+            "source_status": "CFAR_GEOMETRY_DIAGNOSTIC_MISSING",
+            "empirical_pfa_status": "NOT_EVALUABLE",
+            "interpretation": "no saved Production valid-CUT denominator; statistical Pfa unavailable",
+        }]
+    rows = read_csv(path)
+    by_mode: defaultdict[str, list[dict[str, str]]] = defaultdict(list)
+    for row in rows:
+        mode = str(row.get("branch", "")).strip()
+        if mode.startswith("union_"):
+            by_mode[mode].append(row)
+    if not by_mode:
+        return [{
+            **metadata, "cut_band_mode": None, "observed_cut_hit_count": None,
+            "valid_cut_count": None, "observed_cut_hit_fraction": None,
+            "status": "NOT_EVALUABLE_MISSING_H0_COUNTER",
+            "source_status": "CFAR_GEOMETRY_HAS_NO_UNION_ROWS",
+            "empirical_pfa_status": "NOT_EVALUABLE",
+            "interpretation": "no saved Production union CUT counters; statistical Pfa unavailable",
+        }]
+    output: list[dict[str, Any]] = []
+    for mode, mode_rows in sorted(by_mode.items()):
+        valid_values = [_int(row.get("valid_cut_count")) for row in mode_rows]
+        hit_values = [_int(row.get("hit_cut_count")) for row in mode_rows]
+        complete = (all(value is not None and value >= 0 for value in valid_values)
+                    and all(value is not None and value >= 0 for value in hit_values))
+        valid = sum(value for value in valid_values if value is not None) if complete else None
+        hits = sum(value for value in hit_values if value is not None) if complete else None
+        fraction = hits / valid if complete and valid and valid > 0 else None
+        output.append({
+            **metadata, "cut_band_mode": mode,
+            "period_count": len(mode_rows),
+            "observed_cut_hit_count": hits,
+            "valid_cut_count": valid,
+            "observed_cut_hit_fraction": fraction,
+            "status": "DESCRIPTIVE_ONLY_NOT_STATISTICAL_PFA" if fraction is not None else
+                      "NOT_EVALUABLE_INVALID_H0_COUNTER",
+            "source_status": audit_path(path),
+            "empirical_pfa_status": "NOT_EVALUABLE_NO_INDEPENDENT_H0_CUT_UNIT",
+            "interpretation": "observed full/dynamic union CUT fraction is descriptive; spatially correlated CUTs and no independent H0 sampling unit prevent statistical Pfa inference",
+        })
+    return output
 
 
 def _find_estimator_details(value: Any) -> dict[str, Any]:
     on = value.get("input_preparation", {}).get("ON", {}) if isinstance(value, Mapping) else {}
     correction_audit = on.get("correction_audit", []) if isinstance(on, Mapping) else []
+    correction_source = value.get("correction_source", on.get("correction_source"))
+    input_role = value.get("estimator_input_role", on.get("estimator_input_role", on.get("input_role")))
+    input_role_evidence_status = "EXPLICIT_MANIFEST_FIELD" if input_role not in (None, "") else "NOT_AVAILABLE"
+    if input_role in (None, ""):
+        source_token = str(correction_source or "").upper()
+        if "A1_ON_RAW_C1_C2" in source_token:
+            input_role = "A1_ON_RAW_C1_C2"
+            input_role_evidence_status = "INFERRED_FROM_CORRECTION_SOURCE_LABEL"
+        elif "R9_FIXED_D3_CALIBRATION" in source_token:
+            input_role = "R9_FIXED_CALIBRATION"
+            input_role_evidence_status = "INFERRED_FROM_CORRECTION_SOURCE_LABEL"
     return {
         "applied_delay_ns": value.get("applied_delay_ns", on.get("applied_delay_ns")),
-        "correction_source": value.get("correction_source", on.get("correction_source")),
+        "correction_source": correction_source,
         "correction_applied": value.get("correction_applied"),
         "truth_used_in_estimator": value.get("truth_used_in_estimator", on.get("truth_used_in_estimator")),
-        "input_role": value.get("estimator_input_role", on.get("estimator_input_role")),
+        "truth_used_to_apply_correction": on.get("truth_used_to_apply_correction"),
+        "input_role": input_role,
+        "input_role_evidence_status": input_role_evidence_status,
         "correction_audit_statuses": [item.get("status") for item in correction_audit if isinstance(item, Mapping)],
         "identity_source": "R12 case_manifest condition input_preparation.ON",
     }

@@ -12,16 +12,16 @@
 
 ## 当前研究阶段：R20 完成；未知 +4 ns 任务损失获有限支持
 
-R20 使用冻结的 `r20-task-eval-v2` 离线评价器对 R18、R8、R12 保存证据复评。本阶段执行 9 个 R20 evaluator 测试、R19 原 evaluator 回归测试、Python 语法检查和 Doppler positive control；没有 CUDA/Production 重放、原始 IQ 重算、算法修改或参数调整。
+R20 使用冻结的 `r20-task-eval-v2` 离线评价器对 R18、R8、R12 保存证据复评。本阶段执行 43 个 R20 evaluator/adapter/review 测试和 29 个冻结 R19 evaluator 回归测试，三个 R20 Python 文件通过 `py_compile`；没有 CUDA/Production 重放、原始 IQ 重算、算法修改或参数调整。
 
 - **Doppler gate：** R18 seed606 / 6.7 m/s / 30 dB target-only TO 3/3 落在原有 ±2 行门内；三期 truth 分量与 Production 轴/PRF 均闭合。A0 ON 的三期轴/真值映射均有效，其中 2/3 有命中。R8 seed101 缺 Production axis，三条件任务结果标记 `DOPPLER_TRUTH_MAPPING_NOT_VERIFIED`。
 - **R19 回归：** R18 12 场景、84 条 ON condition 中 strict hits、valid truth opportunities、misses 和 hit fraction 与 R19 一致；14/84 的 post-confirmation track match rate 从 1.0 更正为 0.5。新增独立的 confirmed unique-period 统计，避免把 state observations 误叫 periods。
-- **非零误差证据：** R8 seed202、303 的 Current +4 ns 都为 0/3；A0/Known 分别为 2/3、3/3。R12 seed404 的 B 为 0/3、A0/Known 为 2/3、固定 D3 与 M1 为 3/3。R8 seed101 不加入 R20 detection 主结论。所有数字是逐场景描述证据，不是统计显著性或总体 Pd。
+- **非零误差证据：** R8 seed202、303 的 Current +4 ns 都为 0/3；A0/Known 分别为 2/3、3/3。按 `L=A0−B`、`G=Known−B`、`E=Known−A0` 定义，两 seed 的 L/G 分别为 2/3、3/3，E 均为 0，恢复比均为 1；两 seed 中位 L/G=5/6、范围 2/3–1。R12 seed404 的 B 为 0/3、A0/Known 为 2/3、固定 D3 与 M1 为 3/3。R8 seed101 因缺 Production axis 不纳入 R20 detection 主结论。所有数字是逐场景描述证据，不是统计显著性或总体 Pd。
 - **Known / 确定性估计边界：** 可评价的 R8 seeds 中 Known 回到 A0 命中数；R12 的 M1 与固定 D3 比 Known 多 1 个机会，但共同成功机会的角度/位置误差仍高于 Known，且 M1 F2 closure `2.6840%`、Known `0.00873%` 只能引用历史 manifest，raw IQ 不可重算。R12 只有一个 seed。
-- **方向：** 有证据继续有限的未知物理误差表征；不恢复静态时延估计为论文主要创新，不启动 AI。低速与复杂杂波不是本阶段因果变量，H0 counter 缺失使统计 Pfa 不可评价。唯一建议是用户审查后再考虑两个独立 seed 的窄 M1 验证；R20 本阶段已停止。
-- **证据身份与可复现限制：** R20 machine manifest、逐机会 CSV、R19 v1/v2 差异和测试入口在 `phase_r/R20/evidence/`；R8/R12 raw IQ 文件不可用，已保存的输入 SHA 仅是历史声明。没有把历史 closure 伪装成新计算。
-- **磁盘与保留：** 本机工作树约 2.0 GB，小于 20 GB；R20 未删除数据，新增紧凑审计和高价值结果。
-- **状态：** `IMPLEMENTED`=R20 offline evaluator/adapter；`EXECUTED`=R18/R8/R12 saved-data re-evaluation 与正控制门；`EVALUABLE`=符合 axis/identity/field 要求的上述逐项指标；`PERFORMANCE_VERIFIED=false`=没有新 CUDA/独立重复，不能宣称统计性性能改善。
+- **方向：** 有证据继续有限的未知物理误差表征；不恢复静态时延估计为论文主要创新，不启动 AI。低速与复杂杂波不是本阶段因果变量。OFF/ON/TO 现有 CFAR geometry diagnostics 含有效 CUT 及 hit counters，但统计 Pfa 仍因缺独立 H0 抽样单位/统计设计而不可评价。唯一建议是用户审查后再考虑两个独立 seed 的窄 M1 验证；R20 本阶段已停止。
+- **证据身份与可复现限制：** R20 identity manifest、逐机会 CSV、R19 v1/v2 差异和测试入口在 `phase_r/R20/evidence/`；另有 566 文件、约 30 MB 的 R8/R12 历史输入包及逐文件 SHA，可离线重生成评价表。R8/R12 raw IQ 文件不可用，历史输入 IQ SHA 只作声明；Known closure 未用 raw IQ 重算。
+- **磁盘与保留：** 本机工作树约 2.1 GB，小于 20 GB；R20 未删除数据，新增紧凑审计和高价值结果。
+- **状态：** `IMPLEMENTED`=R20 offline evaluator/adapter；`EXECUTED`=R18/R8/R12 saved-data re-evaluation 与正控制门；`EVALUABLE`=符合 axis/identity/field 要求的上述逐项指标及描述性 CUT 计数；`PERFORMANCE_VERIFIED=false`=没有新 CUDA/足够独立重复，不能宣称统计性性能改善。
 
 ## R19 历史阶段记录：未知误差问题当时仍未闭合
 

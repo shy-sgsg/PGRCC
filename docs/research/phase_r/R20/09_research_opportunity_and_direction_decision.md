@@ -10,7 +10,7 @@ R20 用同一物理 Doppler 映射和冻结任务门，检查未知系统时延�
 2. **Known physical correction 恢复多少？** 两个可评价 R8 seeds 中 Known 分别 2/3、3/3，回到相同 seed 的 A0 水平，比 B 分别多 2 和 3 个机会；R12 Known 2/3，比 B 多 2 个，回到 A0。Known F2 closure 数值来自留存 manifest（R8 202/303 ON `8.68e-5` / `9.12e-5`；R12 ON `8.73e-5`），不是 R20 raw-IQ 重算。
 3. **传统确定性校正离 Known 多远？** 仅 R12 seed404 可评价 M1/D3：二者检测各 3/3，Known 2/3；M1 delay residual `−0.24064 ns`，R9 fixed D3 residual `−0.59003 ns`。但 M1 F2 residual `2.6840%`、D3 `6.3719%`，Known `0.00873%`，均为历史保存 closure。共同成功机会上 M1 与 D3 的角度/位置误差均大于 Known；地速也只 n=2，M1 `11.03 m/s`、D3 `8.06 m/s`。所以“比 Known 多一 hit”不等于物理/多参数性能达到 Known。一个 seed 无法给出可推广差距。
 4. **是否需要 AI？** 否。已观察到的是单一静态时延误差，R12 有一个确定性物理匹配估计器；其输入闭合残差和任务/参数折衷尚需独立重复。当前证据支持继续验证可观测性/传统估计边界，不满足“确定性方法在可观测物理状态上稳定失败”的 AI 入口。
-5. **是否转向低速目标或复杂杂波？** 没有。R20 的非零误差场景只覆盖 6.7 m/s；不是低速 sweep。实验虽有面积杂波，但没有冻结复杂杂波类型和因果变量，也没有可评价的 H0 false-hit/valid CUT 统计。因此无法以 R20 排低速保护或复杂杂波为主线。
+5. **是否转向低速目标或复杂杂波？** 没有。R20 的非零误差场景只覆盖 6.7 m/s；不是低速 sweep。实验虽有面积杂波，但没有冻结复杂杂波类型和因果变量。CFAR geometry diagnostics 保存了 OFF/ON/TO 的 valid-CUT 分母及 observed hit fraction，可作描述性审计；空间相关 CUT 和缺独立 H0 抽样设计使 statistical Pfa 仍不可评价。因此不能以 R20 排低速保护或复杂杂波为主线。
 
 ## 方向裁决
 

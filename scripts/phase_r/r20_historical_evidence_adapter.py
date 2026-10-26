@@ -24,9 +24,10 @@ from scripts.phase_r.r20_task_evaluator import map_track_observation_periods
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 R18_ROOT = REPO_ROOT / "docs/research/phase_r/R18/evidence/formal_matrix"
-R8_ROOT = REPO_ROOT / "outputs/phase_r8_unknown_delay_multiseed_20261023"
-R8_SEED101_ROOT = REPO_ROOT / "outputs/phase_r_minimal_cuda_causal_pilot_20261021"
-R12_ROOT = REPO_ROOT / "outputs/phase_r_r12_physics_matched_delay_20261024"
+R20_INPUT_ROOT = REPO_ROOT / "docs/research/phase_r/R20/evidence/inputs"
+R8_ROOT = R20_INPUT_ROOT / "r8"
+R8_SEED101_ROOT = R8_ROOT / "seed101"
+R12_ROOT = R20_INPUT_ROOT / "r12"
 R8_BUILD_MANIFEST = REPO_ROOT / "docs/research/phase_r/evidence/r8_unknown_delay_multiseed_20261023/evaluation/r8_experiment_manifest.json"
 R12_RUN_MANIFEST = REPO_ROOT / "docs/research/phase_r/evidence/r12_physics_matched_delay_20261024/source_manifests/run_manifest.json"
 R8_BINARY_SHA256 = "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00"

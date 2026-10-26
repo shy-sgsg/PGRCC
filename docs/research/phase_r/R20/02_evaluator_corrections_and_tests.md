@@ -13,11 +13,11 @@ R20 新增独立契约 `r20-task-eval-v2`。R19 v1 源码、冻结契约和已�
 
 ## 测试与实际结果
 
-新增 [test_r20_task_evaluator.py](../../../../tests/test_r20_task_evaluator.py) 的 9 个测试，覆盖：身份字段缺失/不匹配/允许变化、非法 truth 分母、range-bin missing 与 present-invalid、参数缺失原因、Doppler 正反轴、result ID period 映射与 UTC 精度、重复 payload/并行航迹/顺序 fragmentation。
+新增 43 个 R20 测试，覆盖：result ID 的一基映射和 UTC float32 正/负量化边界 `4.95/11.05/17.15`；确认前 tentative、period 1 首次确认、确认期漏关联、确认后漏检、缺失/冲突 result mapping；参数机会分母、字段特定缺失原因、radial ambiguity、空 common-success、重复 RMSE opportunity；truth/range-bin fallback 与非法字段、identity 缺字段/二进制与配置冲突/干预输入 hash 允许变化、Production axis 缺失/反向/不闭合 PRF/非均匀；多目标 lineage、并行 TrackManager、confirmed 但未关联 payload、重复 payload key、未关联 payload 与目标 payload 并存。R8 seed101 adapter 测试确认缺轴时保持不可评价；compact bundle 测试对 566 个输入文件逐一检查大小和 SHA-256，并核对 42 个省略的字节完全相同重复文件。
 
-- 首次 range-bin 定向测试按预期 RED：旧匹配器仍从非法 present field 回退到 `col`。
-- 修复后：`9 passed`。
-- 三个 R20 Python 文件 `py_compile` 通过。
-- 完整历史复评入口已执行并生成 210 个 branch identity、196 个 ON/TO evaluation 和 13 个结果/manifest 文件；机器门为 `DOPPLER_MAPPING_VERIFIED`。
+- 首次 present-invalid range-bin、ON/TO CUT coverage、ground-speed 重复/非 Confirmed payload、目标确认期未关联和 Production axis/PRF 不闭合用例按预期 RED；随后修复并复跑。
+- 最新 R20 + R19 相关测试：`72 passed`（R20 43、冻结 R19 29）。
+- compact bundle 离线 replay 生成 210 个 branch records、196 个 ON/TO evaluations、16 个 identity groups（均 `IDENTITY_VALID`）、588 行 Doppler audit、28 行 OFF H0 描述统计、688 条 metric evaluability 和 17 个结果 CSV 加 manifest；positive-control gate=`DOPPLER_MAPPING_VERIFIED`。
+- Doppler 独立 range-rate closure 的预注册容差为 `0.01 Hz`，最大实测误差 `0.001013469 Hz`；缺实际 axis 的 R8 seed101 仍未进入 target mapping/effect 分析。
 
 R20 这些软件测试证明评价契约行为，不是 CUDA 或 GMTI 算法性能证据。结果差异以 [R19 回归表](evidence/results/r20_evaluator_regression.csv) 为准。

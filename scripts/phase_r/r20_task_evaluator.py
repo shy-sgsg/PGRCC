@@ -20,6 +20,40 @@ from scripts.phase_r.r19_task_evaluator import (
 CONTRACT_VERSION = "r20-task-eval-v2"
 
 
+def causal_effects_from_hit_fractions(
+    *, a0: Any, current: Any, known: Any,
+) -> dict[str, Any]:
+    """Compute frozen A0/B/Known effects for a higher-is-better hit fraction."""
+
+    a0_value, current_value, known_value = map(_finite, (a0, current, known))
+    if None in (a0_value, current_value, known_value):
+        return {
+            "loss_L_A0_minus_B": None,
+            "gain_G_Known_minus_B": None,
+            "residual_E_Known_minus_A0": None,
+            "recovery_ratio_G_over_L": None,
+            "status": "NOT_EVALUABLE_MISSING_CONDITION",
+        }
+    loss = float(a0_value) - float(current_value)
+    gain = float(known_value) - float(current_value)
+    residual = float(known_value) - float(a0_value)
+    if loss > 0.0:
+        return {
+            "loss_L_A0_minus_B": loss,
+            "gain_G_Known_minus_B": gain,
+            "residual_E_Known_minus_A0": residual,
+            "recovery_ratio_G_over_L": gain / loss,
+            "status": "EVALUABLE",
+        }
+    return {
+        "loss_L_A0_minus_B": loss,
+        "gain_G_Known_minus_B": gain,
+        "residual_E_Known_minus_A0": residual,
+        "recovery_ratio_G_over_L": None,
+        "status": "NOT_DEFINED_NO_POSITIVE_A0_MINUS_B_LOSS",
+    }
+
+
 def validate_comparison_identity_v2(
     identities: Sequence[Mapping[str, Any]],
     schema: Mapping[str, Sequence[str]],
@@ -292,6 +326,7 @@ def summarize_track_lineage_v2(
     *,
     observations: Sequence[Mapping[str, Any]],
     target_matched_detection_keys: set[tuple[int, int, str]],
+    target_id_by_detection: Mapping[tuple[int, int, str], str] | None = None,
     visible_truth_periods: Sequence[int],
     payload_duplicate_key_count: int = 0,
 ) -> dict[str, Any]:
@@ -303,6 +338,8 @@ def summarize_track_lineage_v2(
     seen: set[tuple[int, int, str, str]] = set()
     confirmed_rows: list[dict[str, Any]] = []
     target_tracks_by_period: dict[int, set[str]] = defaultdict(set)
+    target_tracks_by_target_period: dict[str, dict[int, set[str]]] = defaultdict(lambda: defaultdict(set))
+    target_confirmed_payload_rows: list[dict[str, Any]] = []
     for source in observations:
         row = dict(source)
         period = _integer(row.get("period_id"))
@@ -320,8 +357,13 @@ def summarize_track_lineage_v2(
         output = _truthy(row.get("output_payload"))
         if confirmed:
             confirmed_rows.append(row)
-        if (confirmed and matched and output and (period, beam, det_id) in target_matched_detection_keys):
+        detection_key = (period, beam, det_id)
+        if confirmed and matched and output and detection_key in target_matched_detection_keys:
             target_tracks_by_period[period].add(track_id)
+            target_confirmed_payload_rows.append(row)
+            target_id = (target_id_by_detection or {}).get(detection_key)
+            if target_id is not None:
+                target_tracks_by_target_period[str(target_id)][period].add(track_id)
     target_periods = sorted(target_tracks_by_period)
     target_track_ids = sorted({track for tracks in target_tracks_by_period.values() for track in tracks})
     simultaneous_counts = [len(target_tracks_by_period[period]) for period in target_periods]
@@ -329,10 +371,23 @@ def summarize_track_lineage_v2(
         not bool(target_tracks_by_period[left] & target_tracks_by_period[right])
         for left, right in zip(target_periods, target_periods[1:])
     )
+    target_track_ids_by_target = {
+        target_id: {track_id for tracks in periods.values() for track_id in tracks}
+        for target_id, periods in target_tracks_by_target_period.items()
+    }
+    if target_track_ids_by_target:
+        first_confirmation_periods = [
+            min((int(row["period_id"]) for row in confirmed_rows
+                 if str(row.get("track_id", "")) in track_ids), default=None)
+            for track_ids in target_track_ids_by_target.values()
+        ]
+    else:
+        first_confirmation_periods = [
+            min((int(row["period_id"]) for row in confirmed_rows
+                 if str(row.get("track_id", "")) in target_track_ids), default=None)
+        ]
     first_confirmation_period = min(
-        (int(row["period_id"]) for row in confirmed_rows
-         if str(row.get("track_id", "")) in target_track_ids),
-        default=None,
+        (period for period in first_confirmation_periods if period is not None), default=None,
     )
     truth_periods = sorted({_integer(period) for period in visible_truth_periods if _integer(period) is not None})
     post_confirmation_truth_periods = [
@@ -340,7 +395,6 @@ def summarize_track_lineage_v2(
         if first_confirmation_period is not None and period >= first_confirmation_period
     ]
     post_confirmation_matched_periods = sorted(set(target_periods) & set(post_confirmation_truth_periods))
-    confirmed_target_rows = [row for row in confirmed_rows if str(row.get("track_id", "")) in target_track_ids]
     confirmed_payload_rows = [row for row in confirmed_rows if _truthy(row.get("output_payload"))]
     unmatched_confirmed_payload_count = sum(
         (int(row["period_id"]), int(row["beam_id"]), str(row.get("det_id", "")))
@@ -348,15 +402,41 @@ def summarize_track_lineage_v2(
         for row in confirmed_payload_rows
     )
     false_confirmed_track_ids = {
-        str(row.get("track_id", "")) for row in confirmed_rows
-    } - set(target_track_ids)
+        str(row.get("track_id", "")) for row in confirmed_payload_rows
+        if (int(row["period_id"]), int(row["beam_id"]), str(row.get("det_id", "")))
+        not in target_matched_detection_keys
+    }
+    target_lineage_by_target = []
+    for target_id, periods in sorted(target_tracks_by_target_period.items()):
+        matched_period_ids = sorted(periods)
+        track_ids = sorted({track_id for tracks in periods.values() for track_id in tracks})
+        first_target_confirm = min(
+            (int(row["period_id"]) for row in confirmed_rows
+             if str(row.get("track_id", "")) in track_ids), default=None,
+        )
+        handoffs = sum(
+            not bool(periods[left] & periods[right])
+            for left, right in zip(matched_period_ids, matched_period_ids[1:])
+        )
+        target_lineage_by_target.append({
+            "target_id": target_id,
+            "first_confirmation_period": first_target_confirm,
+            "matched_period_ids": matched_period_ids,
+            "track_ids": track_ids,
+            "sequential_track_handoffs": handoffs,
+        })
     return {
         "status": "evaluable",
         "confirmed_observation_count": len(confirmed_rows),
         "confirmed_unique_period_count": len({int(row["period_id"]) for row in confirmed_rows}),
         "confirmed_observation_counts_by_period": dict(sorted(Counter(int(row["period_id"]) for row in confirmed_rows).items())),
-        "target_confirmed_observation_count": len(confirmed_target_rows),
-        "target_confirmed_unique_period_count": len({int(row["period_id"]) for row in confirmed_target_rows}),
+        "target_confirmed_observation_count": sum(
+            str(row.get("track_id", "")) in target_track_ids for row in confirmed_rows
+        ),
+        "target_confirmed_unique_period_count": len({
+            int(row["period_id"]) for row in confirmed_rows
+            if str(row.get("track_id", "")) in target_track_ids
+        }),
         "first_target_confirmation_period": first_confirmation_period,
         "target_matched_periods": len(target_periods),
         "target_matched_period_ids": target_periods,
@@ -369,6 +449,10 @@ def summarize_track_lineage_v2(
         ),
         "unique_target_track_count": len(target_track_ids),
         "target_track_ids": target_track_ids,
+        "target_lineage_by_target": target_lineage_by_target,
+        "target_lineage_unmapped_detection_count": sum(
+            key not in (target_id_by_detection or {}) for key in target_matched_detection_keys
+        ),
         "false_confirmed_track_count": len(false_confirmed_track_ids),
         "confirmed_payload_count": len(confirmed_payload_rows),
         "unmatched_confirmed_payload_count": unmatched_confirmed_payload_count,
@@ -397,6 +481,15 @@ def expected_doppler_row_from_physics(
         return {"status": "DOPPLER_TRUTH_MAPPING_NOT_VERIFIED", "reason": "missing_or_invalid_physical_axis_field"}
     if str(axis.get("doppler_axis_uniform", "1")).strip().lower() not in {"1", "true", "yes"}:
         return {"status": "DOPPLER_TRUTH_MAPPING_NOT_VERIFIED", "reason": "nonuniform_production_axis"}
+    axis_prf_closure_hz = int(row_count) * abs(float(spacing)) - float(prf)
+    axis_prf_tolerance_hz = max(1.0e-3, abs(float(spacing)) * 1.0e-3)
+    if abs(axis_prf_closure_hz) > axis_prf_tolerance_hz:
+        return {
+            "status": "DOPPLER_TRUTH_MAPPING_NOT_VERIFIED",
+            "reason": "production_axis_does_not_close_prf",
+            "axis_prf_closure_hz": axis_prf_closure_hz,
+            "axis_prf_tolerance_hz": axis_prf_tolerance_hz,
+        }
     total = float(motion) + float(geometry)
     folded = (total + float(prf) / 2.0) % float(prf) - float(prf) / 2.0
     midpoint = float(first) + (int(row_count) - 1) * float(spacing) / 2.0
@@ -412,6 +505,8 @@ def expected_doppler_row_from_physics(
         "af_total_from_components_hz": total,
         "folded_truth_hz": folded,
         "prf_hz": float(prf),
+        "axis_prf_closure_hz": axis_prf_closure_hz,
+        "axis_prf_tolerance_hz": axis_prf_tolerance_hz,
         "axis_alias_hz": axis_alias,
         "axis_alias_order": alias_order,
         "axis_first_hz": float(first),
@@ -422,4 +517,89 @@ def expected_doppler_row_from_physics(
         "expected_row": row,
         "nearest_axis_frequency_hz": float(first) + row * float(spacing),
         "quantization_residual_hz": error_hz,
+    }
+
+
+def range_rate_doppler_from_history(
+    moving_truth_rows: Sequence[Mapping[str, Any]],
+    truth: Mapping[str, Any],
+    *,
+    carrier_frequency_hz: Any,
+    carrier_phase_sign: Any,
+    fit_half_window: int = 3,
+) -> dict[str, Any]:
+    """Independently derive bistatic Doppler from the saved slant-range history.
+
+    The centered local least-squares slope estimates dR/dt around the matching
+    truth epoch.  With the simulator's phase convention, f_D = sign*2*dR/dt/lambda.
+    This calculation does not consume any truth Doppler frequency or row field.
+    """
+
+    center_utc = _finite(truth.get("utc_mid"))
+    period = _integer(truth.get("period_id"))
+    target_id = str(truth.get("target_id", "")).strip()
+    carrier = _finite(carrier_frequency_hz)
+    phase_sign = _finite(carrier_phase_sign)
+    if (center_utc is None or period is None or not target_id or carrier is None
+            or carrier <= 0.0 or phase_sign is None or abs(abs(phase_sign) - 1.0) > 1e-9
+            or not isinstance(fit_half_window, int) or fit_half_window < 1):
+        return {"status": "NOT_EVALUABLE_INVALID_WAVEFORM_IDENTITY"}
+
+    samples: list[tuple[float, float, int | None]] = []
+    for row in moving_truth_rows:
+        if (str(row.get("target_id", row.get("target_name", ""))).strip() != target_id
+                or _integer(row.get("period_id")) != period):
+            continue
+        utc, slant_range = _finite(row.get("utc")), _finite(row.get("range_m"))
+        if utc is None or slant_range is None:
+            continue
+        pulse = _integer(row.get("pulse_id"))
+        samples.append((utc, slant_range, pulse))
+    samples.sort(key=lambda item: (item[0], item[2] if item[2] is not None else -1))
+    deduplicated: list[tuple[float, float, int | None]] = []
+    seen_pulses: set[int] = set()
+    for row in samples:
+        if row[2] is not None:
+            if row[2] in seen_pulses:
+                continue
+            seen_pulses.add(row[2])
+        deduplicated.append(row)
+    if len(deduplicated) < 3:
+        return {
+            "status": "NOT_EVALUABLE_INSUFFICIENT_RANGE_SAMPLES",
+            "sample_count": len(deduplicated),
+        }
+
+    nearest = min(range(len(deduplicated)), key=lambda index: abs(deduplicated[index][0] - center_utc))
+    selected = deduplicated[max(0, nearest - fit_half_window):nearest + fit_half_window + 1]
+    if len(selected) < 3 or abs(selected[0][0] - selected[-1][0]) <= 0.0:
+        return {
+            "status": "NOT_EVALUABLE_INSUFFICIENT_RANGE_SAMPLES",
+            "sample_count": len(selected),
+        }
+    x = [item[0] - center_utc for item in selected]
+    y = [item[1] for item in selected]
+    x_mean, y_mean = sum(x) / len(x), sum(y) / len(y)
+    denominator = sum((value - x_mean) ** 2 for value in x)
+    if denominator <= 0.0:
+        return {
+            "status": "NOT_EVALUABLE_INSUFFICIENT_RANGE_SAMPLES",
+            "sample_count": len(selected),
+        }
+    range_rate = sum((tx - x_mean) * (ry - y_mean) for tx, ry in zip(x, y)) / denominator
+    wavelength = 299_792_458.0 / carrier
+    frequency = phase_sign * 2.0 * range_rate / wavelength
+    return {
+        "status": "VERIFIED_RANGE_RATE_DOPPLER",
+        "center_utc": float(center_utc),
+        "fit_half_window_pulses": fit_half_window,
+        "sample_count": len(selected),
+        "first_sample_utc": selected[0][0],
+        "last_sample_utc": selected[-1][0],
+        "range_rate_mps": range_rate,
+        "carrier_frequency_hz": float(carrier),
+        "wavelength_m": wavelength,
+        "carrier_phase_sign": float(phase_sign),
+        "frequency_hz": frequency,
+        "derivation": "carrier_phase_sign * 2 * local_d(slant_range)/dt / (c/carrier_frequency)",
     }
