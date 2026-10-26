@@ -19,7 +19,7 @@ python3 scripts/phase_r/r20_harmonized_task_review.py --output-root docs/researc
 git diff --check
 ```
 
-R20 定向测试实际结果为 `9 passed`；三个 R20 Python 文件 `py_compile` 通过；离线入口实际生成 210 个 branch 记录、196 个 ON/TO evaluations、16 个 identity groups（全部 `IDENTITY_VALID`）以及 13 个 compact result/manifest 文件；positive control gate=`DOPPLER_MAPPING_VERIFIED`。R19 回归测试、最终差异检查与 Git commit SHA 在提交前补录。
+R20 定向测试实际结果为 `9 passed`；R19 回归测试为 `29 passed`；三个 R20 Python 文件 `py_compile` 通过；离线入口实际生成 210 个 branch 记录、196 个 ON/TO evaluations、16 个 identity groups（全部 `IDENTITY_VALID`）以及 13 个 compact result/manifest 文件；positive control gate=`DOPPLER_MAPPING_VERIFIED`。R20 内容审查快照为 `2f384a38803cfb841d83e8917fddd774ec6bfe9e`；ChatGPT 审查提示词在 follow-up 文档提交中绑定此 SHA。
 
 ## 阶段状态
 
