@@ -13,10 +13,18 @@ docs/research/RESEARCH_MASTER_PLAN.md
 
 仓库：https://github.com/shy-sgsg/PGRCC
 分支：codex/unknown-system-error-next-stage
-R20 内容审查 commit：2f384a38803cfb841d83e8917fddd774ec6bfe9e
+R20 内容审查 commit：866d49fd7943bebd581a4a74bf9751e6f1b84ece
 审查总纲：该 commit 的 docs/research/RESEARCH_MASTER_PLAN.md
 预期总纲 Git blob：e637e3769bde7814298ff012d0f42301884e2985
 阶段：R20，R19 evaluator 修正、Doppler truth mapping 验证、R18 回归、R8/R12 saved-data 统一复评
+
+代码与证据身份：
+- `scripts/phase_r/r20_task_evaluator.py` SHA-256：`0a5400c9e2d693f28da9948927ba4f0ede7d3f3eedfc74b5d06992f03aabf9b1`
+- `scripts/phase_r/r20_historical_evidence_adapter.py` SHA-256：`1043a83ca28d4f9ac14d15d50fa778c80d3cc1b3d6bd5cb9a371f444061e50a4`
+- `scripts/phase_r/r20_harmonized_task_review.py` SHA-256：`198ab502ad11e055c1d3803ea14dde4a02934a2199573140b305013f99445f3a`
+- `tests/test_r20_task_evaluator.py` SHA-256：`278e862431e9fdc0ebea4a8ffd60286129e75d41279b620c7c583775ad4b17d9`
+- 可离线复评的输入包：`docs/research/phase_r/R20/evidence/inputs/`；566 个逐文件校验输入，另记录 42 个省略的完全相同 Detection 副本；不含 raw IQ。
+- 结果与运行身份：`docs/research/phase_r/R20/evidence/results/`、`evidence/manifests/r20_input_identity_manifest.json`、`evidence/audits/r20_offline_validation.log`。
 
 若你无法读取指定 commit 或其总纲：明确列出获取失败的路径，所有整体科研方向判断标 `NOT_VERIFIED`；不能用当前 HEAD、Codex 摘要或此 prompt 的描述冒充读取。
 
@@ -24,11 +32,11 @@ R20 内容审查 commit：2f384a38803cfb841d83e8917fddd774ec6bfe9e
 
 1. 上述内容 commit 中的 `docs/research/RESEARCH_MASTER_PLAN.md`。
 2. 同一 commit 的 `docs/research/RESEARCH_STATUS.md`、`docs/research/RESEARCH_DECISION_LOG.md`、`docs/research/CHATGPT_REVIEW_PROTOCOL.md` 和 `AGENTS.md`。
-3. `docs/research/phase_r/R20/00_master_execution_plan.md`，随后 01–10 全部报告。此提示词文件在审查快照之后的 follow-up 文档提交中加入，因此不要求它存在于内容审查 commit；本文件内给出的请求正文就是审查入口。
+3. `docs/research/phase_r/R20/00_master_execution_plan.md`，随后 01–10 全部报告。审查快照中的 `11_ChatGPT_review_request.md` 是早先版本，内部 pin 指向更早的 R20 快照；该旧 pin 已被本次完整提示词中的审查 SHA 取代。以本次完整提示词中的 SHA 和本文件当前版本为准，不要沿用旧版 prompt 的快照号。
 4. `docs/research/phase_r/R20/evidence/manifests/r20_input_identity_manifest.json`，以及与下述判断相关的逐机会、回归、Doppler、identity、parameter、track、H0 和 Known closure CSV。
 5. `scripts/phase_r/r20_task_evaluator.py`、`r20_historical_evidence_adapter.py`、`r20_harmonized_task_review.py`、R20 tests，以及只读的 R19 evaluator/契约和 R18/R8/R12 对应原报告。
 
-若当前 branch HEAD 与审查 commit 不同，请分别报告两者 SHA；R20 实验与评价结论一律以审查 commit 为准。R20 内容 commit 是上面明确给定的 `2f384a38803cfb841d83e8917fddd774ec6bfe9e`。审查请求文件本身位于该内容 commit 的后续文档提交；该后续提交只补充固定 commit 的请求与交付元数据，不替代审查 commit 的代码或结果。
+若当前 branch HEAD 与审查 commit 不同，请分别报告两者 SHA；R20 实验与评价结论一律以审查 commit 为准。R20 内容 commit 是上面明确给定的 `866d49fd7943bebd581a4a74bf9751e6f1b84ece`。当前提示词的修订版在该内容提交之后单独提交；该后续提交只固定审查入口和 SHA，不替代审查 commit 中的代码、结果或证据。
 
 ## R20 范围与状态
 
