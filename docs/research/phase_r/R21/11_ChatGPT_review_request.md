@@ -1,6 +1,6 @@
 # PGRCC R21 独立科研审查请求
 
-> 使用说明：R21 两个冻结 seed 已完成。本提示词的审查 commit 在 `0957f49c028377cbd7a15c2ff0b2eda3f75ce9a9` 之后的阶段报告提交中；提交完成后将下方 review commit 字段填入该报告提交的完整 SHA，再连同仓库链接交给 ChatGPT。结果状态和失败记录按现有 manifest 原样披露。
+> 使用说明：R21 两个冻结 seed 已完成。本提示词绑定的审查快照为 `7b8d97067a848fbaf2e1a09cc82dbcd6efe42114`。将本提示词与仓库链接一并交给 ChatGPT；结果状态和失败记录按该提交中的 manifest 原样披露。
 
 ## 可直接提交给 ChatGPT 的提示词
 
@@ -12,7 +12,7 @@
 
 - 仓库：`https://github.com/shy-sgsg/PGRCC`
 - 分支：`codex/unknown-system-error-next-stage`
-- 审查 commit（完整 SHA）：`[将在阶段报告提交后回填]`
+- 审查 commit（完整 SHA）：`7b8d97067a848fbaf2e1a09cc82dbcd6efe42114`
 - R21 CUDA 执行源码 commit：seed1001 `6f261b218691cf99f2e1d90c2ed5cda70a96a4f4`；seed1002 `0957f49c028377cbd7a15c2ff0b2eda3f75ce9a9`
 - seed1001 evaluator 重放源码 commit：`0957f49c028377cbd7a15c2ff0b2eda3f75ce9a9`
 - 研究总纲基线 blob SHA-1：`e637e3769bde7814298ff012d0f42301884e2985`
