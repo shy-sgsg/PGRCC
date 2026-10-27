@@ -740,6 +740,11 @@ def _evaluate_case(case_root: Path, case: dict[str, Any], bundles: Sequence[dict
     }
 
 
+def _all_on_task_conditions_evaluable(rows: Sequence[Mapping[str, Any]]) -> bool:
+    on_rows = [row for row in rows if row.get("role") == "ON"]
+    return bool(on_rows) and all(row.get("task_status") == "EVALUABLE" for row in on_rows)
+
+
 def run_seed(output_root: Path, seed: int, binary: Path) -> dict[str, Any]:
     output_root = output_root.expanduser().resolve()
     if seed not in SEEDS:
@@ -894,7 +899,7 @@ def run_seed(output_root: Path, seed: int, binary: Path) -> dict[str, Any]:
             for row in evaluation["task_metrics"]
         )
         evaluated_conditions = [row for row in evaluation["task_metrics_by_condition"] if row["role"] == "ON"]
-        all_mapping_passed = all(row.get("status") == "EVALUABLE" for row in evaluated_conditions)
+        all_mapping_passed = _all_on_task_conditions_evaluable(evaluated_conditions)
         manifest["evaluation_summary"] = {
             "r21_evaluator_version": "r21-task-eval-v3",
             "condition_count": len(case.get("conditions", {})),

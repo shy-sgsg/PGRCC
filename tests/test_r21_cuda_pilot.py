@@ -304,3 +304,18 @@ def test_estimated_correction_is_reported_as_distance_not_failed_known_closure(m
     assert estimated["status"] == "DISTANCE_RECORDED"
     assert estimated["exact_closure_threshold_status"] == "failed"
     assert "exact closure is not required" in estimated["definition"]
+
+
+def test_evaluation_gate_reads_task_status_for_all_on_conditions():
+    from scripts.phase_r import run_r21_cuda_pilot as r21_runner
+
+    assert r21_runner._all_on_task_conditions_evaluable([
+        {"role": "ON", "task_status": "EVALUABLE"},
+        {"role": "ON", "task_status": "EVALUABLE"},
+        {"role": "OFF", "task_status": "NOT_APPLICABLE_H0_ROLE"},
+    ])
+    assert not r21_runner._all_on_task_conditions_evaluable([
+        {"role": "ON", "task_status": "EVALUABLE"},
+        {"role": "ON", "task_status": "NOT_EVALUABLE"},
+    ])
+    assert not r21_runner._all_on_task_conditions_evaluable([])
