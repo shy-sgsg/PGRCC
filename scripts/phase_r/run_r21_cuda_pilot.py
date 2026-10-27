@@ -130,11 +130,18 @@ def _git_identity() -> dict[str, Any]:
             raise RuntimeError(f"git command failed: {shlex.join(argv)}: {result.stderr.strip()}")
         return result.stdout.strip()
 
+    untracked = subprocess.run(
+        ("git", "ls-files", "--others", "--exclude-standard", "-z"),
+        cwd=ROOT, capture_output=True, check=False,
+    )
+    if untracked.returncode:
+        raise RuntimeError(f"git untracked-file count failed: {untracked.stderr.decode(errors='replace').strip()}")
+    untracked_count = sum(bool(item) for item in untracked.stdout.split(b"\0"))
     return {
         "commit": run("git", "rev-parse", "HEAD"),
         "branch": run("git", "branch", "--show-current"),
         "tracked_status": run("git", "status", "--short", "--untracked-files=no"),
-        "untracked_status": run("git", "status", "--short", "--untracked-files=all"),
+        "untracked_file_count": untracked_count,
     }
 
 
@@ -173,6 +180,20 @@ def _native_cuda_preflight(binary: Path, output_root: Path) -> dict[str, Any]:
     }
 
 
+def _has_production_execution(case: Mapping[str, Any] | None) -> bool:
+    """Stage2 scene generation alone is not an executed CUDA Production run."""
+    conditions = case.get("conditions", {}) if isinstance(case, Mapping) else {}
+    if not isinstance(conditions, Mapping):
+        return False
+    return any(
+        isinstance(record, Mapping) and "production_returncode" in record
+        for condition in conditions.values() if isinstance(condition, Mapping)
+        for records in (condition.get("production", {}),)
+        if isinstance(records, Mapping)
+        for record in records.values()
+    )
+
+
 def qualify_blind_methods(estimate: Mapping[str, Any]) -> dict[str, Any]:
     """Accept only same-seed B/ON C1/C2 estimates with no truth input."""
 
@@ -192,18 +213,32 @@ def qualify_blind_methods(estimate: Mapping[str, Any]) -> dict[str, Any]:
         m1_ns = float(estimate.get("delta_tau_ns"))
     except (TypeError, ValueError):
         m1_ns = math.nan
-    m1_available = estimate.get("status") == "ok" and math.isfinite(m1_ns)
-    d3_available = math.isfinite(d3_ns)
+    try:
+        support_count = int(estimate.get("support_count"))
+        d3_support_count = int(d3_record.get("support_count")) if isinstance(d3_record, Mapping) else 0
+        frequency_span_hz = float(estimate.get("frequency_span_hz"))
+    except (TypeError, ValueError, OverflowError):
+        support_count, d3_support_count, frequency_span_hz = 0, 0, math.nan
+    input_support_qualified = (
+        support_count >= 8
+        and math.isfinite(frequency_span_hz)
+        and frequency_span_hz >= 3.0e6
+    )
+    d3_support_qualified = input_support_qualified and d3_support_count == support_count
+    m1_available = estimate.get("status") == "ok" and math.isfinite(m1_ns) and input_support_qualified
+    d3_available = math.isfinite(d3_ns) and d3_support_qualified
     return {
         "input_role": input_role,
         "truth_used_in_estimator": False,
         "d3_huber": {"status": "AVAILABLE" if d3_available else "NOT_AVAILABLE", "correction_ns": d3_ns if d3_available else None,
-                     "source_record": d3_record},
+                     "source_record": d3_record if d3_available else None,
+                     "support_qualified": d3_support_qualified},
         "m1": {"status": "AVAILABLE" if m1_available else "NOT_AVAILABLE", "correction_ns": m1_ns if m1_available else None,
                "source_record": {key: estimate.get(key) for key in (
                    "method", "status", "delta_tau_ns", "support_count", "frequency_span_hz",
                    "normalized_model_residual", "relative_response_model", "fallback_reason",
-               )}},
+               )} if m1_available else None,
+               "support_qualified": input_support_qualified},
     }
 
 
@@ -623,13 +658,8 @@ def run_seed(output_root: Path, seed: int, binary: Path) -> dict[str, Any]:
         finally:
             stage1.PIPE, e2e.PIPE = old_stage1_pipe, old_e2e_pipe
         _write_json(case_root / "case_manifest.json", case)
-        production_started = any(
-            isinstance(record, Mapping) and "production_returncode" in record
-            for condition_record in case.get("conditions", {}).values()
-            if isinstance(condition_record, Mapping)
-            for record in (condition_record.get("production", {}) or {}).values()
-        )
-        manifest["status_labels"]["EXECUTED"] = bool(case.get("simulation")) or production_started
+        production_started = _has_production_execution(case)
+        manifest["status_labels"]["EXECUTED"] = production_started
         manifest["base_stage1_status"] = case.get("status")
         manifest["stage2_area_clutter_audit"] = _area_clutter_audit(case)
         manifest["known_correction_physical_closure"] = case.get("known_correction_physical_closure")
@@ -748,12 +778,7 @@ def run_seed(output_root: Path, seed: int, binary: Path) -> dict[str, Any]:
         manifest["status"] = "failed_or_incomplete"
         manifest["failure"] = {"type": type(exc).__name__, "message": str(exc)}
         if case is not None:
-            manifest["status_labels"]["EXECUTED"] = bool(case.get("simulation")) or any(
-                isinstance(record, Mapping) and "production_returncode" in record
-                for condition_record in case.get("conditions", {}).values()
-                if isinstance(condition_record, Mapping)
-                for record in (condition_record.get("production", {}) or {}).values()
-            )
+            manifest["status_labels"]["EXECUTED"] = _has_production_execution(case)
             manifest["status_labels"]["EVALUABLE"] = False
             manifest["status_labels"]["PERFORMANCE_VERIFIED"] = False
         manifest["source_identity_after"] = r3_runner._source_identity()

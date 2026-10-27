@@ -10,19 +10,30 @@ from scripts.phase_r.r21_task_evaluator import (
 )
 
 
-def _range_axis(scene_len=4096, production_len=4096, scene_start=3864, production_start=3864):
+def _range_axis(
+    scene_len=4096, production_len=4096, scene_start=3864, production_start=3864,
+    production_origin="82802.7",
+):
     return audit_range_bin_axis_v3(
         {
             "range_fft_len": 12288,
             "range_crop_start": scene_start,
             "range_crop_len": scene_len,
+            "fs_hz": 60.0e6,
+            "sample_delay_sec": 488.0e-6,
         },
         {
             "range_fft_len": 12288,
             "range_crop_start": production_start,
             "range_compress_len": production_len,
+            "fs_mhz": "60",
+            "range_origin_m": production_origin,
         },
     )
+
+
+def _range_m_for_bin(range_bin):
+    return 0.5 * 299_792_458.0 * (488.0e-6 + (3864 + range_bin) / 60.0e6)
 
 
 def test_range_bin_axis_must_match_scene_crop_and_production_output_geometry():
@@ -31,6 +42,7 @@ def test_range_bin_axis_must_match_scene_crop_and_production_output_geometry():
     assert valid["range_bin_count"] == 4096
     assert _range_axis(scene_len=4096, production_len=4095)["status"] == "RANGE_AXIS_MISMATCH"
     assert _range_axis(scene_start=3864, production_start=3865)["status"] == "RANGE_AXIS_MISMATCH"
+    assert _range_axis(production_origin="82803.0")["status"] == "RANGE_AXIS_MISMATCH"
 
 
 @pytest.mark.parametrize(
@@ -51,15 +63,41 @@ def test_invalid_truth_range_bins_fail_closed_without_rounding(truth, expected_r
 
 
 def test_truth_range_bin_accepts_exact_integer_on_the_production_crop_axis():
+    range_m = 0.5 * 299_792_458.0 * (488.0e-6 + (3864 + 2048) / 60.0e6)
     result = validate_truth_range_bin_v3(
-        {"range_bin": "2048", "expected_bin": "2048"}, _range_axis(),
+        {"range_bin": "2048", "expected_bin": "2048", "range_m": range_m}, _range_axis(),
     )
-    assert result == {
-        "status": "TRUTH_RANGE_BIN_VERIFIED",
-        "range_bin": 2048,
-        "range_bin_count": 4096,
-        "reasons": [],
-    }
+    assert result["status"] == "TRUTH_RANGE_BIN_VERIFIED"
+    assert result["range_bin"] == result["declared_range_bin"] == 2048
+    assert result["range_bin_count"] == 4096
+    assert result["scene_range_coordinate"] == pytest.approx(2048.0)
+    assert result["scene_mapped_range_bin"] == result["production_mapped_range_bin"] == 2048
+    assert result["reasons"] == []
+
+
+def test_truth_range_bin_must_match_the_scene_physical_distance_axis():
+    axis = _range_axis()
+    fs_hz = 60.0e6
+    sample_delay_sec = 488.0e-6
+    crop_start = 3864
+    # This range maps to local bin 2048.75 and therefore to truth bin 2049.
+    range_m = 0.5 * 299_792_458.0 * (
+        sample_delay_sec + (crop_start + 2048.75) / fs_hz
+    )
+    result = validate_truth_range_bin_v3(
+        {"range_bin": 2048, "expected_bin": 2048, "range_m": range_m}, axis,
+    )
+    assert result["status"] == "INVALID_TRUTH_RANGE_BIN"
+    assert "range_bin_disagrees_with_physical_distance_axis" in result["reasons"]
+    assert result["scene_mapped_range_bin"] == result["production_mapped_range_bin"] == 2049
+
+
+def test_truth_range_bin_requires_finite_physical_distance():
+    result = validate_truth_range_bin_v3(
+        {"range_bin": 2048, "expected_bin": 2048}, _range_axis(),
+    )
+    assert result["status"] == "INVALID_TRUTH_RANGE_BIN"
+    assert "missing_or_invalid_truth_range_m" in result["reasons"]
 
 
 @pytest.mark.parametrize(
@@ -110,11 +148,11 @@ def test_per_opportunity_doppler_failure_is_excluded_even_if_other_rows_are_vali
             "doppler_row_count": 100, "doppler_axis_uniform": 1, "prf_hz": 1000.0}
     truths = [
         {"target_id": "T0", "period_id": 0, "beam_id": 50, "visible": "1",
-         "range_bin": 100, "expected_bin": 100, "range_m": 10_000.0,
+         "range_bin": 100, "expected_bin": 100, "range_m": _range_m_for_bin(100),
          "e_mid": 0.0, "n_mid": 0.0, "af_motion_truth_hz": -100.0,
          "af_geometry_truth_hz": -50.0, "af_total_truth_hz": -150.0},
         {"target_id": "T1", "period_id": 1, "beam_id": 50, "visible": "1",
-         "range_bin": 101, "expected_bin": 101, "range_m": 10_000.0,
+         "range_bin": 101, "expected_bin": 101, "range_m": _range_m_for_bin(101),
          "e_mid": 0.0, "n_mid": 0.0, "af_motion_truth_hz": -100.0,
          "af_geometry_truth_hz": -50.0, "af_total_truth_hz": -150.0},
     ]
@@ -130,10 +168,10 @@ def test_per_opportunity_doppler_failure_is_excluded_even_if_other_rows_are_vali
     bad.update({"period_id": 1, "beam_id": 50, "target_id": "T1"})
     detections = [
         {"det_id": "D0", "period_id": 0, "beam_id": 50, "range_bin": 100,
-         "range_m": 10_000.0, "row": 35, "new_e": 0.0, "new_n": 0.0,
+         "range_m": _range_m_for_bin(100), "row": 35, "new_e": 0.0, "new_n": 0.0,
          "af_unwrapped_hz": -150.0, "prf_hz": 1000.0},
         {"det_id": "D1", "period_id": 1, "beam_id": 50, "range_bin": 101,
-         "range_m": 10_000.0, "row": 35, "new_e": 0.0, "new_n": 0.0,
+         "range_m": _range_m_for_bin(101), "row": 35, "new_e": 0.0, "new_n": 0.0,
          "af_unwrapped_hz": -150.0, "prf_hz": 1000.0},
     ]
     result = evaluate_targets_v3(
@@ -152,7 +190,7 @@ def test_per_opportunity_doppler_failure_is_excluded_even_if_other_rows_are_vali
 
 def test_condition_with_no_physics_verified_opportunities_is_not_evaluable():
     truth = {"target_id": "T0", "period_id": 0, "beam_id": 50, "visible": "1",
-             "range_bin": 100, "expected_bin": 100, "range_m": 10_000.0,
+             "range_bin": 100, "expected_bin": 100, "range_m": _range_m_for_bin(100),
              "e_mid": 0.0, "n_mid": 0.0, "af_motion_truth_hz": -100.0,
              "af_geometry_truth_hz": -50.0, "af_total_truth_hz": -150.0}
     audit = audit_doppler_opportunity_v3(

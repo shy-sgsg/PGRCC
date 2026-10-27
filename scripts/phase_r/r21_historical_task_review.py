@@ -52,8 +52,10 @@ def _production_range_axis(branch_dir: Path) -> tuple[dict[str, Any], str | None
         return {}, None
     root = ET.parse(path).getroot()
     values: dict[str, Any] = {}
-    for key in ("range_fft_len", "range_crop_start", "range_compress_len"):
+    for key in ("range_fft_len", "range_crop_start", "range_compress_len", "fs", "Rmin"):
         values[key] = root.findtext(f".//{key}")
+    values["fs_mhz"] = values.pop("fs")
+    values["range_origin_m"] = values.pop("Rmin")
     return values, str(path)
 
 
@@ -64,7 +66,9 @@ def _range_axis_audit(bundle: Mapping[str, Any]) -> dict[str, Any]:
     waveform = scenario.get("waveform", {}) if isinstance(scenario, Mapping) else {}
     production, production_path = _production_range_axis(Path(bundle["branch_dir"]))
     audit = audit_range_bin_axis_v3(
-        {key: waveform.get(key) for key in ("range_fft_len", "range_crop_start", "range_crop_len")},
+        {key: waveform.get(key) for key in (
+            "range_fft_len", "range_crop_start", "range_crop_len", "fs_hz", "sample_delay_sec",
+        )},
         production,
     )
     audit["scene_axis_source"] = adapter.audit_path(scenario_path)
@@ -421,6 +425,7 @@ def run_review(output_root: Path) -> dict[str, Any]:
             )
 
     task_rows: list[dict[str, Any]] = []
+    truth_opportunity_rows: list[dict[str, Any]] = []
     track_rows: list[dict[str, Any]] = []
     parameter_rows: list[dict[str, Any]] = []
     for bundle in bundles:
@@ -428,6 +433,14 @@ def run_review(output_root: Path) -> dict[str, Any]:
         evaluated = evaluations[key]
         result = evaluated.get("target_result") or {}
         metrics = result.get("metrics", {})
+        for opportunity in result.get("per_opportunity_status", []):
+            truth_opportunity_rows.append({
+                **{name: bundle.get(name) for name in (
+                    "dataset", "dataset_key", "case_id", "seed", "condition", "canonical_condition", "role",
+                )},
+                "range_axis_status": range_audits[key].get("status"),
+                **opportunity,
+            })
         task_rows.append({
             **{name: bundle.get(name) for name in (
                 "dataset", "dataset_key", "case_id", "seed", "condition", "canonical_condition", "role",
@@ -486,6 +499,7 @@ def run_review(output_root: Path) -> dict[str, Any]:
 
     output = output_root / "results"
     _write_csv(output / "r21_historical_task_metrics.csv", task_rows)
+    _write_csv(output / "r21_truth_opportunity_audit.csv", truth_opportunity_rows)
     _write_csv(output / "r21_evaluator_regression.csv", v3_regression)
     _write_csv(output / "r21_historical_task_regression.csv", r8_r12_regression)
     _write_csv(output / "r21_doppler_opportunity_audit.csv", doppler_rows)
@@ -501,6 +515,24 @@ def run_review(output_root: Path) -> dict[str, Any]:
         "range_axis_status_counts": {
             status: sum(row.get("range_axis_status") == status for row in task_rows)
             for status in sorted({str(row.get("range_axis_status")) for row in task_rows})
+        },
+        "truth_range_bin_mapping": {
+            "opportunity_count": len(truth_opportunity_rows),
+            "status_counts": {
+                status: sum(
+                    (row.get("range_bin_audit") or {}).get("status") == status
+                    for row in truth_opportunity_rows
+                )
+                for status in sorted({
+                    str((row.get("range_bin_audit") or {}).get("status"))
+                    for row in truth_opportunity_rows
+                })
+            },
+            "physical_bin_disagreement_count": sum(
+                "range_bin_disagrees_with_physical_distance_axis"
+                in ((row.get("range_bin_audit") or {}).get("reasons") or [])
+                for row in truth_opportunity_rows
+            ),
         },
         "doppler_control_gate": global_gate,
         "r19_frozen_task_metrics": {

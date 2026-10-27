@@ -14,6 +14,7 @@ from scripts.phase_r.r20_task_evaluator import (
 )
 
 CONTRACT_VERSION = "r21-task-eval-v3"
+C_MPS = 299_792_458.0
 
 
 def _integer(value: Any) -> int | None:
@@ -36,6 +37,19 @@ def _finite(value: Any) -> float | None:
     except (TypeError, ValueError, OverflowError):
         return None
     return number if math.isfinite(number) else None
+
+
+def _half_serialized_quantum(value: Any) -> float | None:
+    """Return half a decimal unit in the last serialized digit, if available."""
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        number = Decimal(str(value).strip())
+    except (InvalidOperation, ValueError, TypeError):
+        return None
+    if not number.is_finite():
+        return None
+    return float(Decimal(10) ** number.as_tuple().exponent / 2)
 
 
 def _truth_key(row: Mapping[str, Any]) -> tuple[int | None, int | None, str]:
@@ -63,6 +77,10 @@ def audit_range_bin_axis_v3(
         "range_crop_start": _integer(production_axis.get("range_crop_start")),
         "range_crop_len": _integer(production_axis.get("range_compress_len")),
     }
+    scene_fs_hz = _finite(scene_axis.get("fs_hz"))
+    sample_delay_sec = _finite(scene_axis.get("sample_delay_sec"))
+    production_fs_mhz = _finite(production_axis.get("fs_mhz"))
+    production_origin_m = _finite(production_axis.get("range_origin_m"))
     reasons: list[str] = []
     if any(value is None for value in scene_values.values()):
         reasons.append("missing_or_invalid_scene_range_axis")
@@ -81,12 +99,57 @@ def audit_range_bin_axis_v3(
             reasons.append("production_crop_exceeds_fft_axis")
         if scene_values != production_values:
             reasons.append("scene_and_production_range_axes_disagree")
+    if scene_fs_hz is None or scene_fs_hz <= 0 or sample_delay_sec is None:
+        reasons.append("missing_or_invalid_scene_physical_range_axis")
+    if production_fs_mhz is None or production_fs_mhz <= 0 or production_origin_m is None:
+        reasons.append("missing_or_invalid_production_physical_range_axis")
+
+    scene_origin_m: float | None = None
+    scene_spacing_m: float | None = None
+    production_spacing_m: float | None = None
+    origin_error_m: float | None = None
+    origin_tolerance_m: float | None = None
+    spacing_error_m: float | None = None
+    if (scene_fs_hz is not None and scene_fs_hz > 0 and sample_delay_sec is not None
+            and scene_values["range_crop_start"] is not None):
+        scene_origin_m = 0.5 * C_MPS * (
+            sample_delay_sec + scene_values["range_crop_start"] / scene_fs_hz
+        )
+        scene_spacing_m = 0.5 * C_MPS / scene_fs_hz
+    if production_fs_mhz is not None and production_fs_mhz > 0:
+        production_fs_hz = production_fs_mhz * 1.0e6
+        production_spacing_m = 0.5 * C_MPS / production_fs_hz
+        if scene_fs_hz is not None and scene_fs_hz > 0:
+            if not math.isclose(scene_fs_hz, production_fs_hz, rel_tol=1.0e-12, abs_tol=1.0e-6):
+                reasons.append("scene_and_production_sample_rates_disagree")
+            else:
+                spacing_error_m = production_spacing_m - 0.5 * C_MPS / scene_fs_hz
+    if scene_origin_m is not None and production_origin_m is not None:
+        origin_error_m = production_origin_m - scene_origin_m
+        origin_tolerance_m = _half_serialized_quantum(production_axis.get("range_origin_m"))
+        origin_tolerance_m = max(origin_tolerance_m or 0.0, 1.0e-8, abs(scene_origin_m) * 1.0e-12)
+        if abs(origin_error_m) > origin_tolerance_m:
+            reasons.append("scene_and_production_range_origins_disagree")
     status = "RANGE_AXIS_VERIFIED" if not reasons else "RANGE_AXIS_MISMATCH"
     return {
         "status": status,
         "range_bin_count": scene_values["range_crop_len"] if status == "RANGE_AXIS_VERIFIED" else None,
         "scene_axis": scene_values,
         "production_axis": production_values,
+        "scene_physical_axis": {
+            "sample_rate_hz": scene_fs_hz,
+            "sample_delay_sec": sample_delay_sec,
+            "range_origin_m": scene_origin_m,
+            "range_bin_spacing_m": scene_spacing_m,
+        },
+        "production_physical_axis": {
+            "sample_rate_hz": production_fs_mhz * 1.0e6 if production_fs_mhz is not None else None,
+            "range_origin_m": production_origin_m,
+            "range_bin_spacing_m": production_spacing_m,
+        },
+        "range_origin_error_m": origin_error_m,
+        "range_origin_tolerance_m": origin_tolerance_m,
+        "range_bin_spacing_error_m": spacing_error_m,
         "reasons": reasons,
     }
 
@@ -122,10 +185,38 @@ def validate_truth_range_bin_v3(
         elif expected >= 0 and count is not None and expected >= count:
             reasons.append("expected_bin_outside_scene_axis")
 
+    range_m = _finite(truth.get("range_m"))
+    scene_physical = range_axis_audit.get("scene_physical_axis", {})
+    production_physical = range_axis_audit.get("production_physical_axis", {})
+    scene_origin = _finite(scene_physical.get("range_origin_m")) if isinstance(scene_physical, Mapping) else None
+    scene_spacing = _finite(scene_physical.get("range_bin_spacing_m")) if isinstance(scene_physical, Mapping) else None
+    production_origin = _finite(production_physical.get("range_origin_m")) if isinstance(production_physical, Mapping) else None
+    production_spacing = _finite(production_physical.get("range_bin_spacing_m")) if isinstance(production_physical, Mapping) else None
+    scene_coordinate: float | None = None
+    production_coordinate: float | None = None
+    scene_bin: int | None = None
+    production_bin: int | None = None
+    if range_m is None or None in (scene_origin, scene_spacing, production_origin, production_spacing) \
+            or scene_spacing <= 0 or production_spacing <= 0:
+        reasons.append("missing_or_invalid_truth_range_m")
+    elif value is not None:
+        scene_coordinate = (range_m - scene_origin) / scene_spacing
+        production_coordinate = (range_m - production_origin) / production_spacing
+        scene_bin = math.floor(scene_coordinate + 0.5)
+        production_bin = math.floor(production_coordinate + 0.5)
+        if scene_bin != value or production_bin != value:
+            reasons.append("range_bin_disagrees_with_physical_distance_axis")
+
     status = "TRUTH_RANGE_BIN_VERIFIED" if not reasons else "INVALID_TRUTH_RANGE_BIN"
     return {
         "status": status,
         "range_bin": value if status == "TRUTH_RANGE_BIN_VERIFIED" else None,
+        "declared_range_bin": value,
+        "truth_range_m": range_m,
+        "scene_range_coordinate": scene_coordinate,
+        "scene_mapped_range_bin": scene_bin,
+        "production_range_coordinate": production_coordinate,
+        "production_mapped_range_bin": production_bin,
         "range_bin_count": count,
         "reasons": reasons,
     }
@@ -336,13 +427,14 @@ def evaluate_targets_v3(
             opportunity_status_rows.append({
                 "period_id": truth.get("period_id"), "beam_id": truth.get("beam_id"),
                 "target_id": truth.get("target_id"), "status": "NOT_EVALUABLE",
-                "reasons": invalid_row["invalid_reasons"],
+                "reasons": invalid_row["invalid_reasons"], "range_bin_audit": range_audit,
             })
         else:
             valid_truths.append(truth)
             opportunity_status_rows.append({
                 "period_id": truth.get("period_id"), "beam_id": truth.get("beam_id"),
                 "target_id": truth.get("target_id"), "status": "EVALUABLE", "reasons": [],
+                "range_bin_audit": range_audit,
             })
 
     result = evaluate_targets_v2(
