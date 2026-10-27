@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cerrno>
+#include <algorithm>
+#include <complex>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -266,6 +268,42 @@ int main(int argc, char** argv)
     second_group.reason = "second_group";
     tap.gamma_groups.push_back(second_group);
     gmti::runtime::recordProductionCalibrationTap(snapshot_cfg, 3, tap);
+
+    Config failure_cells_cfg = snapshot_cfg;
+    failure_cells_cfg.research_calibration_reference_gamma_csv.clear();
+    failure_cells_cfg.csi_metrics_enable = true;
+    failure_cells_cfg.csi_metrics_dump_power_maps = true;
+    failure_cells_cfg.csi_metrics_dump_intermediate_maps = true;
+    gmti::runtime::ProductionCalibrationTap failure_tap = tap;
+    failure_tap.gamma_groups.clear();
+    gmti::runtime::ProductionCalibrationGammaGroup failed_group;
+    failed_group.az_index = 0;
+    failed_group.range_start = 0;
+    failed_group.range_end = 3;
+    failed_group.status = "NOT_EVALUABLE";
+    failed_group.support_count = 1;
+    failed_group.phase_coherence = 0.697;
+    failed_group.reason = "insufficient_robust_support";
+    failure_tap.gamma_groups.push_back(failed_group);
+    const std::vector<std::complex<float>> failure_f1(4, {1.0f, 0.0f});
+    const std::vector<std::complex<float>> failure_f2 = {
+        {1.0f, 0.0f},
+        {0.99875027f, 0.04997917f},
+        {0.54030228f, 0.84147096f},
+        {-0.41614684f, 0.90929741f},
+    };
+    std::remove((root + "/production_calibration_failure_cells.csv").c_str());
+    check(gmti::runtime::recordProductionCalibrationFailureCells(
+              failure_cells_cfg, 3, failure_tap, 1, 4,
+              failure_f1, failure_f2),
+          "failure-cell diagnostics are written from the supplied estimator inputs");
+    Config failure_cells_disabled = failure_cells_cfg;
+    failure_cells_disabled.result_add = root + "/failure_cells_disabled";
+    failure_cells_disabled.csi_metrics_dump_power_maps = false;
+    check(gmti::runtime::recordProductionCalibrationFailureCells(
+              failure_cells_disabled, 3, failure_tap, 1, 4,
+              failure_f1, failure_f2),
+          "failure-cell diagnostics remain inert when map dumping is disabled");
     gmti::runtime::finishRun(snapshot_cfg, true, 0, "selftest");
 
     const std::string json = readText(root + "/runtime_config_dump.json");
@@ -273,6 +311,10 @@ int main(int argc, char** argv)
     const std::string csv = readText(root + "/production_calibration_adapter.csv");
     const std::string reference_csv = readText(
         root + "/production_calibration_reference_gamma.csv");
+    const std::string failure_cells_csv = readText(
+        root + "/production_calibration_failure_cells.csv");
+    std::ifstream failure_cells_disabled_csv(
+        (root + "/failure_cells_disabled/production_calibration_failure_cells.csv").c_str());
     check(json.find("\"research_calibration_enable\": true") != std::string::npos,
           "runtime JSON includes research enable");
     check(json.find("\"research_calibration_method\": \"robust_ddc_rb\"") != std::string::npos,
@@ -306,6 +348,18 @@ int main(int argc, char** argv)
     check(reference_csv.find(",0.99,0.01,false,first_group") != std::string::npos &&
               reference_csv.find(",0.61,-0.02,false,second_group") != std::string::npos,
           "group reference CSV preserves distinct Gamma values");
+    check(failure_cells_csv.find(
+              "adapter_support_count,adapter_phase_coherence,") !=
+                  std::string::npos &&
+              failure_cells_csv.find("f1_real,f1_imag,f2_real,f2_imag") !=
+                  std::string::npos,
+          "failure-cell CSV identifies the exact adapter inputs and gate summary");
+    check(std::count(failure_cells_csv.begin(), failure_cells_csv.end(), '\n') == 5,
+          "failure-cell CSV records every cell in the failed four-cell group");
+    check(failure_cells_csv.find("1,0,1,0\n") != std::string::npos,
+          "failure-cell CSV retains the exact complex F1/F2 input cells");
+    check(!failure_cells_disabled_csv.good(),
+          "failure-cell diagnostics do not create files when map dumping is disabled");
 
     const std::string blocked_parent = root + "/tap_blocker_file";
     {

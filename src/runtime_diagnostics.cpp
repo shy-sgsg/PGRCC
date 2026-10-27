@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cmath>
+#include <complex>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -1526,6 +1528,97 @@ bool recordProductionCalibrationTap(const Config& cfg,
     if (!group_os.good()) {
         std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV rows "
                   << group_path << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool recordProductionCalibrationFailureCells(
+    const Config& cfg,
+    int beam_id,
+    const ProductionCalibrationTap& tap,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& f1,
+    const std::vector<std::complex<float>>& f2)
+{
+    if (!cfg.csi_metrics_enable || !cfg.csi_metrics_dump_power_maps ||
+        !cfg.csi_metrics_dump_intermediate_maps) {
+        return true;
+    }
+    if (rows <= 0 || cols <= 0 ||
+        f1.size() != static_cast<std::size_t>(rows) * static_cast<std::size_t>(cols) ||
+        f2.size() != f1.size()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] invalid failure-cell diagnostic input"
+                  << std::endl;
+        return false;
+    }
+    const bool has_failed_groups = std::any_of(
+        tap.gamma_groups.begin(), tap.gamma_groups.end(),
+        [](const ProductionCalibrationGammaGroup& group) {
+            return group.status != "OK";
+        });
+    if (!has_failed_groups) return true;
+    if (cfg.result_add.empty() || !mkdirP(cfg.result_add)) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot create failure-cell output dir"
+                  << std::endl;
+        return false;
+    }
+
+    const std::string path = pathJoin(
+        cfg.result_add, "production_calibration_failure_cells.csv");
+    std::lock_guard<std::mutex> lock(stateMutex());
+    const bool write_header = !fileExists(path);
+    std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+    if (!os) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write failure-cell CSV "
+                  << path << std::endl;
+        return false;
+    }
+    if (write_header) {
+        os << "period_id,result_id,beam_id,method,source,group_id,az_index,"
+              "range_start,range_end,range_index,group_status,group_reason,"
+              "adapter_support_count,adapter_phase_coherence,"
+              "f1_real,f1_imag,f2_real,f2_imag\n";
+    }
+
+    for (const ProductionCalibrationGammaGroup& group : tap.gamma_groups) {
+        if (group.status == "OK") continue;
+        if (group.az_index < 0 || group.az_index >= rows ||
+            group.range_start < 0 || group.range_end < group.range_start ||
+            group.range_end >= cols) {
+            std::cerr << "[RESEARCH_CALIBRATION][WARN] invalid failed gamma bounds in "
+                      << path << std::endl;
+            return false;
+        }
+        const std::size_t row_offset = static_cast<std::size_t>(group.az_index) *
+                                       static_cast<std::size_t>(cols);
+        for (int range = group.range_start; range <= group.range_end; ++range) {
+            const std::size_t index = row_offset + static_cast<std::size_t>(range);
+            os << cfg.result_file_id << ","
+               << csvEscape(state().result_id) << ","
+               << beam_id << ","
+               << csvEscape(tap.method) << ","
+               << csvEscape(tap.source) << ","
+               << csvEscape(gammaGroupId(group)) << ","
+               << group.az_index << ","
+               << group.range_start << ","
+               << group.range_end << ","
+               << range << ","
+               << csvEscape(group.status) << ","
+               << csvEscape(group.reason) << ","
+               << group.support_count << ","
+               << std::setprecision(17) << group.phase_coherence << ","
+               << std::setprecision(9) << f1[index].real() << ","
+               << f1[index].imag() << ","
+               << f2[index].real() << ","
+               << f2[index].imag() << "\n";
+        }
+    }
+    os.flush();
+    if (!os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write failure-cell rows "
+                  << path << std::endl;
         return false;
     }
     return true;

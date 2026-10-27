@@ -4131,6 +4131,15 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
             gmti::runtime::ProductionCalibrationTap tap =
                 makeProductionCalibrationTap(result, calibration_source);
             tap.method = cfg.research_calibration_method;
+            if (cfg.research_calibration_reference_gamma_csv.empty() &&
+                cfg.csi_metrics_enable && cfg.csi_metrics_dump_power_maps &&
+                cfg.csi_metrics_dump_intermediate_maps &&
+                !gmti::runtime::recordProductionCalibrationFailureCells(
+                    cfg, diagnostic_beam_id, tap, static_cast<int>(Na),
+                    static_cast<int>(Nr), f1_host, f2_host)) {
+                std::cerr << "[RESEARCH_CALIBRATION][WARN] failure-cell "
+                          << "diagnostic could not be written" << std::endl;
+            }
             if (result.status == gmti::production_calibration::Status::kNotEvaluable ||
                 result.csi.size() != total) {
                 // Never silently fall through to Current when the requested

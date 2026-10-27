@@ -2,6 +2,7 @@
 #define RUNTIME_DIAGNOSTICS_HPP
 
 #include <chrono>
+#include <complex>
 #include <limits>
 #include <string>
 #include <vector>
@@ -67,6 +68,15 @@ void writeRuntimeConfigDump(const Config& cfg,
 bool recordProductionCalibrationTap(const Config& cfg,
                                     int beam_id,
                                     const ProductionCalibrationTap& tap);
+
+bool recordProductionCalibrationFailureCells(
+    const Config& cfg,
+    int beam_id,
+    const ProductionCalibrationTap& tap,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& f1,
+    const std::vector<std::complex<float>>& f2);
 
 void recordTiming(const char* scope_name,
                   std::chrono::system_clock::time_point start_time,
