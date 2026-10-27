@@ -253,6 +253,117 @@ def _all_production_branches_passed(branch_records: Sequence[Mapping[str, Any]])
     )
 
 
+def _method_ids_for_delay(method_ids: Sequence[str], delay_ns: float) -> tuple[str, ...]:
+    """Do not run physical blind corrections on the no-error reference case.
+
+    Blind estimates are recorded separately as estimate-only diagnostics at
+    zero delay. The Stage2 inverse operator is defined for an actually delayed,
+    zero-extended input; it must not be applied to a no-error packet.
+    """
+
+    requested = tuple(str(method_id) for method_id in method_ids)
+    if float(delay_ns) != 0.0:
+        return requested
+    return tuple(method_id for method_id in requested if method_id not in {"P1", "P2"})
+
+
+def _not_applicable_correction_record(
+    method_id: str,
+    *,
+    reason: str,
+    correction_source: str,
+    estimate_record: Mapping[str, Any] | None = None,
+    correction_ns: float | None = None,
+) -> dict[str, Any]:
+    return {
+        "method_id": method_id,
+        "mode": "not_applicable",
+        "role": "ALL",
+        "status": "NOT_APPLICABLE_ZERO_DELAY_REFERENCE",
+        "reason": reason,
+        "correction_source": correction_source,
+        "correction_ns": correction_ns,
+        "correction_applied": False,
+        "truth_used_in_estimator": False,
+        "truth_used_to_apply_correction": False,
+        "estimate_record": dict(estimate_record or {}),
+    }
+
+
+def _extra_delay_correction_plan(
+    *,
+    delay_ns: float,
+    qualified: Mapping[str, Any],
+    estimate_record: Mapping[str, Any],
+    zero_error_target_free_estimate: Mapping[str, Any] | None = None,
+) -> tuple[list[tuple[str, float, str, Mapping[str, Any] | None]], list[dict[str, Any]]]:
+    """Build correction branches without applying a nonzero inverse at 0 ns."""
+
+    if float(delay_ns) == 0.0:
+        reason = "zero_delay_reference_has_no_physical_channel_error_to_correct"
+        records = [
+            _not_applicable_correction_record(
+                "R22_R9_Fixed_D3", reason=reason,
+                correction_source="R9_frozen_calibration",
+                correction_ns=r21.FIXED_D3_NS,
+            ),
+            _not_applicable_correction_record(
+                "R22_D3_Huber_B_ON", reason=reason,
+                correction_source="same_seed_B_ON_raw_C1_C2_Huber_fit",
+                estimate_record=estimate_record,
+                correction_ns=(qualified.get("d3_huber", {}).get("correction_ns")
+                               if isinstance(qualified.get("d3_huber"), Mapping) else None),
+            ),
+            _not_applicable_correction_record(
+                "R22_M1_Physics_Matched", reason=reason,
+                correction_source="same_seed_B_ON_raw_C1_C2_M1_fit",
+                estimate_record=estimate_record,
+                correction_ns=(qualified.get("m1", {}).get("correction_ns")
+                               if isinstance(qualified.get("m1"), Mapping) else None),
+            ),
+            _not_applicable_correction_record(
+                "P1", reason=reason,
+                correction_source="target_free_OFF_phase_vs_fast_frequency",
+                estimate_record=zero_error_target_free_estimate,
+                correction_ns=(zero_error_target_free_estimate.get("selected_delay_ns")
+                               if isinstance(zero_error_target_free_estimate, Mapping) else None),
+            ),
+            _not_applicable_correction_record(
+                "P2", reason=reason,
+                correction_source="target_free_OFF_phase_vs_fast_frequency",
+                estimate_record=zero_error_target_free_estimate,
+                correction_ns=(zero_error_target_free_estimate.get("selected_delay_ns")
+                               if isinstance(zero_error_target_free_estimate, Mapping) else None),
+            ),
+        ]
+        return [], records
+
+    correction_specs: list[tuple[str, float, str, Mapping[str, Any] | None]] = [
+        ("R22_R9_Fixed_D3", r21.FIXED_D3_NS, "R9_frozen_calibration", None),
+    ]
+    not_applicable: list[dict[str, Any]] = []
+    for key, method_id, correction_source in (
+        ("d3_huber", "R22_D3_Huber_B_ON", "same_seed_B_ON_raw_C1_C2_Huber_fit"),
+        ("m1", "R22_M1_Physics_Matched", "same_seed_B_ON_raw_C1_C2_M1_fit"),
+    ):
+        record = qualified.get(key, {})
+        if isinstance(record, Mapping) and record.get("status") == "AVAILABLE":
+            correction_specs.append((
+                method_id, float(record["correction_ns"]), correction_source, record,
+            ))
+        else:
+            not_applicable.append({
+                "method_id": method_id,
+                "mode": "not_applicable",
+                "role": "ALL",
+                "status": "NOT_AVAILABLE",
+                "reason": (record.get("reason", "support_gate_failed")
+                           if isinstance(record, Mapping) else "support_gate_failed"),
+                "truth_used_in_estimator": False,
+            })
+    return correction_specs, not_applicable
+
+
 def _delay_corrected_inputs(
     case_root: Path, condition: str, role: str, source_paths: Sequence[Path],
     delay_ns: float, layout: Mapping[str, Any],
@@ -561,8 +672,9 @@ def run_case(
         first_beam=first_beam, beam_count=beam_count, area=area,
     )
     method_config_path = Path(method_config_path).expanduser().resolve()
+    execution_method_ids = _method_ids_for_delay(method_ids, delay_ns)
     method_config, method_contract = _load_method_configuration(
-        method_config_path, scenario_path, method_ids
+        method_config_path, scenario_path, execution_method_ids
     )
     scene_identity = {
         "seed": seed,
@@ -595,6 +707,11 @@ def run_case(
             "delay_error_ns": delay_ns, "target_count": target_count,
             "period_count": period_count, "first_beam": first_beam, "beam_count": beam_count,
             "method_ids": list(method_ids), "calibration_modes": list(calibration_modes),
+            "execution_method_ids": list(execution_method_ids),
+            "zero_delay_blind_correction_policy": (
+                "estimate_only_no_physical_correction" if float(delay_ns) == 0.0
+                else "execute_frozen_blind_and_fixed_corrections"
+            ),
             "target_truth_nested_across_density": True,
             "known_error_use": "physical correction upper bound only; blind estimator does not receive it",
             "ai_training": False, "router_enabled": False,
@@ -637,10 +754,14 @@ def run_case(
         pipeline_case_root = Path(str(pipeline_manifest["output_root"])).resolve()
         write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
         raw = _raw_role_periods(pipeline_manifest, period_count)
+        layout = pipeline_manifest.get("protocol_layout")
+        if not isinstance(layout, Mapping):
+            raise ValueError("Production protocol layout missing from pipeline manifest")
         c0_on = next((row for row in pipeline_manifest.get("method_branches", [])
                       if row.get("method_id") == "C0" and row.get("role") == "ON"
                       and row.get("mode") == "not_applicable" and row.get("status") == "passed"), None)
         estimate_record: dict[str, Any]
+        zero_error_target_free_estimate: dict[str, Any] | None = None
         qualified: dict[str, Any]
         if c0_on is None or not c0_on.get("production_xml"):
             estimate_record = {"status": "NOT_AVAILABLE", "reason": "C0_B_ON_Production_XML_missing",
@@ -661,38 +782,31 @@ def run_case(
                     "d3_huber": {"status": "NOT_AVAILABLE", "reason": str(exc)},
                     "m1": {"status": "NOT_AVAILABLE", "reason": str(exc)},
                 }
+        if float(delay_ns) == 0.0:
+            try:
+                zero_error_target_free_estimate = calibration.estimate_blind_delay(
+                    stage1, raw["A1_Current_unknown_error"]["OFF"], layout,
+                )
+            except (OSError, RuntimeError, ValueError, KeyError, SystemExit) as exc:
+                zero_error_target_free_estimate = {
+                    "status": "NOT_AVAILABLE",
+                    "input_role": "same_seed_A1_OFF_raw_C1_C2_only",
+                    "truth_used_in_estimator": False,
+                    "reason": f"zero_error_estimate_only_failed:{exc}",
+                }
         method_records = list(pipeline_manifest.get("method_branches", []))
-        extra_methods: list[dict[str, Any]] = []
-        correction_specs: list[tuple[str, float, str, Mapping[str, Any] | None]] = [
-            ("R22_R9_Fixed_D3", r21.FIXED_D3_NS, "R9_frozen_calibration", None),
-        ]
-        if qualified.get("d3_huber", {}).get("status") == "AVAILABLE":
-            correction_specs.append((
-                "R22_D3_Huber_B_ON", float(qualified["d3_huber"]["correction_ns"]),
-                "same_seed_B_ON_raw_C1_C2_Huber_fit", qualified["d3_huber"],
-            ))
-        else:
-            extra_methods.append({"method_id": "R22_D3_Huber_B_ON", "mode": "not_applicable",
-                                  "role": "ALL", "status": "NOT_AVAILABLE",
-                                  "reason": qualified.get("d3_huber", {}).get("reason", "support_gate_failed")})
-        if qualified.get("m1", {}).get("status") == "AVAILABLE":
-            correction_specs.append((
-                "R22_M1_Physics_Matched", float(qualified["m1"]["correction_ns"]),
-                "same_seed_B_ON_raw_C1_C2_M1_fit", qualified["m1"],
-            ))
-        else:
-            extra_methods.append({"method_id": "R22_M1_Physics_Matched", "mode": "not_applicable",
-                                  "role": "ALL", "status": "NOT_AVAILABLE",
-                                  "reason": qualified.get("m1", {}).get("reason", estimate_record.get("reason", "support_gate_failed"))})
+        correction_specs, extra_methods = _extra_delay_correction_plan(
+            delay_ns=delay_ns,
+            qualified=qualified,
+            estimate_record=estimate_record,
+            zero_error_target_free_estimate=zero_error_target_free_estimate,
+        )
         if not any(row.get("method_id") == "PK" for row in method_records):
             extra_methods.append({"method_id": "Known_error_correction_upper_bound", "mode": "not_applicable",
                                   "role": "ALL", "status": "NOT_AVAILABLE", "reason": "PK_method_not_selected"})
 
-        layout = pipeline_manifest.get("protocol_layout")
         source_xml = Path(str(pipeline_manifest.get("source_xml", "")))
         truth_root = Path(str(pipeline_manifest["simulation"]["A0_ON"]["output_dir"])) / "truth"
-        if not isinstance(layout, Mapping):
-            raise ValueError("Production protocol layout missing from pipeline manifest")
         for condition, correction_ns, source, estimate in correction_specs:
             extra_methods.extend(_run_extra_delay_method(
                 pipeline_case_root, case_id, condition, correction_ns, source, estimate,
@@ -703,6 +817,7 @@ def run_case(
         pipeline_manifest["method_branches"] = method_records
         pipeline_manifest["r22_delay_estimator"] = estimate_record
         pipeline_manifest["r22_blind_method_qualification"] = qualified
+        pipeline_manifest["r22_zero_error_target_free_estimate_only"] = zero_error_target_free_estimate
         write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
         tables = _evaluate_branches(
             phase=phase,

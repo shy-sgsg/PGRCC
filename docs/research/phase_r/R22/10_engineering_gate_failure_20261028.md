@@ -78,3 +78,9 @@ ValueError: packet 0 first sample is not zero-extended-delay compatible
 ## 空间清理
 
 本 case 的 52 个可再生 `.bin` 文件（Stage2 IQ、合并后的 estimator 输入和 0 字节的失败校正输出）共 `2,952,268,800` bytes。清理前逐个保存 SHA-256、大小和路径；保留场景配置、运行 XML、Stage2 报告/日志、运行及矩阵 manifest、估计数值和失败原因后删除。逐文件身份和删除理由记录于 [`raw_cleanup.json`](evidence/extension_engineering/seed1930101/raw_cleanup.json)；全项目清理台账见 [`cleanup_ledger.md`](evidence/cleanup_ledger.md)。
+
+## 后续实现记录（2026-10-28；尚非 Production 重跑结果）
+
+基于上述失败，runner 现将 0 ns 的 P1/P2 作为 target-free OFF estimate-only 诊断，并把 P1/P2、R9 固定 D3、Huber D3、M1 物理校正分支记录为 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`；不再把非零校正施加到无误差参考。非零误差下原校正计划不变。机器可读的版本化补充见 [`config/r22_extension_experiment_design.json`](config/r22_extension_experiment_design.json)，执行契约见 [`09_extension_execution_contract.md`](09_extension_execution_contract.md)。
+
+针对零延迟分支选择和 +4 ns 分支保留行为，新增的 3 个定向 Python 单测已通过。此记录只说明实现和软件级检查；真实 CUDA Production 重跑、F1/F2 与 CFAR/CSI gate、完整工程 seed 和任何性能评价仍未由这些单测证明。必须在新的设计 ID 和证据根目录下重跑；原 `GATE_FAILED` 证据及本节之前的失败事实保持不变。

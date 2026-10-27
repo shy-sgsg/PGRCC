@@ -15,6 +15,59 @@ def test_r22_case_identifier_encodes_physical_factors_and_sample_scale():
     )
 
 
+def test_r22_zero_delay_reference_does_not_schedule_physical_blind_correction():
+    methods = ("C0", "P1", "P2", "PK", "PKR")
+
+    assert r22._method_ids_for_delay(methods, 0.0) == ("C0", "PK", "PKR")
+    assert r22._method_ids_for_delay(methods, 4.0) == methods
+
+
+def test_r22_zero_delay_reference_records_estimates_without_applying_correction():
+    qualified = {
+        "d3_huber": {"status": "AVAILABLE", "correction_ns": 0.19},
+        "m1": {"status": "AVAILABLE", "correction_ns": 0.17},
+    }
+    estimate = {"status": "ok", "truth_used_in_estimator": False}
+
+    specs, not_applicable = r22._extra_delay_correction_plan(
+        delay_ns=0.0,
+        qualified=qualified,
+        estimate_record=estimate,
+        zero_error_target_free_estimate={"status": "estimated", "selected_delay_ns": 0.05},
+    )
+
+    assert specs == []
+    assert {row["method_id"] for row in not_applicable} == {
+        "R22_R9_Fixed_D3", "R22_D3_Huber_B_ON", "R22_M1_Physics_Matched", "P1", "P2",
+    }
+    assert all(row["role"] == "ALL" for row in not_applicable)
+    assert all(row["status"] == "NOT_APPLICABLE_ZERO_DELAY_REFERENCE" for row in not_applicable)
+    by_method = {row["method_id"]: row for row in not_applicable}
+    assert by_method["R22_D3_Huber_B_ON"]["estimate_record"] == estimate
+    assert by_method["R22_M1_Physics_Matched"]["estimate_record"] == estimate
+    assert by_method["P1"]["estimate_record"]["selected_delay_ns"] == 0.05
+    assert by_method["P2"]["estimate_record"]["selected_delay_ns"] == 0.05
+
+
+def test_r22_nonzero_delay_keeps_frozen_estimated_correction_methods():
+    qualified = {
+        "d3_huber": {"status": "AVAILABLE", "correction_ns": 3.4},
+        "m1": {"status": "AVAILABLE", "correction_ns": 3.7},
+    }
+    estimate = {"status": "ok", "truth_used_in_estimator": False}
+
+    specs, not_applicable = r22._extra_delay_correction_plan(
+        delay_ns=4.0,
+        qualified=qualified,
+        estimate_record=estimate,
+    )
+
+    assert [row[0] for row in specs] == [
+        "R22_R9_Fixed_D3", "R22_D3_Huber_B_ON", "R22_M1_Physics_Matched",
+    ]
+    assert not_applicable == []
+
+
 def test_run_case_refuses_to_overwrite_existing_output(tmp_path: Path):
     root = tmp_path / "existing"
     root.mkdir()

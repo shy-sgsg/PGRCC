@@ -1,7 +1,26 @@
 {
   "schema_version": 1,
-  "design_id": "R22_EXTENSION_20261028_V1",
-  "state": "FROZEN_BEFORE_ENGINEERING",
+  "design_id": "R22_EXTENSION_20261028_V1A",
+  "state": "FROZEN_AFTER_ZERO_DELAY_APPLICABILITY_AMENDMENT",
+  "supersedes_design_id": "R22_EXTENSION_20261028_V1",
+  "amendments": [
+    {
+      "amendment_id": "ZERO_DELAY_REFERENCE_CORRECTION_NOT_APPLICABLE",
+      "date": "2026-10-28",
+      "scope": "execution_semantics_only",
+      "trigger_evidence": "The first 0 ns engineering case produced a nonzero blind estimate on a no-error input; the specified zero-extended fractional-delay inverse rejected the first-sample boundary before Production.",
+      "policy": "At exactly 0 ns, run P1/P2 only as target-free OFF estimate diagnostics and mark P1/P2, R9 fixed D3, Huber D3, and M1 physical-correction branches NOT_APPLICABLE_ZERO_DELAY_REFERENCE. Do not apply a nonzero correction to the no-error reference.",
+      "unchanged": [
+        "seed sets and condition counts",
+        "target counts and period count",
+        "nonzero-delay correction branches",
+        "blind estimator information restrictions",
+        "PKR min_support=8",
+        "Production quality gates and evaluation rules"
+      ],
+      "original_failure_evidence_preserved": "docs/research/phase_r/R22/evidence/extension_engineering/seed1930101/"
+    }
+  ],
   "entered_from_commit": "4d7d187515f40e9ed5c4a41796518e287e97e013",
   "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
   "seed_audit": {
@@ -34,6 +53,19 @@
     "use_corex": false,
     "known_error_information": "evaluator_only",
     "blind_estimator_oracle_inputs": false,
+    "zero_delay_reference_policy": {
+      "delay_error_ns": 0.0,
+      "blind_delay_estimation": "target_free_OFF_diagnostic_only",
+      "physical_correction": "not_applicable",
+      "not_applicable_method_ids": [
+        "P1",
+        "P2",
+        "R22_R9_Fixed_D3",
+        "R22_D3_Huber_B_ON",
+        "R22_M1_Physics_Matched"
+      ],
+      "status": "NOT_APPLICABLE_ZERO_DELAY_REFERENCE"
+    },
     "ai_training": false,
     "router_enabled": false
   },

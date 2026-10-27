@@ -14,6 +14,20 @@
 4. CSI 标量 summary、实际运行 XML、runtime config dump、CFAR geometry、Production 日志、Stage2 报告和 evaluator CSV 必须保留。只在汇总和审计文件写入成功后，清理可重建 `.bin` 输入及 CSI `.npy` 全尺寸诊断图，并将路径、大小和理由写入 `raw_cleanup.json`。
 5. 面积地杂波必须由 Stage2 的连续 packet/sample、功率和 F1/F2 输入证据确认；`area_enabled=true` 本身不算有效注入。
 
+### 0 ns 无误差参考条件的校正适用性补充
+
+首个扩展工程 case 显示：在真实无误差输入上，带噪盲估计可给出非零时延；将该估计直接送入只对实际存在、零扩展的分数时延输入成立的逆算子，会因首样本边界不符合算子前提而正确 fail-closed。此处不能用放宽边界、强制估计归零或更换输入来制造通过。
+
+后续冻结执行设计将 `delay_error_ns == 0` 明确作为无误差参考角色：
+
+- P1/P2 仍可在 target-free OFF 输入上运行并保存诊断估计，但只记 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`，不得应用物理校正。
+- R9 固定 D3、Huber D3 和 M1 在 0 ns 条件下也只保留估计/诊断记录，不生成物理校正分支。A0/Current/PK 等适用分支仍按原定义执行。
+- 非零误差（当前矩阵为 +4 ns）下，原盲估计和校正条件、Known upper-bound、真值隔离及全部 Production 质量门保持不变。
+- 0 ns estimate-only 记录若不可得，应明确标记 `NOT_AVAILABLE`；这不改变其他可执行方法的门槛。任何必需生产分支失败仍使对应 case / engineering gate 失败。
+- 原始失败目录保留；新设计使用新 ID、配置 digest 和证据根目录。seed 集合、目标数、周期数、方法集合、PKR `min_support=8`、CFAR/beam gate 及统计口径不变。
+
+本补充只定义零误差参考下“物理校正是否适用”，不将一次 estimate-only 或软件测试作为 Production 证据。该补充之后仍须先重跑两个配对工程条件并通过真实 CUDA Production gate，才可继续其余工程 seed。
+
 单 seed 工程探测已显示 width=133 的一个 H0 输入可形成 1,209/1,209 个有效 PKR reference groups，支持数范围为 8–87；对应 CSI tap 和 CFAR geometry 可在关闭完整 map dump 时保留。该结果只验证一个输入上的工程可行性。H0 上目标专属 CSI 残余、检测和任务收益均不可由该运行评价。
 
 ## 冻结矩阵

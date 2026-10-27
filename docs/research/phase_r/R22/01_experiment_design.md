@@ -27,6 +27,8 @@
 
 当前已执行的仅是工程 pilot：seed900101 零时延 smoke；seed900202/900203 的 2.5 m/s、20 dB、+4 ns、20 targets、单 beam、单周期方法观察。详细实际执行见 [02](02_screening_experiment.md)。PKR gate 未通过后，筛选矩阵、确认 seed 清单及 H0 方案保持未启动。
 
+2026-10-28 扩展工程矩阵的首个 `0 ns` 条件在盲校正预处理阶段失败；故障原因和原始执行边界记录于 [10 工程门失败记录](10_engineering_gate_failure_20261028.md)。复核后明确：无误差参考条件保留 P1/P2 盲估计数值作为诊断，但所有仅为校正时延而设计的物理校正分支在该条件标记 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`，不向无误差输入施加非零校正。该规则不改变 +4 ns 条件的校正、盲估计隔离或质量门，也不构成任何 Production 成功证据；新的执行设计版本及适用条件见 [09 延续执行契约](09_extension_execution_contract.md)。
+
 ## 验收与停止条件
 
 1. 先通过输入/源码/二进制身份、Stage2 物理可达杂波、配对背景、Native CUDA Production runtime、CSI taps 和 CFAR valid-CUT gate。
