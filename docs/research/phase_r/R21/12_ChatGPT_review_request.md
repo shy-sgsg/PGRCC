@@ -1,6 +1,6 @@
 # PGRCC R21 固定通道时延 CUDA pilot：ChatGPT 独立审查提示词
 
-复制下方提示词交给 ChatGPT。审查快照固定为 R21 证据提交 `a74fff44c386245db9e30cf8965e88806e70b5ed`；本提示词文件在该证据提交之后单独加入仓库。请审查指定快照，不要把提示词后续提交误当作实验执行版本。
+复制下方提示词交给 ChatGPT。审查快照固定为 R21 证据提交 `61da2ae010adb72ab824869031fa5c6a5df69ad4`；本提示词文件在该证据提交之后单独加入仓库。请审查指定快照，不要把提示词后续提交误当作实验执行版本。
 
 ---
 
@@ -10,7 +10,7 @@
 【审查身份与冻结快照】
 仓库：https://github.com/shy-sgsg/PGRCC
 分支：codex/unknown-system-error-next-stage
-本次证据/报告 commit（完整 SHA）：a74fff44c386245db9e30cf8965e88806e70b5ed
+本次证据/报告 commit（完整 SHA）：61da2ae010adb72ab824869031fa5c6a5df69ad4
 该快照研究总纲 blob：e637e3769bde7814298ff012d0f42301884e2985
 研究总纲：docs/research/RESEARCH_MASTER_PLAN.md
 R21 入口：docs/research/phase_r/R21/README.md
@@ -19,7 +19,7 @@ R21 入口：docs/research/phase_r/R21/README.md
 方向决策日志：docs/research/RESEARCH_DECISION_LOG.md
 
 请以固定 commit 的 GitHub 文件为准。第一步必须打开并完整阅读该 commit 的研究总纲：
-https://github.com/shy-sgsg/PGRCC/blob/a74fff44c386245db9e30cf8965e88806e70b5ed/docs/research/RESEARCH_MASTER_PLAN.md
+https://github.com/shy-sgsg/PGRCC/blob/61da2ae010adb72ab824869031fa5c6a5df69ad4/docs/research/RESEARCH_MASTER_PLAN.md
 先理解 PGRCC 长期研究主题、总体目标、核心科学问题、研究内容、总体思路和长期技术路线，再按以下顺序阅读同一 commit 中的动态状态、决策日志、AGENTS.md、README.md、ChatGPT 审查规范、Phase R 导航和 R21 报告。之后沿决定性主张核对 manifest、逐条件结果表、审计包和必要源码。
 
 必须报告你实际打开的 commit 和文件。若 GitHub、指定 commit、总纲或某项产物无法读取，明确列出，并把依赖它的判断标为 NOT_VERIFIED；不得假称读过，也不能用本提示词中的摘要代替总纲原文。当前远端 HEAD 若不同，只用于说明差异；本次审查始终以指定快照为准。
@@ -36,7 +36,8 @@ R21 检验冻结场景中固定 +4 ns 通道时延是否造成 GMTI 任务退化
 - 运行与方法 manifest：docs/research/phase_r/R21/evidence/results/r21_experiment_manifest.json；逐输入身份：r21_input_identity.csv；评价身份：r21_evaluation_manifest.json。
 - Runtime XML、逐 beam/stage 日志摘要、CSI tap、CFAR geometry、Stage2 杂波与逐机会审计归档：docs/research/phase_r/R21/evidence/cuda_pilot/r21_cuda_text_audit_evidence_20261027.zip，SHA-256 e1907ada95980a7a6adfec0e1a5e44e06ec645f8b13c5e1c661f4385f58f535a。
 - 完整逐项表格：docs/research/phase_r/R21/evidence/results/；六张图：docs/research/phase_r/R21/evidence/figures/。
-- 关键报告依次为 05_frozen_experiment_contract.md、06_cuda_execution_and_identity_audit.md、07_detection_and_task_results.md、08_parameter_track_and_physical_closure.md、09_failure_mechanism_and_baseline_analysis.md、10_scientific_value_and_direction_decision.md、11_execution_and_quality_audit.md。
+- 关键报告依次为 05_frozen_experiment_contract.md、06_cuda_execution_and_identity_audit.md、07_detection_and_task_results.md、08_parameter_track_and_physical_closure.md、09_failure_mechanism_and_baseline_analysis.md、13_offline_m1_residual_and_cost_audit.md、10_scientific_value_and_direction_decision.md、11_execution_and_quality_audit.md。
+- M1 补充离线审计脚本为 scripts/phase_r/r21_offline_m1_diagnostic.py，机器结果为 evidence/results/r21_m1_offline_diagnostic_seed1001.json 与 evidence/results/r21_m1_offline_diagnostic_seed1002.json。请独立检查输入 SHA 绑定、真值隔离、四通道重建、F2 闭合复算和计算代价范围；它只复用既有数据，不是新的 CUDA 运行。
 - 回归测试记录为 docs/research/phase_r/R21/evidence/test_logs/r21_final_pytest.txt：111 passed。它证明相关代码回归通过，不代表 GMTI 性能验证。
 
 seed1001 的外层 runner 在所有 18 个 Production 分支成功后因 KeyError('case_manifest') 失败；该包装错误被保留。随后仅对已有真实 CUDA 输出做 evaluator replay。seed1002 外层运行完成。不得把 CPU evaluator replay说成 CUDA 执行，也不得隐去 seed1001 的包装器失败。
@@ -46,6 +47,7 @@ seed1001 的外层 runner 在所有 18 个 Production 分支成功后因 KeyErro
 【报告中汇总的主要观测，须回到结果表核对】
 - 正确目标命中机会数（每 seed 每方法 3 次）：A0 为 2/3、2/3；B 为 1/3、0/3；Known 为 2/3、2/3；M1 为 2/3、3/3。两种 D3 分别为 2/3、3/3。只有两个 seed、每个三次机会，所有命中比例均为描述性结果，不能称为统计显著 Pd 改善。
 - B 的 F2 相对 RMS 为 0.327672、0.328735；Known 为 0.00008760、0.00008818，满足冻结的 1e-3 闭合门。M1 为 0.012317、0.040184，虽比 R9 fixed（约 0.0636）及 Huber（约 0.0223、0.0597）更低，仍远高于 Known，未闭合。
+- 补充离线审计观察到两 seed 的 F1 不变、C4 与 A0 逐位相同，F2 差异由 C2 残差解释；M1 校正后的 C2 正/负频率相位斜率约为 0.1103/0.1103 ns 与 0.3657/0.3661 ns，接近各自预期的 0.1094 ns 与 0.3646 ns。401 点目标函数剖面各见一个内部局部极小值；原 golden-section 解与 1001 点局部网格最优值相差不超过 1.95e-6 samples。请核对这些结果支持到什么程度，避免据此推断跨场景模型机制。
 - 共同成功机会上的 M1 方位/位置 RMSE 两个 seed 均低于 R9 fixed 与 Huber，但仍高于 Known。样本仅 n=2–3；Ground-speed 样本 n=1/2 且排序不一致；radial velocity 无可评价机会。
 - seed1002 中 M1 与 D3 命中 3/3，而 Known 为 2/3。小样本命中计数不能解释为盲方法超过 Known 校正上限，也不能单凭 Known 的校正身份推断它是每个随机检测实现的逐样本命中率上界。
 - H0 的 observed CFAR hit fraction 约 0.000188–0.000244 只能描述。CUT 相关且缺少独立 H0 抽样单位，统计 Pfa 为 NOT_EVALUABLE。未匹配 confirmed tracks、false track IDs 和 TrackManager payload 计数不是 Pfa。
