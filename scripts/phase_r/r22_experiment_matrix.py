@@ -8,14 +8,18 @@ import hashlib
 import itertools
 import json
 import os
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
 from scripts.phase_r import run_r22_cuda_pilot as r22
 
 
-ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design.json"
 
 

@@ -1,11 +1,28 @@
 from __future__ import annotations
 
+import subprocess
+import sys
+from pathlib import Path
+
 import pytest
 
 from scripts.phase_r import r22_experiment_matrix as matrix
 
 
 DESIGN = matrix.DEFAULT_DESIGN
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def test_matrix_script_supports_direct_cli_invocation():
+    result = subprocess.run(
+        [sys.executable, str(ROOT / "scripts/phase_r/r22_experiment_matrix.py"), "--help"],
+        text=True,
+        capture_output=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert "--phase" in result.stdout
 
 
 def test_frozen_r22_design_expands_exact_case_counts_and_h0_is_target_free():
