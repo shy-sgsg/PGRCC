@@ -115,3 +115,12 @@
 **当前资源观察：** 项目约 6.9 GB，卷可用约 51 GB，低于 20 GB 项目目录上限；当前 GPU 为 RTX 3050 Laptop，但由另一个训练进程占用（约 1.3 GiB 显存、96% GPU 利用率）。不终止该进程；Stage2/静态审计和代码工作可继续，CUDA Production 批次等待设备可安全使用。正式运行前再次记录供电、P-state、功耗、温度、利用率与显存。
 
 **停止与验收：** 不降低既有有效 CUT、CFAR、beam-quality、PKR support 或真值/轨迹匹配标准。若检测退化不能跨独立 seed/场景复现、Known 无任务恢复空间、M1 不优于强传统方法，或资源门证明正式规模不可承担，则明确报告 `INCOMPLETE / INCONCLUSIVE` 与实测成本；不得把工程 seed 或筛选结果写成确认性性能结论。AI 本阶段不训练。
+
+### 2026-10-28 续行检查点
+
+- **零时延修订源码：** commit `490e405343a14be636cb5707fd4135d143e86947`；工作分支为 `codex/unknown-system-error-next-stage`。研究总纲仍为 blob `e637e3769bde7814298ff012d0f42301884e2985`。
+- **软件验证：** `tests/test_r22_cuda_pilot.py`、`tests/test_r22_experiment_matrix.py`、`tests/test_r22_scenario_factory.py` 共 29 项通过；Python 语法检查、V1A JSON 解析、`git diff --check` 通过。它们不构成 CUDA Production 证据。
+- **设备：** 2026-10-28 02:27 UTC 检查时 RTX 3050 Laptop GPU 利用率 95%，显存占用 2014/4096 MiB，63°C、39 W、P0；PID 1427260 的既有训练进程仍在运行，未终止、未与其并发启动 Production。
+- **空间：** 当前 worktree 约 6.9 GB，挂载卷可用约 51 GB。约 5.5 GB 的 `docs/` 主要是 R21 审计输入与证据；唯一可追溯的高价值基线输入继续保留。无任何新清理删除；本阶段生成物按独立目录和 manifest 管理。
+- **静态资源展开：** V1A 共 594 cases（294 个 0 ns、300 个 +4 ns）。当前 runner 每个 0 ns case 计划 36 次 Production branch；+4 ns 为 48–54 次（固定 D3必需，Huber/M1依 support gate 而定），全矩阵上界为 24,984–26,784 次 branch。时间和保留产物大小须用修订后工程批次实测，不用旧的一周期时长外推。
+- **下一动作：** GPU 空闲后，在新证据根执行 seed1930101 的 0/+4 ns 两个工程 case；若通过，再运行剩余工程 seed。每个 case 完成后立即核验真实耗时、磁盘峰值、杂波配对、CSI/CFAR 和 task outputs；六 seed 工程门与资源门未通过前不启动筛选。
