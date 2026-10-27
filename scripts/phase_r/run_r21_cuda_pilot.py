@@ -557,7 +557,15 @@ def _input_closure_rows(case: Mapping[str, Any]) -> list[dict[str, Any]]:
             left = [Path(str(path)) for path in a0[role]["period_paths"]]
             right = [Path(str(path)) for path in candidate[role]["period_paths"]]
             result = stage1.audit_fused_input_closure(left, right, layout)
-            output.append({"condition": condition, "role": role, **result})
+            row = {"condition": condition, "role": role, **result}
+            if condition != "A2_Known_error_correction_upper_bound" and result.get("status") in {"passed", "failed"}:
+                row["exact_closure_threshold_status"] = result["status"]
+                row["status"] = "DISTANCE_RECORDED"
+                row["definition"] = (
+                    "estimated-correction residual relative to paired A0 fused input; "
+                    "exact closure is not required"
+                )
+            output.append(row)
     return output
 
 
@@ -566,6 +574,7 @@ def _build_bundles(case_root: Path, case: dict[str, Any]) -> list[dict[str, Any]
     evaluation_case["dataset"] = "R21"
     evaluation_case["dataset_key"] = str(case["scene_identity"].get("case_id", case_root.name))
     evaluation_case["case_root"] = str(case_root)
+    evaluation_case["case_manifest"] = case
     evaluation_case["case_manifest_path"] = case_root / "case_manifest.json"
     evaluation_case["snapshot_manifest"] = {"build": {"GMTI_pipe_core": case.get("production_binary", {})}}
     branches: dict[tuple[str, str], Path] = {}

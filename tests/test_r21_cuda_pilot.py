@@ -5,8 +5,10 @@ from pathlib import Path
 import pytest
 
 from scripts.phase_r.run_r21_cuda_pilot import (
+    _build_bundles,
     _area_clutter_audit,
     _has_production_execution,
+    _input_closure_rows,
     qualify_blind_methods,
 )
 
@@ -249,3 +251,56 @@ def test_area_clutter_gate_still_requires_positive_source_injection(tmp_path):
     assert result["source_physical_geometry_passed"] is False
     source = next(row for row in result["scenes"] if row["scene"] == "A0_ON")
     assert "continuous_area_packets_not_positive" in source["reasons"]
+
+
+def test_bundle_builder_supplies_case_manifest_to_historical_adapter(tmp_path, monkeypatch):
+    from scripts.phase_r import run_r21_cuda_pilot as r21_runner
+
+    case = {
+        "scene_identity": {"case_id": "seed1001"},
+        "production_binary": {"sha256": "binary-sha", "source_commit": "source-commit"},
+        "git": {"commit": "case-commit"},
+        "conditions": {
+            "A0_Ideal": {"production": {role: {} for role in ("ON", "OFF", "TO")}}
+        },
+    }
+
+    def adapter_contract(bundle_case, branch_dir, condition, role):
+        return {
+            "identity": {"case_commit": bundle_case["case_manifest"]["git"]["commit"]}
+        }
+
+    monkeypatch.setattr(r21_runner.r20, "_condition_role_bundle", adapter_contract)
+
+    bundles = _build_bundles(tmp_path, case)
+
+    assert len(bundles) == 3
+    assert {bundle["identity"]["case_commit"] for bundle in bundles} == {"case-commit"}
+
+
+def test_estimated_correction_is_reported_as_distance_not_failed_known_closure(monkeypatch):
+    from scripts.phase_r import run_r21_cuda_pilot as r21_runner
+
+    roles = {role: {"period_paths": [f"{role}.bin"]} for role in ("ON", "OFF", "TO")}
+    case = {
+        "protocol_layout": {},
+        "conditions": {
+            "A0_Ideal": {"input_preparation": roles},
+            "A2_Known_error_correction_upper_bound": {"input_preparation": roles},
+            "R21_D3_R9_Fixed": {"input_preparation": roles},
+        },
+    }
+    monkeypatch.setattr(
+        r21_runner.stage1,
+        "audit_fused_input_closure",
+        lambda left, right, layout: {"status": "failed", "relative_rms_error": 0.02},
+    )
+
+    rows = _input_closure_rows(case)
+    known = next(row for row in rows if row["condition"] == "A2_Known_error_correction_upper_bound")
+    estimated = next(row for row in rows if row["condition"] == "R21_D3_R9_Fixed")
+
+    assert known["status"] == "failed"
+    assert estimated["status"] == "DISTANCE_RECORDED"
+    assert estimated["exact_closure_threshold_status"] == "failed"
+    assert "exact closure is not required" in estimated["definition"]
