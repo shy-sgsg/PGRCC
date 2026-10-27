@@ -36,3 +36,11 @@
 - 删除：当前失败 case 中 52 个 `.bin`，共 **2,952,268,800 bytes**：50 份可再生 Stage2 raw IQ（2,460,224,000 bytes）、合并 C+N estimator 输入（492,044,800 bytes）和 1 个零字节失败校正输出。删除前逐项重新核验路径、大小和 SHA-256；清理记录见 `extension_engineering/seed1930101/raw_cleanup.json`。
 - 理由：该 case 在 Production 前失败，Stage2 raw IQ 可由归档的配置、seed、源码与 binary 重建；本次不保留大体积派生二进制。其他 `outputs/`、`.scratch/`、R21 基线和已有用户资料未触碰。
 - 项目 worktree 从清理前约 **9.7 GB** 降至清理后约 **6.9 GB**，满足小于 20 GB 的要求。
+
+## 2026-10-28 V1A Production gate case
+
+- 保留：`extension_engineering_v1a/seed1930101/` 的精简审查包，含 case/matrix/run 摘要、41 行分支状态、Stage2 场景与 runtime XML、杂波报告/日志、代表性 Production XML/runtime dump/逐周期日志/CSI tap/CFAR geometry、C4/PKR robust gamma reference failure rows，以及逐文件 SHA-256 清单。
+- 本机完整 case manifest 和原始 cleanup ledger 位于 `outputs/r22_extension_20261028_v1a/engineering/.../attempt_001/`，不属于 GitHub 精简包；精简包明确保留输入 SHA 摘要及关键失败证据。
+- Production 汇总后删除本次 case 产生的 921 个可再生 `.bin`，合计 **4,429,702,312 bytes**；删除清单逐项写入原始 `raw_cleanup.json`。CSI 全尺寸 `.npy` 未生成/未留存；CSI tap summary CSV 已保留。
+- case 生成期间 worktree 峰值约 **12 GB**；清理后本次工程输出约 **296 MB**，当时 worktree 总占用约 **6.9 GB**；本次交付前复测约 **7.2 GB**，低于 20 GB 上限。其他 `outputs/`、`.scratch/`、用户输入与历史基线未清理。
+- 失败原因是 C4/PKR 的 133-bin robust gamma reference 有少数组 support 低于 8，触发质量验证停止；未降低 `min_support`，未删除唯一失败审计，也未继续性能矩阵。

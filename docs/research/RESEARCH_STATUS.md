@@ -6,21 +6,22 @@
 
 - R18 执行源码版本：`014352ace1c4ad0bade0d759a099a47fe9ecfaa9`（工作分支 `codex/unknown-system-error-next-stage`）；完整阶段报告随当前交付提交。
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；R17 仅按用户明确范围恢复总纲第 9 节的三段文字至 R16 前版本，其他正文不变。
-- 本状态整理日期：2026-10-27。
+- 本状态整理日期：2026-10-28。
 - 最近完成阶段：R21 已完成两 seed Native CUDA causal pilot、v3 评价器历史回归和离线参数/物理闭合分析；完整入口见 [R21 导航](phase_r/R21/README.md)。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`。
-- 当前在研阶段：R22 工程 pilot 已在 PKR residual-closure gate 停止，等待 ChatGPT 独立审查和用户决定。R22 仅运行 seed900101/900202/900203 的 Native CUDA 工程 pilot；完整 screening/confirmatory 矩阵未执行。没有启动 AI 训练。
+- 当前在研阶段：R22 V1A 延续工程 case 因 C4/PKR robust gamma reference 有 133-bin 分组低于冻结的 `min_support=8` 而 `GATE_FAILED`；等待 ChatGPT 独立审查与用户方向决定。扩展 screening/confirmatory 矩阵未执行。没有启动 AI 训练。
 
-## 当前研究阶段：R22 工程 gate 停止；等待独立审查
+## 当前研究阶段：R22 V1A 工程 gate 停止；等待独立审查
 
-R22 的目标是审计历史 baseline，并验证 20-target 场景、杂波配对、Native CUDA Production 和任务级评价是否可行。研究总纲正文未修改，Git blob 仍为 `e637e3769bde7814298ff012d0f42301884e2985`。
+R22 扩展目标是验证多目标、连续扫描、实际杂波和独立 seed 下的传统方法能力边界。研究总纲正文未修改，Git blob 仍为 `e637e3769bde7814298ff012d0f42301884e2985`。
 
-- **实际运行：** seed900101 零时延、20 targets/20 beams/1 period Native CUDA smoke 通过。seed900202 和 seed900203 均为 2.5 m/s、20 dB、+4 ns、20 targets/1 beam/1 period；均只作工程描述，不是预注册 screening 或 confirmatory。
-- **面积杂波：** seed900203 A0_ON 生成 130 packets / 650,892 samples，平均功率 0.0227564。A1 direct injection 计数为 0，但场景 manifest 和背景路径证明复用相同 A0 C+N 杂波背景；mapping `matched`，causal triplet 通过。
-- **停止原因：** PKR `range_band_bins=6`、`min_support=8` 导致 26,637 groups 全部不可用（support 6: 26,598 组；support 3: 39 组）；adapter valid groups=0，Production scan beam quality gate 报 `valid=0/1 required=1 min_ratio=0.95`。六条 PKR 角色评价记录不可评估，A0/PK/PKR residual closure 缺 PKR CSI tap。未降低阈值/质量门。
-- **描述观察：** seed900202 A0/C0 为 17/20、4/20；seed900203 为 16/20、1/20。Known PK 仅 seed900203 为 16/20；盲 R9/Huber/M1 分别为 17/20、16/20、16/20。只有两个独立 seed、一个周期、一个 beam；这些数不构成 Pd/Pfa 显著性或 `PERFORMANCE_VERIFIED`。
-- **当前裁决：** `INCONCLUSIVE / STOP_AT_ENGINEERING_GATE`。未知 +4 ns 退化有两个 pilot 的一致观察线索，Known 仅一 seed 命中对照，盲估计差距未充分验证。AI 必要性未建立；本轮不能判定低速保护或复杂杂波优先级。
-- **下一步候选：** ChatGPT 独立审查后，如用户决定继续，只做一项离线 PKR group/support contract 审计；不自动增加 seed、运行完整矩阵或训练 AI。完整证据见 [R22 导航](phase_r/R22/README.md)，审查提示词见 [R22 ChatGPT 提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。
-- **状态标签：** `IMPLEMENTED=true`；`EXECUTED=true`；`EVALUABLE=部分单周期指标`；`PERFORMANCE_VERIFIED=false`。
+- **实际运行：** 实验源码 commit `91cb5b1de8c2831073465e9192c1a385f0e0e25a`。V1A 首个 0 ns case 为 seed1930101、2.5 m/s、20 dB、20 targets、10 periods。Stage2 连续面积地杂波为 1300 packets / 6,508,782 samples，实测平均功率 `0.0225128995081`；area gate 和 causal triplets 通过。
+- **Production gate：** 41 条方法/角色记录中 24 个分支完整通过；4 个 C4/PKR reference 分支实际执行且 Production return code 为 0，但 gamma reference 验证失败；8 个依赖分支未执行；5 个零误差物理校正记录标为 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`。在 `range_band_bins=133`、`min_support=8` 下，Mode-A/OFF 有 15/12,090 行 support 3–7，Mode-B/ON 有 11/12,090 行 support 5–7，原因为 `insufficient_robust_support`。整份 reference 按 fail-closed 规则拒绝。
+- **可评价性：** case `EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`；有 41 条 task rows、3200 个 target-period opportunity rows、8 条 ON rows 可评估、0 个独立 H0 seed。有效 CUT/unique-hit union 与经验 Pfa 未形成全方法可比结果。没有可报告的 Pd/Pfa、已知校正恢复量或盲方法差距。
+- **停止范围：** V1A matrix 状态 `GATE_FAILED`，计划 12 个工程 case 中只完成 1 个；+4 ns、其余工程 seeds、screening 288、confirmatory 180、40-target stress 48、3-target bridge 6 与独立 H0 60 cases 均未启动。未降低 support threshold 或 Production/CFAR quality gate，未继续算法比较。
+- **当前裁决：** `INCONCLUSIVE / STOP_AT_ENGINEERING_GATE`。本次确认了有效杂波和 CUDA 执行，发现 133-bin candidate grouping 在该 case 的少量稀疏区域不能提供完整合格参考；没有回答未知时延是否降低任务性能，也没有证明 Known recovery、盲估计差距或 AI 必要性。低速保护与复杂杂波优先级也未被本次实验区分。
+- **下一步候选：** 先完成 ChatGPT 独立审查；只有用户决定继续后，再做一项离线 support-group 覆盖与 reference contract 审计。若提出新的分组/有效区域规则，需明确空间分辨率代价、缺组处理和评价分母，并作为新版本预注册；不得静默放宽当前门槛。完整结果见 [V1A 工程门复测记录](phase_r/R22/11_v1a_engineering_gate_result_20261028.md) 与[精简审查证据](phase_r/R22/evidence/extension_engineering_v1a/seed1930101/README.md)，提示词见 [R22 ChatGPT 提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。
+- **磁盘：** case 中间 binary 清理后本机工程输出约 296 MB；清理当时 worktree 约 6.9 GB，本次交付前复测约 7.2 GB，均小于 20 GB。原始路径/SHA 清理台账在本机输出目录，精简关键证据已归档。
+- **状态标签：** `IMPLEMENTED=true`；`EXECUTED=true`；`EVALUABLE=false`；`PERFORMANCE_VERIFIED=false`。
 
 ## 历史阶段：R21 完成；固定时延作为有界确定性候选
 

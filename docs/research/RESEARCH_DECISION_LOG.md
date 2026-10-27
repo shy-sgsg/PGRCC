@@ -161,3 +161,13 @@
 - **方向边界：** 两个 seed 的一周期 C0 hit 分别为 4/20、1/20；对应 A0 为 17/20、16/20。Known 仅在 seed900203 有 16/20，盲方法也仅作 seed900203 描述。不能据此报告统计 Pd/Pfa、一般 Known recovery 或盲估计差距；AI 必要性未建立；低速/复杂杂波优先级没有被本实验检验。
 - **下一步：** 先做 ChatGPT 独立审查。若用户决定继续，仅建议一项离线 PKR grouping/support contract 审计，保持两个门槛不变；在该问题闭合前不扩 seed、不跑完整矩阵、不训练 AI。
 - **证据：** [R22 导航](phase_r/R22/README.md)、[阶段方向裁决](phase_r/R22/06_scientific_decision.md)、[执行质量审计](phase_r/R22/07_execution_and_quality_audit.md)与[ChatGPT 审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。
+
+## 2026-10-28｜R22 V1A：133-bin robust gamma reference coverage gate 未通过
+
+- **决策编号与总纲：** `D-2026-10-28-R22-V1A`。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`，没有修改总纲正文。
+- **问题与执行身份：** 评估 0 ns 无误差参考下，20 targets/10 periods 的 Native CUDA Production 链能否通过已冻结的 C4/PKR robust gamma support gate。源码 commit `91cb5b1de8c2831073465e9192c1a385f0e0e25a`；V1A 设计 SHA `b7613779c4031036e34b8929bfd9525e1f846d8d87d616e00050ffe34b4b5c29`。Stage2 与 Production binary SHA、设备和执行记录见 V1A 复测报告。
+- **直接证据：** Stage2 生成 1300 continuous-area packets / 6,508,782 samples，实测均值功率 `0.0225128995081`，area gate 与 causal triplets 通过。41 条方法/角色记录中 24 条通过；4 个 C4/PKR reference 主分支实际运行且 Production return code 为 0，但 reference validation 不通过；8 个依赖分支因此未运行；5 个 0 ns 物理校正记录正确标为不适用。133-bin 分组下，Mode-A/OFF 有 15/12,090 行 support 3–7，Mode-B/ON 有 11/12,090 行 support 5–7；冻结 `min_support=8` 未放宽。
+- **裁决：** V1A engineering matrix `GATE_FAILED`，12 个工程 case 计划中仅一个 0 ns case 执行。`EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`；+4 ns、其余工程 seeds、screening、confirmatory、40-target stress、3-target bridge 和独立 H0 均未启动。停止算法性能比较，不将 case 结果解释成未知时延任务退化、Known 恢复量、盲估计差距或 AI 证据。
+- **对研究方向的影响：** 本次只指出 candidate grouping 在该 seed 的部分稀疏区域不能提供完整 reference；它不是对未知误差科学问题的否定，也不支持改投低速目标或复杂杂波研究。AI 必要性仍未建立。
+- **下一步与停止条件：** 先进行 ChatGPT 独立审查。只有用户决定继续后，才建议离线审查 support-group 覆盖、输入资格与 reference contract；任何新分组/有效区域规则需记录空间分辨率代价、缺组语义和评价分母，形成新设计版本后再运行。不得降低 support、CFAR 或 beam-quality gate，不得静默回退 Current。
+- **证据与空间：** [V1A 工程门复测记录](phase_r/R22/11_v1a_engineering_gate_result_20261028.md)及[精简 Production 审查包](phase_r/R22/evidence/extension_engineering_v1a/seed1930101/README.md)。删除 921 个可再生 binary 共 `4,429,702,312` bytes，原始 SHA 清理账保留于本机输出目录；worktree 清理后约 6.9 GB，小于 20 GB。完整 ChatGPT 审查要求见 [R22 ChatGPT 提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。
