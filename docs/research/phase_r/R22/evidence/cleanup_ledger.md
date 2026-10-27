@@ -29,3 +29,10 @@
 ## 空间验收
 
 清理后 nested Git worktree `du -sh .` 为约 **6.7 GB**，低于用户要求的 20 GB。`/tmp` 清理后可用空间约 7.2 GB。后续大型运行仍需在启动前核验容量并使用独立输出目录。
+
+## 2026-10-28 R22 延续工程失败 case
+
+- 保留：`extension_engineering/seed1930101/` 下的 case/run/matrix manifest、6 份场景配置、Stage2 解析配置、period-0 runtime XML、报告、日志、背景复用映射、周期清单、目标生成 manifest、盲估计结果、首样本边界诊断及逐文件 SHA-256。
+- 删除：当前失败 case 中 52 个 `.bin`，共 **2,952,268,800 bytes**：50 份可再生 Stage2 raw IQ（2,460,224,000 bytes）、合并 C+N estimator 输入（492,044,800 bytes）和 1 个零字节失败校正输出。删除前逐项重新核验路径、大小和 SHA-256；清理记录见 `extension_engineering/seed1930101/raw_cleanup.json`。
+- 理由：该 case 在 Production 前失败，Stage2 raw IQ 可由归档的配置、seed、源码与 binary 重建；本次不保留大体积派生二进制。其他 `outputs/`、`.scratch/`、R21 基线和已有用户资料未触碰。
+- 项目 worktree 从清理前约 **9.7 GB** 降至清理后约 **6.9 GB**，满足小于 20 GB 的要求。
