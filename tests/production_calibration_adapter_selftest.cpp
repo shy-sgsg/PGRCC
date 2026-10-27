@@ -119,6 +119,21 @@ int main()
     require(!ordinary.truth_used_in_estimator,
             "ordinary metadata is truth blind");
 
+    const int robust_rows = 39;
+    const int robust_cols = 4095;
+    std::vector<std::complex<float> > robust_f1(
+        static_cast<std::size_t>(robust_rows * robust_cols),
+        std::complex<float>(1.0f, 0.0f));
+    std::vector<std::complex<float> > robust_f2 = scaled(robust_f1, phase_gain);
+    const auto feasible_range_bands = applyProductionCalibration(
+        robust_f1, robust_f2, robust_rows, robust_cols,
+        SupportBounds(0, robust_rows - 1, 0, robust_cols - 1),
+        Method::kRobustDdcRb, 8, 9, 0.35);
+    require(feasible_range_bands.status == Status::kOk &&
+                feasible_range_bands.groups_total == 17745 &&
+                feasible_range_bands.valid_groups == 17745,
+            "9-bin robust groups cover 4095 range bins and satisfy min support 8");
+
     const auto gamma_one = applyProductionCalibration(
         f1, f1, rows, cols, support, Method::kScc, 2, 4, 0.30);
     require(gamma_one.status == Status::kOk,

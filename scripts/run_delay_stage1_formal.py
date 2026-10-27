@@ -284,7 +284,9 @@ def audit_additive_triplet(
     return base
 
 
-def _scenario_template(config: Mapping[str, object]) -> dict[str, object]:
+def _scenario_template(
+    config: Mapping[str, object], *, allow_target_free: bool = False,
+) -> dict[str, object]:
     """Copy a simulator scenario and validate the fields used by this stage."""
 
     candidate: object = config.get("scenario", config)
@@ -301,7 +303,9 @@ def _scenario_template(config: Mapping[str, object]) -> dict[str, object]:
         raise ValueError("simulator scenario random object is required")
     if not isinstance(scene, dict):
         raise ValueError("simulator scenario scene object is required")
-    if not isinstance(targets, list) or not targets or not all(isinstance(item, dict) for item in targets):
+    if not isinstance(targets, list) or not all(isinstance(item, dict) for item in targets):
+        raise ValueError("simulator scenario must contain a target list of objects")
+    if not targets and not allow_target_free:
         raise ValueError("simulator scenario must contain a non-empty target list")
     channel_count = int(waveform.get("new_protocol_channel_count", 0))
     if channel_count not in {2, 4}:
@@ -447,6 +451,7 @@ def _role_scenario(
     delay_error_ns: float,
     *,
     background_source_condition: str,
+    allow_target_free_h0: bool = False,
 ) -> dict[str, object]:
     scenario = copy.deepcopy(dict(base))
     scene = scenario["scene"]
@@ -457,6 +462,7 @@ def _role_scenario(
     _set_delay(scenario, stage1_delay)
     scenario["output_dir"] = str(output_dir.resolve())
     scenario["truth_output"] = role in {"on", "target_only"}
+    scenario["allow_target_free_h0"] = bool(allow_target_free_h0)
     scene["signal_only"] = role == "target_only"
     scene["output_signal_domain"] = "raw_lfm"
     for target in targets:
@@ -505,6 +511,8 @@ def build_scene_variants(
     scene_identity: Mapping[str, object],
     delay_error_ns: float,
     case_root: Path,
+    *,
+    allow_target_free: bool = False,
 ) -> dict[str, Path]:
     """Write paired A0/A1 ON/OFF/TO scenario documents.
 
@@ -516,7 +524,7 @@ def build_scene_variants(
 
     delay = _finite_float(delay_error_ns, "delay_error_ns")
     case_root = Path(case_root)
-    base = _scenario_template(config)
+    base = _scenario_template(config, allow_target_free=allow_target_free)
     _apply_scene_identity(base, scene_identity)
     case_root.mkdir(parents=True, exist_ok=True)
     background_dir = case_root / "A0_background"
@@ -534,6 +542,7 @@ def build_scene_variants(
                 background_dir,
                 delay,
                 background_source_condition="A0_Ideal_zero_delay",
+                allow_target_free_h0=allow_target_free,
             )
             scenario["case_id"] = f"{scenario.get('case_id', 'stage1')}_{key}"
             path = case_root / "scenarios" / f"{key}.json"

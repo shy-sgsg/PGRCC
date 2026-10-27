@@ -2,6 +2,8 @@
 
 **阶段状态：** 工程 pilot 已在本地 Native CUDA 上运行；完整 screening/confirmatory matrix 未执行。PKR 支持量 gate 失败后按门控停止。阶段 `INCOMPLETE / INCONCLUSIVE`，`PERFORMANCE_VERIFIED=false`。不训练 AI。
 
+> **2026-10-28 续行状态：** 用户明确要求继续 R22。已修复显式 target-free H0 支持与产物紧凑化；在不降低 `min_support=8` 或 beam-quality gate 的前提下，以 `range_band_bins=133` 完成单 seed CUDA H0 工程检查。六个独立工程 seed、筛选/确认/密集目标/H0 扩展批次仍待执行。当前不得把该单 seed 描述为性能验证。请优先阅读 [延续执行契约](09_extension_execution_contract.md) 和[冻结扩展设计](config/r22_extension_experiment_design.json)；下方旧 R22 文件仍保留早期 pilot 的历史身份与限制。
+
 ## 建议阅读顺序
 
 1. [00 总执行计划](00_master_execution_plan.md)：范围、门控与真实执行状态。
@@ -13,6 +15,7 @@
 7. [07 执行与质量审计](07_execution_and_quality_audit.md)：源码/二进制身份、门控、验证和限制。
 8. [08 下一实验契约](08_frozen_next_experiment_contract.md)：PKR 修复前的冻结状态。
 9. [ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT.md)：复制使用前填入完整审查 commit SHA。
+10. [2026-10-28 延续执行契约](09_extension_execution_contract.md)：修复后门控、扩展矩阵、资源和保留策略。
 
 ## 关键证据
 

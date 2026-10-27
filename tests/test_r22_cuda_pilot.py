@@ -47,6 +47,137 @@ def test_r22_json_manifest_normalizes_nonfinite_values_and_paths(tmp_path: Path)
     assert loaded == {"missing": None, "path": str(tmp_path)}
 
 
+def test_r22_h0_scale_validation_only_allows_zero_targets_for_h0():
+    assert r22.validate_case_scale(phase="h0", target_count=0, period_count=5)
+
+    with pytest.raises(ValueError, match="target_count > 0"):
+        r22.validate_case_scale(phase="screening", target_count=0, period_count=5)
+    with pytest.raises(ValueError, match="target-free"):
+        r22.validate_case_scale(phase="h0", target_count=1, period_count=5)
+
+
+def test_r22_h0_false_alarm_rows_are_scoped_to_independent_target_free_seeds(monkeypatch):
+    monkeypatch.setattr(
+        r22.r20, "_off_h0_rows",
+        lambda bundle: [{"status": "DESCRIPTIVE_ONLY_NOT_STATISTICAL_PFA",
+                         "valid_cut_count": 100, "observed_cut_hit_count": 2}],
+    )
+    bundle = {"seed": 910001}
+
+    independent = r22._h0_false_alarm_rows(bundle, phase="h0", role="OFF")
+    paired = r22._h0_false_alarm_rows(bundle, phase="screening", role="OFF")
+    ignored_role = r22._h0_false_alarm_rows(bundle, phase="h0", role="ON")
+
+    assert independent[0]["h0_scope"] == "independent_target_free_seed"
+    assert independent[0]["empirical_pfa_status"] == "SEED_CLUSTER_AGGREGATION_REQUIRED"
+    assert paired[0]["h0_scope"] == "paired_OFF_role_not_an_independent_H0_seed"
+    assert ignored_role == []
+
+
+def test_r22_h0_false_alarm_rows_keep_method_and_mode_identity(monkeypatch, tmp_path: Path):
+    monkeypatch.setattr(
+        r22.r20, "_condition_role_bundle",
+        lambda *args: {"truths": [], "branch_dir": str(tmp_path / "branch")},
+    )
+    monkeypatch.setattr(r22.r21_eval, "_range_axis_audit", lambda bundle: {"status": "evaluable"})
+    monkeypatch.setattr(
+        r22.r20, "_off_h0_rows",
+        lambda bundle: [{
+            "condition": "A0_not_applicable", "role": "OFF", "cut_band_mode": "union_full_band",
+            "status": "DESCRIPTIVE_ONLY_NOT_STATISTICAL_PFA", "valid_cut_count": 100,
+            "observed_cut_hit_count": 2, "observed_cut_hit_fraction": 0.02,
+        }],
+    )
+
+    tables = r22._evaluate_branches(
+        phase="h0", case_id="h0_seed1", seed=1, case_root=tmp_path,
+        pipeline_manifest={}, binary_identity={},
+        branch_records=[{
+            "branch_name": "A0_off", "method_id": "A0", "mode": "not_applicable",
+            "role": "OFF", "status": "passed",
+        }],
+    )
+
+    row = tables["h0_false_alarm_metrics"][0]
+    assert row["method_id"] == "A0"
+    assert row["mode"] == "not_applicable"
+    assert row["condition"] == "A0_not_applicable"
+    assert row["h0_scope"] == "independent_target_free_seed"
+
+
+def test_r22_case_compaction_removes_only_regenerable_binary_files(tmp_path: Path):
+    case_root = tmp_path / "case"
+    case_root.mkdir()
+    (case_root / "case_manifest.json").write_text(
+        '{"status":"completed_with_gaps"}\n', encoding="utf-8"
+    )
+    (case_root / "period.bin").write_bytes(b"regenerable input")
+    (case_root / "production.log").write_text("runtime evidence\n", encoding="utf-8")
+    (case_root / "result.csv").write_text("metric,value\nvalid,1\n", encoding="utf-8")
+
+    cleanup = r22._compact_case_artifacts(case_root)
+
+    assert not (case_root / "period.bin").exists()
+    assert (case_root / "production.log").is_file()
+    assert (case_root / "result.csv").is_file()
+    assert cleanup["removed_file_count"] == 1
+    assert cleanup["removed_bytes"] == len(b"regenerable input")
+    assert (case_root / "raw_cleanup.json").is_file()
+    manifest = json.loads((case_root / "case_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["raw_cleanup"]["remaining_bin_count"] == 0
+
+
+def test_r22_case_compaction_removes_csi_maps_but_keeps_summary_csv(tmp_path: Path):
+    case_root = tmp_path / "case"
+    csi_dir = case_root / "production" / "A0_OFF" / "result" / "csi_metrics" / "run1"
+    csi_dir.mkdir(parents=True)
+    (case_root / "case_manifest.json").write_text(
+        '{"status":"completed_with_gaps"}\n', encoding="utf-8"
+    )
+    (csi_dir / "period000_power.npy").write_bytes(b"reproducible csi map")
+    (csi_dir / "csi_metric_tap_summary.csv").write_text(
+        "beam_id,before_mean_power,after_mean_power\n50,2,1\n", encoding="utf-8"
+    )
+
+    cleanup = r22._compact_case_artifacts(case_root)
+
+    assert not (csi_dir / "period000_power.npy").exists()
+    assert (csi_dir / "csi_metric_tap_summary.csv").is_file()
+    assert cleanup["removed_numpy_diagnostic_file_count"] == 1
+    assert cleanup["removed_numpy_diagnostic_bytes"] == len(b"reproducible csi map")
+
+
+def test_r22_method_config_has_feasible_pkr_support_without_lowering_the_gate():
+    from scripts import run_production_hierarchical_calibration_pilot as calibration
+
+    config = calibration.load_pilot_config(
+        Path(__file__).resolve().parents[1]
+        / "docs/research/phase_r/R22/config/r22_method_config.json"
+    )
+    production = config["production"]
+
+    assert production["min_support"] == 8
+    assert production["range_band_bins"] == 133
+    assert production["range_band_bins"] >= production["min_support"]
+    assert 4095 % production["range_band_bins"] >= production["min_support"]
+    assert production["csi_metrics_dump_power_maps"] is False
+    assert production["csi_metrics_dump_intermediate_maps"] is False
+
+
+def test_r22_runner_loads_and_records_an_explicit_method_configuration(tmp_path: Path):
+    config_path = r22.DEFAULT_METHOD_CONFIG
+    scenario_path = tmp_path / "scenario.json"
+
+    config, methods = r22._load_method_configuration(
+        config_path, scenario_path, ("PKR",)
+    )
+
+    assert config["scenario_template"] == str(scenario_path.resolve())
+    assert config["production"]["min_support"] == 8
+    assert config["production"]["range_band_bins"] == 133
+    assert [method["method_id"] for method in methods] == ["PKR"]
+
+
 def test_r22_attaches_production_evidence_gates_before_aggregating_branch_status(monkeypatch):
     def audit(record):
         return {"status": "passed", "branch": record["method_id"]}

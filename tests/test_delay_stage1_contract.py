@@ -629,6 +629,33 @@ def test_scene_variants_preserve_scene_identity_and_pair_backgrounds(tmp_path: P
     assert np.isfinite(payloads["A1_ON"]["channel_impairments"]["channel_time_delay_ns"])
 
 
+def test_scene_variants_allow_empty_targets_only_when_explicitly_enabled_for_h0(tmp_path: Path) -> None:
+    from scripts.run_delay_stage1_formal import build_scene_variants
+
+    config = {
+        "case_id": "h0-template",
+        "waveform": {"new_protocol_channel_count": 4, "iq_data_type": "float32"},
+        "random": {"random_seed": 1930001, "beam_start": 50, "period_count": 1},
+        "scene": {"mode": "full", "area_clutter": {"enabled": True}},
+        "targets": [],
+        "channel_impairments": {"enabled": False, "channel_time_delay_ns": 0.0},
+    }
+    identity = {"seed": 1930001, "period_count": 1}
+
+    with pytest.raises(ValueError, match="non-empty target list"):
+        build_scene_variants(config, identity, 4.0, tmp_path / "rejected")
+
+    paths = build_scene_variants(
+        config, identity, 4.0, tmp_path / "accepted", allow_target_free=True
+    )
+    payloads = [json.loads(path.read_text(encoding="utf-8")) for path in paths.values()]
+
+    assert all(payload["targets"] == [] for payload in payloads)
+    assert all(payload["allow_target_free_h0"] is True for payload in payloads)
+    assert all(payload["scene"]["area_clutter"]["enabled"] is True for payload in payloads)
+    assert payloads[0]["random"]["period_count"] == 1
+
+
 def test_prepare_condition_inputs_records_truth_and_blind_provenance(tmp_path: Path, monkeypatch) -> None:
     from scripts.run_delay_stage1_formal import prepare_condition_inputs
 

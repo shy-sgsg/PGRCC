@@ -31,6 +31,7 @@ from scripts.phase_r.r22_scenario_factory import build_seed_scenario  # noqa: E4
 DEFAULT_STAGE2 = ROOT / "build/simulate_stage2_statistical"
 DEFAULT_PRODUCTION = ROOT / "build/GMTI_pipe_core"
 DEFAULT_TEMPLATE = ROOT / "simulator/scenarios/beam50_one_targets_continuous.run.json"
+DEFAULT_METHOD_CONFIG = ROOT / "docs/research/phase_r/R22/config/r22_method_config.json"
 DEFAULT_AREA = {
     "range_window_m": [84500.0, 85500.0],
     "mean_power": 0.02,
@@ -40,8 +41,8 @@ DEFAULT_AREA = {
 }
 R22_XML_OVERRIDES = {
     "csi_metrics_enable": "true",
-    "csi_metrics_dump_power_maps": "true",
-    "csi_metrics_dump_intermediate_maps": "true",
+    "csi_metrics_dump_power_maps": "false",
+    "csi_metrics_dump_intermediate_maps": "false",
 }
 
 
@@ -120,6 +121,23 @@ def case_identifier(
     )
 
 
+def validate_case_scale(*, phase: str, target_count: int, period_count: int) -> bool:
+    """Keep target-free H0 scenes distinct from target-bearing experiment phases."""
+    phases = {"engineering", "screening", "confirmatory", "dense", "bridge", "h0"}
+    if phase not in phases:
+        raise ValueError(f"unsupported R22 phase: {phase}")
+    if isinstance(target_count, bool) or not isinstance(target_count, int):
+        raise ValueError("target_count must be an integer")
+    if isinstance(period_count, bool) or not isinstance(period_count, int) or period_count <= 0:
+        raise ValueError("period_count must be a positive integer")
+    if phase == "h0":
+        if target_count != 0:
+            raise ValueError("H0 must be a target-free scene with target_count=0")
+    elif target_count <= 0:
+        raise ValueError("target-bearing R22 phases require target_count > 0")
+    return True
+
+
 def _source_identity() -> dict[str, Any]:
     sources = (
         Path(__file__), Path(__file__).with_name("r22_scenario_factory.py"),
@@ -145,6 +163,18 @@ def _source_identity() -> dict[str, Any]:
         "tracked_dirty_status": tracked.stdout.splitlines(),
         "files": {str(path.relative_to(ROOT)): file_identity(path) for path in sources if path.is_file()},
     }
+
+
+def _load_method_configuration(
+    config_path: Path,
+    scenario_path: Path,
+    method_ids: Sequence[str],
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    config_path = Path(config_path).expanduser().resolve()
+    method_config = calibration.load_pilot_config(config_path)
+    method_config["scenario_template"] = str(Path(scenario_path).expanduser().resolve())
+    method_contract = calibration.build_method_contract(method_config, method_ids=method_ids)
+    return method_config, method_contract
 
 
 def _make_scenario(
@@ -318,7 +348,7 @@ def _run_extra_delay_method(
 
 
 def _evaluate_branches(
-    *, case_id: str, seed: int, case_root: Path, pipeline_manifest: Mapping[str, Any],
+    *, phase: str, case_id: str, seed: int, case_root: Path, pipeline_manifest: Mapping[str, Any],
     binary_identity: Mapping[str, Any], branch_records: Sequence[Mapping[str, Any]],
 ) -> dict[str, list[dict[str, Any]]]:
     eval_case = {
@@ -345,6 +375,18 @@ def _evaluate_branches(
         if not branch_name or record.get("status") != "passed":
             tables["task_metrics"].append({**row_base, "status": record.get("status", "NOT_AVAILABLE"),
                                            "reason": record.get("reason", "production_branch_not_passed")})
+            if phase == "h0" and role == "OFF":
+                tables["h0_false_alarm_metrics"].append({
+                    **row_base,
+                    "cut_band_mode": None,
+                    "observed_cut_hit_count": None,
+                    "valid_cut_count": None,
+                    "observed_cut_hit_fraction": None,
+                    "status": "NOT_EVALUABLE_PRODUCTION_BRANCH",
+                    "empirical_pfa_status": "NOT_EVALUABLE",
+                    "h0_scope": "independent_target_free_seed",
+                    "reason": record.get("reason", "production_branch_not_passed"),
+                })
             continue
         branch_dir = case_root / "production" / branch_name
         bundle = r20._condition_role_bundle(eval_case, condition, role, branch_dir)
@@ -355,14 +397,23 @@ def _evaluate_branches(
             [r21_eval._doppler_audit_row_v3(bundle, truth) for truth in bundle["truths"] if r20._visible_truth(truth)]
             if role in {"ON", "TO"} else []
         )
-        if role == "OFF":
+        if phase == "h0":
+            evaluated = {
+                "status": "NOT_APPLICABLE_H0_ROLE", "target_result": None,
+                "track_metrics": None, "parameter_records": [],
+            }
+            tables["h0_false_alarm_metrics"].extend(
+                {**item, **row_base}
+                for item in _h0_false_alarm_rows(bundle, phase=phase, role=role)
+            )
+        elif role == "OFF":
             evaluated: dict[str, Any] = {
                 "status": "NOT_APPLICABLE_H0_ROLE", "target_result": None,
                 "track_metrics": None, "parameter_records": [],
             }
             tables["h0_false_alarm_metrics"].extend(
-                {**row_base, **item, "h0_scope": "paired_OFF_role_not_an_independent_H0_seed"}
-                for item in r20._off_h0_rows(bundle)
+                {**item, **row_base}
+                for item in _h0_false_alarm_rows(bundle, phase=phase, role=role)
             )
         else:
             evaluated = r21_eval._evaluate_bundle_v3(bundle, range_audit, doppler_rows)
@@ -395,9 +446,89 @@ def _evaluate_branches(
     return tables
 
 
+def _h0_false_alarm_rows(
+    bundle: Mapping[str, Any], *, phase: str, role: str,
+) -> list[dict[str, Any]]:
+    """Preserve paired OFF diagnostics while identifying independent H0 seeds."""
+    if role != "OFF":
+        return []
+    rows = r20._off_h0_rows(bundle)
+    if phase != "h0":
+        return [
+            {**item, "h0_scope": "paired_OFF_role_not_an_independent_H0_seed"}
+            for item in rows
+        ]
+
+    output: list[dict[str, Any]] = []
+    for item in rows:
+        row = {**item, "h0_scope": "independent_target_free_seed"}
+        if (row.get("valid_cut_count") is not None
+                and int(row["valid_cut_count"]) > 0
+                and row.get("observed_cut_hit_count") is not None):
+            row.update({
+                "status": "EVALUABLE_DESCRIPTIVE_H0_SEED",
+                "empirical_pfa_status": "SEED_CLUSTER_AGGREGATION_REQUIRED",
+                "interpretation": (
+                    "per-seed target-free CUT fraction; inferential Pfa requires aggregation "
+                    "and uncertainty estimation across independent H0 seeds"
+                ),
+            })
+        output.append(row)
+    return output
+
+
 def _write_tables(root: Path, tables: Mapping[str, Sequence[Mapping[str, Any]]]) -> None:
     for name, rows in tables.items():
         write_csv(root / "evaluation" / f"{name}.csv", rows)
+
+
+def _compact_case_artifacts(case_root: Path) -> dict[str, Any]:
+    """Remove regenerable binaries and full CSI maps after scalar evidence exists."""
+    case_root = Path(case_root).expanduser().resolve()
+    ledger_path = case_root / "raw_cleanup.json"
+    previous = (
+        json.loads(ledger_path.read_text(encoding="utf-8"))
+        if ledger_path.is_file() else {}
+    )
+    cleanup = stage1.cleanup_stage1_raw(case_root, allow_incomplete=True)
+    numpy_records: list[dict[str, Any]] = []
+    numpy_removed_bytes = 0
+    production_root = case_root / "production"
+    if production_root.is_dir():
+        for path in sorted(production_root.rglob("*.npy")):
+            if "csi_metrics" not in path.parts or not path.is_file() or path.is_symlink():
+                continue
+            size = int(path.stat().st_size)
+            relative = str(path.relative_to(case_root))
+            path.unlink()
+            numpy_removed_bytes += size
+            numpy_records.append({
+                "path": relative,
+                "kind": "reproducible_csi_diagnostic_map",
+                "bytes": size,
+                "status": "removed",
+                "reason": "scalar CSI tap summary retained; map is reproducible from the scenario and runtime config",
+            })
+    prior_records = list(previous.get("records", [])) if isinstance(previous, Mapping) else []
+    fresh_records = list(cleanup.get("records", []))
+    prior_count = int(previous.get("removed_file_count", 0)) if isinstance(previous, Mapping) else 0
+    prior_bytes = int(previous.get("removed_bytes", 0)) if isinstance(previous, Mapping) else 0
+    prior_npy_count = int(previous.get("removed_numpy_diagnostic_file_count", 0)) if isinstance(previous, Mapping) else 0
+    prior_npy_bytes = int(previous.get("removed_numpy_diagnostic_bytes", 0)) if isinstance(previous, Mapping) else 0
+    cleanup.update({
+        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files",
+        "removed_file_count": prior_count + int(cleanup.get("removed_file_count", 0)) + len(numpy_records),
+        "removed_bytes": prior_bytes + int(cleanup.get("removed_bytes", 0)) + numpy_removed_bytes,
+        "removed_numpy_diagnostic_file_count": prior_npy_count + len(numpy_records),
+        "removed_numpy_diagnostic_bytes": prior_npy_bytes + numpy_removed_bytes,
+        "records": prior_records + fresh_records + numpy_records,
+    })
+    write_json(ledger_path, cleanup)
+    case_manifest_path = case_root / "case_manifest.json"
+    case_manifest = json.loads(case_manifest_path.read_text(encoding="utf-8"))
+    case_manifest["raw_cleanup"] = cleanup
+    write_json(case_manifest_path, case_manifest)
+    return cleanup
 
 
 def run_case(
@@ -405,16 +536,17 @@ def run_case(
     *, phase: str, seed: int, speed_mps: float, snr_db: float, delay_ns: float,
     target_count: int, period_count: int, first_beam: int, beam_count: int,
     stage2_binary: Path, production_binary: Path, template: Path = DEFAULT_TEMPLATE,
+    method_config_path: Path = DEFAULT_METHOD_CONFIG,
     method_ids: Sequence[str] = calibration.METHOD_IDS,
     calibration_modes: Sequence[str] = ("Mode-A", "Mode-B"),
     area: Mapping[str, Any] = DEFAULT_AREA,
+    keep_raw: bool = False,
 ) -> dict[str, Any]:
     output_root = Path(output_root).expanduser().resolve()
     if output_root.exists() and (not output_root.is_dir() or any(output_root.iterdir())):
         raise ValueError(f"refusing to overwrite non-empty R22 output root: {output_root}")
     output_root.mkdir(parents=True, exist_ok=True)
-    if period_count <= 0 or target_count <= 0:
-        raise ValueError("period_count and target_count must be positive")
+    validate_case_scale(phase=phase, target_count=target_count, period_count=period_count)
     case_id = case_identifier(phase, seed, speed_mps, snr_db, delay_ns, target_count, period_count)
     source_snapshot = _source_identity()
     stage2_binary = Path(stage2_binary).expanduser().resolve()
@@ -428,9 +560,10 @@ def run_case(
         speed_mps=speed_mps, snr_db=snr_db, period_count=period_count,
         first_beam=first_beam, beam_count=beam_count, area=area,
     )
-    method_config = calibration.load_pilot_config()
-    method_config["scenario_template"] = str(scenario_path)
-    method_contract = calibration.build_method_contract(method_config, method_ids=method_ids)
+    method_config_path = Path(method_config_path).expanduser().resolve()
+    method_config, method_contract = _load_method_configuration(
+        method_config_path, scenario_path, method_ids
+    )
     scene_identity = {
         "seed": seed,
         "period_count": period_count,
@@ -443,6 +576,8 @@ def run_case(
     pipeline_case = {
         "working_point": "r22_multi_target",
         "seed": seed,
+        "target_count": target_count,
+        "allow_target_free_h0": phase == "h0",
         "target_velocity_mps": float(speed_mps),
         "target_snr_db": float(snr_db),
         "delay_error_ns": float(delay_ns),
@@ -463,6 +598,10 @@ def run_case(
             "target_truth_nested_across_density": True,
             "known_error_use": "physical correction upper bound only; blind estimator does not receive it",
             "ai_training": False, "router_enabled": False,
+            "raw_artifact_policy": (
+                "keep_generated_binary_artifacts" if keep_raw else
+                "remove_generated_bin_after_evaluation_keep_audit_files"
+            ),
         },
         "status_labels": {"IMPLEMENTED": True, "EXECUTED": False, "EVALUABLE": False,
                           "PERFORMANCE_VERIFIED": False},
@@ -472,6 +611,7 @@ def run_case(
         "native_cuda_preflight": preflight,
         "generator_manifest": generator_manifest,
         "scenario_template": file_identity(scenario_path),
+        "method_config": file_identity(method_config_path),
         "output_root": str(output_root),
         "implementation_result": None,
     }
@@ -565,6 +705,7 @@ def run_case(
         pipeline_manifest["r22_blind_method_qualification"] = qualified
         write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
         tables = _evaluate_branches(
+            phase=phase,
             case_id=case_id,
             seed=seed,
             case_root=pipeline_case_root,
@@ -578,13 +719,21 @@ def run_case(
                               for row in method_records if row.get("production_elapsed_sec") is not None]
         on_task_rows = [row for row in tables["task_metrics"] if row.get("role") == "ON"]
         evaluated_on = [row for row in on_task_rows if row.get("status") == "EVALUABLE"]
+        evaluable_h0_rows = [
+            row for row in tables["h0_false_alarm_metrics"]
+            if row.get("h0_scope") == "independent_target_free_seed"
+            and row.get("status") == "EVALUABLE_DESCRIPTIVE_H0_SEED"
+        ]
         invalid_truth = sum(int(row.get("invalid_truth_opportunities") or 0) for row in evaluated_on)
         all_branches_passed = _all_production_branches_passed(method_records)
         manifest.update({
             "status_labels": {
                 "IMPLEMENTED": True,
                 "EXECUTED": any(row.get("production_returncode") == 0 for row in method_records),
-                "EVALUABLE": bool(evaluated_on) and len(evaluated_on) == len(on_task_rows) and invalid_truth == 0,
+                "EVALUABLE": (
+                    bool(evaluable_h0_rows) if phase == "h0" else
+                    bool(evaluated_on) and len(evaluated_on) == len(on_task_rows) and invalid_truth == 0
+                ),
                 "PERFORMANCE_VERIFIED": False,
                 "performance_note": "single case is feasibility evidence; no inferential claim",
             },
@@ -602,6 +751,7 @@ def run_case(
                 "task_rows": len(tables["task_metrics"]),
                 "evaluated_on_rows": len(evaluated_on),
                 "target_opportunity_rows": len(tables["target_level_metrics"]),
+                "independent_h0_seed_rows": len(evaluable_h0_rows),
                 "invalid_truth_opportunities": invalid_truth,
                 "target_period_opportunities_are_not_independent_seeds": True,
             },
@@ -613,6 +763,21 @@ def run_case(
         manifest["implementation_result"] = "passed" if (
             pipeline_manifest.get("status") == "completed" and all_branches_passed
         ) else "completed_with_gaps"
+        if not keep_raw:
+            pipeline_manifest["r22_status_labels"] = dict(manifest["status_labels"])
+            pipeline_manifest["r22_evaluation_summary"] = dict(manifest["evaluation_summary"])
+            write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
+            cleanup = _compact_case_artifacts(pipeline_case_root)
+            manifest["raw_cleanup"] = {
+                "status": "passed",
+                "removed_file_count": cleanup["removed_file_count"],
+                "removed_bytes": cleanup["removed_bytes"],
+                "remaining_bin_count": cleanup["remaining_bin_count"],
+                "ledger": str(pipeline_case_root / "raw_cleanup.json"),
+            }
+            manifest["pipeline_case_manifest"] = file_identity(
+                pipeline_case_root / "case_manifest.json"
+            )
     except Exception as exc:
         manifest.update({
             "implementation_result": "failed_or_incomplete",
@@ -648,8 +813,11 @@ def main() -> int:
     parser.add_argument("--stage2-binary", type=Path, default=DEFAULT_STAGE2)
     parser.add_argument("--production-binary", type=Path, default=DEFAULT_PRODUCTION)
     parser.add_argument("--template", type=Path, default=DEFAULT_TEMPLATE)
+    parser.add_argument("--method-config", type=Path, default=DEFAULT_METHOD_CONFIG)
     parser.add_argument("--method-ids", default=",".join(calibration.METHOD_IDS))
     parser.add_argument("--calibration-modes", default="Mode-A,Mode-B")
+    parser.add_argument("--keep-raw", action="store_true",
+                        help="retain regenerable .bin files after evaluation (default: compact them)")
     args = parser.parse_args()
     method_ids = tuple(item.strip() for item in args.method_ids.split(",") if item.strip())
     modes = tuple(item.strip() for item in args.calibration_modes.split(",") if item.strip())
@@ -667,8 +835,10 @@ def main() -> int:
         stage2_binary=args.stage2_binary,
         production_binary=args.production_binary,
         template=args.template,
+        method_config_path=args.method_config,
         method_ids=method_ids,
         calibration_modes=modes,
+        keep_raw=args.keep_raw,
     )
     print(json.dumps({
         "case_id": result.get("case_id"),

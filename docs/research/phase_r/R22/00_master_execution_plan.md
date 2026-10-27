@@ -2,6 +2,8 @@
 
 状态：`STOPPED_AT_GATE / INCOMPLETE`。工程 pilot 已执行并达到阶段停止门；完整筛选与确认实验没有启动。PKR 支持量矛盾修复及独立复核前，不得扩展 seed 或方法矩阵。
 
+> **状态时间界限：** 上述状态记录的是 2026-10-27 的停止裁决。用户于 2026-10-28 明确要求继续 R22 并完成扩展实验；本轮续行范围、修复后工程门和冻结设计见 [09 延续执行契约](09_extension_execution_contract.md) 与 [机器可读扩展设计](config/r22_extension_experiment_design.json)。旧 pilot 结论保留为历史记录，不作为当前禁止执行的指令。研究总纲仍保持不变。
+
 ## 科研定位
 
 - **研究总纲：** `docs/research/RESEARCH_MASTER_PLAN.md`，入口 commit `6fdc4a9d08d91293d47ba6bdd967e8a22a688c4e`，blob `e637e3769bde7814298ff012d0f42301884e2985`。R22 不修改研究总纲。

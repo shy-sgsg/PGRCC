@@ -1395,6 +1395,7 @@ bool loadStage2RunConfig(const std::string &path, Stage2RunConfig &run, std::str
     run.background_input_scale = jsonDouble(txt, "background_input_scale", 1.0);
     run.scene_mode = jsonString(txt, "scene_mode", run.scene_mode);
     run.truth_output = jsonBool(txt, "truth_output", true);
+    run.allow_target_free_h0 = jsonBool(txt, "allow_target_free_h0", false);
     Stage2RunOptions scene_opt;
 
     const std::string waveform = sectionObject(txt, "waveform");
@@ -1708,7 +1709,14 @@ bool validateStage2RunConfig(const Stage2RunConfig &run, std::string &err)
             return false;
         }
     }
-    if (run.targets.empty()) { err = "targets must not be empty"; return false; }
+    if (run.targets.empty() && !run.allow_target_free_h0) {
+        err = "targets must not be empty unless allow_target_free_h0 is true";
+        return false;
+    }
+    if (run.allow_target_free_h0 && !run.targets.empty()) {
+        err = "allow_target_free_h0 requires an empty targets array";
+        return false;
+    }
     if (run.output_signal_domain != "auto" &&
         run.output_signal_domain != "raw_lfm" &&
         run.output_signal_domain != "range_compressed") {

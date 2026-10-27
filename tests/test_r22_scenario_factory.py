@@ -94,6 +94,20 @@ def test_seed_scenario_has_distinct_target_states_and_exact_radial_speed():
     assert len(states) == 40
 
 
+def test_seed_scenario_supports_a_true_target_free_h0_scene():
+    result, manifest = build_seed_scenario(
+        _scenario(), seed=103, target_count=0, radial_speed_mps=0.0,
+        target_snr_db=20.0, period_count=5, first_beam=21, beam_count=5,
+        clutter_range_window_m=(84500.0, 85500.0),
+    )
+
+    assert result["targets"] == []
+    assert result["scene"]["area_clutter"]["enabled"] is True
+    assert result["random"]["period_count"] == 5
+    assert manifest["target_state_substream_count"] == 0
+    assert manifest["target_state_substreams"] == []
+
+
 def test_same_seed_reproduces_targets_and_new_seed_changes_only_target_substream():
     source = _scenario()
     first, first_manifest = build_seed_scenario(

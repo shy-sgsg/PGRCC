@@ -701,6 +701,39 @@ def test_mode_b_off_fixed_reference_generates_research_operator_xml(tmp_path: Pa
     assert generated_xml.findtext(".//csi_metrics_beam_id") == "50"
 
 
+def test_method_xml_can_keep_scalar_csi_tap_without_dumping_full_maps(tmp_path: Path) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import _method_xml
+
+    method = {
+        "method_id": "PKR",
+        "research_calibration_enable": True,
+        "research_calibration_method": "robust_ddc_rb",
+    }
+    xml_record = _method_xml(
+        tmp_path,
+        ROOT / "config/gmti.xml",
+        method,
+        {
+            "range_band_bins": 133,
+            "min_support": 8,
+            "csi_metrics_dump_power_maps": False,
+            "csi_metrics_dump_intermediate_maps": False,
+        },
+        layout={"beam_id": 50},
+        mode="Mode-A",
+        role="OFF",
+    )
+
+    assert xml_record["status"] == "passed"
+    assert xml_record["overrides"]["csi_metrics_enable"] == "true"
+    assert xml_record["overrides"]["csi_metrics_dump_power_maps"] == "false"
+    assert xml_record["overrides"]["csi_metrics_dump_intermediate_maps"] == "false"
+    generated_xml = ET.parse(xml_record["path"])
+    assert generated_xml.findtext(".//csi_metrics_enable") == "true"
+    assert generated_xml.findtext(".//csi_metrics_dump_power_maps") == "false"
+    assert generated_xml.findtext(".//csi_metrics_dump_intermediate_maps") == "false"
+
+
 def test_flatten_rows_rejects_mode_b_current_off_as_noncomparable() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         _flatten_rows,

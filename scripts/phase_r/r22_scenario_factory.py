@@ -85,8 +85,8 @@ def build_seed_scenario(
     """
     if isinstance(seed, bool) or not isinstance(seed, int) or not 0 <= seed < 2**32:
         raise ValueError("seed must be an integer in [0, 2^32)")
-    if isinstance(target_count, bool) or not isinstance(target_count, int) or target_count <= 0:
-        raise ValueError("target_count must be a positive integer")
+    if isinstance(target_count, bool) or not isinstance(target_count, int) or target_count < 0:
+        raise ValueError("target_count must be a non-negative integer")
     if isinstance(period_count, bool) or not isinstance(period_count, int) or period_count <= 0:
         raise ValueError("period_count must be a positive integer")
     if isinstance(first_beam, bool) or not isinstance(first_beam, int) or first_beam <= 0:

@@ -1526,8 +1526,12 @@ def _method_xml(
             str(Path(reference_path).resolve()) if reference_path is not None else ""
         ),
         "csi_metrics_enable": "true",
-        "csi_metrics_dump_power_maps": "true",
-        "csi_metrics_dump_intermediate_maps": "true",
+        "csi_metrics_dump_power_maps": (
+            "true" if bool(production.get("csi_metrics_dump_power_maps", True)) else "false"
+        ),
+        "csi_metrics_dump_intermediate_maps": (
+            "true" if bool(production.get("csi_metrics_dump_intermediate_maps", True)) else "false"
+        ),
         "csi_metrics_beam_id": int(layout["beam_id"]),
     }
     command: list[object] = [
@@ -1748,7 +1752,9 @@ def _run_case(
         manifest["scene_identity"],
         float(case["delay_error_ns"]),
         case_root / "scenes",
+        allow_target_free=case.get("allow_target_free_h0") is True,
     )
+    manifest["allow_target_free_h0"] = case.get("allow_target_free_h0") is True
     manifest["scene_variants"] = {key: str(path) for key, path in scene_variants.items()}
     simulation: dict[str, dict[str, object]] = {}
     simulation_order = ["A0_ON", "A0_OFF", "A0_TO", "A1_ON", "A1_OFF", "A1_TO"]

@@ -236,6 +236,9 @@ struct Stage2RunConfig {
     // materialized point/line/strong scatterers.
     std::string output_signal_domain = "auto";
     bool truth_output = true;
+    // Explicitly permits a target-free H0 scene. When true, the run config
+    // must contain an empty targets array; ordinary empty-target runs remain invalid.
+    bool allow_target_free_h0 = false;
     int beam_index_base = 1;
     Stage2Config cfg;
     gmti::target_injection::TargetGlobalConfig global;
