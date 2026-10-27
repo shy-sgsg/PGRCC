@@ -15,12 +15,12 @@
 R22 扩展目标是验证多目标、连续扫描、实际杂波和独立 seed 下的传统方法能力边界。研究总纲正文未修改，Git blob 仍为 `e637e3769bde7814298ff012d0f42301884e2985`。
 
 - **实际运行：** 实验源码 commit `91cb5b1de8c2831073465e9192c1a385f0e0e25a`。V1A 首个 0 ns case 为 seed1930101、2.5 m/s、20 dB、20 targets、10 periods。Stage2 连续面积地杂波为 1300 packets / 6,508,782 samples，实测平均功率 `0.0225128995081`；area gate 和 causal triplets 通过。
-- **Production gate：** 41 条方法/角色记录中 24 个分支完整通过；4 个 C4/PKR reference 分支实际执行且 Production return code 为 0，但 gamma reference 验证失败；8 个依赖分支未执行；5 个零误差物理校正记录标为 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`。在 `range_band_bins=133`、`min_support=8` 下，Mode-A/OFF 有 15/12,090 行 support 3–7，Mode-B/ON 有 11/12,090 行 support 5–7，原因为 `insufficient_robust_support`。整份 reference 按 fail-closed 规则拒绝。
+- **Production gate：** 41 条方法/角色记录中 24 个分支完整通过；4 个 C4/PKR reference 分支实际执行且 Production return code 为 0，但 gamma reference 验证失败；8 个依赖分支未执行；5 个零误差物理校正记录标为 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`。在 `range_band_bins=133`、`min_support=8` 下，Mode-A/OFF 有 15/12,090 行 support 3–7，Mode-B/ON 有 11/12,090 行 support 5–7，原因为 `insufficient_robust_support`。源码表明这些行在相位筛选前已有不少于 8 个非零交叉项，但经冻结的 ±0.35 rad robust phase consistency 筛选后只剩 3–7 个；整份 reference 按 fail-closed 规则拒绝。该直接门控原因已确认，底层物理原因未确认。
 - **可评价性：** case `EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`；有 41 条 task rows、3200 个 target-period opportunity rows、8 条 ON rows 可评估、0 个独立 H0 seed。有效 CUT/unique-hit union 与经验 Pfa 未形成全方法可比结果。没有可报告的 Pd/Pfa、已知校正恢复量或盲方法差距。
 - **停止范围：** V1A matrix 状态 `GATE_FAILED`，计划 12 个工程 case 中只完成 1 个；+4 ns、其余工程 seeds、screening 288、confirmatory 180、40-target stress 48、3-target bridge 6 与独立 H0 60 cases 均未启动。未降低 support threshold 或 Production/CFAR quality gate，未继续算法比较。
-- **当前裁决：** `INCONCLUSIVE / STOP_AT_ENGINEERING_GATE`。本次确认了有效杂波和 CUDA 执行，发现 133-bin candidate grouping 在该 case 的少量稀疏区域不能提供完整合格参考；没有回答未知时延是否降低任务性能，也没有证明 Known recovery、盲估计差距或 AI 必要性。低速保护与复杂杂波优先级也未被本次实验区分。
+- **当前裁决：** `INCONCLUSIVE / STOP_AT_ENGINEERING_GATE`。本次确认了有效杂波和 CUDA 执行，确认 133-bin groups 中少数行经 ±0.35 rad 相位一致性筛选后保留支持数不足；现有证据不能将其归因为几何稀疏，也不能确定低一致性的物理来源；没有回答未知时延是否降低任务性能，也没有证明 Known recovery、盲估计差距或 AI 必要性。低速保护与复杂杂波优先级也未被本次实验区分。
 - **下一步候选：** 先完成 ChatGPT 独立审查；只有用户决定继续后，再做一项离线 support-group 覆盖与 reference contract 审计。若提出新的分组/有效区域规则，需明确空间分辨率代价、缺组处理和评价分母，并作为新版本预注册；不得静默放宽当前门槛。完整结果见 [V1A 工程门复测记录](phase_r/R22/11_v1a_engineering_gate_result_20261028.md) 与[精简审查证据](phase_r/R22/evidence/extension_engineering_v1a/seed1930101/README.md)，提示词见 [R22 ChatGPT 提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。
-- **磁盘：** case 中间 binary 清理后本机工程输出约 296 MB；清理当时 worktree 约 6.9 GB，本次交付前复测约 7.2 GB，均小于 20 GB。原始路径/SHA 清理台账在本机输出目录，精简关键证据已归档。
+- **磁盘：** V1A 完整 engineering 输出树实测 2,401 个文件、301,858,725 bytes（约 301.9 MB）；清理当时 worktree 约 6.9 GB，本次复测约 7.2 GB，均小于 20 GB。原始路径/SHA 清理台账在本机输出目录，精简关键证据已归档。
 - **状态标签：** `IMPLEMENTED=true`；`EXECUTED=true`；`EVALUABLE=false`；`PERFORMANCE_VERIFIED=false`。
 
 ## 历史阶段：R21 完成；固定时延作为有界确定性候选

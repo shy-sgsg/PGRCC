@@ -39,7 +39,7 @@
 - V1A engineering 矩阵状态为 `GATE_FAILED`；计划 12 个配对工程 case，只完成 seed1930101 的 0 ns case。该 case 是 2.5 m/s、20 dB、20 targets、10 periods；+4 ns 和其余全部 screening/confirmatory/stress/bridge/独立 H0 条件未执行。
 - Stage2 面积杂波门通过：1300 个 continuous-area packets、6,508,782 个 samples，实测平均功率 0.0225128995081；因而本次停止原因不是面积杂波为零。
 - 41 条方法/角色记录中，24 条分支完整通过；4 条 C4/PKR 主 reference 分支实际运行且 Production return code 为 0，但 reference 验证失败；8 条依赖分支未运行；5 条零时延物理校正记录为 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`。
-- C4/PKR 使用 133-bin group 和 `min_support=8`。Mode-A/OFF reference 有 12,090 行，其中 15 行因 `insufficient_robust_support` 只有 3–7 个 support；Mode-B/ON 有 11 行低于门槛（support 5–7）。验证器拒绝整份 reference，matrix fail-closed。请判断这是输入/覆盖事实、门控/数据契约问题还是算法问题，不能因 Production exit 0 宣称通过，也不能建议降低支持阈值或静默回退 Current。
+- C4/PKR 使用 133-bin group 和 `min_support=8`。Mode-A/OFF reference 有 12,090 行，其中 15 行因 `insufficient_robust_support` 在相位筛选后只有 3–7 个 support；Mode-B/ON 有 11 行低于门槛（support 5–7）。源码 `src/production_calibration_adapter.cpp::fitRobust` 显示，筛选前少于 8 个非零交叉项时会返回 `insufficient_phase_support`；本次失败行是相位残差经 ±0.35 rad 筛选后只剩 3–7 项。直接触发点是 robust phase consistency gate，不能据此断言几何稀疏或查明底层物理原因；完整 F1/F2 CSI arrays/maps 未保留。验证器拒绝整份 reference，matrix fail-closed。请分别判断门控触发原因、尚未查明的物理根因及需要的新增诊断；不能因 Production exit 0 宣称通过，也不能建议降低支持阈值、默许缺组或静默回退 Current。
 - Case 总状态 `EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`；没有独立 H0 seed，valid-CUT / unique-hit union 与经验 Pfa 不能形成全方法可比的统计结论。
 - V1A 未回答未知时延是否降低 GMTI 任务性能，也未测得已知校正恢复量或盲方法差距。本次失败不能作为 AI 训练必要性证据。
 

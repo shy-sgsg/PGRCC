@@ -57,7 +57,11 @@ Case manifest 登记 41 个方法/角色记录：
 | Mode-A OFF | 12,090 | 12,075 | 15 | 3–7 | `insufficient_robust_support` |
 | Mode-B ON | 12,090 | 12,079 | 11 | 5–7 | `insufficient_robust_support` |
 
-验证器要求每个必需 gamma group 均为 `status=OK`，故整份 reference 被标记 `reference_status_not_ok`，后续 ON/OFF/TO 应用角色不执行。Production 进程退出码为 0 不代表参考估计通过。该结果是稀疏 group 支持不足触发的正确 fail-closed 行为；不能降低 `min_support`、默许缺组、回退 Current 或把未运行角色记为成功。
+验证器要求每个必需 gamma group 均为 `status=OK`，故整份 reference 被标记 `reference_status_not_ok`，后续 ON/OFF/TO 应用角色不执行。Production 进程退出码为 0 不代表参考估计通过。
+
+源码 `src/production_calibration_adapter.cpp` 的 `fitRobust` 先统计非零交叉项；若少于 8，返回 `insufficient_phase_support`。本次失败行为 `insufficient_robust_support`，代码在 ±0.35 rad 相位残差筛选后将 `support_count` 设为保留项数，再以 8 为门槛。因此这些失败行筛选前已有至少 8 个有效交叉项，筛选后留下 3–7 个。可确认的直接原因是相位一致性筛选导致支持不足；这不能证明几何稀疏，也不能识别低相位一致性的底层物理原因。该 case 未保留完整 F1/F2 CSI arrays/maps，不能从现有产物进一步归因。
+
+不能降低 `min_support`、默许缺组、回退 Current 或把未运行角色记为成功。
 
 有效 CUT 分母在已完整运行分支中有逐周期记录；但跨全部方法的 valid-CUT / unique-hit union 门为 `NOT_EVALUABLE`。case 汇总有 41 条 task rows、3200 个 target-period opportunity rows，其中 8 条 ON 记录可评价、独立 H0 seed 为 0；case 整体 `EVALUABLE=false`。经验 Pfa、独立 H0 虚警以及跨分支检测 union 均不能由本次数据给出。
 
@@ -65,7 +69,7 @@ Case manifest 登记 41 个方法/角色记录：
 
 +4 ns 配对工程 case、其余 5 个工程 seeds、screening 288 cases、confirmatory 180 cases、40-target stress 48 cases、3-target bridge 6 cases 和独立 H0 60 cases 均未启动。停止原因是 V1A 第一个 0 ns case 的必需 C4/PKR reference gate 失败。
 
-当前证据说明：面积杂波有效，CUDA Production 路径实际运行，且候选 133-bin 分组对该 seed 的稀疏部分区域无法产生完整合格 reference。它不证明未知时延降低 GMTI 任务性能，也不证明已知校正有收益，不足以判断盲估计的任务差距、总体研究方向或 AI 必要性。
+当前证据说明：面积杂波有效，CUDA Production 路径实际运行，且少数 133-bin group 经 robust phase consistency 筛选后无法产生完整合格 reference；现有产物不能判断这是何种底层物理效应造成。它不证明未知时延降低 GMTI 任务性能，也不证明已知校正有收益，不足以判断盲估计的任务差距、总体研究方向或 AI 必要性。
 
 ### 后续门控建议
 
