@@ -1,5 +1,7 @@
 # PGRCC R21 独立科研审查请求
 
+> 本文件是早期审查请求快照，绑定的 commit 与当前最终证据不同。最终 ChatGPT 审查请使用 [`12_ChatGPT_review_request.md`](12_ChatGPT_review_request.md)，该文件会绑定包含 R21 完整报告、机器结果和审计证据的固定内容 commit。
+
 > 使用说明：R21 两个冻结 seed 已完成。本提示词绑定的审查快照为 `7b8d97067a848fbaf2e1a09cc82dbcd6efe42114`。将本提示词与仓库链接一并交给 ChatGPT；结果状态和失败记录按该提交中的 manifest 原样披露。
 
 ## 可直接提交给 ChatGPT 的提示词

@@ -1,5 +1,7 @@
 # R21 初步方向评估
 
+> **历史快照说明：** 本文形成于完整 common-success 参数与残差表生成前。其早期 `CONTINUE` 判断已由 [`10_scientific_value_and_direction_decision.md`](10_scientific_value_and_direction_decision.md) 的最终证据裁决取代；请以最终报告为准。
+
 ## 阶段裁决
 
 **固定静态通道时延估计：`CONTINUE`，限于本次已验证的 +4 ns 场景，先提交独立审查，不自动开展新实验。**

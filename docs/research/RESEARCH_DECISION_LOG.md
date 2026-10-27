@@ -140,3 +140,14 @@
 - **对长期目标与 AI：** 不调整 GMTI 研究总目标；维持未知物理状态 characterization 作为待验证模块，固定静态 delay estimator 保留作传统 baseline。没有确定性方法稳定失败证据，不训练 AI；低速与复杂杂波也不是本次变量，不能据此改变排序。
 - **下一项与停止条件：** 只有用户/ChatGPT 审查确认后，才考虑固定场景的两独立 seed A0/B/Known/M1 Production 复核，并保存实际 axis、raw inputs、identity、Detection/TrackManager。若失配与 Known 恢复不重复，停止该 error→task claim；若 M1 不重复收益或持续有参数/closure gap，停止扩张窄估计支线并回到公平传统 Baseline 评价；无稳定确定性 residual 时不进入 AI。
 - **来源：** [R20 方向裁决](phase_r/R20/09_research_opportunity_and_direction_decision.md)、[R8 复评](phase_r/R20/07_r8_harmonized_nonzero_delay_causal_review.md)、[R12 复评](phase_r/R20/08_r12_deterministic_estimation_capability_review.md)、[机器结果与身份及紧凑输入包](phase_r/R20/evidence/)。
+
+## 2026-10-27｜R21：固定 +4 ns 时延任务损失在两 seed 重现；M1 作为有界确定性候选保留
+
+- **决策编号与总纲：** `D-2026-10-27-R21`。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`；本阶段未修改总纲正文。
+- **问题与范围：** 以 `r21-task-eval-v3` 修正 TrackManager lineage、Doppler 逐机会映射、truth range-bin 与 evaluability 状态；对两个独立 seed 的 6.7 m/s、30 dB、+4 ns 连续面积地杂波场景执行六方法 × ON/OFF/TO Native CUDA Production pilot。没有增加 seed、训练 AI、修改算法或启动 R22。
+- **直接证据：** seed1001/1002 的 A0、Known 各 2/3 命中，B 分别 1/3、0/3；R9 fixed D3、Huber D3、M1 分别 2/3、3/3。Known F2 相对 A0 RMS 约 `8.76e-5`、`8.82e-5`，通过 `1e-3` 门；B F2 RMS 约 0.328。M1 在两个 seed 的共同成功机会 angle/position RMSE 以及 F2 残差均优于 R9/Huber，但角度/位置仍差于 Known，F2 RMS 为约 0.0123/0.0402。ground-speed 仅 n=1/2 且排序不稳；radial velocity 无有效估计。统计 Pfa 因缺独立 H0 抽样单位不可评估。
+- **实验身份与异常：** 两 seed 各 18/18 Production branches passed；seed1001 外层 wrapper 在分支完成后因 `KeyError('case_manifest')` 报失败，状态原样保留，并用修复后的 evaluator replay 评估已完成 CUDA 产物；seed1002 外层运行完成。Binary SHA 为 `9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566`，`use_corex=false`。
+- **裁决：** 阶段 `PASS_WITH_LIMITATIONS`。固定静态时延估计 `CONTINUE` 仅限作为有界确定性候选/传统 baseline；不认定论文创新或总体 GMTI 性能收益。广义未知物理状态 `NOT_VERIFIED`；`AI_ENTRY_GATE=FAIL`；`PERFORMANCE_VERIFIED=false`。两个 seed 只提供描述性可行性证据。
+- **方向与停止条件：** 先完成 ChatGPT 独立审查；若用户决定继续，只建议先离线分解 M1–Known 的 F2 复数残差，不新增 CUDA/seed。若离线残差结构不能支持稳定、任务相关且超越简单 D3 的确定性改进，则停止静态时延研究重点并回到共同 Production 条件下的强传统 GMTI baseline 瓶颈判别。低速保护和复杂杂波本轮未区分，不提升为新主线。
+- **测试与结果：** 定向 R19/R20/R21 测试共 `111 passed`；结果、配置、报告和图见 [`phase_r/R21/README.md`](phase_r/R21/README.md)。
+- **空间清理：** 通过 CRC 和 SHA 审计后清理了两 seed run 中可再生的重复 `.bin/.npy`，保留闭合必需的 raw A0/B、六方法 ON input 和 ON CSI arrays；工作区由约 16 GB 降至约 6.7 GB，详见 [`phase_r/R21/evidence/cleanup_ledger.md`](phase_r/R21/evidence/cleanup_ledger.md)。

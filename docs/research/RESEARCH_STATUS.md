@@ -6,11 +6,21 @@
 
 - R18 执行源码版本：`014352ace1c4ad0bade0d759a099a47fe9ecfaa9`（工作分支 `codex/unknown-system-error-next-stage`）；完整阶段报告随当前交付提交。
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；R17 仅按用户明确范围恢复总纲第 9 节的三段文字至 R16 前版本，其他正文不变。
-- 本状态整理日期：2026-10-26。
-- 最近完成阶段：R20 已完成 R19 评价器修正、Doppler truth 映射正控、R18 回归和 R8/R12 保存结果统一复评；完整报告见 [R20 总实施计划](phase_r/R20/00_master_execution_plan.md) 与 [R20 ChatGPT 审查请求](phase_r/R20/11_ChatGPT_review_request.md)。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`。
-- 当前在研阶段：无。R20 仅离线复评，没有运行 CUDA 或产生新 IQ；下一步仅建议在用户/独立审查决定后，考虑两个独立 seed 的窄 M1 复核。当前不启动实验或 AI 训练。
+- 本状态整理日期：2026-10-27。
+- 最近完成阶段：R21 已完成两 seed Native CUDA causal pilot、v3 评价器历史回归和离线参数/物理闭合分析；完整入口见 [R21 导航](phase_r/R21/README.md)。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`。
+- 当前在研阶段：无。R21 已停止；没有新增 seed、AI 训练或 R22。下一项仅建议在 ChatGPT 独立审查和用户决定后，离线分解 M1–Known F2 复数残差。
 
-## 当前研究阶段：R20 完成；未知 +4 ns 任务损失获有限支持
+## 当前研究阶段：R21 完成；固定时延作为有界确定性候选
+
+R21 在 seed1001/1002、6.7 m/s、30 dB、+4 ns、连续面积地杂波下完成六方法 × ON/OFF/TO 的 Native CUDA Production pilot。B 的正确目标命中为 1/3、0/3；A0 和 Known 均为 2/3、2/3。Known F2 相对 A0 的闭合误差约 `8.8e-5`，通过冻结 `1e-3` 门；M1 在两个 seed 的共同成功机会角度/位置 RMSE 和 F2 残差均优于 R9 fixed D3 与 Huber D3，但仍落后 Known。ground-speed 样本少且排序不稳定；radial velocity 与统计 Pfa 不可评价。
+
+- **裁决：** R21 `PASS_WITH_LIMITATIONS`；固定 delay estimator `CONTINUE`，仅作为有界候选/传统 baseline，不确认论文创新或总体 GMTI 增益。广义未知物理状态 `NOT_VERIFIED`；AI entry gate `FAIL`。低速保护与复杂杂波建模未在本轮区分，不能据此升级为新主线。
+- **状态标签：** `IMPLEMENTED=true`；`EXECUTED=true`；`EVALUABLE=true`（仅逐机会有效且字段齐备的描述指标）；`PERFORMANCE_VERIFIED=false`（两个 seed 不支持统计显著性）。
+- **执行异常：** seed1001 的外层包装器在 18/18 CUDA branches 完成后出现 `KeyError('case_manifest')`，保留 failed 状态；修复后的 CPU evaluator replay 只重新评价已完成的 CUDA 输出。seed1002 outer run 完成。
+- **空间清理：** R21 文本审计 ZIP CRC 正常；原工作区约 16 GB，R21 二进制去重后约 6.7 GB。保留 A0/B 闭合输入、六方法 ON 合并复数输入及 ON CSI arrays；清理清单见 [R21 cleanup ledger](phase_r/R21/evidence/cleanup_ledger.md)。
+- **来源：** [R21 检测与任务结果](phase_r/R21/07_detection_and_task_results.md)、[参数与物理闭合](phase_r/R21/08_parameter_track_and_physical_closure.md)、[科研价值与方向裁决](phase_r/R21/10_scientific_value_and_direction_decision.md)、[实验 manifest](phase_r/R21/evidence/results/r21_experiment_manifest.json)。
+
+## 历史研究阶段：R20 完成；未知 +4 ns 任务损失获有限支持
 
 R20 使用冻结的 `r20-task-eval-v2` 离线评价器对 R18、R8、R12 保存证据复评。本阶段执行 43 个 R20 evaluator/adapter/review 测试和 29 个冻结 R19 evaluator 回归测试，三个 R20 Python 文件通过 `py_compile`；没有 CUDA/Production 重放、原始 IQ 重算、算法修改或参数调整。
 

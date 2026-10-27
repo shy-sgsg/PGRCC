@@ -83,3 +83,11 @@
 - R12 Huber D3 符合进入新 seed pilot 的输入边界：历史 manifest 声明输入仅为 B ON C1/C2，且其新 seed 实际结果会重新从同角色观测估计；历史 raw IQ 已不保留，因此历史 3.588 ns 只作审计线索，不宣称重算。R21 使用同一 `rewrite_float32_protocol_delay` 和 Production `run_production_branch` 路径。
 - 当前 worktree 约 2.1 GB，低于 20 GB；没有删除历史证据或其他用户产物。R21 Native CUDA 二进制尚未找到/构建，WP2/WP3 配置冻结和真实 CUDA 执行仍未完成。
 - ChatGPT 提示词模板已存在于 `11_ChatGPT_review_request.md`；完整提交 SHA、实验身份和结果须在实际运行与报告完成后回填。
+
+## 最终完成记录（2026-10-27）
+
+WP0–WP5 已完成。执行结果、参数/闭合、因果解释、方向裁决和质量审计分别见 R21 `02`–`11` canonical reports；精简阅读入口见 [`README.md`](README.md)。最终状态：`PASS_WITH_LIMITATIONS`；固定时延只作为有界确定性候选保留，广义状态估计 `NOT_VERIFIED`，AI entry gate `FAIL`，`PERFORMANCE_VERIFIED=false`。
+
+正式汇总器已从 2,109 项文本审计 ZIP 重建 17 CSV 与 6 SVG；111 项离线测试通过。两 seed 的必要 A0/B 原始闭合输入、六方法 ON 合并复数输入和 ON CSI arrays 保留在本机清理后的原路径，未纳入 Git；保留文件 SHA 清单与删减依据见 [`evidence/cleanup_ledger.md`](evidence/cleanup_ledger.md) 和 [`evidence/inputs/r21_retained_binary_manifest.json`](evidence/inputs/r21_retained_binary_manifest.json)。研究总纲正文未改，Git blob 仍为入口值 `e637e3769bde7814298ff012d0f42301884e2985`。
+
+R21 已停止。下一项仅建议在 ChatGPT 独立审查及用户决定后，离线分解 M1–Known F2 复数残差；未启动新实验或 AI 训练。
