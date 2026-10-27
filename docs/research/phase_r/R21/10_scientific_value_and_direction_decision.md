@@ -26,6 +26,6 @@
 
 ## 下一项唯一建议
 
-先由 ChatGPT 按 [`12_ChatGPT_review_request.md`](12_ChatGPT_review_request.md) 独立审查 R21 与研究总纲。在获得该审查及用户决策后，若继续，下一项只建议做**离线的 M1–Known F2 复数残差分解**：利用保留的阶段输入与关键 ON 复数数组，区分频率相关相位模型残差、几何项和优化残差，并检查角度/位置改善是否可由这些残差解释。此步骤不运行 CUDA、不加 seed、不训练 AI。若残差分解不能支持任务相关的可恢复模型差异，则停止把固定时延估计作为研究重点，回到共同 Production 条件下的强传统 GMTI baseline 瓶颈判别。
+先由 ChatGPT 按 [`12_ChatGPT_review_request.md`](12_ChatGPT_review_request.md) 独立审查 R21 与研究总纲。原建议的离线 M1–Known F2 复数残差分解、局部优化收敛检查和计算代价审计已完成，见 [`13_offline_m1_residual_and_cost_audit.md`](13_offline_m1_residual_and_cost_audit.md)。这项补充分析将差距定位到 M1 估计后的 C2 标量时延残差，并排除了当前目标函数局部优化未收敛这一解释；它没有提供更一般状态模型或跨场景证据。因此下一步先等待 ChatGPT 独立审查和用户决策，不自动启动新实验。若审查后仍建议继续固定时延候选，再由用户决定是否开展独立场景验证；若不支持稳定任务级可恢复收益，则回到共同 Production 条件下的强传统 GMTI baseline 瓶颈判别。
 
 本报告不是对研究总纲的修改建议批准，也不自动启动任何下一阶段。

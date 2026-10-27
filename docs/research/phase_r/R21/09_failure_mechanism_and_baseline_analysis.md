@@ -15,7 +15,9 @@
 
 相对 Huber D3 与 R9 fixed，M1 在两个 seed 中的共同成功机会 angle、position RMSE 均更低，F2 残差也均更小；检测命中与两种 D3 相同（seed1001 为 2/3，seed1002 为 3/3）。M1 仍未达到 Known 的物理闭合或 angle/position 精度。Ground-speed 排名反转，false-confirmed ID 计数也并非每 seed 均优于 Huber，因此不能把中间物理量改善表述为所有 GMTI 输出都改善。
 
-M1 的估计时延与 Known 的差值分别约为 `0.109 ns` 和 `0.365 ns`；估计误差较小对应更低 F2 residual，但 residual 仍比 Known 大约两个至三个数量级。R21 没有足够的频率依赖误差分解、几何扰动试验或优化收敛诊断，故无法将剩余差距唯一归因于模型失配、优化器或观测可辨识性。
+M1 的估计时延与 Known 的差值分别约为 `0.109 ns` 和 `0.365 ns`；估计误差较小对应更低 F2 residual，但 residual 仍比 Known 大约两个至三个数量级。后续针对保留复数输入的离线审计确认：两个 seed 的 F2 RMS 可由 C2 残差完全解释，C4 逐位不变，且 C2 正负频率相位斜率与各自的剩余时延一致；F2 融合后的相位斜率因 C2/C4 混合而不等同 C2 通道时延。401 点目标函数剖面各只有一个内部极小值，1001 点局部密网格与 golden-section 解相差不超过 `1.95e-6` samples，故当前 M1–Known 差距不能归因于局部优化器未找到现有目标函数的最优点。详见 [`13_offline_m1_residual_and_cost_audit.md`](13_offline_m1_residual_and_cost_audit.md)。
+
+该补充分析仍只覆盖两个冻结 seed；它没有扰动几何，也没有更换 M1 的 constant-complex-gain 模型。因而它支持将剩余差距定位到 M1 估计后的 C2 标量时延残差，但不能确认该误差在不同场景中的机制，也不能证明广义系统状态不可辨识。
 
 ## CSI/SCNR 与自消边界
 

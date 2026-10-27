@@ -8,6 +8,7 @@ R21 的最终报告位于 `docs/research/phase_r/R21/`：
 - evaluator 修正与回归：[`02_evaluator_v3_corrections.md`](02_evaluator_v3_corrections.md)、[`03_evaluator_regression_and_tests.md`](03_evaluator_regression_and_tests.md)
 - 方法/冻结设计/执行：[`04_baseline_methods_and_input_fairness.md`](04_baseline_methods_and_input_fairness.md)、[`05_frozen_experiment_contract.md`](05_frozen_experiment_contract.md)、[`06_cuda_execution_and_identity_audit.md`](06_cuda_execution_and_identity_audit.md)
 - 任务结果与机制：[`07_detection_and_task_results.md`](07_detection_and_task_results.md)、[`08_parameter_track_and_physical_closure.md`](08_parameter_track_and_physical_closure.md)、[`09_failure_mechanism_and_baseline_analysis.md`](09_failure_mechanism_and_baseline_analysis.md)
+- 离线残差与代价补充审计：[`13_offline_m1_residual_and_cost_audit.md`](13_offline_m1_residual_and_cost_audit.md)
 - 方向和质量：[`10_scientific_value_and_direction_decision.md`](10_scientific_value_and_direction_decision.md)、本审计与 [`12_ChatGPT_review_request.md`](12_ChatGPT_review_request.md)
 
 机器可读交付含 17 张必需 CSV、`r21_experiment_manifest.json`、`r21_evaluation_manifest.json` 和 6 张 SVG。文本审计证据 ZIP 包含 runtime XML、日志、CSI/CFAR 摘要、Stage2 几何与逐机会结果。大体积二进制输入/数组仅在本机保留必要子集，不进入 Git。
@@ -15,11 +16,13 @@ R21 的最终报告位于 `docs/research/phase_r/R21/`：
 ## 验证记录
 
 - `python3 -m pytest -q` 覆盖 R19/R20/R21 evaluator、historical adapter、CUDA runner 与最终证据汇总器的 8 个测试模块：**111 passed**。输出在 [`evidence/test_logs/r21_final_pytest.txt`](evidence/test_logs/r21_final_pytest.txt)。
+- `python3 -m py_compile scripts/phase_r/r21_offline_m1_diagnostic.py`：通过；两 seed 离线 M1 残差审计均已实际运行，数值和边界见 `13_offline_m1_residual_and_cost_audit.md` 及对应 JSON。
 - `python3 -m py_compile scripts/phase_r/r21_finalize_evidence.py`：通过。
 - `python3 scripts/phase_r/r21_finalize_evidence.py --help`：CLI 正常。
 - `python3 scripts/phase_r/r21_finalize_evidence.py`：从固定 CUDA 文本审计 ZIP 重新生成 17 CSV 与 6 SVG；Stage1 raw input 可用时重算 B→A0 F2 距离。
 - Known closure、有效 CUT、逐机会 Doppler、运行 XML/log/manifest 身份和 area clutter 数值均已核对；没有通过降低阈值制造通过。
 - 本阶段 CUDA 执行是既有 seed1001/1002 真正 Native CUDA 运行；本次收尾没有重跑 CUDA。
+- 补充 M1 审计只在现有输入上运行 CPU 离线分析，不是新的 CUDA Production 或任务性能实验。
 
 ## 研究总纲与 Git 安全
 
