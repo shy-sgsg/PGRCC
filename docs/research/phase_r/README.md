@@ -1,9 +1,10 @@
 # PGRCC Phase R：研究审查与证据导航
 
-更新日期：2026-10-26。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
+更新日期：2026-10-27。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
 
 ## 当前决策
 
+- **R21 更新（2026-10-27）：** 两个 seed 的本地 Native CUDA pilot 均完成 18 个方法/角色分支。A0 与 Known 各 seed 命中 2/3；B(+4 ns) 为 1/3、0/3；R9 fixed D3、Huber D3、M1 各为 2/3、3/3。Known 输入物理闭合通过，blind correction 未达到 Known 级闭合；统计 Pd/Pfa 仍不可评估，只有两个独立 seed，故不作显著性结论。阶段初步建议是继续有界静态时延评估，不训练 AI、不自动启动后续阶段。详见 [R21 结果](R21/06_minimal_cuda_causal_pilot.md)、[方向评估](R21/07_preliminary_direction_assessment.md)、[审查提示词](R21/11_ChatGPT_review_request.md)。
 - **R19 更新（2026-10-26）：** 对 R18 的 12 个零时延场景完成 strict one-to-one task re-evaluation。R19 没有运行 CUDA；高速度 Mode-A/B 检测机会和下游候选数出现描述性差异，但 Mode-A 使用 paired-OFF privileged reference。经验 Pfa、target-only complex CSI/SCNR、CFAR 空间归因、radial velocity 与 ID-switch 根因仍未闭合。R18 全部为 0 ns，故不能回答未知误差因果效应、Known 恢复量或盲估计差距；AI、低速保护和复杂杂波主线均未获证据支持。唯一后续建议是先离线统一复评 R8/R12 的历史 +4 ns 条件，待用户授权。完整交付从 [R19 总实施计划](R19/00_master_execution_plan.md)进入。
 - **R18 更新：** 本阶段已完成 12 场景、252 个 Native CUDA Production branches；有效连续面积杂波、输入 causal triplet、CFAR valid-CUT geometry/分母和 final-union-hit 门均通过。经验 Pfa、PK/PKR residual closure、目标专属幅相/SCNR 与 ID-switch lineage 未闭合，seed909 C3 参考因预注册 exact-support gate 失败而停止任务评价。阶段裁决为 INCONCLUSIVE，停止方法性能排名；固定零时延不能回答未知误差因果效应，不支持 AI、低速保护或复杂杂波路线变更。完整证据与报告见 [R18 导航](R18/00_master_execution_plan.md)及下方 R18 阅读入口。
 - **R16 更新：** 本地 Native CUDA seed505、6.7 m/s、30 dB、0 ns pilot 已完成 A0/C0/C1 × OFF/ON/TO 共 9 branches。面积杂波和 27 张 CFAR final-union maps 有效；C1 Gamma=1 在 ON/TO 各正确检测 1/3，C0 为 3/3，C1 的 H0 残余与 TO 目标保持也较差。非目标检测行减少不能解释为 Pfa 改善。R14/R16 输入身份相同，但 Production binary 和 C0 CFAR 输出不同，因此不能用历史 C2/C3 给 C1 排名。该单 seed、零时延结果不回答未知误差因果问题，不支持 AI 或低速/复杂杂波方向变更；阶段结束且不自动扩展。详见 [R16 结果](R16_minimal_c1_results.md)、[方向评估](R16_research_direction_assessment.md)、[冻结设计](R16_experiment_design.md) 和 [紧凑证据包](evidence/r16_c1_gamma1_seed505/README.md)。
@@ -191,3 +192,13 @@ R13/R14 的正常速度 pilot 已完成；经验 Pfa 与未解模糊径向速度
 3. [历史证据适配/来源审计](R20/06_historical_evidence_adapter_and_provenance.md)、[R8 causal review](R20/07_r8_harmonized_nonzero_delay_causal_review.md)和[R12 估计能力 review](R20/08_r12_deterministic_estimation_capability_review.md)。
 4. [研究方向裁决](R20/09_research_opportunity_and_direction_decision.md)、[执行质量审计](R20/10_execution_and_quality_audit.md)与[ChatGPT 独立审查请求](R20/11_ChatGPT_review_request.md)。审查请求明确绑定阶段证据 commit，要求先读该 commit 的研究总纲。
 5. [566 文件的紧凑历史输入包](R20/evidence/inputs/README.md) 约 30 MB，逐文件 SHA-256 可校验；raw IQ 未打包。 [机器可读身份 manifest](R20/evidence/manifests/r20_input_identity_manifest.json) 与 [逐机会、轴、回归、参数、track、H0 和 closure 结果](R20/evidence/results/) 支撑报告。R20 不运行 CUDA；R8 seed101 缺 Production Doppler axis，统计 Pfa 和 raw-IQ closure 重算不可评价。OFF/ON/TO CUT counters 可作几何/描述审计，但不代表 statistical Pfa。
+
+## R21 固定通道时延因果 pilot（2026-10-27）
+
+阅读顺序：
+
+1. [冻结实验设计](R21/05_experiment_design.md)与[方法公平性/冻结设计记录](R21/03_method_fairness_and_frozen_design.md)。
+2. [最小 CUDA pilot 执行与结果](R21/06_minimal_cuda_causal_pilot.md)及[初步方向评估](R21/07_preliminary_direction_assessment.md)。
+3. [ChatGPT 独立审查提示词](R21/11_ChatGPT_review_request.md)：包含审查 commit、执行源码 commit、关键结果、失败现场和证据入口，要求先读取该 commit 的研究总纲。
+4. [两 seed 命中汇总 CSV](R21/evidence/cuda_pilot/two_seed_summary.csv)与[描述性命中图](R21/evidence/cuda_pilot/two_seed_hit_fraction.svg)。
+5. seed1001 的 Production manifest、seed1001 evaluator 重放和 seed1002 完整 Production manifest 位于 `R21/evidence/cuda_pilot/`。原字节文本审计材料（XML、日志、CSI/CFAR、配置、Stage2 和逐机会评价 CSV）打包在[审计证据 ZIP](R21/evidence/cuda_pilot/r21_cuda_text_audit_evidence_20261027.zip)；多 GB raw binary/CSI arrays 保留在本机，不提交到 Git。

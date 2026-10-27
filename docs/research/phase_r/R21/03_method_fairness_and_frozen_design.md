@@ -48,3 +48,7 @@ R9 fixed D3、Huber D3 和 M1 是三种不同信息边界，分别记录。固�
 - Huber D3：`IMPLEMENTED`，新 seed 盲估计和 Production 执行尚未 `EXECUTED`。
 - M1：`IMPLEMENTED`，新 seed 盲估计和 Production 执行尚未 `EXECUTED`。
 - 当前 Native CUDA Production：`NOT_EXECUTED`；本文件不构成实验结果。
+
+## 运行后状态附记（2026-10-27）
+
+以上“当前资格状态”记录冻结设计形成时的执行前状态，不覆盖为历史结论。按本文件设计实际完成 seed1001 和 seed1002 两个 Native CUDA Production pilot：R9 fixed D3、Huber D3、M1 均通过估计入口资格检查并对三种配对角色执行；每 seed 18 个 production branches 均通过。seed1001 旧 runner 在 GPU 分支之后打包时发生 `KeyError('case_manifest')`，其 GPU 执行清单保持失败状态；使用修复版 evaluator 对同一产物完成离线重放。seed1002 在修复版 runner 下完整结束。实际结果和状态标签见 [`06_minimal_cuda_causal_pilot.md`](06_minimal_cuda_causal_pilot.md)。
