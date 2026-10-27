@@ -151,3 +151,13 @@
 - **方向与停止条件：** 先完成 ChatGPT 独立审查；若用户决定继续，只建议先离线分解 M1–Known 的 F2 复数残差，不新增 CUDA/seed。若离线残差结构不能支持稳定、任务相关且超越简单 D3 的确定性改进，则停止静态时延研究重点并回到共同 Production 条件下的强传统 GMTI baseline 瓶颈判别。低速保护和复杂杂波本轮未区分，不提升为新主线。
 - **测试与结果：** 定向 R19/R20/R21 测试共 `111 passed`；结果、配置、报告和图见 [`phase_r/R21/README.md`](phase_r/R21/README.md)。
 - **空间清理：** 通过 CRC 和 SHA 审计后清理了两 seed run 中可再生的重复 `.bin/.npy`，保留闭合必需的 raw A0/B、六方法 ON input 和 ON CSI arrays；工作区由约 16 GB 降至约 6.7 GB，详见 [`phase_r/R21/evidence/cleanup_ledger.md`](phase_r/R21/evidence/cleanup_ledger.md)。
+
+## 2026-10-27｜R22：停在 PKR reference support gate，不外推单周期 pilot
+
+- **阶段状态：** `INCONCLUSIVE / STOP_AT_ENGINEERING_GATE`。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。R22 完整 screening/confirmatory matrix 未执行。
+- **真实执行：** seed900101 完成零时延 20 目标 Native CUDA smoke；seed900202/900203 为 2.5 m/s、20 dB、+4 ns、20 目标、单 beam、单周期的 Native CUDA pilot。seed900203 manifest 有 36 条方法/角色记录，30 passed、6 `NOT_EVALUABLE`。
+- **有效杂波：** seed900203 A0_ON 连续面积杂波为 130 packets / 650,892 samples，均值功率 0.0227563850584。A1 的直接注入计数为零，是因其复用 A0_ON 生成的 C+N 背景；场景 manifest、背景路径、`matched` mapping 和 causal triplet 支持配对来源，详见 R22 `area_pairing_audit.json`。
+- **停止根因：** PKR 配置 `range_band_bins=6`、`min_support=8`；两个 estimator 分支生成 26,637 reference groups，support=6 的 26,598 组、support=3 的 39 组全部 `insufficient_phase_support`，valid groups 为 0。生产 scan beam quality gate 失败，未输出 CSI tap，A0/PK/PKR residual closure 不可评价。没有降低 min-support 或生产质量门。
+- **方向边界：** 两个 seed 的一周期 C0 hit 分别为 4/20、1/20；对应 A0 为 17/20、16/20。Known 仅在 seed900203 有 16/20，盲方法也仅作 seed900203 描述。不能据此报告统计 Pd/Pfa、一般 Known recovery 或盲估计差距；AI 必要性未建立；低速/复杂杂波优先级没有被本实验检验。
+- **下一步：** 先做 ChatGPT 独立审查。若用户决定继续，仅建议一项离线 PKR grouping/support contract 审计，保持两个门槛不变；在该问题闭合前不扩 seed、不跑完整矩阵、不训练 AI。
+- **证据：** [R22 导航](phase_r/R22/README.md)、[阶段方向裁决](phase_r/R22/06_scientific_decision.md)、[执行质量审计](phase_r/R22/07_execution_and_quality_audit.md)与[ChatGPT 审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。

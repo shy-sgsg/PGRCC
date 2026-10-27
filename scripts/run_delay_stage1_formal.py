@@ -1396,7 +1396,9 @@ def run_production_branch(
         return record
 
     merged_input = Path(input_path)
-    if merged_input.is_dir():
+    # The local Production CLI consumes each period file directly below.
+    # Merging those files here only creates a second full-size copy per branch.
+    if input_mode == "shm" and merged_input.is_dir():
         merged_input = _merge_binary_files(periods, branch_root / "input_merged.bin")
     xml_path = branch_root / "production.xml"
     configure_rc, configure_log = e2e._configure_xml(
@@ -2262,6 +2264,12 @@ def run_stage1_case(
         "csi_metrics_dump_power_maps": "true",
         "csi_metrics_dump_intermediate_maps": "true",
         "csi_metrics_beam_id": int(layout["beam_id"]),
+        "new_protocol_file_first_beam": int(layout["beam_id"]),
+        "new_protocol_file_scan_beam_count": int(layout.get("scan_beam_count", 1)),
+        "shm_scan_beam_count": int(layout.get("scan_beam_count", 1)),
+        "wavepos_st": int(layout["beam_id"]),
+        "wavepos_ed": int(layout.get("last_beam_id", layout["beam_id"])),
+        "wavepos_skip": 1,
     }
     for condition in selected_conditions:
         role_records: dict[str, object] = {}

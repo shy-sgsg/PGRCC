@@ -987,6 +987,19 @@ def _point_registry(config: Mapping[str, object]) -> dict[str, dict[str, object]
 
 
 def _scene_identity(config: Mapping[str, object], case: Mapping[str, object], period_count: int) -> dict[str, object]:
+    override = case.get("scene_identity_override")
+    if isinstance(override, Mapping):
+        identity = copy.deepcopy(dict(override))
+        try:
+            override_seed = int(identity["seed"])
+            override_period_count = int(identity["period_count"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError("scene_identity_override must declare integer seed and period_count") from exc
+        if override_seed != int(case["seed"]):
+            raise ValueError("scene_identity_override seed does not match the case seed")
+        if override_period_count != int(period_count):
+            raise ValueError("scene_identity_override period_count does not match the case")
+        return identity
     points = _point_registry(config)
     point = copy.deepcopy(points.get(str(case["working_point"]), points.get("base", {})))
     point.update(_normalize_scene_parameters(case.get("scene_parameters")))
@@ -1851,7 +1864,21 @@ def _run_case(
     }
     source_xml = Path(str(simulation["A0_ON"]["output_dir"])) / "config" / "temp_config_stage2_period_0000.xml"
     truth_root = Path(str(simulation["A0_ON"]["output_dir"])) / "truth"
-    truth = e2e._truth_by_period(Path(str(simulation["A0_ON"]["output_dir"])), period_count)
+    try:
+        truth = e2e._truth_by_period(Path(str(simulation["A0_ON"]["output_dir"])), period_count)
+    except RuntimeError as exc:
+        if not str(exc).startswith("more than one visible target row in period "):
+            raise
+        # The legacy branch summary accepts one target per period. R22 uses
+        # the frozen multi-target R21-v3 evaluator after Production; passing an
+        # empty mapping here prevents the legacy summary from choosing one
+        # target opportunistically or treating many targets as independent.
+        truth = {}
+        manifest["legacy_single_target_task_summary"] = {
+            "status": "NOT_EVALUABLE_MULTI_TARGET",
+            "reason": str(exc),
+            "replacement_evaluator": "r21-task-eval-v3 via R22 evaluator",
+        }
     manifest["source_xml"] = str(source_xml)
     manifest["source_xml_sha256"] = _sha256(source_xml) if source_xml.is_file() else None
 

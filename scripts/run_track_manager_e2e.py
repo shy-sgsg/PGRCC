@@ -400,6 +400,8 @@ def _protocol_layout_from_scenario(scenario: Mapping[str, object]) -> dict[str, 
     iq_data_type = str(waveform.get("iq_data_type", "float32")).lower()
     beam_id = int(random_cfg.get("beam_start", 0))
     beam_index_base = int(scan.get("beam_index_base", 1))
+    total_beams = int(scan.get("beam_count", 0))
+    configured_beam_count = int(random_cfg.get("beam_count", 0))
     scan_min_deg = float(scan.get("scan_min_deg", math.nan))
     scan_step_deg = float(scan.get("scan_step_deg", math.nan))
     read_channel_1 = int(waveform.get("new_protocol_read_channel_1", 0))
@@ -410,8 +412,14 @@ def _protocol_layout_from_scenario(scenario: Mapping[str, object]) -> dict[str, 
         raise ValueError("TrackManager delay correction requires float32 protocol IQ")
     if not math.isfinite(fs_hz) or fs_hz <= 0.0:
         raise ValueError("scenario waveform fs_mhz must be finite and positive")
-    if beam_id <= 0 or read_channel_1 <= 0 or read_channel_2 <= 0:
+    if beam_id < beam_index_base or read_channel_1 <= 0 or read_channel_2 <= 0:
         raise ValueError("scenario beam and read-channel metadata must be positive")
+    if total_beams <= 0 or configured_beam_count < 0:
+        raise ValueError("scenario scan beam count must be positive and random beam_count cannot be negative")
+    scan_beam_count = configured_beam_count or total_beams - (beam_id - beam_index_base)
+    last_beam_id = beam_id + scan_beam_count - 1
+    if scan_beam_count <= 0 or last_beam_id >= beam_index_base + total_beams:
+        raise ValueError("scenario random beam span exceeds configured scan beam count")
     if not math.isfinite(scan_min_deg) or not math.isfinite(scan_step_deg):
         raise ValueError("scenario scan angle metadata must be finite")
     packet_bytes = (
@@ -427,6 +435,8 @@ def _protocol_layout_from_scenario(scenario: Mapping[str, object]) -> dict[str, 
         "fs_hz": fs_hz,
         "packet_bytes": packet_bytes,
         "beam_id": beam_id,
+        "scan_beam_count": scan_beam_count,
+        "last_beam_id": last_beam_id,
         "beam_index_base": beam_index_base,
         "expected_theta_deg": scan_min_deg + (beam_id - beam_index_base) * scan_step_deg,
         "scan_min_deg": scan_min_deg,
@@ -680,6 +690,18 @@ def _audit_runtime_xml_layout(
                 errors.append(f"missing_xml_{key}")
                 continue
             values[key] = element.text.strip()
+        if "beam_id" in expected_layout:
+            for key in (
+                "new_protocol_file_first_beam",
+                "new_protocol_file_scan_beam_count",
+                "wavepos_st",
+                "wavepos_ed",
+            ):
+                element = next((item for item in root.iter() if item.tag == key), None)
+                if element is None or element.text is None:
+                    errors.append(f"missing_xml_{key}")
+                    continue
+                values[key] = element.text.strip()
         fs_element = next((item for item in root.iter() if item.tag == "fs"), None)
         if fs_element is None or fs_element.text is None:
             errors.append("missing_xml_fs")
@@ -701,6 +723,13 @@ def _audit_runtime_xml_layout(
         "four_channel_fusion_channel_4": int(expected_layout["fusion_channel_4"]),
         "fs_hz": float(expected_layout["fs_hz"]),
     }
+    if "beam_id" in expected_layout:
+        comparisons.update({
+            "new_protocol_file_first_beam": int(expected_layout["beam_id"]),
+            "new_protocol_file_scan_beam_count": int(expected_layout.get("scan_beam_count", 1)),
+            "wavepos_st": int(expected_layout["beam_id"]),
+            "wavepos_ed": int(expected_layout.get("last_beam_id", expected_layout["beam_id"])),
+        })
     for key, expected in comparisons.items():
         actual = values.get(key)
         if key == "fs_hz":

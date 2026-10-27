@@ -8,9 +8,21 @@
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；R17 仅按用户明确范围恢复总纲第 9 节的三段文字至 R16 前版本，其他正文不变。
 - 本状态整理日期：2026-10-27。
 - 最近完成阶段：R21 已完成两 seed Native CUDA causal pilot、v3 评价器历史回归和离线参数/物理闭合分析；完整入口见 [R21 导航](phase_r/R21/README.md)。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`。
-- 当前在研阶段：无。R21 已停止；没有新增 seed、AI 训练或 R22。下一项仅建议在 ChatGPT 独立审查和用户决定后，离线分解 M1–Known F2 复数残差。
+- 当前在研阶段：R22 工程 pilot 已在 PKR residual-closure gate 停止，等待 ChatGPT 独立审查和用户决定。R22 仅运行 seed900101/900202/900203 的 Native CUDA 工程 pilot；完整 screening/confirmatory 矩阵未执行。没有启动 AI 训练。
 
-## 当前研究阶段：R21 完成；固定时延作为有界确定性候选
+## 当前研究阶段：R22 工程 gate 停止；等待独立审查
+
+R22 的目标是审计历史 baseline，并验证 20-target 场景、杂波配对、Native CUDA Production 和任务级评价是否可行。研究总纲正文未修改，Git blob 仍为 `e637e3769bde7814298ff012d0f42301884e2985`。
+
+- **实际运行：** seed900101 零时延、20 targets/20 beams/1 period Native CUDA smoke 通过。seed900202 和 seed900203 均为 2.5 m/s、20 dB、+4 ns、20 targets/1 beam/1 period；均只作工程描述，不是预注册 screening 或 confirmatory。
+- **面积杂波：** seed900203 A0_ON 生成 130 packets / 650,892 samples，平均功率 0.0227564。A1 direct injection 计数为 0，但场景 manifest 和背景路径证明复用相同 A0 C+N 杂波背景；mapping `matched`，causal triplet 通过。
+- **停止原因：** PKR `range_band_bins=6`、`min_support=8` 导致 26,637 groups 全部不可用（support 6: 26,598 组；support 3: 39 组）；adapter valid groups=0，Production scan beam quality gate 报 `valid=0/1 required=1 min_ratio=0.95`。六条 PKR 角色评价记录不可评估，A0/PK/PKR residual closure 缺 PKR CSI tap。未降低阈值/质量门。
+- **描述观察：** seed900202 A0/C0 为 17/20、4/20；seed900203 为 16/20、1/20。Known PK 仅 seed900203 为 16/20；盲 R9/Huber/M1 分别为 17/20、16/20、16/20。只有两个独立 seed、一个周期、一个 beam；这些数不构成 Pd/Pfa 显著性或 `PERFORMANCE_VERIFIED`。
+- **当前裁决：** `INCONCLUSIVE / STOP_AT_ENGINEERING_GATE`。未知 +4 ns 退化有两个 pilot 的一致观察线索，Known 仅一 seed 命中对照，盲估计差距未充分验证。AI 必要性未建立；本轮不能判定低速保护或复杂杂波优先级。
+- **下一步候选：** ChatGPT 独立审查后，如用户决定继续，只做一项离线 PKR group/support contract 审计；不自动增加 seed、运行完整矩阵或训练 AI。完整证据见 [R22 导航](phase_r/R22/README.md)，审查提示词见 [R22 ChatGPT 提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。
+- **状态标签：** `IMPLEMENTED=true`；`EXECUTED=true`；`EVALUABLE=部分单周期指标`；`PERFORMANCE_VERIFIED=false`。
+
+## 历史阶段：R21 完成；固定时延作为有界确定性候选
 
 R21 在 seed1001/1002、6.7 m/s、30 dB、+4 ns、连续面积地杂波下完成六方法 × ON/OFF/TO 的 Native CUDA Production pilot。B 的正确目标命中为 1/3、0/3；A0 和 Known 均为 2/3、2/3。Known F2 相对 A0 的闭合误差约 `8.8e-5`，通过冻结 `1e-3` 门；M1 在两个 seed 的共同成功机会角度/位置 RMSE 和 F2 残差均优于 R9 fixed D3 与 Huber D3，但仍落后 Known。ground-speed 样本少且排序不稳定；radial velocity 与统计 Pfa 不可评价。
 

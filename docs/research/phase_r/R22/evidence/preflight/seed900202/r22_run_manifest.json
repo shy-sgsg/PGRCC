@@ -1,0 +1,541 @@
+{
+  "all_production_branches_passed": false,
+  "area_clutter_gate": {
+    "area_enabled": true,
+    "area_mean_power_measured": 0.0226784701627,
+    "area_model": "continuous_texture",
+    "continuous_area_packets": 130,
+    "continuous_area_samples": 650892,
+    "ground_height_m": 0.0,
+    "ground_range_max_m": 85289.213854977,
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "minimum_slant_range_m": 6000.0,
+    "platform_height_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "reasons": [],
+    "report_path": "/tmp/r22_runner_smoke_seed900202/pipeline/cases/r22_multi_target__seed_900202__v_2d5__snr_20__delay_4ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "eba8aa8728f3cf637a94a2e8eb295d96f37fb33baea8e2b5db362f3e13ab626a",
+    "report_values": {
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "2.02601679375",
+      "area_rho_at_CTDR_lag": "0.960527488939",
+      "area_rho_lag1_measured": "0.980062189602",
+      "mean_noise_power_per_complex_sample": "0.000999884385362"
+    },
+    "scenario_path": "/tmp/r22_runner_smoke_seed900202/pipeline/cases/r22_multi_target__seed_900202__v_2d5__snr_20__delay_4ns/scenes/scenarios/A0_ON.json",
+    "scenario_sha256": "b6b40581a8ebc0728e1c34f24c15e7407e2b37f823d51c1d1c4433e2f782f20c",
+    "status": "passed"
+  },
+  "case_id": "engineering__seed_900202__vr_2d5__snr_20__delay_4ns__targets_20__periods_1",
+  "created_at_utc": "2026-10-27T11:32:15.934095+00:00",
+  "design": {
+    "ai_training": false,
+    "beam_count": 1,
+    "calibration_modes": [
+      "Mode-A",
+      "Mode-B"
+    ],
+    "delay_error_ns": 4.0,
+    "first_beam": 50,
+    "known_error_use": "physical correction upper bound only; blind estimator does not receive it",
+    "method_ids": [
+      "C0",
+      "C2",
+      "C3"
+    ],
+    "period_count": 1,
+    "radial_speed_mps": 2.5,
+    "router_enabled": false,
+    "seed": 900202,
+    "target_count": 20,
+    "target_snr_db": 20.0,
+    "target_truth_nested_across_density": true
+  },
+  "evaluation_summary": {
+    "evaluated_on_rows": 9,
+    "evaluator": "r21-task-eval-v3",
+    "invalid_truth_opportunities": 0,
+    "target_opportunity_rows": 360,
+    "target_period_opportunities_are_not_independent_seeds": true,
+    "task_rows": 28
+  },
+  "evidence_gate": {
+    "causal_triplets": "passed",
+    "empirical_pfa": "NOT_EVALUABLE",
+    "fallback_to_current": false,
+    "truth_used_in_estimator": false,
+    "unique_final_union_hits": "passed",
+    "valid_cut_denominators": "passed"
+  },
+  "experiment": "PGRCC R22 multi-target Native CUDA Production case",
+  "finished_at_utc": "2026-10-27T11:33:44.573567+00:00",
+  "generator_manifest": {
+    "beam_span": [
+      50,
+      50
+    ],
+    "configured_radial_speed_mps": 2.5,
+    "look_vectors_by_target": {
+      "R22_T001": {
+        "east": -0.7844530137470732,
+        "north": -0.6201882530515506
+      },
+      "R22_T002": {
+        "east": -0.7862036592711688,
+        "north": -0.6179674798471388
+      },
+      "R22_T003": {
+        "east": -0.7893284418999924,
+        "north": -0.6139711807631775
+      },
+      "R22_T004": {
+        "east": -0.7852015444533915,
+        "north": -0.6192402882468232
+      },
+      "R22_T005": {
+        "east": -0.7827738371476914,
+        "north": -0.6223062910473263
+      },
+      "R22_T006": {
+        "east": -0.7869102258793051,
+        "north": -0.6170674974478731
+      },
+      "R22_T007": {
+        "east": -0.790424984081757,
+        "north": -0.6125588498579987
+      },
+      "R22_T008": {
+        "east": -0.7832216391794634,
+        "north": -0.6217426026267096
+      },
+      "R22_T009": {
+        "east": -0.7914580820208612,
+        "north": -0.6112234488334521
+      },
+      "R22_T010": {
+        "east": -0.784649821564379,
+        "north": -0.6199392369571297
+      },
+      "R22_T011": {
+        "east": -0.7851112439303292,
+        "north": -0.619354772851692
+      },
+      "R22_T012": {
+        "east": -0.7899078862480184,
+        "north": -0.6132255141815184
+      },
+      "R22_T013": {
+        "east": -0.7899868029116079,
+        "north": -0.6131238465640496
+      },
+      "R22_T014": {
+        "east": -0.7853010051486744,
+        "north": -0.6191141504702357
+      },
+      "R22_T015": {
+        "east": -0.7850227999522458,
+        "north": -0.6194668704258012
+      },
+      "R22_T016": {
+        "east": -0.7899600656327186,
+        "north": -0.613158294982259
+      },
+      "R22_T017": {
+        "east": -0.7837738526856806,
+        "north": -0.6210463330913766
+      },
+      "R22_T018": {
+        "east": -0.7896816631220038,
+        "north": -0.6135168057428143
+      },
+      "R22_T019": {
+        "east": -0.7922393305214173,
+        "north": -0.6102104908758752
+      },
+      "R22_T020": {
+        "east": -0.7919382578244082,
+        "north": -0.6106011757227798
+      }
+    },
+    "period_count": 1,
+    "range_bin_assignment_rule": "seed-specific shuffled range-bin permutation; target-count-stable prefix",
+    "range_bin_bounds": [
+      680,
+      1079
+    ],
+    "range_bin_permutation_stream_seed": 3866338290850394,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "schema_version": 1,
+    "seed": 900202,
+    "stage2_clutter_noise_seed": 900202,
+    "target_snr_db": 20.0,
+    "target_state_stream_rule": "(seed << 32) | (0x52320000 + zero_based_target_index)",
+    "target_state_substream_count": 20,
+    "target_state_substreams": [
+      {
+        "expected_bin": 1044,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 0,
+        "stream_seed": 3866339528802304,
+        "target_id": "R22_T001"
+      },
+      {
+        "expected_bin": 944,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 1,
+        "stream_seed": 3866339528802305,
+        "target_id": "R22_T002"
+      },
+      {
+        "expected_bin": 1069,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 2,
+        "stream_seed": 3866339528802306,
+        "target_id": "R22_T003"
+      },
+      {
+        "expected_bin": 889,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 3,
+        "stream_seed": 3866339528802307,
+        "target_id": "R22_T004"
+      },
+      {
+        "expected_bin": 996,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 4,
+        "stream_seed": 3866339528802308,
+        "target_id": "R22_T005"
+      },
+      {
+        "expected_bin": 1033,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 5,
+        "stream_seed": 3866339528802309,
+        "target_id": "R22_T006"
+      },
+      {
+        "expected_bin": 962,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 6,
+        "stream_seed": 3866339528802310,
+        "target_id": "R22_T007"
+      },
+      {
+        "expected_bin": 929,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 7,
+        "stream_seed": 3866339528802311,
+        "target_id": "R22_T008"
+      },
+      {
+        "expected_bin": 816,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 8,
+        "stream_seed": 3866339528802312,
+        "target_id": "R22_T009"
+      },
+      {
+        "expected_bin": 766,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 9,
+        "stream_seed": 3866339528802313,
+        "target_id": "R22_T010"
+      },
+      {
+        "expected_bin": 1070,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 10,
+        "stream_seed": 3866339528802314,
+        "target_id": "R22_T011"
+      },
+      {
+        "expected_bin": 923,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 11,
+        "stream_seed": 3866339528802315,
+        "target_id": "R22_T012"
+      },
+      {
+        "expected_bin": 692,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 12,
+        "stream_seed": 3866339528802316,
+        "target_id": "R22_T013"
+      },
+      {
+        "expected_bin": 946,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 13,
+        "stream_seed": 3866339528802317,
+        "target_id": "R22_T014"
+      },
+      {
+        "expected_bin": 1074,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 14,
+        "stream_seed": 3866339528802318,
+        "target_id": "R22_T015"
+      },
+      {
+        "expected_bin": 1061,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 15,
+        "stream_seed": 3866339528802319,
+        "target_id": "R22_T016"
+      },
+      {
+        "expected_bin": 1079,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 16,
+        "stream_seed": 3866339528802320,
+        "target_id": "R22_T017"
+      },
+      {
+        "expected_bin": 691,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 17,
+        "stream_seed": 3866339528802321,
+        "target_id": "R22_T018"
+      },
+      {
+        "expected_bin": 680,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 18,
+        "stream_seed": 3866339528802322,
+        "target_id": "R22_T019"
+      },
+      {
+        "expected_bin": 1002,
+        "range_bin_permutation_stream_seed": 3866338290850394,
+        "range_bin_rank": 19,
+        "stream_seed": 3866339528802323,
+        "target_id": "R22_T020"
+      }
+    ]
+  },
+  "implementation_result": "completed_with_gaps",
+  "legacy_single_target_task_summary": {
+    "reason": "more than one visible target row in period 0",
+    "replacement_evaluator": "r21-task-eval-v3 via R22 evaluator",
+    "status": "NOT_EVALUABLE_MULTI_TARGET"
+  },
+  "native_cuda_preflight": {
+    "binary": {
+      "backend": "local Native CUDA",
+      "build_cache": {
+        "bytes": 32958,
+        "exists": true,
+        "path": "<external>/CMakeCache.txt",
+        "sha256": "c2df08ea494f2f81ab6d814a3da4f16960cb349f76176db41df28f92b09812ea"
+      },
+      "path": "/tmp/pgrcc-r21-native-cuda-build/GMTI_pipe_core",
+      "repo_relative_path": "<external>/GMTI_pipe_core",
+      "sha256": "9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566",
+      "use_corex": false
+    },
+    "disk": {
+      "free_bytes": 6572572672,
+      "path": "/tmp/r22_runner_smoke_seed900202",
+      "total_bytes": 8035000320,
+      "used_bytes": 1462427648
+    },
+    "gpu": {
+      "available": true,
+      "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P0, 37.96, 63, 63, 1897"
+    }
+  },
+  "output_root": "/tmp/r22_runner_smoke_seed900202",
+  "phase": "engineering",
+  "pipeline_case_manifest": {
+    "bytes": 1171716,
+    "exists": true,
+    "path": "/tmp/r22_runner_smoke_seed900202/pipeline/cases/r22_multi_target__seed_900202__v_2d5__snr_20__delay_4ns/case_manifest.json",
+    "sha256": "544aa295027f6bc36ba9cac9d757c2309202403aad7fafee402108403e942880"
+  },
+  "production_binary": {
+    "backend": "local Native CUDA",
+    "build_cache": {
+      "bytes": 32958,
+      "exists": true,
+      "path": "<external>/CMakeCache.txt",
+      "sha256": "c2df08ea494f2f81ab6d814a3da4f16960cb349f76176db41df28f92b09812ea"
+    },
+    "path": "/tmp/pgrcc-r21-native-cuda-build/GMTI_pipe_core",
+    "repo_relative_path": "<external>/GMTI_pipe_core",
+    "sha256": "9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566",
+    "use_corex": false
+  },
+  "production_branch_count": 27,
+  "production_elapsed_sec_sum": 52.35534984595142,
+  "production_methods_status": "completed",
+  "r22_blind_method_qualification": {
+    "d3_huber": {
+      "correction_ns": 3.1388471469645527,
+      "source_record": {
+        "delta_tau_ns": 3.1388471469645527,
+        "phase_rmse_rad": 0.06242791080202783,
+        "r2": 0.7609457256148209,
+        "support_count": 2364
+      },
+      "status": "AVAILABLE",
+      "support_qualified": true
+    },
+    "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+    "m1": {
+      "correction_ns": 3.310537321212419,
+      "source_record": {
+        "delta_tau_ns": 3.310537321212419,
+        "fallback_reason": null,
+        "frequency_span_hz": 24441624.365482233,
+        "method": "M1_Physics_Matched_Delay",
+        "normalized_model_residual": 0.06730738274817862,
+        "relative_response_model": "constant_complex_gain",
+        "status": "ok",
+        "support_count": 2364
+      },
+      "status": "AVAILABLE",
+      "support_qualified": true
+    },
+    "truth_used_in_estimator": false
+  },
+  "r22_delay_estimator": {
+    "baselines": {
+      "D1_ordinary_LS": {
+        "delta_tau_ns": 3.1660224644555965,
+        "phase_rmse_rad": 0.0660595919113317,
+        "r2": 0.747887782716278,
+        "support_count": 2364
+      },
+      "D2_weighted_LS": {
+        "delta_tau_ns": 3.147569406446567,
+        "phase_rmse_rad": 0.06517145481783196,
+        "r2": 0.7443494764799781,
+        "support_count": 2364
+      },
+      "D3_Huber_weighted_LS": {
+        "delta_tau_ns": 3.1388471469645527,
+        "phase_rmse_rad": 0.06242791080202783,
+        "r2": 0.7609457256148209,
+        "support_count": 2364
+      }
+    },
+    "beam_angle_deg_max": 38.0,
+    "beam_angle_deg_min": 38.0,
+    "delay_bounds_samples": [
+      -0.49,
+      0.49
+    ],
+    "delay_samples": 0.19863223927274515,
+    "delta_tau_ns": 3.310537321212419,
+    "fallback_reason": null,
+    "fitted_conjugate_gain": {
+      "imag": 0.013426366102116031,
+      "magnitude": 0.906030924581233,
+      "phase_rad": 0.014819425242349981,
+      "real": 0.9059314372461174
+    },
+    "frequency_span_hz": 24441624.365482233,
+    "geometry_delay_sec_max": 3.481985800396609e-10,
+    "geometry_delay_sec_min": 3.481985800396609e-10,
+    "geometry_reference_range_m": 82802.7,
+    "input_pulse_count": 130,
+    "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+    "method": "M1_Physics_Matched_Delay",
+    "normalized_model_residual": 0.06730738274817862,
+    "phase_rmse_rad": 0.06526439108975778,
+    "relative_response_model": "constant_complex_gain",
+    "reported_geometry_delay_ns": 0.3481985800396609,
+    "status": "ok",
+    "support_count": 2364,
+    "truth_used_in_estimator": false
+  },
+  "scenario_template": {
+    "bytes": 17206,
+    "exists": true,
+    "path": "/tmp/r22_runner_smoke_seed900202/scenario_template.json",
+    "sha256": "323d22bcc355848fca87c3a8939ac6d7ca8cd1d2ac5ff6e6495ad96806fc0666"
+  },
+  "schema_version": 1,
+  "source_identity": {
+    "branch": "codex/unknown-system-error-next-stage",
+    "commit": "6fdc4a9d08d91293d47ba6bdd967e8a22a688c4e",
+    "files": {
+      "scripts/phase_r/r21_historical_task_review.py": {
+        "bytes": 29902,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_historical_task_review.py",
+        "sha256": "b3b6142f9968af619bce3d2a6917073d720246584c623a8acac1ae1eec4a10a5"
+      },
+      "scripts/phase_r/r21_task_evaluator.py": {
+        "bytes": 21991,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_task_evaluator.py",
+        "sha256": "c1820472f6fae354e09e4a331a71212b6ba41c20595f729fc80caa2a01d49a1c"
+      },
+      "scripts/phase_r/r22_scenario_factory.py": {
+        "bytes": 12043,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r22_scenario_factory.py",
+        "sha256": "de07515b8f983027efb3e061acbded34699b9605dfc6f8d98bfff96d900b3c7b"
+      },
+      "scripts/phase_r/run_r22_cuda_pilot.py": {
+        "bytes": 31758,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r22_cuda_pilot.py",
+        "sha256": "1b21a33f7bd634ded70d65b6b16d6025f5d27837e99e45d40eaedad176afe8ad"
+      },
+      "scripts/run_delay_stage1_formal.py": {
+        "bytes": 145675,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "sha256": "a01422153867405ca5cb8a97bef494f299751cc9a6076641abdba093f2b6f47e"
+      },
+      "scripts/run_production_hierarchical_calibration_pilot.py": {
+        "bytes": 121194,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "34f8eb2c0dd90d28d202adb87af6c54345bab0b00c29093402a194e2a39f6bd6"
+      },
+      "scripts/run_track_manager_e2e.py": {
+        "bytes": 81133,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_track_manager_e2e.py",
+        "sha256": "97cd25766f09f80ee70795dd4f177fa4bbfc5a1c37a87e18ce5f09dcb4de1ff4"
+      }
+    },
+    "tracked_dirty_status": [
+      " M scripts/run_delay_stage1_formal.py",
+      " M scripts/run_production_hierarchical_calibration_pilot.py",
+      " M scripts/run_track_manager_e2e.py"
+    ]
+  },
+  "stage2_binary": {
+    "bytes": 645944,
+    "exists": true,
+    "path": "/tmp/pgrcc-r21-native-cuda-build/simulate_stage2_statistical",
+    "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+  },
+  "stage2_elapsed_sec": 19.836505146988202,
+  "stage2_run_count": 6,
+  "status_labels": {
+    "EVALUABLE": true,
+    "EXECUTED": true,
+    "IMPLEMENTED": true,
+    "PERFORMANCE_VERIFIED": false,
+    "performance_note": "single case is feasibility evidence; no inferential claim"
+  }
+}
