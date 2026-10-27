@@ -55,5 +55,5 @@ Stage2 也必须按实际 simulator variant 计数，不能只报 594 个场景�
 ## 2026-10-28 V1A 实测留存空间审计（执行后）
 
 - V1A 第一个 engineering case 清理 raw binary 后，完整本地 engineering 输出树为 2,401 个文件、301,858,725 bytes（约 301.9 MB / 287.8 MiB）。其中 CSV 224,067,290 bytes、PNG 42,479,348 bytes、JSON 28,066,641 bytes、日志 4,446,891 bytes、XML 1,574,095 bytes、F32 917,504 bytes；未发现残留 `.bin` 或 `.npy`。
-- 可供本轮独立审查的紧凑 ZIP 为 97 项、2,079,877 bytes，包含 manifest 身份与关键 XML、日志、诊断及结果，不包含 `.bin`/`.npy`。本机路径：`outputs/r22_chatgpt_review_evidence_v1a_20261028.zip`；SHA-256：`50768bb2d51880e88d46d6ce49294bec634bc01ff4a93cc779ea9d069037e64e`。
+- 可供本轮独立审查的紧凑 ZIP v2 为 106 项、3,838,630 bytes，包含 manifest 身份、关键 XML/日志/诊断及四个 C4/PKR Production reference 分支实际生成的 `production_calibration_reference_gamma.csv` 和 `production_calibration_adapter.csv`；不包含 `.bin`/`.npy`。本机路径：`outputs/r22_chatgpt_review_evidence_v1a_20261028_v2.zip`；SHA-256：`e9098ac47070ce7ec461bdbcaba75cd0e59a6625d35b385f5b97f687daee7847`。
 - 本次复测整个 worktree 为 7.2 GB，低于 20 GB 限额；没有为节省空间删除唯一失败证据或 R21 高价值基线。当前 V1A 全量 case 留存规模不能直接线性外推为完整 594-case 成本；由于首个 engineering gate 已失败，screening 未启动，也没有形成通过门控后的完整矩阵空间预算。

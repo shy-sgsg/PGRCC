@@ -32,6 +32,8 @@
 
 本次 V1A 首个 case 的精简复核入口是 `docs/research/phase_r/R22/11_v1a_engineering_gate_result_20261028.md` 和 `docs/research/phase_r/R22/evidence/extension_engineering_v1a/seed1930101/README.md`。请优先读取该包内的 `case_summary.json`、`branch_status.csv`、Stage2 证据、Production 日志/XML/CSI/CFAR 以及 robust gamma CSV，再对照本机完整 case manifest 路径记录核验。
 
+请同时附上本机紧凑证据包 `outputs/r22_chatgpt_review_evidence_v1a_20261028_v2.zip`（106 项，3,838,630 bytes；SHA-256：`e9098ac47070ce7ec461bdbcaba75cd0e59a6625d35b385f5b97f687daee7847`）。v2 增补四个 C4/PKR Production reference 分支的实际 `production_calibration_reference_gamma.csv` 与 `production_calibration_adapter.csv`，归档路径为 `seed1930101/production/<branch>/...`。请直接核验失败组记录；本次没有保留完整 F1/F2 CSI arrays/maps，因此不得从 CSV 单独推断底层物理根因。
+
 ### 当前执行快照的待核实线索
 
 以下为 Codex 对本次 manifest 的初步摘录，必须独立核验：
