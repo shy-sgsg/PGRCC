@@ -367,40 +367,178 @@ def _run_corrected_method(
 
 
 def _area_clutter_audit(case: Mapping[str, Any]) -> dict[str, Any]:
+    expected_roles = {
+        "A0_ON": "on", "A0_OFF": "off", "A0_TO": "target_only",
+        "A1_ON": "on", "A1_OFF": "off", "A1_TO": "target_only",
+    }
+    simulation = case.get("simulation", {})
+    declared = case.get("paired_background", {})
     rows: list[dict[str, Any]] = []
-    for scene_name, scene_run in sorted(case.get("simulation", {}).items()):
-        scenario_path = Path(str(scene_run.get("scenario_path", "")))
-        output_dir = Path(str(scene_run.get("output_dir", "")))
-        report_path = output_dir / "reports" / "stage2_simulation_report.md"
-        if not scenario_path.is_file() or not report_path.is_file() or scene_run.get("returncode") != 0:
-            rows.append({"scene": scene_name, "status": "NOT_EVALUABLE", "reason": "scene_or_report_missing_or_failed"})
+    records: dict[str, dict[str, Any]] = {}
+
+    def log_fields(path: Path) -> dict[str, str]:
+        if not path.is_file():
+            return {}
+        return {
+            key.strip(): value.strip()
+            for line in path.read_text(encoding="utf-8", errors="replace").splitlines()
+            if "=" in line
+            for key, value in (line.split("=", 1),)
+        }
+
+    for name, role in expected_roles.items():
+        run = simulation.get(name, {})
+        scenario_path = Path(str(run.get("scenario_path", "")))
+        output_dir = Path(str(run.get("output_dir", "")))
+        report = output_dir / "reports/stage2_simulation_report.md"
+        log = output_dir / "logs/simulate_stage2.log"
+        reasons = []
+        if run.get("returncode") != 0:
+            reasons.append("scene_run_failed")
+        if not scenario_path.is_file() or not report.is_file() or not log.is_file():
+            reasons.append("scene_scenario_report_or_log_missing")
+        row: dict[str, Any] = {
+            "scene": name, "role": role, "status": "NOT_EVALUABLE", "reasons": reasons,
+            "report_path": adapter.audit_path(report) if report.is_file() else None,
+            "report_sha256": _sha256(report) if report.is_file() else None,
+            "scenario_sha256": _sha256(scenario_path) if scenario_path.is_file() else None,
+        }
+        rows.append(row)
+        if reasons:
             continue
         scenario = stage1._read_json(scenario_path)
-        audit = stage1.audit_stage2_area_clutter_report(
-            report_path.read_text(encoding="utf-8"), scenario,
-        )
-        rows.append({
-            "scene": scene_name,
-            "status": audit.get("status"),
-            "continuous_area_packets": audit.get("continuous_area_packets"),
-            "continuous_area_samples": audit.get("continuous_area_samples"),
-            "area_mean_power_measured": audit.get("area_mean_power_measured"),
-            "range_window_m": audit.get("range_window_m"),
-            "ground_range_window_m": audit.get("ground_range_window_m"),
-            "report_path": adapter.audit_path(report_path),
-            "report_sha256": _sha256(report_path),
-            "scenario_sha256": _sha256(scenario_path),
-            "reasons": audit.get("reasons"),
+        area = stage1.audit_stage2_area_clutter_report(report.read_text(encoding="utf-8"), scenario)
+        records[name] = {
+            "scenario": scenario, "area": area, "log": log_fields(log),
+            "mapping": output_dir / "reports/background_reuse_mapping.csv", "row": row,
+        }
+        row.update({
+            "continuous_area_packets_reported": area.get("continuous_area_packets"),
+            "continuous_area_samples_reported": area.get("continuous_area_samples"),
+            "area_mean_power_measured": area.get("area_mean_power_measured"),
+            "runtime_log_sha256": _sha256(log),
         })
-    statuses = [row.get("status") == "passed" for row in rows]
-    packet_counts = {row.get("continuous_area_packets") for row in rows}
-    sample_counts = {row.get("continuous_area_samples") for row in rows}
+
+    source = records.get("A0_ON")
+    background: Path | None = None
+    source_periods: list[int] = []
+    if source:
+        scenario, area, log, row = (
+            source["scenario"], source["area"], source["log"], source["row"]
+        )
+        raw_dir = scenario.get("paired_background_output_dir")
+        background = Path(str(raw_dir)).expanduser().resolve() if raw_dir else None
+        if (
+            not background or not isinstance(declared, Mapping)
+            or not declared.get("directory")
+            or Path(str(declared["directory"])).expanduser().resolve() != background
+            or log.get("paired_background_output_dir") != str(background)
+            or log.get("background_input_dir", "")
+        ):
+            row["reasons"].append("generated_background_source_mismatch")
+        if area.get("status") != "passed":
+            row["reasons"].extend(area.get("reasons", []))
+
+        random_cfg = scenario.get("random", {})
+        try:
+            start = int(random_cfg.get("period_start", 0))
+            count = int(random_cfg["period_count"])
+            expected_periods = list(range(start, start + count))
+        except (AttributeError, KeyError, TypeError, ValueError):
+            expected_periods = []
+            row["reasons"].append("source_period_count_invalid")
+        manifest = background / "data/period_files.csv" if background else Path()
+        try:
+            with manifest.open("r", encoding="utf-8", newline="") as stream:
+                source_rows = list(csv.DictReader(stream))
+            source_periods = [int(item["period_id"]) for item in source_rows]
+            if source_periods != expected_periods:
+                row["reasons"].append("paired_background_period_manifest_mismatch")
+            for item in source_rows:
+                data = Path(item["file"])
+                if not data.is_file() or data.stat().st_size != int(item["file_bytes"]):
+                    row["reasons"].append("paired_background_period_data_invalid")
+                    break
+        except (OSError, KeyError, TypeError, ValueError, csv.Error):
+            row["reasons"].append("paired_background_manifest_invalid")
+        row["background_manifest_sha256"] = _sha256(manifest) if manifest.is_file() else None
+        row["background_period_ids"] = source_periods
+        row["continuous_area_packets"] = area.get("continuous_area_packets")
+        row["continuous_area_samples"] = area.get("continuous_area_samples")
+    def signature(scenario: Mapping[str, Any]) -> str | None:
+        scene, platform, random = (
+            scenario.get("scene"), scenario.get("platform"), scenario.get("random")
+        )
+        if not all(isinstance(value, Mapping) for value in (scene, platform, random)):
+            return None
+        fields = {
+            "area": scene.get("area_clutter"), "range": [scene.get("range_min_m"), scene.get("range_max_m")],
+            "ground": scene.get("ground_z_m"), "amplitude": scene.get("clutter_amplitude_scale"),
+            "height": platform.get("origin_alt_m", platform.get("height_m")),
+            "seed": random.get("random_seed"), "period_start": random.get("period_start", 0),
+            "period_count": random.get("period_count"),
+        }
+        return json.dumps(fields, sort_keys=True)
+
+    source_signature = signature(source["scenario"]) if source else None
+    for name, record in records.items():
+        if name == "A0_ON":
+            continue
+        scenario, area, log, mapping, row = (
+            record["scenario"], record["area"], record["log"], record["mapping"], record["row"]
+        )
+        role = expected_roles[name]
+        configured = scenario.get("background_input_dir")
+        if not background or not configured or Path(str(configured)).expanduser().resolve() != background:
+            row["reasons"].append("background_source_mismatch")
+        if log.get("background_input_dir") != str(background or "") or log.get("paired_background_output_dir", ""):
+            row["reasons"].append("runtime_background_source_mismatch")
+        try:
+            if float(log.get("background_input_scale", "nan")) != 1.0:
+                row["reasons"].append("runtime_background_scale_mismatch")
+        except (TypeError, ValueError):
+            row["reasons"].append("runtime_background_scale_invalid")
+        scene = scenario.get("scene", {})
+        if scenario.get("stage1_role") != role or not isinstance(scene, Mapping) or scene.get("signal_only") is not (role == "target_only"):
+            row["reasons"].append("scene_role_mismatch")
+        if source_signature is None or signature(scenario) != source_signature:
+            row["reasons"].append("clutter_scene_configuration_mismatch")
+        if area.get("continuous_area_packets") != 0 or area.get("continuous_area_samples") != 0:
+            row["reasons"].append("unexpected_duplicate_area_generation")
+        try:
+            with mapping.open("r", encoding="utf-8", newline="") as stream:
+                mapping_rows = list(csv.DictReader(stream))
+            mapping_periods = [int(item["period_id"]) for item in mapping_rows]
+            mapping_matched = mapping_periods == source_periods and all(
+                item.get("mapping_status") == "matched" for item in mapping_rows
+            )
+            if not mapping_matched:
+                row["reasons"].append("background_reuse_mapping_not_matched")
+            row["background_reuse_mapping_status"] = "passed" if mapping_matched else "failed"
+            row["background_reuse_period_ids"] = mapping_periods
+            row["background_reuse_mapping_sha256"] = _sha256(mapping)
+        except (OSError, KeyError, TypeError, ValueError, csv.Error):
+            row["reasons"].append("background_reuse_mapping_invalid")
+            row["background_reuse_mapping_status"] = "NOT_EVALUABLE"
+
+    for row in rows:
+        if not row["reasons"] and row["scene"] in records:
+            row["status"] = "passed"
+    reused = [row for row in rows if row["scene"] != "A0_ON"]
+    all_mappings_matched = len(reused) == 5 and all(
+        row.get("background_reuse_mapping_status") == "passed" for row in reused
+    )
     return {
-        "status": "passed" if rows and all(statuses) and len(packet_counts) == 1 and len(sample_counts) == 1 else "NOT_EVALUABLE",
+        "status": "passed" if len(rows) == 6 and all(row["status"] == "passed" for row in rows) else "NOT_EVALUABLE",
         "scene_count": len(rows),
-        "all_scene_reports_passed": bool(rows) and all(statuses),
-        "packet_counts_equal_across_A0_B_roles": len(packet_counts) == 1,
-        "sample_counts_equal_across_A0_B_roles": len(sample_counts) == 1,
+        "generated_source_scene": "A0_ON",
+        "continuous_area_packets": source["area"].get("continuous_area_packets") if source else None,
+        "continuous_area_samples": source["area"].get("continuous_area_samples") if source else None,
+        "area_mean_power_measured": source["area"].get("area_mean_power_measured") if source else None,
+        "source_physical_geometry_passed": bool(source and source["area"].get("status") == "passed"),
+        "shared_background_source": adapter.audit_path(background) if background else None,
+        "all_reuse_mappings_matched": all_mappings_matched,
+        "all_scene_reports_present": len(records) == 6,
         "scenes": rows,
     }
 
@@ -668,7 +806,7 @@ def run_seed(output_root: Path, seed: int, binary: Path) -> dict[str, Any]:
             raise RuntimeError(f"A0/B/Known Stage1 or Production did not complete: {case.get('status')}")
         case["production_binary"] = preflight["binary"]
         if manifest["stage2_area_clutter_audit"].get("status") != "passed":
-            raise RuntimeError("continuous-area clutter was not verified across all six A0/B role scenes")
+            raise RuntimeError("continuous-area source injection or paired background reuse was not verified")
         if case.get("known_correction_physical_closure", {}).get("status") != "passed":
             raise RuntimeError("Known correction did not close to the A0 physical input")
         if manifest["base_processing_chain_comparability"].get("status") != "passed":

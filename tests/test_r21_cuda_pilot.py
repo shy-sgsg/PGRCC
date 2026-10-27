@@ -1,6 +1,14 @@
+import csv
+import json
+from pathlib import Path
+
 import pytest
 
-from scripts.phase_r.run_r21_cuda_pilot import _has_production_execution, qualify_blind_methods
+from scripts.phase_r.run_r21_cuda_pilot import (
+    _area_clutter_audit,
+    _has_production_execution,
+    qualify_blind_methods,
+)
 
 
 def _estimate(**overrides):
@@ -79,3 +87,165 @@ def test_executed_requires_a_production_return_record_not_stage2_simulation():
         "simulation": {"A0_ON": {"status": "completed"}},
         "conditions": {"B": {"production": {"ON": {"production_returncode": 1}}}},
     })
+
+
+def _write_json(path: Path, value):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(value), encoding="utf-8")
+
+
+def _area_case(tmp_path: Path):
+    background = tmp_path / "scenes" / "A0_background"
+    data_dir = background / "data"
+    data_dir.mkdir(parents=True)
+    manifest_path = data_dir / "period_files.csv"
+    with manifest_path.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.DictWriter(
+            stream,
+            fieldnames=("period_id", "file", "packet_count", "packet_bytes", "file_bytes"),
+        )
+        writer.writeheader()
+        for period in range(3):
+            data = data_dir / f"period_{period:04d}.bin"
+            data.write_bytes(b"background-packets")
+            writer.writerow({
+                "period_id": period,
+                "file": data,
+                "packet_count": 1,
+                "packet_bytes": data.stat().st_size,
+                "file_bytes": data.stat().st_size,
+            })
+
+    simulation = {}
+    roles = {
+        "A0_ON": "on", "A0_OFF": "off", "A0_TO": "target_only",
+        "A1_ON": "on", "A1_OFF": "off", "A1_TO": "target_only",
+    }
+    for name, role in roles.items():
+        is_source = name == "A0_ON"
+        output = tmp_path / "scenes" / name
+        (output / "reports").mkdir(parents=True)
+        (output / "logs").mkdir()
+        scenario_path = tmp_path / "scenarios" / f"{name}.json"
+        scenario = {
+            "scene": {
+                "area_clutter": {
+                    "enabled": True,
+                    "model": "continuous_texture",
+                    "mean_power": 0.1,
+                    "texture_sigma": 0.25,
+                    "temporal_correlation_rho": 0.98,
+                },
+                "ground_z_m": 0,
+                "range_min_m": 84500,
+                "range_max_m": 85500,
+                "clutter_amplitude_scale": 1,
+                "signal_only": role == "target_only",
+            },
+            "platform": {"origin_alt_m": 6000},
+            "random": {"random_seed": 1001, "period_count": 3},
+            "stage1_role": role,
+            "stage1_pairing": {"background_source_dir": str(background)},
+            "pairing_provenance": {"background_source": str(background)},
+            "paired_background_output_dir": str(background) if is_source else "",
+            "background_input_dir": "" if is_source else str(background),
+        }
+        _write_json(scenario_path, scenario)
+
+        area_values = (
+            "- platform_height_m: 6000\n"
+            f"- continuous_area_packets: {390 if is_source else 0}\n"
+            f"- continuous_area_samples: {1952655 if is_source else 0}\n"
+            f"- area_mean_power_measured: {0.111666783 if is_source else 'null'}\n"
+        )
+        (output / "reports" / "stage2_simulation_report.md").write_text(
+            area_values, encoding="utf-8"
+        )
+        if is_source:
+            runtime_log = (
+                "period_count=3\n"
+                f"paired_background_output_dir={background}\n"
+                "background_input_dir=\nbackground_input_scale=1\n"
+            )
+        else:
+            mapping = output / "reports" / "background_reuse_mapping.csv"
+            with mapping.open("w", encoding="utf-8", newline="") as stream:
+                writer = csv.DictWriter(stream, fieldnames=("period_id", "mapping_status"))
+                writer.writeheader()
+                writer.writerows({"period_id": period, "mapping_status": "matched"}
+                                 for period in range(3))
+            runtime_log = (
+                "period_count=3\n"
+                "paired_background_output_dir=\n"
+                f"background_input_dir={background}\nbackground_input_scale=1\n"
+            )
+        (output / "logs" / "simulate_stage2.log").write_text(runtime_log, encoding="utf-8")
+        simulation[name] = {
+            "scenario_path": str(scenario_path),
+            "output_dir": str(output),
+            "returncode": 0,
+        }
+    return {
+        "simulation": simulation,
+        "paired_background": {"directory": str(background)},
+    }
+
+
+def test_area_clutter_gate_accepts_generated_source_and_verified_reuse(tmp_path):
+    result = _area_clutter_audit(_area_case(tmp_path))
+
+    assert result["status"] == "passed"
+    assert result["generated_source_scene"] == "A0_ON"
+    assert result["continuous_area_packets"] == 390
+    assert result["continuous_area_samples"] == 1952655
+    assert result["all_reuse_mappings_matched"] is True
+    assert len(result["scenes"]) == 6
+
+
+def test_area_clutter_gate_rejects_reuse_from_a_different_background(tmp_path):
+    case = _area_case(tmp_path)
+    scenario_path = Path(case["simulation"]["A1_OFF"]["scenario_path"])
+    scenario = json.loads(scenario_path.read_text(encoding="utf-8"))
+    scenario["background_input_dir"] = str(tmp_path / "other_background")
+    _write_json(scenario_path, scenario)
+
+    result = _area_clutter_audit(case)
+
+    assert result["status"] == "NOT_EVALUABLE"
+    row = next(row for row in result["scenes"] if row["scene"] == "A1_OFF")
+    assert "background_source_mismatch" in row["reasons"]
+
+
+def test_area_clutter_gate_rejects_unmatched_reuse_mapping(tmp_path):
+    case = _area_case(tmp_path)
+    mapping = Path(case["simulation"]["A1_ON"]["output_dir"]) / "reports/background_reuse_mapping.csv"
+    mapping.write_text(
+        "period_id,mapping_status\n0,matched\n1,failed\n2,matched\n",
+        encoding="utf-8",
+    )
+
+    result = _area_clutter_audit(case)
+
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["all_reuse_mappings_matched"] is False
+    row = next(row for row in result["scenes"] if row["scene"] == "A1_ON")
+    assert "background_reuse_mapping_not_matched" in row["reasons"]
+
+
+def test_area_clutter_gate_still_requires_positive_source_injection(tmp_path):
+    case = _area_case(tmp_path)
+    report = Path(case["simulation"]["A0_ON"]["output_dir"]) / "reports/stage2_simulation_report.md"
+    report.write_text(
+        "- platform_height_m: 6000\n"
+        "- continuous_area_packets: 0\n"
+        "- continuous_area_samples: 0\n"
+        "- area_mean_power_measured: 0\n",
+        encoding="utf-8",
+    )
+
+    result = _area_clutter_audit(case)
+
+    assert result["status"] == "NOT_EVALUABLE"
+    assert result["source_physical_geometry_passed"] is False
+    source = next(row for row in result["scenes"] if row["scene"] == "A0_ON")
+    assert "continuous_area_packets_not_positive" in source["reasons"]
