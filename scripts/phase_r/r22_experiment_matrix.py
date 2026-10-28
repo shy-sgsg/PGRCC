@@ -392,7 +392,12 @@ def run_matrix(
             break
         attempts_root = raw_base / phase / case_id
         attempts_root.mkdir(parents=True, exist_ok=True)
-        attempt = 1
+        prior_attempts = [
+            int(row.get("attempt", 0))
+            for row in manifest.get("cases", [])
+            if row.get("case_id") == case_id
+        ]
+        attempt = max(prior_attempts, default=0) + 1
         while (attempts_root / f"attempt_{attempt:03d}").exists():
             attempt += 1
         case_root = attempts_root / f"attempt_{attempt:03d}"

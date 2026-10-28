@@ -203,6 +203,64 @@ def test_interrupted_case_requires_explicit_retry_and_preserves_prior_attempt(tm
     assert (prior_output / "partial.log").is_file()
 
 
+def test_retry_attempt_number_survives_compacting_prior_raw_attempt(tmp_path):
+    design = {
+        "schema_version": 1,
+        "design_id": "compacted-interrupted-retry-design",
+        "seed_sets": {"engineering": [101], "screening": [201],
+                      "confirmatory": [301], "h0": [501]},
+        "method_ids": ["C0"],
+        "calibration_modes": ["Mode-A"],
+        "common": {"first_beam": 50, "beam_count": 1, "area": {}},
+        "phases": {
+            "engineering": {"seed_set": "engineering", "target_count": 20,
+                            "period_count": 5, "conditions": [
+                                {"condition_id": "c0", "radial_speed_mps": 2.5,
+                                 "target_snr_db": 20.0, "delay_error_ns": 4.0} ]},
+        },
+    }
+    output_root = tmp_path / "matrix"
+    raw_root = tmp_path / "raw"
+    case_id = matrix.r22.case_identifier(
+        phase="engineering", seed=101, speed_mps=2.5, snr_db=20.0,
+        delay_ns=4.0, target_count=20, period_count=5,
+    )
+    archived_attempt = raw_root / "engineering" / case_id / "attempt_001"
+    output_root.mkdir(parents=True)
+    manifest = {
+        "schema_version": 1,
+        "design_id": design["design_id"],
+        "design_sha256": matrix._design_digest(design),
+        "phase": "engineering",
+        "status": "INTERRUPTED_REVIEW_REQUIRED",
+        "planned_case_count": 1,
+        "cases": [{"case_id": case_id, "condition_id": "c0", "seed": 101,
+                   "attempt": 1, "status": "INTERRUPTED",
+                   "output_root": str(archived_attempt),
+                   "compact_archive": {"archive_path": "attempt_001.zip"},
+                   "raw_output_removed_after_failure_archive": True}],
+    }
+    (output_root / "matrix_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
+
+    def successful_runner(case_root, **kwargs):
+        case_root.mkdir(parents=True)
+        return {"implementation_result": "passed",
+                "status_labels": {"EVALUABLE": True},
+                "all_production_branches_passed": True}
+
+    result = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        raw_output_root=raw_root, run_case_fn=successful_runner, resume=True,
+        retry_interrupted=True,
+    )
+
+    assert result["status"] == "COMPLETED"
+    assert result["cases"][0]["status"] == "INTERRUPTED"
+    assert result["cases"][1]["attempt"] == 2
+    assert Path(result["cases"][1]["output_root"]).name == "attempt_002"
+    assert not archived_attempt.exists()
+
+
 def test_compact_matrix_archives_passed_case_and_checks_archive_before_resume(tmp_path):
     parameters = inspect.signature(matrix.run_matrix).parameters
     assert {"raw_output_root", "compact_archive_root"} <= set(parameters), (
