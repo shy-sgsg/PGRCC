@@ -1,5 +1,7 @@
 # R22-08：下一项实验冻结契约状态
 
+> **历史状态说明（2026-10-28）：** 本文件记录的是 pre-V2 时 PKR gate 未闭合、原始矩阵未冻结的约束与审计结论。该状态已由 V2 range-support amendment、六 seed engineering gate 和冻结配置取代；V2 screening 已启动。当前冻结身份见 `config/r22_extension_experiment_design_v2_range_roi.json` 与 `config/r22_method_config_v2_range_roi.json`，执行状态见 `outputs/r22_full_v2_compact/matrices/screening_diskquota_retry/matrix_manifest.json`。下方旧契约作为历史决策保留，不再表示当前实验授权状态。
+
 ## 状态：未冻结，不得启动
 
 原始 R22 screening/confirmatory 矩阵因 PKR support gate 未闭合而没有冻结。当前文件只限定再次讨论时必须满足的进入条件，不构成新的实验授权。

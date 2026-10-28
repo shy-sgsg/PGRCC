@@ -8,9 +8,20 @@
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；R17 仅按用户明确范围恢复总纲第 9 节的三段文字至 R16 前版本，其他正文不变。
 - 本状态整理日期：2026-10-28。
 - 最近完成阶段：R21 已完成两 seed Native CUDA causal pilot、v3 评价器历史回归和离线参数/物理闭合分析；完整入口见 [R21 导航](phase_r/R21/README.md)。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`。
-- 当前在研阶段：R22 V1A 延续工程 case 因 C4/PKR robust gamma reference 有 133-bin 分组低于冻结的 `min_support=8` 而 `GATE_FAILED`；等待 ChatGPT 独立审查与用户方向决定。扩展 screening/confirmatory 矩阵未执行。没有启动 AI 训练。
+- 当前阶段状态：R22 V2 screening 在首个 `2.5 m/s / 30 dB / +4 ns` case 触发方法级可评估性 gate，runner 已停止。17 个 case 通过，失败 case 已保留 raw case 目录并生成 compact ZIP；不降低 `min_support=8`，未启动 confirmatory、dense、bridge、H0 或 AI 训练。当前只确认单 seed 的 C4 Mode-B 高 SNR 支持不足机制，不能作一般性能结论。详见 [R22 screening 资源与执行记录](phase_r/R22/05_resource_and_execution_plan.md) 和 [ChatGPT 独立审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
 
-## 当前研究阶段：R22 V1A 工程 gate 停止；等待独立审查
+## 当前研究阶段：R22 V2 screening 在方法级 gate 停止（2026-10-28）
+
+R22 V2 固定设计包含 288 个 screening case、594 个完整设计 case。seed1932001、0.5 m/s、10 dB、20 targets、10 periods 的 0 ns 与 +4 ns 配对 case 已按 Native CUDA Production 和单 case evaluator 门通过；仅证明当前链路可行，不是统计性能验证。
+
+- **当前执行：** matrix manifest 为 `GATE_FAILED`：17 个 case `PASSED`，1 个 case `GATE_FAILED`，并保留 4 条更早的中断 attempt；没有活动 case。失败条件为 seed1932001、2.5 m/s、30 dB、+4 ns。其 C4 Mode-B ON robust reference 有 1/1560 group 的 support=7，低于冻结的 8；ON 行不可评价，矩阵按 fail-closed 停止。失败详情见 [05](phase_r/R22/05_resource_and_execution_plan.md)。
+- **已闭合的单 case 门：** +4 ns case 54/54 method/mode/role branches 通过；Stage2 area gate、causal triplets、valid CUT 和 unique-hit union 检查通过；54 task rows、18 ON evaluator rows、7,200 target-period opportunity rows、0 invalid truth opportunities。经验 Pfa `NOT_EVALUABLE`，H0 rows 为 0。完整 case ZIP 的 matrix SHA、CRC 和逐文件 SHA 已核验，raw case 已删除。详见 [执行审计与资源记录](phase_r/R22/05_resource_and_execution_plan.md)。
+- **研究结论边界：** 两个配对 case 只支持当前配置的可行性与单 seed 描述，`PERFORMANCE_VERIFIED=false`。尚无足够独立 seed 证据回答未知误差退化、Known correction 的可重复恢复量、盲估计差距、统计 Pfa、任务级速度/方位误差或长期方向选择。
+- **空间规则：** 用户明确 `20 GB` 是汇总、审查并清理完成后的最终项目占用上限。运行期间临时数据可以超过 20 GB，不以此中断或缩减冻结实验；实验结果汇总并备齐审查材料后，按清理台账删除可重建原始大数组，再核验最终项目低于 20 GB。
+- **审查入口：** [R22 V2 screening checkpoint ChatGPT 提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。提交审查时须附本地输出目录中的矩阵 manifest、日志和相关 case ZIP；精简归档不等价于可重放 raw IQ。
+- **状态标签：** V2 runner `IMPLEMENTED=true`；screening `EXECUTED=true`（部分）；失败 case `EVALUABLE=false`；整个 screening `PERFORMANCE_VERIFIED=false`。confirmatory、dense、bridge、H0 均未启动。研究总纲 blob 保持 `e637e3769bde7814298ff012d0f42301884e2985`，未修改。
+
+## 历史阶段：R22 V1A 工程 gate 停止（2026-10-28）
 
 R22 扩展目标是验证多目标、连续扫描、实际杂波和独立 seed 下的传统方法能力边界。研究总纲正文未修改，Git blob 仍为 `e637e3769bde7814298ff012d0f42301884e2985`。
 

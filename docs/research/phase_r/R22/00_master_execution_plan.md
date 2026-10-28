@@ -4,6 +4,8 @@
 
 > **状态时间界限：** 上述状态记录的是 2026-10-27 的停止裁决。用户于 2026-10-28 明确要求继续 R22 并完成扩展实验；本轮续行范围、修复后工程门和冻结设计见 [09 延续执行契约](09_extension_execution_contract.md) 与 [机器可读扩展设计](config/r22_extension_experiment_design.json)。旧 pilot 结论保留为历史记录，不作为当前禁止执行的指令。研究总纲仍保持不变。
 
+> **当前执行更新（2026-10-28）：** 续行采用 V2 range/ROI 冻结设计 `config/r22_extension_experiment_design_v2_range_roi.json`（288 screening / 594 全设计 case）。17 个 screening case 已通过；seed1932001、2.5 m/s、30 dB、+4 ns case 因 C4 Mode-B ON reference 有一组 support=7 < `min_support=8` 而 `GATE_FAILED`，runner 已停止。当前无活动 case；confirmatory/dense/bridge/H0 未启动。单 seed 仍为 `PERFORMANCE_VERIFIED=false`，不据此改变长期科研方向。用户明确 20 GB 是结果汇总、审查和清理后的最终项目上限，运行中可超过；最新阶段结果见 [05 资源与执行记录](05_resource_and_execution_plan.md)、[07 执行质量审计](07_execution_and_quality_audit.md) 和 [ChatGPT screening 审查提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+
 ## 科研定位
 
 - **研究总纲：** `docs/research/RESEARCH_MASTER_PLAN.md`，入口 commit `6fdc4a9d08d91293d47ba6bdd967e8a22a688c4e`，blob `e637e3769bde7814298ff012d0f42301884e2985`。R22 不修改研究总纲。
@@ -22,7 +24,7 @@
 - R21 实验证据基线：`61da2ae010adb72ab824869031fa5c6a5df69ad4`
 - 入口总纲 blob：`e637e3769bde7814298ff012d0f42301884e2985`
 - 已跟踪工作区：干净。R22 开始时有 4,007 项未跟踪/忽略环境条目；它们均视为已有资料，禁止清理、覆盖或纳入本阶段提交。
-- R22 开始时工作树约 6.7 GB，挂载卷可用约 65 GB。均低于 20 GB 项目占用约束；R22 仅保留可复现的配置、manifest、汇总证据和代表性失败输入。
+- R22 开始时工作树约 6.7 GB，挂载卷可用约 65 GB。这是当时的空间快照，不构成运行期项目占用上限；20 GB 仅适用于结果汇总、ChatGPT 审查和最终清理完成后。
 - 提权设备检查（2026-10-27）：NVIDIA GeForce RTX 3050 Laptop GPU，4,096 MiB 显存、约 932 MiB 已占用、GPU 利用率 29%、P8、42°C、约 6.24 W。该状态显示 GPU 正被其他工作使用；未启动 R22 CUDA 批次。启动时须重新检查设备与可用显存。
 - 当前 R22 目录此前不存在；截至本计划创建时，没有 R22 实验、seed 或 Production branch 已执行。
 
@@ -112,7 +114,7 @@
 4. 只有工程门通过且资源门可承担时，执行完整 24 条件×12 seed 筛选、6 条件×30 独立 seed 确认、40 目标压力、3 目标桥接及独立 H0。不得在中间结果后缩 seed、换 seed、减方法或减目标；确需更改周期数时必须先停在筛选之前，保留原设计并冻结有证据支持的新版本。
 5. 统一汇总 seed-level、target-level、track-level、H0、参数与资源指标；以 seed 为推断单位，给出配对效应量、按 seed 聚类 95% CI 和多重比较控制；据此更新阶段报告、方向决定、执行审计与 ChatGPT 审查请求。
 
-**当前资源观察：** 项目约 6.9 GB，卷可用约 51 GB，低于 20 GB 项目目录上限；当前 GPU 为 RTX 3050 Laptop，但由另一个训练进程占用（约 1.3 GiB 显存、96% GPU 利用率）。不终止该进程；Stage2/静态审计和代码工作可继续，CUDA Production 批次等待设备可安全使用。正式运行前再次记录供电、P-state、功耗、温度、利用率与显存。
+**续行开始时的资源快照（非 20 GB 运行限制）：** 项目约 6.9 GB、卷可用约 51 GB；当时 GPU 为 RTX 3050 Laptop，但由另一个训练进程占用（约 1.3 GiB 显存、96% GPU 利用率）。不终止该进程；当时 Stage2/静态审计和代码工作可继续，CUDA Production 批次等待设备可安全使用。正式运行前再次记录供电、P-state、功耗、温度、利用率与显存。
 
 **停止与验收：** 不降低既有有效 CUT、CFAR、beam-quality、PKR support 或真值/轨迹匹配标准。若检测退化不能跨独立 seed/场景复现、Known 无任务恢复空间、M1 不优于强传统方法，或资源门证明正式规模不可承担，则明确报告 `INCOMPLETE / INCONCLUSIVE` 与实测成本；不得把工程 seed 或筛选结果写成确认性性能结论。AI 本阶段不训练。
 

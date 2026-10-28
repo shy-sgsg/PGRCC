@@ -1,5 +1,9 @@
 # R22-06：阶段科研价值与方向评估
 
+> **最新执行裁决（2026-10-28 11:34:54 UTC）：** V2 screening 已在方法级可评估性 gate 停止。高信噪比目标条件下，C4 Mode-B ON reference 有一组 support=7 < 8；配对 OFF 为55，SNR20同组为25，SNR30目标 T010 位于该组。现有证据支持“ON侧盲参考在该样本局部支持不足”的机制解释，但仅一个 seed/一个失败 case，不能推断通用 SNR 阈值或长期主线。confirmatory、dense、bridge、H0 未启动。完整证据和待审查选项见 [05](05_resource_and_execution_plan.md) 与 [ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+
+> **后续执行更新（2026-10-28）：** 本文下方裁决对应早期工程 pilot / V1A gate 阶段，不是当前 screening 总结。V2 seed1932001 的 0 ns 与 +4 ns 单 case 已通过冻结工程/evaluator 门，+4 ns 的 `PERFORMANCE_VERIFIED=false`；完整 V2 screening 已恢复执行。因此旧的“先停止、不执行 screening”只保留为当时的历史裁决。当前仍没有足够独立 seed 证据判断未知误差退化、Known recovery、盲估计差距、AI 必要性或方向切换。当前矩阵进度见 [05 资源与执行记录](05_resource_and_execution_plan.md)，独立审查入口见 [V2 screening ChatGPT 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+
 ## 阶段裁决
 
 **`INCONCLUSIVE / STOP_AT_ENGINEERING_GATE`。** 多目标 Native CUDA Production 输入路径、面积杂波配对和单周期任务评价已形成真实证据；PKR support gate 阻止完整 residual closure。R22 full screening 与确认实验没有执行。

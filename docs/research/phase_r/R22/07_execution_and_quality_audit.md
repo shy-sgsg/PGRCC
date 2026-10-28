@@ -1,5 +1,9 @@
 # R22-07：执行身份与质量审计
 
+> **最新执行状态（2026-10-28 11:34:54 UTC）：** 本文下方历史 pre-screening pilot 身份不代表 V2 最新矩阵。V2 screening 17 个 case 通过，随后 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 因 C4 Mode-B ON 的一组 robust support=7 < 8 触发 `GATE_FAILED`。失败 case compact ZIP、源码/二进制身份和 paired SNR 对照见 [05](05_resource_and_execution_plan.md)；未继续算法比较。
+
+> **版本边界：** 下文具体运行身份和表格记录 seed900101/900202/900203 的历史 pre-screening pilot，不是当前 V2 screening 的执行身份。seed1932001 的 +4 ns attempt004 已通过并归档；完整 screening 已恢复。当前活动 case 和源码/二进制身份以 matrix manifest 与 compact ZIP 为准。最新入口见[资源和执行记录](05_resource_and_execution_plan.md)与[ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+
 ## 版本和执行身份
 
 - **仓库/分支：** `https://github.com/shy-sgsg/PGRCC` / `codex/unknown-system-error-next-stage`
@@ -40,7 +44,7 @@ seed900203 closure archive 包含 953 个记录项，payload 39,577,372 bytes。
 - 两个 seed 只供工程可行性和方向提示，不能提供统计显著 Pd/Pfa。
 - Stage2 仿真当前是 ideal straight platform，不能代表包含真实 POS/姿态误差的实测 airborne 场景。
 - PKR failure 是本次阶段门结果；尚未修复，也没有重跑。
-- 完整 R22 matrix 未执行，`PERFORMANCE_VERIFIED=false`。
+- 完整 R22 V2 matrix 尚未完成；screening 已部分执行，attempt004 的 +4 ns case 尚无终态。`PERFORMANCE_VERIFIED=false`；当前状态见[资源和执行记录](05_resource_and_execution_plan.md)。
 
 ## 软件与交付检查
 

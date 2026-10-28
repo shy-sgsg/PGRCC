@@ -1,6 +1,10 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
+> **最新 V2 状态（2026-10-28 11:34:54 UTC）：** screening matrix 为 `GATE_FAILED` 并已停止：17 个通过，1 个方法级不可评估 case，4 条更早中断 attempt；无活动 case。根因是 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 的 C4 Mode-B ON robust reference 有一组 support=7 < 8。详情、失败 ZIP 和当前审查入口见 [05 资源与执行记录](05_resource_and_execution_plan.md) 与 [ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。后续旧的“screening 正在执行”提示属于较早 checkpoint。
+
 **早期 pilot 状态（2026-10-27）：** seed900101/900202/900203 的本地 Native CUDA 工程运行已归档；PKR 支持量 gate 失败后停止了当时的比较。阶段 `INCOMPLETE / INCONCLUSIVE`，`PERFORMANCE_VERIFIED=false`。这些是历史结果，不代表本次 2026-10-28 延续工程 case 已进入 Production。
+
+> **历史 V2 screening 延续快照（截至 2026-10-28 11:16 UTC；随后已停止）：** 固定设计共 594 个 case。seed1932001、0.5 m/s、10 dB、20 targets、10 periods 的 0 ns 与 +4 ns 配对 case 均已通过单 case 工程门；+4 ns attempt004 有 54/54 method/mode/role branches 通过，紧凑 ZIP 与逐文件 SHA 已核验。单 seed 仍不能支持统计性能结论。该时间点完整 288-case screening 已恢复运行，但随后因 C4 Mode-B ON reference support=7<8 触发 `GATE_FAILED` 并停止；当前状态见本文件顶部及最新 matrix manifest。中间实验目录允许超过 20 GB；20 GB 是结果汇总、ChatGPT 审查完成并按清理台账删除可再生大数组后的最终项目占用上限。当前 checkpoint 的独立审查材料见 [V2 screening ChatGPT 审查提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
 
 > **2026-10-28 V1A 延续执行状态：** 首个 0 ns case（seed1930101）已进入真实 Native CUDA Production，但 C4/PKR robust gamma reference 有少数 133-bin groups 未达到 `min_support=8`，矩阵按 fail-closed 规则 `GATE_FAILED` 并停止。Stage2 连续面积杂波有效。该 case 不可评价，不能据此比较任务性能。早先盲校正预处理失败仍保留在 [原工程门失败记录](10_engineering_gate_failure_20261028.md)；本次实际生产执行、gate 根因和[精简审查证据](evidence/extension_engineering_v1a/seed1930101/)见[V1A 工程门复测记录](11_v1a_engineering_gate_result_20261028.md)。其余工程 seeds、screening、confirmatory、dense、bridge 和独立 H0 均未启动。
 
@@ -22,6 +26,7 @@
 14. [V2 首个配对工程 seed 结果](13_v2_engineering_seed1930101_pair_20261028.md)：seed1930101 的 0 ns / +4 ns 本机 Native CUDA 配对结果；这是一个 seed 的可行性证据，不是统计验证。对应的 [ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V2.md) 要求先读指定研究总纲，并附带压缩证据包 `outputs/r22_chatgpt_review_evidence_v2_engineering_pair_20261028.zip`（约 23 MB）。
 15. [V2 六 seed 工程结果](15_v2_six_seed_engineering_results_20261028.md)：六个 seed、12 个最终有效 CUDA Production case 的描述统计、审计边界和资源门；显式记录 seed1930101 与后续 seed 的 Stage2 binary 版本差异。
 16. [V2 六 seed ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V3.md)：用于审查总体科研价值、六 seed 结果、Stage2 Rmin 精度修复及是否需要重跑 seed1930101；精简审查包位于 `outputs/r22_chatgpt_review_evidence_v3_six_seed_20261028.zip`。
+17. [V2 screening checkpoint ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)：可直接复制给 ChatGPT，要求先读取本次研究总纲并核查最新矩阵 manifest、运行证据和总体科研价值；本地 `outputs/` 中的 manifest、日志与 case ZIP 需一并附上。
 
 ## 关键证据
 
@@ -41,6 +46,6 @@
 
 seed900202/900203 均为 20 个目标、单 beam、单周期、+4 ns 的工程 pilot。A0/C0 和盲方法命中数可作描述性观察，不能把目标机会当独立 seed。seed900203 面积杂波有效且配对复用可追溯；PKR 六条角色记录不可评价，导致 A0/PK/PKR residual closure 不闭合。H0 经验 Pfa、confirmed track、径向速度与跨周期任务表现均未验证。Stage R22 的完整筛选和确认矩阵尚未启动。
 
-## V2 六 seed 最新边界（2026-10-28）
+## V2 六 seed 工程结果历史边界（2026-10-28）
 
 六个 seed 的 0 ns / +4 ns 工程 case 已完成，结果见 [V2 六 seed 工程结果](15_v2_six_seed_engineering_results_20261028.md)。最终 12 个 case 均 `IMPLEMENTED / EXECUTED / EVALUABLE`，但 `PERFORMANCE_VERIFIED=false`。seed1930101 使用精度修复前的 Stage2 binary；seed1930102 修复重跑及 seed1930103–1930106 使用修复版。该二进制版本边界和是否需要补跑 seed1930101，须在下一步决策前审查。当前完整 594-case 资源门未通过，不启动 screening；没有 AI 训练或 Router 开发。

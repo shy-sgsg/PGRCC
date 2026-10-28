@@ -1,5 +1,7 @@
 # R22-01：实验设计与信息条件
 
+> **2026-10-28 V2 状态更新：** 原始工程门修复后，V2 设计配置与方法配置已冻结；六 seed engineering gate 已完成，screening 矩阵已在本机 Native CUDA 启动。当前逐 case 状态以 `outputs/r22_full_v2_compact/matrices/screening_diskquota_retry/matrix_manifest.json` 为准。screening 尚未完成，confirmatory、40-target dense、bridge 与独立 H0 批次尚未完成；当前单 case 通过不构成性能验证。下文描述的“原始 R22 未冻结/未启动”是形成 V2 前的历史状态，保留作审计，不代表当前状态。冻结配置及阶段更新见 `config/r22_extension_experiment_design_v2_range_roi.json`、`config/r22_method_config_v2_range_roi.json` 和 [05 资源与执行记录](05_resource_and_execution_plan.md)。
+
 ## 科研定位
 
 - **长期目标：** 在真实、可追溯的 GMTI Production 链路中识别会限制任务性能的物理误差和处理瓶颈，并公平评价可实施的传统方法。

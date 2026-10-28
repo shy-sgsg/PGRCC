@@ -1,5 +1,9 @@
 # R22-04：统计分析计划与当前可推断边界
 
+> **最新状态（2026-10-28）：** screening 当前不是运行中：V2 matrix 在一个 seed1932001、2.5 m/s、30 dB、+4 ns case 因 C4 Mode-B ON 的单个 robust support=7 < 8 而 `GATE_FAILED`。当前没有性能显著性结论，也没有启动 confirmatory/H0 分析；以下统计单位与独立 seed 规则仍适用，H0 CUT 不作独立样本。
+
+> **2026-10-28 V2 状态更新：** 当前完整 screening 尚在运行，以下 seed900202/900203 描述是早期工程 pilot 的历史边界。screening 中同一 seed 的目标、周期、beam、CUT 和方法分支仍须先按 seed 聚合；不因 case 或 opportunity 数增加而把它们视为独立重复。确认性比较尚未开始，独立 H0 矩阵尚未完成，因此当前不能给出确认性 Pd/Pfa 或论文级显著性结论。逐 case `EXECUTED/EVALUABLE` 状态、有效机会数及失败项以矩阵 manifest 和对应 compact archive 为准。
+
 ## 预定分析原则
 
 - **主要统计单位：** 独立 seed。每个 seed 内先聚合目标与周期，再对配对 seed 做条件差值；不能把同一 seed 的目标、脉冲、CUT、beam 或周期拆成独立重复。
