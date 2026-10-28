@@ -6,7 +6,7 @@
 
 - GitHub 仓库：<https://github.com/shy-sgsg/PGRCC>
 - 分支：`codex/unknown-system-error-next-stage`
-- 审查快照 commit：阶段报告提交后填入的完整 SHA；请以该版本的研究总纲、状态、决策日志和阶段报告为准，不要用下方的实验执行源码 commit 替代。
+- 审查快照 commit：`95a8854b01b9af26e6e955d0871e130db81e2f6e`；请以该版本的研究总纲、状态、决策日志和阶段报告为准，不要用下方的实验执行源码 commit 替代。
 - 本次 CUDA 运行的主要源码身份：`5a60a514cf53cab9f23b17ab29992fd4485876fa`。逐 case manifest 还显示首个 0 ns screening case 使用 `7e5a7ee8ebd6c460622425e3d05831b25603e7ec`；Stage2/Production binary 与冻结方法配置一致。两提交间相关代码差异是 truth-blind delay estimator 从整幅批处理改为 packet streaming。该首个 0 ns case 只执行估计诊断、不应用物理校正；其估计诊断不得在不标明源码版本时与 streaming 结果合并。详见 `05_resource_and_execution_plan.md`。
 - attempt004 Stage2 binary SHA-256：`47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f`
 - attempt004 Production binary SHA-256：`d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`
