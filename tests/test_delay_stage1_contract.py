@@ -183,6 +183,88 @@ def test_additive_triplet_reports_pass_and_not_evaluable_failure() -> None:
     assert failed["reason"] == "on_minus_off_minus_target_exceeds_tolerance"
 
 
+def test_streamed_additive_triplet_audit_matches_full_array_audit(tmp_path: Path) -> None:
+    import struct
+    import numpy as np
+
+    from scripts.analyze_four_channel_observables import HEADER_BYTES, iter_raw_packets
+    from scripts.run_delay_stage1_formal import (
+        audit_additive_triplet,
+        audit_additive_triplet_periods,
+    )
+
+    pulse_len = 2
+    channel_count = 4
+    packet_bytes = HEADER_BYTES + pulse_len * channel_count * 2 * 4
+
+    def write_period(path: Path, packets: list[np.ndarray]) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("wb") as stream:
+            for packet_index, channels in enumerate(packets):
+                header = bytearray(HEADER_BYTES)
+                struct.pack_into("<I", header, 9, packet_bytes)
+                struct.pack_into("<I", header, 20, packet_index)
+                iq = np.empty((pulse_len, channel_count, 2), dtype="<f4")
+                iq[:, :, 0] = channels.real
+                iq[:, :, 1] = channels.imag
+                stream.write(header)
+                stream.write(iq.tobytes())
+
+    rng = np.random.default_rng(18)
+    off = [
+        (rng.normal(size=(pulse_len, channel_count))
+         + 1j * rng.normal(size=(pulse_len, channel_count))).astype(np.complex64)
+        for _ in range(4)
+    ]
+    target = [
+        (rng.normal(size=(pulse_len, channel_count))
+         + 1j * rng.normal(size=(pulse_len, channel_count))).astype(np.complex64)
+        for _ in range(4)
+    ]
+    on = [(background + echo).astype(np.complex64) for background, echo in zip(off, target)]
+    paths = {role: [] for role in ("ON", "OFF", "TO")}
+    for period_index in range(2):
+        start = period_index * 2
+        stop = start + 2
+        for role, packets in (("ON", on), ("OFF", off), ("TO", target)):
+            path = tmp_path / role / f"period_{period_index:04d}.bin"
+            write_period(path, packets[start:stop])
+            paths[role].append(path)
+
+    def full_channels(period_paths: list[Path]) -> np.ndarray:
+        return np.concatenate([
+            np.concatenate([
+                np.asarray(packet["channels"], dtype=np.complex128)
+                for packet in iter_raw_packets(path, pulse_len, channel_count, "float32")
+            ], axis=0)
+            for path in period_paths
+        ], axis=0)
+
+    expected = audit_additive_triplet(
+        full_channels(paths["ON"]), full_channels(paths["OFF"]),
+        full_channels(paths["TO"]), tolerance=5e-5,
+    )
+    actual = audit_additive_triplet_periods(paths, {
+        "pulse_len": pulse_len,
+        "channel_count": channel_count,
+        "iq_data_type": "float32",
+    }, tolerance=5e-5)
+
+    assert actual["status"] == expected["status"] == "passed"
+    assert actual["sample_count"] == expected["sample_count"]
+    assert actual["max_abs_error"] == pytest.approx(expected["max_abs_error"], abs=1e-12)
+    assert actual["rms_error"] == pytest.approx(expected["rms_error"], abs=1e-12)
+
+    write_period(paths["ON"][0], on[:1])
+    mismatch = audit_additive_triplet_periods(paths, {
+        "pulse_len": pulse_len,
+        "channel_count": channel_count,
+        "iq_data_type": "float32",
+    }, tolerance=5e-5)
+    assert mismatch["status"] == "NOT_EVALUABLE"
+    assert mismatch["reason"] == "packet_count_mismatch"
+
+
 def test_stage2_area_clutter_gate_uses_observed_injection_and_reachable_geometry() -> None:
     from scripts.run_delay_stage1_formal import audit_stage2_area_clutter_report
 

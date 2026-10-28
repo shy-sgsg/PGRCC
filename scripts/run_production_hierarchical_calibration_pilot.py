@@ -2027,14 +2027,8 @@ def _run_case(
             }
             continue
         try:
-            import numpy as np
-
-            arrays = {
-                role: delay_runner._load_channels_from_periods(paths_by_role[role], layout)
-                for role in ("OFF", "ON", "TO")
-            }
-            manifest["causal_triplets"][kind] = delay_runner.audit_additive_triplet(
-                arrays["ON"], arrays["OFF"], arrays["TO"], DEFAULT_ADDITIVE_TOLERANCE
+            manifest["causal_triplets"][kind] = delay_runner.audit_additive_triplet_periods(
+                paths_by_role, layout, DEFAULT_ADDITIVE_TOLERANCE
             )
         except (OSError, ValueError, RuntimeError, TypeError) as exc:
             manifest["causal_triplets"][kind] = {

@@ -28,6 +28,7 @@ from collections.abc import Mapping, Sequence
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
+from itertools import zip_longest
 
 import numpy as np
 
@@ -282,6 +283,114 @@ def audit_additive_triplet(
     else:
         base["reason"] = "on_minus_off_minus_target_exceeds_tolerance"
     return base
+
+
+def audit_additive_triplet_periods(
+    period_paths_by_role: Mapping[str, Sequence[Path]],
+    layout: Mapping[str, object],
+    tolerance: float,
+) -> dict[str, object]:
+    """Audit ON-OFF-TO from synchronized packets without loading whole scans.
+
+    The full-array audit remains useful for small in-memory inputs. Production
+    R22 cases contain thousands of wide four-channel packets, so this variant
+    keeps only one packet per role resident while preserving the same complex128
+    residual, absolute maximum, and RMS definitions.
+    """
+
+    try:
+        tol = float(tolerance)
+    except (TypeError, ValueError):
+        tol = math.nan
+    result: dict[str, object] = {
+        "status": "NOT_EVALUABLE",
+        "max_abs_error": None,
+        "rms_error": None,
+        "sample_count": 0,
+        "tolerance": tol if math.isfinite(tol) else None,
+        "reason": "invalid_tolerance",
+    }
+    if not math.isfinite(tol) or tol < 0.0:
+        return result
+
+    roles = ("ON", "OFF", "TO")
+    paths = {role: [Path(item) for item in period_paths_by_role.get(role, ())]
+             for role in roles}
+    if any(not paths[role] for role in roles):
+        result["reason"] = "missing_period_paths"
+        return result
+    if len({len(paths[role]) for role in roles}) != 1:
+        result["reason"] = "period_count_mismatch"
+        return result
+    try:
+        pulse_len = int(layout["pulse_len"])
+        channel_count = int(layout["channel_count"])
+        iq_data_type = str(layout["iq_data_type"])
+    except (KeyError, TypeError, ValueError):
+        result["reason"] = "invalid_protocol_layout"
+        return result
+    if pulse_len <= 0 or channel_count <= 0:
+        result["reason"] = "invalid_protocol_layout"
+        return result
+
+    sentinel = object()
+    total_count = 0
+    squared_error_sum = 0.0
+    max_error = 0.0
+    for on_path, off_path, to_path in zip(paths["ON"], paths["OFF"], paths["TO"]):
+        packet_streams = (
+            iter_raw_packets(on_path, pulse_len, channel_count, iq_data_type),
+            iter_raw_packets(off_path, pulse_len, channel_count, iq_data_type),
+            iter_raw_packets(to_path, pulse_len, channel_count, iq_data_type),
+        )
+        period_packet_count = 0
+        for packets in zip_longest(*packet_streams, fillvalue=sentinel):
+            if any(packet is sentinel for packet in packets):
+                result["reason"] = "packet_count_mismatch"
+                return result
+            arrays = tuple(
+                np.asarray(packet["channels"], dtype=np.complex128)
+                for packet in packets
+            )
+            if any(array.ndim == 0 for array in arrays):
+                result["reason"] = "scalar_array_not_supported"
+                return result
+            if not (arrays[0].shape == arrays[1].shape == arrays[2].shape):
+                result["reason"] = "shape_mismatch"
+                return result
+            if not all(bool(np.all(np.isfinite(array))) for array in arrays):
+                result["reason"] = "non_finite_array"
+                return result
+            residual = arrays[0] - arrays[1] - arrays[2]
+            magnitude = np.abs(residual)
+            if not bool(np.all(np.isfinite(magnitude))):
+                result["reason"] = "non_finite_array"
+                return result
+            total_count += int(magnitude.size)
+            period_packet_count += 1
+            max_error = max(max_error, float(np.max(magnitude)))
+            squared_error_sum += float(np.sum(magnitude * magnitude, dtype=np.float64))
+        if period_packet_count == 0:
+            result["reason"] = "empty_array"
+            return result
+
+    if total_count == 0:
+        result["reason"] = "empty_array"
+        return result
+    rms_error = math.sqrt(squared_error_sum / total_count)
+    result.update({
+        "max_abs_error": max_error,
+        "rms_error": rms_error,
+        "sample_count": total_count,
+    })
+    if max_error <= tol:
+        result.update({
+            "status": "passed",
+            "reason": "on_minus_off_minus_target_within_tolerance",
+        })
+    else:
+        result["reason"] = "on_minus_off_minus_target_exceeds_tolerance"
+    return result
 
 
 def _scenario_template(

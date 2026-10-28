@@ -287,9 +287,12 @@ def run_matrix(
     compact_archive_root: Path | None = None,
     max_cases: int | None = None,
     resume: bool = False,
+    retry_interrupted: bool = False,
     run_case_fn: Callable[..., Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     validate_design(design)
+    if retry_interrupted and not resume:
+        raise ValueError("retry_interrupted requires resume=True")
     specs = build_case_specs(design, phase)
     if max_cases is not None:
         if isinstance(max_cases, bool) or max_cases <= 0:
@@ -371,7 +374,19 @@ def run_matrix(
                     break
             skipped_now += 1
             continue
-        if previous:
+        if previous and previous.get("status") in {"RUNNING", "INTERRUPTED"}:
+            if previous.get("status") == "RUNNING":
+                previous["status"] = "INTERRUPTED"
+                previous["finished_at_utc"] = _utc_now()
+                previous["interruption_reason"] = "runner ended before a terminal case checkpoint"
+            if not retry_interrupted:
+                manifest["status"] = "INTERRUPTED_REVIEW_REQUIRED"
+                manifest["interrupted_case_id"] = case_id
+                manifest["finished_at_utc"] = _utc_now()
+                _write_json_atomic(manifest_path, manifest)
+                break
+            _write_json_atomic(manifest_path, manifest)
+        elif previous:
             manifest["status"] = "GATE_FAILED"
             _write_json_atomic(manifest_path, manifest)
             break
@@ -383,6 +398,21 @@ def run_matrix(
         case_root = attempts_root / f"attempt_{attempt:03d}"
         print(f"[{phase}] START {case_id} seed={spec['seed']} output={case_root}", flush=True)
         started = _utc_now()
+        record: dict[str, Any] = {
+            "case_id": case_id,
+            "condition_id": spec["condition_id"],
+            "seed": spec["seed"],
+            "attempt": attempt,
+            "status": "RUNNING",
+            "output_root": str(case_root),
+            "started_at_utc": started,
+        }
+        manifest.setdefault("cases", []).append(record)
+        existing[case_id] = record
+        manifest["status"] = "RUNNING"
+        manifest["active_case_id"] = case_id
+        manifest["active_case_output_root"] = str(case_root)
+        _write_json_atomic(manifest_path, manifest)
         try:
             result = dict(case_runner(
                 case_root,
@@ -404,38 +434,22 @@ def run_matrix(
                 area=spec["area"],
             ))
             state = _case_state(phase, result)
-            record = {
-                "case_id": case_id,
-                "condition_id": spec["condition_id"],
-                "seed": spec["seed"],
-                "attempt": attempt,
-                "status": state,
-                "output_root": str(case_root),
-                "started_at_utc": started,
-                "finished_at_utc": _utc_now(),
+            record.update({
                 "implementation_result": result.get("implementation_result"),
                 "status_labels": result.get("status_labels"),
                 "evaluation_summary": result.get("evaluation_summary"),
                 "all_production_branches_passed": result.get("all_production_branches_passed"),
-            }
+            })
         except Exception as exc:
             state = "GATE_FAILED"
-            record = {
-                "case_id": case_id,
-                "condition_id": spec["condition_id"],
-                "seed": spec["seed"],
-                "attempt": attempt,
-                "status": state,
-                "output_root": str(case_root),
-                "started_at_utc": started,
-                "finished_at_utc": _utc_now(),
-                "failure": {"type": type(exc).__name__, "message": str(exc)},
-            }
-        manifest.setdefault("cases", []).append(record)
-        existing[case_id] = record
+            record["failure"] = {"type": type(exc).__name__, "message": str(exc)}
+        record["status"] = state
+        record["finished_at_utc"] = _utc_now()
         completed_now += 1
         passed_states = {"PASSED", "H0_EVALUABLE_WITH_GAPS"}
         manifest["status"] = "RUNNING" if state in passed_states else "GATE_FAILED"
+        manifest.pop("active_case_id", None)
+        manifest.pop("active_case_output_root", None)
         manifest["finished_at_utc"] = _utc_now()
         _write_json_atomic(manifest_path, manifest)
         if state in passed_states and archive_base is not None:
@@ -465,7 +479,9 @@ def run_matrix(
         row["case_id"] for row in manifest.get("cases", [])
         if row.get("status") in {"PASSED", "H0_EVALUABLE_WITH_GAPS"}
     }
-    if manifest.get("status") not in {"GATE_FAILED", "ARCHIVE_PENDING"}:
+    if manifest.get("status") not in {
+        "GATE_FAILED", "ARCHIVE_PENDING", "INTERRUPTED_REVIEW_REQUIRED",
+    }:
         full_case_count = len(build_case_specs(design, phase))
         manifest["status"] = "COMPLETED" if len(terminal_ids) == full_case_count else "PARTIAL_BOUNDED_RUN"
         manifest["finished_at_utc"] = _utc_now()
@@ -497,6 +513,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--max-cases", type=int)
     parser.add_argument("--resume", action="store_true")
+    parser.add_argument(
+        "--retry-interrupted", action="store_true",
+        help="start a new attempt after preserving an interrupted case record",
+    )
     args = parser.parse_args(argv)
     try:
         design = load_design(args.design)
@@ -512,6 +532,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             compact_archive_root=args.compact_archive_root,
             max_cases=args.max_cases,
             resume=args.resume,
+            retry_interrupted=args.retry_interrupted,
         )
     except Exception as exc:
         print(f"[r22_experiment_matrix][ERROR] {type(exc).__name__}: {exc}")
@@ -524,7 +545,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "planned_case_count": result.get("planned_case_count"),
         "manifest": str(args.output_root.expanduser().resolve() / "matrix_manifest.json"),
     }, ensure_ascii=False, sort_keys=True))
-    return 2 if result.get("status") in {"GATE_FAILED", "ARCHIVE_PENDING"} else 0
+    return 2 if result.get("status") in {
+        "GATE_FAILED", "ARCHIVE_PENDING", "INTERRUPTED_REVIEW_REQUIRED",
+    } else 0
 
 
 if __name__ == "__main__":
