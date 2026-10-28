@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import math
 import time
-from collections.abc import Sequence
+from collections.abc import Iterable, Sequence
 from typing import Any
 
 import numpy as np
@@ -168,6 +168,17 @@ def _residual_phase_rms(
     """Measure phase residual after removing a returned delay estimate."""
 
     cross, frequency_cycles_per_sample = _cross_spectrum(first, second)
+    return _residual_phase_rms_from_cross(cross, fs_hz, delay_ns)
+
+
+def _residual_phase_rms_from_cross(
+    cross: np.ndarray,
+    fs_hz: float,
+    delay_ns: float,
+) -> float | None:
+    """Compute the phase residual from an already aggregated C12 spectrum."""
+
+    frequency_cycles_per_sample = np.fft.fftfreq(len(cross), d=1.0)
     frequency_hz = frequency_cycles_per_sample * fs_hz
     mask = (
         (frequency_hz > 0.0)
@@ -677,6 +688,235 @@ def delay_method_suite(
         estimate_delay_gcc_phat(f1_time, f2_time, fs_hz),
         estimate_delay_oversampled_cross_correlation(f1_time, f2_time, fs_hz),
     ]
+
+
+def delay_method_suite_streaming(
+    chunks: Iterable[tuple[np.ndarray, np.ndarray]],
+    fs_hz: float,
+) -> list[dict[str, object]]:
+    """Run the Stage-1 suite from bounded pulse chunks.
+
+    The estimators depend on sums of per-pulse cross spectra (and, for GCC-PHAT,
+    sums of per-pulse normalized spectra). These sufficient statistics are
+    accumulated packet by packet, so a whole scan and its FFT workspaces never
+    need to be resident together. The fitting thresholds, weights, correlation
+    definitions, and lag conventions match :func:`delay_method_suite`.
+    """
+
+    start = time.perf_counter()
+    try:
+        sample_rate = float(fs_hz)
+    except (TypeError, ValueError) as exc:
+        raise ValueError("fs_hz must be a positive finite scalar") from exc
+    if not math.isfinite(sample_rate) or sample_rate <= 0.0:
+        raise ValueError("fs_hz must be a positive finite scalar")
+
+    sample_count: int | None = None
+    pulse_count = 0
+    finite_count = 0
+    cross_samples: np.ndarray | None = None
+    padded_cross: np.ndarray | None = None
+    phat_spectrum: np.ndarray | None = None
+    frequency_support_count = 0
+    padded_size: int | None = None
+
+    for chunk_first, chunk_second in chunks:
+        first, second, finite, chunk_rate = _prepare_inputs(
+            chunk_first, chunk_second, sample_rate,
+        )
+        if chunk_rate != sample_rate:
+            raise ValueError("all streaming chunks must use the same sample rate")
+        if sample_count is None:
+            sample_count = int(first.shape[1])
+            padded_size = _next_power_of_two(2 * sample_count - 1)
+            cross_samples = np.zeros(sample_count, dtype=np.complex128)
+            padded_cross = np.zeros(padded_size, dtype=np.complex128)
+            phat_spectrum = np.zeros(padded_size, dtype=np.complex128)
+        elif first.shape[1] != sample_count:
+            raise ValueError("all streaming chunks must have the same sample count")
+
+        safe_first, safe_second = _safe_inputs(first, second, finite)
+        finite_count += int(np.count_nonzero(finite))
+        pulse_count += int(first.shape[0])
+
+        sample_spectrum1 = np.fft.fft(safe_first, axis=1)
+        sample_spectrum2 = np.fft.fft(safe_second, axis=1)
+        sample_cross = sample_spectrum1 * np.conj(sample_spectrum2)
+        assert cross_samples is not None
+        cross_samples += np.sum(sample_cross, axis=0)
+
+        assert padded_size is not None
+        padded_spectrum1 = np.fft.fft(safe_first, n=padded_size, axis=1)
+        padded_spectrum2 = np.fft.fft(safe_second, n=padded_size, axis=1)
+        pulse_cross = padded_spectrum1 * np.conj(padded_spectrum2)
+        assert padded_cross is not None and phat_spectrum is not None
+        padded_cross += np.sum(pulse_cross, axis=0)
+        for row_cross in pulse_cross:
+            magnitude = np.abs(row_cross)
+            supported = np.isfinite(row_cross) & (magnitude > _EPS)
+            frequency_support_count = max(
+                frequency_support_count,
+                int(np.count_nonzero(supported)),
+            )
+            phat_spectrum += np.where(
+                supported,
+                row_cross / np.maximum(magnitude, _EPS),
+                0.0j,
+            )
+
+    if sample_count is None or pulse_count == 0 or cross_samples is None:
+        raise ValueError("streaming delay estimator received no pulse chunks")
+    assert padded_size is not None and padded_cross is not None and phat_spectrum is not None
+
+    if finite_count < _MIN_CALIBRATION_SAMPLES:
+        return [
+            _fallback_row(
+                method,
+                "insufficient_calibration_support",
+                finite_count,
+                start,
+                input_finite_count=finite_count,
+            )
+            for method in _SUITE_METHODS
+        ]
+
+    # D1-D4 consume only the aggregate C12 spectrum. A unit impulse paired with
+    # this inverse spectrum recreates that exact sufficient statistic and lets
+    # the existing fit implementations retain their established code path.
+    aggregate_first = np.zeros(sample_count, dtype=np.complex128)
+    aggregate_first[0] = 1.0 + 0.0j
+    aggregate_second = np.fft.ifft(np.conj(cross_samples))
+    spectral_rows = [
+        *estimate_delay_d1_d2_d3(aggregate_first, aggregate_second, sample_rate).values(),
+        estimate_delay_generalized_phase_slope_ml(
+            aggregate_first, aggregate_second, sample_rate,
+        ),
+    ]
+    for row in spectral_rows:
+        if "input_finite_count" in row:
+            row["input_finite_count"] = finite_count
+        if row.get("status") == "ok":
+            row["pulse_count"] = pulse_count
+            row["sample_count"] = sample_count
+
+    correlation = np.fft.ifft(padded_cross)
+    linear_correlation = np.concatenate(
+        (correlation[-(sample_count - 1):], correlation[:sample_count])
+    )
+    linear_lags = np.arange(-(sample_count - 1), sample_count, dtype=np.float64)
+    lag_samples = _quadratic_peak_lag(linear_correlation, linear_lags)
+    if lag_samples is None:
+        linear_row = _fallback_row(
+            "cross_correlation", "insufficient_calibration_support", finite_count,
+            start, input_finite_count=finite_count,
+        )
+    else:
+        delay_ns = -lag_samples / sample_rate * 1.0e9
+        linear_row = _success_row(
+            "cross_correlation", delay_ns,
+            _residual_phase_rms_from_cross(cross_samples, sample_rate, delay_ns),
+            _elapsed(start), finite_count,
+            extra={
+                "input_finite_count": finite_count,
+                "pulse_count": pulse_count,
+                "sample_count": sample_count,
+                "lag_samples": float(lag_samples),
+                "cross_spectrum_definition": "X1*conj(X2)",
+                "internal_lag_convention": "C12_time_correlation_lag; reported_delay_ns=-lag_samples/fs",
+            },
+        )
+
+    if frequency_support_count == 0 or not np.any(np.abs(phat_spectrum) > _EPS):
+        gcc_row = _fallback_row(
+            "gcc_phat", "insufficient_calibration_support", finite_count,
+            start, input_finite_count=finite_count,
+        )
+    else:
+        gcc_correlation = np.fft.ifft(phat_spectrum)
+        raw_lags = np.arange(padded_size, dtype=np.float64)
+        signed_lags = np.where(raw_lags <= padded_size // 2, raw_lags, raw_lags - padded_size)
+        in_linear_support = (
+            (signed_lags >= -(sample_count - 1))
+            & (signed_lags <= sample_count - 1)
+        )
+        support_indices = np.flatnonzero(in_linear_support)
+        order = np.argsort(signed_lags[support_indices])
+        ordered_indices = support_indices[order]
+        gcc_lag = _quadratic_peak_lag(
+            gcc_correlation[ordered_indices], signed_lags[ordered_indices],
+        )
+        if gcc_lag is None:
+            gcc_row = _fallback_row(
+                "gcc_phat", "insufficient_calibration_support", finite_count,
+                start, input_finite_count=finite_count,
+            )
+        else:
+            delay_ns = -gcc_lag / sample_rate * 1.0e9
+            gcc_row = _success_row(
+                "gcc_phat", delay_ns,
+                _residual_phase_rms_from_cross(cross_samples, sample_rate, delay_ns),
+                _elapsed(start), finite_count,
+                extra={
+                    "input_finite_count": finite_count,
+                    "pulse_count": pulse_count,
+                    "sample_count": sample_count,
+                    "lag_samples": float(gcc_lag),
+                    "frequency_support_count": frequency_support_count,
+                    "cross_spectrum_definition": "X1*conj(X2)",
+                    "internal_lag_convention": "C12_ifft_lag; reported_delay_ns=-lag_samples/fs",
+                },
+            )
+
+    oversample_factor = 8
+    oversampled_size = padded_size * oversample_factor
+    centered = np.fft.fftshift(padded_cross)
+    padded = np.zeros(oversampled_size, dtype=np.complex128)
+    pad_start = (oversampled_size - padded_size) // 2
+    padded[pad_start:pad_start + padded_size] = centered
+    oversampled_correlation = (
+        np.fft.ifft(np.fft.ifftshift(padded)) * float(oversample_factor)
+    )
+    raw_lags = np.arange(oversampled_size, dtype=np.float64)
+    signed_lags = np.where(
+        raw_lags <= oversampled_size // 2,
+        raw_lags,
+        raw_lags - oversampled_size,
+    )
+    in_linear_support = (
+        (signed_lags >= -(sample_count - 1) * oversample_factor)
+        & (signed_lags <= (sample_count - 1) * oversample_factor)
+    )
+    support_indices = np.flatnonzero(in_linear_support)
+    support_order = np.argsort(signed_lags[support_indices])
+    ordered_indices = support_indices[support_order]
+    oversampled_lags = signed_lags[ordered_indices] / float(oversample_factor)
+    oversampled_values = oversampled_correlation[ordered_indices]
+    oversampled_peak = _quadratic_peak_lag(oversampled_values, oversampled_lags)
+    if oversampled_peak is None:
+        oversampled_row = _fallback_row(
+            "oversampled_cross_correlation", "insufficient_calibration_support",
+            finite_count, start, input_finite_count=finite_count,
+        )
+    else:
+        delay_ns = -oversampled_peak / sample_rate * 1.0e9
+        oversampled_row = _success_row(
+            "oversampled_cross_correlation", delay_ns,
+            _residual_phase_rms_from_cross(cross_samples, sample_rate, delay_ns),
+            _elapsed(start), finite_count,
+            extra={
+                "input_finite_count": finite_count,
+                "pulse_count": pulse_count,
+                "sample_count": sample_count,
+                "lag_samples": float(oversampled_peak),
+                "oversample_factor": oversample_factor,
+                "cross_spectrum_definition": "X1*conj(X2)",
+                "internal_lag_convention": "oversampled_C12_time_correlation_lag; reported_delay_ns=-lag_samples/fs",
+                "fractional_peak_refinement": "zero_padded_fft_grid_plus_quadratic",
+                "truth_used_in_estimator": False,
+            },
+        )
+
+    return [*spectral_rows, linear_row, gcc_row, oversampled_row]
 
 
 def weighted_slope_variance(

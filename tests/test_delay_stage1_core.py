@@ -17,6 +17,7 @@ from scripts.delay_stage1_core import (
     paired_mcnemar_exact,
     recovery_ratio,
     residual_phase_from_delay_error,
+    delay_method_suite_streaming,
     run_parameter_monte_carlo,
     weighted_slope_variance,
 )
@@ -159,6 +160,39 @@ def test_delay_core_accepts_one_pulse_and_pulse_by_sample_inputs() -> None:
     )
     assert one_pulse["cross_correlation"]["support_count"] == f1.size
     assert pulse_by_sample["cross_correlation"]["support_count"] == f1.size
+
+
+def test_streaming_delay_suite_matches_batch_methods_and_metadata() -> None:
+    rng = np.random.default_rng(78)
+    fs_hz = 60.0e6
+    pulse_count = 12
+    sample_count = 256
+    first = rng.normal(size=(pulse_count, sample_count)) + 1j * rng.normal(
+        size=(pulse_count, sample_count)
+    )
+    second = np.roll(first, 2, axis=1) + 0.05 * (
+        rng.normal(size=(pulse_count, sample_count))
+        + 1j * rng.normal(size=(pulse_count, sample_count))
+    )
+    first[3, 19] = complex(float("nan"), float("nan"))
+    chunks = [
+        (first[:2], second[:2]),
+        (first[2:7], second[2:7]),
+        (first[7:], second[7:]),
+    ]
+
+    expected = rows_by_method(delay_method_suite(first, second, fs_hz))
+    actual = rows_by_method(delay_method_suite_streaming(iter(chunks), fs_hz))
+
+    assert set(actual) == set(expected)
+    for method in expected:
+        assert actual[method]["status"] == expected[method]["status"]
+        for field in ("support_count", "input_finite_count", "pulse_count", "sample_count"):
+            assert actual[method][field] == expected[method][field]
+        for field in ("delta_tau_ns", "residual_phase_rms_rad"):
+            assert actual[method][field] == pytest.approx(
+                expected[method][field], rel=1e-9, abs=1e-10
+            )
 
 
 def test_baseline_fallback_is_structured_for_insufficient_support() -> None:

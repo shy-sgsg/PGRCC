@@ -1619,12 +1619,12 @@ def _case_manifest_base(config: Mapping[str, object], case: Mapping[str, object]
 def estimate_blind_delay(
     delay_runner: object, periods: Sequence[Path], layout: Mapping[str, object]
 ) -> dict[str, object]:
-    """Use the existing Stage1 fused F1/F2 delay estimator, truth-blind."""
+    """Use the truth-blind Stage1 estimator without materializing a full scan."""
 
-    f1, f2 = delay_runner._load_fused_from_periods(periods, layout)  # type: ignore[attr-defined]
-    from scripts.delay_stage1_core import delay_method_suite
+    chunks = delay_runner._iter_fused_packets_from_periods(periods, layout)  # type: ignore[attr-defined]
+    from scripts.delay_stage1_core import delay_method_suite_streaming
 
-    rows = delay_method_suite(f1, f2, float(layout["fs_hz"]))
+    rows = delay_method_suite_streaming(chunks, float(layout["fs_hz"]))
     selected_delay, selected_method = delay_runner._select_delay_estimate(rows)  # type: ignore[attr-defined]
     return {
         "status": "estimated" if selected_delay is not None else "failed",
@@ -1632,6 +1632,7 @@ def estimate_blind_delay(
         "selected_method": selected_method,
         "selected_delay_ns": selected_delay,
         "input_role": "OFF=C+N",
+        "input_streaming": True,
         "truth_used_in_estimator": False,
     }
 

@@ -189,6 +189,8 @@ def test_streamed_additive_triplet_audit_matches_full_array_audit(tmp_path: Path
 
     from scripts.analyze_four_channel_observables import HEADER_BYTES, iter_raw_packets
     from scripts.run_delay_stage1_formal import (
+        _iter_fused_packets_from_periods,
+        _load_fused_from_periods,
         audit_additive_triplet,
         audit_additive_triplet_periods,
     )
@@ -244,6 +246,18 @@ def test_streamed_additive_triplet_audit_matches_full_array_audit(tmp_path: Path
         full_channels(paths["ON"]), full_channels(paths["OFF"]),
         full_channels(paths["TO"]), tolerance=5e-5,
     )
+    batch_f1, batch_f2 = _load_fused_from_periods(paths["OFF"], {
+        "pulse_len": pulse_len,
+        "channel_count": channel_count,
+        "iq_data_type": "float32",
+    })
+    fused_packets = list(_iter_fused_packets_from_periods(paths["OFF"], {
+        "pulse_len": pulse_len,
+        "channel_count": channel_count,
+        "iq_data_type": "float32",
+    }))
+    np.testing.assert_allclose(np.stack([item[0] for item in fused_packets]), batch_f1)
+    np.testing.assert_allclose(np.stack([item[1] for item in fused_packets]), batch_f2)
     actual = audit_additive_triplet_periods(paths, {
         "pulse_len": pulse_len,
         "channel_count": channel_count,

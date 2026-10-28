@@ -1395,6 +1395,30 @@ def _load_fused_from_periods(
     return np.stack(f1_rows, axis=0), np.stack(f2_rows, axis=0)
 
 
+def _iter_fused_packets_from_periods(
+    period_paths: Sequence[Path],
+    layout: Mapping[str, object],
+) -> Iterable[tuple[np.ndarray, np.ndarray]]:
+    """Yield one fused F1/F2 fast-time row per protocol packet."""
+
+    pulse_len = int(layout["pulse_len"])
+    channel_count = int(layout["channel_count"])
+    iq_data_type = str(layout["iq_data_type"])
+    if pulse_len <= 0 or channel_count != 4:
+        raise ValueError("streaming F1/F2 estimation requires four valid protocol channels")
+    for path in period_paths:
+        for packet in iter_raw_packets(path, pulse_len, channel_count, iq_data_type):
+            channels = np.asarray(packet["channels"], dtype=np.complex128)
+            if channels.shape != (pulse_len, 4):
+                raise ValueError(
+                    f"unexpected protocol channel shape in {path}: {channels.shape}"
+                )
+            yield (
+                0.5 * (channels[:, 0] + channels[:, 2]),
+                0.5 * (channels[:, 1] + channels[:, 3]),
+            )
+
+
 def _write_rows(path: Path, rows: Sequence[Mapping[str, object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     fields: list[str] = []

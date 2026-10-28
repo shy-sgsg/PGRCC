@@ -1397,20 +1397,30 @@ def test_analyzer_classifies_id_switches_or_marks_debug_limit() -> None:
     assert unavailable["classification"] == "NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
 
 
-def test_blind_delay_estimator_uses_existing_stage1_fused_api(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_blind_delay_estimator_uses_streaming_stage1_fused_api(monkeypatch: pytest.MonkeyPatch) -> None:
+    import numpy as np
+
     from scripts import run_delay_stage1_formal as stage1
     from scripts import delay_stage1_core
     from scripts.run_production_hierarchical_calibration_pilot import estimate_blind_delay
 
+    chunks = [(np.ones(4, dtype=np.complex128), np.ones(4, dtype=np.complex128))]
+    seen = []
     monkeypatch.setattr(
         stage1,
-        "_load_fused_from_periods",
-        lambda periods, layout: (object(), object()),
+        "_iter_fused_packets_from_periods",
+        lambda periods, layout: iter(chunks),
     )
+
+    def streaming_suite(chunk_iter, fs_hz):
+        seen.extend(chunk_iter)
+        assert fs_hz == 1.0
+        return [{"method": "D1_ordinary_LS", "delta_tau_ns": 1.25}]
+
     monkeypatch.setattr(
         delay_stage1_core,
-        "delay_method_suite",
-        lambda f1, f2, fs_hz: [{"method": "D1_ordinary_LS", "delta_tau_ns": 1.25}],
+        "delay_method_suite_streaming",
+        streaming_suite,
     )
     monkeypatch.setattr(
         stage1,
@@ -1425,6 +1435,8 @@ def test_blind_delay_estimator_uses_existing_stage1_fused_api(monkeypatch: pytes
     assert result["status"] == "estimated"
     assert result["selected_delay_ns"] == pytest.approx(1.25)
     assert result["truth_used_in_estimator"] is False
+    assert result["input_streaming"] is True
+    assert len(seen) == 1
 
 
 def test_production_branch_exposes_xml_override_handoff_and_fields_are_auditable(tmp_path: Path) -> None:
