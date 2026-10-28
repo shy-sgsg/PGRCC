@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <fstream>
 #include <iomanip>
+#include <limits>
 #include <set>
 #include <sstream>
 
@@ -467,7 +468,7 @@ void setOrReplace(TiXmlElement *parent, const char *name, const std::string &val
 void setOrReplaceDouble(TiXmlElement *parent, const char *name, double value)
 {
     std::ostringstream ss;
-    ss << value;
+    ss << std::setprecision(std::numeric_limits<double>::max_digits10) << value;
     setOrReplace(parent, name, ss.str());
 }
 

@@ -217,6 +217,46 @@ def test_r22_method_config_has_feasible_pkr_support_without_lowering_the_gate():
     assert production["csi_metrics_dump_intermediate_maps"] is False
 
 
+def test_r22_extra_correction_branches_share_configured_production_range(monkeypatch, tmp_path: Path):
+    source = tmp_path / "source.bin"
+    source.write_bytes(b"paired input")
+    calls = []
+
+    monkeypatch.setattr(
+        r22, "_delay_corrected_inputs", lambda *args, **kwargs: ([source], [])
+    )
+    monkeypatch.setattr(
+        r22.stage1, "run_production_branch",
+        lambda *args, **kwargs: (calls.append(kwargs) or {
+            "status": "passed", "production_returncode": 0,
+        }),
+    )
+    monkeypatch.setattr(
+        r22.stage1, "audit_production_path_evidence",
+        lambda record: {"status": "passed"},
+    )
+    monkeypatch.setattr(r22.stage1, "_write_json", lambda *args, **kwargs: None)
+
+    r22._run_extra_delay_method(
+        tmp_path,
+        "case",
+        "blind",
+        3.5,
+        "target_free_OFF_estimator",
+        None,
+        {role: [source] for role in ("ON", "OFF", "TO")},
+        tmp_path / "source.xml",
+        tmp_path,
+        {"beam_id": 50, "pulse_len": 1, "channel_count": 4, "fs_hz": 1.0},
+        1,
+        {"processing_range_start": 666, "processing_range_end": 1197},
+    )
+
+    assert len(calls) == 3
+    assert all(call["xml_overrides"]["rg_st"] == 666 for call in calls)
+    assert all(call["xml_overrides"]["rg_ed"] == 1197 for call in calls)
+
+
 def test_r22_runner_loads_and_records_an_explicit_method_configuration(tmp_path: Path):
     config_path = r22.DEFAULT_METHOD_CONFIG
     scenario_path = tmp_path / "scenario.json"
@@ -229,6 +269,30 @@ def test_r22_runner_loads_and_records_an_explicit_method_configuration(tmp_path:
     assert config["production"]["min_support"] == 8
     assert config["production"]["range_band_bins"] == 133
     assert [method["method_id"] for method in methods] == ["PKR"]
+
+
+def test_r22_v2_range_roi_design_preserves_v1a_scope_and_quality_gates():
+    root = Path(__file__).resolve().parents[1]
+    v1a = json.loads(
+        (root / "docs/research/phase_r/R22/config/r22_extension_experiment_design.json")
+        .read_text(encoding="utf-8")
+    )
+    v2_path = root / "docs/research/phase_r/R22/config/r22_extension_experiment_design_v2_range_roi.json"
+    v2 = json.loads(v2_path.read_text(encoding="utf-8"))
+    v2_method = json.loads(
+        (root / v2["common"]["method_config"]).read_text(encoding="utf-8")
+    )
+
+    assert v2["design_id"] == "R22_EXTENSION_20261028_V2_RANGE_ROI"
+    assert v2["supersedes_design_id"] == v1a["design_id"]
+    assert v2["seed_sets"] == v1a["seed_sets"]
+    assert v2["expected_case_counts"] == v1a["expected_case_counts"]
+    assert v2["target_counts"] == v1a["target_counts"]
+    assert v2["period_count"] == v1a["period_count"]
+    assert v2_method["production"]["min_support"] == 8
+    assert v2_method["production"]["robust_phase_threshold_rad"] == 0.35
+    assert v2_method["production"]["processing_range_start"] == 666
+    assert v2_method["production"]["processing_range_end"] == 1197
 
 
 def test_r22_attaches_production_evidence_gates_before_aggregating_branch_status(monkeypatch):

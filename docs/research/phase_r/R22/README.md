@@ -18,6 +18,10 @@
 10. [工程门失败记录](10_engineering_gate_failure_20261028.md)：本次 seed1930101 的真实执行、输入配对、盲估计和失败边界。
 11. [V1A 工程门复测记录](11_v1a_engineering_gate_result_20261028.md)：真实 CUDA Production 执行、133-bin support gate 失败和结论边界。
 12. [ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT.md)：要求 ChatGPT 读取指定 commit，并审查当前 V1A gate failure 与总体研究价值；交付后填入完整审查 commit SHA。
+13. [V2 距离支持域修订](12_v2_range_support_domain_amendment_20261028.md)：说明由面积杂波/目标物理 ROI 推导的共同闭区间 `[666,1197]`、V1A 与 V2 的版本隔离及六 seed 工程门。V2 配置和设计分别为 [方法配置](config/r22_method_config_v2_range_roi.json) 与 [机器可读设计](config/r22_extension_experiment_design_v2_range_roi.json)。
+14. [V2 首个配对工程 seed 结果](13_v2_engineering_seed1930101_pair_20261028.md)：seed1930101 的 0 ns / +4 ns 本机 Native CUDA 配对结果；这是一个 seed 的可行性证据，不是统计验证。对应的 [ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V2.md) 要求先读指定研究总纲，并附带压缩证据包 `outputs/r22_chatgpt_review_evidence_v2_engineering_pair_20261028.zip`（约 23 MB）。
+15. [V2 六 seed 工程结果](15_v2_six_seed_engineering_results_20261028.md)：六个 seed、12 个最终有效 CUDA Production case 的描述统计、审计边界和资源门；显式记录 seed1930101 与后续 seed 的 Stage2 binary 版本差异。
+16. [V2 六 seed ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V3.md)：用于审查总体科研价值、六 seed 结果、Stage2 Rmin 精度修复及是否需要重跑 seed1930101；精简审查包位于 `outputs/r22_chatgpt_review_evidence_v3_six_seed_20261028.zip`。
 
 ## 关键证据
 
@@ -31,7 +35,12 @@
 - [seed900203 PKR gate 失败证据](evidence/preflight/seed900203_closure/README.md)
 - [V1A seed1930101 精简工程审查证据](evidence/extension_engineering_v1a/seed1930101/README.md)：Stage2 杂波报告、实际 XML/log、CSI tap、CFAR geometry、robust gamma failure rows、case/matrix 摘要与 cleanup ledger。
 - [清理台账](evidence/cleanup_ledger.md)
+- [2026-10-28 历史大数组清理记录](14_storage_cleanup_20261028.md)
 
-## 结果边界
+## 历史 preflight 结果边界（2026-10-27）
 
 seed900202/900203 均为 20 个目标、单 beam、单周期、+4 ns 的工程 pilot。A0/C0 和盲方法命中数可作描述性观察，不能把目标机会当独立 seed。seed900203 面积杂波有效且配对复用可追溯；PKR 六条角色记录不可评价，导致 A0/PK/PKR residual closure 不闭合。H0 经验 Pfa、confirmed track、径向速度与跨周期任务表现均未验证。Stage R22 的完整筛选和确认矩阵尚未启动。
+
+## V2 六 seed 最新边界（2026-10-28）
+
+六个 seed 的 0 ns / +4 ns 工程 case 已完成，结果见 [V2 六 seed 工程结果](15_v2_six_seed_engineering_results_20261028.md)。最终 12 个 case 均 `IMPLEMENTED / EXECUTED / EVALUABLE`，但 `PERFORMANCE_VERIFIED=false`。seed1930101 使用精度修复前的 Stage2 binary；seed1930102 修复重跑及 seed1930103–1930106 使用修复版。该二进制版本边界和是否需要补跑 seed1930101，须在下一步决策前审查。当前完整 594-case 资源门未通过，不启动 screening；没有 AI 训练或 Router 开发。

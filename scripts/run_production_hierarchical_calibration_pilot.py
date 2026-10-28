@@ -151,6 +151,29 @@ def _finite_float(value: object, name: str) -> float:
     return result
 
 
+def _production_range_overrides(production: Mapping[str, object]) -> dict[str, int]:
+    """Translate an optional inclusive processing window into Production XML fields."""
+
+    start_key = "processing_range_start"
+    end_key = "processing_range_end"
+    has_start = start_key in production
+    has_end = end_key in production
+    if not has_start and not has_end:
+        return {}
+    if has_start != has_end:
+        raise ValueError("production processing range requires both start and end")
+    start = production[start_key]
+    end = production[end_key]
+    if (
+        isinstance(start, bool) or not isinstance(start, int)
+        or isinstance(end, bool) or not isinstance(end, int)
+    ):
+        raise ValueError("production processing range bounds must be integers")
+    if start < 0 or end <= start:
+        raise ValueError("production processing range must satisfy 0 <= start < end")
+    return {"rg_st": start, "rg_ed": end}
+
+
 def load_pilot_config(path: Path = CONFIG) -> dict[str, object]:
     """Load and validate the frozen delay-pilot configuration."""
 
@@ -163,6 +186,10 @@ def load_pilot_config(path: Path = CONFIG) -> dict[str, object]:
     config = _read_json(candidate)
     if config.get("stage") != "Production Hierarchical Calibration Pilot":
         raise ValueError("pilot config stage is not frozen to the production hierarchical pilot")
+    production = config.get("production")
+    if not isinstance(production, Mapping):
+        raise ValueError("pilot config production section must be an object")
+    _production_range_overrides(production)
     for key in ("ai_training", "router_enabled", "native_4ch_stap"):
         if config.get(key) is not False:
             raise ValueError(f"{key} must be false for this pilot")
@@ -1514,6 +1541,7 @@ def _method_xml(
     method_name = str(method["research_calibration_method"])
     band = int(production.get("range_band_bins", 6)) if method_name == "robust_ddc_rb" else 0
     overrides = {
+        **_production_range_overrides(production),
         "research_calibration_enable": "true" if enable else "false",
         "research_calibration_method": method_name,
         "research_calibration_min_support": int(production.get("min_support", 8)),

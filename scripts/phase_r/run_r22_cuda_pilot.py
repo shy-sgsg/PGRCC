@@ -401,6 +401,7 @@ def _run_extra_delay_method(
     truth_root: Path,
     layout: Mapping[str, Any],
     period_count: int,
+    production_config: Mapping[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     branch_records: list[dict[str, Any]] = []
     for role in ("ON", "OFF", "TO"):
@@ -434,6 +435,7 @@ def _run_extra_delay_method(
                 "wavepos_st": int(layout["beam_id"]),
                 "wavepos_ed": int(layout.get("last_beam_id", layout["beam_id"])),
                 "wavepos_skip": 1,
+                **calibration._production_range_overrides(production_config or {}),
             },
         )
         gate = stage1.audit_production_path_evidence(branch)
@@ -708,6 +710,9 @@ def run_case(
             "period_count": period_count, "first_beam": first_beam, "beam_count": beam_count,
             "method_ids": list(method_ids), "calibration_modes": list(calibration_modes),
             "execution_method_ids": list(execution_method_ids),
+            "production_processing_range": calibration._production_range_overrides(
+                method_config["production"]
+            ),
             "zero_delay_blind_correction_policy": (
                 "estimate_only_no_physical_correction" if float(delay_ns) == 0.0
                 else "execute_frozen_blind_and_fixed_corrections"
@@ -811,6 +816,7 @@ def run_case(
             extra_methods.extend(_run_extra_delay_method(
                 pipeline_case_root, case_id, condition, correction_ns, source, estimate,
                 raw["A1_Current_unknown_error"], source_xml, truth_root, layout, period_count,
+                method_config["production"],
             ))
         method_records.extend(extra_methods)
         method_records = _audit_production_branches(method_records)

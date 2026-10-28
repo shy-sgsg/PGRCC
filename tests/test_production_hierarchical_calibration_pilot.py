@@ -734,6 +734,58 @@ def test_method_xml_can_keep_scalar_csi_tap_without_dumping_full_maps(tmp_path: 
     assert generated_xml.findtext(".//csi_metrics_dump_intermediate_maps") == "false"
 
 
+def test_production_range_overrides_are_optional_and_fail_closed() -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import (
+        _production_range_overrides,
+    )
+
+    assert _production_range_overrides({}) == {}
+    assert _production_range_overrides({
+        "processing_range_start": 666,
+        "processing_range_end": 1197,
+    }) == {"rg_st": 666, "rg_ed": 1197}
+
+    for invalid in (
+        {"processing_range_start": 666},
+        {"processing_range_end": 1197},
+        {"processing_range_start": -1, "processing_range_end": 1197},
+        {"processing_range_start": 1197, "processing_range_end": 666},
+        {"processing_range_start": 1.5, "processing_range_end": 1197},
+    ):
+        with pytest.raises(ValueError):
+            _production_range_overrides(invalid)
+
+
+def test_method_xml_applies_explicit_production_processing_range(tmp_path: Path) -> None:
+    from scripts.run_production_hierarchical_calibration_pilot import _method_xml
+
+    method = {
+        "method_id": "PKR",
+        "research_calibration_enable": True,
+        "research_calibration_method": "robust_ddc_rb",
+    }
+    xml_record = _method_xml(
+        tmp_path,
+        ROOT / "config/gmti.xml",
+        method,
+        {
+            "range_band_bins": 133,
+            "min_support": 8,
+            "processing_range_start": 666,
+            "processing_range_end": 1197,
+        },
+        layout={"beam_id": 50},
+        mode="Mode-A",
+        role="OFF",
+    )
+
+    assert xml_record["overrides"]["rg_st"] == 666
+    assert xml_record["overrides"]["rg_ed"] == 1197
+    generated_xml = ET.parse(xml_record["path"])
+    assert generated_xml.findtext(".//rg_st") == "666"
+    assert generated_xml.findtext(".//rg_ed") == "1197"
+
+
 def test_flatten_rows_rejects_mode_b_current_off_as_noncomparable() -> None:
     from scripts.run_production_hierarchical_calibration_pilot import (
         _flatten_rows,
