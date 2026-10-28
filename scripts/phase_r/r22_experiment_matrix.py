@@ -8,6 +8,7 @@ import hashlib
 import itertools
 import json
 import os
+import shutil
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +19,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.phase_r import run_r22_cuda_pilot as r22
+from scripts.phase_r.r22_compact_archive import archive_case_directory
 
 
 DEFAULT_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design.json"
@@ -207,6 +209,71 @@ def _relative_path(path_value: str | None) -> Path | None:
     return path if path.is_absolute() else (ROOT / path).resolve()
 
 
+def _case_output_path(raw_base: Path, value: str) -> Path:
+    candidate = Path(value).expanduser()
+    if candidate.is_symlink():
+        raise ValueError(f"case output path is a symlink: {candidate}")
+    resolved = candidate.resolve()
+    try:
+        resolved.relative_to(raw_base)
+    except ValueError as exc:
+        raise ValueError(f"case output is outside raw output root: {resolved}") from exc
+    if resolved == raw_base:
+        raise ValueError("refusing to archive or remove the raw output root")
+    return resolved
+
+
+def _ensure_compact_archive(
+    record: dict[str, Any],
+    *,
+    phase: str,
+    raw_base: Path,
+    archive_base: Path,
+    manifest: dict[str, Any],
+    manifest_path: Path,
+) -> None:
+    case_root = _case_output_path(raw_base, str(record["output_root"]))
+    archive_path = archive_base / phase / (
+        f"{record['case_id']}__attempt_{int(record['attempt']):03d}.zip"
+    )
+    prior = record.get("compact_archive")
+    if prior is not None:
+        if not isinstance(prior, Mapping):
+            raise ValueError(f"invalid compact archive record for {record['case_id']}")
+        recorded_path = Path(str(prior.get("archive_path", ""))).expanduser().resolve()
+        if recorded_path != archive_path.resolve():
+            raise ValueError(f"compact archive path changed for {record['case_id']}")
+        if not recorded_path.is_file():
+            raise FileNotFoundError(f"completed case archive is missing: {recorded_path}")
+        if r22.sha256_file(recorded_path) != prior.get("archive_sha256"):
+            raise ValueError(f"completed case archive SHA-256 mismatch: {recorded_path}")
+        compact_archive = dict(prior)
+    else:
+        if not case_root.is_dir():
+            raise FileNotFoundError(
+                f"case output and compact archive record are both missing: {case_root}"
+            )
+        record["compact_archive_status"] = "PENDING"
+        _write_json_atomic(manifest_path, manifest)
+        compact_archive = archive_case_directory(
+            case_root, archive_path, raw_root=raw_base, remove_source=False,
+        )
+        record["compact_archive"] = compact_archive
+        record["compact_archive_status"] = "ARCHIVE_VERIFIED"
+        _write_json_atomic(manifest_path, manifest)
+
+    if case_root.exists():
+        if not case_root.is_dir() or case_root.is_symlink():
+            raise ValueError(f"case output is not a regular directory: {case_root}")
+        shutil.rmtree(case_root)
+    compact_archive["raw_case_removed"] = True
+    record["compact_archive"] = compact_archive
+    record["compact_archive_status"] = "VERIFIED_AND_RAW_REMOVED"
+    record["raw_output_removed_after_archive_verification"] = True
+    record.pop("compact_archive_error", None)
+    _write_json_atomic(manifest_path, manifest)
+
+
 def run_matrix(
     design: Mapping[str, Any],
     *,
@@ -216,6 +283,8 @@ def run_matrix(
     production_binary: Path | None = None,
     template: Path | None = None,
     method_config: Path | None = None,
+    raw_output_root: Path | None = None,
+    compact_archive_root: Path | None = None,
     max_cases: int | None = None,
     resume: bool = False,
     run_case_fn: Callable[..., Mapping[str, Any]] | None = None,
@@ -228,6 +297,12 @@ def run_matrix(
         specs = specs[:max_cases]
     output_root = Path(output_root).expanduser().resolve()
     output_root.mkdir(parents=True, exist_ok=True)
+    raw_base = Path(raw_output_root or output_root).expanduser().resolve()
+    raw_base.mkdir(parents=True, exist_ok=True)
+    archive_base = (
+        Path(compact_archive_root).expanduser().resolve()
+        if compact_archive_root is not None else None
+    )
     manifest_path = output_root / "matrix_manifest.json"
     digest = _design_digest(design)
     if manifest_path.is_file():
@@ -266,13 +341,41 @@ def run_matrix(
         )
         previous = existing.get(case_id)
         if previous and previous.get("status") in {"PASSED", "H0_EVALUABLE_WITH_GAPS"}:
+            if archive_base is not None:
+                prior_archive = previous.get("compact_archive")
+                if prior_archive is not None:
+                    if not isinstance(prior_archive, Mapping):
+                        raise ValueError(f"invalid compact archive record for {case_id}")
+                    prior_path = Path(str(prior_archive.get("archive_path", "")))
+                    if not prior_path.is_file():
+                        raise FileNotFoundError(f"completed case archive is missing: {prior_path}")
+                    if r22.sha256_file(prior_path) != prior_archive.get("archive_sha256"):
+                        raise ValueError(f"completed case archive SHA-256 mismatch: {prior_path}")
+                try:
+                    _ensure_compact_archive(
+                        previous, phase=phase, raw_base=raw_base,
+                        archive_base=archive_base, manifest=manifest,
+                        manifest_path=manifest_path,
+                    )
+                    if manifest.get("status") == "ARCHIVE_PENDING":
+                        manifest["status"] = "RUNNING"
+                        _write_json_atomic(manifest_path, manifest)
+                except Exception as exc:
+                    previous["compact_archive_status"] = "PENDING"
+                    previous["compact_archive_error"] = {
+                        "type": type(exc).__name__, "message": str(exc),
+                    }
+                    manifest["status"] = "ARCHIVE_PENDING"
+                    manifest["finished_at_utc"] = _utc_now()
+                    _write_json_atomic(manifest_path, manifest)
+                    break
             skipped_now += 1
             continue
         if previous:
             manifest["status"] = "GATE_FAILED"
             _write_json_atomic(manifest_path, manifest)
             break
-        attempts_root = output_root / phase / case_id
+        attempts_root = raw_base / phase / case_id
         attempts_root.mkdir(parents=True, exist_ok=True)
         attempt = 1
         while (attempts_root / f"attempt_{attempt:03d}").exists():
@@ -335,6 +438,25 @@ def run_matrix(
         manifest["status"] = "RUNNING" if state in passed_states else "GATE_FAILED"
         manifest["finished_at_utc"] = _utc_now()
         _write_json_atomic(manifest_path, manifest)
+        if state in passed_states and archive_base is not None:
+            try:
+                record["compact_archive_status"] = "PENDING"
+                _write_json_atomic(manifest_path, manifest)
+                _ensure_compact_archive(
+                    record, phase=phase, raw_base=raw_base,
+                    archive_base=archive_base, manifest=manifest,
+                    manifest_path=manifest_path,
+                )
+            except Exception as exc:
+                record["compact_archive_status"] = "PENDING"
+                record["compact_archive_error"] = {
+                    "type": type(exc).__name__, "message": str(exc),
+                }
+                manifest["status"] = "ARCHIVE_PENDING"
+                manifest["finished_at_utc"] = _utc_now()
+                _write_json_atomic(manifest_path, manifest)
+                print(f"[{phase}] ARCHIVE_PENDING {case_id}: {exc}", flush=True)
+                break
         print(f"[{phase}] {state} {case_id}", flush=True)
         if state == "GATE_FAILED":
             break
@@ -343,7 +465,7 @@ def run_matrix(
         row["case_id"] for row in manifest.get("cases", [])
         if row.get("status") in {"PASSED", "H0_EVALUABLE_WITH_GAPS"}
     }
-    if manifest.get("status") != "GATE_FAILED":
+    if manifest.get("status") not in {"GATE_FAILED", "ARCHIVE_PENDING"}:
         full_case_count = len(build_case_specs(design, phase))
         manifest["status"] = "COMPLETED" if len(terminal_ids) == full_case_count else "PARTIAL_BOUNDED_RUN"
         manifest["finished_at_utc"] = _utc_now()
@@ -365,6 +487,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--production-binary", type=Path, default=r22.DEFAULT_PRODUCTION)
     parser.add_argument("--template", type=Path)
     parser.add_argument("--method-config", type=Path)
+    parser.add_argument(
+        "--raw-output-root", type=Path,
+        help="temporary case output root; can be /tmp to keep the project tree compact",
+    )
+    parser.add_argument(
+        "--compact-archive-root", type=Path,
+        help="archive successfully evaluated cases here after verification",
+    )
     parser.add_argument("--max-cases", type=int)
     parser.add_argument("--resume", action="store_true")
     args = parser.parse_args(argv)
@@ -378,6 +508,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             production_binary=args.production_binary,
             template=args.template,
             method_config=args.method_config,
+            raw_output_root=args.raw_output_root,
+            compact_archive_root=args.compact_archive_root,
             max_cases=args.max_cases,
             resume=args.resume,
         )
@@ -392,7 +524,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "planned_case_count": result.get("planned_case_count"),
         "manifest": str(args.output_root.expanduser().resolve() / "matrix_manifest.json"),
     }, ensure_ascii=False, sort_keys=True))
-    return 2 if result.get("status") == "GATE_FAILED" else 0
+    return 2 if result.get("status") in {"GATE_FAILED", "ARCHIVE_PENDING"} else 0
 
 
 if __name__ == "__main__":

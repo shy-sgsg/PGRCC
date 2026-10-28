@@ -57,3 +57,11 @@ Stage2 也必须按实际 simulator variant 计数，不能只报 594 个场景�
 - V1A 第一个 engineering case 清理 raw binary 后，完整本地 engineering 输出树为 2,401 个文件、301,858,725 bytes（约 301.9 MB / 287.8 MiB）。其中 CSV 224,067,290 bytes、PNG 42,479,348 bytes、JSON 28,066,641 bytes、日志 4,446,891 bytes、XML 1,574,095 bytes、F32 917,504 bytes；未发现残留 `.bin` 或 `.npy`。
 - 可供本轮独立审查的紧凑 ZIP v2 为 106 项、3,838,630 bytes，包含 manifest 身份、关键 XML/日志/诊断及四个 C4/PKR Production reference 分支实际生成的 `production_calibration_reference_gamma.csv` 和 `production_calibration_adapter.csv`；不包含 `.bin`/`.npy`。本机路径：`outputs/r22_chatgpt_review_evidence_v1a_20261028_v2.zip`；SHA-256：`e9098ac47070ce7ec461bdbcaba75cd0e59a6625d35b385f5b97f687daee7847`。
 - 本次复测整个 worktree 为 7.2 GB，低于 20 GB 限额；没有为节省空间删除唯一失败证据或 R21 高价值基线。当前 V1A 全量 case 留存规模不能直接线性外推为完整 594-case 成本；由于首个 engineering gate 已失败，screening 未启动，也没有形成通过门控后的完整矩阵空间预算。
+
+## 2026-10-28 V2 紧凑归档资源门（screening 前）
+
+- V2 六 seed 工程批次的 12 个最终 case 均通过生产与评价门。由其 `r22_run_manifest.json` 汇总，Stage2 实测累计 `2,582.736 s`、Production 分支累计 `4,954.887 s`，合计 `7,537.622 s`；平均每 case `628.135 s`。按 582 个未执行 case 等比例外推约 `101.5 h`，只作为排期估计，不是性能基准；40-target dense、H0 及设备负载差异可能改变实际值。周期数仍为冻结设计的 10，不根据结果减少。
+- 工程 case `seed1930106 / +4 ns` 的临时副本原始目录为 `466,572,428 bytes`。应用紧凑留存策略后，ZIP 为 `6,270,421 bytes`，包含 2,356 项 / 36,907,132 未压缩 bytes；排除 2,175 项 / 430,332,608 bytes 的可重建图像、重复角色输出和长明细，并逐项保留排除原因及 SHA。ZIP CRC、清单、每个纳入文件的长度和 SHA 均已核验；只删除了用于测量的临时副本，正式六 seed case 未改动。
+- 本次 worktree 为 `8,323,450,052 bytes`。按该代表 case 的 ZIP 线性估算，594 cases 归档约 `3,724,630,074 bytes`，项目约 `12.05 GB`；再给新增归档量增加 50% 余量后约 `13.91 GB`，低于 20 GB 约束。此为预算而非全矩阵实际占用，首个 screening case 完成后必须用其真实 ZIP 更新估算。
+- 矩阵 runner 现将成功 case 写入独立临时根，验证紧凑 ZIP 后再从临时根删除原始 case；失败 case 留在临时根作为失败证据。矩阵 manifest 先持久化通过状态，再归档和删除原始目录，故归档中断可从该 case 恢复而不重跑 CUDA。归档损坏或 SHA 不一致时 fail closed。
+- 每一阶段按批检查项目大小，`18 GB` 为停止并复核的操作门，避免接近用户的 `20 GB` 上限；同时继续逐 case 串行写入。若单 case 实际留存显著超过样本，先停止并更新估算，不删唯一失败现场、不减 seed/目标/周期/方法，也不覆盖历史 baseline。

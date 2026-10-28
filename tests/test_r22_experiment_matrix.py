@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import subprocess
 import sys
 from pathlib import Path
@@ -92,6 +93,138 @@ def test_matrix_checkpoint_resume_does_not_rerun_completed_cases(tmp_path):
     assert first["completed_cases"] == 1
     assert second["skipped_cases"] == 1
     assert len(calls) == 1
+
+
+def test_compact_matrix_archives_passed_case_and_checks_archive_before_resume(tmp_path):
+    parameters = inspect.signature(matrix.run_matrix).parameters
+    assert {"raw_output_root", "compact_archive_root"} <= set(parameters), (
+        "matrix runner cannot separate temporary outputs from compact evidence"
+    )
+
+    design = {
+        "schema_version": 1,
+        "design_id": "compact-test-design",
+        "seed_sets": {"engineering": [101], "screening": [201],
+                      "confirmatory": [301], "h0": [501]},
+        "method_ids": ["C0"],
+        "calibration_modes": ["Mode-A"],
+        "common": {"first_beam": 50, "beam_count": 1, "area": {}},
+        "phases": {
+            "engineering": {"seed_set": "engineering", "target_count": 20,
+                            "period_count": 5, "conditions": [
+                                {"condition_id": "c0", "radial_speed_mps": 2.5,
+                                 "target_snr_db": 20.0, "delay_error_ns": 4.0} ]},
+        },
+    }
+    output_root = tmp_path / "matrix"
+    raw_root = tmp_path / "raw"
+    archive_root = tmp_path / "archives"
+    calls = []
+
+    def fake_runner(case_root, **kwargs):
+        calls.append(case_root)
+        (case_root / "audit").mkdir(parents=True)
+        (case_root / "audit" / "result.csv").write_text("hits\n8\n", encoding="utf-8")
+        (case_root / "audit" / "plot.png").write_bytes(b"plot")
+        return {"implementation_result": "passed",
+                "status_labels": {"EVALUABLE": True},
+                "all_production_branches_passed": True}
+
+    first = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=fake_runner,
+    )
+
+    record = first["cases"][0]
+    archive_path = Path(record["compact_archive"]["archive_path"])
+    assert first["status"] == "COMPLETED"
+    assert record["compact_archive"]["raw_case_removed"] is True
+    assert not Path(record["output_root"]).exists()
+    assert archive_path.is_file()
+    assert record["raw_output_removed_after_archive_verification"] is True
+
+    second = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=fake_runner, resume=True,
+    )
+    assert second["skipped_cases"] == 1
+    assert len(calls) == 1
+
+    archive_path.write_bytes(b"corrupted")
+    with pytest.raises(ValueError, match="archive SHA-256 mismatch"):
+        matrix.run_matrix(
+            design, phase="engineering", output_root=output_root,
+            raw_output_root=raw_root, compact_archive_root=archive_root,
+            run_case_fn=fake_runner, resume=True,
+        )
+    assert len(calls) == 1
+
+
+def test_matrix_resumes_archive_failure_without_rerunning_passed_case(tmp_path, monkeypatch):
+    design = {
+        "schema_version": 1,
+        "design_id": "archive-resume-test-design",
+        "seed_sets": {"engineering": [101], "screening": [201],
+                      "confirmatory": [301], "h0": [501]},
+        "method_ids": ["C0"],
+        "calibration_modes": ["Mode-A"],
+        "common": {"first_beam": 50, "beam_count": 1, "area": {}},
+        "phases": {
+            "engineering": {"seed_set": "engineering", "target_count": 20,
+                            "period_count": 5, "conditions": [
+                                {"condition_id": "c0", "radial_speed_mps": 2.5,
+                                 "target_snr_db": 20.0, "delay_error_ns": 4.0} ]},
+        },
+    }
+    output_root = tmp_path / "matrix"
+    raw_root = tmp_path / "raw"
+    archive_root = tmp_path / "archives"
+    calls = []
+
+    def fake_runner(case_root, **kwargs):
+        calls.append(case_root)
+        (case_root / "audit").mkdir(parents=True)
+        (case_root / "audit" / "result.csv").write_text("hits\n8\n", encoding="utf-8")
+        return {"implementation_result": "passed",
+                "status_labels": {"EVALUABLE": True},
+                "all_production_branches_passed": True}
+
+    real_archive = matrix.archive_case_directory
+    archive_attempts = 0
+
+    def fail_once(*args, **kwargs):
+        nonlocal archive_attempts
+        archive_attempts += 1
+        if archive_attempts == 1:
+            raise OSError("simulated archive interruption")
+        return real_archive(*args, **kwargs)
+
+    monkeypatch.setattr(matrix, "archive_case_directory", fail_once)
+    first = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=fake_runner,
+    )
+
+    assert first["status"] == "ARCHIVE_PENDING"
+    assert first["cases"][0]["status"] == "PASSED"
+    assert first["cases"][0]["compact_archive_status"] == "PENDING"
+    raw_case = Path(first["cases"][0]["output_root"])
+    assert raw_case.is_dir()
+
+    second = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=fake_runner, resume=True,
+    )
+
+    assert second["status"] == "COMPLETED"
+    assert second["skipped_cases"] == 1
+    assert len(calls) == 1
+    assert not raw_case.exists()
+    assert second["cases"][0]["compact_archive_status"] == "VERIFIED_AND_RAW_REMOVED"
 
 
 def test_case_gate_requires_explicit_production_branch_success():
