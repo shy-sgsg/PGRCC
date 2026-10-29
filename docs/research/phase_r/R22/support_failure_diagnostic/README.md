@@ -1,5 +1,7 @@
 # R22-S1：C4 Mode-B 参考支持失败的 CUDA 因果诊断
 
+> **最新补充（2026-10-29）：** 用户批准后完成 [S1c GMTI05 共同 target-free OFF CSI 相位反事实](S1C_SHARED_OFF_PHASE_RESULT.md)。在同一输入与冻结门槛下，SNR20/SNR30 support 从25/7变为21/22；这支持局部 CSI phase 敏感性，不证明目标污染或任务性能收益。S1c 首轮十期 attempt 因 phase sidecar 周期身份不明已隔离并作废，见 [失效说明](evidence/s1c/ATTEMPT1_INVALIDATION.md)。
+
 ## 阶段裁决
 
 **`INCONCLUSIVE / STOP_AT_GATE`。** 本次真实 CUDA Production 重放精确复现了冻结门控结果，并确认 SNR20/SNR30 配对背景和诊断 tap 的非侵入性。证据使“目标污染导致参考支持崩溃”更可信，但 ON/OFF/TO 在非线性处理后不闭合，因此仍不能唯一归因。没有性能验证，也没有统计显著性结论。

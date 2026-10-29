@@ -178,3 +178,14 @@
 - **原假设与证据：** 单 seed 的高 SNR 目标可能污染 C4 ON reference。1,560 组 ON20、ON30 与 OFF30 gamma 身份可对齐；失败组支持数分别为 25、7、55。失败目录的 `.bin/.npy/.npz` 和逐单元 failure-cell 记录不可用，相位校正 `.f32` 不能代替 F1/F2；组级记录不足以唯一确认目标污染。
 - **裁决：** `CONTINUE` 总纲既定的传统方法能力边界与瓶颈归因；R22 screening 保持 `GATE_FAILED / INCOMPLETE`，不覆盖原 C4 失败。AI entry gate 仍为 `FAIL`；不改变长期目标，不建议据此修改总纲。
 - **下一步与停止条件：** 离线 S1 已记录资料不足与最小补采方案，等待用户决定是否批准新诊断实验。若获批准，先用固定选区旁路 tap 采集配对输入，验证身份、非侵入性与原失败重现；若这些门不通过，停止归因并保留失败记录。未执行新 CUDA、未修改算法及冻结阈值，不自动重启矩阵。
+
+## 2026-10-29｜R22-S1c：共同 OFF CSI 相位缩小单组 C4 support gap
+
+- **决策编号与依据：** `D-2026-10-29-R22-S1C`。用户批准 ChatGPT 独立审查提出的 S1c 局部反事实；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 不变。
+- **执行身份：** 分支 `codex/unknown-system-error-next-stage`；Production 执行源码 commit `0189933420d73bb04c3a466e633bd664a23871c0`；Native CUDA `USE_COREX=OFF` binary SHA `16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998`。只复用 seed1932001、2.5 m/s、+4 ns、20 targets、SNR20/30 的 GMTI05 输入；Stage2 未重跑。
+- **科学问题：** 将两种 SNR 的 ON CSI range-phase 统一为相同 target-free OFF 向量后，选定 C4 Robust DDC-RB group 的 support=25→7 是否仍出现？
+- **关键执行证据：** 五个单期 Native CUDA Production 分支均 return code 0；实际 XML 保留 `min_support=8`、相位门限0.35 rad、133-bin 分组。十期 OFF 输入在两场景的 SHA 列表逐项一致。每个 CSI/Gamma trace 有五阶段×133个单元；Production 输出的 support/coherence/Gamma 与基于 selected-cell CSV 的 C++ 规则重算一致。counterfactual 使用的 CSI phase 与 OFF 输出逐字节相同，raw phase 与各自 ON baseline 字节相同。
+- **直接结果：** 各自 ON CSI phase 下 SNR20/30 support 为25/7，coherence为0.2028995671/0.1172000323；共同 OFF phase 下为21/22，coherence为0.1855220752/0.0228710435。两条件 support gap 从18降到1。SNR30 在 privileged common OFF phase 条件下跨过冻结support门；此事实不能把其原始 ON reference 状态改写为成功。
+- **因果边界：** 可评估的是这一固定输入组的 support 对 CSI phase 向量替换敏感；该介入解释了大部分观测到的组间 support 差。不能唯一判定 ON phase 向量为何偏离 OFF（目标分量、CSI估计过程或交互），不证明目标污染唯一根因；paired OFF 是 privileged diagnostic reference，不代表在线部署能力。没有 task-Pd/Pfa、幅相保持、SCNR或速度/方位性能比较。
+- **方向与停止：** R22 screening 仍 `GATE_FAILED / INCOMPLETE`；本次 `PERFORMANCE_VERIFIED=false`。不降低门槛、不修订算法、不恢复全矩阵、不训练AI。先提交 [S1c 结果](phase_r/R22/support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)作 ChatGPT 独立双层审查，再由用户决定是否开展更窄的 ON CSI phase 误差来源诊断。
+- **来源：** [S1c 报告](phase_r/R22/support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)、[紧凑 CUDA 证据包](phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/)、[首轮失效说明](phase_r/R22/support_failure_diagnostic/evidence/s1c/ATTEMPT1_INVALIDATION.md)。

@@ -138,3 +138,11 @@
 - **杂波身份核验：** A1 角色报告的连续面积杂波生成计数为0，是因为复用 A0 背景；A0_ON 生成报告为1300 packets、6,508,782 samples、平均功率0.0221596696662，A1_ON/OFF/TO 背景映射均10/10 matched。Stage2 因果 triplet 对61,464,000样本通过`5e-5`容差。
 - **裁决：** Production tap/replay `PASS_WITH_LIMITATIONS`；支持数25→7的唯一因果来源 `INCONCLUSIVE`；`PERFORMANCE_VERIFIED=false`。保留 support=8 与±0.35 rad 门限，不恢复矩阵、不宣称检测收益、不进入 AI。详细结果见 `support_failure_diagnostic/S1B_STAGE_BOUNDARY_AUDIT.md`。
 - **停止规则：** 重放已完成；如任一输入、role、边界或 CSI tap 身份不一致，保留失败并停止，不回退 Current、不删失败组、不启动筛选/确认/密集/H0 实验。后续仅可在用户审查 S1b 证据后另行决定是否开展共同距离相位反事实。该单 seed 诊断只支持实现正确性与机制定位，不构成性能或统计结论。
+
+### 2026-10-29｜S1c GMTI05 共同 OFF CSI 相位反事实
+
+- **授权与范围：** 用户批准 S1c；仅使用 seed1932001、2.5 m/s、+4 ns、SNR20/30、beam50、GMTI05 的既有 Stage2 输入。不重跑 Stage2，不扩 seed/period/beam，不更改 C4/CFAR/扫描门槛。
+- **周期身份修正：** 原十期试跑因相位 sidecar 文件名不携带处理周期、存在覆盖歧义，判定 `INVALID_NOT_EVALUABLE`。原文件已隔离并保留。有效 v2 每分支只输入 `period_0004.bin`，以输入 SHA 将 Production 单输入 `GMTI01` 映射回源 `GMTI05`。
+- **执行：** 五个 Native CUDA Production 分支均通过；support gate 仍8、相位门仍0.35 rad。五阶段 trace 覆盖5×133个单元，selected-cell CSV 的离线 C++ 规则重算与 CUDA 结果闭合。完整配置、manifest、日志和关键数据见 `support_failure_diagnostic/evidence/s1c/v2/`。
+- **结论：** 自估 CSI phase 下 SNR20/30 support 为25/7；共同 target-free OFF CSI phase 下为21/22，support gap 从18缩小到1。该选定组的 C4 support 对 CSI phase 向量强敏感；ON vector 偏离 OFF 的唯一成因、目标污染根因和任务收益仍未证实。`PERFORMANCE_VERIFIED=false`，R22 Screening 仍 `GATE_FAILED / INCOMPLETE`。
+- **当前停止点：** S1c 完成后停止。等待 ChatGPT 独立科研审查；在用户作下一步决定前，不恢复 Screening、confirmatory、dense、bridge、H0 或 AI。

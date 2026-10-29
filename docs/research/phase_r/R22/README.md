@@ -1,6 +1,6 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
-> **2026-10-29 R22-S1：** 用户转交独立审查后完成[组级离线诊断与最小补采方案](support_failure_diagnostic/README.md)。现有资料不足以唯一归因；新实验等待用户明确决定。screening 仍为 `GATE_FAILED`。
+> **最新状态（2026-10-29）：** 用户批准并完成 [R22-S1c 单组共同 OFF 相位 CUDA 反事实](support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)。SNR20/SNR30 support gap 从18缩小到1，说明该组对 CSI range-phase 向量敏感；目标污染和任务收益仍未证实。V2 screening 继续保持 `GATE_FAILED / INCOMPLETE`，等待独立科研审查。
 
 > **最新 V2 状态（2026-10-28 11:34:54 UTC）：** screening matrix 为 `GATE_FAILED` 并已停止：17 个通过，1 个方法级不可评估 case，4 条更早中断 attempt；无活动 case。根因是 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 的 C4 Mode-B ON robust reference 有一组 support=7 < 8。详情、失败 ZIP 和当前审查入口见 [05 资源与执行记录](05_resource_and_execution_plan.md) 与 [ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。后续旧的“screening 正在执行”提示属于较早 checkpoint。
 
