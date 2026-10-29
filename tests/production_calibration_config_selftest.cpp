@@ -304,6 +304,48 @@ int main(int argc, char** argv)
               failure_cells_disabled, 3, failure_tap, 1, 4,
               failure_f1, failure_f2),
           "failure-cell diagnostics remain inert when map dumping is disabled");
+    // A selected passing group must be captured even for a fixed-reference
+    // application with ordinary map dumps disabled. This is needed to compare
+    // ON, OFF and TO inputs at the same group, not only failed estimator rows.
+    Config selected_cfg = failure_cells_disabled;
+    selected_cfg.result_add = root;
+    selected_cfg.research_calibration_reference_gamma_csv = "/tmp/fixed_reference.csv";
+    gmti::runtime::ProductionCalibrationTap selected_tap = failure_tap;
+    selected_tap.gamma_groups[0].status = "OK";
+    const std::vector<std::complex<float>> selected_f1_before = failure_f1;
+    const std::vector<std::complex<float>> selected_f2_before = failure_f2;
+    std::remove((root + "/production_calibration_selected_cells.csv").c_str());
+    check(::setenv("PGRCC_C4_TRACE_GROUP", "1,3,0,0,3", 1) == 0,
+          "set selected-cell diagnostic coordinates");
+    check(gmti::runtime::recordProductionCalibrationFailureCells(
+              selected_cfg, 3, selected_tap, 1, 4, failure_f1, failure_f2),
+          "selected-cell diagnostic call succeeds");
+    const std::string selected_csv = readText(root + "/production_calibration_selected_cells.csv");
+    check(std::count(selected_csv.begin(), selected_csv.end(), '\n') == 5 &&
+              selected_csv.find("1,0,1,0\n") != std::string::npos,
+          "selected passing fixed-reference group retains all four F1/F2 cells");
+    check(failure_f1 == selected_f1_before && failure_f2 == selected_f2_before,
+          "selected-cell diagnostic leaves estimator input vectors unchanged");
+    ::unsetenv("PGRCC_C4_TRACE_GROUP");
+
+    std::remove((root + "/production_calibration_selected_cells.csv").c_str());
+    check(::setenv("PGRCC_C4_TRACE_GROUP", "2,3,0,0,3", 1) == 0,
+          "set nonmatching selected-cell coordinates");
+    check(gmti::runtime::recordProductionCalibrationFailureCells(
+              selected_cfg, 3, selected_tap, 1, 4, failure_f1, failure_f2),
+          "nonmatching selected-cell diagnostic is inert");
+    std::ifstream nonmatching_selected_csv(
+        (root + "/production_calibration_selected_cells.csv").c_str());
+    check(!nonmatching_selected_csv.good(),
+          "nonmatching period does not emit selected-cell rows");
+    ::unsetenv("PGRCC_C4_TRACE_GROUP");
+
+    check(::setenv("PGRCC_C4_TRACE_GROUP", "1,3,0,0", 1) == 0,
+          "set malformed selected-cell coordinates");
+    check(!gmti::runtime::recordProductionCalibrationFailureCells(
+              selected_cfg, 3, selected_tap, 1, 4, failure_f1, failure_f2),
+          "malformed selected-cell coordinates fail closed");
+    ::unsetenv("PGRCC_C4_TRACE_GROUP");
     gmti::runtime::finishRun(snapshot_cfg, true, 0, "selftest");
 
     const std::string json = readText(root + "/runtime_config_dump.json");

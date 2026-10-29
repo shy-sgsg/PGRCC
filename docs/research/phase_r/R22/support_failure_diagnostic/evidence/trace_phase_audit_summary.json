@@ -1,0 +1,1202 @@
+{
+  "experiment": "R22-S1 selected C4 Robust DDC-RB support failure diagnostic",
+  "source_tree_commit_at_execution": "dc39afcbfea060777a4a7b247aeb3d4e16fe6d0c",
+  "source_worktree_dirty_files_at_execution": [
+    " M src/gpu/gpu_kernels.cu",
+    " M src/runtime_diagnostics.cpp",
+    " M tests/production_calibration_config_selftest.cpp"
+  ],
+  "reviewed_research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "trace_group": {
+    "production_result_id": "GMTI05",
+    "beam_id": 50,
+    "az_index": 52,
+    "range_start": 1065,
+    "range_end": 1197,
+    "cell_count": 133,
+    "minimum_support": 8,
+    "phase_threshold_rad": 0.35
+  },
+  "period_mapping": {
+    "production_result_id": "GMTI05",
+    "production_period_ordinal": 5,
+    "stage2_period_id_zero_based": 4,
+    "stage2_input_path": "snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+    "note": "CFAR geometry and Stage2 truth use zero-based period 4; Gamma result_id GMTI05 is one-based."
+  },
+  "target_truth_in_failure_group": [
+    {
+      "target_id": "R22_T004",
+      "range_bin": 1124,
+      "azimuth_deg": 38.7763947264,
+      "visible": "1",
+      "snr_db": 30.0
+    },
+    {
+      "target_id": "R22_T010",
+      "range_bin": 1076,
+      "azimuth_deg": 39.0461655256,
+      "visible": "1",
+      "snr_db": 30.0
+    },
+    {
+      "target_id": "R22_T012",
+      "range_bin": 1162,
+      "azimuth_deg": 38.6146958636,
+      "visible": "1",
+      "snr_db": 30.0
+    },
+    {
+      "target_id": "R22_T017",
+      "range_bin": 1130,
+      "azimuth_deg": 39.0376714388,
+      "visible": "1",
+      "snr_db": 30.0
+    },
+    {
+      "target_id": "R22_T019",
+      "range_bin": 1102,
+      "azimuth_deg": 39.1528314738,
+      "visible": "1",
+      "snr_db": 30.0
+    }
+  ],
+  "method_fits": {
+    "ON20": {
+      "snr_db": 20,
+      "role": "ON",
+      "mode": "Mode-B",
+      "source": "production_final_f1_f2_after_p38_range_phase",
+      "reported_group_status": "OK",
+      "reported_support_count": 25,
+      "reported_phase_coherence": 0.20289956702194234,
+      "reported_summary_is_current_input_fit": true,
+      "valid_cross_spectrum_cells": 133,
+      "offline_support_count_under_frozen_gate": 25,
+      "offline_phase_coherence": 0.20289956702194234,
+      "offline_phase_center_rad": 1.758323204418618,
+      "retained_range_bins": [
+        1067,
+        1069,
+        1076,
+        1077,
+        1084,
+        1085,
+        1087,
+        1088,
+        1090,
+        1094,
+        1095,
+        1098,
+        1099,
+        1103,
+        1104,
+        1105,
+        1110,
+        1127,
+        1133,
+        1135,
+        1140,
+        1144,
+        1154,
+        1160,
+        1195
+      ]
+    },
+    "OFF20": {
+      "snr_db": 20,
+      "role": "OFF",
+      "mode": "Mode-A",
+      "source": "production_final_f1_f2_after_p38_range_phase",
+      "reported_group_status": "OK",
+      "reported_support_count": 55,
+      "reported_phase_coherence": 0.7418131250646153,
+      "reported_summary_is_current_input_fit": true,
+      "valid_cross_spectrum_cells": 133,
+      "offline_support_count_under_frozen_gate": 55,
+      "offline_phase_coherence": 0.7418131250646153,
+      "offline_phase_center_rad": 1.3455983371056937,
+      "retained_range_bins": [
+        1065,
+        1067,
+        1068,
+        1069,
+        1073,
+        1074,
+        1075,
+        1077,
+        1079,
+        1080,
+        1082,
+        1084,
+        1085,
+        1089,
+        1090,
+        1095,
+        1096,
+        1102,
+        1108,
+        1114,
+        1115,
+        1120,
+        1121,
+        1122,
+        1127,
+        1128,
+        1131,
+        1132,
+        1133,
+        1134,
+        1137,
+        1139,
+        1140,
+        1143,
+        1145,
+        1146,
+        1150,
+        1155,
+        1160,
+        1161,
+        1167,
+        1168,
+        1170,
+        1172,
+        1174,
+        1177,
+        1178,
+        1181,
+        1183,
+        1184,
+        1187,
+        1188,
+        1191,
+        1195,
+        1196
+      ]
+    },
+    "TO20": {
+      "snr_db": 20,
+      "role": "TO",
+      "mode": "Mode-A",
+      "source": "reference_gamma_artifact_fixed_apply",
+      "reported_group_status": "OK",
+      "reported_support_count": 55,
+      "reported_phase_coherence": 0.741813125064615,
+      "reported_summary_is_current_input_fit": false,
+      "valid_cross_spectrum_cells": 133,
+      "offline_support_count_under_frozen_gate": 14,
+      "offline_phase_coherence": 0.021927215358880457,
+      "offline_phase_center_rad": 2.539561115130063,
+      "retained_range_bins": [
+        1068,
+        1073,
+        1080,
+        1087,
+        1093,
+        1098,
+        1105,
+        1108,
+        1111,
+        1127,
+        1148,
+        1165,
+        1177,
+        1183
+      ]
+    },
+    "ON30": {
+      "snr_db": 30,
+      "role": "ON",
+      "mode": "Mode-B",
+      "source": "production_final_f1_f2_after_p38_range_phase",
+      "reported_group_status": "NOT_EVALUABLE",
+      "reported_support_count": 7,
+      "reported_phase_coherence": 0.11720003232344989,
+      "reported_summary_is_current_input_fit": true,
+      "valid_cross_spectrum_cells": 133,
+      "offline_support_count_under_frozen_gate": 7,
+      "offline_phase_coherence": 0.11720003232344989,
+      "offline_phase_center_rad": 0.9807498492425402,
+      "retained_range_bins": [
+        1071,
+        1106,
+        1134,
+        1135,
+        1141,
+        1153,
+        1176
+      ]
+    },
+    "OFF30": {
+      "snr_db": 30,
+      "role": "OFF",
+      "mode": "Mode-A",
+      "source": "production_final_f1_f2_after_p38_range_phase",
+      "reported_group_status": "OK",
+      "reported_support_count": 55,
+      "reported_phase_coherence": 0.7418131250646153,
+      "reported_summary_is_current_input_fit": true,
+      "valid_cross_spectrum_cells": 133,
+      "offline_support_count_under_frozen_gate": 55,
+      "offline_phase_coherence": 0.7418131250646153,
+      "offline_phase_center_rad": 1.3455983371056937,
+      "retained_range_bins": [
+        1065,
+        1067,
+        1068,
+        1069,
+        1073,
+        1074,
+        1075,
+        1077,
+        1079,
+        1080,
+        1082,
+        1084,
+        1085,
+        1089,
+        1090,
+        1095,
+        1096,
+        1102,
+        1108,
+        1114,
+        1115,
+        1120,
+        1121,
+        1122,
+        1127,
+        1128,
+        1131,
+        1132,
+        1133,
+        1134,
+        1137,
+        1139,
+        1140,
+        1143,
+        1145,
+        1146,
+        1150,
+        1155,
+        1160,
+        1161,
+        1167,
+        1168,
+        1170,
+        1172,
+        1174,
+        1177,
+        1178,
+        1181,
+        1183,
+        1184,
+        1187,
+        1188,
+        1191,
+        1195,
+        1196
+      ]
+    },
+    "TO30": {
+      "snr_db": 30,
+      "role": "TO",
+      "mode": "Mode-A",
+      "source": "reference_gamma_artifact_fixed_apply",
+      "reported_group_status": "OK",
+      "reported_support_count": 55,
+      "reported_phase_coherence": 0.741813125064615,
+      "reported_summary_is_current_input_fit": false,
+      "valid_cross_spectrum_cells": 133,
+      "offline_support_count_under_frozen_gate": 14,
+      "offline_phase_coherence": 0.021926982067764722,
+      "offline_phase_center_rad": 2.5395247041626505,
+      "retained_range_bins": [
+        1068,
+        1073,
+        1080,
+        1087,
+        1093,
+        1098,
+        1105,
+        1108,
+        1111,
+        1127,
+        1148,
+        1165,
+        1177,
+        1183
+      ]
+    }
+  },
+  "paired_background": {
+    "A1_OFF_period_count_each": [
+      10,
+      10
+    ],
+    "byte_identical_period_count": 10,
+    "periods": {
+      "stage2_statistical_newprotocol_period_0000.bin": true,
+      "stage2_statistical_newprotocol_period_0001.bin": true,
+      "stage2_statistical_newprotocol_period_0002.bin": true,
+      "stage2_statistical_newprotocol_period_0003.bin": true,
+      "stage2_statistical_newprotocol_period_0004.bin": true,
+      "stage2_statistical_newprotocol_period_0005.bin": true,
+      "stage2_statistical_newprotocol_period_0006.bin": true,
+      "stage2_statistical_newprotocol_period_0007.bin": true,
+      "stage2_statistical_newprotocol_period_0008.bin": true,
+      "stage2_statistical_newprotocol_period_0009.bin": true
+    },
+    "processed_OFF20_vs_OFF30_F1F2": {
+      "complex_channel_values": 266,
+      "exactly_equal": true,
+      "maximum_absolute_delta": 0.0
+    }
+  },
+  "mode_input_equivalence": {
+    "snr20_OFF": {
+      "available": true,
+      "complex_channel_values": 266,
+      "exactly_equal": true,
+      "maximum_absolute_delta": 0.0
+    },
+    "snr20_ON": {
+      "available": true,
+      "complex_channel_values": 266,
+      "exactly_equal": true,
+      "maximum_absolute_delta": 0.0
+    },
+    "snr20_TO": {
+      "available": true,
+      "complex_channel_values": 266,
+      "exactly_equal": true,
+      "maximum_absolute_delta": 0.0
+    },
+    "snr30_OFF": {
+      "available": false,
+      "reason": "Mode-B branch was gated before this role after the ON reference failure."
+    },
+    "snr30_ON": {
+      "available": true,
+      "complex_channel_values": 266,
+      "exactly_equal": true,
+      "maximum_absolute_delta": 0.0
+    },
+    "snr30_TO": {
+      "available": false,
+      "reason": "Mode-B branch was gated before this role after the ON reference failure."
+    }
+  },
+  "generator_manifest_equal_except_target_snr": true,
+  "area_clutter_comparability": {
+    "continuous_area_packets": {
+      "snr20": 1300,
+      "snr30": 1300,
+      "equal": true
+    },
+    "continuous_area_samples": {
+      "snr20": 6508782,
+      "snr30": 6508782,
+      "equal": true
+    },
+    "area_mean_power_measured": {
+      "snr20": 0.0221596696662,
+      "snr30": 0.0221596696662,
+      "equal": true
+    },
+    "range_window_m": {
+      "snr20": [
+        84500.0,
+        85500.0
+      ],
+      "snr30": [
+        84500.0,
+        85500.0
+      ],
+      "equal": true
+    },
+    "area_model": {
+      "snr20": "continuous_texture",
+      "snr30": "continuous_texture",
+      "equal": true
+    }
+  },
+  "post_P38_range_phase_closure": {
+    "snr20": {
+      "F1": {
+        "relative_l2": 0.010147886236075276,
+        "max_cell_relative": 0.09326069269809946,
+        "cross_spectrum_relative_l2": 0.6778379976711462
+      },
+      "F2": {
+        "relative_l2": 0.7654112607582999,
+        "max_cell_relative": 1.677639324528574,
+        "cross_spectrum_relative_l2": 0.6778379976711462
+      }
+    },
+    "snr30": {
+      "F1": {
+        "relative_l2": 0.009483363589419553,
+        "max_cell_relative": 0.07539252026252036,
+        "cross_spectrum_relative_l2": 0.6445962040665671
+      },
+      "F2": {
+        "relative_l2": 0.7437410639529689,
+        "max_cell_relative": 1.2139774857742769,
+        "cross_spectrum_relative_l2": 0.6445962040665671
+      }
+    }
+  },
+  "support_membership_change_ON20_to_ON30": {
+    "intersection_count": 1,
+    "ON20_only_count": 24,
+    "ON30_only_count": 6,
+    "center_shift_rad": -0.7775733551760777
+  },
+  "tap_nonintrusiveness": {
+    "input": {
+      "path": "snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+      "stage2_period_file": "stage2_statistical_newprotocol_period_0004.bin",
+      "production_result_id": "GMTI05"
+    },
+    "binary_identity": {
+      "diagnostic_sha256": "480db5484a705634d7b467dcdec4b0c77cf8f212489071f8350cb2e0a195b83a",
+      "baseline_sha256": "d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e"
+    },
+    "gamma_group_rows": {
+      "diagnostic_count": 156,
+      "baseline_count": 156,
+      "group_keys_equal": true,
+      "field_difference_count": 0,
+      "first_differences": [],
+      "failed_group": {
+        "period_id": "5",
+        "result_id": "GMTI05",
+        "beam_id": "50",
+        "method": "robust_ddc_rb",
+        "group_id": "az_52_range_1065_1197",
+        "az_index": "52",
+        "range_start": "1065",
+        "range_end": "1197",
+        "status": "NOT_EVALUABLE",
+        "support_count": "7",
+        "phase_coherence": "0.11720003232345",
+        "gamma_real": "nan",
+        "gamma_imag": "nan",
+        "truth_used_in_estimator": "false",
+        "reason": "insufficient_robust_support"
+      }
+    },
+    "adapter_summary_fields_equal": true,
+    "cfar_geometry_period4_row_counts": {
+      "diagnostic": 2,
+      "baseline": 2
+    },
+    "cfar_geometry_period4_rows_equal": true,
+    "GMTI05_bin_byte_identical": true,
+    "GMTI05_bin_sha256": {
+      "diagnostic": "15c9a5d2fdde237335ac6313b16da7457748b810264e0dae2819a8bd6f6e1866",
+      "baseline": "15c9a5d2fdde237335ac6313b16da7457748b810264e0dae2819a8bd6f6e1866"
+    },
+    "interpretation": "Tap non-intrusiveness is supported for the failing period: the Production binary and diagnostic binary emit identical GMTI05.bin, all 156 Gamma group records and adapter summary fields match, and period-4 CFAR geometry rows match. Detection CSV and track artifacts are excluded from bitwise comparison because the baseline run starts a fresh TrackManager history while the diagnostic run processes 10 periods."
+  },
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": {
+      "frozen_gate_reproduction": true,
+      "selected_cell_phase_membership": true,
+      "target_contamination_causal_attribution": false
+    },
+    "PERFORMANCE_VERIFIED": false
+  },
+  "causal_limit": "ON = OFF + TO does not close at the tapped Production F1/F2 stage: F1/F2 and cross-spectrum residuals remain material. The replay confirms the gate failure and target occupancy, but cannot uniquely assign the phase-support collapse to target contamination versus data-dependent P38/range-phase processing or other interactions.",
+  "evidence_files": [
+    {
+      "path": "selected_cells/on20_production_input.csv",
+      "bytes": 24865,
+      "sha256": "5e71436c189f135a865e110d4f376686815e7b61d4bed7540b76f0b802db80b7",
+      "source_bytes": 24865,
+      "source_sha256": "5e71436c189f135a865e110d4f376686815e7b61d4bed7540b76f0b802db80b7"
+    },
+    {
+      "path": "selected_cells/off20_production_input.csv",
+      "bytes": 25017,
+      "sha256": "063ba6a58e949445ae5dcb5cd3ab7669b92934a0da86e8f4bcd9c548a1d50227",
+      "source_bytes": 25017,
+      "source_sha256": "063ba6a58e949445ae5dcb5cd3ab7669b92934a0da86e8f4bcd9c548a1d50227"
+    },
+    {
+      "path": "selected_cells/to20_production_input.csv",
+      "bytes": 23842,
+      "sha256": "b6ab940d75c678ea70f09f79f8ad40bbfc402042516d72a4663ce536d43efbe4",
+      "source_bytes": 23842,
+      "source_sha256": "b6ab940d75c678ea70f09f79f8ad40bbfc402042516d72a4663ce536d43efbe4"
+    },
+    {
+      "path": "selected_cells/on30_production_input.csv",
+      "bytes": 29637,
+      "sha256": "82f81b2c5145df941e9edbc79628190a1203e46aec9a913452d33ec73857a8ac",
+      "source_bytes": 29637,
+      "source_sha256": "82f81b2c5145df941e9edbc79628190a1203e46aec9a913452d33ec73857a8ac"
+    },
+    {
+      "path": "selected_cells/off30_production_input.csv",
+      "bytes": 25017,
+      "sha256": "063ba6a58e949445ae5dcb5cd3ab7669b92934a0da86e8f4bcd9c548a1d50227",
+      "source_bytes": 25017,
+      "source_sha256": "063ba6a58e949445ae5dcb5cd3ab7669b92934a0da86e8f4bcd9c548a1d50227"
+    },
+    {
+      "path": "selected_cells/to30_production_input.csv",
+      "bytes": 23670,
+      "sha256": "f873bfe687b81a92177c4cd1bb3e8a54d8d8d23e58621b4cec08db0536636c5f",
+      "source_bytes": 23670,
+      "source_sha256": "f873bfe687b81a92177c4cd1bb3e8a54d8d8d23e58621b4cec08db0536636c5f"
+    },
+    {
+      "path": "trace_phase_audit_cells.csv",
+      "bytes": 237956,
+      "sha256": "0e48229792ee39b126598853b9357c134a6d598c978b5a983fdb9824d7799e41"
+    },
+    {
+      "path": "phase_residuals.png",
+      "bytes": 244275,
+      "sha256": "715ff8ec5e0218d5825c5e51342b800bd16eda0ea88f3baef48624537de7859a"
+    },
+    {
+      "path": "paired_off_stage2_hashes.csv",
+      "bytes": 2077,
+      "sha256": "7dba6ba45dfcb0849f1d9669935134ae5e6e30cb44eb474621227798247d4078"
+    },
+    {
+      "path": "mode_comparison/snr20_modea_off_selected_cells.csv",
+      "bytes": 25017,
+      "sha256": "063ba6a58e949445ae5dcb5cd3ab7669b92934a0da86e8f4bcd9c548a1d50227",
+      "source_bytes": 25017,
+      "source_sha256": "063ba6a58e949445ae5dcb5cd3ab7669b92934a0da86e8f4bcd9c548a1d50227"
+    },
+    {
+      "path": "mode_comparison/snr20_modeb_off_selected_cells.csv",
+      "bytes": 23953,
+      "sha256": "7162998ec9c84ab5072bbe40678fe7f093b2d801fcb8831691da7ce13b0b4598",
+      "source_bytes": 23953,
+      "source_sha256": "7162998ec9c84ab5072bbe40678fe7f093b2d801fcb8831691da7ce13b0b4598"
+    },
+    {
+      "path": "mode_comparison/snr20_modea_on_selected_cells.csv",
+      "bytes": 23801,
+      "sha256": "b5ea954edf5ca57c365d417de18bb1f124397df83e584e119b6235e40a395288",
+      "source_bytes": 23801,
+      "source_sha256": "b5ea954edf5ca57c365d417de18bb1f124397df83e584e119b6235e40a395288"
+    },
+    {
+      "path": "mode_comparison/snr20_modeb_on_selected_cells.csv",
+      "bytes": 24865,
+      "sha256": "5e71436c189f135a865e110d4f376686815e7b61d4bed7540b76f0b802db80b7",
+      "source_bytes": 24865,
+      "source_sha256": "5e71436c189f135a865e110d4f376686815e7b61d4bed7540b76f0b802db80b7"
+    },
+    {
+      "path": "mode_comparison/snr20_modea_to_selected_cells.csv",
+      "bytes": 23842,
+      "sha256": "b6ab940d75c678ea70f09f79f8ad40bbfc402042516d72a4663ce536d43efbe4",
+      "source_bytes": 23842,
+      "source_sha256": "b6ab940d75c678ea70f09f79f8ad40bbfc402042516d72a4663ce536d43efbe4"
+    },
+    {
+      "path": "mode_comparison/snr20_modeb_to_selected_cells.csv",
+      "bytes": 23842,
+      "sha256": "422f94b5b746803a266b2a04c8063986d115ad359772204c6bda4c884748c412",
+      "source_bytes": 23842,
+      "source_sha256": "422f94b5b746803a266b2a04c8063986d115ad359772204c6bda4c884748c412"
+    },
+    {
+      "path": "mode_comparison/snr30_modea_on_selected_cells.csv",
+      "bytes": 23652,
+      "sha256": "1febaea8f09c369ab2d52a90efac87a54e1b3a899eb2288a5edc6f2bcf21db97",
+      "source_bytes": 23652,
+      "source_sha256": "1febaea8f09c369ab2d52a90efac87a54e1b3a899eb2288a5edc6f2bcf21db97"
+    },
+    {
+      "path": "mode_comparison/snr30_modeb_on_selected_cells.csv",
+      "bytes": 29637,
+      "sha256": "82f81b2c5145df941e9edbc79628190a1203e46aec9a913452d33ec73857a8ac",
+      "source_bytes": 29637,
+      "source_sha256": "82f81b2c5145df941e9edbc79628190a1203e46aec9a913452d33ec73857a8ac"
+    },
+    {
+      "path": "runtime/on20_production.xml",
+      "bytes": 14773,
+      "sha256": "f2c8ce162ff17d21ef273e991e81785f4a8797af66eedfb176ab4062966e6245",
+      "source_bytes": 14773,
+      "source_sha256": "f2c8ce162ff17d21ef273e991e81785f4a8797af66eedfb176ab4062966e6245"
+    },
+    {
+      "path": "runtime/on20_branch_manifest.json",
+      "bytes": 183732,
+      "sha256": "e7f5f5604eb17984bce467a6f5c12bec4edb804cef184a3d92ebc3afd70a1b6e",
+      "source_bytes": 183732,
+      "source_sha256": "e7f5f5604eb17984bce467a6f5c12bec4edb804cef184a3d92ebc3afd70a1b6e"
+    },
+    {
+      "path": "runtime/on20_production.log",
+      "bytes": 129842,
+      "sha256": "08f61bc19aaa81429900e77f36729cba5b80f6edbaaccf522632f2d6df746f14",
+      "source_bytes": 133914,
+      "source_sha256": "8871f0f9136c0e65dcca1590e1258b5b4bd5ca6a52d395141c3725e0762c6cf3",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/on20_configure.log",
+      "bytes": 2706,
+      "sha256": "acea30a43bb7e64d34ff4c6edfe3ba84bc4a9bffc59774bfc0a753b91d10c736",
+      "source_bytes": 2706,
+      "source_sha256": "acea30a43bb7e64d34ff4c6edfe3ba84bc4a9bffc59774bfc0a753b91d10c736",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/on20_runtime_config.json",
+      "bytes": 12320,
+      "sha256": "804ffbe2c0e2cd0c181dc2f027bd0ac9e8cc56912eb4ddb02bb0cefa697c8470",
+      "source_bytes": 12320,
+      "source_sha256": "804ffbe2c0e2cd0c181dc2f027bd0ac9e8cc56912eb4ddb02bb0cefa697c8470"
+    },
+    {
+      "path": "runtime/on20_cfar_geometry.csv",
+      "bytes": 6047,
+      "sha256": "40d55207fc750bbb70960d14584ce1fdb417233de46001f8ad3b40bd7f0e3809",
+      "source_bytes": 6047,
+      "source_sha256": "40d55207fc750bbb70960d14584ce1fdb417233de46001f8ad3b40bd7f0e3809"
+    },
+    {
+      "path": "runtime/on20_cfar_numerical.csv",
+      "bytes": 983,
+      "sha256": "e2f17baa348fb981ee77bd98584f9698e4ebaa8610bb9c83d494bf873ead2a65",
+      "source_bytes": 983,
+      "source_sha256": "e2f17baa348fb981ee77bd98584f9698e4ebaa8610bb9c83d494bf873ead2a65"
+    },
+    {
+      "path": "runtime/on20_adapter_summary.csv",
+      "bytes": 2229,
+      "sha256": "7c84fbb17803a3cfca2a9399420b75ac9bba9e93c054284efa21bd51a315ed2c",
+      "source_bytes": 2229,
+      "source_sha256": "7c84fbb17803a3cfca2a9399420b75ac9bba9e93c054284efa21bd51a315ed2c"
+    },
+    {
+      "path": "runtime/on20_gamma_groups.csv",
+      "bytes": 196834,
+      "sha256": "44d2f3dae04db29c6d69ad082be006643980b818a1c8e14b5e4ff0dbc8d992e1",
+      "source_bytes": 196834,
+      "source_sha256": "44d2f3dae04db29c6d69ad082be006643980b818a1c8e14b5e4ff0dbc8d992e1"
+    },
+    {
+      "path": "runtime/off20_production.xml",
+      "bytes": 14775,
+      "sha256": "316a647361f724473b3b10ccfbd5ffc345adfa274a3b273a72579c758114ef24",
+      "source_bytes": 14775,
+      "source_sha256": "316a647361f724473b3b10ccfbd5ffc345adfa274a3b273a72579c758114ef24"
+    },
+    {
+      "path": "runtime/off20_branch_manifest.json",
+      "bytes": 62237,
+      "sha256": "d581c063c466238068a9b2433aaecc9de47dde5d9f246344ff77ed8e07778e81",
+      "source_bytes": 62237,
+      "source_sha256": "d581c063c466238068a9b2433aaecc9de47dde5d9f246344ff77ed8e07778e81"
+    },
+    {
+      "path": "runtime/off20_production.log",
+      "bytes": 92677,
+      "sha256": "30aaf04e2e599fb79855faceaa003a0f1f277241ad19467c3610c1819d2baa07",
+      "source_bytes": 92965,
+      "source_sha256": "7f473b4d7e2b2583e92b7cfe1eae94400acf7a6580e7cf8c1a52ee7a8563401c",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/off20_configure.log",
+      "bytes": 2710,
+      "sha256": "f51f28229f1615152d96f95225c740ffde572b69da4f1cbf85d85b38e54a4843",
+      "source_bytes": 2710,
+      "source_sha256": "f51f28229f1615152d96f95225c740ffde572b69da4f1cbf85d85b38e54a4843",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/off20_runtime_config.json",
+      "bytes": 12323,
+      "sha256": "21cc5a4c20c250baefa9c102bb8fbadf134be7ae13a92ba04b5f008767345c36",
+      "source_bytes": 12323,
+      "source_sha256": "21cc5a4c20c250baefa9c102bb8fbadf134be7ae13a92ba04b5f008767345c36"
+    },
+    {
+      "path": "runtime/off20_cfar_geometry.csv",
+      "bytes": 6052,
+      "sha256": "f887f100cb7bc193555c84b89601964c1732593ab1f10cc92478c619a25cb402",
+      "source_bytes": 6052,
+      "source_sha256": "f887f100cb7bc193555c84b89601964c1732593ab1f10cc92478c619a25cb402"
+    },
+    {
+      "path": "runtime/off20_cfar_numerical.csv",
+      "bytes": 983,
+      "sha256": "2d9a1250ce9b43290f29b98ae9d13a894bed6864e57f53d6999702661f438b3b",
+      "source_bytes": 983,
+      "source_sha256": "2d9a1250ce9b43290f29b98ae9d13a894bed6864e57f53d6999702661f438b3b"
+    },
+    {
+      "path": "runtime/off20_adapter_summary.csv",
+      "bytes": 2243,
+      "sha256": "ef210135fb715e9f4a35dd9e3af122d1cfb79b92d1fb9ac3d8d0591957c13524",
+      "source_bytes": 2243,
+      "source_sha256": "ef210135fb715e9f4a35dd9e3af122d1cfb79b92d1fb9ac3d8d0591957c13524"
+    },
+    {
+      "path": "runtime/off20_gamma_groups.csv",
+      "bytes": 196774,
+      "sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3",
+      "source_bytes": 196774,
+      "source_sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+    },
+    {
+      "path": "runtime/to20_production.xml",
+      "bytes": 15052,
+      "sha256": "61b036c340709994f343450dd5c2730b07cfefdde276120d21f0ad09de082426",
+      "source_bytes": 15052,
+      "source_sha256": "61b036c340709994f343450dd5c2730b07cfefdde276120d21f0ad09de082426"
+    },
+    {
+      "path": "runtime/to20_branch_manifest.json",
+      "bytes": 352997,
+      "sha256": "6b65a3558a307b0f45a25208ac7df83ba5d715aa922dd8bfa2ff67a70979e015",
+      "source_bytes": 352997,
+      "source_sha256": "6b65a3558a307b0f45a25208ac7df83ba5d715aa922dd8bfa2ff67a70979e015"
+    },
+    {
+      "path": "runtime/to20_production.log",
+      "bytes": 180459,
+      "sha256": "077a40f7d7e31bbb2d7b286755085811d06e0b4e5e18c7437718593a4aec3fd1",
+      "source_bytes": 189635,
+      "source_sha256": "767acb5ef32358b009281abda72da01f0bb51fd89e194898dc498dea3e5e4429",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/to20_configure.log",
+      "bytes": 2944,
+      "sha256": "73ac745f3159cbe8dd75363feb1a3dd50ae0fe17c7013eaf35d0430f61b1b5c6",
+      "source_bytes": 2944,
+      "source_sha256": "73ac745f3159cbe8dd75363feb1a3dd50ae0fe17c7013eaf35d0430f61b1b5c6",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/to20_runtime_config.json",
+      "bytes": 12558,
+      "sha256": "17f3fe76d9e9f162dff7ab0bd3632ff7b16899a718d52f036b98bd8b1bf208e1",
+      "source_bytes": 12558,
+      "source_sha256": "17f3fe76d9e9f162dff7ab0bd3632ff7b16899a718d52f036b98bd8b1bf208e1"
+    },
+    {
+      "path": "runtime/to20_cfar_geometry.csv",
+      "bytes": 6064,
+      "sha256": "6b4520083295c89416a52276ba5ff1b6f7fb4f2625173bfbb7336de9a041da5a",
+      "source_bytes": 6064,
+      "source_sha256": "6b4520083295c89416a52276ba5ff1b6f7fb4f2625173bfbb7336de9a041da5a"
+    },
+    {
+      "path": "runtime/to20_cfar_numerical.csv",
+      "bytes": 983,
+      "sha256": "257a432fdc5f37f5dad5831a53ba00994ff27722454b79c6dca99a80fc89245c",
+      "source_bytes": 983,
+      "source_sha256": "257a432fdc5f37f5dad5831a53ba00994ff27722454b79c6dca99a80fc89245c"
+    },
+    {
+      "path": "runtime/to20_adapter_summary.csv",
+      "bytes": 2600,
+      "sha256": "21607c6dcacc27bd43f62af16fcd6f943f01b18439d73a9b20b0a2ed075935b8",
+      "source_bytes": 2600,
+      "source_sha256": "21607c6dcacc27bd43f62af16fcd6f943f01b18439d73a9b20b0a2ed075935b8"
+    },
+    {
+      "path": "runtime/to20_gamma_groups.csv",
+      "bytes": 196774,
+      "sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3",
+      "source_bytes": 196774,
+      "source_sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+    },
+    {
+      "path": "runtime/on30_production.xml",
+      "bytes": 14773,
+      "sha256": "9dbe98972eb6a599ed764203e621b3ad8681cee00738ddf5ecfefdb316ac3a28",
+      "source_bytes": 14773,
+      "source_sha256": "9dbe98972eb6a599ed764203e621b3ad8681cee00738ddf5ecfefdb316ac3a28"
+    },
+    {
+      "path": "runtime/on30_branch_manifest.json",
+      "bytes": 265661,
+      "sha256": "642c16c002756525b4ff38e7af492ea36a82da959b6a6ed210921097c05c3fa7",
+      "source_bytes": 265661,
+      "source_sha256": "642c16c002756525b4ff38e7af492ea36a82da959b6a6ed210921097c05c3fa7"
+    },
+    {
+      "path": "runtime/on30_production.log",
+      "bytes": 154178,
+      "sha256": "a4b40a558836e2007b3b8d567c729c06d6bb94c6ef4b988372feef5c9d369f68",
+      "source_bytes": 160698,
+      "source_sha256": "ba1dc0426794f19b9d664b44412eaf2b4ae360af6f40aa27c165840ca24567de",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/on30_configure.log",
+      "bytes": 2706,
+      "sha256": "0368feb36472efdf91ec2caa93e7e2f83ce1d83ac78301495acf948e1217ddbb",
+      "source_bytes": 2706,
+      "source_sha256": "0368feb36472efdf91ec2caa93e7e2f83ce1d83ac78301495acf948e1217ddbb",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/on30_runtime_config.json",
+      "bytes": 12320,
+      "sha256": "1ed7661ae3a94a8baa35a40e4478834a487c302677ccdc408ddd9ce06d9d153c",
+      "source_bytes": 12320,
+      "source_sha256": "1ed7661ae3a94a8baa35a40e4478834a487c302677ccdc408ddd9ce06d9d153c"
+    },
+    {
+      "path": "runtime/on30_cfar_geometry.csv",
+      "bytes": 6066,
+      "sha256": "9f010d76f707bbd508a666704889d6848921d0f175b2abb2b8a31336f39c0e0b",
+      "source_bytes": 6066,
+      "source_sha256": "9f010d76f707bbd508a666704889d6848921d0f175b2abb2b8a31336f39c0e0b"
+    },
+    {
+      "path": "runtime/on30_cfar_numerical.csv",
+      "bytes": 983,
+      "sha256": "840ecf5c7c57e71f96a419c6333d2e5993f97abb9f5b278810986fa51e7d649e",
+      "source_bytes": 983,
+      "source_sha256": "840ecf5c7c57e71f96a419c6333d2e5993f97abb9f5b278810986fa51e7d649e"
+    },
+    {
+      "path": "runtime/on30_adapter_summary.csv",
+      "bytes": 2273,
+      "sha256": "7e82706b2a32fff2f321981a42fdf57467d31d4b83d5738cfe717957a13d3880",
+      "source_bytes": 2273,
+      "source_sha256": "7e82706b2a32fff2f321981a42fdf57467d31d4b83d5738cfe717957a13d3880"
+    },
+    {
+      "path": "runtime/on30_gamma_groups.csv",
+      "bytes": 196906,
+      "sha256": "ede94684c108c13ab5f2aea4e3a29e8501445a45b54c61872923b934f57a2c7c",
+      "source_bytes": 196906,
+      "source_sha256": "ede94684c108c13ab5f2aea4e3a29e8501445a45b54c61872923b934f57a2c7c"
+    },
+    {
+      "path": "runtime/off30_production.xml",
+      "bytes": 14775,
+      "sha256": "d6e1815885bd17f08dfba94011452032470d2c0d350e3facaf9420c37d04091e",
+      "source_bytes": 14775,
+      "source_sha256": "d6e1815885bd17f08dfba94011452032470d2c0d350e3facaf9420c37d04091e"
+    },
+    {
+      "path": "runtime/off30_branch_manifest.json",
+      "bytes": 62236,
+      "sha256": "c5c17fed5a3285df2bec5ee0e2a69cb2ca6972a6cfbea0e9031f64b6f89e4898",
+      "source_bytes": 62236,
+      "source_sha256": "c5c17fed5a3285df2bec5ee0e2a69cb2ca6972a6cfbea0e9031f64b6f89e4898"
+    },
+    {
+      "path": "runtime/off30_production.log",
+      "bytes": 92672,
+      "sha256": "520f8f327f3d77898bd9e4901b67bb31f5ecf2c0ec972e7e83046dba19e42bf9",
+      "source_bytes": 92960,
+      "source_sha256": "18e2c1280442eb101d9933e2fcad292461161c55870d5538b606aab3749891b8",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/off30_configure.log",
+      "bytes": 2710,
+      "sha256": "a4f9b6607260a8d97d87267c1f910e87477a974951957201d0938549df5fb3c3",
+      "source_bytes": 2710,
+      "source_sha256": "a4f9b6607260a8d97d87267c1f910e87477a974951957201d0938549df5fb3c3",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/off30_runtime_config.json",
+      "bytes": 12323,
+      "sha256": "233eefafce045b20a4b330b7df43db2f347997a4112e96e2deb5f8fbeea0d0bf",
+      "source_bytes": 12323,
+      "source_sha256": "233eefafce045b20a4b330b7df43db2f347997a4112e96e2deb5f8fbeea0d0bf"
+    },
+    {
+      "path": "runtime/off30_cfar_geometry.csv",
+      "bytes": 6052,
+      "sha256": "f887f100cb7bc193555c84b89601964c1732593ab1f10cc92478c619a25cb402",
+      "source_bytes": 6052,
+      "source_sha256": "f887f100cb7bc193555c84b89601964c1732593ab1f10cc92478c619a25cb402"
+    },
+    {
+      "path": "runtime/off30_cfar_numerical.csv",
+      "bytes": 983,
+      "sha256": "2d9a1250ce9b43290f29b98ae9d13a894bed6864e57f53d6999702661f438b3b",
+      "source_bytes": 983,
+      "source_sha256": "2d9a1250ce9b43290f29b98ae9d13a894bed6864e57f53d6999702661f438b3b"
+    },
+    {
+      "path": "runtime/off30_adapter_summary.csv",
+      "bytes": 2243,
+      "sha256": "b73d75aa540ea7bd7471dd1598a27807b75b2b1bcdc506f062df8df61de1572d",
+      "source_bytes": 2243,
+      "source_sha256": "b73d75aa540ea7bd7471dd1598a27807b75b2b1bcdc506f062df8df61de1572d"
+    },
+    {
+      "path": "runtime/off30_gamma_groups.csv",
+      "bytes": 196774,
+      "sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3",
+      "source_bytes": 196774,
+      "source_sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+    },
+    {
+      "path": "runtime/to30_production.xml",
+      "bytes": 15052,
+      "sha256": "946204d5952c7c68a0071b82bae6af968b0f88d1784a05b72c4d546ca915cabf",
+      "source_bytes": 15052,
+      "source_sha256": "946204d5952c7c68a0071b82bae6af968b0f88d1784a05b72c4d546ca915cabf"
+    },
+    {
+      "path": "runtime/to30_branch_manifest.json",
+      "bytes": 352998,
+      "sha256": "f00d34c11f0e7e1c042aa10f39cf3071fb2a15d3aa14beb3ca5b63a025bc5d83",
+      "source_bytes": 352998,
+      "source_sha256": "f00d34c11f0e7e1c042aa10f39cf3071fb2a15d3aa14beb3ca5b63a025bc5d83"
+    },
+    {
+      "path": "runtime/to30_production.log",
+      "bytes": 180476,
+      "sha256": "8e29544168e8efe1f0d2ea345eea82f620e80aa0755e9a414a93e77231bf5696",
+      "source_bytes": 189652,
+      "source_sha256": "08ef90ea1a3351f400bd7a1bdc9e8c49a6c14916227f9d22a83563b87c51758b",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/to30_configure.log",
+      "bytes": 2944,
+      "sha256": "23b9e99671b5b87b6066a98a6fc175da8bf3484969ca9fd5c728e94cda210637",
+      "source_bytes": 2944,
+      "source_sha256": "23b9e99671b5b87b6066a98a6fc175da8bf3484969ca9fd5c728e94cda210637",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "runtime/to30_runtime_config.json",
+      "bytes": 12558,
+      "sha256": "58106b344527e56fd0e09b9a7f97b466bf590fa6fabdfcc284b5a01a312cda64",
+      "source_bytes": 12558,
+      "source_sha256": "58106b344527e56fd0e09b9a7f97b466bf590fa6fabdfcc284b5a01a312cda64"
+    },
+    {
+      "path": "runtime/to30_cfar_geometry.csv",
+      "bytes": 6064,
+      "sha256": "6b4520083295c89416a52276ba5ff1b6f7fb4f2625173bfbb7336de9a041da5a",
+      "source_bytes": 6064,
+      "source_sha256": "6b4520083295c89416a52276ba5ff1b6f7fb4f2625173bfbb7336de9a041da5a"
+    },
+    {
+      "path": "runtime/to30_cfar_numerical.csv",
+      "bytes": 983,
+      "sha256": "257a432fdc5f37f5dad5831a53ba00994ff27722454b79c6dca99a80fc89245c",
+      "source_bytes": 983,
+      "source_sha256": "257a432fdc5f37f5dad5831a53ba00994ff27722454b79c6dca99a80fc89245c"
+    },
+    {
+      "path": "runtime/to30_adapter_summary.csv",
+      "bytes": 2600,
+      "sha256": "1a3f32a700ebe2ca3a1d9dc17174fd6b7d6c7ee24a35463051df9ba5640927d4",
+      "source_bytes": 2600,
+      "source_sha256": "1a3f32a700ebe2ca3a1d9dc17174fd6b7d6c7ee24a35463051df9ba5640927d4"
+    },
+    {
+      "path": "runtime/to30_gamma_groups.csv",
+      "bytes": 196774,
+      "sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3",
+      "source_bytes": 196774,
+      "source_sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+    },
+    {
+      "path": "run/snr20_r22_run_manifest.json",
+      "bytes": 17179,
+      "sha256": "9d984c2fdfd547eaa851f852eb62f5e50142b9999d877f840743d7d67925c98e",
+      "source_bytes": 17179,
+      "source_sha256": "9d984c2fdfd547eaa851f852eb62f5e50142b9999d877f840743d7d67925c98e"
+    },
+    {
+      "path": "run/snr20_scenario_template.json",
+      "bytes": 17292,
+      "sha256": "f75a5f9e3c0006fb7e1851ce6ea59a8bf82f69d23be96dc02694431e59d5e1cd",
+      "source_bytes": 17292,
+      "source_sha256": "f75a5f9e3c0006fb7e1851ce6ea59a8bf82f69d23be96dc02694431e59d5e1cd"
+    },
+    {
+      "path": "run/snr20_target_generation_manifest.json",
+      "bytes": 6516,
+      "sha256": "044754681830f1636e40d1e52e9a6fc38bc0966cb268e5708eb7108593be599a",
+      "source_bytes": 6516,
+      "source_sha256": "044754681830f1636e40d1e52e9a6fc38bc0966cb268e5708eb7108593be599a"
+    },
+    {
+      "path": "run/snr20_runner.log",
+      "bytes": 748,
+      "sha256": "e2e4ad7f765cbc9baf9cc99e7c694c13b348d6267ef5722aee3eeb13d84bbda2",
+      "source_bytes": 748,
+      "source_sha256": "e2e4ad7f765cbc9baf9cc99e7c694c13b348d6267ef5722aee3eeb13d84bbda2",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "stage2/snr20_a1_on_stage2_simulation_report.md",
+      "bytes": 1859,
+      "sha256": "2b05190acd1ea770c74f82e3446008558274b62d1888b5820ef0790c807c1ac3",
+      "source_bytes": 1859,
+      "source_sha256": "2b05190acd1ea770c74f82e3446008558274b62d1888b5820ef0790c807c1ac3"
+    },
+    {
+      "path": "stage2/snr20_a1_on_temporal_clutter_diagnostics.json",
+      "bytes": 270,
+      "sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4",
+      "source_bytes": 270,
+      "source_sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4"
+    },
+    {
+      "path": "stage2/snr20_a1_off_stage2_simulation_report.md",
+      "bytes": 1848,
+      "sha256": "65d58725a7545b6d66aba3c6647d7a0aa013efc15b9cce4ace3379427ffbe4e1",
+      "source_bytes": 1848,
+      "source_sha256": "65d58725a7545b6d66aba3c6647d7a0aa013efc15b9cce4ace3379427ffbe4e1"
+    },
+    {
+      "path": "stage2/snr20_a1_off_temporal_clutter_diagnostics.json",
+      "bytes": 270,
+      "sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4",
+      "source_bytes": 270,
+      "source_sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4"
+    },
+    {
+      "path": "stage2/snr20_a1_to_stage2_simulation_report.md",
+      "bytes": 1859,
+      "sha256": "82bbdea3c25e1f9ada073b1630e9ef0fbec6ad8e3fc307d47da6a0a90673e610",
+      "source_bytes": 1859,
+      "source_sha256": "82bbdea3c25e1f9ada073b1630e9ef0fbec6ad8e3fc307d47da6a0a90673e610"
+    },
+    {
+      "path": "stage2/snr20_a1_to_temporal_clutter_diagnostics.json",
+      "bytes": 270,
+      "sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4",
+      "source_bytes": 270,
+      "source_sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4"
+    },
+    {
+      "path": "run/snr30_r22_run_manifest.json",
+      "bytes": 17220,
+      "sha256": "ab120dcfd48121246f1d624db3012c8eea665b5546bd8ae93df95126635efbbc",
+      "source_bytes": 17220,
+      "source_sha256": "ab120dcfd48121246f1d624db3012c8eea665b5546bd8ae93df95126635efbbc"
+    },
+    {
+      "path": "run/snr30_scenario_template.json",
+      "bytes": 17292,
+      "sha256": "7769eeed002a81c876a474b28b072c45c107dde66bf57008ba34b90a06b85b40",
+      "source_bytes": 17292,
+      "source_sha256": "7769eeed002a81c876a474b28b072c45c107dde66bf57008ba34b90a06b85b40"
+    },
+    {
+      "path": "run/snr30_target_generation_manifest.json",
+      "bytes": 6516,
+      "sha256": "db46ad24a4d47fd06f360ba49d7cf8c7541539190cd553953db79bdd96f514ac",
+      "source_bytes": 6516,
+      "source_sha256": "db46ad24a4d47fd06f360ba49d7cf8c7541539190cd553953db79bdd96f514ac"
+    },
+    {
+      "path": "run/snr30_runner.log",
+      "bytes": 762,
+      "sha256": "89933d5be4fb86dfc97a6e49c5c0980d50d1a707fd61de15ae1796bb4a7a68aa",
+      "source_bytes": 762,
+      "source_sha256": "89933d5be4fb86dfc97a6e49c5c0980d50d1a707fd61de15ae1796bb4a7a68aa",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "stage2/snr30_a1_on_stage2_simulation_report.md",
+      "bytes": 1859,
+      "sha256": "3a9d1b3275124b6b6d1339725831f97809652444c3228f5a7097be17c202b3a3",
+      "source_bytes": 1859,
+      "source_sha256": "3a9d1b3275124b6b6d1339725831f97809652444c3228f5a7097be17c202b3a3"
+    },
+    {
+      "path": "stage2/snr30_a1_on_temporal_clutter_diagnostics.json",
+      "bytes": 270,
+      "sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4",
+      "source_bytes": 270,
+      "source_sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4"
+    },
+    {
+      "path": "stage2/snr30_a1_off_stage2_simulation_report.md",
+      "bytes": 1848,
+      "sha256": "f7a7bef4af03e8cb0a4792f6e2000f25dab737194348c9871fe24ea9ba4c4201",
+      "source_bytes": 1848,
+      "source_sha256": "f7a7bef4af03e8cb0a4792f6e2000f25dab737194348c9871fe24ea9ba4c4201"
+    },
+    {
+      "path": "stage2/snr30_a1_off_temporal_clutter_diagnostics.json",
+      "bytes": 270,
+      "sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4",
+      "source_bytes": 270,
+      "source_sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4"
+    },
+    {
+      "path": "stage2/snr30_a1_to_stage2_simulation_report.md",
+      "bytes": 1859,
+      "sha256": "3a531cea910cbbc4dc0f2c6e28d161d6a39a903eb5dbff9b0a0d3ad4a12c2166",
+      "source_bytes": 1859,
+      "source_sha256": "3a531cea910cbbc4dc0f2c6e28d161d6a39a903eb5dbff9b0a0d3ad4a12c2166"
+    },
+    {
+      "path": "stage2/snr30_a1_to_temporal_clutter_diagnostics.json",
+      "bytes": 270,
+      "sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4",
+      "source_bytes": 270,
+      "source_sha256": "49c1756cb055080aef0346cc3c5c6f7d74040c6a01338a334c793fb86538c5e4"
+    },
+    {
+      "path": "baseline/gmt_pipe_core.log",
+      "bytes": 10887,
+      "sha256": "6978cec88b5bcc3995873117eb7f125d50b03b9af082181f2c85b1e684b78466",
+      "source_bytes": 10895,
+      "source_sha256": "c05a5a17964a913f79812e0749ce83ec4a0312d50e07aeea04e2c9ddef38fe3e",
+      "normalization": "CRLF converted to LF; trailing spaces and tabs removed per line."
+    },
+    {
+      "path": "baseline/run_manifest.json",
+      "bytes": 3008,
+      "sha256": "c79192c3dba1b356cf18202065ecdec7fbc588c296a2104361bc6ce61183d8eb",
+      "source_bytes": 3008,
+      "source_sha256": "c79192c3dba1b356cf18202065ecdec7fbc588c296a2104361bc6ce61183d8eb"
+    },
+    {
+      "path": "baseline/adapter_summary.csv",
+      "bytes": 430,
+      "sha256": "6fb0411e1b1c11f5e8fce206284f8fa166074e70de8f1ce919f42d584beabd06",
+      "source_bytes": 430,
+      "source_sha256": "6fb0411e1b1c11f5e8fce206284f8fa166074e70de8f1ce919f42d584beabd06"
+    },
+    {
+      "path": "baseline/gamma_groups.csv",
+      "bytes": 19836,
+      "sha256": "acf06e78f97870431734ac13ce48d8d5568ecabe0a14cbf6a4dc57a4dd818070",
+      "source_bytes": 19836,
+      "source_sha256": "acf06e78f97870431734ac13ce48d8d5568ecabe0a14cbf6a4dc57a4dd818070"
+    },
+    {
+      "path": "baseline/cfar_geometry.csv",
+      "bytes": 1046,
+      "sha256": "89e93601bfca6d8564dfa1f87fad6b77cd6600e04a3a7f177d05f20f45e467cb",
+      "source_bytes": 1046,
+      "source_sha256": "89e93601bfca6d8564dfa1f87fad6b77cd6600e04a3a7f177d05f20f45e467cb"
+    },
+    {
+      "path": "target_truth_stage2_period4_beam50.csv",
+      "bytes": 6010,
+      "sha256": "db4edc2e26707a9fd16a730e169331b9c96776560e8efb9e56c5f800a7413f60"
+    }
+  ]
+}

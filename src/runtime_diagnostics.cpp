@@ -15,6 +15,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <mutex>
 #include <sstream>
 #include <sys/stat.h>
@@ -1542,6 +1543,122 @@ bool recordProductionCalibrationFailureCells(
     const std::vector<std::complex<float>>& f1,
     const std::vector<std::complex<float>>& f2)
 {
+    const char* selected_group_env = std::getenv("PGRCC_C4_TRACE_GROUP");
+    if (selected_group_env != nullptr && selected_group_env[0] != '\0' &&
+        tap.method == "robust_ddc_rb") {
+        long long trace_period = 0;
+        long long trace_beam = 0;
+        long long trace_az = 0;
+        long long trace_start = 0;
+        long long trace_end = 0;
+        char comma1 = '\0';
+        char comma2 = '\0';
+        char comma3 = '\0';
+        char comma4 = '\0';
+        std::istringstream selector(selected_group_env);
+        if (!(selector >> trace_period >> comma1 >> trace_beam >> comma2 >>
+              trace_az >> comma3 >> trace_start >> comma4 >> trace_end) ||
+            comma1 != ',' || comma2 != ',' || comma3 != ',' || comma4 != ',') {
+            std::cerr << "[RESEARCH_CALIBRATION][ERR] invalid "
+                      << "PGRCC_C4_TRACE_GROUP; expected period,beam,az,start,end"
+                      << std::endl;
+            return false;
+        }
+        selector >> std::ws;
+        if (!selector.eof() || trace_period <= 0 || trace_beam <= 0 ||
+            trace_az < 0 || trace_start < 0 || trace_end < trace_start ||
+            trace_period > std::numeric_limits<int>::max() ||
+            trace_beam > std::numeric_limits<int>::max() ||
+            trace_az > std::numeric_limits<int>::max() ||
+            trace_start > std::numeric_limits<int>::max() ||
+            trace_end > std::numeric_limits<int>::max()) {
+            std::cerr << "[RESEARCH_CALIBRATION][ERR] out-of-range or trailing "
+                      << "data in PGRCC_C4_TRACE_GROUP" << std::endl;
+            return false;
+        }
+
+        if (cfg.result_file_id == static_cast<int>(trace_period) &&
+            beam_id == static_cast<int>(trace_beam)) {
+            if (rows <= 0 || cols <= 0 || trace_az >= rows ||
+                trace_end >= cols ||
+                f1.size() != static_cast<std::size_t>(rows) *
+                                 static_cast<std::size_t>(cols) ||
+                f2.size() != f1.size()) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] selected C4 trace "
+                          << "bounds or input dimensions are invalid" << std::endl;
+                return false;
+            }
+            if (cfg.result_add.empty() || !mkdirP(cfg.result_add)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot create "
+                          << "selected C4 trace output dir" << std::endl;
+                return false;
+            }
+
+            ProductionCalibrationGammaGroup selected_group;
+            selected_group.az_index = static_cast<int>(trace_az);
+            selected_group.range_start = static_cast<int>(trace_start);
+            selected_group.range_end = static_cast<int>(trace_end);
+            const ProductionCalibrationGammaGroup* summary = nullptr;
+            for (const ProductionCalibrationGammaGroup& group : tap.gamma_groups) {
+                if (group.az_index == selected_group.az_index &&
+                    group.range_start == selected_group.range_start &&
+                    group.range_end == selected_group.range_end) {
+                    summary = &group;
+                    break;
+                }
+            }
+
+            const std::string path = pathJoin(
+                cfg.result_add, "production_calibration_selected_cells.csv");
+            std::lock_guard<std::mutex> lock(stateMutex());
+            const bool write_header = !fileExists(path);
+            std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+            if (!os) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot write "
+                          << "selected C4 trace CSV " << path << std::endl;
+                return false;
+            }
+            if (write_header) {
+                os << "period_id,result_id,beam_id,method,source,group_id,"
+                      "az_index,range_start,range_end,range_index,group_status,"
+                      "group_reason,adapter_support_count,"
+                      "adapter_phase_coherence,f1_real,f1_imag,f2_real,f2_imag\n";
+            }
+            const std::size_t row_offset =
+                static_cast<std::size_t>(trace_az) * static_cast<std::size_t>(cols);
+            for (int range = static_cast<int>(trace_start);
+                 range <= static_cast<int>(trace_end); ++range) {
+                const std::size_t index = row_offset + static_cast<std::size_t>(range);
+                os << cfg.result_file_id << ","
+                   << csvEscape(state().result_id) << ","
+                   << beam_id << ","
+                   << csvEscape(tap.method) << ","
+                   << csvEscape(tap.source) << ","
+                   << csvEscape(gammaGroupId(selected_group)) << ","
+                   << selected_group.az_index << ","
+                   << selected_group.range_start << ","
+                   << selected_group.range_end << ","
+                   << range << ","
+                   << csvEscape(summary ? summary->status : tap.status) << ","
+                   << csvEscape(summary ? summary->reason : tap.reason) << ","
+                   << (summary ? summary->support_count : -1) << ","
+                   << std::setprecision(17)
+                   << (summary ? summary->phase_coherence :
+                                 std::numeric_limits<double>::quiet_NaN()) << ","
+                   << std::setprecision(9) << f1[index].real() << ","
+                   << f1[index].imag() << ","
+                   << f2[index].real() << ","
+                   << f2[index].imag() << "\n";
+            }
+            os.flush();
+            if (!os.good()) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot flush "
+                          << "selected C4 trace CSV " << path << std::endl;
+                return false;
+            }
+        }
+    }
+
     if (!cfg.csi_metrics_enable || !cfg.csi_metrics_dump_power_maps ||
         !cfg.csi_metrics_dump_intermediate_maps) {
         return true;
