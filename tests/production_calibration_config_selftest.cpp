@@ -328,6 +328,58 @@ int main(int argc, char** argv)
           "selected-cell diagnostic leaves estimator input vectors unchanged");
     ::unsetenv("PGRCC_C4_TRACE_GROUP");
 
+    // Stage-boundary traces are opt-in and contain only the selected row/range
+    // cells; this guards the diagnostic path used to localize R22 closure loss.
+    const std::string phase_trace_path =
+        root + "/production_phase_boundary_trace.csv";
+    std::remove(phase_trace_path.c_str());
+    check(!gmti::runtime::productionStageBoundaryTraceSelected(selected_cfg, 3),
+          "stage-boundary tracing is not selected when its environment selector is unset");
+    check(gmti::runtime::recordProductionStageBoundaryTrace(
+              selected_cfg, 3, "csi_post_range_phase_pre_p38_fit", 2, 5,
+              failure_f1, failure_f2, failure_f1,
+              std::vector<float>{0.0f, 0.25f, 0.5f, 0.75f, 1.0f},
+              0.125, -0.25),
+          "selected stage-boundary trace is written");
+    std::ifstream phase_trace_disabled(phase_trace_path.c_str());
+    check(!phase_trace_disabled.good(),
+          "stage-boundary trace is inert when selector is unset");
+
+    check(::setenv("PGRCC_C4_TRACE_GROUP", "1,3,1,1,3", 1) == 0,
+          "set stage-boundary trace coordinates");
+    check(gmti::runtime::productionStageBoundaryTraceSelected(selected_cfg, 3) &&
+              !gmti::runtime::productionStageBoundaryTraceSelected(selected_cfg, 4),
+          "stage-boundary tracing selects only the requested period and beam");
+    check(gmti::runtime::recordProductionStageBoundaryTrace(
+              selected_cfg, 3, "csi_post_range_phase_pre_p38_fit", 2, 5,
+              std::vector<std::complex<float>>(10, {1.0f, 0.0f}),
+              std::vector<std::complex<float>>(10, {0.0f, 1.0f}),
+              std::vector<std::complex<float>>(10, {0.5f, -0.5f}),
+              std::vector<float>{0.0f, 0.25f, 0.5f, 0.75f, 1.0f},
+              0.125, -0.25),
+          "stage-boundary trace call succeeds for the selected group");
+    const std::string phase_trace = readText(phase_trace_path);
+    check(std::count(phase_trace.begin(), phase_trace.end(), '\n') == 4 &&
+              phase_trace.find("csi_post_range_phase_pre_p38_fit") != std::string::npos &&
+              phase_trace.find(
+                  "csi_post_range_phase_pre_p38_fit,1,1,1,0,0,1,"
+                  "0.5,-0.5,0.25,0.125,-0.25") !=
+                  std::string::npos,
+          "stage-boundary trace records exactly the selected cells and stage metadata");
+
+    check(::setenv("PGRCC_C4_TRACE_GROUP", "5,3,1,1", 1) == 0,
+          "set malformed stage-boundary trace coordinates");
+    check(gmti::runtime::productionStageBoundaryTraceSelected(selected_cfg, 3),
+          "malformed selector remains selected so the diagnostic fails closed");
+    check(!gmti::runtime::recordProductionStageBoundaryTrace(
+              selected_cfg, 3, "bad_trace", 2, 5,
+              std::vector<std::complex<float>>(10, {1.0f, 0.0f}),
+              std::vector<std::complex<float>>(10, {0.0f, 1.0f}), {}, {},
+              std::numeric_limits<double>::quiet_NaN(),
+              std::numeric_limits<double>::quiet_NaN()),
+          "malformed stage-boundary trace coordinates fail closed");
+    ::unsetenv("PGRCC_C4_TRACE_GROUP");
+
     std::remove((root + "/production_calibration_selected_cells.csv").c_str());
     check(::setenv("PGRCC_C4_TRACE_GROUP", "2,3,0,0,3", 1) == 0,
           "set nonmatching selected-cell coordinates");

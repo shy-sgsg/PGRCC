@@ -2747,7 +2747,7 @@ bool GMTIProcessor::processOnePeriod(int periodIdx, const Config &cfg_, const st
             faAxis_f,
             cfg.az_st, cfg.rg_st, cfg.az_ed, cfg.rg_ed,
             csi_fit_cfg,
-            F1_r_f, p_38_csi_f, ph_trace_f, fa_cut_f, periodIdx
+            F1_r_f, p_38_csi_f, ph_trace_f, fa_cut_f, periodIdx, phi_fit
         )) return false;
         p_38_aligned = p_38_csi_f;
         p38_aligned_trace.assign(ph_trace_f.begin(), ph_trace_f.end());
@@ -3925,6 +3925,8 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                                                 FusionGroupContext &ctx)
 {
     Config cfg = cfg_;
+    const bool selected_stage_boundary_trace =
+        gmti::runtime::productionStageBoundaryTraceSelected(cfg, periodIdx);
     const MechanicalCpiWindow *process_window = mechanicalWindow(cfg, periodIdx);
     const auto failBeamStage = [&cfg, periodIdx, slot](const char *stage) -> bool {
         if (cfg.runtime_diagnostics_enabled) {
@@ -4247,6 +4249,21 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
         if (!cuda_stage_dbs_async(static_cast<float>(fa_ctr), static_cast<float>(cfg.PRF), Na, Nr)) {
             return failBeamStage("raw_dbs");
         }
+        if (selected_stage_boundary_trace) {
+            std::vector<std::complex<float>> raw_dbs_f1;
+            std::vector<std::complex<float>> raw_dbs_f2;
+            if (!cuda_download_sync(raw_dbs_f1, raw_dbs_f2, Na * Nr)) {
+                return failBeamStage("stage_trace_raw_dbs_download");
+            }
+            if (!gmti::runtime::recordProductionStageBoundaryTrace(
+                    cfg, periodIdx, "raw_dbs_pre_range_phase",
+                    static_cast<int>(Na), static_cast<int>(Nr),
+                    raw_dbs_f1, raw_dbs_f2, {}, {},
+                    std::numeric_limits<double>::quiet_NaN(),
+                    std::numeric_limits<double>::quiet_NaN())) {
+                return failBeamStage("stage_trace_raw_dbs_write");
+            }
+        }
         cfg.p38_expected_slope_rad_per_hz =
             p38TheorySlopeAfterIntegerAlignment(cfg, plane.V, skipInt);
 
@@ -4334,10 +4351,18 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
         }
         const bool need_pre_csi_host_copy =
             (cfg.p38_enhanced_enable && cfg.p38_refit_enable) ||
-            cfg.channel_calibration_enable || cfg.csi_metrics_enable;
+            cfg.channel_calibration_enable || cfg.csi_metrics_enable ||
+            selected_stage_boundary_trace;
         if (need_pre_csi_host_copy &&
             !cuda_download_sync(F1_pre, F2_pre, Na * Nr)) {
             return failBeamStage("pre_csi_download");
+        }
+        if (selected_stage_boundary_trace &&
+            !gmti::runtime::recordProductionStageBoundaryTrace(
+                cfg, periodIdx, "raw_post_range_phase",
+                static_cast<int>(Na), static_cast<int>(Nr),
+                F1_pre, F2_pre, {}, phi_fit, p_38[0], p_38[1])) {
+            return failBeamStage("stage_trace_raw_range_phase_write");
         }
 
         if (!cuda_stage_align_async(skipInt_theory, Na, Nr, cfg)) {
@@ -4348,6 +4373,21 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
         }
         if (!cuda_stage_dbs_async(static_cast<float>(fa_ctr), static_cast<float>(cfg.PRF), Na, Nr)) {
             return failBeamStage("csi_dbs");
+        }
+        if (selected_stage_boundary_trace) {
+            std::vector<std::complex<float>> csi_dbs_f1;
+            std::vector<std::complex<float>> csi_dbs_f2;
+            if (!cuda_download_sync(csi_dbs_f1, csi_dbs_f2, Na * Nr)) {
+                return failBeamStage("stage_trace_csi_dbs_download");
+            }
+            if (!gmti::runtime::recordProductionStageBoundaryTrace(
+                    cfg, periodIdx, "csi_dbs_pre_range_phase",
+                    static_cast<int>(Na), static_cast<int>(Nr),
+                    csi_dbs_f1, csi_dbs_f2, {}, {},
+                    std::numeric_limits<double>::quiet_NaN(),
+                    std::numeric_limits<double>::quiet_NaN())) {
+                return failBeamStage("stage_trace_csi_dbs_write");
+            }
         }
         if (!cfg.csi_range_phase_correction_enable) {
             phi_fit.assign(Nr, 0.0f);
@@ -4377,7 +4417,8 @@ bool GMTIProcessor::processOnePeriodFusionCache(int periodIdx,
                 faAxis_f,
                 cfg.az_st, cfg.rg_st, cfg.az_ed, cfg.rg_ed,
                 csi_fit_cfg,
-                csi_trace_f, p_38_csi_f, ph_trace_f, fa_cut_f, periodIdx)) {
+                csi_trace_f, p_38_csi_f, ph_trace_f, fa_cut_f, periodIdx,
+                phi_fit)) {
             return failBeamStage("p38_csi");
         }
         p_38_aligned = p_38_csi_f;

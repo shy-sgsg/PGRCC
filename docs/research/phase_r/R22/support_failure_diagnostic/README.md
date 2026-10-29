@@ -22,7 +22,7 @@
 
 ## 杂波与配对条件
 
-两种 SNR 的 Stage2 报告都记录连续面积杂波真实注入：1,300 packets、6,508,782 samples、测得平均功率 `0.0221596696662`，距离窗 `[84500,85500] m`，模型 `continuous_texture`。面积杂波模型、距离窗、packet 数、sample 数和功率在两条件完全相同。
+SNR20/30 的 R22 汇总 manifest 记录的面积杂波数据来自 `A0_ON` 写入的共同 `A0_background`：1,300 packets、6,508,782 samples、测得平均功率 `0.0221596696662`，距离窗 `[84500,85500] m`，模型 `continuous_texture`。A1 ON/OFF/TO 单角色报告的 `continuous_area_packets/samples=0` 表示该次没有重新生成，因为它们通过 `background_input_dir` 复用 A0 背景；不能将该字段解释为 A1 输入没有地杂波。S1b 对 SNR30 的 A0 生成报告、三个 A1 场景配置及 10/10 `background_reuse_mapping` 做了直接核验，证据见 [`evidence/s1b/stage2/`](evidence/s1b/stage2/)。
 
 两组 `A1_OFF` 的十个 Stage2 周期文件逐字节相同；对失败时段所对应的 Production F1/F2，OFF20 与 OFF30 的266个复通道值也完全相同。Stage2 target generator manifest 除目标 SNR 外相同。
 
@@ -79,9 +79,9 @@ Detection CSV 和 track 文件没有作字节相等声明：基线从新 TrackMa
 - `PERFORMANCE_VERIFIED=false`：单 seed、单 beam 的可行性/正确性诊断，不作 Pd/Pfa 或统计结论。
 - 研究方向：`INCONCLUSIVE / STOP_AT_GATE`。保留 C4 失败现场，不降低支持阈值，不回退为 Current，不恢复大规模 Screening，不进入 AI。
 
-### 建议的下一项（本次未启动）
+### 后续建议（待独立审查后裁定，不自动启动）
 
-独立审查后如仍需归因，只做 **R22-S1b：失败组处理链边界闭合审计**。优先复用本次已生成的 SNR30 `A1_ON/A1_OFF/A1_TO` Stage2 输入，只重跑 beam 50 所需 Production 路径；在 P38 前后和 range-phase 前后记录同一组 F1/F2 与处理状态，定位 `ON−OFF−TO` 首次显著不闭合的位置。TO 明确代表全部目标。真值只作事后离线映射，不参与估计或筛选。若现存输入无法匹配 manifest 身份，或复现不了7支持，停止因果解释并只报告重放差异。通过该审计也不代表性能已改善；是否再做方法改动或任务评价，由用户在 ChatGPT 审查后决定。
+S1b 已执行。若 ChatGPT 认为还需要解释 SNR20→SNR30 的支持数变化，唯一建议的后续是 **R22-S1c：同一选定组的共同距离相位反事实**：复用两种 SNR 下相同 seed1932001、+4 ns、beam 50 的 `OFF/ON/TO` Stage2 输入；用 target-free OFF 估计一个共同 CSI 距离相位向量，再将该固定向量应用到 ON20 与 ON30 的选定处理组，对比原生逐角色拟合与共同相位条件下的 C4 support、相位残差和保留单元。真值不进入估计，`min_support=8` 与 ±0.35 rad 门限不变。该反事实只区分角色自适应相位拟合与输入 SNR 变化对 support 的影响，不是部署算法比较，也不证明检测收益。若共同向量无法与四个输入条件身份闭合，或结果仍不能区分两种来源，则保留失败并停止归因；是否执行须在本次独立审查后由用户决定。
 
 ## 证据入口与复现
 
@@ -108,3 +108,9 @@ python3 docs/research/phase_r/R22/support_failure_diagnostic/analyze_selected_ce
 ```
 
 两种SNR的实际命令、退出码、运行时XML、Stage2报告和分支日志均收录在紧凑证据包；完整命令也保存在执行机 runner log。SNR30 因既有质量门报告 `completed_with_gaps` / `EVALUABLE=false`，这是预期失败门控，不是成功检测结果。
+
+## S1b 处理阶段审计
+
+用户批准的 S1b 已完成；结论、实验身份、局限、单一后续建议和复核命令见 [`S1B_STAGE_BOUNDARY_AUDIT.md`](S1B_STAGE_BOUNDARY_AUDIT.md)。简述：三角色 CUDA Production 运行均正常；原 Mode-B 失败组输入逐值复现；最大的 F2 闭合恶化发生于 CSI 距离相位校正之后，C4 adapter 按固定 γ 正常传递该差异。距离相位前已存在小残差，且尚无 SNR20 同边界反事实，因此不能唯一归因 support 25→7，也不构成任务性能证据。
+
+审查所需的小型运行快照、runtime XML、分支 manifest、原始日志、133格 trace、相位与 γ 记录及面积杂波背景复用链均在 [`evidence/s1b/`](evidence/s1b/)。A1 角色报告的“新生成杂波计数为0”对应复用 A0 背景；背景生成和10/10复用映射有单独证据，不能将 A1 报告中的0解释成无杂波输入。

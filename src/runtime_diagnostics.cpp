@@ -178,6 +178,54 @@ bool fileExists(const std::string& path)
     return !path.empty() && ::stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode);
 }
 
+struct ProductionStageTraceSelection {
+    bool configured = false;
+    bool valid = false;
+    int period = -1;
+    int beam = -1;
+    int azimuth = -1;
+    int range_start = -1;
+    int range_end = -1;
+};
+
+ProductionStageTraceSelection productionStageTraceSelection()
+{
+    ProductionStageTraceSelection selection;
+    const char* value = std::getenv("PGRCC_C4_TRACE_GROUP");
+    if (value == nullptr || value[0] == '\0') {
+        return selection;
+    }
+    selection.configured = true;
+
+    long long fields[5] = {};
+    char commas[4] = {};
+    std::istringstream input(value);
+    if (!(input >> fields[0] >> commas[0] >> fields[1] >> commas[1] >>
+          fields[2] >> commas[2] >> fields[3] >> commas[3] >> fields[4]) ||
+        commas[0] != ',' || commas[1] != ',' || commas[2] != ',' ||
+        commas[3] != ',') {
+        return selection;
+    }
+    input >> std::ws;
+    if (!input.eof() || fields[0] <= 0 || fields[1] <= 0 || fields[2] < 0 ||
+        fields[3] < 0 || fields[4] < fields[3] ||
+        fields[0] > std::numeric_limits<int>::max() ||
+        fields[1] > std::numeric_limits<int>::max() ||
+        fields[2] > std::numeric_limits<int>::max() ||
+        fields[3] > std::numeric_limits<int>::max() ||
+        fields[4] > std::numeric_limits<int>::max()) {
+        return selection;
+    }
+
+    selection.valid = true;
+    selection.period = static_cast<int>(fields[0]);
+    selection.beam = static_cast<int>(fields[1]);
+    selection.azimuth = static_cast<int>(fields[2]);
+    selection.range_start = static_cast<int>(fields[3]);
+    selection.range_end = static_cast<int>(fields[4]);
+    return selection;
+}
+
 std::string basenameNoExt(const std::string& path)
 {
     const size_t slash = path.find_last_of("/\\");
@@ -1529,6 +1577,125 @@ bool recordProductionCalibrationTap(const Config& cfg,
     if (!group_os.good()) {
         std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV rows "
                   << group_path << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool productionStageBoundaryTraceSelected(const Config& cfg, int beam_id)
+{
+    const ProductionStageTraceSelection selection =
+        productionStageTraceSelection();
+    if (!selection.configured) {
+        return false;
+    }
+    if (!selection.valid) {
+        // Keep the selected path active so the writer reports malformed input
+        // and fails the diagnostic run closed.
+        return true;
+    }
+    return cfg.result_file_id == selection.period && beam_id == selection.beam;
+}
+
+bool recordProductionStageBoundaryTrace(
+    const Config& cfg,
+    int beam_id,
+    const std::string& stage,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& channel1,
+    const std::vector<std::complex<float>>& channel2,
+    const std::vector<std::complex<float>>& output,
+    const std::vector<float>& range_phase_rad,
+    double p38_slope_rad_per_hz,
+    double p38_intercept_rad)
+{
+    const ProductionStageTraceSelection selection =
+        productionStageTraceSelection();
+    if (!selection.configured) {
+        return true;
+    }
+    if (!selection.valid) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] invalid "
+                  << "PGRCC_C4_TRACE_GROUP; expected period,beam,az,start,end"
+                  << std::endl;
+        return false;
+    }
+    if (cfg.result_file_id != selection.period || beam_id != selection.beam) {
+        return true;
+    }
+
+    if (rows <= 0 || cols <= 0 || selection.azimuth >= rows ||
+        selection.range_end >= cols || selection.range_start > selection.range_end) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] selected stage trace bounds "
+                  << "are invalid for stage " << stage << std::endl;
+        return false;
+    }
+    const std::size_t row_count = static_cast<std::size_t>(rows);
+    const std::size_t col_count = static_cast<std::size_t>(cols);
+    if (row_count > std::numeric_limits<std::size_t>::max() / col_count) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] selected stage trace dimensions "
+                  << "overflow for stage " << stage << std::endl;
+        return false;
+    }
+    const std::size_t cell_count = row_count * col_count;
+    if (channel1.size() != cell_count || channel2.size() != cell_count ||
+        (!output.empty() && output.size() != cell_count) ||
+        (!range_phase_rad.empty() && range_phase_rad.size() != col_count) ||
+        stage.empty() || stage.find_first_of("\r\n") != std::string::npos) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] selected stage trace data "
+                  << "shape or stage name is invalid for " << stage << std::endl;
+        return false;
+    }
+    if (cfg.result_add.empty() || !mkdirP(cfg.result_add)) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot create selected stage "
+                  << "trace output directory" << std::endl;
+        return false;
+    }
+
+    const std::string path = pathJoin(
+        cfg.result_add, "production_phase_boundary_trace.csv");
+    std::lock_guard<std::mutex> lock(stateMutex());
+    const bool write_header = !fileExists(path);
+    std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+    if (!os) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot write selected stage "
+                  << "trace CSV " << path << std::endl;
+        return false;
+    }
+    if (write_header) {
+        os << "period_id,result_id,beam_id,stage,azimuth_index,range_index,"
+              "f1_real,f1_imag,f2_real,f2_imag,output_real,output_imag,"
+              "range_phase_rad,p38_slope_rad_per_hz,p38_intercept_rad\n";
+    }
+
+    const std::size_t row_offset =
+        static_cast<std::size_t>(selection.azimuth) * col_count;
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    for (int range = selection.range_start; range <= selection.range_end; ++range) {
+        const std::size_t index = row_offset + static_cast<std::size_t>(range);
+        const std::complex<float> output_value = output.empty() ?
+            std::complex<float>(nan, nan) : output[index];
+        const float range_phase = range_phase_rad.empty() ?
+            nan : range_phase_rad[static_cast<std::size_t>(range)];
+        os << cfg.result_file_id << ","
+           << csvEscape(state().result_id) << ","
+           << beam_id << ","
+           << csvEscape(stage) << ","
+           << selection.azimuth << ","
+           << range << ","
+           << std::setprecision(9)
+           << channel1[index].real() << "," << channel1[index].imag() << ","
+           << channel2[index].real() << "," << channel2[index].imag() << ","
+           << output_value.real() << "," << output_value.imag() << ","
+           << range_phase << ","
+           << std::setprecision(17) << p38_slope_rad_per_hz << ","
+           << p38_intercept_rad << "\n";
+    }
+    os.flush();
+    if (!os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot flush selected stage "
+                  << "trace CSV " << path << std::endl;
         return false;
     }
     return true;

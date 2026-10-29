@@ -126,3 +126,15 @@
 - **空间：** 当前 worktree 约 6.9 GB，挂载卷可用约 51 GB。约 5.5 GB 的 `docs/` 主要是 R21 审计输入与证据；唯一可追溯的高价值基线输入继续保留。无任何新清理删除；本阶段生成物按独立目录和 manifest 管理。
 - **静态资源展开：** V1A 共 594 cases（294 个 0 ns、300 个 +4 ns）。当前 runner 每个 0 ns case 计划 36 次 Production branch；+4 ns 为 48–54 次（固定 D3必需，Huber/M1依 support gate 而定），全矩阵上界为 24,984–26,784 次 branch。时间和保留产物大小须用修订后工程批次实测，不用旧的一周期时长外推。
 - **下一动作：** GPU 空闲后，在新证据根执行 seed1930101 的 0/+4 ns 两个工程 case；若通过，再运行剩余工程 seed。每个 case 完成后立即核验真实耗时、磁盘峰值、杂波配对、CSI/CFAR 和 task outputs；六 seed 工程门与资源门未通过前不启动筛选。
+
+### 2026-10-29｜S1b 处理阶段闭合审计
+
+- **授权范围：** 用户批准在 S1 独立审查后开展局部阶段 trace。只复用 seed1932001、2.5 m/s、SNR30、+4 ns、20 targets、10 periods、beam 50 的既有 ON/OFF/TO Stage2 输入；不生成 Stage2、不扩展矩阵、不改算法门槛。
+- **诊断目的：** 定位 `GMTI05 / azimuth 52 / range 1065–1197` 的 `ON−OFF−TO` 闭合从哪一个 Production 处理边界开始偏离。保留 `min_support=8`、相位筛选 ±0.35 rad、range group 133 bins 和现有扫描/CFAR gate。
+- **采集边界：** raw DBS 相位校正前、raw 距离相位校正后、CSI DBS 距离相位校正前、C4 adapter 实际输入、C4 adapter 输出。selector `PGRCC_C4_TRACE_GROUP=5,50,52,1065,1197` 限制到一个 period/beam/row/range；未选择时不增加 D2H tap。
+- **实现身份：** 新增 `scripts/phase_r/run_r22_s1b_stage_trace.py` 与复数闭合分析器；Production binary 在独立 `/tmp/pgrcc_r22_s1b_cuda_20261029` Release/CUDA build 生成，不覆盖历史 binary。执行时的精确源码、binary SHA、输入 SHA、XML 与运行日志写入隔离 manifest。
+- **执行状态：** `IMPLEMENTED=true`、`EXECUTED=true`。RTX 3050 Laptop GPU / CUDA 12.4 上 ON/OFF/TO 三个10周期 Production 分支均返回0；Stage2 未重跑；设备运行前为 P0、87°C、84%利用率、62.85 W、2237/4096 MiB。binary SHA-256、执行源码文件 SHA、逐 period 输入 SHA、实际 XML、分支 manifest 与日志收录于 `support_failure_diagnostic/evidence/s1b/`。
+- **直接结果：** Mode-B 原失败组输入与 Mode-A ON C4 前 F1/F2 在133个单元逐值一致。CSI range-phase correction 前 F2 `ON−OFF−TO` 相对 L2 残差为1.8056%，校正后为78.7703%；C4 固定γ adapter 与 `F2−γF1` 公式误差最高约`1.09e-7`。因此最大已观测闭合恶化位于角色独立估计的 range-phase correction 之后，尚未唯一解释 SNR20→30 的 support 25→7。
+- **杂波身份核验：** A1 角色报告的连续面积杂波生成计数为0，是因为复用 A0 背景；A0_ON 生成报告为1300 packets、6,508,782 samples、平均功率0.0221596696662，A1_ON/OFF/TO 背景映射均10/10 matched。Stage2 因果 triplet 对61,464,000样本通过`5e-5`容差。
+- **裁决：** Production tap/replay `PASS_WITH_LIMITATIONS`；支持数25→7的唯一因果来源 `INCONCLUSIVE`；`PERFORMANCE_VERIFIED=false`。保留 support=8 与±0.35 rad 门限，不恢复矩阵、不宣称检测收益、不进入 AI。详细结果见 `support_failure_diagnostic/S1B_STAGE_BOUNDARY_AUDIT.md`。
+- **停止规则：** 重放已完成；如任一输入、role、边界或 CSI tap 身份不一致，保留失败并停止，不回退 Current、不删失败组、不启动筛选/确认/密集/H0 实验。后续仅可在用户审查 S1b 证据后另行决定是否开展共同距离相位反事实。该单 seed 诊断只支持实现正确性与机制定位，不构成性能或统计结论。

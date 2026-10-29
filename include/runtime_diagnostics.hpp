@@ -78,6 +78,23 @@ bool recordProductionCalibrationFailureCells(
     const std::vector<std::complex<float>>& f1,
     const std::vector<std::complex<float>>& f2);
 
+// Opt-in, selected-cell trace for locating the first production processing
+// boundary where paired ON/OFF/TO complex inputs stop closing.
+bool productionStageBoundaryTraceSelected(const Config& cfg, int beam_id);
+
+bool recordProductionStageBoundaryTrace(
+    const Config& cfg,
+    int beam_id,
+    const std::string& stage,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& channel1,
+    const std::vector<std::complex<float>>& channel2,
+    const std::vector<std::complex<float>>& output,
+    const std::vector<float>& range_phase_rad,
+    double p38_slope_rad_per_hz,
+    double p38_intercept_rad);
+
 void recordTiming(const char* scope_name,
                   std::chrono::system_clock::time_point start_time,
                   std::chrono::system_clock::time_point end_time,

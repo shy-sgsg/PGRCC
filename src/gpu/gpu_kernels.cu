@@ -3951,7 +3951,8 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
     std::array<float,2>& p_38,
     std::vector<float>& phase_tra_38_cut,
     std::vector<float>& row_fa_cut,
-    int diagnostic_beam_id)
+    int diagnostic_beam_id,
+    const std::vector<float>& range_phase_rad)
 {
     const size_t Na = static_cast<size_t>(effectivePulseNum(cfg));
     const size_t Nr = static_cast<size_t>(cfg.rg_len);
@@ -4090,6 +4091,21 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                 return false;
             }
 
+            const bool selected_stage_trace =
+                gmti::runtime::productionStageBoundaryTraceSelected(
+                    cfg, diagnostic_beam_id);
+            if (selected_stage_trace &&
+                !gmti::runtime::recordProductionStageBoundaryTrace(
+                    cfg, diagnostic_beam_id,
+                    "csi_post_range_phase_pre_c4_adapter",
+                    static_cast<int>(Na), static_cast<int>(Nr),
+                    f1_host, f2_host, {}, range_phase_rad,
+                    p_38[0], p_38[1])) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot write "
+                          << "pre-adapter production stage trace" << std::endl;
+                return false;
+            }
+
             gmti::production_calibration::Result result;
             std::string calibration_source = research_source;
             if (!cfg.research_calibration_reference_gamma_csv.empty()) {
@@ -4163,6 +4179,18 @@ bool GMTIProcessor::clutter_cancel_38_paper_1_cuda(
                               << "adapter evaluation failure tap" << std::endl;
                     return false;
                 }
+                return false;
+            }
+
+            if (selected_stage_trace &&
+                !gmti::runtime::recordProductionStageBoundaryTrace(
+                    cfg, diagnostic_beam_id,
+                    "csi_post_c4_adapter",
+                    static_cast<int>(Na), static_cast<int>(Nr),
+                    f1_host, f2_host, result.csi, range_phase_rad,
+                    p_38[0], p_38[1])) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot write "
+                          << "post-adapter production stage trace" << std::endl;
                 return false;
             }
 

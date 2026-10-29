@@ -331,7 +331,8 @@ private:
         std::array<float, 2> &p_38,
         std::vector<float> &phase_tra_38_cut,
         std::vector<float> &row_fa_cut,
-        int diagnostic_beam_id = -1);
+        int diagnostic_beam_id,
+        const std::vector<float> &range_phase_rad);
 
     bool clutter_cancel_38_paper_2(
         const std::vector<double>& y_faAxis,
