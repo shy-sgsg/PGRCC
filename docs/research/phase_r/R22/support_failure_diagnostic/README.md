@@ -114,3 +114,5 @@ python3 docs/research/phase_r/R22/support_failure_diagnostic/analyze_selected_ce
 用户批准的 S1b 已完成；结论、实验身份、局限、单一后续建议和复核命令见 [`S1B_STAGE_BOUNDARY_AUDIT.md`](S1B_STAGE_BOUNDARY_AUDIT.md)。简述：三角色 CUDA Production 运行均正常；原 Mode-B 失败组输入逐值复现；最大的 F2 闭合恶化发生于 CSI 距离相位校正之后，C4 adapter 按固定 γ 正常传递该差异。距离相位前已存在小残差，且尚无 SNR20 同边界反事实，因此不能唯一归因 support 25→7，也不构成任务性能证据。
 
 审查所需的小型运行快照、runtime XML、分支 manifest、原始日志、133格 trace、相位与 γ 记录及面积杂波背景复用链均在 [`evidence/s1b/`](evidence/s1b/)。A1 角色报告的“新生成杂波计数为0”对应复用 A0 背景；背景生成和10/10复用映射有单独证据，不能将 A1 报告中的0解释成无杂波输入。
+
+提交给 ChatGPT 的固定快照审查提示词见 [`CHATGPT_REVIEW_REQUEST.md`](CHATGPT_REVIEW_REQUEST.md)。

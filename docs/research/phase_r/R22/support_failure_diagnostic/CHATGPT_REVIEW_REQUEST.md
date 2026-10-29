@@ -1,79 +1,94 @@
-# PGRCC R22-S1 CUDA 局部因果诊断：ChatGPT 独立审查请求
+# PGRCC R22-S1b 处理阶段闭合审计：ChatGPT 独立科研审查
 
-## 先阅读的固定快照
+## 固定审查快照
 
-**请先读取下面审查快照中的 `docs/research/RESEARCH_MASTER_PLAN.md`，完整理解 PGRCC 的 GMTI 研究主题、总体目标、核心科学问题、研究内容、总体研究思路和长期技术路线。之后再读取动态研究状态、决策日志和审查协议。不能只评价阶段任务是否完成，还要判断本阶段是否推进总体目标、研究方向是否仍合理。**
+**请首先读取本次 Git 提交对应版本的 `docs/research/RESEARCH_MASTER_PLAN.md`，完整理解 PGRCC 的 GMTI 研究主题、总体目标、核心科学问题、研究内容、总体思路与长期技术路线；然后再结合本阶段代码、实验身份、数据和报告审查。不能只判断阶段任务是否完成，还要审查它是否推动整体研究目标、当前方向是否仍合理。**
 
 - 仓库：<https://github.com/shy-sgsg/PGRCC>
 - 分支：`codex/unknown-system-error-next-stage`
-- **审查快照 commit：`0c259ea359169e7338f4e427a57d8170fd0dbf59`**
-- 总纲 blob：`e637e3769bde7814298ff012d0f42301884e2985`
-- 本次实验执行时源代码 HEAD：`dc39afcbfea060777a4a7b247aeb3d4e16fe6d0c`；诊断 tap 当时在工作树中，现已随审查快照提交。
-- Stage2 binary SHA-256：`47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f`
-- 原 Production binary SHA-256：`d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`
-- 诊断 Production binary SHA-256：`480db5484a705634d7b467dcdec4b0c77cf8f212489071f8350cb2e0a195b83a`
+- **固定审查快照 commit：`0d53a10ef4ad10e619cd2456870040da76d600bd`**
+- S1b Production 执行源码 HEAD：`1ed2a2e67a88a918858784be81794238ef112c7d`
+- 研究总纲 blob：`e637e3769bde7814298ff012d0f42301884e2985`（本阶段提交前后完全相同）
+- S1b Native CUDA Production binary SHA-256：`16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998`
+- 生产执行：本机 NVIDIA GeForce RTX 3050 Laptop GPU、CUDA 12.4、Release、架构75。
+- Stage2：复用既有输入，S1b 未重新执行 Stage2；大型 Stage2 binary 未上传。逐 period 输入路径、大小与 SHA-256 在运行 manifest 中。
 
-请在该 commit 依次读取：
+如当前远端 HEAD 与上述固定 commit 不同，以此固定 commit 作为审查快照，并明确写出 HEAD 差异。
+
+## 阅读顺序
+
+先读固定 commit 下的：
 
 1. `docs/research/RESEARCH_MASTER_PLAN.md`
 2. `docs/research/RESEARCH_STATUS.md`
 3. `docs/research/RESEARCH_DECISION_LOG.md`
 4. `docs/research/CHATGPT_REVIEW_PROTOCOL.md`
 5. `AGENTS.md`
-6. 本目录的 `README.md`、`evidence/evidence_manifest.json` 与 `evidence/trace_phase_audit_summary.json`
-7. `evidence/trace_phase_audit_cells.csv`、`evidence/mode_comparison/`、`evidence/phase_residuals.png`
-8. `evidence/runtime/`、`evidence/stage2/`、`evidence/run/`、`evidence/baseline/`
-9. `src/runtime_diagnostics.cpp`、`src/gpu/gpu_kernels.cu`、`tests/production_calibration_config_selftest.cpp`、本目录的 `analyze_selected_cells.py`
-10. `docs/research/phase_r/R22/SCREENING_GATE_REVIEW.md` 及本次使用的 R22 方法配置。
+6. `docs/research/phase_r/R22/00_master_execution_plan.md`
+7. `docs/research/phase_r/R22/SCREENING_GATE_REVIEW.md`
+8. `docs/research/phase_r/R22/support_failure_diagnostic/README.md`
+9. `docs/research/phase_r/R22/support_failure_diagnostic/S1B_STAGE_BOUNDARY_AUDIT.md`
+10. `docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1b/evidence_manifest.json`、`s1b_manifest.json`、`case_identity_summary.json`
+11. `evidence/s1b/analysis/stage_boundary_closure.json` 与 `stage_boundary_closure.md`
+12. `evidence/s1b/stage2/` 下的 A0_ON 杂波生成报告、A1_ON/OFF/TO 配置与背景复用映射
+13. `evidence/s1b/production/C4_modea_S1b_{ON,OFF,TO}/` 下的 branch manifest、实际 `production.xml`、运行日志、selected cells、gamma 与 stage trace CSV
+14. 实现与验证：`src/processOnePeriod.cpp`、`src/gpu/gpu_kernels.cu`、`src/runtime_diagnostics.cpp`、`include/runtime_diagnostics.hpp`、`tests/production_calibration_config_selftest.cpp`、`docs/research/phase_r/R22/support_failure_diagnostic/analyze_stage_boundary_trace.py`
+15. S1 原始审查证据：`evidence/mode_comparison/snr20_modeb_on_selected_cells.csv`、`evidence/mode_comparison/snr30_modeb_on_selected_cells.csv`、SNR20/30 的 Stage2 与 Production 摘要。
 
-如果不能读取总纲、动态状态或特定证据，列出缺失文件，并将相关方向判断标记 `NOT_VERIFIED`。GitHub 上没有提交大型 Stage2 `.bin`；它们留在执行机的忽略目录，证据包内有 manifest 身份与选定 Production F1/F2 trace。不要假称已独立访问原始 `.bin`。
+如果无法真实读取研究总纲、某一配置或必要数据，请列出缺失项，并将对应方向判断标为 `NOT_VERIFIED`。不能用本提示词的概括替代读取总纲和原始证据。
 
-## 任务与实验概况
+## 阶段问题与已执行范围
 
-- 总体目标：公平刻画传统 GMTI 方法能力边界，找到可证伪的任务瓶颈。
-- 科学问题：C4 Robust DDC-RB 在 `GMTI05 / beam 50 / az 52 / range 1065–1197` 的支持数从25降到7，目标污染是否为原因，还是存在处理链/背景相位等竞争解释？
-- 本次获批准的范围：固定位置旁路 tap、seed1932001、2.5 m/s、+4 ns、20 targets、10 periods、beam 50，只做 SNR20 与 SNR30 配对重放和一个失败周期的原 binary 对照。
-- 本地 Native CUDA；运行前设备记录为 NVIDIA GeForce RTX 3050 Laptop GPU；Stage2 area clutter 两个条件均为1300 packets、6,508,782 samples、平均功率0.0221596696662、距离窗84500–85500 m。
-- C4 冻结门槛仍为 `min_support=8`、相位残差±0.35 rad；没有关闭错误门或回退失败结果。
+研究问题：R22 Screening 中，C4 Robust DDC-RB 在 SNR30 的 `GMTI05 / beam 50 / azimuth row 52 / range 1065–1197` 参考组 support=7，低于冻结最低值8。S1b 检查生产链中 `ON−OFF−TO` 复数 F1/F2 闭合从哪个已采集边界开始显著恶化。
 
-## 关键观测（请独立核对证据）
+S1b 固定条件：seed1932001、2.5 m/s、SNR30、+4 ns、20 targets、10 periods、beam50；复用原 A1_ON/OFF/TO 输入；仅执行三个10周期 Native CUDA Production 分支。没有扩展 Screening，没有修改算法，没有降低门槛，没有把真值提供给 estimator。
 
-1. 在处理后的133个选定 range cells 中，SNR20 ON 的直接拟合 support=25、coherence=0.2028995670；SNR30 ON support=7、coherence=0.1172000323，Production 行为 `NOT_EVALUABLE`。离线计算先将 CSV 数值还原到 float32，再用冻结规则拟合，精确重现 Production 结果。
-2. SNR20/SNR30 的 A1_OFF 十个 Stage2 周期逐字节相同；OFF 两条件的 F1/F2 选定值266个复通道值完全相同。target generator manifest 除 target SNR 外一致。
-3. Mode-A/Mode-B 的 F1/F2 输入逐值一致：SNR20 OFF/ON/TO，以及 SNR30 ON。SNR30 Mode-B OFF/TO 因 ON reference 失败而未执行。
-4. ON20 与 ON30 的保留 support 集合仅交叠1个单元；ON20独有24个、ON30独有6个，拟合相位中心移动−0.7775734 rad。
-5. Stage2 period 的索引是零基，Production `GMTI05` 对应 Stage2 `period_0004.bin`。该时刻有5个可见目标落在失败 range group。range-bin 重合没有证明二维响应覆盖 az row 52，更不能把全部目标 TO 响应归给单个目标。
-6. 处理后的 ON/OFF/TO 未满足线性闭合：SNR30 的 F1、F2、互谱相对 L2 残差分别约0.00948、0.74374、0.64460。SNR20 同样未闭合。目标污染解释因此尚非唯一。
-7. 诊断 tap 与原 binary 对齐的失败周期输出：GMTI05.bin SHA 完全一致；156条 Gamma 组记录的键与结果字段完全一致；adapter summary 对齐字段相同；period4/beam50 的两条 CFAR geometry 行相同。Detection/track 文件因运行周期历史不同未作字节比较。
-8. 当前范围没有独立 seed、H0/Pfa 试验、Pd/目标保持评价或统计验证。
+状态和入口：
+- S1b 阶段报告：`docs/research/phase_r/R22/support_failure_diagnostic/S1B_STAGE_BOUNDARY_AUDIT.md`
+- 机器可读审查材料：`docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1b/`
+- 本地原始 Stage2 period binaries 不在 GitHub。请勿声称已独立访问或重新运行这些 binary。
+
+## 关键结果（请逐项核验）
+
+1. ON/OFF/TO Production 三分支返回码均为0；每个分支的 valid-CUT denominator gate 通过，`union_dynamic_in_band` 报告 5,272,800 valid cuts。三分支 `truth_period_count=0`，因此此处不能报告 Pd、Pfa 或任务性能。
+2. S1b Mode-A ON 的 C4 前 F1/F2 与原 SNR30 Mode-B 失败行在133个距离单元上逐值一致；原失败为 support7、`insufficient_robust_support`。这只确认重放输入一致，不把 Mode-A 描述成盲部署比较。
+3. SNR30 A1 单角色 Stage2 报告的 `continuous_area_packets/samples=0` 表示复用背景时没有新生成杂波。A0_ON 生成共同 A0_background 的实际报告记录1300 packets、6,508,782 samples、平均功率0.0221596696662；A1 ON/OFF/TO 通过背景目录复用，三者映射各10/10为 `matched`。请检查配置和映射，不要单看 A1 的生成计数。
+4. Stage2 causal triplet 在61,464,000个样本上通过5e-5容差，最大绝对误差1.7173e-5、RMS约9.36e-7。
+5. CSI range-phase correction 前，`ON−OFF−TO` 相对 L2 残差为 F1=1.0316%、F2=1.8056%；校正后为 F1=1.0316%、F2=78.7703%。三个角色的 CSI range-phase 均值分别为 ON 0.05733 rad、OFF −1.76689 rad、TO 0.66254 rad。
+6. C4 adapter 使用相同 `gamma=0.1437967723+0.8393605099j`，实际输出符合 `F2−gamma*F1`；各角色公式相对 L2 误差最高约1.09e-7，adapter 未制造大幅闭合残差。
+7. raw 和 CSI trace 是不同处理分支。首个被采集的 DBS 边界已有约1–2%闭合残差；采集没有覆盖 pulse compression、数据驱动 Doppler center 等全部上游边界。最大已观测闭合恶化可定位到角色独立的 CSI range-phase correction 之后，但 support 25→7 尚未被唯一归因。
+8. `F2·conj(F1)` 是双线性量，不能将它的 ON−OFF−TO 差值当作复数通道的线性闭合失败。
+9. 当前证据没有证明目标响应覆盖 azimuth row 52；没有执行独立 H0/Pfa、检测 Pd、目标保持或速度/方位参数误差验证。
+10. S1b 报告建议的唯一后续是共同 target-free OFF range-phase 向量反事实，对 SNR20/30 selected group 比较原生逐角色拟合与共同向量下的 support。该工作尚未启动，是否做由用户在本次审查后决定。
 
 ## 请完成两层审查
 
-### 第一层：实现与因果证据是否正确
+### 第一层：实现和证据正确性
 
-- 审查 tap 是否确实只记录指定范围，是否覆盖选定通过组与失败组，未把真值输入 estimator。
-- 核验 Mode-A/Mode-B 比较是否在 F1/F2 形成阶段之前/之后，是否足以证明两种算子输入一致；指出没有执行的配对角色。
-- 核验 `GMTI05` 与 Stage2 `period_0004.bin` 的索引解释及目标真值映射。
-- 评估 OFF raw 周期逐字节相同、OFF F1/F2 相同、Mode-A/B 输入相同、ON20/30 支持变化分别能排除什么混杂，不能排除什么。
-- 根据 F1/F2、互谱闭合残差和 P38/range-phase 处理链，判断目标污染是否可识别；不要把距离 bin 重合或 group coherence 当作因果证明。
-- 检查原/诊断二进制对照是否足以支持 tap 非侵入性，以及哪些输出因运行历史不同不能外推。
-- 检查实现、失败关闭和自检是否覆盖新增 tap 的关键边界。发现可复现缺陷时给出文件/行和最小修复建议。
+- tap 是否只记录所选 period/beam/row/range，是否保存阶段身份与复数数据，失败时是否 fail-closed？
+- 检查 raw 与 CSI 的数据流关系，验证报告没有把分叉路径串成一条链。
+- 验证 Mode-B 原失败输入的逐值匹配及其解释边界。
+- 核对 A0 面积杂波生成与 A1 背景复用，区分“该角色新生成计数”与“实际 Production 输入是否含背景”。
+- 核对 Stage2 的 ON/OFF/TO 因果关系、Stage2 residual、CSI range-phase 变换、adapter gamma 与输出公式。
+- 判断当前数据能否解释 support 25→7；区分直接观测、支持的推断、仍未验证解释。
+- 检查代码、配置、自检、Runtime XML、manifest、日志与 evidence SHA；说明实际未重新运行/未上传的数据。
+- 判断 S1b 的 `PASS_WITH_LIMITATIONS` 与 R22 Screening 的 `INCOMPLETE/INCONCLUSIVE` 是否分别合适。
 
-### 第二层：总体科研价值与方向
+### 第二层：对整体 GMTI 研究的价值
 
-- 本阶段是否推进研究总纲的 GMTI 目标，价值属于机制证据、工程基础还是任务性能证据？
-- `INCONCLUSIVE / STOP_AT_GATE` 是否恰当？是否有证据足以确认传统 C4 的一般性能力缺陷？
-- 当前结果是否支持低速目标、复杂杂波、未知系统失配或 AI 方向调整？请分别说明证据边界。
-- 是否存在比 AI 更简单的下一步确定性实验/分析？只提出一个优先任务，列明最小输入、观察量、进入条件、停止条件；不要自动启动。
-- 是否需要修改研究总纲？若需要，只提出具体修改建议及证据、影响，不得把建议当成用户批准。
+- 本阶段属于工程基础、物理机制证据还是任务性能证据？它对研究总纲目标有什么实质推进？
+- 是否足以证明 C4 的一般性能力缺陷、目标污染因果关系或一项可发表创新？
+- 对低速目标、复杂杂波、未知系统误差和 AI 方向分别作证据边界判断。
+- 对共同 OFF range-phase 反事实是否合理作独立评价：它能回答什么、不能回答什么；若有更简单的同信息条件确定性诊断，只提出一个优先方案。
+- 研究总纲是否仍适用？若建议修改，只列具体文本方向、证据和对既有成果的影响；不得把建议视为用户批准或修改总纲。
 
 ## 输出格式
 
 1. `IMPLEMENTED / EXECUTED / EVALUABLE / PERFORMANCE_VERIFIED` 状态表。
-2. 阶段任务裁决：`PASS / PASS_WITH_LIMITATIONS / FAIL`，与整体科研状态分开。
-3. 直接观测、支持的推断、仍未验证的解释。
-4. 对总研究目标的贡献与 `CONTINUE / STOP / PIVOT / INCONCLUSIVE` 建议。
-5. 唯一下一步任务及明确进入/停止条件。
-6. 列出审查不到的文件/数据，禁止将单 seed 写成统计显著性或任务性能改善。
+2. 阶段执行裁决 `PASS / PASS_WITH_LIMITATIONS / FAIL` 与整体科研状态分开。
+3. 直接观测、支持的推断、`NOT_VERIFIED` 事项。
+4. 对总体目标贡献及 `CONTINUE / STOP / PIVOT / INCONCLUSIVE` 建议。
+5. 只给一个优先下一步，并列出最小输入、要观测的量、进入条件和停止条件；不要自动启动。
+6. 明确报告无法读取的文件、未上传数据、固定快照与远端 HEAD 差异。
 
-Stage test/Production 运行成功不等于科研假设成立；support 恢复也不等于检测或参数估计性能改善。未完成独立 seed 与任务级评价前，不得通过 AI 进入门。
+不得将单 seed 诊断描述为统计显著性或 Pd/Pfa 改善。不得因 C4 在一个场景 support 不足而直接转向 AI。研究总纲正文未经用户明确批准不得修改。
