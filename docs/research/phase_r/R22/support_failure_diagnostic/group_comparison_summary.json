@@ -1,0 +1,76 @@
+{
+  "independent_seeds": 1,
+  "group_count": 1560,
+  "on30_vs_on20_group_support_changes": {
+    "unchanged": 127,
+    "decreased": 791,
+    "increased": 642
+  },
+  "failure_group": {
+    "period_id": 5,
+    "beam_id": 50,
+    "az_index": 52,
+    "range_start": 1065,
+    "range_end": 1197
+  },
+  "failure_group_rows": {
+    "on20": {
+      "period_id": "5",
+      "result_id": "GMTI05",
+      "beam_id": "50",
+      "method": "robust_ddc_rb",
+      "group_id": "az_52_range_1065_1197",
+      "az_index": "52",
+      "range_start": "1065",
+      "range_end": "1197",
+      "status": "OK",
+      "support_count": "25",
+      "phase_coherence": "0.202899567021942",
+      "gamma_real": "-0.391177130556714",
+      "gamma_imag": "0.98824266189377",
+      "truth_used_in_estimator": "false",
+      "reason": ""
+    },
+    "on30": {
+      "period_id": "5",
+      "result_id": "GMTI05",
+      "beam_id": "50",
+      "method": "robust_ddc_rb",
+      "group_id": "az_52_range_1065_1197",
+      "az_index": "52",
+      "range_start": "1065",
+      "range_end": "1197",
+      "status": "NOT_EVALUABLE",
+      "support_count": "7",
+      "phase_coherence": "0.11720003232345",
+      "gamma_real": "nan",
+      "gamma_imag": "nan",
+      "truth_used_in_estimator": "false",
+      "reason": "insufficient_robust_support"
+    },
+    "off30": {
+      "period_id": "5",
+      "result_id": "GMTI05",
+      "beam_id": "50",
+      "method": "robust_ddc_rb",
+      "group_id": "az_52_range_1065_1197",
+      "az_index": "52",
+      "range_start": "1065",
+      "range_end": "1197",
+      "status": "OK",
+      "support_count": "55",
+      "phase_coherence": "0.741813125064615",
+      "gamma_real": "0.143796772317323",
+      "gamma_imag": "0.83936050987282",
+      "truth_used_in_estimator": "false",
+      "reason": ""
+    }
+  },
+  "source_sha256": {
+    "on20": "44d2f3dae04db29c6d69ad082be006643980b818a1c8e14b5e4ff0dbc8d992e1",
+    "on30": "ede94684c108c13ab5f2aea4e3a29e8501445a45b54c61872923b934f57a2c7c",
+    "off30": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+  },
+  "per_cell_phase_and_support": "NOT_AVAILABLE_FROM_GROUP_SUMMARY",
+  "performance_verified": false
+}

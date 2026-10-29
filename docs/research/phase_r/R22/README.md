@@ -1,5 +1,7 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
+> **2026-10-29 R22-S1：** 用户转交独立审查后完成[组级离线诊断与最小补采方案](support_failure_diagnostic/README.md)。现有资料不足以唯一归因；新实验等待用户明确决定。screening 仍为 `GATE_FAILED`。
+
 > **最新 V2 状态（2026-10-28 11:34:54 UTC）：** screening matrix 为 `GATE_FAILED` 并已停止：17 个通过，1 个方法级不可评估 case，4 条更早中断 attempt；无活动 case。根因是 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 的 C4 Mode-B ON robust reference 有一组 support=7 < 8。详情、失败 ZIP 和当前审查入口见 [05 资源与执行记录](05_resource_and_execution_plan.md) 与 [ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。后续旧的“screening 正在执行”提示属于较早 checkpoint。
 
 **早期 pilot 状态（2026-10-27）：** seed900101/900202/900203 的本地 Native CUDA 工程运行已归档；PKR 支持量 gate 失败后停止了当时的比较。阶段 `INCOMPLETE / INCONCLUSIVE`，`PERFORMANCE_VERIFIED=false`。这些是历史结果，不代表本次 2026-10-28 延续工程 case 已进入 Production。

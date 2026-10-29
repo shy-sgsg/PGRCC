@@ -171,3 +171,10 @@
 - **对研究方向的影响：** 本次确认该 seed 少数 133-bin group 在 robust phase consistency 筛选后无法提供完整 reference；这不是几何稀疏的证据，且低相位一致性的物理原因尚未确定；它不是对未知误差科学问题的否定，也不支持改投低速目标或复杂杂波研究。AI 必要性仍未建立。
 - **下一步与停止条件：** 先进行 ChatGPT 独立审查。只有用户决定继续后，才建议离线审查 support-group 覆盖、输入资格与 reference contract；任何新分组/有效区域规则需记录空间分辨率代价、缺组语义和评价分母，形成新设计版本后再运行。不得降低 support、CFAR 或 beam-quality gate，不得静默回退 Current。
 - **证据与空间：** [V1A 工程门复测记录](phase_r/R22/11_v1a_engineering_gate_result_20261028.md)及[精简 Production 审查包](phase_r/R22/evidence/extension_engineering_v1a/seed1930101/README.md)。删除 921 个可再生 binary 共 `4,429,702,312` bytes，原始 SHA 清理账保留于本机输出目录；worktree 清理后约 6.9 GB，小于 20 GB。完整 ChatGPT 审查要求见 [R22 ChatGPT 提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT.md)。
+
+## 2026-10-29｜R22-S1：完成组级离线审计，逐单元归因待补
+
+- **决策编号与依据：** `D-2026-10-29-R22-S1`。用户转交的 R22 screening 独立审查和 [R22-S1 离线诊断](phase_r/R22/support_failure_diagnostic/README.md)；总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未变。
+- **原假设与证据：** 单 seed 的高 SNR 目标可能污染 C4 ON reference。1,560 组 ON20、ON30 与 OFF30 gamma 身份可对齐；失败组支持数分别为 25、7、55。失败目录的 `.bin/.npy/.npz` 和逐单元 failure-cell 记录不可用，相位校正 `.f32` 不能代替 F1/F2；组级记录不足以唯一确认目标污染。
+- **裁决：** `CONTINUE` 总纲既定的传统方法能力边界与瓶颈归因；R22 screening 保持 `GATE_FAILED / INCOMPLETE`，不覆盖原 C4 失败。AI entry gate 仍为 `FAIL`；不改变长期目标，不建议据此修改总纲。
+- **下一步与停止条件：** 离线 S1 已记录资料不足与最小补采方案，等待用户决定是否批准新诊断实验。若获批准，先用固定选区旁路 tap 采集配对输入，验证身份、非侵入性与原失败重现；若这些门不通过，停止归因并保留失败记录。未执行新 CUDA、未修改算法及冻结阈值，不自动重启矩阵。
