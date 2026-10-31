@@ -93,6 +93,8 @@ runner 默认使用本机已构建 binary `/tmp/pgrcc_r22_s1b_cuda_20261029/GMTI
 
 相邻 S1b `A1_TO` target-only 分支的 `production_calibration_selected_cells.csv` 在 GMTI05、beam 50、`az_index=52`、range 1076 记录到 `|F1|=29.5312`、`|F2|=127.0090`。该单元与 T010 真值距离一致，支持目标响应进入本次参考组/行的判断。S1c 相位逐 bin 表中，T010 的 1076、1077 两格在 SNR20 baseline 均被保留，在 SNR30 baseline 均被剔除。
 
+逐 bin 支持集合比较显示，SNR20 与 SNR30 baseline 的保留集合交集只有 **1 格**：SNR20-only 有24格、SNR30-only 有6格。SNR20-only 的24格中，3格位于组内目标真值距离单元，另外21格不在目标真值距离单元；目标距离单元本身共11格，SNR30 baseline 中没有一格通过 frozen phase gate。因此，不能把18格的 support 数差简单解释成直接剔除了目标距离单元。目标加入后改变 CSI phase vector、再使非目标距离单元跨越相位 gate，是与当前干预结果相符的机制解释，但其具体贡献仍未唯一分解。
+
 这些证据修正了目标距离坐标，并确认目标响应与失效参考组存在空间重合；但 target-only 分支不是 S1c 的 ON 输入，且该重合本身不能证明目标响应造成了全部 25→7 的支持数下降。S1c 已证明支持数对 CSI range-phase 向量替换敏感；ON 相位差异的来源及其对支持下降的具体贡献仍未唯一归因。未降低门槛、未更改方法、未启动新 CUDA 实验。独立审查完成前继续保持停止状态。
 
 审计来源：S1c `s1c_manifest.json` 与 `s1c_period5_phase_bin_diagnostics.csv`；Stage2 `A1_ON/truth/moving_target_truth.csv`（SHA-256 `5bad1373ffcf3e7b4ccf7ffa231cae6aae567fb12f707473919b12c35ce12f1e`）；S1b target-only `production_calibration_selected_cells.csv`（SHA-256 `f873bfe687b81a92177c4cd1bb3e8a54d8d8d23e58621b4cec08db0536636c5f`）。逐 bin 表 SHA-256 为 `b2fe117d454a1a2f446e97949a982b484d464e47003779c92e058d53489c2095`。

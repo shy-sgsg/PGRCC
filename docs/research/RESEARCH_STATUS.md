@@ -9,7 +9,7 @@
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；本次 H0 工作未修改总纲。
 - 本状态整理日期：2026-10-31。
 - 最近完成阶段：R22 H0 独立虚警侧筛选完成；完整矩阵、Stage2 杂波配对审计、统计分析和清理记录见 [H0 最终报告](phase_r/R22/18_h0_false_alarm_checkpoint_20261030.md) 及[最终证据包](phase_r/R22/evidence/h0_final_20261031/)。
-- 当前阶段状态：R22 V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`：seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON robust reference support=7，低于冻结的 8。H0 完成不解除该失败门，也没有启动 confirmatory、dense、bridge 或 AI 训练。S1c 仅确认选定 reference group 对 CSI phase vector 敏感，不证明目标污染唯一根因或任务收益。ChatGPT 独立双层审查待完成。
+- 当前阶段状态：R22 V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`：seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON robust reference support=7，低于冻结的 8。H0 完成不解除该失败门，也没有启动 confirmatory、dense、bridge 或 AI 训练。S1c 和后续离线坐标审计显示目标响应与失败参考组/行重合，且共同 target-free OFF CSI phase 能将选定组 support 从7恢复到22；但 SNR20/30 baseline 支持集合的24个差异格中，只有3格是目标真值距离单元，另21格为非目标距离单元，故“目标加入导致 CSI phase vector 变化并影响组内非目标格”是有证据支持的机制解释，具体贡献尚未唯一分解，也没有任务收益证据。冻结门槛保持不变，ChatGPT 对 S1c 补充证据的独立双层审查待完成。
 
 ## 当前研究阶段：R22 screening 停在方法级 gate；独立 H0 虚警侧矩阵已完成（2026-10-31）
 
