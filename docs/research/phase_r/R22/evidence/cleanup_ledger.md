@@ -73,3 +73,10 @@
 - 3 个 interrupted attempt（seed1935015/+4 ns attempt001/002；seed1935029/+4 ns attempt001）另清理 **21,830,424,640 bytes**。删除前先生成并验证审查 ZIP；索引和各 ZIP SHA 见 `h0_checkpoint_20261030/h0_interrupted_attempt_archive_index.json`。三次中断不构成独立实验 seed，最终每 case 只采用最新完成 attempt。
 - 本次合计清理生成 raw **494,201,241,576 bytes**。保留 60 个 compact ZIP、分析 CSV/manifest、30 对 Stage2 配对报告身份、3 个 interrupted archive 和清理账，待 ChatGPT 独立审查后按用户 20 GB 最终占用规则再清理本机 compact ZIP。
 - 最小可审查汇总已写入 `evidence/h0_final_20261031/`；完整 case ZIP 不随本次 GitHub 精简证据提交，避免上传重复/较大逐分支包。
+
+## 2026-10-31 R22-S1d 审查后的待清理项
+
+- **继续保留到 ChatGPT 审查结束：** `outputs/r22_s1d_period_corrected_crossover_20261031/`（约8.2 MB，period-correct 的7分支原始运行归档）、`outputs/r22_s1d_phase_vector_crossover_20261031/`（约2.5 MB，周期错配的无效初试）及 `outputs/r22_s1d_phase_vector_self_controls_20261031/`（约2.5 MB，周期错配的无效对照）。无效目录不会用于结果或提交，保留是为了审查期间可核对失败更正过程。
+- **Git 保留替代：** `docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/` 中约2.2 MB 紧凑证据，包含7分支运行 XML、日志、manifest、选中组输入单元、CSI sidecar、CFAR/CSI tap 摘要、support 结果和逐文件 SHA-256。112个登记文件在提交前逐项验证。
+- **审查后操作：** 删除上述三个 S1d 本地输出目录；然后按用户“只保留必要记录/配置/审计和高价值结果、最终项目占用小于20 GB”的要求，继续清理可再生及重复的 `outputs/` 产物，保留对应的高价值精简审查包、配置、脚本和清理账，并复核实际目录体积。审查前不删除这些运行现场。
+- **当前容量快照：** `du -shL .` 估算约20 GB，`df -h .` 可用6.7 GB；扫描遇到既有 broken symlink，因此此值只作近似，不作为最终验收。审查后执行清理并重新测量。

@@ -4,12 +4,12 @@
 
 ## 状态身份
 
-- **2026-10-31 最新更新：** R22 冻结的独立 H0 子矩阵已完成 30 个独立 seed、60/60 个 0/+4 ns case；seed-clustered 分析状态为 `COMPLETE_EVALUABLE`。该结果限于无目标 CUT-hit fraction，不验证 Pd、系统 Pfa 或目标任务收益。详见 [H0 最终审查证据](phase_r/R22/evidence/h0_final_20261031/)。
+- **2026-10-31 最新更新：** R22-S1d 已完成 period-correct GMTI05 的7分支 Native CUDA phase-vector crossover。选定失败组的 SNR30 support 对 CSI 向量来源敏感（自身 ON=7，SNR20 ON=11，paired OFF=22），但没有任务性能验证，也没有唯一确定 ON 相位差异的物理来源。S1d 独立审查待提交；R22 target-present matrix 仍为 `GATE_FAILED / INCOMPLETE`。详见 [S1d 结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md) 和[证据包](phase_r/R22/support_failure_diagnostic/evidence/s1d/)。
 - R18 执行源码版本：`014352ace1c4ad0bade0d759a099a47fe9ecfaa9`（工作分支 `codex/unknown-system-error-next-stage`）；完整阶段报告随原交付提交。
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；本次 H0 工作未修改总纲。
 - 本状态整理日期：2026-10-31。
 - 最近完成阶段：R22 H0 独立虚警侧筛选完成；完整矩阵、Stage2 杂波配对审计、统计分析和清理记录见 [H0 最终报告](phase_r/R22/18_h0_false_alarm_checkpoint_20261030.md) 及[最终证据包](phase_r/R22/evidence/h0_final_20261031/)。
-- 当前阶段状态：R22 V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`：seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON robust reference support=7，低于冻结的 8。H0 完成不解除该失败门，也没有启动 confirmatory、dense、bridge 或 AI 训练。S1c 和后续离线坐标审计显示目标响应与失败参考组/行重合，且共同 target-free OFF CSI phase 能将选定组 support 从7恢复到22；但 SNR20/30 baseline 支持集合的24个差异格中，只有3格是目标真值距离单元，另21格为非目标距离单元，故“目标加入导致 CSI phase vector 变化并影响组内非目标格”是有证据支持的机制解释，具体贡献尚未唯一分解，也没有任务收益证据。详细逐 bin 与target-only证据见 [S1c目标交叉审计表](phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)。冻结门槛保持不变，ChatGPT 对 S1c 补充证据的独立双层审查待完成。
+- 当前阶段状态：R22 V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`：seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON robust reference support=7，低于冻结的8。R22 H0 已完成，但无目标 H0 不解除该失败门，也没有启动 confirmatory、dense、bridge 或 AI 训练。S1c/S1d 表明选定组 support 对 CSI phase-vector 来源敏感，period-correct S1d 下 SNR30 support 为自身 ON=7、SNR20 ON 向量=11、paired OFF=22；支持集合并不相同。S1c 的目标重合审计支持但未唯一证明目标影响 ON 相位向量的解释；S1d 同样没有分解相位变化的物理来源，且无 GMTI 任务收益证据。冻结门槛保持不变，ChatGPT 对补充诊断的双层审查待完成。详见 [S1c目标交叉表](phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)、[S1d结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)与[S1d evidence](phase_r/R22/support_failure_diagnostic/evidence/s1d/)。
 
 ## 当前研究阶段：R22 screening 停在方法级 gate；独立 H0 虚警侧矩阵已完成（2026-10-31）
 

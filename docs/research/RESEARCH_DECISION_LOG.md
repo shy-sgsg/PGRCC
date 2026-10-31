@@ -201,3 +201,11 @@
 - **裁决：** H0 `IMPLEMENTED=true`、`EXECUTED=true`、`EVALUABLE=true`；GMTI target-task `PERFORMANCE_VERIFIED=false`。R22 target-present screening 仍 `GATE_FAILED / INCOMPLETE`（C4 Mode-B ON support=7<8），H0 不解除门控。`AI_ENTRY_GATE=FAIL`；未知误差目标任务收益、低速目标和复杂杂波优先级仍未由本 H0 证明。
 - **下一步与停止：** 仅提交精简证据和固定 commit 给 ChatGPT 完成双层独立审查；审查返回前不启动实验。审查结束后再按 cleanup ledger 清理本地 case ZIP，并核验项目目录低于 20 GB。没有修改研究总纲、没有启动 AI 或其他新研究任务。
 - **证据：** [H0 最终报告](phase_r/R22/18_h0_false_alarm_checkpoint_20261030.md)、[V4 独立审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT_V4.md)、[最终精简证据](phase_r/R22/evidence/h0_final_20261031/README.md)。
+
+## 2026-10-31｜R22-S1d：CSI 相位向量来源改变单组 frozen support
+
+- **决策编号与总纲：** `D-2026-10-31-R22-S1D`。用户批准的范围是对 R22 C4 support 失败做局部因果诊断；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
+- **执行身份：** 分支 `codex/unknown-system-error-next-stage`，源码 commit `461fbd949ea7c024c28f30e7aea36ae9642a4456`；Native CUDA Release、CUDA 12.4、架构75、`USE_COREX=OFF`；Production binary SHA-256 `c7db0d12f930b297851f1b3b53f3e56de5caf0fa90394595de0b8babf7d7c9de`。只复用 period_0004 / GMTI05 的 SNR20、SNR30 与 paired OFF 输入，没有重跑 Stage2。
+- **直接证据：** 7个 Production 分支均返回0；选定组为 beam50/az52/range1065–1197，冻结 `min_support=8`、phase residual `0.35 rad`、133-bin 不变。SNR20自身ON、SNR30自身ON、SNR20向量应用于ON20、OFF向量应用于ON20、SNR20向量应用于ON30、OFF向量应用于ON30、OFF自身拟合的 support 分别为25、7、25、21、11、22、55。逐cell按 Production 输入复数值重算的支持数与 CUDA 记录一致。
+- **裁决边界：** SNR30 的 ON 观测在交叉应用 SNR20 ON / paired OFF 相位向量后 support 由7变为11/22，证明该固定组对向量来源敏感。保留集合并不等同，SNR30 native 7格与 OFF向量22格无交集。该反事实不能识别 ON CSI 相位变化的唯一物理原因；paired OFF 是 privileged diagnostic reference。无 Detection、Pd/Pfa、SCNR、目标保持或估计误差比较，`PERFORMANCE_VERIFIED=false`。
+- **状态与下一步：** R22 target-present Screening 仍 `GATE_FAILED / INCOMPLETE`；matrix runner 明确拒绝对该状态执行 `--resume`，本次没有续跑矩阵或跳过失败 case。先提交 [S1d 结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)及紧凑 Production 证据供 ChatGPT 双层审查。审查前不扩大实验、不改 C4、不训练 AI；审查完成后按清理台账删除本地无效周期试跑和已归档可再生输出，并复核项目占用低于20GB。

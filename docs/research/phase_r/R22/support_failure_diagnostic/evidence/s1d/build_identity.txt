@@ -1,0 +1,11 @@
+Build command:
+cmake -S . -B /tmp/pgrcc_r22_s1d_cuda_20261031 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CUDA_ARCHITECTURES=75 -DUSE_COREX=OFF
+cmake --build /tmp/pgrcc_r22_s1d_cuda_20261031 --target GMTI_pipe_core -j4
+
+Production binary SHA-256: c7db0d12f930b297851f1b3b53f3e56de5caf0fa90394595de0b8babf7d7c9de
+Build cache fields:
+CMAKE_BUILD_TYPE:STRING=Release
+CMAKE_CUDA_ARCHITECTURES:UNINITIALIZED=75
+CMAKE_CUDA_COMPILER:FILEPATH=/usr/bin/nvcc
+CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++
+USE_COREX:BOOL=OFF

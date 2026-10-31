@@ -4,6 +4,8 @@
 
 > **仍有效的 Screening 门控：** R22 target-present V2 screening 仍为 `GATE_FAILED / INCOMPLETE`。seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON reference support=7，小于冻结的8。S1c 证明选定支持数对 CSI phase vector 敏感；补充审计确认目标响应与失败组/行重合，但目标真值距离单元只占 SNR20-only 支持格的3/24，具体相位变化贡献和任务收益仍未唯一确定。H0 无目标矩阵不解除该门控。详见 [S1c 结果](support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)、[目标重合交叉表](support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)与[固定快照审查提示词](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1C_20261031.md)。
 
+> **S1d 补充诊断（2026-10-31）：** 使用 period-correct GMTI05 输入，同一 Native CUDA binary 完成7分支相位向量交叉实验。SNR30 support 为自身 ON=7、SNR20 ON 交叉=11、配对 OFF=22；冻结门槛未变，SNR30 原生失败仍保留。完整边界见 [S1d 结果](support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md) 与[精简审查证据](support_failure_diagnostic/evidence/s1d/)。本实验不解除 target-present Screening gate，也没有 GMTI task performance 证据。
+
 > **历史检查点（2026-10-30）：** 当时 29/60 case 完成，seed1935015/+4 ns 的 attempt001/002 尚未完成；其归档与检查点数据保留在[历史证据目录](evidence/h0_checkpoint_20261030/)。最终终态以 2026-10-31 报告及其 matrix audit summary 为准。
 
 > **最新 V2 状态（2026-10-28 11:34:54 UTC）：** screening matrix 为 `GATE_FAILED` 并已停止：17 个通过，1 个方法级不可评估 case，4 条更早中断 attempt；无活动 case。根因是 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 的 C4 Mode-B ON robust reference 有一组 support=7 < 8。详情、失败 ZIP 和当前审查入口见 [05 资源与执行记录](05_resource_and_execution_plan.md) 与 [ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。后续旧的“screening 正在执行”提示属于较早 checkpoint。
@@ -36,6 +38,7 @@
 18. [R22 H0 检查点与最终报告](18_h0_false_alarm_checkpoint_20261030.md)：保留 2026-10-30 的 29/60 检查点，并记录 2026-10-31 恢复后的 60/60 最终结果。
 19. [V4 ChatGPT 独立科研审查提示词](CHATGPT_REVIEW_PROMPT_V4.md)：固定审查 commit、优先读取总纲并开展阶段正确性与总体科研价值双层审查。最终 CSV、manifest、矩阵审计与清理记录见 [H0 最终证据包](evidence/h0_final_20261031/)；60 个 compact case ZIP 与 raw IQ 未上传，限制已写入提示词。
 20. [S1c 共同 OFF phase 结果](support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)、[目标重合交叉表](support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)与[S1c 补充证据独立审查提示词](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1C_20261031.md)：固定审查到明确 commit，评估 phase-vector 干预、目标坐标/响应及当前因果解释边界。
+21. [S1d phase-vector crossover 结果](support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)与[紧凑 Production 证据](support_failure_diagnostic/evidence/s1d/)：复核 period mapping、7个 CUDA 分支、门槛重算和支持集合变化；独立审查提示词在结果证据提交后固定 commit。
 
 ## 关键证据
 

@@ -1,5 +1,7 @@
 # R22-S1：C4 Mode-B 参考支持失败的 CUDA 因果诊断
 
+> **2026-10-31 更新：** S1d 在 period-correct GMTI05 上完成同 binary CSI phase-vector crossover。SNR30 的选定组 support 在自身 ON 向量下为7，交叉应用 SNR20 ON / paired OFF 向量后为11/22；独立重算与 Production 一致。结果只证明该组对相位向量来源敏感，不证明物理根因或任务收益。详见 [S1d 结果](S1D_PHASE_VECTOR_CROSSOVER_RESULT.md) 和[紧凑证据](evidence/s1d/)。S1c 独立审查仍是后续研究方向的必需审查；R22 screening 仍停在 `GATE_FAILED`，没有恢复矩阵。
+
 > **最新补充（2026-10-29）：** 用户批准后完成 [S1c GMTI05 共同 target-free OFF CSI 相位反事实](S1C_SHARED_OFF_PHASE_RESULT.md)。在同一输入与冻结门槛下，SNR20/SNR30 support 从25/7变为21/22；这支持局部 CSI phase 敏感性，不证明目标污染或任务性能收益。S1c 首轮十期 attempt 因 phase sidecar 周期身份不明已隔离并作废，见 [失效说明](evidence/s1c/ATTEMPT1_INVALIDATION.md)。
 
 ## 阶段裁决
