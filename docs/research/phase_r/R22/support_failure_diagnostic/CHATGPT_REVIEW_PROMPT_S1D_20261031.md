@@ -6,7 +6,7 @@
 
 - 仓库：<https://github.com/shy-sgsg/PGRCC>
 - 分支：`codex/unknown-system-error-next-stage`
-- 实验与证据审查快照：`c70b35567748c9a359cafef9e63781b10b0a0e4c`
+- 实验与证据审查快照：`117dbd6ab64ecacc990012dde9cfc4a9a02576c2`
 - 研究总纲 blob：`e637e3769bde7814298ff012d0f42301884e2985`
 - S1d Production 源码 commit：`461fbd949ea7c024c28f30e7aea36ae9642a4456`
 - Production binary SHA-256：`c7db0d12f930b297851f1b3b53f3e56de5caf0fa90394595de0b8babf7d7c9de`
@@ -16,13 +16,14 @@
 
 ## 必须按此顺序读取
 
-1. [研究总纲](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/RESEARCH_MASTER_PLAN.md)
-2. [动态研究状态](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/RESEARCH_STATUS.md)、[研究决策日志](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/RESEARCH_DECISION_LOG.md)、[ChatGPT 审查协议](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/CHATGPT_REVIEW_PROTOCOL.md) 和 [AGENTS.md](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/AGENTS.md)
-3. [Phase R 导航](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/README.md) 与 [R22 导航](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/README.md)
-4. [R22 Screening gate 审查](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/SCREENING_GATE_REVIEW.md) 和 [R22 S1d 结果报告](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)
-5. [S1d manifest](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_manifest.json)、[support 分析](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_analysis.json)、[support 汇总表](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_support_summary.csv) 和 [逐文件证据清单](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/evidence_manifest.json)
-6. 本次补充的[逐距离格相位与支持集合表](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_phase_vector_target_overlap.csv)、[汇总 JSON](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_phase_vector_target_overlap_summary.json) 和[分析脚本](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/analyze_r22_s1d_vector_target_overlap.py)
-7. 必要时检查 [Production adapter 源码](https://github.com/shy-sgsg/PGRCC/blob/461fbd949ea7c024c28f30e7aea36ae9642a4456/src/production_calibration_adapter.cpp)、[S1d runner](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/scripts/phase_r/run_r22_s1d_phase_vector_crossover.py) 和 [S1c 目标坐标审计](https://github.com/shy-sgsg/PGRCC/blob/c70b35567748c9a359cafef9e63781b10b0a0e4c/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)
+1. [研究总纲](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/RESEARCH_MASTER_PLAN.md)
+2. [动态研究状态](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/RESEARCH_STATUS.md)、[研究决策日志](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/RESEARCH_DECISION_LOG.md)、[ChatGPT 审查协议](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/CHATGPT_REVIEW_PROTOCOL.md) 和 [AGENTS.md](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/AGENTS.md)
+3. [Phase R 导航](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/README.md) 与 [R22 导航](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/README.md)
+4. [R22 Screening gate 审查](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/SCREENING_GATE_REVIEW.md) 和 [R22 S1d 结果报告](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)
+5. [S1d manifest](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_manifest.json)、[support 分析](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_analysis.json)、[support 汇总表](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_support_summary.csv) 和 [逐文件证据清单](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/evidence_manifest.json)
+6. 本次补充的[逐距离格相位与支持集合表](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_phase_vector_target_overlap.csv)、[汇总 JSON](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1d_phase_vector_target_overlap_summary.json) 和[分析脚本](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/analyze_r22_s1d_vector_target_overlap.py)
+7. [S1b ON/OFF/TO 逐格上下文汇总](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1b_target_component_phase_context_summary.json)、[逐格复数值/相位表](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1b_target_component_phase_context.csv)、[紧凑 source manifest](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/s1b_context_source_manifest.json) 和 [S1b analyzer](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/analyze_s1b_target_component_phase_context.py)。9个所需 trace/phase-vector 源文件也在同一固定快照中。
+8. 必要时检查 [Production adapter 源码](https://github.com/shy-sgsg/PGRCC/blob/461fbd949ea7c024c28f30e7aea36ae9642a4456/src/production_calibration_adapter.cpp)、[S1d runner](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/scripts/phase_r/run_r22_s1d_phase_vector_crossover.py) 和 [S1c 目标坐标审计](https://github.com/shy-sgsg/PGRCC/blob/117dbd6ab64ecacc990012dde9cfc4a9a02576c2/docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)
 
 若无法实际读取指定快照中的总纲或关键证据，请列出缺失文件并把对应判断标为 `NOT_VERIFIED`。不能用本提示词中的摘要代替实际读取。
 
@@ -36,11 +37,15 @@ SNR30 ON 原生向量下 support 为7；对同一 SNR30 ON 输入交叉应用 SN
 
 逐格 `|phase_a-phase_b|>0.35 rad` 的计数是向量间差值统计；C4 冻结门实际检查的是每个互谱相位相对该组相位中心的残差。两者不可混为一谈。CSI sidecar 与 Production trace 在133格逐格核验，7分支最大绝对误差为 `4.903e-9 rad`。
 
+另对同 seed/SNR30 的 S1b ON/OFF/TO Mode-A reference-assisted 运行作了只读补充审计。其 period-4 ON/OFF Stage2 输入 SHA 与 S1d SNR30 ON/target-free OFF 输入一致；TO-only F1/F2 平均幅度在11个目标真值格上分别为100.889/89.161，其他122格为11.519/9.452，约71% TO 能量落在目标真值格。S1b raw-DBS pre-phase 的 ON−OFF−TO 复数 relative-L2 为 F1 `0.009367`、F2 `0.018056`；CSI DBs pre-phase 为 `0.010316`、`0.018056`。但 ON/OFF phase-vector 差在目标格平均值未增大：raw 为目标格 `0.713787`、其他格 `0.770182` rad；CSI 为 `1.824464`、`1.941023` rad。CSI range-phase 后 F2 closure relative-L2 增至 `0.787703`，说明逐分支校正后的信号不能按简单 ON=OFF+TO 线性拆分。
+
+这组 S1b 材料来自 Mode-A reference-assisted 诊断；当时源码工作树为 dirty，Production binary SHA-256 是 `16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998`，不同于 S1d Mode-B 源码/binary。因此只作为组件空间定位上下文，不能替代 S1d 的 Mode-B 因果结果或证明 Mode-B support 失败由目标污染导致。
+
 S1d 证明的是：在这个固定输入和失败组上，CSI phase-vector 来源会因果改变 C4 robust-phase support 及其成员集合。它没有识别 SNR20/30 ON 自估向量差异的物理来源，不能单凭 support 从7跨到11/22 认定目标污染是根因、C4 被修好或 GMTI 任务性能得到恢复。
 
 ## 证据限制与阶段状态
 
-GitHub 快照包含 selected-group 复数 F1/F2、7分支运行 XML、Production 日志与记录、CSI sidecar、逐格 phase trace、Gamma/support 结果和身份清单。它**不包含原始 Stage2 `.bin` IQ**，因此可以审查选定组的 support 重算和保存的 Production 证据，但不能从该快照完整重放 Stage2→Production，也不能独立重算原始输入二进制。
+GitHub 快照包含 selected-group 复数 F1/F2、7分支运行 XML、Production 日志与记录、CSI sidecar、逐格 phase trace、Gamma/support 结果、S1b三角色的阶段 trace 与 phase vector、分析脚本和身份清单。它**不包含原始 Stage2 `.bin` IQ**，因此可以重算已发布的逐格阶段分析和 support 结果，但不能从该快照完整重放 Stage2→Production，也不能独立重算原始输入二进制。
 
 R22 target-present Screening 仍为 `GATE_FAILED / INCOMPLETE`：原 SNR30 C4 Mode-B ON reference 的 support=7，小于冻结最低值8。S1d 不解除 gate，也没有提供 Detection、Pd/Pfa、目标保持、SCNR、速度或方位估计误差等任务级结果。确认性矩阵、密集目标矩阵、bridge 和 AI 训练均未开始。
 
@@ -51,10 +56,11 @@ R22 target-present Screening 仍为 `GATE_FAILED / INCOMPLETE`：原 SNR30 C4 Mo
 1. 检查固定快照的研究总纲、R22 gate 状态、S1d 配置、运行身份、输入配对和7分支 Production 证据是否一致。
 2. 核验 support 计数、筛选成员集合、phase sidecar 与 Production trace 的对应；评估分析脚本和逐格表是否能独立重现报告中的数值。
 3. 判断 S1d 能支持的因果结论边界：更换 phase vector 对 support 有何影响；哪些物理根因仍未区分？
-4. 评估目标真值距离格事后交叉的证据强度。SNR20/30 ON 向量差在目标格上并未更大、SNR30 原生7格均不在目标坐标、两个替代向量的成员集合不同，这些事实如何影响目标污染假设？
-5. 检查是否错误混淆逐格向量差与 C4 相位中心残差门，是否把 support 跨门写成 reference/任务性能恢复。
-6. 明确列出哪些项目可在 GitHub 快照中直接核验，哪些因缺少 raw Stage2 IQ、完整本地运行归档或独立设备复跑而为 `NOT_VERIFIED`。
-7. 分别裁定 `IMPLEMENTED / EXECUTED / EVALUABLE / PERFORMANCE_VERIFIED`。
+4. 结合 S1b 的 target-only TO 能量定位、ON−OFF−TO pre-phase closure 和 ON/OFF phase-vector 空间差异，判断简单的局部目标格污染解释是否成立；同时考虑 S1b dirty source/Mode-A 与 S1d Mode-B 的版本边界。
+5. 评估目标真值距离格事后交叉的证据强度。S1d 的 SNR20/30 ON 向量差在目标格上并未更大、SNR30 原生7格均不在目标坐标、两个替代向量的成员集合不同，这些事实如何影响目标污染假设？
+6. 检查是否错误混淆逐格向量差与 C4 相位中心残差门，是否把 support 跨门写成 reference/任务性能恢复。
+7. 明确列出哪些项目可在 GitHub 快照中直接核验，哪些因缺少 raw Stage2 IQ、完整本地运行归档或独立设备复跑而为 `NOT_VERIFIED`。
+8. 分别裁定 `IMPLEMENTED / EXECUTED / EVALUABLE / PERFORMANCE_VERIFIED`。
 
 ### 第二层：总体 GMTI 科研价值与方向
 
