@@ -1,0 +1,281 @@
+{
+  "A": {
+    "csi_h0_active_support": {
+      "status": "evaluable",
+      "period_count": 3,
+      "valid_cells": 479115,
+      "before_mean_power": 656.1859638049069,
+      "csi_output_mean_power": 181.1122711161738,
+      "cancellation_db": 5.590790597566282,
+      "per_period": [
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 648.1424326014484,
+          "csi_output_mean_power": 182.16394037129336,
+          "cancellation_db": 5.512080428911943,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        },
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 668.0776841387448,
+          "csi_output_mean_power": 180.36108798690995,
+          "cancellation_db": 5.686841187925347,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        },
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 652.337774674528,
+          "csi_output_mean_power": 180.81178499031805,
+          "cancellation_db": 5.572457941722494,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        }
+      ]
+    },
+    "target_transfer": {
+      "status": "evaluable",
+      "paired_complex_transfer": {
+        "status": "evaluable",
+        "sample_count": 75,
+        "coefficient_real": 1.2669044682008321,
+        "coefficient_imag": -0.09783339016362665,
+        "amplitude_ratio": 1.270676317469615,
+        "amplitude_ratio_db": 2.080698714626387,
+        "phase_error_rad": -0.07706943625619006,
+        "phase_error_deg": -4.415753426932218,
+        "normalized_residual_rms": 0.38197730098222227
+      },
+      "target_only_output_power_mean": 2221027.071154769,
+      "h0_output_power_mean": 0.8193773929423284,
+      "output_scnr_proxy_db": 64.33069874644657,
+      "target_only_pre_csi_power_mean": 145928506.7420052,
+      "target_only_csi_retention_db": -18.175862864304992,
+      "periods": [
+        {
+          "period_id": 0,
+          "target_row": 50,
+          "target_col": 2048,
+          "target_range_m": 87919.1348495,
+          "target_af_truth_hz": -4633.1002422,
+          "target_only_csi_power": 247491.0425663366,
+          "h0_csi_power": 0.6800444698929313,
+          "target_only_before_power": 149455513.95875
+        },
+        {
+          "period_id": 1,
+          "target_row": 48,
+          "target_col": 2154,
+          "target_range_m": 88184.3543384,
+          "target_af_truth_hz": -4648.73314311,
+          "target_only_csi_power": 715936.6147269995,
+          "h0_csi_power": 0.9281046959601313,
+          "target_only_before_power": 165905537.78
+        },
+        {
+          "period_id": 2,
+          "target_row": 46,
+          "target_col": 2261,
+          "target_range_m": 88450.4631906,
+          "target_af_truth_hz": -4664.22539336,
+          "target_only_csi_power": 5699653.556170971,
+          "h0_csi_power": 0.8499830129739224,
+          "target_only_before_power": 122424468.48726563
+        }
+      ],
+      "definitions": {
+        "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+        "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+        "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+      }
+    },
+    "source": "R7 corrected Native CUDA Production CSI taps; R7 Stage2 truth"
+  },
+  "B": {
+    "csi_h0_active_support": {
+      "status": "evaluable",
+      "period_count": 3,
+      "valid_cells": 479115,
+      "before_mean_power": 598.0029778134284,
+      "csi_output_mean_power": 183.46411975678265,
+      "cancellation_db": 5.131522050756931,
+      "per_period": [
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 592.2642357830185,
+          "csi_output_mean_power": 185.8525099702692,
+          "cancellation_db": 5.033470776169171,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        },
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 607.1149593412648,
+          "csi_output_mean_power": 183.87554502248005,
+          "cancellation_db": 5.187469610187003,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        },
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 594.6297383160019,
+          "csi_output_mean_power": 180.66430427759872,
+          "cancellation_db": 5.173742721570296,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        }
+      ]
+    },
+    "target_transfer": {
+      "status": "evaluable",
+      "paired_complex_transfer": {
+        "status": "evaluable",
+        "sample_count": 75,
+        "coefficient_real": 1.0097065016371698,
+        "coefficient_imag": -0.06589006880414443,
+        "amplitude_ratio": 1.0118541004588493,
+        "amplitude_ratio_db": 0.10235791937193782,
+        "phase_error_rad": -0.06516426061291582,
+        "phase_error_deg": -3.7336371082106594,
+        "normalized_residual_rms": 0.238189087712641
+      },
+      "target_only_output_power_mean": 7372460.334720167,
+      "h0_output_power_mean": 0.8057919425355712,
+      "output_scnr_proxy_db": 69.61389524266312,
+      "target_only_pre_csi_power_mean": 117120872.91502605,
+      "target_only_csi_retention_db": -12.010218559311605,
+      "periods": [
+        {
+          "period_id": 0,
+          "target_row": 50,
+          "target_col": 2048,
+          "target_range_m": 87919.1348495,
+          "target_af_truth_hz": -4633.1002422,
+          "target_only_csi_power": 5316503.284632029,
+          "h0_csi_power": 0.8923581805595583,
+          "target_only_before_power": 120978399.215
+        },
+        {
+          "period_id": 1,
+          "target_row": 48,
+          "target_col": 2154,
+          "target_range_m": 88184.3543384,
+          "target_af_truth_hz": -4648.73314311,
+          "target_only_csi_power": 5610394.116094688,
+          "h0_csi_power": 0.7912133960426674,
+          "target_only_before_power": 128954189.77
+        },
+        {
+          "period_id": 2,
+          "target_row": 46,
+          "target_col": 2261,
+          "target_range_m": 88450.4631906,
+          "target_af_truth_hz": -4664.22539336,
+          "target_only_csi_power": 11190483.603433786,
+          "h0_csi_power": 0.733804251004488,
+          "target_only_before_power": 101430029.76007813
+        }
+      ],
+      "definitions": {
+        "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+        "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+        "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+      }
+    },
+    "source": "R7 corrected Native CUDA Production CSI taps; R7 Stage2 truth"
+  },
+  "C": {
+    "csi_h0_active_support": {
+      "status": "evaluable",
+      "period_count": 3,
+      "valid_cells": 479115,
+      "before_mean_power": 656.1854720100299,
+      "csi_output_mean_power": 181.16151580243934,
+      "cancellation_db": 5.589606650220955,
+      "per_period": [
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 648.1419788039119,
+          "csi_output_mean_power": 182.2404544072368,
+          "cancellation_db": 5.5102536108431455,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        },
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 668.0769742322657,
+          "csi_output_mean_power": 180.45575536322127,
+          "cancellation_db": 5.684557659489937,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        },
+        {
+          "status": "evaluable",
+          "valid_cells": 159705,
+          "before_mean_power": 652.337462993912,
+          "csi_output_mean_power": 180.78833763685995,
+          "cancellation_db": 5.573019088651355,
+          "definition": "10log10(mean(before_power)/mean(abs(csi_after)^2)) on H0 active support"
+        }
+      ]
+    },
+    "target_transfer": {
+      "status": "evaluable",
+      "paired_complex_transfer": {
+        "status": "evaluable",
+        "sample_count": 75,
+        "coefficient_real": 1.2669181017573854,
+        "coefficient_imag": -0.09783754117331611,
+        "amplitude_ratio": 1.2706902301597258,
+        "amplitude_ratio_db": 2.0807938162881174,
+        "phase_error_rad": -0.0770718672163003,
+        "phase_error_deg": -4.4158927106867,
+        "normalized_residual_rms": 0.3819778226967722
+      },
+      "target_only_output_power_mean": 2221025.0717109186,
+      "h0_output_power_mean": 0.8192830697071342,
+      "output_scnr_proxy_db": 64.33119480686447,
+      "target_only_pre_csi_power_mean": 145928506.12815103,
+      "target_only_csi_retention_db": -18.17586675570411,
+      "periods": [
+        {
+          "period_id": 0,
+          "target_row": 50,
+          "target_col": 2048,
+          "target_range_m": 87919.1348495,
+          "target_af_truth_hz": -4633.1002422,
+          "target_only_csi_power": 247492.10631480635,
+          "h0_csi_power": 0.6794565921435519,
+          "target_only_before_power": 149455513.47375
+        },
+        {
+          "period_id": 1,
+          "target_row": 48,
+          "target_col": 2154,
+          "target_range_m": 88184.3543384,
+          "target_af_truth_hz": -4648.73314311,
+          "target_only_csi_power": 715929.706867765,
+          "h0_csi_power": 0.928455344717862,
+          "target_only_before_power": 165905536.17
+        },
+        {
+          "period_id": 2,
+          "target_row": 46,
+          "target_col": 2261,
+          "target_range_m": 88450.4631906,
+          "target_af_truth_hz": -4664.22539336,
+          "target_only_csi_power": 5699653.401950185,
+          "h0_csi_power": 0.8499372722599884,
+          "target_only_before_power": 122424468.74070312
+        }
+      ],
+      "definitions": {
+        "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+        "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+        "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+      }
+    },
+    "source": "R7 corrected Native CUDA Production CSI taps; R7 Stage2 truth"
+  }
+}

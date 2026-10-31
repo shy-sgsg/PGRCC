@@ -1,0 +1,2025 @@
+{
+  "algorithmic_results_claimed": false,
+  "area_clutter_gate": {
+    "area_enabled": true,
+    "area_mean_power_measured": 0.0223352779188,
+    "area_model": "continuous_texture",
+    "continuous_area_packets": 390,
+    "continuous_area_samples": 1952655,
+    "ground_height_m": 0.0,
+    "ground_range_max_m": 85289.213854977,
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "minimum_slant_range_m": 6000.0,
+    "platform_height_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "reasons": [],
+    "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "fc9a2780dfc96a092a7b752e85a720dea23409d8e5ba23ffa2b668ba25d189f7",
+    "report_values": {
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "2.04918618511",
+      "area_rho_at_CTDR_lag": "0.960408462978",
+      "area_rho_lag1_measured": "0.980006534954",
+      "mean_noise_power_per_complex_sample": "0.000999988948418"
+    },
+    "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/scenarios/A0_ON.json",
+    "scenario_sha256": "a32193d9dcfa5cada75b02248e9b7d340f0fa5da3dc95f3f54ee18c8af615882",
+    "status": "passed"
+  },
+  "branch_gate": {
+    "all_production_and_csi_gates_passed": true,
+    "all_selected_role_inputs_identical_by_sha256": true,
+    "checks": [],
+    "methods_complete": true,
+    "no_branch_truth_use_flag": true,
+    "same_csi_and_cfar_definitions_across_methods": true
+  },
+  "claim_scope": "single seed, low-speed corrected-geometry pilot; feasibility and correctness only",
+  "evidence_gate_from_runner": {
+    "causal_triplets": "passed",
+    "empirical_pfa": "NOT_EVALUABLE",
+    "fallback_to_current": false,
+    "truth_used_in_estimator": false,
+    "unique_final_union_hits": "passed",
+    "valid_cut_denominators": "passed"
+  },
+  "geometry_gate": {
+    "doppler_support_definition": "minimum H0 C0 OFF Doppler-bin set accumulating 95% of positive area-minus-sideband excess power",
+    "joint_opportunity_periods": 3,
+    "period_count": 3,
+    "range_overlap_definition": "non-empty intersection between truth-centered \u00b12-bin range ROI and 84.5\u201385.5 km area window",
+    "status": "passed"
+  },
+  "method_summary": [
+    {
+      "angle_rmse_deg": 0.01837531383052749,
+      "confirmed_tracks": 4,
+      "empirical_pfa_status": "NOT_EVALUABLE",
+      "false_associations_not_pfa": 30,
+      "final_detections": 33,
+      "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+      "ground_speed_rmse_mps": 5.543755948984637,
+      "h0_csi_output_power_on_empirical_support_mean": 560721.7669605367,
+      "h0_csi_output_power_relative_to_c0_db_mean": 0.0,
+      "method_id": "C0",
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_target_amplitude_ratio": 0.9999985400794617,
+      "paired_target_amplitude_ratio_db": -1.2680717932868192e-05,
+      "paired_target_normalized_residual_rms": 0.0040954490941159175,
+      "paired_target_phase_error_rad": -0.004195505398753777,
+      "position_2d_rmse_m": 27.320431050445354,
+      "pre_to_csi_output_ratio_db_mean": -0.3112897902241702,
+      "radial_velocity_status": "NOT_EVALUABLE",
+      "single_seed_descriptive_only": true,
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_transfer_status": "evaluable",
+      "truth_period_detection_rate_descriptive": 1.0,
+      "unique_correct_detections": 3,
+      "visible_truth_periods": 3
+    },
+    {
+      "angle_rmse_deg": 0.01837531383052749,
+      "confirmed_tracks": 4,
+      "empirical_pfa_status": "NOT_EVALUABLE",
+      "false_associations_not_pfa": 31,
+      "final_detections": 34,
+      "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+      "ground_speed_rmse_mps": 7.838587251288954,
+      "h0_csi_output_power_on_empirical_support_mean": 560721.7669605367,
+      "h0_csi_output_power_relative_to_c0_db_mean": 0.0,
+      "method_id": "C1",
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_target_amplitude_ratio": 0.9999985400794617,
+      "paired_target_amplitude_ratio_db": -1.2680717932868192e-05,
+      "paired_target_normalized_residual_rms": 0.0040954490941159175,
+      "paired_target_phase_error_rad": -0.004195505398753777,
+      "position_2d_rmse_m": 27.320431050445354,
+      "pre_to_csi_output_ratio_db_mean": -0.3112897902241702,
+      "radial_velocity_status": "NOT_EVALUABLE",
+      "single_seed_descriptive_only": true,
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_transfer_status": "evaluable",
+      "truth_period_detection_rate_descriptive": 1.0,
+      "unique_correct_detections": 3,
+      "visible_truth_periods": 3
+    },
+    {
+      "angle_rmse_deg": 0.01837531383052749,
+      "confirmed_tracks": 4,
+      "empirical_pfa_status": "NOT_EVALUABLE",
+      "false_associations_not_pfa": 30,
+      "final_detections": 33,
+      "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+      "ground_speed_rmse_mps": 5.543755948984637,
+      "h0_csi_output_power_on_empirical_support_mean": 560721.7669605367,
+      "h0_csi_output_power_relative_to_c0_db_mean": 0.0,
+      "method_id": "C2",
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_target_amplitude_ratio": 0.9999985400794617,
+      "paired_target_amplitude_ratio_db": -1.2680717932868192e-05,
+      "paired_target_normalized_residual_rms": 0.0040954490941159175,
+      "paired_target_phase_error_rad": -0.004195505398753777,
+      "position_2d_rmse_m": 27.320431050445354,
+      "pre_to_csi_output_ratio_db_mean": -0.3112897902241702,
+      "radial_velocity_status": "NOT_EVALUABLE",
+      "single_seed_descriptive_only": true,
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_transfer_status": "evaluable",
+      "truth_period_detection_rate_descriptive": 1.0,
+      "unique_correct_detections": 3,
+      "visible_truth_periods": 3
+    },
+    {
+      "angle_rmse_deg": 0.01837531383052749,
+      "confirmed_tracks": 4,
+      "empirical_pfa_status": "NOT_EVALUABLE",
+      "false_associations_not_pfa": 30,
+      "final_detections": 33,
+      "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+      "ground_speed_rmse_mps": 5.543755948984637,
+      "h0_csi_output_power_on_empirical_support_mean": 560721.7669605367,
+      "h0_csi_output_power_relative_to_c0_db_mean": 0.0,
+      "method_id": "C3",
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_target_amplitude_ratio": 0.9999985400794617,
+      "paired_target_amplitude_ratio_db": -1.2680717932868192e-05,
+      "paired_target_normalized_residual_rms": 0.0040954490941159175,
+      "paired_target_phase_error_rad": -0.004195505398753777,
+      "position_2d_rmse_m": 27.320431050445354,
+      "pre_to_csi_output_ratio_db_mean": -0.3112897902241702,
+      "radial_velocity_status": "NOT_EVALUABLE",
+      "single_seed_descriptive_only": true,
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_transfer_status": "evaluable",
+      "truth_period_detection_rate_descriptive": 1.0,
+      "unique_correct_detections": 3,
+      "visible_truth_periods": 3
+    }
+  ],
+  "outputs": {
+    "association_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/geometry_corrected_pilot_seed101_v0p5_snr30/analysis/r18_geometry_corrected_pilot_target_associations.csv",
+    "h0_clutter_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/geometry_corrected_pilot_seed101_v0p5_snr30/analysis/r18_geometry_corrected_pilot_h0_clutter_metrics.csv",
+    "method_summary_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/geometry_corrected_pilot_seed101_v0p5_snr30/analysis/r18_geometry_corrected_pilot_method_summary.csv",
+    "overlap_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/geometry_corrected_pilot_seed101_v0p5_snr30/analysis/r18_geometry_corrected_pilot_overlap_by_period.csv",
+    "plot": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/geometry_corrected_pilot_seed101_v0p5_snr30/analysis/r18_geometry_corrected_pilot_clutter_target_overlap.png",
+    "spectra_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/geometry_corrected_pilot_seed101_v0p5_snr30/analysis/r18_geometry_corrected_pilot_doppler_spectra.csv"
+  },
+  "overlap_by_period": [
+    {
+      "area_mean_power_csi_before": 104251.7978476285,
+      "area_to_noise_power_ratio": 9376.854861818874,
+      "area_window_bin_count": 400,
+      "area_window_max_m": 85500.0,
+      "area_window_min_m": 84500.0,
+      "doppler_bin_hz": 10.0,
+      "doppler_support_overlap": true,
+      "joint_opportunity": true,
+      "noise_mean_power_csi_before": 11.117992054257549,
+      "noise_sideband_bin_count": 640,
+      "period_id": 0,
+      "positive_excess_energy_sum": 13551288.381224655,
+      "prf_hz_from_axis": 1300.0,
+      "range_overlap_rule": "target ROI range-bin set has non-empty intersection with area window",
+      "range_overlap_with_area_window": true,
+      "status": "evaluable",
+      "support_bin_count": 24,
+      "support_energy_fraction": 0.95,
+      "support_fraction_of_doppler_bins": 0.18461538461538463,
+      "support_rows": "0;1;108;109;110;111;112;113;114;115;116;117;118;119;120;121;122;123;124;125;126;127;128;129",
+      "support_wrapped_frequency_max_hz": 81.1798095703125,
+      "support_wrapped_frequency_min_hz": -148.82012939453125,
+      "target_af_total_truth_hz_median": -3985.305231,
+      "target_center_doppler_row": 114,
+      "target_center_range_col": 880,
+      "target_range_m_median": 85001.14056475,
+      "target_roi_doppler_hz": "-108.820129;-98.8201294;-88.8201294;-78.8201294;-68.8201294",
+      "target_roi_doppler_rows": "112;113;114;115;116",
+      "target_roi_range_m_max": 85006.171875,
+      "target_roi_range_m_min": 84996.1796875,
+      "target_roi_support_doppler_rows": "112;113;114;115;116",
+      "target_roi_support_overlap_bins": 5,
+      "truth_source": "A0_ON/truth/truth_pulse.csv; per-period median",
+      "wrapped_target_frequency_hz": -85.30523099999982
+    },
+    {
+      "area_mean_power_csi_before": 106623.52740314075,
+      "area_to_noise_power_ratio": 8668.274304096461,
+      "area_window_bin_count": 400,
+      "area_window_max_m": 85500.0,
+      "area_window_min_m": 84500.0,
+      "doppler_bin_hz": 10.0,
+      "doppler_support_overlap": true,
+      "joint_opportunity": true,
+      "noise_mean_power_csi_before": 12.300433011534084,
+      "noise_sideband_bin_count": 640,
+      "period_id": 1,
+      "positive_excess_energy_sum": 13859459.506116796,
+      "prf_hz_from_axis": 1300.0,
+      "range_overlap_rule": "target ROI range-bin set has non-empty intersection with area window",
+      "range_overlap_with_area_window": true,
+      "status": "evaluable",
+      "support_bin_count": 25,
+      "support_energy_fraction": 0.95,
+      "support_fraction_of_doppler_bins": 0.19230769230769232,
+      "support_rows": "0;1;2;108;109;110;111;112;113;114;115;116;117;118;119;120;121;122;123;124;125;126;127;128;129",
+      "support_wrapped_frequency_max_hz": 91.179931640625,
+      "support_wrapped_frequency_min_hz": -148.8201141357422,
+      "target_af_total_truth_hz_median": -4002.342218225,
+      "target_center_doppler_row": 113,
+      "target_center_range_col": 971,
+      "target_range_m_median": 85229.38000535,
+      "target_roi_doppler_hz": "-118.820122;-108.820122;-98.8201218;-88.8201218;-78.8201218",
+      "target_roi_doppler_rows": "111;112;113;114;115",
+      "target_roi_range_m_max": 85233.515625,
+      "target_roi_range_m_min": 85223.5234375,
+      "target_roi_support_doppler_rows": "111;112;113;114;115",
+      "target_roi_support_overlap_bins": 5,
+      "truth_source": "A0_ON/truth/truth_pulse.csv; per-period median",
+      "wrapped_target_frequency_hz": -102.34221822500012
+    },
+    {
+      "area_mean_power_csi_before": 100102.41277546542,
+      "area_to_noise_power_ratio": 9315.395870507584,
+      "area_window_bin_count": 400,
+      "area_window_max_m": 85500.0,
+      "area_window_min_m": 84500.0,
+      "doppler_bin_hz": 10.0,
+      "doppler_support_overlap": true,
+      "joint_opportunity": true,
+      "noise_mean_power_csi_before": 10.745910766110145,
+      "noise_sideband_bin_count": 640,
+      "period_id": 2,
+      "positive_excess_energy_sum": 13011916.692410909,
+      "prf_hz_from_axis": 1300.0,
+      "range_overlap_rule": "target ROI range-bin set has non-empty intersection with area window",
+      "range_overlap_with_area_window": true,
+      "status": "evaluable",
+      "support_bin_count": 25,
+      "support_energy_fraction": 0.95,
+      "support_fraction_of_doppler_bins": 0.19230769230769232,
+      "support_rows": "0;1;2;108;109;110;111;112;113;114;115;116;117;118;119;120;121;122;123;124;125;126;127;128;129",
+      "support_wrapped_frequency_max_hz": 91.1492919921875,
+      "support_wrapped_frequency_min_hz": -148.8506622314453,
+      "target_af_total_truth_hz_median": -4019.242593075,
+      "target_center_doppler_row": 111,
+      "target_center_range_col": 1063,
+      "target_range_m_median": 85458.58916675,
+      "target_roi_doppler_hz": "-138.850662;-128.850662;-118.85067;-108.85067;-98.8506699",
+      "target_roi_doppler_rows": "109;110;111;112;113",
+      "target_roi_range_m_max": 85463.359375,
+      "target_roi_range_m_min": 85453.3671875,
+      "target_roi_support_doppler_rows": "109;110;111;112;113",
+      "target_roi_support_overlap_bins": 5,
+      "truth_source": "A0_ON/truth/truth_pulse.csv; per-period median",
+      "wrapped_target_frequency_hz": -119.24259307500006
+    }
+  ],
+  "performance_verified": false,
+  "production_task_metrics": {
+    "C0": {
+      "OFF": {
+        "metrics": {
+          "cfar_branch_hit_cells": 693,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 340,
+            "union_full_band": 353
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "cluster_status": "evaluable",
+          "false_clusters": 27,
+          "false_confirmed_tracks": 5,
+          "false_detections": 27,
+          "final_detections": 27,
+          "lineage_status": "complete",
+          "postfilter_clusters": 27,
+          "track_status": "evaluable",
+          "tracks": 55,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "ON": {
+        "metrics": {
+          "association_status": "evaluable",
+          "candidate_final_detections": 33,
+          "cfar_branch_hit_cells": 823,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 425,
+            "union_full_band": 398
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "confirmed_tracks": 4,
+          "correct_track_associations": 2,
+          "detection_rate": 1.0,
+          "false_associations": 30,
+          "false_track_associations": 2,
+          "final_detections": 33,
+          "misses": 0,
+          "parameter_errors": {
+            "angle_error_count": 3,
+            "angle_rmse_deg": 0.01837531383052749,
+            "folded_doppler_frequency_error_count": 3,
+            "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+            "ground_speed_error_count": 2,
+            "ground_speed_rmse_mps": 5.543755948984637,
+            "position_2d_rmse_m": 27.320431050445354,
+            "position_error_count": 3,
+            "radial_velocity": {
+              "count": 0,
+              "rmse_mps": null,
+              "status": "NOT_EVALUABLE",
+              "unresolved_count": 3
+            }
+          },
+          "postfilter_clusters": 33,
+          "raw_detections": 33,
+          "selected_candidates": 33,
+          "track_association_status": "evaluable",
+          "track_status": "evaluable",
+          "tracks": 76,
+          "truth_opportunities": 3,
+          "unique_correct_detections": 3,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_ON/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "TO": {
+        "metrics": {
+          "cfar_branch_hit_cells": 25687,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 12831,
+            "union_full_band": 12856
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "final_detections": 63,
+          "lineage_status": "complete",
+          "parameter_observability": "evaluable",
+          "postfilter_cluster_status": "evaluable",
+          "postfilter_clusters": 63,
+          "target_only_response": {
+            "amplitude_ratio": 0.982805167713203,
+            "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+            "energy_ratio": 0.98605852977959,
+            "input_energy": 2590277542.3673596,
+            "observable": true,
+            "output_energy": 2554165265.147848,
+            "per_period": [
+              {
+                "amplitude_ratio": 0.9912456961614138,
+                "energy_ratio": 0.9855724823635432,
+                "input_energy": 973060160.3655527,
+                "observable": true,
+                "output_energy": 959021317.7405452,
+                "period_id": 0,
+                "phase_error_rad": -0.8270325381553577,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -3985.30630954,
+                "target_col": 880,
+                "target_range_m": 85001.1549249,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 114
+              },
+              {
+                "amplitude_ratio": 0.9916460045618185,
+                "energy_ratio": 0.9857208168269229,
+                "input_energy": 809226286.0161693,
+                "observable": true,
+                "output_energy": 797671195.6496756,
+                "period_id": 1,
+                "phase_error_rad": -0.9891317200234349,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4002.34328812,
+                "target_col": 971,
+                "target_range_m": 85229.3944269,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 113
+              },
+              {
+                "amplitude_ratio": 0.9925333622173013,
+                "energy_ratio": 0.9869821037876915,
+                "input_energy": 807991095.9856375,
+                "observable": true,
+                "output_energy": 797472751.7576271,
+                "period_id": 2,
+                "phase_error_rad": -1.1527185142802918,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4019.24365438,
+                "target_col": 1063,
+                "target_range_m": 85458.6036492,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 111
+              }
+            ],
+            "phase_error_rad": -0.9792868013950652,
+            "reason": "truth_centered_target_only_complex_transfer",
+            "sample_count": 75,
+            "status": "evaluable"
+          },
+          "track_status": "evaluable",
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_TO/result",
+        "target_only_pre_post_response": {
+          "amplitude_ratio": 0.982805167713203,
+          "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+          "energy_ratio": 0.98605852977959,
+          "input_energy": 2590277542.3673596,
+          "observable": true,
+          "output_energy": 2554165265.147848,
+          "per_period": [
+            {
+              "amplitude_ratio": 0.9912456961614138,
+              "energy_ratio": 0.9855724823635432,
+              "input_energy": 973060160.3655527,
+              "observable": true,
+              "output_energy": 959021317.7405452,
+              "period_id": 0,
+              "phase_error_rad": -0.8270325381553577,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -3985.30630954,
+              "target_col": 880,
+              "target_range_m": 85001.1549249,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 114
+            },
+            {
+              "amplitude_ratio": 0.9916460045618185,
+              "energy_ratio": 0.9857208168269229,
+              "input_energy": 809226286.0161693,
+              "observable": true,
+              "output_energy": 797671195.6496756,
+              "period_id": 1,
+              "phase_error_rad": -0.9891317200234349,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4002.34328812,
+              "target_col": 971,
+              "target_range_m": 85229.3944269,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 113
+            },
+            {
+              "amplitude_ratio": 0.9925333622173013,
+              "energy_ratio": 0.9869821037876915,
+              "input_energy": 807991095.9856375,
+              "observable": true,
+              "output_energy": 797472751.7576271,
+              "period_id": 2,
+              "phase_error_rad": -1.1527185142802918,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4019.24365438,
+              "target_col": 1063,
+              "target_range_m": 85458.6036492,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 111
+            }
+          ],
+          "phase_error_rad": -0.9792868013950652,
+          "reason": "truth_centered_target_only_complex_transfer",
+          "sample_count": 75,
+          "status": "evaluable"
+        },
+        "track_debug_status": "evaluable"
+      }
+    },
+    "C1": {
+      "OFF": {
+        "metrics": {
+          "cfar_branch_hit_cells": 615,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 302,
+            "union_full_band": 313
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "cluster_status": "evaluable",
+          "false_clusters": 27,
+          "false_confirmed_tracks": 5,
+          "false_detections": 27,
+          "final_detections": 27,
+          "lineage_status": "complete",
+          "postfilter_clusters": 27,
+          "track_status": "evaluable",
+          "tracks": 55,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C1_not_applicable_OFF/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "ON": {
+        "metrics": {
+          "association_status": "evaluable",
+          "candidate_final_detections": 34,
+          "cfar_branch_hit_cells": 785,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 409,
+            "union_full_band": 376
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "confirmed_tracks": 4,
+          "correct_track_associations": 1,
+          "detection_rate": 1.0,
+          "false_associations": 31,
+          "false_track_associations": 3,
+          "final_detections": 34,
+          "misses": 0,
+          "parameter_errors": {
+            "angle_error_count": 3,
+            "angle_rmse_deg": 0.01837531383052749,
+            "folded_doppler_frequency_error_count": 3,
+            "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+            "ground_speed_error_count": 1,
+            "ground_speed_rmse_mps": 7.838587251288954,
+            "position_2d_rmse_m": 27.320431050445354,
+            "position_error_count": 3,
+            "radial_velocity": {
+              "count": 0,
+              "rmse_mps": null,
+              "status": "NOT_EVALUABLE",
+              "unresolved_count": 3
+            }
+          },
+          "postfilter_clusters": 34,
+          "raw_detections": 34,
+          "selected_candidates": 34,
+          "track_association_status": "evaluable",
+          "track_status": "evaluable",
+          "tracks": 77,
+          "truth_opportunities": 3,
+          "unique_correct_detections": 3,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C1_not_applicable_ON/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "TO": {
+        "metrics": {
+          "cfar_branch_hit_cells": 25803,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 12883,
+            "union_full_band": 12920
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "final_detections": 68,
+          "lineage_status": "complete",
+          "parameter_observability": "evaluable",
+          "postfilter_cluster_status": "evaluable",
+          "postfilter_clusters": 68,
+          "target_only_response": {
+            "amplitude_ratio": 0.982805167713203,
+            "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+            "energy_ratio": 0.98605852977959,
+            "input_energy": 2590277542.3673596,
+            "observable": true,
+            "output_energy": 2554165265.147848,
+            "per_period": [
+              {
+                "amplitude_ratio": 0.9912456961614138,
+                "energy_ratio": 0.9855724823635432,
+                "input_energy": 973060160.3655527,
+                "observable": true,
+                "output_energy": 959021317.7405452,
+                "period_id": 0,
+                "phase_error_rad": -0.8270325381553577,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -3985.30630954,
+                "target_col": 880,
+                "target_range_m": 85001.1549249,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 114
+              },
+              {
+                "amplitude_ratio": 0.9916460045618185,
+                "energy_ratio": 0.9857208168269229,
+                "input_energy": 809226286.0161693,
+                "observable": true,
+                "output_energy": 797671195.6496756,
+                "period_id": 1,
+                "phase_error_rad": -0.9891317200234349,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4002.34328812,
+                "target_col": 971,
+                "target_range_m": 85229.3944269,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 113
+              },
+              {
+                "amplitude_ratio": 0.9925333622173013,
+                "energy_ratio": 0.9869821037876915,
+                "input_energy": 807991095.9856375,
+                "observable": true,
+                "output_energy": 797472751.7576271,
+                "period_id": 2,
+                "phase_error_rad": -1.1527185142802918,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4019.24365438,
+                "target_col": 1063,
+                "target_range_m": 85458.6036492,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 111
+              }
+            ],
+            "phase_error_rad": -0.9792868013950652,
+            "reason": "truth_centered_target_only_complex_transfer",
+            "sample_count": 75,
+            "status": "evaluable"
+          },
+          "track_status": "evaluable",
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C1_not_applicable_TO/result",
+        "target_only_pre_post_response": {
+          "amplitude_ratio": 0.982805167713203,
+          "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+          "energy_ratio": 0.98605852977959,
+          "input_energy": 2590277542.3673596,
+          "observable": true,
+          "output_energy": 2554165265.147848,
+          "per_period": [
+            {
+              "amplitude_ratio": 0.9912456961614138,
+              "energy_ratio": 0.9855724823635432,
+              "input_energy": 973060160.3655527,
+              "observable": true,
+              "output_energy": 959021317.7405452,
+              "period_id": 0,
+              "phase_error_rad": -0.8270325381553577,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -3985.30630954,
+              "target_col": 880,
+              "target_range_m": 85001.1549249,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 114
+            },
+            {
+              "amplitude_ratio": 0.9916460045618185,
+              "energy_ratio": 0.9857208168269229,
+              "input_energy": 809226286.0161693,
+              "observable": true,
+              "output_energy": 797671195.6496756,
+              "period_id": 1,
+              "phase_error_rad": -0.9891317200234349,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4002.34328812,
+              "target_col": 971,
+              "target_range_m": 85229.3944269,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 113
+            },
+            {
+              "amplitude_ratio": 0.9925333622173013,
+              "energy_ratio": 0.9869821037876915,
+              "input_energy": 807991095.9856375,
+              "observable": true,
+              "output_energy": 797472751.7576271,
+              "period_id": 2,
+              "phase_error_rad": -1.1527185142802918,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4019.24365438,
+              "target_col": 1063,
+              "target_range_m": 85458.6036492,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 111
+            }
+          ],
+          "phase_error_rad": -0.9792868013950652,
+          "reason": "truth_centered_target_only_complex_transfer",
+          "sample_count": 75,
+          "status": "evaluable"
+        },
+        "track_debug_status": "evaluable"
+      }
+    },
+    "C2": {
+      "OFF": {
+        "metrics": {
+          "cfar_branch_hit_cells": 602,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 296,
+            "union_full_band": 306
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "cluster_status": "evaluable",
+          "false_clusters": 27,
+          "false_confirmed_tracks": 5,
+          "false_detections": 27,
+          "final_detections": 27,
+          "lineage_status": "complete",
+          "postfilter_clusters": 27,
+          "track_status": "evaluable",
+          "tracks": 55,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C2_modeb_OFF/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "ON": {
+        "metrics": {
+          "association_status": "evaluable",
+          "candidate_final_detections": 33,
+          "cfar_branch_hit_cells": 760,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 396,
+            "union_full_band": 364
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "confirmed_tracks": 4,
+          "correct_track_associations": 2,
+          "detection_rate": 1.0,
+          "false_associations": 30,
+          "false_track_associations": 2,
+          "final_detections": 33,
+          "misses": 0,
+          "parameter_errors": {
+            "angle_error_count": 3,
+            "angle_rmse_deg": 0.01837531383052749,
+            "folded_doppler_frequency_error_count": 3,
+            "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+            "ground_speed_error_count": 2,
+            "ground_speed_rmse_mps": 5.543755948984637,
+            "position_2d_rmse_m": 27.320431050445354,
+            "position_error_count": 3,
+            "radial_velocity": {
+              "count": 0,
+              "rmse_mps": null,
+              "status": "NOT_EVALUABLE",
+              "unresolved_count": 3
+            }
+          },
+          "postfilter_clusters": 33,
+          "raw_detections": 33,
+          "selected_candidates": 33,
+          "track_association_status": "evaluable",
+          "track_status": "evaluable",
+          "tracks": 76,
+          "truth_opportunities": 3,
+          "unique_correct_detections": 3,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C2_modeb_ON/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "TO": {
+        "metrics": {
+          "cfar_branch_hit_cells": 25762,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 12869,
+            "union_full_band": 12893
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "final_detections": 66,
+          "lineage_status": "complete",
+          "parameter_observability": "evaluable",
+          "postfilter_cluster_status": "evaluable",
+          "postfilter_clusters": 66,
+          "target_only_response": {
+            "amplitude_ratio": 0.982805167713203,
+            "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+            "energy_ratio": 0.98605852977959,
+            "input_energy": 2590277542.3673596,
+            "observable": true,
+            "output_energy": 2554165265.147848,
+            "per_period": [
+              {
+                "amplitude_ratio": 0.9912456961614138,
+                "energy_ratio": 0.9855724823635432,
+                "input_energy": 973060160.3655527,
+                "observable": true,
+                "output_energy": 959021317.7405452,
+                "period_id": 0,
+                "phase_error_rad": -0.8270325381553577,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -3985.30630954,
+                "target_col": 880,
+                "target_range_m": 85001.1549249,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 114
+              },
+              {
+                "amplitude_ratio": 0.9916460045618185,
+                "energy_ratio": 0.9857208168269229,
+                "input_energy": 809226286.0161693,
+                "observable": true,
+                "output_energy": 797671195.6496756,
+                "period_id": 1,
+                "phase_error_rad": -0.9891317200234349,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4002.34328812,
+                "target_col": 971,
+                "target_range_m": 85229.3944269,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 113
+              },
+              {
+                "amplitude_ratio": 0.9925333622173013,
+                "energy_ratio": 0.9869821037876915,
+                "input_energy": 807991095.9856375,
+                "observable": true,
+                "output_energy": 797472751.7576271,
+                "period_id": 2,
+                "phase_error_rad": -1.1527185142802918,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4019.24365438,
+                "target_col": 1063,
+                "target_range_m": 85458.6036492,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 111
+              }
+            ],
+            "phase_error_rad": -0.9792868013950652,
+            "reason": "truth_centered_target_only_complex_transfer",
+            "sample_count": 75,
+            "status": "evaluable"
+          },
+          "track_status": "evaluable",
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C2_modeb_TO/result",
+        "target_only_pre_post_response": {
+          "amplitude_ratio": 0.982805167713203,
+          "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+          "energy_ratio": 0.98605852977959,
+          "input_energy": 2590277542.3673596,
+          "observable": true,
+          "output_energy": 2554165265.147848,
+          "per_period": [
+            {
+              "amplitude_ratio": 0.9912456961614138,
+              "energy_ratio": 0.9855724823635432,
+              "input_energy": 973060160.3655527,
+              "observable": true,
+              "output_energy": 959021317.7405452,
+              "period_id": 0,
+              "phase_error_rad": -0.8270325381553577,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -3985.30630954,
+              "target_col": 880,
+              "target_range_m": 85001.1549249,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 114
+            },
+            {
+              "amplitude_ratio": 0.9916460045618185,
+              "energy_ratio": 0.9857208168269229,
+              "input_energy": 809226286.0161693,
+              "observable": true,
+              "output_energy": 797671195.6496756,
+              "period_id": 1,
+              "phase_error_rad": -0.9891317200234349,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4002.34328812,
+              "target_col": 971,
+              "target_range_m": 85229.3944269,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 113
+            },
+            {
+              "amplitude_ratio": 0.9925333622173013,
+              "energy_ratio": 0.9869821037876915,
+              "input_energy": 807991095.9856375,
+              "observable": true,
+              "output_energy": 797472751.7576271,
+              "period_id": 2,
+              "phase_error_rad": -1.1527185142802918,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4019.24365438,
+              "target_col": 1063,
+              "target_range_m": 85458.6036492,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 111
+            }
+          ],
+          "phase_error_rad": -0.9792868013950652,
+          "reason": "truth_centered_target_only_complex_transfer",
+          "sample_count": 75,
+          "status": "evaluable"
+        },
+        "track_debug_status": "evaluable"
+      }
+    },
+    "C3": {
+      "OFF": {
+        "metrics": {
+          "cfar_branch_hit_cells": 602,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 296,
+            "union_full_band": 306
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "cluster_status": "evaluable",
+          "false_clusters": 27,
+          "false_confirmed_tracks": 5,
+          "false_detections": 27,
+          "final_detections": 27,
+          "lineage_status": "complete",
+          "postfilter_clusters": 27,
+          "track_status": "evaluable",
+          "tracks": 55,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C3_modeb_OFF/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "ON": {
+        "metrics": {
+          "association_status": "evaluable",
+          "candidate_final_detections": 33,
+          "cfar_branch_hit_cells": 759,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 396,
+            "union_full_band": 363
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "confirmed_tracks": 4,
+          "correct_track_associations": 2,
+          "detection_rate": 1.0,
+          "false_associations": 30,
+          "false_track_associations": 2,
+          "final_detections": 33,
+          "misses": 0,
+          "parameter_errors": {
+            "angle_error_count": 3,
+            "angle_rmse_deg": 0.01837531383052749,
+            "folded_doppler_frequency_error_count": 3,
+            "folded_doppler_frequency_rmse_hz": 2.8817865681732995,
+            "ground_speed_error_count": 2,
+            "ground_speed_rmse_mps": 5.543755948984637,
+            "position_2d_rmse_m": 27.320431050445354,
+            "position_error_count": 3,
+            "radial_velocity": {
+              "count": 0,
+              "rmse_mps": null,
+              "status": "NOT_EVALUABLE",
+              "unresolved_count": 3
+            }
+          },
+          "postfilter_clusters": 33,
+          "raw_detections": 33,
+          "selected_candidates": 33,
+          "track_association_status": "evaluable",
+          "track_status": "evaluable",
+          "tracks": 76,
+          "truth_opportunities": 3,
+          "unique_correct_detections": 3,
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C3_modeb_ON/result",
+        "target_only_pre_post_response": null,
+        "track_debug_status": "evaluable"
+      },
+      "TO": {
+        "metrics": {
+          "cfar_branch_hit_cells": 25764,
+          "cfar_branch_hit_cells_by_branch": {
+            "union_dynamic_in_band": 12870,
+            "union_full_band": 12894
+          },
+          "cfar_branch_hit_status": "evaluable",
+          "cfar_status": "evaluable",
+          "final_detections": 69,
+          "lineage_status": "complete",
+          "parameter_observability": "evaluable",
+          "postfilter_cluster_status": "evaluable",
+          "postfilter_clusters": 69,
+          "target_only_response": {
+            "amplitude_ratio": 0.982805167713203,
+            "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+            "energy_ratio": 0.98605852977959,
+            "input_energy": 2590277542.3673596,
+            "observable": true,
+            "output_energy": 2554165265.147848,
+            "per_period": [
+              {
+                "amplitude_ratio": 0.9912456961614138,
+                "energy_ratio": 0.9855724823635432,
+                "input_energy": 973060160.3655527,
+                "observable": true,
+                "output_energy": 959021317.7405452,
+                "period_id": 0,
+                "phase_error_rad": -0.8270325381553577,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -3985.30630954,
+                "target_col": 880,
+                "target_range_m": 85001.1549249,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 114
+              },
+              {
+                "amplitude_ratio": 0.9916460045618185,
+                "energy_ratio": 0.9857208168269229,
+                "input_energy": 809226286.0161693,
+                "observable": true,
+                "output_energy": 797671195.6496756,
+                "period_id": 1,
+                "phase_error_rad": -0.9891317200234349,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4002.34328812,
+                "target_col": 971,
+                "target_range_m": 85229.3944269,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 113
+              },
+              {
+                "amplitude_ratio": 0.9925333622173013,
+                "energy_ratio": 0.9869821037876915,
+                "input_energy": 807991095.9856375,
+                "observable": true,
+                "output_energy": 797472751.7576271,
+                "period_id": 2,
+                "phase_error_rad": -1.1527185142802918,
+                "reason": "truth_centered_target_only_complex_transfer",
+                "sample_count": 25,
+                "status": "evaluable",
+                "target_af_total_truth_hz": -4019.24365438,
+                "target_col": 1063,
+                "target_range_m": 85458.6036492,
+                "target_roi_shape": [
+                  5,
+                  5
+                ],
+                "target_row": 111
+              }
+            ],
+            "phase_error_rad": -0.9792868013950652,
+            "reason": "truth_centered_target_only_complex_transfer",
+            "sample_count": 75,
+            "status": "evaluable"
+          },
+          "track_status": "evaluable",
+          "unique_union_hit_cells": {
+            "conflicting_period_beam_keys": [],
+            "count": null,
+            "duplicate_period_beam_keys": [],
+            "expected_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "missing_period_beam_keys": [
+              {
+                "beam_id": 50,
+                "period_id": 0
+              },
+              {
+                "beam_id": 50,
+                "period_id": 1
+              },
+              {
+                "beam_id": 50,
+                "period_id": 2
+              }
+            ],
+            "observed_hit_fraction": null,
+            "period_beam_rows": [],
+            "status": "NOT_EVALUABLE_MISSING_PERIOD_BEAM_ROWS",
+            "unexpected_period_beam_keys": [],
+            "unverified_period_beam_keys": [],
+            "valid_cut_count": null
+          }
+        },
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C3_modeb_TO/result",
+        "target_only_pre_post_response": {
+          "amplitude_ratio": 0.982805167713203,
+          "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+          "energy_ratio": 0.98605852977959,
+          "input_energy": 2590277542.3673596,
+          "observable": true,
+          "output_energy": 2554165265.147848,
+          "per_period": [
+            {
+              "amplitude_ratio": 0.9912456961614138,
+              "energy_ratio": 0.9855724823635432,
+              "input_energy": 973060160.3655527,
+              "observable": true,
+              "output_energy": 959021317.7405452,
+              "period_id": 0,
+              "phase_error_rad": -0.8270325381553577,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -3985.30630954,
+              "target_col": 880,
+              "target_range_m": 85001.1549249,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 114
+            },
+            {
+              "amplitude_ratio": 0.9916460045618185,
+              "energy_ratio": 0.9857208168269229,
+              "input_energy": 809226286.0161693,
+              "observable": true,
+              "output_energy": 797671195.6496756,
+              "period_id": 1,
+              "phase_error_rad": -0.9891317200234349,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4002.34328812,
+              "target_col": 971,
+              "target_range_m": 85229.3944269,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 113
+            },
+            {
+              "amplitude_ratio": 0.9925333622173013,
+              "energy_ratio": 0.9869821037876915,
+              "input_energy": 807991095.9856375,
+              "observable": true,
+              "output_energy": 797472751.7576271,
+              "period_id": 2,
+              "phase_error_rad": -1.1527185142802918,
+              "reason": "truth_centered_target_only_complex_transfer",
+              "sample_count": 25,
+              "status": "evaluable",
+              "target_af_total_truth_hz": -4019.24365438,
+              "target_col": 1063,
+              "target_range_m": 85458.6036492,
+              "target_roi_shape": [
+                5,
+                5
+              ],
+              "target_row": 111
+            }
+          ],
+          "phase_error_rad": -0.9792868013950652,
+          "reason": "truth_centered_target_only_complex_transfer",
+          "sample_count": 75,
+          "status": "evaluable"
+        },
+        "track_debug_status": "evaluable"
+      }
+    }
+  },
+  "source_files": [
+    {
+      "bytes": 26128,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/phase_r18_native_cuda_geometry_corrected.json",
+      "sha256": "14e2f6799b34c19fe9a6bc870b68a23417b3923412ceb5c094ebd90025fc6613"
+    },
+    {
+      "bytes": 1370486,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/case_manifest.json",
+      "sha256": "1775495cbab7249530d43d7982aa58b4a9257763f7b36993299ae4f16caa329f"
+    },
+    {
+      "bytes": 384578,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_ON/truth/truth_pulse.csv",
+      "sha256": "2d128ec385f37b6485b13f04d0b749cdc5a99d0ec02d3ad3e6f20c5ae2808c51"
+    },
+    {
+      "bytes": 1264,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_ON/truth/truth_targets_by_beam.csv",
+      "sha256": "6b96139ce58d47b7e9356eb5d34835c5b4b2b8beed3957b9ade5946dcb6ed6be"
+    },
+    {
+      "bytes": 1936,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "sha256": "fc9a2780dfc96a092a7b752e85a720dea23409d8e5ba23ffa2b668ba25d189f7"
+    },
+    {
+      "bytes": 7027,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213952_733015/csi_roi_manifest.csv",
+      "sha256": "44f7ead33a5f4fa1c8c9a922042f1e47499530a4b73dcde857ddb03648fb5c44"
+    },
+    {
+      "bytes": 2130000,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213952_733015/period000_beam050_before_power.npy",
+      "sha256": "39ef1271545488bbc54f5b1e136824ea6072f722ae7fb774f6ab5dcaa33424da"
+    },
+    {
+      "bytes": 600,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213952_733015/period000_beam050_fa_axis_hz.npy",
+      "sha256": "407480044018d240763f7c2b6cb4282947db97f7b03bb7c5dad04c1d74da0a29"
+    },
+    {
+      "bytes": 16464,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213952_733015/period000_beam050_range_axis_m.npy",
+      "sha256": "00b77addae70880eb475b3249b754b09183fe5e2ca9d629967f06013ec5869b8"
+    },
+    {
+      "bytes": 7026,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_414847/csi_roi_manifest.csv",
+      "sha256": "70cb1a73b9fa9674fc3c6a8d4ee03213ffe21da2513dd665693b9a2f23ecdc67"
+    },
+    {
+      "bytes": 2130000,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_414847/period001_beam050_before_power.npy",
+      "sha256": "457bd4b247662fb4b687ac2c0f75a8cc7524a6d09eeaeb28b6af9cdf753fc258"
+    },
+    {
+      "bytes": 600,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_414847/period001_beam050_fa_axis_hz.npy",
+      "sha256": "dfa42c794958c646609159edfadb1b002034fc56c28d88906b8391f297cde101"
+    },
+    {
+      "bytes": 16464,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_414847/period001_beam050_range_axis_m.npy",
+      "sha256": "00b77addae70880eb475b3249b754b09183fe5e2ca9d629967f06013ec5869b8"
+    },
+    {
+      "bytes": 7027,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_901027/csi_roi_manifest.csv",
+      "sha256": "1fbcb7d66415bb37eae53d901247bd1f38da2e9a4a90628b1778356066590728"
+    },
+    {
+      "bytes": 2130000,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_901027/period002_beam050_before_power.npy",
+      "sha256": "742c53cb45e20166143d0560bf940052eee8802a1c452e6ef94b905d6fe7d2ac"
+    },
+    {
+      "bytes": 600,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_901027/period002_beam050_fa_axis_hz.npy",
+      "sha256": "3bb41301ab88c4c0fe6afffb447219071f66ad0412de0ff2f67b3740500d5b25"
+    },
+    {
+      "bytes": 16464,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/production/C0_not_applicable_OFF/result/csi_metrics/20261025_213953_901027/period002_beam050_range_axis_m.npy",
+      "sha256": "00b77addae70880eb475b3249b754b09183fe5e2ca9d629967f06013ec5869b8"
+    }
+  ],
+  "status": "PILOT_GATE_PASSED",
+  "target_transfer_metrics": {
+    "C0": {
+      "definitions": {
+        "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+        "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+        "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+      },
+      "h0_output_power_mean": 532791.2246134564,
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_complex_transfer": {
+        "amplitude_ratio": 0.9999985400794617,
+        "amplitude_ratio_db": -1.2680717932868192e-05,
+        "coefficient_imag": -0.004195486965278054,
+        "coefficient_real": 0.999989738972445,
+        "normalized_residual_rms": 0.0040954490941159175,
+        "phase_error_deg": -0.24038475227294293,
+        "phase_error_rad": -0.004195505398753777,
+        "sample_count": 75,
+        "status": "evaluable"
+      },
+      "periods": [
+        {
+          "h0_csi_power": 440105.21739947365,
+          "period_id": 0,
+          "target_af_truth_hz": -3985.30630954,
+          "target_col": 880,
+          "target_only_before_power": 38292376.65630859,
+          "target_only_csi_power": 38360852.7096218,
+          "target_range_m": 85001.1549249,
+          "target_row": 114
+        },
+        {
+          "h0_csi_power": 740463.6430168693,
+          "period_id": 1,
+          "target_af_truth_hz": -4002.34328812,
+          "target_col": 971,
+          "target_only_before_power": 31792427.0125,
+          "target_only_csi_power": 31906847.82598703,
+          "target_range_m": 85229.3944269,
+          "target_row": 113
+        },
+        {
+          "h0_csi_power": 417804.8134240264,
+          "period_id": 2,
+          "target_af_truth_hz": -4019.24365438,
+          "target_col": 1063,
+          "target_only_before_power": 31705301.909492187,
+          "target_only_csi_power": 31898910.070305094,
+          "target_range_m": 85458.6036492,
+          "target_row": 111
+        }
+      ],
+      "status": "evaluable",
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_only_output_power_mean": 34055536.86863797,
+      "target_only_pre_csi_power_mean": 33930035.19276693
+    },
+    "C1": {
+      "definitions": {
+        "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+        "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+        "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+      },
+      "h0_output_power_mean": 532791.2246134564,
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_complex_transfer": {
+        "amplitude_ratio": 0.9999985400794617,
+        "amplitude_ratio_db": -1.2680717932868192e-05,
+        "coefficient_imag": -0.004195486965278054,
+        "coefficient_real": 0.999989738972445,
+        "normalized_residual_rms": 0.0040954490941159175,
+        "phase_error_deg": -0.24038475227294293,
+        "phase_error_rad": -0.004195505398753777,
+        "sample_count": 75,
+        "status": "evaluable"
+      },
+      "periods": [
+        {
+          "h0_csi_power": 440105.21739947365,
+          "period_id": 0,
+          "target_af_truth_hz": -3985.30630954,
+          "target_col": 880,
+          "target_only_before_power": 38292376.65630859,
+          "target_only_csi_power": 38360852.7096218,
+          "target_range_m": 85001.1549249,
+          "target_row": 114
+        },
+        {
+          "h0_csi_power": 740463.6430168693,
+          "period_id": 1,
+          "target_af_truth_hz": -4002.34328812,
+          "target_col": 971,
+          "target_only_before_power": 31792427.0125,
+          "target_only_csi_power": 31906847.82598703,
+          "target_range_m": 85229.3944269,
+          "target_row": 113
+        },
+        {
+          "h0_csi_power": 417804.8134240264,
+          "period_id": 2,
+          "target_af_truth_hz": -4019.24365438,
+          "target_col": 1063,
+          "target_only_before_power": 31705301.909492187,
+          "target_only_csi_power": 31898910.070305094,
+          "target_range_m": 85458.6036492,
+          "target_row": 111
+        }
+      ],
+      "status": "evaluable",
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_only_output_power_mean": 34055536.86863797,
+      "target_only_pre_csi_power_mean": 33930035.19276693
+    },
+    "C2": {
+      "definitions": {
+        "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+        "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+        "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+      },
+      "h0_output_power_mean": 532791.2246134564,
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_complex_transfer": {
+        "amplitude_ratio": 0.9999985400794617,
+        "amplitude_ratio_db": -1.2680717932868192e-05,
+        "coefficient_imag": -0.004195486965278054,
+        "coefficient_real": 0.999989738972445,
+        "normalized_residual_rms": 0.0040954490941159175,
+        "phase_error_deg": -0.24038475227294293,
+        "phase_error_rad": -0.004195505398753777,
+        "sample_count": 75,
+        "status": "evaluable"
+      },
+      "periods": [
+        {
+          "h0_csi_power": 440105.21739947365,
+          "period_id": 0,
+          "target_af_truth_hz": -3985.30630954,
+          "target_col": 880,
+          "target_only_before_power": 38292376.65630859,
+          "target_only_csi_power": 38360852.7096218,
+          "target_range_m": 85001.1549249,
+          "target_row": 114
+        },
+        {
+          "h0_csi_power": 740463.6430168693,
+          "period_id": 1,
+          "target_af_truth_hz": -4002.34328812,
+          "target_col": 971,
+          "target_only_before_power": 31792427.0125,
+          "target_only_csi_power": 31906847.82598703,
+          "target_range_m": 85229.3944269,
+          "target_row": 113
+        },
+        {
+          "h0_csi_power": 417804.8134240264,
+          "period_id": 2,
+          "target_af_truth_hz": -4019.24365438,
+          "target_col": 1063,
+          "target_only_before_power": 31705301.909492187,
+          "target_only_csi_power": 31898910.070305094,
+          "target_range_m": 85458.6036492,
+          "target_row": 111
+        }
+      ],
+      "status": "evaluable",
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_only_output_power_mean": 34055536.86863797,
+      "target_only_pre_csi_power_mean": 33930035.19276693
+    },
+    "C3": {
+      "definitions": {
+        "output_scnr_proxy_db": "10log10(mean CSI(TO) target-ROI power / mean CSI(OFF) same-ROI C+N power)",
+        "paired_complex_transfer": "least-squares complex gain mapping CSI(TO) to CSI(ON)-CSI(OFF) in truth-centered 5x5 ROIs; CSI adapts per role, so this is a paired transfer diagnostic, not a fixed linear-system gain",
+        "target_only_csi_retention_db": "10log10(CSI output power / before-CSI equalized power) for TO target ROI; negative values indicate target attenuation"
+      },
+      "h0_output_power_mean": 532791.2246134564,
+      "output_scnr_proxy_db": 18.05630667975365,
+      "paired_complex_transfer": {
+        "amplitude_ratio": 0.9999985400794617,
+        "amplitude_ratio_db": -1.2680717932868192e-05,
+        "coefficient_imag": -0.004195486965278054,
+        "coefficient_real": 0.999989738972445,
+        "normalized_residual_rms": 0.0040954490941159175,
+        "phase_error_deg": -0.24038475227294293,
+        "phase_error_rad": -0.004195505398753777,
+        "sample_count": 75,
+        "status": "evaluable"
+      },
+      "periods": [
+        {
+          "h0_csi_power": 440105.21739947365,
+          "period_id": 0,
+          "target_af_truth_hz": -3985.30630954,
+          "target_col": 880,
+          "target_only_before_power": 38292376.65630859,
+          "target_only_csi_power": 38360852.7096218,
+          "target_range_m": 85001.1549249,
+          "target_row": 114
+        },
+        {
+          "h0_csi_power": 740463.6430168693,
+          "period_id": 1,
+          "target_af_truth_hz": -4002.34328812,
+          "target_col": 971,
+          "target_only_before_power": 31792427.0125,
+          "target_only_csi_power": 31906847.82598703,
+          "target_range_m": 85229.3944269,
+          "target_row": 113
+        },
+        {
+          "h0_csi_power": 417804.8134240264,
+          "period_id": 2,
+          "target_af_truth_hz": -4019.24365438,
+          "target_col": 1063,
+          "target_only_before_power": 31705301.909492187,
+          "target_only_csi_power": 31898910.070305094,
+          "target_range_m": 85458.6036492,
+          "target_row": 111
+        }
+      ],
+      "status": "evaluable",
+      "target_only_csi_retention_db": 0.016034210071445724,
+      "target_only_output_power_mean": 34055536.86863797,
+      "target_only_pre_csi_power_mean": 33930035.19276693
+    }
+  }
+}

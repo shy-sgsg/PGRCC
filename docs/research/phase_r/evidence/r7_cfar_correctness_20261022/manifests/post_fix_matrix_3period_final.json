@@ -1,0 +1,1420 @@
+{
+  "binary_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+  "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+  "completed_utc": "2026-10-22T14:16:50.382235+00:00",
+  "created_utc": "2026-10-22T14:15:50.286916+00:00",
+  "experiment": "PGRCC Phase R7 minimal CUDA Production revalidation",
+  "git_revision": "04958a996f6a1449fa3d9f158a4765493c85038d",
+  "gpu_status_before_matrix": "NVIDIA GeForce RTX 3050 Laptop GPU, P0, 1500 MHz, 6001 MHz, 20.04 W, 55, 86 %, 1391 MiB, 4096 MiB",
+  "input_read_semantics": "Each Stage2 period file is an independent one-period binary; local-test forces unique result IDs 1..3 and leaves the in-file period offset at its XML default 0.",
+  "matrix_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final",
+  "period_count": 3,
+  "run_command_template": [
+    "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+    "--config",
+    "<runtime.xml>",
+    "--result-dir",
+    "<case>/result",
+    "--track-debug-dir",
+    "<case>/track_debug",
+    "--track-debug-dump=on",
+    "--runtime-mode=debug",
+    "--runtime-diagnostics=<on|off>",
+    "--local-test",
+    "1=<period_0000.bin>",
+    "2=<period_0001.bin>",
+    "3=<period_0002.bin>"
+  ],
+  "runs": {
+    "A0_OFF": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "A0_0ns_current",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_OFF/runtime.xml",
+      "config_sha256": "95c224c7473a756dfc26e0b2ebd1fe30b554a75d20cbfce0f191c74002514e5d",
+      "elapsed_wall_seconds": 4.471869752000202,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:00.161817+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "353901c637fd2b03c3f41ebbaab4992a9bd5a7f6c29d2ee2e684cce17d988f2a"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "8093a8a4db90b8038886a495452f910587316d6eda281abfb4bc1b04b4135104"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "501e6660baed1bfaee6716c9defbdeb420474605db0ed25657798279f63da573"
+        }
+      ],
+      "mode": "OFF",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_OFF/runtime.xml",
+      "started_utc": "2026-10-22T14:15:55.689593+00:00",
+      "status": "EXECUTED"
+    },
+    "A0_ON": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "A0_0ns_current",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_ON_rep1/runtime.xml",
+      "config_sha256": "352a69c22edc3f073d1686ad2684a1da3a5c18dbac3af3d22c23219479fef558",
+      "elapsed_wall_seconds": 5.1019089780002105,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:14.539695+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "ac124e51df49292a7dcd1b00b43f8d7e701a2a50c461ab10ddf7bf6223d609fc"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "9c7ba3f5ec898f3386da88aa7e11e8ee125b177020f45d3c2199bb26ad2e4b09"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "bd97ecb51341eef282556a08d852cf5718a35c42edb11505a34be1c21a01a33a"
+        }
+      ],
+      "mode": "ON",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON/runtime.xml",
+      "started_utc": "2026-10-22T14:16:09.437291+00:00",
+      "status": "EXECUTED"
+    },
+    "A0_ON_diagoff": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=off",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "A0_0ns_current_diagnostics_off_control",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_ON_rep1/runtime.xml",
+      "config_sha256": "352a69c22edc3f073d1686ad2684a1da3a5c18dbac3af3d22c23219479fef558",
+      "elapsed_wall_seconds": 4.642777102000764,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:50.380655+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "ac124e51df49292a7dcd1b00b43f8d7e701a2a50c461ab10ddf7bf6223d609fc"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "9c7ba3f5ec898f3386da88aa7e11e8ee125b177020f45d3c2199bb26ad2e4b09"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "bd97ecb51341eef282556a08d852cf5718a35c42edb11505a34be1c21a01a33a"
+        }
+      ],
+      "lineage_absent_with_diagnostics_off": true,
+      "mode": "ON",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results_GMTI03.csv",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/runtime.xml",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/track_debug"
+      },
+      "required_outputs_present": {
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/runtime.xml",
+      "started_utc": "2026-10-22T14:16:45.737097+00:00",
+      "status": "EXECUTED"
+    },
+    "A0_ON_focused_initial": {
+      "binary_identity_status": "NOT_RECORDED_IN_RUN_MANIFEST",
+      "binary_sha256": null,
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_ON_rep1/runtime.xml",
+      "config_sha256": "352a69c22edc3f073d1686ad2684a1da3a5c18dbac3af3d22c23219479fef558",
+      "exit_code": 0,
+      "git_commit": "f50ce8a",
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_sha256": "ac124e51df49292a7dcd1b00b43f8d7e701a2a50c461ab10ddf7bf6223d609fc",
+      "normal_exit": true,
+      "note": "Existing A0_ON output was validated against its run_manifest; binary SHA is left unverified because that run manifest did not record it. The hashed A0_ON_repeat run is used for paired numeric comparison.",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_focused/A0_ON",
+      "run_manifest_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_focused/A0_ON/result/run_manifest.json",
+      "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_focused/A0_ON/runtime.log",
+      "status": "EXECUTED"
+    },
+    "A0_ON_repeat": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "A0_0ns_current_repeatability_control",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_ON_rep1/runtime.xml",
+      "config_sha256": "352a69c22edc3f073d1686ad2684a1da3a5c18dbac3af3d22c23219479fef558",
+      "elapsed_wall_seconds": 5.157068505001007,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:15:55.568105+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "ac124e51df49292a7dcd1b00b43f8d7e701a2a50c461ab10ddf7bf6223d609fc"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "9c7ba3f5ec898f3386da88aa7e11e8ee125b177020f45d3c2199bb26ad2e4b09"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "bd97ecb51341eef282556a08d852cf5718a35c42edb11505a34be1c21a01a33a"
+        }
+      ],
+      "mode": "ON",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_repeat/runtime.xml",
+      "started_utc": "2026-10-22T14:15:50.410703+00:00",
+      "status": "EXECUTED"
+    },
+    "A0_TO": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "A0_0ns_current",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_TO/runtime.xml",
+      "config_sha256": "d92294399dfd6b4b3b475b00168ac217e6a32c7550491551c32c930b825e0bef",
+      "elapsed_wall_seconds": 7.402010623998649,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:32.295428+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "3f8603aa4423d73129afab34f34913c812eee213db4476f98a212e435f30ac1f"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "d7e9ba03665cba365fb7b701e4acfdc17808677cce9f3373bc52148dc035fc3c"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "718f9c9c3896bb168a3a80824c1d17db4fa239054dd5f4f362fdded32dc05cf4"
+        }
+      ],
+      "mode": "TO",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_TO/runtime.xml",
+      "started_utc": "2026-10-22T14:16:24.892734+00:00",
+      "status": "EXECUTED"
+    },
+    "B_OFF": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "B_plus4ns_current",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_OFF/runtime.xml",
+      "config_sha256": "95c224c7473a756dfc26e0b2ebd1fe30b554a75d20cbfce0f191c74002514e5d",
+      "elapsed_wall_seconds": 4.516444330998638,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:04.771326+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "64b39889e237ccb5f70538392f573da6a673d878e93b9863aeb30b2b84665be6"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "69e7455080178c12c8e8c22be5fb385ef02aa8109c14a78cec549bb4e1a73efb"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "27da4ffc378b16e9509f52eb91fb299b87984847a28868e9ab13238f050d0be8"
+        }
+      ],
+      "mode": "OFF",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_OFF_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_OFF/runtime.xml",
+      "started_utc": "2026-10-22T14:16:00.254441+00:00",
+      "status": "EXECUTED"
+    },
+    "B_ON": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "B_plus4ns_current",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_ON_rep1/runtime.xml",
+      "config_sha256": "352a69c22edc3f073d1686ad2684a1da3a5c18dbac3af3d22c23219479fef558",
+      "elapsed_wall_seconds": 5.047449687001063,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:19.679510+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "a0781e0cb2fef4fe30edf5d3af1dd5862a3a5291f3e57b16a1d493362c66abd7"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "c97f73c569d2151ae9ae8f1f9d8d7201ceea4af6c26d41880972fcce60ba455a"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "3237c16e60b9191ca43fe0f8ea8ef9c80537421c4895e0a95c8a9a88606f17da"
+        }
+      ],
+      "mode": "ON",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_ON_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_ON/runtime.xml",
+      "started_utc": "2026-10-22T14:16:14.631451+00:00",
+      "status": "EXECUTED"
+    },
+    "B_TO": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin"
+      ],
+      "condition": "B_plus4ns_current",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/A0_TO/runtime.xml",
+      "config_sha256": "d92294399dfd6b4b3b475b00168ac217e6a32c7550491551c32c930b825e0bef",
+      "elapsed_wall_seconds": 5.876708040999802,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:38.264630+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "sha256": "db16a9ea63dcb50c982640cd4c36a1f98b478cfe5e300e3d1e76e9d8aaa7ddba"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "sha256": "6dee9235af1246bddcb9ceaab707596a44a36765ed34259a5544553303775d80"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "sha256": "f43a5e8c5c83d0afdb8953f059456ca6c7450c02f1fb37052e9f9cdb0f208898"
+        }
+      ],
+      "mode": "TO",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A1_TO_bg_replay1/data/stage2_statistical_newprotocol_period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/B_TO/runtime.xml",
+      "started_utc": "2026-10-22T14:16:32.387258+00:00",
+      "status": "EXECUTED"
+    },
+    "C_OFF": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+      ],
+      "condition": "C_known_physical_correction",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/C_OFF/runtime.xml",
+      "config_sha256": "d0ca7ea5da790be9ee632c0fd2a8a2c896c8c3e94426d1630d94bd89332b3456",
+      "elapsed_wall_seconds": 4.4498081100009585,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:09.345060+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+          "period_index": 0,
+          "sha256": "0ba7c2cd03f13bfc7854b2ab327e630350258890a5ba19cd5d03429940c37aa5"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+          "period_index": 1,
+          "sha256": "960e381c36799b2eac1879bc45c6034a067647daa4822659fda73ae0be69e75c"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+          "period_index": 2,
+          "sha256": "feed0246c1735f6f2ff9a59be37af576e53af415f840e0c90fc3988b2e1def00"
+        }
+      ],
+      "mode": "OFF",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_OFF/runtime.xml",
+      "started_utc": "2026-10-22T14:16:04.894817+00:00",
+      "status": "EXECUTED"
+    },
+    "C_ON": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+      ],
+      "condition": "C_known_physical_correction",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/C_ON/runtime.xml",
+      "config_sha256": "122e1285f4258330648dee321779a763e054a80da175ca7cca95f945acc8c841",
+      "elapsed_wall_seconds": 5.001383536999128,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:24.800254+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+          "period_index": 0,
+          "sha256": "77052787dc401d6cbe156bd0aadf0ea44603dded3d2124ae2a693a3c1659d32d"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+          "period_index": 1,
+          "sha256": "a60f297f312db8c103c634b32715b7792f69e1ef0ca032f6d80355e1e82591cb"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+          "period_index": 2,
+          "sha256": "03b64381d05a123900db55127103bfff9fb7ddcd7514a7fd56840d828f76c618"
+        }
+      ],
+      "mode": "ON",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_ON/runtime.xml",
+      "started_utc": "2026-10-22T14:16:19.798184+00:00",
+      "status": "EXECUTED"
+    },
+    "C_TO": {
+      "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+      "command": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build_r7/GMTI_pipe_core",
+        "--config",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/runtime.xml",
+        "--result-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result",
+        "--track-debug-dir",
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/track_debug",
+        "--track-debug-dump=on",
+        "--runtime-mode=debug",
+        "--runtime-diagnostics=on",
+        "--local-test",
+        "1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+        "2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+        "3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+      ],
+      "condition": "C_known_physical_correction",
+      "config_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/production/C_TO/runtime.xml",
+      "config_sha256": "c5f1be7058433f6e1f09d9b98f7b441592f166469d6e9b95b8ec6d35461f312e",
+      "elapsed_wall_seconds": 7.285182599000109,
+      "environment_overrides": {
+        "GMTI_CFAR_DUMP_BEAM": "50"
+      },
+      "exit_code": 0,
+      "finished_utc": "2026-10-22T14:16:45.642518+00:00",
+      "input_bytes": 147613440,
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+      "input_periods": [
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+          "period_index": 0,
+          "sha256": "fcc69c9baa188cb2eeea3ac4e433ace6ed2d3e258f038f4cc18f1e243f20609a"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+          "period_index": 1,
+          "sha256": "abba3ca721861827b7b8af6106ceaab9a3b2e4188f2b4e29c008343971557877"
+        },
+        {
+          "bytes": 49204480,
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+          "period_index": 2,
+          "sha256": "372b739c596ac368ce7baa47cd645f86ea887af3f9a81c633bf58be643aec754"
+        }
+      ],
+      "mode": "TO",
+      "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO",
+      "period_run_records": [
+        {
+          "cycle_result_id": 1,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+          "period_index": 0,
+          "result_id": 1,
+          "sequence": 1,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 2,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+          "period_index": 1,
+          "result_id": 2,
+          "sequence": 2,
+          "total": 3
+        },
+        {
+          "cycle_result_id": 3,
+          "cycle_success": true,
+          "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/corrected_C/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+          "period_index": 2,
+          "result_id": 3,
+          "sequence": 3,
+          "total": 3
+        }
+      ],
+      "period_sequence_status": "evaluable",
+      "required_outputs": {
+        "cfar_geometry": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_geometry_diagnostics.csv",
+        "cfar_numerical": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_numerical_diagnostics.csv",
+        "cluster_detection_lineage": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cluster_detection_lineage.csv",
+        "csi_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/csi_metrics",
+        "detection_results_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/detection_results_GMTI01.csv",
+        "detection_results_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/detection_results_GMTI02.csv",
+        "detection_results_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/detection_results_GMTI03.csv",
+        "dynamic_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_GMTI01_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_GMTI02_beam050_dynamic_in_band_threshold.f32",
+        "dynamic_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_GMTI03_beam050_dynamic_in_band_threshold.f32",
+        "full_threshold_GMTI01": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_GMTI01_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI02": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_GMTI02_beam050_full_band_threshold.f32",
+        "full_threshold_GMTI03": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/debug/cfar_GMTI03_beam050_full_band_threshold.f32",
+        "run_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/run_manifest.json",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/runtime_config_dump.json",
+        "runtime_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/runtime.log",
+        "runtime_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/runtime.xml",
+        "timing_metrics": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/result/timing_metrics.csv",
+        "track_debug": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/track_debug"
+      },
+      "required_outputs_present": {
+        "cfar_geometry": true,
+        "cfar_numerical": true,
+        "cluster_detection_lineage": true,
+        "csi_metrics": true,
+        "detection_results_GMTI01": true,
+        "detection_results_GMTI02": true,
+        "detection_results_GMTI03": true,
+        "dynamic_threshold_GMTI01": true,
+        "dynamic_threshold_GMTI02": true,
+        "dynamic_threshold_GMTI03": true,
+        "full_threshold_GMTI01": true,
+        "full_threshold_GMTI02": true,
+        "full_threshold_GMTI03": true,
+        "run_manifest": true,
+        "runtime_config_dump": true,
+        "runtime_log": true,
+        "runtime_xml": true,
+        "timing_metrics": true,
+        "track_debug": true
+      },
+      "runtime_xml_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/C_TO/runtime.xml",
+      "started_utc": "2026-10-22T14:16:38.356565+00:00",
+      "status": "EXECUTED"
+    }
+  },
+  "schema_version": 1,
+  "tracked_worktree_status_at_start": "M scripts/phase_r/run_r7_minimal_production_matrix.py\n M scripts/phase_r/run_r7_prefix_b_replays.py\n M src/processOnePeriod.cpp"
+}

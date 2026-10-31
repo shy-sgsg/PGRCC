@@ -1,0 +1,231 @@
+{
+  "schema_version": 1,
+  "phase": "R22",
+  "status": "STOPPED_AT_ENGINEERING_GATE",
+  "implementation": "IMPLEMENTED",
+  "executed": "EXECUTED",
+  "evaluable": "PARTIAL",
+  "performance_verified": false,
+  "entry_commit": "6fdc4a9d08d91293d47ba6bdd967e8a22a688c4e",
+  "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "evidence_baseline": "61da2ae010adb72ab824869031fa5c6a5df69ad4",
+  "runs": [
+    {
+      "seed": 900202,
+      "run_manifest": "evidence/preflight/seed900202/r22_run_manifest.json",
+      "run_manifest_sha256": "66c0f85e7f167d541ff7cc28af597dbe3e4364199f914570bf068f58513b575d",
+      "pipeline_case_manifest_sha256": "544aa295027f6bc36ba9cac9d757c2309202403aad7fafee402108403e942880",
+      "status": "completed_with_gaps",
+      "production_branch_count": 27,
+      "all_production_branches_passed": false,
+      "native_cuda": {
+        "binary": {
+          "backend": "local Native CUDA",
+          "build_cache": {
+            "bytes": 32958,
+            "exists": true,
+            "path": "<external>/CMakeCache.txt",
+            "sha256": "c2df08ea494f2f81ab6d814a3da4f16960cb349f76176db41df28f92b09812ea"
+          },
+          "path": "/tmp/pgrcc-r21-native-cuda-build/GMTI_pipe_core",
+          "repo_relative_path": "<external>/GMTI_pipe_core",
+          "sha256": "9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566",
+          "use_corex": false
+        },
+        "disk": {
+          "free_bytes": 6572572672,
+          "path": "/tmp/r22_runner_smoke_seed900202",
+          "total_bytes": 8035000320,
+          "used_bytes": 1462427648
+        },
+        "gpu": {
+          "available": true,
+          "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P0, 37.96, 63, 63, 1897"
+        }
+      },
+      "source_identity": {
+        "branch": "codex/unknown-system-error-next-stage",
+        "commit": "6fdc4a9d08d91293d47ba6bdd967e8a22a688c4e",
+        "files": {
+          "scripts/phase_r/r21_historical_task_review.py": {
+            "bytes": 29902,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_historical_task_review.py",
+            "sha256": "b3b6142f9968af619bce3d2a6917073d720246584c623a8acac1ae1eec4a10a5"
+          },
+          "scripts/phase_r/r21_task_evaluator.py": {
+            "bytes": 21991,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_task_evaluator.py",
+            "sha256": "c1820472f6fae354e09e4a331a71212b6ba41c20595f729fc80caa2a01d49a1c"
+          },
+          "scripts/phase_r/r22_scenario_factory.py": {
+            "bytes": 12043,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r22_scenario_factory.py",
+            "sha256": "de07515b8f983027efb3e061acbded34699b9605dfc6f8d98bfff96d900b3c7b"
+          },
+          "scripts/phase_r/run_r22_cuda_pilot.py": {
+            "bytes": 31758,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r22_cuda_pilot.py",
+            "sha256": "1b21a33f7bd634ded70d65b6b16d6025f5d27837e99e45d40eaedad176afe8ad"
+          },
+          "scripts/run_delay_stage1_formal.py": {
+            "bytes": 145675,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+            "sha256": "a01422153867405ca5cb8a97bef494f299751cc9a6076641abdba093f2b6f47e"
+          },
+          "scripts/run_production_hierarchical_calibration_pilot.py": {
+            "bytes": 121194,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+            "sha256": "34f8eb2c0dd90d28d202adb87af6c54345bab0b00c29093402a194e2a39f6bd6"
+          },
+          "scripts/run_track_manager_e2e.py": {
+            "bytes": 81133,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_track_manager_e2e.py",
+            "sha256": "97cd25766f09f80ee70795dd4f177fa4bbfc5a1c37a87e18ce5f09dcb4de1ff4"
+          }
+        },
+        "tracked_dirty_status": [
+          " M scripts/run_delay_stage1_formal.py",
+          " M scripts/run_production_hierarchical_calibration_pilot.py",
+          " M scripts/run_track_manager_e2e.py"
+        ]
+      },
+      "evaluation_summary": {
+        "evaluated_on_rows": 9,
+        "evaluator": "r21-task-eval-v3",
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 360,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 28
+      },
+      "archive": "evidence/preflight/seed900202"
+    },
+    {
+      "seed": 900203,
+      "run_manifest": "evidence/preflight/seed900203_closure/r22_run_manifest.json",
+      "run_manifest_sha256": "75250e68427c9d5843a93e91ac4ee9d783bddfff38eee05885da010b4657b7c8",
+      "pipeline_case_manifest_sha256": "df09b176e39af4e15a1dbaf0fbd2770f026e38e0f4db049b82c0f29ae8298a88",
+      "status": "completed_with_gaps",
+      "production_branch_count": 36,
+      "all_production_branches_passed": false,
+      "native_cuda": {
+        "binary": {
+          "backend": "local Native CUDA",
+          "build_cache": {
+            "bytes": 32958,
+            "exists": true,
+            "path": "<external>/CMakeCache.txt",
+            "sha256": "c2df08ea494f2f81ab6d814a3da4f16960cb349f76176db41df28f92b09812ea"
+          },
+          "path": "/tmp/pgrcc-r21-native-cuda-build/GMTI_pipe_core",
+          "repo_relative_path": "<external>/GMTI_pipe_core",
+          "sha256": "9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566",
+          "use_corex": false
+        },
+        "disk": {
+          "free_bytes": 5543960576,
+          "path": "/tmp/r22_runner_smoke_seed900203_closure",
+          "total_bytes": 8035000320,
+          "used_bytes": 2491039744
+        },
+        "gpu": {
+          "available": true,
+          "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P8, 6.43, 48, 40, 210"
+        }
+      },
+      "source_identity": {
+        "branch": "codex/unknown-system-error-next-stage",
+        "commit": "6fdc4a9d08d91293d47ba6bdd967e8a22a688c4e",
+        "files": {
+          "scripts/phase_r/r21_historical_task_review.py": {
+            "bytes": 29902,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_historical_task_review.py",
+            "sha256": "b3b6142f9968af619bce3d2a6917073d720246584c623a8acac1ae1eec4a10a5"
+          },
+          "scripts/phase_r/r21_task_evaluator.py": {
+            "bytes": 21991,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_task_evaluator.py",
+            "sha256": "c1820472f6fae354e09e4a331a71212b6ba41c20595f729fc80caa2a01d49a1c"
+          },
+          "scripts/phase_r/r22_scenario_factory.py": {
+            "bytes": 12043,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r22_scenario_factory.py",
+            "sha256": "de07515b8f983027efb3e061acbded34699b9605dfc6f8d98bfff96d900b3c7b"
+          },
+          "scripts/phase_r/run_r22_cuda_pilot.py": {
+            "bytes": 32494,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r22_cuda_pilot.py",
+            "sha256": "d52bd9016f463301ac4aa0b67e7d9a15511c7e0169721a4a49ead6844d4b6a75"
+          },
+          "scripts/run_delay_stage1_formal.py": {
+            "bytes": 145675,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+            "sha256": "a01422153867405ca5cb8a97bef494f299751cc9a6076641abdba093f2b6f47e"
+          },
+          "scripts/run_production_hierarchical_calibration_pilot.py": {
+            "bytes": 121194,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+            "sha256": "34f8eb2c0dd90d28d202adb87af6c54345bab0b00c29093402a194e2a39f6bd6"
+          },
+          "scripts/run_track_manager_e2e.py": {
+            "bytes": 81133,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_track_manager_e2e.py",
+            "sha256": "97cd25766f09f80ee70795dd4f177fa4bbfc5a1c37a87e18ce5f09dcb4de1ff4"
+          }
+        },
+        "tracked_dirty_status": [
+          " M scripts/run_delay_stage1_formal.py",
+          " M scripts/run_production_hierarchical_calibration_pilot.py",
+          " M scripts/run_track_manager_e2e.py"
+        ]
+      },
+      "evaluation_summary": {
+        "evaluated_on_rows": 10,
+        "evaluator": "r21-task-eval-v3",
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 400,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 36
+      },
+      "archive": "evidence/preflight/seed900203_closure"
+    }
+  ],
+  "metric_files": {
+    "key_metrics_csv": "evidence/results/r22_key_metrics.csv",
+    "area_pairing_audit": "evidence/results/area_pairing_audit.json",
+    "descriptive_hit_plot": "evidence/results/r22_descriptive_target_hits.png"
+  },
+  "gate_summary": {
+    "seed900101": "Native CUDA multi-target generation/Production smoke passed; zero-delay, no method performance claim",
+    "seed900202": "posthoc Production path audit passed; PK/PKR not selected; one-period descriptive comparison",
+    "seed900203": "30 of 36 method-role records passed; six PKR rows not evaluable; residual closure blocked"
+  },
+  "aggregate_limits": [
+    "only two +4 ns comparison seeds; one period and one beam each",
+    "target opportunities within seed are not independent replicates",
+    "empirical H0 Pfa not evaluable",
+    "confirmed tracking, radial velocity, and ground speed not evaluable",
+    "full screening, confirmatory, dense-target, and H0 matrices not executed"
+  ],
+  "decision": "Do not expand seeds or start AI; request independent review and user decision on bounded PKR support-contract audit.",
+  "plot_generator": "scripts/phase_r/plot_r22_descriptive_hits.py"
+}

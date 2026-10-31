@@ -1,0 +1,352 @@
+{
+  "trace_root": "docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1b",
+  "roles": [
+    "ON",
+    "OFF",
+    "TO"
+  ],
+  "shared_cell_count": 665,
+  "processing_lineage": {
+    "raw_path": [
+      "raw_dbs_pre_range_phase",
+      "raw_post_range_phase"
+    ],
+    "csi_path": [
+      "csi_dbs_pre_range_phase",
+      "csi_post_range_phase_pre_c4_adapter",
+      "csi_post_c4_adapter"
+    ],
+    "boundary_note": "The CSI path reloads original d1/d2 before its own align/FFT/DBS; raw_post_range_phase is a separate branch, not the parent of csi_dbs_pre_range_phase."
+  },
+  "role_key_mismatches": {
+    "ON": {
+      "missing": 0,
+      "extra": 0
+    },
+    "OFF": {
+      "missing": 0,
+      "extra": 0
+    },
+    "TO": {
+      "missing": 0,
+      "extra": 0
+    }
+  },
+  "modeb_failure_input_match": {
+    "status": "exact_match",
+    "source_modeb_failure_cells": "docs/research/phase_r/R22/support_failure_diagnostic/evidence/mode_comparison/snr30_modeb_on_selected_cells.csv",
+    "source_rows": 133,
+    "s1b_pre_adapter_rows": 133,
+    "common_range_cells": 133,
+    "f1_f2_csv_values_exactly_match": true,
+    "source_failure_support_counts": [
+      "7"
+    ],
+    "source_failure_reasons": [
+      "insufficient_robust_support"
+    ],
+    "interpretation": "An exact match ties the S1b Mode-A ON upstream input to the recorded Mode-B failure input; it does not make the Mode-A reference-assisted replay a blind deployment evaluation or prove the failure cause."
+  },
+  "c4_adapter_linearity": {
+    "status": "EVALUABLE",
+    "operator": "F2 - gamma * F1 (production_calibration_adapter.cpp)",
+    "cell_count_per_role": 133,
+    "gamma_by_role": {
+      "ON": {
+        "real": 0.143796772317323,
+        "imag": 0.83936050987282
+      },
+      "OFF": {
+        "real": 0.143796772317323,
+        "imag": 0.83936050987282
+      },
+      "TO": {
+        "real": 0.143796772317323,
+        "imag": 0.83936050987282
+      }
+    },
+    "max_gamma_abs_difference_from_on": 0.0,
+    "max_abs_formula_error_by_role": {
+      "ON": 1.045339953501155e-05,
+      "OFF": 3.5860678507888074e-06,
+      "TO": 6.70381248938004e-06
+    },
+    "relative_l2_formula_error_by_role": {
+      "ON": 4.547658763966415e-08,
+      "OFF": 1.0861309242878022e-07,
+      "TO": 3.381107734106584e-08
+    },
+    "predicted_output_closure_relative_l2_to_on": 0.6938342336194526,
+    "actual_output_closure_relative_l2_to_on": 0.693834240234164,
+    "predicted_vs_actual_closure_relative_l2_to_on": 5.029000425417873e-08,
+    "interpretation": "The Mode-A adapter applies the same gamma across ON/OFF/TO and its observed output matches F2-gamma*F1; output nonclosure is therefore inherited from the pre-adapter inputs within float precision."
+  },
+  "closure_definition": "For complex F1/F2 only: ON - OFF - TO; relative L2 denominator is ON L2. F2*conj(F1) is bilinear and reported as a non-additive difference, not a closure gate.",
+  "stages": [
+    {
+      "stage": "raw_dbs_pre_range_phase",
+      "cell_count": 133,
+      "f1_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 4.234810283578618,
+        "relative_l2_to_on": 0.009367094609759291
+      },
+      "f2_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 7.434839902185433,
+        "relative_l2_to_on": 0.01805557585577246
+      },
+      "output_closure": {
+        "status": "NOT_AVAILABLE",
+        "residual_l2": null,
+        "relative_l2_to_on": null
+      },
+      "f2_conj_f1_nonadditive_difference": {
+        "status": "EVALUABLE",
+        "residual_l2": 9003.667245339573,
+        "relative_l2_to_on": 0.20901293116996647
+      },
+      "phase_and_p38": {
+        "ON": {
+          "range_phase_count": 0,
+          "range_phase_mean_rad": null,
+          "range_phase_min_rad": null,
+          "range_phase_max_rad": null,
+          "p38_slope_rad_per_hz": null,
+          "p38_intercept_rad": null,
+          "p38_values_consistent_across_cells": null
+        },
+        "OFF": {
+          "range_phase_count": 0,
+          "range_phase_mean_rad": null,
+          "range_phase_min_rad": null,
+          "range_phase_max_rad": null,
+          "p38_slope_rad_per_hz": null,
+          "p38_intercept_rad": null,
+          "p38_values_consistent_across_cells": null
+        },
+        "TO": {
+          "range_phase_count": 0,
+          "range_phase_mean_rad": null,
+          "range_phase_min_rad": null,
+          "range_phase_max_rad": null,
+          "p38_slope_rad_per_hz": null,
+          "p38_intercept_rad": null,
+          "p38_values_consistent_across_cells": null
+        }
+      }
+    },
+    {
+      "stage": "raw_post_range_phase",
+      "cell_count": 133,
+      "f1_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 4.234810283578618,
+        "relative_l2_to_on": 0.009367094609759291
+      },
+      "f2_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 92.62575502426417,
+        "relative_l2_to_on": 0.2249424825669015
+      },
+      "output_closure": {
+        "status": "NOT_AVAILABLE",
+        "residual_l2": null,
+        "relative_l2_to_on": null
+      },
+      "f2_conj_f1_nonadditive_difference": {
+        "status": "EVALUABLE",
+        "residual_l2": 10380.523465070806,
+        "relative_l2_to_on": 0.24097554674167174
+      },
+      "phase_and_p38": {
+        "ON": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": -1.8546816403007518,
+          "range_phase_min_rad": -2.1584897,
+          "range_phase_max_rad": -1.50867963,
+          "p38_slope_rad_per_hz": -0.0009026227053254843,
+          "p38_intercept_rad": -1.1352542638778687,
+          "p38_values_consistent_across_cells": true
+        },
+        "OFF": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": -2.5038053000751876,
+          "range_phase_min_rad": -2.5626688,
+          "range_phase_max_rad": -2.43601847,
+          "p38_slope_rad_per_hz": 0.00046579615445807576,
+          "p38_intercept_rad": 0.25427645444869995,
+          "p38_values_consistent_across_cells": true
+        },
+        "TO": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": -1.7606548506766917,
+          "range_phase_min_rad": -1.76280272,
+          "range_phase_max_rad": -1.75982964,
+          "p38_slope_rad_per_hz": 0.0005137517582625151,
+          "p38_intercept_rad": 0.07787899672985077,
+          "p38_values_consistent_across_cells": true
+        }
+      }
+    },
+    {
+      "stage": "csi_dbs_pre_range_phase",
+      "cell_count": 133,
+      "f1_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 3.620710274017959,
+        "relative_l2_to_on": 0.01031565692874125
+      },
+      "f2_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 7.434839902185433,
+        "relative_l2_to_on": 0.01805557585577246
+      },
+      "output_closure": {
+        "status": "NOT_AVAILABLE",
+        "residual_l2": null,
+        "relative_l2_to_on": null
+      },
+      "f2_conj_f1_nonadditive_difference": {
+        "status": "EVALUABLE",
+        "residual_l2": 8070.0045356126175,
+        "relative_l2_to_on": 0.2672548900173512
+      },
+      "phase_and_p38": {
+        "ON": {
+          "range_phase_count": 0,
+          "range_phase_mean_rad": null,
+          "range_phase_min_rad": null,
+          "range_phase_max_rad": null,
+          "p38_slope_rad_per_hz": null,
+          "p38_intercept_rad": null,
+          "p38_values_consistent_across_cells": null
+        },
+        "OFF": {
+          "range_phase_count": 0,
+          "range_phase_mean_rad": null,
+          "range_phase_min_rad": null,
+          "range_phase_max_rad": null,
+          "p38_slope_rad_per_hz": null,
+          "p38_intercept_rad": null,
+          "p38_values_consistent_across_cells": null
+        },
+        "TO": {
+          "range_phase_count": 0,
+          "range_phase_mean_rad": null,
+          "range_phase_min_rad": null,
+          "range_phase_max_rad": null,
+          "p38_slope_rad_per_hz": null,
+          "p38_intercept_rad": null,
+          "p38_values_consistent_across_cells": null
+        }
+      }
+    },
+    {
+      "stage": "csi_post_range_phase_pre_c4_adapter",
+      "cell_count": 133,
+      "f1_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 3.620710274017959,
+        "relative_l2_to_on": 0.01031565692874125
+      },
+      "f2_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 324.3567584486232,
+        "relative_l2_to_on": 0.7877033350734334
+      },
+      "output_closure": {
+        "status": "NOT_AVAILABLE",
+        "residual_l2": null,
+        "relative_l2_to_on": null
+      },
+      "f2_conj_f1_nonadditive_difference": {
+        "status": "EVALUABLE",
+        "residual_l2": 19687.680194853387,
+        "relative_l2_to_on": 0.6519982567048299
+      },
+      "phase_and_p38": {
+        "ON": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": 0.05733450898330827,
+          "range_phase_min_rad": -0.624484479,
+          "range_phase_max_rad": 0.81408608,
+          "p38_slope_rad_per_hz": 0.0053518689237535,
+          "p38_intercept_rad": 2.3553969860076904,
+          "p38_values_consistent_across_cells": true
+        },
+        "OFF": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": -1.7668940507518796,
+          "range_phase_min_rad": -1.82486689,
+          "range_phase_max_rad": -1.73524594,
+          "p38_slope_rad_per_hz": 0.009578744880855083,
+          "p38_intercept_rad": 5.446508407592773,
+          "p38_values_consistent_across_cells": true
+        },
+        "TO": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": 0.6625419666917294,
+          "range_phase_min_rad": 0.659330368,
+          "range_phase_max_rad": 0.663660765,
+          "p38_slope_rad_per_hz": 0.01151774451136589,
+          "p38_intercept_rad": 11.235376358032227,
+          "p38_values_consistent_across_cells": true
+        }
+      }
+    },
+    {
+      "stage": "csi_post_c4_adapter",
+      "cell_count": 133,
+      "f1_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 3.620710274017959,
+        "relative_l2_to_on": 0.01031565692874125
+      },
+      "f2_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 324.3567584486232,
+        "relative_l2_to_on": 0.7877033350734334
+      },
+      "output_closure": {
+        "status": "EVALUABLE",
+        "residual_l2": 324.1027941318293,
+        "relative_l2_to_on": 0.693834240234164
+      },
+      "f2_conj_f1_nonadditive_difference": {
+        "status": "EVALUABLE",
+        "residual_l2": 19687.680194853387,
+        "relative_l2_to_on": 0.6519982567048299
+      },
+      "phase_and_p38": {
+        "ON": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": 0.05733450898330827,
+          "range_phase_min_rad": -0.624484479,
+          "range_phase_max_rad": 0.81408608,
+          "p38_slope_rad_per_hz": 0.0053518689237535,
+          "p38_intercept_rad": 2.3553969860076904,
+          "p38_values_consistent_across_cells": true
+        },
+        "OFF": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": -1.7668940507518796,
+          "range_phase_min_rad": -1.82486689,
+          "range_phase_max_rad": -1.73524594,
+          "p38_slope_rad_per_hz": 0.009578744880855083,
+          "p38_intercept_rad": 5.446508407592773,
+          "p38_values_consistent_across_cells": true
+        },
+        "TO": {
+          "range_phase_count": 133,
+          "range_phase_mean_rad": 0.6625419666917294,
+          "range_phase_min_rad": 0.659330368,
+          "range_phase_max_rad": 0.663660765,
+          "p38_slope_rad_per_hz": 0.01151774451136589,
+          "p38_intercept_rad": 11.235376358032227,
+          "p38_values_consistent_across_cells": true
+        }
+      }
+    }
+  ]
+}

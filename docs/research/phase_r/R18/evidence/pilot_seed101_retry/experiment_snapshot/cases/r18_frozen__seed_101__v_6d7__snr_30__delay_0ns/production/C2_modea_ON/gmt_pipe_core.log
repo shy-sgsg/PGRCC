@@ -1,0 +1,601 @@
+$ /tmp/pgrcc-r18-native-release/GMTI_pipe_core --config /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/production.xml --result-dir /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result --track-debug-dir /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/track_debug_runs --track-debug-dump on --runtime-mode=debug --runtime-diagnostics=on --local-test 1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin 2=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin 3=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin
+[LOCAL-TEST] track_debug=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/track_debug_runs/local_test_20261025_180930_809356_pid564474
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/production.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[TRIG-LUT] uploaded 16384-entry sin/cos/asin/atan tables to device memory
+[TRIG-LUT][CPU] mode=lut iterations=4194304 std_sin_cos_ms=54.562943 lut_sin_cos_ms=18.954484 speedup=2.8786298 mean_abs_err=1.7888371e-08 max_abs_err=7.8646936e-08 sink=7066.5895
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/production.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[STARTUP][CYCLE] prt_bytes=378496 prts_per_beam=130 beam_count=1 prts_per_cycle=130 cycle_bytes=49204480
+[STARTUP] XML absolute path: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/production.xml
+[STARTUP] XML read: success
+[STARTUP] echo_input_mode: file
+[STARTUP] test_mode: 0 (shared-memory real echo)
+[STARTUP] shm_name: /time_seq_shm
+[STARTUP] pipe_root_path: /home/raco
+[STARTUP] prt_bytes: 378496
+[STARTUP] acquisition_unit: complete_scan
+[STARTUP] scan_first_beam: 50
+[STARTUP] scan_beam_count: 1
+[STARTUP] processing_beam_count: 1
+[STARTUP] prts_per_beam: 130
+[STARTUP] prts_per_scan: 130
+[STARTUP] scan_bytes: 49204480
+[STARTUP] payload_buffer_bytes: 98408960
+[STARTUP] available_memory: 6860947456
+[STARTUP] channel_count: 4
+[STARTUP] four_channel_fusion: enabled
+[STARTUP] new_protocol_gpu_preprocess: enabled
+[STARTUP] selected_channels: 1,2
+[STARTUP] result_add: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result
+[STARTUP] result_return: enabled
+[STARTUP] test_cycle_data_files: 0 playback=once
+[STARTUP] track_output_state_source: measurement
+[STARTUP] config_generation: 1
+[fusion][WORKER-POOL] rebuild workers=1 process_pulse_num=130 pulse_dec=1 rg_len=4096 range_fft_len=12288
+[fusion][WORKER-POOL] prewarm workers=1 cuda_free=2958MB total=3759MB
+[LOCAL-TEST] XML snapshot: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/production.xml
+[LOCAL-TEST] Echo files: 3
+
+[LOCAL-TEST] ===== 1/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin result_id=1 =====
+[LOCAL-TEST] Use forced result id 1 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin
+[PARAM_DUMP] runtime_config_dump = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/runtime_config_dump.json
+[PARAM_DUMP] pulse_len=11820, read_pulse_num=130, fc=1.6e+10, Br=50000000, fs=60000000, Tr=0.00013, PRF=1300
+[PARAM_DUMP] scan_min=-60, scan_max=60, az_count=61, pc_crop_start=3864, pc_crop_len=4096
+[MANIFEST] run_manifest = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/run_manifest.json
+[TIMING] timing_metrics = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/timing_metrics.csv
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=4.9000001 t_last=4.9992309 e_first=498806.59 e_last=498806.59 n_first=4479923.9 n_last=4479928.7 vx_mps=0 vy_mps=48.372073 vz_mps=0 speed_mps=48.372073
+[imu-interp] beam_id=-1 t_start=4.9000001 t_end=4.9992309 imu_before_start=0@4.9000001 imu_after_start=0@4.9000001 imu_before_end=129@4.9992309 imu_after_end=129@4.9992309 P_start_E=498806.59 P_start_N=4479923.9 P_start_U=6000 P_end_E=498806.59 P_end_N=4479928.7 P_end_U=6000 V_E_mps=0 V_N_mps=48.372073 V_U_mps=0 speed_mps=48.372073
+[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=2.791687GiB/3.6716309GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.0019836426GiB
+[TIMING-SCOPE] data_read: 37 ms
+[TIMING-SCOPE] pulse_compression: 13 ms
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=4.9000001 t_last=4.9992309 e_first=498806.59 e_last=498806.59 n_first=4479923.9 n_last=4479928.7 vx_mps=0 vy_mps=48.372073 vz_mps=0 speed_mps=48.372073
+[imu-interp] beam_id=50 t_start=4.9000001 t_end=4.9992309 imu_before_start=0@4.9000001 imu_after_start=0@4.9000001 imu_before_end=129@4.9992309 imu_after_end=129@4.9992309 P_start_E=498806.59 P_start_N=4479923.9 P_start_U=6000 P_end_E=498806.59 P_end_N=4479928.7 P_end_U=6000 V_E_mps=0 V_N_mps=48.372073 V_U_mps=0 speed_mps=48.372073
+[fd-center][robust] fd_ctr_hz=-33.517149 valid_range_bins=4096 clipped_range_bins=82 magnitude_cap=136408.83
+[fd-center][theory-guard] observed_hz=-33.517149 theory_wrapped_hz=-578.82013 theory_unwrapped_hz=-3178.8201 sin_theta=0.61566148 speed_mps=48.372073 lambda_m=0.018737029 prf_hz=1300 circular_error_hz=545.30298 limit_hz=122.72533 theta_cmd_deg=38 action=use_theory
+[CSI][CANCELLATION] period=0 beam=50 support_rows=[46,84] before_mean_power=5292.0043 after_mean_power=5544.5312 improvement_db=-0.20244647 strong_top1pct_improvement_db=-0.12698317 phase_coherence=0.99428208 phase_rmse_rad=0.14030637
+[TIMING-SCOPE] csi_metrics: 121 ms
+[TIMING-SCOPE] channel_cancellation: 145 ms
+[CFAR][CSI-BAND] mode=union dynamic=[46,84] applied=dynamic+full
+[TIMING-SCOPE] detection: 275 ms
+[CFAR][SUMMARY] beam=50 slot=0 hit_cells=2683 clusters=235 selected=235 min_points=3 strong_small_kept=0 small_rejected=0 global_median_power=nan pf=1e-06
+[fusion] active DBS beams for bias: 50
+[fusion] estimate_error_angle disabled, using XML beam_pointing_bias=0 deg
+[fusion] beam_pointing_bias=0 deg
+[fusion][loc][total] raw=235 kept=235 drop_sin=0 drop_px=0 drop_gate=0 n_selected=235 n_old_valid=235 n_comp_valid=235 n_old_invalid_comp_valid=0 n_old_valid_comp_invalid=0 n_both_valid=235 n_both_invalid=0 n_duplicate_raw=0 n_output=235
+[TIMING-SCOPE] gmti_processing: 680 ms
+[fusion][dbs] imaging start: beams=1 rd=130x4096 rd_amp_cache~0.0019836426 GiB PRF=1300 Rmin=82802.7 fs=60000000 out_res=25 range_skip=200 beam_skip=1 useGpu=0
+[fusion][dbs] active nonzero beams for mosaic: 50 (1 / 1)
+[fusion][dbs][extent] B=1 M=4096 nEff=130 boundsX=[418845.19, 440946.03] boundsY=[4413975.5, 4437637] marginX=1524.1975m marginY=1631.8m grid=885x947 dx=25 host_mosaic_min~0.0046832208 GiB
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs][diag][grid] boundsX=[420369.38,439421.84] boundsY=[4415607.5,4436005] nx=885 ny=947 dx=25 dy=25 pixels=838095 max_pixels=300000000
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result
+[TIMING-SCOPE] dbs_processing: 75 ms
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=235 removed_low_velocity=0 removed_nonfinite=0 output=235
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=235 removed_upper_bound=0 removed_nonfinite=0 output=235
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=235 removed_duplicates=0 output=235
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/GMTI01.bin，目标数: 235
+[TIMING-SCOPE] result_write: 0 ms
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/detection_results.csv，目标数: 235，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/detection_results_GMTI01.csv
+[TIMING-SCOPE] detection_result_csv_write: 790 ms
+[TRACK_CONFIG]
+distance_mode=MahalanobisSquared
+assignment_mode=GreedyNearestNeighbor
+output_state_source=measurement
+
+costs:
+distance=on weight=1
+speed=on weight=0.3
+heading=on weight=0.5
+detection_speed=off weight=0
+
+gates:
+euclidean=on threshold=300m
+mahalanobis=on threshold=9.21
+max_speed=on threshold=50m/s
+heading=off threshold=90deg
+detection_speed=off threshold=30m/s
+
+dummy_cost=1.5 invalid_cost=1e+12
+[TRACK] result_id=1 dets=235 active=235 tentative=235 confirmed=0 coasted=0 deleted=0 outputs=0 new=235 suppressed_coasted_speed_outliers=0 matched=0 unmatched_dets=235
+[TRACK_ONLINE] 当前周期确认输出目标数: 0 (result_id=1, raw_dets=235)
+
+[TRACK] 目标信息列表
+-----------------------------------------------------------------------------------------------
+TrackID Lon(deg)      Lat(deg)      Speed(m/s)  Dir(deg)    Range(m)    UTC(s)        
+-----------------------------------------------------------------------------------------------
+(empty)
+-----------------------------------------------------------------------------------------------
+
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/GMTI01_track.bin，目标数: 0
+[TIMING-SCOPE] tracking: 11 ms
+[GMTI][RESULT] filtered_detection_count=235 confirmed_current_detection_count=0 protocol_target_count=0
+[TIMING-SCOPE] main_total: 1650 ms
+[FILE][CYCLE] result_file_id=1 period_index=0 algorithm_process_ms=1650.6679 end_to_end_ms=1650.6708 success=true
+
+[LOCAL-TEST] ===== 2/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin result_id=2 =====
+[LOCAL-TEST] Use forced result id 2 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin
+[PARAM_DUMP] runtime_config_dump = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/runtime_config_dump.json
+[PARAM_DUMP] pulse_len=11820, read_pulse_num=130, fc=1.6e+10, Br=50000000, fs=60000000, Tr=0.00013, PRF=1300
+[PARAM_DUMP] scan_min=-60, scan_max=60, az_count=61, pc_crop_start=3864, pc_crop_len=4096
+[MANIFEST] run_manifest = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/run_manifest.json
+[TIMING] timing_metrics = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/timing_metrics.csv
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=11 t_last=11.099231 e_first=498806.59 e_last=498806.59 n_first=4480291.1 n_last=4480295.9 vx_mps=-4.6927108e-09 vy_mps=48.372072 vz_mps=0 speed_mps=48.372072
+[imu-interp] beam_id=-1 t_start=11 t_end=11.099231 imu_before_start=0@11 imu_after_start=0@11 imu_before_end=129@11.099231 imu_after_end=129@11.099231 P_start_E=498806.59 P_start_N=4480291.1 P_start_U=6000 P_end_E=498806.59 P_end_N=4480295.9 P_end_U=6000 V_E_mps=-4.6927108e-09 V_N_mps=48.372072 V_U_mps=0 speed_mps=48.372072
+[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=2.7467651GiB/3.6716309GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.0019836426GiB
+[TIMING-SCOPE] data_read: 40 ms
+[TIMING-SCOPE] pulse_compression: 9 ms
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=11 t_last=11.099231 e_first=498806.59 e_last=498806.59 n_first=4480291.1 n_last=4480295.9 vx_mps=-4.6927108e-09 vy_mps=48.372072 vz_mps=0 speed_mps=48.372072
+[imu-interp] beam_id=50 t_start=11 t_end=11.099231 imu_before_start=0@11 imu_after_start=0@11 imu_before_end=129@11.099231 imu_after_end=129@11.099231 P_start_E=498806.59 P_start_N=4480291.1 P_start_U=6000 P_end_E=498806.59 P_end_N=4480295.9 P_end_U=6000 V_E_mps=-4.6927108e-09 V_N_mps=48.372072 V_U_mps=0 speed_mps=48.372072
+[fd-center][robust] fd_ctr_hz=-31.134222 valid_range_bins=4096 clipped_range_bins=82 magnitude_cap=142526.26
+[fd-center][theory-guard] observed_hz=-31.134222 theory_wrapped_hz=-578.82012 theory_unwrapped_hz=-3178.8201 sin_theta=0.61566148 speed_mps=48.372072 lambda_m=0.018737029 prf_hz=1300 circular_error_hz=547.6859 limit_hz=122.72533 theta_cmd_deg=38 action=use_theory
+[CSI][CANCELLATION] period=1 beam=50 support_rows=[46,84] before_mean_power=5798.0402 after_mean_power=6052.8998 improvement_db=-0.18682264 strong_top1pct_improvement_db=-0.12130048 phase_coherence=0.99460505 phase_rmse_rad=0.15223717
+[TIMING-SCOPE] csi_metrics: 122 ms
+[TIMING-SCOPE] channel_cancellation: 144 ms
+[CFAR][CSI-BAND] mode=union dynamic=[46,84] applied=dynamic+full
+[TIMING-SCOPE] detection: 98 ms
+[CFAR][SUMMARY] beam=50 slot=0 hit_cells=1842 clusters=303 selected=303 min_points=3 strong_small_kept=0 small_rejected=0 global_median_power=nan pf=1e-06
+[fusion] active DBS beams for bias: 50
+[fusion] estimate_error_angle disabled, using XML beam_pointing_bias=0 deg
+[fusion] beam_pointing_bias=0 deg
+[fusion][loc][total] raw=303 kept=303 drop_sin=0 drop_px=0 drop_gate=0 n_selected=303 n_old_valid=244 n_comp_valid=303 n_old_invalid_comp_valid=59 n_old_valid_comp_invalid=0 n_both_valid=244 n_both_invalid=0 n_duplicate_raw=0 n_output=303
+[TIMING-SCOPE] gmti_processing: 558 ms
+[fusion][dbs] imaging start: beams=1 rd=130x4096 rd_amp_cache~0.0019836426 GiB PRF=1300 Rmin=82802.7 fs=60000000 out_res=25 range_skip=200 beam_skip=1 useGpu=0
+[fusion][dbs] active nonzero beams for mosaic: 50 (1 / 1)
+[fusion][dbs][extent] B=1 M=4096 nEff=130 boundsX=[418845.19, 440946.03] boundsY=[4414341.5, 4438003] marginX=1524.1975m marginY=1631.8m grid=885x947 dx=25 host_mosaic_min~0.0046832208 GiB
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs][diag][grid] boundsX=[420369.38,439421.84] boundsY=[4415973.5,4436371] nx=885 ny=947 dx=25 dy=25 pixels=838095 max_pixels=300000000
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result
+[TIMING-SCOPE] dbs_processing: 66 ms
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=303 removed_low_velocity=0 removed_nonfinite=0 output=303
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=303 removed_upper_bound=0 removed_nonfinite=0 output=303
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=303 removed_duplicates=0 output=303
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/GMTI02.bin，目标数: 303
+[TIMING-SCOPE] result_write: 0 ms
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/detection_results.csv，目标数: 303，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/detection_results_GMTI02.csv
+[TIMING-SCOPE] detection_result_csv_write: 1018 ms
+[TRACK] result_id=2 dets=303 active=357 tentative=176 confirmed=181 coasted=0 deleted=0 outputs=181 new=122 suppressed_coasted_speed_outliers=0 matched=181 unmatched_dets=122
+[TRACK_ONLINE] 当前周期确认输出目标数: 181 (result_id=2, raw_dets=303)
+
+[TRACK] 目标信息列表
+-----------------------------------------------------------------------------------------------
+TrackID Lon(deg)      Lat(deg)      Speed(m/s)  Dir(deg)    Range(m)    UTC(s)        
+-----------------------------------------------------------------------------------------------
+1       116.176357    39.964676     6.86        -128.16     87980.98    11.050        
+3       116.203713    39.981653     37.52       -128.15     84978.40    11.050        
+4       116.176562    39.964442     6.50        -128.18     87983.48    11.050        
+5       116.176566    39.964439     7.34        -128.18     87983.48    11.050        
+6       116.176703    39.964307     8.37        -128.19     87983.48    11.050        
+7       116.176678    39.964367     7.08        -128.19     87980.98    11.050        
+9       116.176633    39.964374     21.31       -128.19     87983.48    11.050        
+10      116.176621    39.964386     22.73       -128.19     87983.48    11.050        
+11      116.178125    39.966259     25.17       -128.13     87753.11    11.050        
+13      116.178155    39.966014     19.19       -128.15     87768.14    11.050        
+14      116.174294    39.963880     23.66       -128.13     88173.79    11.050        
+15      116.178243    39.966327     25.26       -128.13     87740.59    11.050        
+16      116.174048    39.963900     26.57       -128.12     88188.81    11.050        
+17      116.178731    39.966760     29.50       -128.13     87677.99    11.050        
+18      116.178437    39.966392     24.70       -128.14     87723.06    11.050        
+19      116.172127    39.962716     46.66       -128.12     88399.15    11.050        
+20      116.174004    39.963726     25.23       -128.13     88203.84    11.050        
+21      116.180647    39.967949     49.67       -128.13     87467.65    11.050        
+22      116.173578    39.963702     29.44       -128.12     88233.89    11.050        
+23      116.179059    39.966877     28.58       -128.13     87647.94    11.050        
+24      116.178857    39.966855     30.44       -128.12     87662.97    11.050        
+25      116.172617    39.963111     36.16       -128.12     88339.05    11.050        
+26      116.179201    39.966922     26.81       -128.13     87635.42    11.050        
+27      116.173906    39.963604     22.60       -128.14     88218.86    11.050        
+28      116.173576    39.963487     25.68       -128.13     88248.91    11.050        
+29      116.179502    39.967282     31.77       -128.12     87590.35    11.050        
+30      116.173292    39.963328     23.67       -128.13     88278.96    11.050        
+31      116.179534    39.966854     21.14       -128.15     87617.89    11.050        
+32      116.173548    39.963298     20.49       -128.14     88263.93    11.050        
+33      116.173094    39.963302     28.56       -128.13     88293.98    11.050        
+34      116.179565    39.967041     23.55       -128.14     87602.87    11.050        
+35      116.180475    39.967898     38.18       -128.12     87482.67    11.050        
+36      116.179956    39.967062     19.81       -128.15     87575.32    11.050        
+37      116.172898    39.963274     32.38       -128.12     88309.01    11.050        
+38      116.172889    39.963065     26.21       -128.13     88324.03    11.050        
+39      116.180170    39.967759     36.49       -128.12     87512.72    11.050        
+40      116.172571    39.962722     23.98       -128.14     88369.10    11.050        
+41      116.180277    39.967439     26.80       -128.14     87527.75    11.050        
+42      116.180112    39.967381     28.39       -128.14     87542.77    11.050        
+43      116.172382    39.962687     27.76       -128.14     88384.13    11.050        
+44      116.172724    39.962792     22.70       -128.14     88354.08    11.050        
+45      116.180599    39.967563     21.25       -128.15     87497.70    11.050        
+46      116.172281    39.962351     15.39       -128.15     88414.17    11.050        
+47      116.179960    39.967310     29.72       -128.14     87557.79    11.050        
+48      116.180988    39.967802     19.34       -128.15     87455.13    11.050        
+49      116.171955    39.962448     25.82       -128.13     88429.20    11.050        
+50      116.181246    39.967807     16.57       -128.15     87437.60    11.050        
+51      116.181154    39.968111     27.82       -128.13     87422.57    11.050        
+52      116.171653    39.962305     34.12       -128.13     88459.25    11.050        
+53      116.181789    39.968150     17.07       -128.15     87377.50    11.050        
+54      116.171302    39.961957     24.49       -128.14     88506.82    11.050        
+55      116.182004    39.968341     25.46       -128.15     87349.95    11.050        
+56      116.171659    39.961867     17.39       -128.16     88489.29    11.050        
+57      116.170795    39.961831     26.29       -128.13     88549.39    11.050        
+58      116.182482    39.968748     30.11       -128.14     87289.85    11.050        
+59      116.181396    39.968276     29.41       -128.13     87395.03    11.050        
+60      116.171134    39.961721     18.83       -128.15     88534.36    11.050        
+61      116.170734    39.961673     21.16       -128.14     88564.41    11.050        
+62      116.182517    39.968497     16.30       -128.16     87304.88    11.050        
+63      116.182275    39.968513     21.70       -128.15     87319.90    11.050        
+64      116.169900    39.961176     30.88       -128.13     88654.55    11.050        
+65      116.183247    39.968878     18.29       -128.16     87229.76    11.050        
+66      116.169390    39.960800     30.47       -128.14     88714.65    11.050        
+67      116.169127    39.960404     22.03       -128.15     88759.72    11.050        
+68      116.169248    39.960503     21.46       -128.15     88744.70    11.050        
+69      116.183414    39.969186     24.12       -128.15     87197.20    11.050        
+70      116.168187    39.960225     33.17       -128.13     88834.84    11.050        
+71      116.183683    39.969326     18.35       -128.15     87169.66    11.050        
+72      116.184212    39.969503     13.59       -128.16     87122.08    11.050        
+73      116.168856    39.960231     14.30       -128.15     88789.77    11.050        
+74      116.183891    39.969558     22.11       -128.15     87139.61    11.050        
+75      116.185128    39.970101     26.06       -128.16     87019.41    11.050        
+76      116.168953    39.960354     21.25       -128.15     88774.74    11.050        
+77      116.168344    39.960254     26.89       -128.13     88822.32    11.050        
+78      116.168187    39.959539     8.36        -128.17     88882.41    11.050        
+79      116.185522    39.969939     15.21       -128.18     87004.38    11.050        
+80      116.168164    39.959994     20.26       -128.14     88852.37    11.050        
+81      116.167695    39.959832     34.70       -128.13     88894.93    11.050        
+82      116.185670    39.970231     22.81       -128.17     86974.33    11.050        
+83      116.166963    39.959417     18.85       -128.13     88972.55    11.050        
+84      116.167609    39.959481     11.53       -128.15     88924.98    11.050        
+85      116.166133    39.958735     20.48       -128.14     89075.21    11.050        
+86      116.167456    39.959411     10.52       -128.15     88940.00    11.050        
+87      116.166617    39.959352     33.35       -128.12     89000.10    11.050        
+88      116.186594    39.970029     1.13        -128.22     86926.75    11.050        
+89      116.166361    39.959165     32.01       -128.12     89030.14    11.050        
+90      116.166201    39.958886     24.27       -128.13     89060.19    11.050        
+91      116.166031    39.958184     14.36       -128.17     89120.28    11.050        
+92      116.166205    39.958233     7.46        -128.17     89105.26    11.050        
+93      116.186510    39.970506     10.72       -128.19     86899.21    11.050        
+94      116.186619    39.970834     8.43        -128.17     86869.16    11.050        
+95      116.165831    39.958808     26.49       -128.13     89090.24    11.050        
+96      116.165360    39.958396     4.60        -128.13     89150.33    11.050        
+97      116.164932    39.957724     15.07       -128.16     89225.45    11.050        
+98      116.164804    39.957632     10.23       -128.16     89240.47    11.050        
+99      116.187227    39.971151     16.50       -128.17     86806.55    11.050        
+100     116.165024    39.958069     23.51       -128.14     89195.40    11.050        
+101     116.187640    39.972018     30.23       -128.14     86718.91    11.050        
+102     116.164998    39.958311     44.12       -128.13     89180.38    11.050        
+103     116.189544    39.971127     4.14        -128.26     86653.80    11.050        
+104     116.163771    39.957108     15.37       -128.15     89345.63    11.050        
+105     116.188304    39.971632     11.77       -128.18     86701.38    11.050        
+106     116.164268    39.957497     19.99       -128.15     89285.54    11.050        
+107     116.163190    39.957451     25.57       -128.11     89360.65    11.050        
+108     116.162932    39.956400     6.41        -128.16     89450.79    11.050        
+109     116.163701    39.957393     20.86       -128.13     89330.61    11.050        
+110     116.162448    39.957081     26.71       -128.11     89435.77    11.050        
+111     116.191037    39.970959     9.96        -128.32     86566.15    11.050        
+112     116.162381    39.956713     18.05       -128.12     89465.82    11.050        
+113     116.161671    39.956313     22.85       -128.12     89540.93    11.050        
+114     116.190772    39.971608     5.82        -128.27     86538.60    11.050        
+115     116.161935    39.956926     38.26       -128.10     89480.84    11.050        
+116     116.189902    39.972262     5.59        -128.20     86551.12    11.050        
+117     116.183631    39.969159     0.87        -128.16     87184.68    11.050        
+118     116.190606    39.971551     3.46        -128.27     86553.63    11.050        
+119     116.164141    39.958052     41.92       -128.11     89255.49    11.050        
+120     116.183776    39.969452     3.96        -128.15     87154.63    11.050        
+121     116.191624    39.971693     11.38       -128.30     86476.00    11.050        
+122     116.161712    39.955444     8.82        -128.17     89598.52    11.050        
+123     116.188635    39.972794     29.73       -128.13     86598.70    11.050        
+124     116.162853    39.957342     33.10       -128.11     89390.70    11.050        
+127     116.161033    39.956494     40.58       -128.09     89570.98    11.050        
+128     116.161384    39.955939     19.75       -128.13     89586.00    11.050        
+129     116.160961    39.955914     22.33       -128.12     89616.05    11.050        
+130     116.160795    39.955856     21.79       -128.12     89631.07    11.050        
+131     116.159852    39.955897     29.03       -128.08     89691.16    11.050        
+132     116.189892    39.973751     27.24       -128.12     86448.45    11.050        
+133     116.158802    39.955175     33.96       -128.09     89811.34    11.050        
+134     116.190613    39.974177     25.05       -128.12     86370.82    11.050        
+136     116.190359    39.973518     7.88        -128.15     86433.42    11.050        
+137     116.159190    39.954549     20.50       -128.14     89828.87    11.050        
+138     116.159265    39.955162     24.94       -128.10     89781.30    11.050        
+139     116.193574    39.973282     2.44        -128.28     86235.59    11.050        
+140     116.192026    39.974551     13.90       -128.15     86250.61    11.050        
+141     116.158632    39.954906     47.84       -128.10     89841.39    11.050        
+142     116.160119    39.954126     3.64        -128.19     89796.32    11.050        
+143     116.158000    39.952447     46.84       -128.21     90054.21    11.050        
+144     116.193678    39.973398     12.87       -128.27     86220.56    11.050        
+145     116.160001    39.956404     49.14       -128.06     89646.09    11.050        
+146     116.192345    39.971651     22.61       -128.33     86430.92    11.050        
+147     116.193287    39.974458     6.69        -128.20     86172.98    11.050        
+148     116.191913    39.974623     24.50       -128.14     86253.12    11.050        
+149     116.191233    39.974230     17.78       -128.14     86325.74    11.050        
+150     116.193841    39.973674     9.90        -128.26     86190.51    11.050        
+151     116.192894    39.973537     2.05        -128.24     86263.13    11.050        
+152     116.192458    39.971795     19.23       -128.32     86413.39    11.050        
+153     116.158679    39.954210     26.48       -128.14     89886.46    11.050        
+154     116.192848    39.975277     8.25        -128.14     86145.43    11.050        
+155     116.193001    39.975562     4.39        -128.12     86115.38    11.050        
+156     116.193363    39.975612     4.18        -128.13     86087.83    11.050        
+157     116.193811    39.974964     5.59        -128.19     86102.86    11.050        
+158     116.191349    39.974551     43.54       -128.12     86295.69    11.050        
+160     116.193970    39.975678     14.16       -128.15     86042.76    11.050        
+165     116.195140    39.977369     6.02        -128.10     85847.42    11.050        
+166     116.194073    39.975326     25.12       -128.18     86060.29    11.050        
+167     116.193965    39.975899     10.79       -128.14     86027.73    11.050        
+168     116.196799    39.977542     14.41       -128.15     85724.71    11.050        
+170     116.152401    39.951551     4.28        -128.07     90489.86    11.050        
+171     116.151294    39.952077     23.05       -128.00     90527.42    11.050        
+172     116.194433    39.979608     46.47       -127.94     85739.74    11.050        
+174     116.147792    39.946458     8.19        -128.19     91150.84    11.050        
+187     116.139949    39.938137     26.60       -128.38     92252.41    11.050        
+189     116.140408    39.938166     40.32       -128.39     92219.86    11.050        
+195     116.137912    39.936598     19.31       -128.40     92495.25    11.050        
+204     116.137702    39.942341     32.10       -128.08     92109.71    11.050        
+205     116.136591    39.936960     15.47       -128.33     92557.84    11.050        
+206     116.137196    39.938322     1.59        -128.28     92422.65    11.050        
+207     116.133358    39.938690     12.61       -128.13     92652.97    11.050        
+212     116.141051    39.939922     6.09        -128.32     92054.63    11.050        
+215     116.137733    39.937487     6.82        -128.34     92445.18    11.050        
+217     116.135766    39.935988     14.44       -128.36     92680.51    11.050        
+218     116.138501    39.939268     9.88        -128.27     92269.93    11.050        
+220     116.141132    39.940527     19.55       -128.29     92007.06    11.050        
+225     116.133872    39.938701     36.02       -128.15     92617.92    11.050        
+226     116.135997    39.940625     21.13       -128.12     92342.54    11.050        
+228     116.140226    39.942981     11.59       -128.13     91896.91    11.050        
+230     116.132345    39.938076     8.97        -128.13     92763.12    11.050        
+231     116.135311    39.938797     1.95        -128.19     92515.28    11.050        
+232     116.132236    39.940964     13.58       -127.97     92570.35    11.050        
+233     116.130642    39.939428     19.92       -128.00     92783.15    11.050        
+235     116.134604    39.936558     23.82       -128.29     92718.06    11.050        
+-----------------------------------------------------------------------------------------------
+
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/GMTI02_track.bin，目标数: 181
+[TIMING-SCOPE] tracking: 225 ms
+[GMTI][RESULT] filtered_detection_count=303 confirmed_current_detection_count=181 protocol_target_count=181
+[TIMING-SCOPE] main_total: 1953 ms
+[FILE][CYCLE] result_file_id=2 period_index=1 algorithm_process_ms=1953.853 end_to_end_ms=1953.855 success=true
+
+[LOCAL-TEST] ===== 3/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin result_id=3 =====
+[LOCAL-TEST] Use forced result id 3 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin
+[PARAM_DUMP] runtime_config_dump = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/runtime_config_dump.json
+[PARAM_DUMP] pulse_len=11820, read_pulse_num=130, fc=16000000000.000, Br=50000000.000, fs=60000000.000, Tr=0.000, PRF=1300.000
+[PARAM_DUMP] scan_min=-60.000, scan_max=60.000, az_count=61, pc_crop_start=3864, pc_crop_len=4096
+[MANIFEST] run_manifest = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/run_manifest.json
+[TIMING] timing_metrics = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/timing_metrics.csv
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=17.100 t_last=17.199 e_first=498806.588 e_last=498806.588 n_first=4480655.901 n_last=4480660.701 vx_mps=-0.000 vy_mps=48.373 vz_mps=0.000 speed_mps=48.373
+[imu-interp] beam_id=-1 t_start=17.100 t_end=17.199 imu_before_start=0@17.100 imu_after_start=0@17.100 imu_before_end=129@17.199 imu_after_end=129@17.199 P_start_E=498806.588 P_start_N=4480655.901 P_start_U=6000.000 P_end_E=498806.588 P_end_N=4480660.701 P_end_U=6000.000 V_E_mps=-0.000 V_N_mps=48.373 V_U_mps=0.000 speed_mps=48.373
+[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=2.747GiB/3.672GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.002GiB
+[TIMING-SCOPE] data_read: 40 ms
+[TIMING-SCOPE] pulse_compression: 11 ms
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=17.100 t_last=17.199 e_first=498806.588 e_last=498806.588 n_first=4480655.901 n_last=4480660.701 vx_mps=-0.000 vy_mps=48.373 vz_mps=0.000 speed_mps=48.373
+[imu-interp] beam_id=50 t_start=17.100 t_end=17.199 imu_before_start=0@17.100 imu_after_start=0@17.100 imu_before_end=129@17.199 imu_after_end=129@17.199 P_start_E=498806.588 P_start_N=4480655.901 P_start_U=6000.000 P_end_E=498806.588 P_end_N=4480660.701 P_end_U=6000.000 V_E_mps=-0.000 V_N_mps=48.373 V_U_mps=0.000 speed_mps=48.373
+[fd-center][robust] fd_ctr_hz=-30.761 valid_range_bins=4096 clipped_range_bins=82 magnitude_cap=134590.230
+[fd-center][theory-guard] observed_hz=-30.761 theory_wrapped_hz=-578.851 theory_unwrapped_hz=-3178.851 sin_theta=0.616 speed_mps=48.373 lambda_m=0.019 prf_hz=1300.000 circular_error_hz=548.090 limit_hz=122.726 theta_cmd_deg=38.000 action=use_theory
+[CSI][CANCELLATION] period=2 beam=50 support_rows=[46,84] before_mean_power=4192.56392838 after_mean_power=4393.84708424 improvement_db=-0.20365245 strong_top1pct_improvement_db=-0.11524466 phase_coherence=0.99312114 phase_rmse_rad=0.22683812
+[TIMING-SCOPE] csi_metrics: 119 ms
+[TIMING-SCOPE] channel_cancellation: 141 ms
+[CFAR][CSI-BAND] mode=union dynamic=[46,84] applied=dynamic+full
+[TIMING-SCOPE] detection: 136 ms
+[CFAR][SUMMARY] beam=50 slot=0 hit_cells=2504 clusters=230 selected=230 min_points=3 strong_small_kept=0 small_rejected=0 global_median_power=nan pf=0.00000100
+[fusion] active DBS beams for bias: 50
+[fusion] estimate_error_angle disabled, using XML beam_pointing_bias=0.00000000 deg
+[fusion] beam_pointing_bias=0.00000000 deg
+[fusion][loc][total] raw=230 kept=230 drop_sin=0 drop_px=0 drop_gate=0 n_selected=230 n_old_valid=230 n_comp_valid=230 n_old_invalid_comp_valid=0 n_old_valid_comp_invalid=0 n_both_valid=230 n_both_invalid=0 n_duplicate_raw=0 n_output=230
+[TIMING-SCOPE] gmti_processing: 529 ms
+[fusion][dbs] imaging start: beams=1 rd=130x4096 rd_amp_cache~0.00198364 GiB PRF=1300.00000000 Rmin=82802.70000000 fs=60000000.00000001 out_res=25.00000000 range_skip=200 beam_skip=1 useGpu=0
+[fusion][dbs] active nonzero beams for mosaic: 50 (1 / 1)
+[fusion][dbs][extent] B=1 M=4096 nEff=130 boundsX=[418845.25000000, 440945.96875000] boundsY=[4414707.50000000, 4438368.50000000] marginX=1524.18750000m marginY=1631.76000000m grid=885x947 dx=25.00000000 host_mosaic_min~0.00468322 GiB
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6.00000000 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs][diag][grid] boundsX=[420369.43750000,439421.78125000] boundsY=[4416339.50000000,4436736.50000000] nx=885 ny=947 dx=25.00000000 dy=25.00000000 pixels=838095 max_pixels=300000000
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6.00000000 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result
+[TIMING-SCOPE] dbs_processing: 69 ms
+[LOW-VR-FILTER] enabled=0 threshold_mps=1.00000000 input=230 removed_low_velocity=0 removed_nonfinite=0 output=230
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.00050000 input=230 removed_upper_bound=0 removed_nonfinite=0 output=230
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30.00000000 velocity_gate_mps=0.35000000 input=230 removed_duplicates=0 output=230
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/GMTI03.bin，目标数: 230
+[TIMING-SCOPE] result_write: 0 ms
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/detection_results.csv，目标数: 230，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/detection_results_GMTI03.csv
+[TIMING-SCOPE] detection_result_csv_write: 806 ms
+[TRACK] result_id=3 dets=230 active=368 tentative=104 confirmed=182 coasted=82 deleted=37 outputs=182 new=48 suppressed_coasted_speed_outliers=0 matched=182 unmatched_dets=48
+[TRACK_ONLINE] 当前周期确认输出目标数: 182 (result_id=3, raw_dets=230)
+
+[TRACK] 目标信息列表
+-----------------------------------------------------------------------------------------------
+TrackID Lon(deg)      Lat(deg)      Speed(m/s)  Dir(deg)    Range(m)    UTC(s)        
+-----------------------------------------------------------------------------------------------
+1       116.175870    39.964545     7.04        -128.34     88248.91    17.150        
+4       116.176209    39.964257     6.22        -128.37     88246.41    17.150        
+5       116.176103    39.964323     6.89        -128.36     88248.91    17.150        
+6       116.176113    39.964313     8.31        -128.36     88248.91    17.150        
+7       116.176334    39.964102     6.93        -128.38     88248.91    17.150        
+8       116.179039    39.964935     0.75        -128.43     88011.03    17.150        
+9       116.179104    39.965053     26.26       -128.42     87998.51    17.150        
+10      116.178776    39.964935     25.02       -128.42     88028.56    17.150        
+11      116.179380    39.965436     4.23        -128.41     87953.44    17.150        
+12      116.175124    39.962635     6.89        -128.42     88431.70    17.150        
+13      116.179555    39.965915     7.09        -128.39     87908.36    17.150        
+14      116.174143    39.962242     13.17       -128.41     88524.35    17.150        
+15      116.179708    39.965589     4.39        -128.41     87920.88    17.150        
+18      116.179490    39.965546     1.76        -128.41     87938.41    17.150        
+27      116.174277    39.962330     3.34        -128.41     88509.32    17.150        
+30      116.173792    39.962146     4.71        -128.40     88554.40    17.150        
+31      116.179987    39.965934     2.90        -128.40     87878.32    17.150        
+32      116.174319    39.962505     1.49        -128.40     88494.30    17.150        
+34      116.179855    39.965844     4.96        -128.40     87893.34    17.150        
+36      116.180851    39.966618     4.00        -128.40     87773.14    17.150        
+40      116.173371    39.961901     4.01        -128.40     88599.47    17.150        
+41      116.181267    39.966689     4.72        -128.41     87740.59    17.150        
+44      116.173459    39.962032     2.74        -128.40     88584.44    17.150        
+45      116.181063    39.966632     2.00        -128.40     87758.12    17.150        
+46      116.172245    39.961251     8.25        -128.40     88719.66    17.150        
+48      116.181470    39.966890     1.26        -128.40     87713.05    17.150        
+49      116.173167    39.961665     3.49        -128.41     88629.51    17.150        
+50      116.181895    39.967131     1.06        -128.40     87667.97    17.150        
+53      116.182707    39.967434     2.95        -128.41     87592.85    17.150        
+54      116.171721    39.960673     4.71        -128.41     88794.77    17.150        
+55      116.181919    39.966929     7.41        -128.42     87680.49    17.150        
+56      116.172974    39.961633     10.23       -128.40     88644.54    17.150        
+60      116.172915    39.961474     11.48       -128.41     88659.56    17.150        
+61      116.171504    39.960665     0.40        -128.40     88809.80    17.150        
+62      116.183149    39.967659     1.03        -128.42     87547.78    17.150        
+63      116.182439    39.967259     8.30        -128.42     87622.90    17.150        
+65      116.184041    39.967887     1.58        -128.44     87472.65    17.150        
+67      116.169166    39.959268     10.67       -128.40     89062.69    17.150        
+68      116.170915    39.960365     6.93        -128.40     88869.89    17.150        
+71      116.184478    39.967901     7.40        -128.45     87442.61    17.150        
+72      116.185635    39.968737     8.65        -128.44     87307.38    17.150        
+73      116.169578    39.959486     2.24        -128.40     89020.13    17.150        
+76      116.169897    39.959648     5.54        -128.40     88987.58    17.150        
+78      116.168848    39.959140     2.16        -128.40     89092.74    17.150        
+79      116.186083    39.968956     2.46        -128.45     87262.31    17.150        
+80      116.170592    39.959847     16.78       -128.42     88927.48    17.150        
+82      116.186291    39.968973     2.08        -128.45     87247.28    17.150        
+83      116.167613    39.958559     3.34        -128.39     89215.43    17.150        
+84      116.168647    39.958865     6.68        -128.41     89125.29    17.150        
+85      116.167021    39.958082     4.35        -128.39     89288.04    17.150        
+86      116.168950    39.959259     12.55       -128.39     89077.72    17.150        
+88      116.186661    39.970128     0.63        -128.40     87142.11    17.150        
+90      116.167417    39.958350     5.21        -128.39     89242.97    17.150        
+91      116.166409    39.957983     3.97        -128.38     89335.62    17.150        
+92      116.166381    39.958441     5.21        -128.35     89305.57    17.150        
+93      116.187301    39.969949     2.15        -128.43     87112.06    17.150        
+94      116.187008    39.969582     9.82        -128.44     87157.14    17.150        
+96      116.166028    39.957951     4.27        -128.37     89363.16    17.150        
+97      116.164246    39.956599     13.32       -128.38     89575.99    17.150        
+98      116.164633    39.957092     4.99        -128.37     89515.89    17.150        
+99      116.188193    39.970607     2.31        -128.43     87006.89    17.150        
+100     116.166954    39.957715     12.91       -128.41     89318.09    17.150        
+103     116.189192    39.970733     5.74        -128.46     86931.76    17.150        
+104     116.164012    39.956607     4.39        -128.37     89591.01    17.150        
+105     116.188570    39.971791     5.60        -128.37     86899.21    17.150        
+106     116.165168    39.956833     6.75        -128.40     89498.37    17.150        
+108     116.162676    39.955727     7.10        -128.37     89741.24    17.150        
+109     116.165787    39.956890     16.10       -128.42     89453.30    17.150        
+112     116.163899    39.956104     8.35        -128.39     89633.57    17.150        
+113     116.161682    39.955166     10.99       -128.37     89846.40    17.150        
+114     116.189484    39.970706     14.45       -128.47     86914.23    17.150        
+116     116.189245    39.972656     8.42        -128.35     86794.03    17.150        
+117     116.184321    39.968265     9.30        -128.42     87427.58    17.150        
+118     116.191248    39.972685     12.88       -128.42     86658.80    17.150        
+120     116.185319    39.968428     16.19       -128.45     87349.95    17.150        
+121     116.191700    39.972865     5.06        -128.42     86616.23    17.150        
+122     116.161280    39.955155     8.22        -128.36     89873.94    17.150        
+123     116.189199    39.972448     10.33       -128.36     86811.56    17.150        
+125     116.162119    39.955001     6.92        -128.39     89828.87    17.150        
+126     116.162260    39.953970     3.43        -128.46     89891.47    17.150        
+128     116.162017    39.955709     8.59        -128.35     89786.31    17.150        
+130     116.162279    39.955674     13.92       -128.36     89771.28    17.150        
+132     116.189842    39.972949     9.23        -128.35     86733.93    17.150        
+135     116.162605    39.954717     2.55        -128.43     89816.35    17.150        
+136     116.190755    39.973586     5.64        -128.35     86628.75    17.150        
+137     116.160071    39.954764     4.42        -128.34     89981.60    17.150        
+139     116.193282    39.973512     4.02        -128.44     86465.98    17.150        
+140     116.191836    39.975539     15.92       -128.28     86420.90    17.150        
+142     116.159773    39.954402     3.83        -128.35     90026.67    17.150        
+147     116.192198    39.973037     17.69       -128.43     86571.16    17.150        
+149     116.190521    39.973163     10.28       -128.37     86673.83    17.150        
+150     116.193069    39.973499     10.55       -128.44     86481.00    17.150        
+151     116.192465    39.973643     4.16        -128.41     86511.06    17.150        
+156     116.193279    39.975489     3.34        -128.33     86328.25    17.150        
+157     116.193136    39.974763     7.67        -128.37     86388.35    17.150        
+158     116.190105    39.972446     42.76       -128.39     86751.46    17.150        
+159     116.191955    39.973735     29.61       -128.38     86538.60    17.150        
+161     116.193106    39.973249     32.22       -128.45     86496.03    17.150        
+162     116.172248    39.960423     28.54       -128.44     88777.25    17.150        
+164     116.192129    39.973318     35.81       -128.41     86556.13    17.150        
+166     116.193665    39.974044     24.57       -128.43     86403.37    17.150        
+169     116.197598    39.980284     32.38       -128.21     85707.18    17.150        
+177     116.208834    39.989627     13.79       -128.07     84309.70    17.150        
+187     116.139082    39.938347     11.83       -128.52     92522.79    17.150        
+201     116.135669    39.941024     10.80       -128.26     92562.84    17.150        
+204     116.137125    39.941609     11.44       -128.28     92425.15    17.150        
+206     116.137370    39.938038     2.83        -128.48     92657.97    17.150        
+212     116.139791    39.940216     9.94        -128.44     92345.04    17.150        
+213     116.216652    39.990957     3.34        -128.27     83696.07    17.150        
+214     116.136423    39.939155     8.96        -128.39     92642.95    17.150        
+215     116.138030    39.938164     8.16        -128.49     92605.40    17.150        
+218     116.139364    39.939081     11.09       -128.49     92452.69    17.150        
+223     116.133465    39.941083     4.50        -128.19     92705.54    17.150        
+226     116.136596    39.940929     11.11       -128.30     92507.77    17.150        
+229     116.138502    39.935894     29.11       -128.63     92733.08    17.150        
+234     116.132978    39.940470     32.20       -128.20     92780.64    17.150        
+236     116.201260    39.983152     37.12       -128.17     85263.90    17.150        
+241     116.172548    39.961429     23.27       -128.40     88687.11    17.150        
+242     116.172379    39.961339     23.18       -128.40     88704.63    17.150        
+243     116.171810    39.961055     23.89       -128.39     88762.22    17.150        
+244     116.182109    39.967358     23.66       -128.40     87637.92    17.150        
+245     116.171116    39.960604     25.76       -128.39     88839.85    17.150        
+246     116.171199    39.960776     20.92       -128.39     88822.32    17.150        
+247     116.170914    39.960581     22.10       -128.39     88854.87    17.150        
+248     116.182667    39.967688     20.30       -128.40     87577.83    17.150        
+249     116.170381    39.960443     17.96       -128.38     88899.94    17.150        
+250     116.170347    39.960297     23.83       -128.38     88912.46    17.150        
+251     116.181925    39.968611     2.16        -128.32     87562.80    17.150        
+252     116.169846    39.960343     19.51       -128.36     88942.51    17.150        
+253     116.169534    39.960209     11.30       -128.36     88972.55    17.150        
+254     116.183767    39.968326     29.60       -128.40     87460.13    17.150        
+255     116.182404    39.969016     3.86        -128.31     87502.70    17.150        
+256     116.170160    39.959828     30.44       -128.40     88957.53    17.150        
+257     116.183241    39.969511     4.62        -128.32     87412.56    17.150        
+258     116.182777    39.968876     2.71        -128.34     87487.68    17.150        
+259     116.183290    39.969680     11.53       -128.31     87397.53    17.150        
+260     116.168985    39.959620     29.08       -128.37     89050.17    17.150        
+261     116.185008    39.969549     11.72       -128.38     87292.36    17.150        
+262     116.184520    39.968938     21.76       -128.39     87367.48    17.150        
+263     116.185017    39.968895     29.47       -128.41     87337.43    17.150        
+264     116.185517    39.969280     24.92       -128.41     87277.33    17.150        
+265     116.167972    39.958863     21.01       -128.38     89170.36    17.150        
+266     116.183556    39.970505     8.30        -128.27     87322.41    17.150        
+267     116.167652    39.958737     19.36       -128.38     89200.41    17.150        
+268     116.186206    39.969269     32.60       -128.43     87232.26    17.150        
+269     116.186242    39.969450     25.63       -128.43     87217.23    17.150        
+270     116.166735    39.958534     15.79       -128.36     89275.52    17.150        
+271     116.186474    39.969660     19.16       -128.42     87187.19    17.150        
+272     116.187390    39.970115     31.40       -128.43     87094.53    17.150        
+273     116.185467    39.971519     2.55        -128.28     87124.58    17.150        
+274     116.186851    39.971491     5.12        -128.33     87034.43    17.150        
+275     116.186248    39.971600     1.37        -128.30     87066.99    17.150        
+276     116.186734    39.970920     3.70        -128.36     87082.01    17.150        
+277     116.186577    39.971537     5.39        -128.32     87049.46    17.150        
+278     116.186501    39.972041     2.76        -128.29     87019.41    17.150        
+279     116.187305    39.971705     6.85        -128.33     86989.36    17.150        
+280     116.165230    39.958030     20.28       -128.33     89410.73    17.150        
+281     116.187952    39.971698     10.94       -128.36     86946.79    17.150        
+282     116.187486    39.971711     9.08        -128.34     86976.84    17.150        
+283     116.187346    39.972097     0.95        -128.31     86959.31    17.150        
+284     116.163529    39.956852     22.16       -128.34     89606.03    17.150        
+285     116.188620    39.972390     10.61       -128.34     86854.13    17.150        
+286     116.188584    39.971993     22.18       -128.36     86884.18    17.150        
+287     116.188705    39.972740     5.43        -128.32     86824.08    17.150        
+288     116.188860    39.972376     16.15       -128.35     86839.11    17.150        
+289     116.189415    39.972925     14.75       -128.34     86763.98    17.150        
+290     116.188266    39.972512     2.33        -128.32     86869.16    17.150        
+291     116.188594    39.973458     2.46        -128.28     86781.51    17.150        
+292     116.189591    39.973404     5.40        -128.32     86718.91    17.150        
+293     116.189902    39.973323     19.03       -128.33     86703.88    17.150        
+294     116.189960    39.973482     13.02       -128.33     86688.85    17.150        
+295     116.190388    39.974368     6.23        -128.29     86598.70    17.150        
+296     116.191063    39.973903     13.27       -128.34     86586.18    17.150        
+301     116.159435    39.953468     43.22       -128.39     90114.30    17.150        
+304     116.139369    39.942879     16.78       -128.29     92187.32    17.150        
+330     116.142457    39.942446     8.76        -128.41     92012.07    17.150        
+338     116.137853    39.942891     46.84       -128.23     92287.46    17.150        
+344     116.140567    39.942777     17.56       -128.33     92114.72    17.150        
+352     116.140351    39.941332     13.09       -128.40     92229.88    17.150        
+354     116.140371    39.938984     40.11       -128.53     92392.61    17.150        
+356     116.139968    39.938044     21.50       -128.56     92485.23    17.150        
+357     116.139603    39.941650     25.21       -128.36     92257.42    17.150        
+-----------------------------------------------------------------------------------------------
+
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_retry_20261025/cases/r18_frozen__seed_101__v_6d7__snr_30__delay_0ns/production/C2_modea_ON/result/GMTI03_track.bin，目标数: 182
+[TIMING-SCOPE] tracking: 193 ms
+[GMTI][RESULT] filtered_detection_count=230 confirmed_current_detection_count=182 protocol_target_count=182
+[TIMING-SCOPE] main_total: 1666 ms
+[FILE][CYCLE] result_file_id=3 period_index=2 algorithm_process_ms=1666.617 end_to_end_ms=1666.620 success=true
+[binary_sha256_before]=3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0
+[binary_sha256_after]=3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0
+
+[exit_code]=0
+[elapsed_sec]=5.839

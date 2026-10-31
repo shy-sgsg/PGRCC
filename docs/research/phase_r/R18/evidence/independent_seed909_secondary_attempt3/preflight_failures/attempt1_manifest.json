@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "stage": "R18 independent seed909 reference secondary",
+  "status": "NOT_EVALUABLE",
+  "implementation_status": "IMPLEMENTED",
+  "execution_status": "NOT_STARTED",
+  "evaluation_status": "NOT_EVALUABLE",
+  "reference_seed": 909,
+  "evaluation_seed": 606,
+  "evaluation_velocity_mps": 6.7,
+  "evaluation_snr_db": 30.0,
+  "selected_methods": [
+    "C2",
+    "C3"
+  ],
+  "roles": [
+    "OFF",
+    "ON",
+    "TO"
+  ],
+  "truth_used_in_estimator": false,
+  "algorithmic_results_claimed": false,
+  "performance_verified": false,
+  "statistical_significance_claimed": false,
+  "primary_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/manifest.json",
+  "config": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/phase_r18_native_cuda.json",
+  "scratch_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025",
+  "evidence_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/independent_seed909_secondary",
+  "gates": {},
+  "reference_methods": {},
+  "evaluation_branches": {},
+  "comparisons": [],
+  "primary_manifest_sha256": "b89722ead4e7b7625c6ee2586849154d6ec4f506afc1699aea661ff3a71bf52f",
+  "config_sha256": "3af60966332877095e5447247ab08cb39a54ef7a15681f37adf33cc251082ae1",
+  "source_identity": {
+    "git_commit": "014352ace1c4ad0bade0d759a099a47fe9ecfaa9",
+    "git_revision_status": "passed",
+    "runner_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_r18_independent_reference_secondary.py",
+    "runner_sha256": "648f914ce595b6c5143fb79903086bc6fe21a81bf2211d8b9a9b133bcf9e49bd",
+    "worktree_status_for_runner": "?? scripts/run_r18_independent_reference_secondary.py"
+  },
+  "space_guard": {
+    "project_root": "/home/shy/AIR/SAR+AI/project/PGRCC",
+    "used_bytes_before_run": 9155117056,
+    "budget_bytes": 13958643712,
+    "status": "passed"
+  },
+  "primary_case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/case_manifest.json",
+  "primary_case_manifest_sha256": "1f8c83acafae28f6b80ac3cc5537b60de2a8d8d5f3b909ed9cf0627b33bfa339",
+  "source_scenario": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/scenarios/A0_OFF.json",
+    "sha256": "f4e7ce4da9ed9200502650a6777efc1720f7ea66c5a8a89908b85e02c11ebbc4"
+  },
+  "source_xml": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_ON/config/temp_config_stage2_period_0000.xml",
+    "sha256": "62bbe7b07b23cdc8f35f62f961fd7c31daad950a1379924a23b323dd2e4dc8ee"
+  },
+  "binaries": {
+    "simulate_stage2_statistical": {
+      "path": "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "bytes": 645944,
+      "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+    },
+    "GMTI_pipe_core": {
+      "path": "/tmp/pgrcc-r18-native-release/GMTI_pipe_core",
+      "bytes": 6174864,
+      "sha256": "3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0"
+    }
+  },
+  "gpu_probe": {
+    "command": [
+      "nvidia-smi",
+      "--query-gpu=name,driver_version,pstate,temperature.gpu,power.draw,utilization.gpu,clocks.gr,clocks.mem",
+      "--format=csv"
+    ],
+    "returncode": 0,
+    "output": "name, driver_version, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], clocks.current.graphics [MHz], clocks.current.memory [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, 580.178.04, P8, 43, 6.29 W, 32 %, 210 MHz, 405 MHz",
+    "status": "passed"
+  },
+  "error": "ModuleNotFoundError: No module named 'scripts'",
+  "archive_error": "RuntimeError: snapshot contains no audit files: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025"
+}

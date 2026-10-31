@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "delay_error_ns": 0.0,
+  "scene_identity": {
+    "seed": 101,
+    "period_count": 3,
+    "beam_id": 50,
+    "expected_bin": 880,
+    "range_m": 85000.0,
+    "texture_sigma": 0.25,
+    "clutter_rho": 0.98,
+    "target_velocity_mps": 0.5,
+    "target_snr_db": 30.0,
+    "target": {
+      "target_id": "PGRCC_DELAY_PILOT_TARGET",
+      "enabled": true
+    },
+    "clutter": {
+      "mean_power": 0.02
+    },
+    "noise": {
+      "noise_power": 0.001
+    },
+    "production": {
+      "identity": "stage2_production_delay_pilot_v1"
+    }
+  },
+  "background_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/A0_background",
+  "variants": {
+    "A0_ON": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/scenarios/A0_ON.json",
+      "sha256": "a32193d9dcfa5cada75b02248e9b7d340f0fa5da3dc95f3f54ee18c8af615882"
+    },
+    "A0_OFF": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/scenarios/A0_OFF.json",
+      "sha256": "8721f65fcfe992ab700e460d2d76ad96514350bf21dd944fe2894424544464cd"
+    },
+    "A0_TO": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/scenarios/A0_TO.json",
+      "sha256": "0acdddc6f62c803397e9e465e55daeb696d90138afcca17f71c2a12837950de5"
+    },
+    "A1_ON": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/scenarios/A1_ON.json",
+      "sha256": "db0c1bb55230af55b72f988a348587fcd5be44c52d7ff44f62087ce43272130a"
+    },
+    "A1_OFF": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/scenarios/A1_OFF.json",
+      "sha256": "a79c2231823286e88bcc8e472c34f15871e054d05fbbdc07166f465067bcc038"
+    },
+    "A1_TO": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_geometry_corrected_pilot_seed101_v0p5_snr30/cases/r18_geometry_corrected__seed_101__v_0d5__snr_30__delay_0ns/scenes/scenarios/A1_TO.json",
+      "sha256": "9cb8033d5ac11a7eaf55b3b4e4040bfede5986d616178c27f2fea1754e594c7b"
+    }
+  },
+  "pairing_rule": "A0 ON writes zero-error C+N; all A0/A1 OFF/TO and A1 ON reuse it"
+}

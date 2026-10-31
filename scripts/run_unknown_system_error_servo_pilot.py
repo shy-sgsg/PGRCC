@@ -1,21 +1,23 @@
 #!/usr/bin/env python3
-"""Run the true-vs-reported servo-angle unknown-error pilot.
+"""Run the target-assisted servo calibration pilot.
 
-This is a deterministic, model-based pilot for the next unknown-system-error
-stage.  The simulator uses ``theta_true = theta_reported + delta`` for the
-physical target/clutter geometry and beam gain, while the packet header keeps
-``theta_reported``.  Each case emits a paired target-plus-background file and
-an empty C+N file.  The unknown-side estimator sees only their difference,
-reported channel geometry, reported beam angles, and nominal waveform/scene
-metadata.  It consumes six pair phases plus the multi-beam target-power
-profile; it never reads servo truth or the known offset.
+This is a deterministic, model-based calibration pilot for the next
+unknown-system-error stage.  The simulator uses
+``theta_true = theta_reported + delta`` for the physical target/clutter
+geometry and beam gain, while the packet header keeps ``theta_reported``.
+Each case emits a paired target-plus-background file and a C+N file.  The
+calibration estimator is explicitly target-assisted: it consumes the paired
+ON-OFF target residual, six pair phases, reported beam angles, and a configured
+nominal target/range hypothesis.  It does not read servo truth or the known
+offset when fitting the estimate.
 
 Known correction is an evaluator-only upper bound: it rewrites only the
 protocol header angle in a copy of the raw file.  The raw payload is checked
 byte-for-byte unchanged.  The unknown branch applies the pilot estimate only
 when its fit is outside the zero-error deadband/uncertainty; otherwise it
 falls back to the original reported-angle file.  No AI model or router is
-trained or invoked.
+trained or invoked.  This pilot is offline evidence and is not an online
+deployment estimator.
 """
 
 from __future__ import annotations
@@ -57,6 +59,85 @@ THETA_OFFSET = 218
 DEFAULT_ERRORS_DEG = (0.0, 0.05, -0.05, 0.10, -0.10, 0.20, -0.20, 0.50, -0.50)
 DEFAULT_SEEDS = (101, 202)
 PAIR_DEFINITIONS = observables.PAIR_DEFINITIONS
+SERVO_MANIFEST_SCHEMA = "target_assisted_servo_calibration_pilot_v1"
+SERVO_CALIBRATION_MODE = "target_assisted"
+SERVO_ESTIMATOR_NAME = "target_assisted_six_pair_phase_plus_multibeam_power_quadratic_pilot"
+SERVO_LEGACY_ESTIMATOR_NAME = "six_pair_phase_plus_multibeam_power_quadratic_pilot"
+SERVO_CAUSAL_DATA_SOURCES = (
+    "paired ON-OFF target residual",
+    "six pair cross-channel phases/coherences",
+    "reported header beam angles",
+    "configured nominal target/range hypothesis",
+)
+SERVO_ESTIMATE_FIELDS = frozenset({
+    "method",
+    "estimate_deg",
+    "uncertainty_deg",
+    "fit_rmse",
+    "phase_rmse",
+    "ridge_rmse",
+    "clutter_cancellation_db",
+    "model_mismatch",
+    "fallback_reason",
+    "status",
+    "causal_data_sources",
+})
+SERVO_DECISION_FIELDS = frozenset({
+    "case_id",
+    "error_deg",
+    "seed",
+    "method",
+    "calibration_mode",
+    "target_assisted",
+    "fit_status",
+    "estimated_error_deg",
+    "uncertainty_deg",
+    "zero_error_deadband_deg",
+    "decision",
+    "status",
+    "applied_unknown_correction_deg",
+    "correction_source",
+    "model_mismatch",
+    "fallback_reason",
+    "causal_data_sources",
+    "truth_used_for_decision",
+})
+
+
+def servo_estimator_contract() -> dict[str, object]:
+    """Return the shared metadata contract for this assisted estimator."""
+    return {
+        "method": SERVO_ESTIMATOR_NAME,
+        "estimator_name": SERVO_ESTIMATOR_NAME,
+        "legacy_estimator_name": SERVO_LEGACY_ESTIMATOR_NAME,
+        "calibration_mode": SERVO_CALIBRATION_MODE,
+        "target_assisted": True,
+        # Keep the legacy boolean while making its scope explicit: it refers
+        # to servo truth/known error, not to the target evidence used here.
+        "truth_used_in_estimator": False,
+        "servo_truth_used_in_estimator": False,
+        "target_truth_used_in_estimator": False,
+        "target_residual_used_in_estimator": True,
+        "target_assistance_used": True,
+        "causal_data_sources": list(SERVO_CAUSAL_DATA_SOURCES),
+    }
+
+
+def servo_manifest_contract() -> dict[str, object]:
+    """Return the manifest portion that identifies the pilot's information condition."""
+    estimator = servo_estimator_contract()
+    estimator.update({
+        "name": SERVO_ESTIMATOR_NAME,
+        "operational": False,
+        "inputs": list(SERVO_CAUSAL_DATA_SOURCES),
+        "correction": "header-only evaluation copy; raw physical payload is never edited",
+        "scope": "offline target-assisted calibration pilot; target evidence is required",
+    })
+    return {
+        "schema": SERVO_MANIFEST_SCHEMA,
+        "calibration_mode": SERVO_CALIBRATION_MODE,
+        "unknown_estimator": estimator,
+    }
 
 
 def _sha256(path: Path) -> str:
@@ -109,8 +190,14 @@ def _write_rows(path: Path, rows: Iterable[Mapping[str, object]]) -> None:
 
 
 def _git(*args: str) -> str:
+    command = ["git", *args]
+    # The main checkout uses a separate .git-real directory, while a normal
+    # worktree exposes a .git file.  Record provenance correctly in either
+    # execution context.
+    if not (ROOT / ".git").exists() and (ROOT / ".git-real").is_dir():
+        command = ["git", "--git-dir=.git-real", "--work-tree=.", *args]
     result = subprocess.run(
-        ["git", "--git-dir=.git-real", "--work-tree=.", *args],
+        command,
         cwd=ROOT,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
@@ -488,10 +575,19 @@ def _estimate_servo(
     else:
         uncertainty = None
     fit_status = "fit" if estimate is not None else "fallback_unidentifiable"
+    phase_rmse_value = float(np.mean(phase_rms)) if phase_rms.size else None
     summary: dict[str, object] = {
+        **servo_estimator_contract(),
         "fit_status": fit_status,
-        "estimator_name": "six_pair_phase_plus_multibeam_power_quadratic_pilot",
-        "truth_used_in_estimator": False,
+        "status": fit_status,
+        "estimate_deg": estimate,
+        "fit_rmse": None,
+        "phase_rmse": phase_rmse_value,
+        "ridge_rmse": None,
+        "clutter_cancellation_db": None,
+        "model_mismatch": None,
+        "fallback_reason": None if estimate is not None else "quadratic_peak_unidentifiable",
+        "source_id": "paired_on_minus_off_target_residual",
         "input_on_path": str(on_path),
         "input_off_path": str(off_path),
         "beam_count": beam_count,
@@ -504,7 +600,7 @@ def _estimate_servo(
         "uncertainty_deg": uncertainty,
         "mean_six_pair_coherence": float(np.mean(coherence)) if coherence.size else None,
         "min_six_pair_coherence": float(np.min(coherence)) if coherence.size else None,
-        "mean_phase_residual_rms_rad": float(np.mean(phase_rms)) if phase_rms.size else None,
+        "mean_phase_residual_rms_rad": phase_rmse_value,
         "max_phase_residual_rms_rad": float(np.max(phase_rms)) if phase_rms.size else None,
         "bootstrap_peak_count": len(bootstrap_peaks),
         "nominal_inputs": {
@@ -860,13 +956,24 @@ def run_pilot(
             "case_id": case["case_id"],
             "error_deg": case["error_deg"],
             "seed": case["seed"],
+            "method": estimator.get("method", SERVO_ESTIMATOR_NAME),
+            "calibration_mode": SERVO_CALIBRATION_MODE,
+            "target_assisted": True,
             "fit_status": fit_status,
+            "status": action,
             "estimated_error_deg": estimate,
             "uncertainty_deg": decision_uncertainty,
             "zero_error_deadband_deg": deadband_deg,
             "decision": action,
             "applied_unknown_correction_deg": applied,
             "correction_source": "none_fallback_current" if applied == 0.0 else "unknown_pilot_estimate",
+            "model_mismatch": estimator.get("model_mismatch"),
+            "fallback_reason": (
+                estimator.get("fallback_reason")
+                if action == "FALLBACK_UNIDENTIFIABLE"
+                else None
+            ),
+            "causal_data_sources": list(SERVO_CAUSAL_DATA_SOURCES),
             "truth_used_for_decision": False,
         }
         decision_rows.append(decision)
@@ -926,22 +1033,10 @@ def run_pilot(
         else bool(worktree_dirty_override)
     )
     manifest: dict[str, object] = {
-        "schema": "unknown_system_error_servo_angle_pilot_v1",
+        **servo_manifest_contract(),
         "status": "completed" if all_core_ok else "completed_with_failed_core",
         "ai_training": False,
         "ai_router": False,
-        "unknown_estimator": {
-            "name": "six_pair_phase_plus_multibeam_power_quadratic_pilot",
-            "operational": False,
-            "truth_used": False,
-            "inputs": [
-                "paired ON-OFF target residual",
-                "six pair cross-channel phases/coherences",
-                "reported header beam angles",
-                "nominal waveform/range/beam metadata",
-            ],
-            "correction": "header-only evaluation copy; raw physical payload is never edited",
-        },
         "known_error_upper_bound": {
             "used_only_for_evaluation": True,
             "source": "configured true_minus_reported_deg",
@@ -1008,9 +1103,9 @@ def run_pilot(
         },
         "case_records": case_records,
         "limitations": [
-            "This is a deterministic estimator pilot, not a production online servo estimator.",
+            "This is a deterministic offline target-assisted calibration pilot; it is not an online deployment estimator.",
             "The pilot isolates servo pointing with no receiver geometry error; a paired continuous-texture clutter background is enabled for the production beam-quality path. Platform velocity and coupled nuisance matrix are pending.",
-            "The estimator uses paired target residuals and a configured nominal target/range hypothesis; it is not a blind scene-wide detector.",
+            "The estimator requires paired ON-OFF target evidence and a configured nominal target/range hypothesis; target evidence is part of the calibration information condition.",
             "No causal TrackManager/PIPE acceptance or servo-specific Pd/Pfa claim is made here.",
         ],
     }

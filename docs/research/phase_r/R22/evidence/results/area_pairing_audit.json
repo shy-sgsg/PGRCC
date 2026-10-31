@@ -1,0 +1,215 @@
+{
+  "schema_version": 1,
+  "case_id": "r22_multi_target__seed_900203__v_2.5__snr_20.0__delay_4.0ns",
+  "seed": 900203,
+  "delay_error_ns": 4.0,
+  "platform_height_m": 6000.0,
+  "range_window_m": [
+    84500.0,
+    85500.0
+  ],
+  "physically_reachable_ground_range_m": [
+    84286.71306914276,
+    85289.213854977
+  ],
+  "area_gate": {
+    "area_enabled": true,
+    "area_mean_power_measured": 0.0227563850584,
+    "area_model": "continuous_texture",
+    "continuous_area_packets": 130,
+    "continuous_area_samples": 650892,
+    "ground_height_m": 0.0,
+    "ground_range_max_m": 85289.213854977,
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "minimum_slant_range_m": 6000.0,
+    "platform_height_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "reasons": [],
+    "report_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "84e79a8fb6211acd10257d0eea6fbc8289fda83f20685dbd9480b1af41987a6b",
+    "report_values": {
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "2.04351886688",
+      "area_rho_at_CTDR_lag": "0.960526664864",
+      "area_rho_lag1_measured": "0.98005849427",
+      "mean_noise_power_per_complex_sample": "0.00100075325241"
+    },
+    "scenario_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/scenarios/A0_ON.json",
+    "scenario_sha256": "1db8b1a427b6d7cd1da566e388ec8f6a31e8f9f17b646516699e8d38cf1c1c24",
+    "status": "passed"
+  },
+  "paired_background": {
+    "background_dir": "scenes/A0_background",
+    "pairing_rule": "A0 ON writes zero-error C+N; all A0/A1 OFF/TO and A1 ON reuse it",
+    "A1_ON_background_input_dir": "scenes/A0_background",
+    "A1_OFF_ON_TO_mapping_status": "matched",
+    "interpretation": "A1 direct Stage2 injection counters are zero because the roles reuse the generated A0 C+N background; the Production input still contains paired area clutter."
+  },
+  "stage2_role_reports": {
+    "A0_OFF": {
+      "reported_continuous_area_packets": 0,
+      "reported_continuous_area_samples": 0,
+      "area_mean_power_measured": null,
+      "area_power_cv_measured": null,
+      "area_rho_lag1_measured": null,
+      "background_mapping_statuses": [
+        "matched"
+      ],
+      "mapping_rows": 1
+    },
+    "A0_ON": {
+      "reported_continuous_area_packets": 130,
+      "reported_continuous_area_samples": 650892,
+      "area_mean_power_measured": 0.0227563850584,
+      "area_power_cv_measured": 2.04351886688,
+      "area_rho_lag1_measured": 0.98005849427,
+      "background_mapping_statuses": [],
+      "mapping_rows": 0
+    },
+    "A0_TO": {
+      "reported_continuous_area_packets": 0,
+      "reported_continuous_area_samples": 0,
+      "area_mean_power_measured": null,
+      "area_power_cv_measured": null,
+      "area_rho_lag1_measured": null,
+      "background_mapping_statuses": [
+        "matched"
+      ],
+      "mapping_rows": 1
+    },
+    "A1_OFF": {
+      "reported_continuous_area_packets": 0,
+      "reported_continuous_area_samples": 0,
+      "area_mean_power_measured": null,
+      "area_power_cv_measured": null,
+      "area_rho_lag1_measured": null,
+      "background_mapping_statuses": [
+        "matched"
+      ],
+      "mapping_rows": 1
+    },
+    "A1_ON": {
+      "reported_continuous_area_packets": 0,
+      "reported_continuous_area_samples": 0,
+      "area_mean_power_measured": null,
+      "area_power_cv_measured": null,
+      "area_rho_lag1_measured": null,
+      "background_mapping_statuses": [
+        "matched"
+      ],
+      "mapping_rows": 1
+    },
+    "A1_TO": {
+      "reported_continuous_area_packets": 0,
+      "reported_continuous_area_samples": 0,
+      "area_mean_power_measured": null,
+      "area_power_cv_measured": null,
+      "area_rho_lag1_measured": null,
+      "background_mapping_statuses": [
+        "matched"
+      ],
+      "mapping_rows": 1
+    }
+  },
+  "causal_triplets": {
+    "ideal": {
+      "max_abs_error": 9.059906005859375e-06,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 7.285375389592091e-07,
+      "sample_count": 6146400,
+      "status": "passed",
+      "tolerance": 5e-05
+    },
+    "known": {
+      "max_abs_error": 9.543446330845563e-06,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 7.608195449627359e-07,
+      "sample_count": 6146400,
+      "status": "passed",
+      "tolerance": 5e-05
+    },
+    "none": {
+      "max_abs_error": 9.059906005859375e-06,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 7.080152706053679e-07,
+      "sample_count": 6146400,
+      "status": "passed",
+      "tolerance": 5e-05
+    }
+  },
+  "A1_role_input_identities": {
+    "OFF": [
+      {
+        "bytes": 49204480,
+        "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+        "sha256": "287404093e5f4b9ffcd9239e9d9504b97f61cd05ad00d4dd707fa696ac376a88"
+      }
+    ],
+    "ON": [
+      {
+        "bytes": 49204480,
+        "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "sha256": "f29846f77fe60536c8a6c3c4748eec5c3e9c67054ad6233860123b36d132b41c"
+      }
+    ],
+    "TO": [
+      {
+        "bytes": 49204480,
+        "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+        "sha256": "d33292226355eab9d8770c90050f9db42a2c37bf40d4943b0db1840415de918c"
+      }
+    ]
+  },
+  "conclusion": "effective continuous area clutter established from A0_ON packet/sample and measured power evidence; A0/A1 paired background provenance and triplet closure are documented. area_enabled alone was not used as the gate.",
+  "stage2_raw_file_identities": {
+    "A0_background": {
+      "source_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "e867d58c1efd7668740b49a52aed5db2d0c8e05f905c4627764d8bbd5f3cc2e7",
+      "retained": false
+    },
+    "A0_OFF": {
+      "source_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "e867d58c1efd7668740b49a52aed5db2d0c8e05f905c4627764d8bbd5f3cc2e7",
+      "retained": false
+    },
+    "A0_ON": {
+      "source_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "f2d3a03b7886f7be29aeba4906281de6782f07b690fe08074aa33469d4b27834",
+      "retained": false
+    },
+    "A0_TO": {
+      "source_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "81ec3d70a246ee487f729da1e6784e177936a4b88f8540dc019165fe9fbbe8ca",
+      "retained": false
+    },
+    "A1_OFF": {
+      "source_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "287404093e5f4b9ffcd9239e9d9504b97f61cd05ad00d4dd707fa696ac376a88",
+      "retained": false
+    },
+    "A1_ON": {
+      "source_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "f29846f77fe60536c8a6c3c4748eec5c3e9c67054ad6233860123b36d132b41c",
+      "retained": false
+    },
+    "A1_TO": {
+      "source_path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "d33292226355eab9d8770c90050f9db42a2c37bf40d4943b0db1840415de918c",
+      "retained": false
+    }
+  }
+}

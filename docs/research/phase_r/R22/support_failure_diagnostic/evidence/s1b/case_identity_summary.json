@@ -1,0 +1,354 @@
+{
+  "schema_version": 1,
+  "source_case_manifest_sha256": "58a02646e07343f60b8e09c56fd02180676fb5b10ce76957cea5e116f47215c1",
+  "source_case_manifest_bytes": 10105332,
+  "case_id": "r22_multi_target__seed_1932001__v_2.5__snr_30.0__delay_4.0ns",
+  "scene_identity": {
+    "case_id": "screening__seed_1932001__vr_2d5__snr_30__delay_4ns__targets_20__periods_10",
+    "delay_error_ns": 4.0,
+    "period_count": 10,
+    "radial_speed_mps": 2.5,
+    "seed": 1932001,
+    "target_count": 20,
+    "target_snr_db": 30.0
+  },
+  "pair_identity": {
+    "delay_error_ns": 4.0,
+    "production_identity": "stage2_production_delay_pilot_v1",
+    "seed": 1932001,
+    "target_id": "PGRCC_DELAY_PILOT_TARGET"
+  },
+  "input_contract": {
+    "causal_target_rule": "ON-OFF with TO=S as the independent target control",
+    "identity_rule": "same seed/background/target/production settings",
+    "modes": {
+      "Mode-A": {
+        "apply_input_roles": [
+          "ON",
+          "TO"
+        ],
+        "description": "estimate from target-free OFF=C+N and apply the fixed reference to ON=S+C+N and TO=S",
+        "estimator_input_roles": [
+          "OFF"
+        ],
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false,
+        "target_position_allowed": false,
+        "truth_used_in_estimator": false
+      },
+      "Mode-B": {
+        "apply_input_roles": [
+          "ON",
+          "OFF",
+          "TO"
+        ],
+        "description": "blind online ON=S+C+N estimate; apply its fixed reference to ON/OFF/TO without target truth or error labels",
+        "estimator_input_roles": [
+          "ON"
+        ],
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false,
+        "target_position_allowed": false,
+        "truth_used_in_estimator": false
+      }
+    },
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S"
+    },
+    "shared_identity_fields": [
+      "seed",
+      "background_id",
+      "target_id",
+      "delay_error_ns",
+      "production_identity"
+    ]
+  },
+  "mode_contracts": [
+    {
+      "estimator_called": false,
+      "estimator_input_roles": [],
+      "evaluator_only": true,
+      "fallback_to_current": false,
+      "fixed_reference_required": false,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "A0",
+      "mode": "not_applicable",
+      "reference_applied": false,
+      "reference_artifact": null,
+      "reference_source": "not_applicable",
+      "role": "OFF",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": false,
+      "estimator_input_roles": [],
+      "evaluator_only": true,
+      "fallback_to_current": false,
+      "fixed_reference_required": false,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "A0",
+      "mode": "not_applicable",
+      "reference_applied": false,
+      "reference_artifact": null,
+      "reference_source": "not_applicable",
+      "role": "ON",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": false,
+      "estimator_input_roles": [],
+      "evaluator_only": true,
+      "fallback_to_current": false,
+      "fixed_reference_required": false,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "A0",
+      "mode": "not_applicable",
+      "reference_applied": false,
+      "reference_artifact": null,
+      "reference_source": "not_applicable",
+      "role": "TO",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": true,
+      "estimator_input_roles": [
+        "OFF"
+      ],
+      "evaluator_only": false,
+      "fallback_to_current": false,
+      "fixed_reference_required": false,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "C4",
+      "mode": "Mode-A",
+      "reference_applied": false,
+      "reference_artifact": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/references/Mode-A/C4/reference_gamma.csv",
+      "reference_source": "OFF_estimator_output",
+      "role": "OFF",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": false,
+      "estimator_input_roles": [
+        "OFF"
+      ],
+      "evaluator_only": true,
+      "fallback_to_current": false,
+      "fixed_reference_required": true,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "C4",
+      "mode": "Mode-A",
+      "reference_applied": true,
+      "reference_artifact": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/references/Mode-A/C4/reference_gamma.csv",
+      "reference_source": "OFF_estimator_output",
+      "role": "ON",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": false,
+      "estimator_input_roles": [
+        "OFF"
+      ],
+      "evaluator_only": true,
+      "fallback_to_current": false,
+      "fixed_reference_required": true,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "C4",
+      "mode": "Mode-A",
+      "reference_applied": true,
+      "reference_artifact": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/references/Mode-A/C4/reference_gamma.csv",
+      "reference_source": "OFF_estimator_output",
+      "role": "TO",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": true,
+      "estimator_input_roles": [
+        "ON"
+      ],
+      "evaluator_only": false,
+      "fallback_to_current": false,
+      "fixed_reference_required": false,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "C4",
+      "mode": "Mode-B",
+      "reference_applied": false,
+      "reference_artifact": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/references/Mode-B/C4/reference_gamma.csv",
+      "reference_source": "ON_estimator_output",
+      "role": "ON",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": false,
+      "estimator_input_roles": [
+        "ON"
+      ],
+      "evaluator_only": true,
+      "fallback_to_current": false,
+      "fixed_reference_required": true,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "C4",
+      "mode": "Mode-B",
+      "reference_applied": true,
+      "reference_artifact": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/references/Mode-B/C4/reference_gamma.csv",
+      "reference_source": "ON_estimator_output",
+      "role": "OFF",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    },
+    {
+      "estimator_called": false,
+      "estimator_input_roles": [
+        "ON"
+      ],
+      "evaluator_only": true,
+      "fallback_to_current": false,
+      "fixed_reference_required": true,
+      "injected_error_label_allowed": false,
+      "known_error_allowed": false,
+      "method_id": "C4",
+      "mode": "Mode-B",
+      "reference_applied": true,
+      "reference_artifact": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/references/Mode-B/C4/reference_gamma.csv",
+      "reference_source": "ON_estimator_output",
+      "role": "TO",
+      "target_position_allowed": false,
+      "truth_used_in_estimator": false
+    }
+  ],
+  "selected_methods": [
+    "C4"
+  ],
+  "selected_calibration_modes": [
+    "Mode-A",
+    "Mode-B"
+  ],
+  "area_clutter_gate": {
+    "area_enabled": true,
+    "area_mean_power_measured": 0.0221596696662,
+    "area_model": "continuous_texture",
+    "continuous_area_packets": 1300,
+    "continuous_area_samples": 6508782,
+    "ground_height_m": 0.0,
+    "ground_range_max_m": 85289.213854977,
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "minimum_slant_range_m": 6000.0,
+    "platform_height_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "reasons": [],
+    "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "14676dd43d3c2d59a4facaf642f0d009b1033724ed2f56e847f01b9e12b5ed12",
+    "report_values": {
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "2.02155116348",
+      "area_rho_at_CTDR_lag": "0.960421065053",
+      "area_rho_lag1_measured": "0.98001127856",
+      "mean_noise_power_per_complex_sample": "0.00100004623594"
+    },
+    "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/scenarios/A0_ON.json",
+    "scenario_sha256": "c43c219ff02bd3fd1aded0c473000690b1bf7430bcbe141077b23cdf6297a700",
+    "status": "passed"
+  },
+  "causal_triplets": {
+    "ideal": {
+      "max_abs_error": 1.717275915657912e-05,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 9.356866501574837e-07,
+      "sample_count": 61464000,
+      "status": "passed",
+      "tolerance": 5e-05
+    },
+    "none": {
+      "max_abs_error": 1.717275915657912e-05,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 9.106651947289149e-07,
+      "sample_count": 61464000,
+      "status": "passed",
+      "tolerance": 5e-05
+    }
+  },
+  "evidence_gate": {
+    "causal_triplets": "passed",
+    "empirical_pfa": "NOT_EVALUABLE",
+    "fallback_to_current": false,
+    "truth_used_in_estimator": false,
+    "unique_final_union_hits": "NOT_EVALUABLE",
+    "valid_cut_denominators": "NOT_EVALUABLE"
+  },
+  "simulation": {
+    "A0_OFF": {
+      "scenario_sha256": "99782fd28a08f6fba5721d90f5fbae5ac42dc2208c934d3f37dd0cdc40d48423",
+      "returncode": 0,
+      "status": "passed",
+      "elapsed_sec": 0.9173236530041322
+    },
+    "A0_ON": {
+      "scenario_sha256": "c43c219ff02bd3fd1aded0c473000690b1bf7430bcbe141077b23cdf6297a700",
+      "returncode": 0,
+      "status": "passed",
+      "elapsed_sec": 101.56582138600061
+    },
+    "A0_TO": {
+      "scenario_sha256": "525ffd82ae1bb81fa2e00bc6392d9f07cc6f111dacd3f5e19da5051588d4c238",
+      "returncode": 0,
+      "status": "passed",
+      "elapsed_sec": 29.274313789996086
+    },
+    "A1_OFF": {
+      "scenario_sha256": "627a8f86f054bd5e327b74f31d3337b4ea6eef5cb38f7a8bbb6525c455264270",
+      "returncode": 0,
+      "status": "passed",
+      "elapsed_sec": 1.869280113998684
+    },
+    "A1_ON": {
+      "scenario_sha256": "e0c589f977ee36d0fabfd1e481c15f10596885af75cf8656cadbcbd9ca355954",
+      "returncode": 0,
+      "status": "passed",
+      "elapsed_sec": 30.074248705001082
+    },
+    "A1_TO": {
+      "scenario_sha256": "ebfe3d1f9b7f3a80048ce481df36143cf9c2387b41045dddc6bf6277774523ba",
+      "returncode": 0,
+      "status": "passed",
+      "elapsed_sec": 32.10493021500588
+    }
+  },
+  "scene_variants": {
+    "A0_OFF": "A0_OFF.json",
+    "A0_ON": "A0_ON.json",
+    "A0_TO": "A0_TO.json",
+    "A1_OFF": "A1_OFF.json",
+    "A1_ON": "A1_ON.json",
+    "A1_TO": "A1_TO.json"
+  },
+  "status": "completed_with_gaps",
+  "truth_used_in_estimator": false,
+  "omitted_large_fields": [
+    "method_branches",
+    "method_mode_roles",
+    "full_input_path_lists"
+  ]
+}

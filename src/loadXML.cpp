@@ -207,6 +207,53 @@ bool GMTIProcessor::readXmlParam(const std::string &xmlFile, Config &cfg)
         return text.empty() ? current : text;
     };
 
+    // The research calibration switch is an explicit experiment boundary.
+    // Unlike legacy optional fields, malformed values must not silently
+    // revert to the production Current path.
+    auto parseResearchBool = [&](const char *name, bool current) -> bool
+    {
+        const std::string text = getOptionalText(name);
+        if (text.empty()) return current;
+        if (text == "true" || text == "1") return true;
+        if (text == "false" || text == "0") return false;
+        throw std::runtime_error(std::string("field <") + name +
+                                 "> must be true, false, 1, or 0");
+    };
+
+    auto parseResearchInt = [&](const char *name, int current) -> int
+    {
+        const std::string text = getOptionalText(name);
+        if (text.empty()) return current;
+        try {
+            size_t pos = 0;
+            const int value = std::stoi(text, &pos);
+            if (pos != text.size()) {
+                throw std::invalid_argument("trailing characters");
+            }
+            return value;
+        } catch (const std::exception& e) {
+            throw std::runtime_error(std::string("invalid research field <") +
+                                     name + ">: " + e.what());
+        }
+    };
+
+    auto parseResearchDouble = [&](const char *name, double current) -> double
+    {
+        const std::string text = getOptionalText(name);
+        if (text.empty()) return current;
+        try {
+            size_t pos = 0;
+            const double value = std::stod(text, &pos);
+            if (pos != text.size()) {
+                throw std::invalid_argument("trailing characters");
+            }
+            return value;
+        } catch (const std::exception& e) {
+            throw std::runtime_error(std::string("invalid research field <") +
+                                     name + ">: " + e.what());
+        }
+    };
+
     auto parseOptionalDelayUs = [&](const std::vector<const char*>& names,
                                     double& delay_us,
                                     std::string& source_name) -> bool
@@ -541,6 +588,26 @@ bool GMTIProcessor::readXmlParam(const std::string &xmlFile, Config &cfg)
         "new_protocol_velocity_scale", cfg.new_protocol_velocity_scale);
     cfg.new_protocol_velocity_source = parseOptionalString(
         "new_protocol_velocity_source", cfg.new_protocol_velocity_source);
+    cfg.stage2_platform_velocity_true_mps = parseOptionalDouble(
+        "stage2_platform_velocity_true_mps",
+        cfg.stage2_platform_velocity_true_mps);
+    cfg.stage2_platform_velocity_reported_mps = parseOptionalDouble(
+        "stage2_platform_velocity_reported_mps",
+        cfg.stage2_platform_velocity_reported_mps);
+    const bool has_stage2_true =
+        std::isfinite(cfg.stage2_platform_velocity_true_mps);
+    const bool has_stage2_reported =
+        std::isfinite(cfg.stage2_platform_velocity_reported_mps);
+    if (has_stage2_true != has_stage2_reported) {
+        throw std::runtime_error(
+            "stage2 platform true/reported velocity metadata must be supplied together");
+    }
+    if (has_stage2_true &&
+        (cfg.stage2_platform_velocity_true_mps <= 0.0 ||
+         cfg.stage2_platform_velocity_reported_mps <= 0.0)) {
+        throw std::runtime_error(
+            "stage2 platform true/reported velocity metadata must be positive");
+    }
     if (cfg.new_protocol_channel_count < 1) {
         throw std::runtime_error("field <new_protocol_channel_count> must be >= 1");
     }
@@ -1075,6 +1142,40 @@ bool GMTIProcessor::readXmlParam(const std::string &xmlFile, Config &cfg)
         !(cfg.velocity_equivalent_cost_tolerance >= 0.0) ||
         !(cfg.velocity_speed_prior_sigma_mps >= 0.0)) {
         throw std::runtime_error("invalid velocity ambiguity configuration");
+    }
+    cfg.research_calibration_enable = parseResearchBool(
+        "research_calibration_enable", cfg.research_calibration_enable);
+    cfg.research_calibration_method = parseOptionalString(
+        "research_calibration_method", cfg.research_calibration_method);
+    std::transform(cfg.research_calibration_method.begin(),
+                   cfg.research_calibration_method.end(),
+                   cfg.research_calibration_method.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+    cfg.research_calibration_min_support = parseResearchInt(
+        "research_calibration_min_support", cfg.research_calibration_min_support);
+    cfg.research_calibration_range_band_bins = parseResearchInt(
+        "research_calibration_range_band_bins",
+        cfg.research_calibration_range_band_bins);
+    cfg.research_calibration_robust_phase_threshold_rad = parseResearchDouble(
+        "research_calibration_robust_phase_threshold_rad",
+        cfg.research_calibration_robust_phase_threshold_rad);
+    cfg.research_calibration_reference_gamma_csv = parseOptionalString(
+        "research_calibration_reference_gamma_csv",
+        cfg.research_calibration_reference_gamma_csv);
+    cfg.research_calibration_mode = parseOptionalString(
+        "research_calibration_mode", cfg.research_calibration_mode);
+    if (cfg.research_calibration_mode != "Mode-A" &&
+        cfg.research_calibration_mode != "Mode-B" &&
+        cfg.research_calibration_mode != "not_applicable") {
+        throw std::runtime_error(
+            "invalid research calibration mode: " + cfg.research_calibration_mode);
+    }
+    {
+        std::string research_error;
+        if (!validateResearchCalibrationConfig(cfg, &research_error)) {
+            throw std::runtime_error(
+                "invalid research calibration configuration: " + research_error);
+        }
     }
     cfg.csi_bypass_enable =
         parseOptionalBool("csi_bypass_enable", cfg.csi_bypass_enable);

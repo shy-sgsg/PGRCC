@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "study_id": "two_channel_decorrelation_phase_i",
+  "status": "contract_only_pending_implementation",
+  "scientific_input": {
+    "source": "four_channel_protocol_iq",
+    "fusion": {
+      "f1": "0.5 * (channel_1 + channel_3)",
+      "f2": "0.5 * (channel_2 + channel_4)"
+    },
+    "raw_six_pair_role": "debugging_and_cross_validation_only",
+    "algorithm_input": "F1/F2"
+  },
+  "fixed_chain": [
+    "protocol_iq_4ch",
+    "pair_fusion_f1_f2",
+    "ctdr_phase_calibration_p38",
+    "csi_two_channel",
+    "go_cfar",
+    "clustering_positioning",
+    "track_manager_pipe"
+  ],
+  "phase_boundaries": {
+    "phase_i": {
+      "scope": [
+        "unknown_system_error_characterization",
+        "true_clutter_decorrelation",
+        "robust_two_channel_clutter_cancellation"
+      ],
+      "spatial_input": "F1/F2",
+      "cuda_native_four_channel_stap": false,
+      "jdl_covariance_loading_dof_expansion": false
+    },
+    "phase_ii": {
+      "scope": [
+        "native_four_channel_stap",
+        "jdl_covariance_loading_and_dof_study",
+        "cuda_optimization"
+      ],
+      "enabled_in_this_study": false
+    }
+  },
+  "ai_training": false,
+  "router_enabled": false,
+  "scenario": {
+    "base_config": "configs/research/unknown_system_error_true_geometry_pilot.json",
+    "target_policy": "target_off_for_clutter_estimation_then_target_on_for_causal_evaluation",
+    "sweep": {
+      "temporal_correlation_rho": [0.0, 0.5, 0.8, 0.95, 1.0],
+      "internal_clutter_motion_mps": [0.0, 0.5, 1.0],
+      "seeds": [101, 202, 303],
+      "period_count": 5
+    }
+  },
+  "methods": [
+    {
+      "id": "current",
+      "description": "production two-channel CSI baseline"
+    },
+    {
+      "id": "phase_only",
+      "description": "phase-only alignment with no complex amplitude update"
+    },
+    {
+      "id": "complex_ls_wiener",
+      "description": "complex least-squares/Wiener clutter coefficient"
+    },
+    {
+      "id": "robust_ls",
+      "description": "outlier-robust complex least-squares coefficient"
+    },
+    {
+      "id": "coherence_aware",
+      "description": "coherence-gated complex coefficient with residual audit"
+    }
+  ],
+  "conditions": [
+    "A0_ideal_no_error",
+    "A1_current_unknown_error",
+    "A2_known_error_correction_upper_bound_truth_only_evaluation",
+    "A3_blind_estimated_correction"
+  ],
+  "metrics": {
+    "parameter": [
+      "bias",
+      "rmse",
+      "residual_by_observable",
+      "f1_f2_coherence"
+    ],
+    "clutter": [
+      "csi_residual_power_db",
+      "clutter_cancellation_db",
+      "residual_doppler_ridge_power",
+      "false_hit_count",
+      "false_cluster_count",
+      "protocol_detection_false_alarm",
+      "false_track_count"
+    ],
+    "target_safety": [
+      "causal_target_transfer_db",
+      "go_cfar_pd",
+      "track_pd",
+      "confirmation_latency",
+      "continuity",
+      "id_switch",
+      "position_rmse",
+      "angle_rmse",
+      "velocity_rmse"
+    ],
+    "recovery": {
+      "recoverable_space": "Known - Current",
+      "actual_recovered": "Estimated - Current",
+      "recovery_ratio": "actual_recovered / recoverable_space",
+      "zero_denominator_policy": "not_evaluable"
+    },
+    "direction": {
+      "cancellation_db": "higher_is_better",
+      "pd": "higher_is_better",
+      "false_alarm_and_rmse": "lower_is_better",
+      "target_transfer_loss_db": "closer_to_zero_is_better"
+    }
+  },
+  "validation": {
+    "estimator_truth_access": "A2_evaluation_only; A3_must_use_target_free_or_independent_calibration_input",
+    "track_payload_contract": "only_confirmed_tracks_matched_to_a_detection_in_the_current_frame",
+    "required_audits": [
+      "input_and_configuration_hash",
+      "runtime_configuration_snapshot",
+      "per_field_state_source",
+      "track_debug_reverse_lookup",
+      "target_causal_transfer",
+      "fixed_pfa_or_explicit_pfa_denominator"
+    ],
+    "minimum_reporting": [
+      "command_and_exit_code",
+      "source_commit_and_dirty_state",
+      "gpu_state_when_cuda_is_used",
+      "manifest_and_compact_summary",
+      "known_limitations"
+    ]
+  },
+  "outputs": {
+    "root": "outputs/two_channel_decorrelation_study",
+    "required_files": [
+      "manifest.json",
+      "condition_metrics.csv",
+      "parameter_metrics.csv",
+      "target_causal_transfer.csv",
+      "track_payload_audit.csv",
+      "report.md"
+    ],
+    "raw_bin_policy": "hash_then_remove_after_compact_audit_unless_explicitly_retained"
+  },
+  "provenance": {
+    "implementation_status": "no_runner_is_started_by_this_contract",
+    "next_gate": "complete_observability_and_current_delay_correction_regression_before_decorrelation_sweep"
+  }
+}

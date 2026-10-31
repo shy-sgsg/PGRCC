@@ -1,0 +1,1510 @@
+{
+  "schema_version": 1,
+  "experiment": "PGRCC Phase R3 independent-seed A/B/C CUDA production extension",
+  "created_at_utc": "2026-10-21T04:22:18.102446+00:00",
+  "status": "production_path_failed",
+  "command": {
+    "argv": [
+      "/home/shy/anaconda3/bin/python3",
+      "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r3_minimal_cuda_causal_pilot.py",
+      "--abc-extension-output-root",
+      "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202",
+      "--seed",
+      "202"
+    ],
+    "shell": "/home/shy/anaconda3/bin/python3 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r3_minimal_cuda_causal_pilot.py --abc-extension-output-root /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202 --seed 202"
+  },
+  "design": {
+    "conditions": [
+      "A0_Ideal",
+      "A1_Current_unknown_error",
+      "A2_Known_error_correction_upper_bound"
+    ],
+    "paired_roles": [
+      "ON",
+      "OFF",
+      "TO"
+    ],
+    "delay_error_ns": 4.0,
+    "seed": 202,
+    "period_count": 3,
+    "blind_estimator_run": false,
+    "ai_training": false,
+    "router_enabled": false
+  },
+  "scene_identity": {
+    "case_id": "base__seed_202__v_p6d7__snr_p30__delay_p4ns",
+    "working_point": "base",
+    "group": "base",
+    "seed": 202,
+    "period_count": 3,
+    "beam_id": 50,
+    "expected_bin": 2048,
+    "range_m": 85000.0,
+    "target_velocity_mps": 6.7,
+    "target_snr_db": 30.0,
+    "texture_sigma": 0.25,
+    "clutter_rho": 0.98,
+    "target": {
+      "target_id": "stage1_target_1",
+      "enabled": true
+    },
+    "clutter": {
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98
+    },
+    "delay_error_ns": 4.0
+  },
+  "source_identity_before": {
+    "git": {
+      "commit": "74877fe1463b9362dfce7c935a136d82a26ad26b",
+      "dirty": true,
+      "dirty_tracked": true,
+      "untracked_count": 57,
+      "untracked_output_count": 21,
+      "untracked_non_output_count": 36,
+      "untracked_non_output_examples": [
+        ".pytest_cache/",
+        ".scratch/",
+        "\"Failed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\n/\"",
+        "docs/research/phase_r/00_ChatGPT_review_request_20261019.md",
+        "docs/research/phase_r/00_external_review_addendum.md",
+        "docs/research/phase_r/00_minimal_review_brief_20261019.md",
+        "docs/research/phase_r/05_experiment_design.md",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v5.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v6.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v7.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v8.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v5.zip"
+      ]
+    },
+    "tracked_status": [
+      " M scripts/estimate_channel_delay.py",
+      " M scripts/run_delay_stage1_formal.py",
+      " M src/processOnePeriod.cpp",
+      " M tests/test_channel_delay_correction.py",
+      " M tests/test_delay_stage1_contract.py"
+    ],
+    "files": {
+      "pilot_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r3_minimal_cuda_causal_pilot.py",
+        "exists": true,
+        "bytes": 35837,
+        "sha256": "61355e1d8b385b73f8b7fe51f4c3765b8058469dabe35e1a2ce954483874419e"
+      },
+      "stage1_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "exists": true,
+        "bytes": 138112,
+        "sha256": "34bdf89c4ca13b6f684689fee657d38c5f5cca05332f5bc7c0825cb5d6db9d3b"
+      },
+      "production_cfar_period_identity_source": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/src/processOnePeriod.cpp",
+        "exists": true,
+        "bytes": 262554,
+        "sha256": "07d875c9ba7cd727b6f33dc69eda234a6ea2d49924bea509aea90d170bb62957"
+      },
+      "stage2_delay_correction_operator": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/estimate_channel_delay.py",
+        "exists": true,
+        "bytes": 26432,
+        "sha256": "c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7"
+      },
+      "stage1_config": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/channel_delay_stage1_formal.json",
+        "exists": true,
+        "bytes": 3595,
+        "sha256": "ad47b0d02b05ddc4839da39a7498faf1af25ca3ba8eec678597c0ce7a0f651f6"
+      },
+      "scene_template": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/simulator/scenarios/beam50_one_targets_continuous.run.json",
+        "exists": true,
+        "bytes": 2543,
+        "sha256": "1f4f9c8b9383614601dc019414b8c8a8788b195301526438b95a672b1ee13998"
+      },
+      "design": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/05_experiment_design.md",
+        "exists": true,
+        "bytes": 6540,
+        "sha256": "41a86e7b9df698464d0551df881e37738195ff2d3f4e931138585e93aed3862f"
+      }
+    },
+    "build": {
+      "simulate_stage2_statistical": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+        "exists": true,
+        "bytes": 645944,
+        "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+      },
+      "GMTI_pipe_core": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+        "exists": true,
+        "bytes": 6278056,
+        "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+      }
+    }
+  },
+  "gpu_status_before": {
+    "available": false,
+    "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+    "returncode": 9,
+    "stdout": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.",
+    "stderr": ""
+  },
+  "disk_status_before": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202",
+    "total_bytes": 497777065984,
+    "used_bytes": 457419608064,
+    "free_bytes": 14996549632
+  },
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": false,
+    "PERFORMANCE_VERIFIED": false,
+    "note": "independent-seed execution is pending metric-level cross-seed evaluation"
+  },
+  "case_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns",
+  "case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/case_manifest.json",
+  "case_status": "production_path_failed",
+  "case_result": {
+    "schema_version": 1,
+    "created_at_utc": "2026-10-21T04:22:18.401892+00:00",
+    "case_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns",
+    "input_mode": "local",
+    "scene_identity": {
+      "case_id": "base__seed_202__v_p6d7__snr_p30__delay_p4ns",
+      "working_point": "base",
+      "group": "base",
+      "seed": 202,
+      "period_count": 3,
+      "beam_id": 50,
+      "expected_bin": 2048,
+      "range_m": 85000.0,
+      "target_velocity_mps": 6.7,
+      "target_snr_db": 30.0,
+      "texture_sigma": 0.25,
+      "clutter_rho": 0.98,
+      "target": {
+        "target_id": "stage1_target_1",
+        "enabled": true
+      },
+      "clutter": {
+        "texture_sigma": 0.25,
+        "temporal_correlation_rho": 0.98
+      },
+      "delay_error_ns": 4.0
+    },
+    "delay_error_ns": 4.0,
+    "branch_contract": {
+      "schema_version": 1,
+      "conditions": [
+        "A0_Ideal",
+        "A1_Current_unknown_error",
+        "A2_Known_error_correction_upper_bound",
+        "A3_Blind_target_free_estimated_correction"
+      ],
+      "requirements": {
+        "A0_Ideal": {
+          "description": "zero delay error and nominal processor state",
+          "delay_error_source": "zero",
+          "correction_applied": false,
+          "truth_used_in_estimator": false,
+          "evaluation_only": false
+        },
+        "A1_Current_unknown_error": {
+          "description": "injected delay error with no processor correction",
+          "delay_error_source": "injected_scene_only",
+          "correction_applied": false,
+          "truth_used_in_estimator": false,
+          "evaluation_only": false
+        },
+        "A2_Known_error_correction_upper_bound": {
+          "description": "A1 input physically corrected with injected truth",
+          "delay_error_source": "injected_scene",
+          "correction_applied": true,
+          "correction_source": "truth_evaluation_only",
+          "truth_used_in_estimator": false,
+          "truth_used_to_apply_correction": true,
+          "evaluation_only": true
+        },
+        "A3_Blind_target_free_estimated_correction": {
+          "description": "A1 input physically corrected from target-free A1 OFF estimate",
+          "delay_error_source": "injected_scene",
+          "correction_applied": true,
+          "correction_source": "A1_OFF_target_free_estimate",
+          "truth_used_in_estimator": false,
+          "truth_used_to_apply_correction": false,
+          "evaluation_only": false
+        }
+      },
+      "shared_scene_identity": [
+        "seed",
+        "target",
+        "clutter",
+        "noise",
+        "beam",
+        "range",
+        "velocity",
+        "snr",
+        "production_settings"
+      ],
+      "scientific_input": {
+        "source": "four_channel_protocol_iq",
+        "f1": "(channel_1 + channel_3) / 2",
+        "f2": "(channel_2 + channel_4) / 2",
+        "algorithm_input": "F1/F2 only",
+        "raw_4ch_allowed_for": [
+          "debug",
+          "protocol_validation",
+          "fusion_verification"
+        ]
+      },
+      "paired_roles": {
+        "on": "S+C+N",
+        "off": "C+N",
+        "target_only": "S",
+        "identity_rule": "same seed/background/target/production settings"
+      },
+      "ai_training": false,
+      "router_enabled": false,
+      "native_four_channel_stap": false
+    },
+    "selected_conditions": [
+      "A0_Ideal",
+      "A1_Current_unknown_error",
+      "A2_Known_error_correction_upper_bound"
+    ],
+    "ai_training": false,
+    "router_enabled": false,
+    "scene_variants": {
+      "A0_ON": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_ON.json",
+      "A0_OFF": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_OFF.json",
+      "A0_TO": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_TO.json",
+      "A1_ON": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_ON.json",
+      "A1_OFF": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_OFF.json",
+      "A1_TO": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_TO.json"
+    },
+    "simulation": {
+      "A0_ON": {
+        "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_ON.json",
+        "scenario_sha256": "f1e98fe162505501d10659f65e61a674489f3fdaec8c688d49368393c07444a8",
+        "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON",
+        "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/logs/A0_ON.simulate.log",
+        "returncode": 0,
+        "elapsed_sec": 13.589540827990277,
+        "status": "passed"
+      },
+      "A0_OFF": {
+        "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_OFF.json",
+        "scenario_sha256": "e3de78d6cf0ac8710f29bf4f20017f7a8827131c1240f936716ee1605a6fe0fd",
+        "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_OFF",
+        "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/logs/A0_OFF.simulate.log",
+        "returncode": 0,
+        "elapsed_sec": 0.21431297399976756,
+        "status": "passed"
+      },
+      "A0_TO": {
+        "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_TO.json",
+        "scenario_sha256": "4867de61fa802d60f026ca0b1102cd0a85e0470a2a68ea5307550f12efa36026",
+        "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_TO",
+        "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/logs/A0_TO.simulate.log",
+        "returncode": 0,
+        "elapsed_sec": 0.6150370810064487,
+        "status": "passed"
+      },
+      "A1_ON": {
+        "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_ON.json",
+        "scenario_sha256": "14851312271a56101c5c616031f3f2686899302020df37a2f806f7d79de26dba",
+        "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON",
+        "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/logs/A1_ON.simulate.log",
+        "returncode": 0,
+        "elapsed_sec": 0.8654514990048483,
+        "status": "passed"
+      },
+      "A1_OFF": {
+        "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_OFF.json",
+        "scenario_sha256": "e1602c740fc4fe5ef43fc10ecf0a4e886c7d8879f75920c452238945da810dd7",
+        "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF",
+        "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/logs/A1_OFF.simulate.log",
+        "returncode": 0,
+        "elapsed_sec": 0.41467804501007777,
+        "status": "passed"
+      },
+      "A1_TO": {
+        "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_TO.json",
+        "scenario_sha256": "5b2b62a8ed59b4509b2740c663f7bc2c0e71d7b49658d3f32a2568c019381c45",
+        "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO",
+        "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/logs/A1_TO.simulate.log",
+        "returncode": 0,
+        "elapsed_sec": 0.8154412930016406,
+        "status": "passed"
+      }
+    },
+    "conditions": {
+      "A0_Ideal": {
+        "input_preparation": {
+          "ON": {
+            "schema_version": 1,
+            "condition": "A0_Ideal",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": null,
+            "applied_delay_ns": null,
+            "delay_residual_ns": null,
+            "residual_ns": null,
+            "correction_source": "none",
+            "correction_model": "none",
+            "source": "none",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": false,
+            "correction_applied": false,
+            "correction_audit": [],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          },
+          "OFF": {
+            "schema_version": 1,
+            "condition": "A0_Ideal",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": null,
+            "applied_delay_ns": null,
+            "delay_residual_ns": null,
+            "residual_ns": null,
+            "correction_source": "none",
+            "correction_model": "none",
+            "source": "none",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": false,
+            "correction_applied": false,
+            "correction_audit": [],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          },
+          "TO": {
+            "schema_version": 1,
+            "condition": "A0_Ideal",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": null,
+            "applied_delay_ns": null,
+            "delay_residual_ns": null,
+            "residual_ns": null,
+            "correction_source": "none",
+            "correction_model": "none",
+            "source": "none",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": false,
+            "correction_applied": false,
+            "correction_audit": [],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          }
+        },
+        "production": {
+          "ON": {
+            "branch_name": "A0_Ideal_ON",
+            "condition": "A0_Ideal",
+            "role": "ON",
+            "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+            "truth_used_in_estimator": false,
+            "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+            "input_mode": "local",
+            "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/production/A0_Ideal/ON",
+            "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/config/temp_config_stage2_period_0000.xml",
+            "period_count_expected": 3,
+            "truth_period_count": 3,
+            "xml_overrides": {
+              "csi_metrics_enable": "true",
+              "csi_metrics_dump_power_maps": "true",
+              "csi_metrics_dump_intermediate_maps": "true",
+              "csi_metrics_beam_id": 50
+            },
+            "status": "failed",
+            "configuration_returncode": 0,
+            "configuration_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/production.configure.log",
+            "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/production.xml",
+            "period_paths": [
+              {
+                "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                "bytes": 49204480,
+                "sha256": "553e01abf13c47180289e3eafd14adb0bf86fb20396ac6f97a1774e79b0109bd"
+              },
+              {
+                "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                "bytes": 49204480,
+                "sha256": "558aec81dc17e00abd561c6ce333906e2340b3fbafdba1cb5656205f12720638"
+              },
+              {
+                "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+                "bytes": 49204480,
+                "sha256": "19d25b0dd0f233b8d2fa403abdf9ee0fd42f934e2c8142103980f2cfd24889ac"
+              }
+            ],
+            "runtime_xml_protocol_layout": {
+              "status": "passed",
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/production.xml",
+              "values": {
+                "pulse_len": "11820",
+                "new_protocol_channel_count": "4",
+                "new_protocol_read_channel_1": "1",
+                "new_protocol_read_channel_2": "2",
+                "iq_data_type": "float32",
+                "enable_four_channel_fusion": "true",
+                "four_channel_phase_compensation_enable": "true",
+                "four_channel_fusion_channel_3": "3",
+                "four_channel_fusion_channel_4": "4",
+                "fs_hz": 60000000.0
+              },
+              "expected": {
+                "pulse_len": 11820,
+                "new_protocol_channel_count": 4,
+                "new_protocol_read_channel_1": 1,
+                "new_protocol_read_channel_2": 2,
+                "iq_data_type": "float32",
+                "enable_four_channel_fusion": true,
+                "four_channel_phase_compensation_enable": true,
+                "four_channel_fusion_channel_3": 3,
+                "four_channel_fusion_channel_4": 4,
+                "fs_hz": 60000000.0
+              },
+              "errors": []
+            },
+            "production_returncode": 1,
+            "production_elapsed_sec": 0.11450347100617364,
+            "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/gmt_pipe_core.log",
+            "pipe_run_dir": null,
+            "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/result",
+            "track_debug_dir": null,
+            "pipe_runtime_metrics": {
+              "status": "not_applicable",
+              "input_mode": "local"
+            },
+            "cfar_summary": {
+              "status": "missing",
+              "summary_count": 0,
+              "hit_cells": null,
+              "clusters": 0,
+              "selected": 0,
+              "summaries": [],
+              "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+              "aggregate_hit_fraction_reason": "cfar_geometry_diagnostics_missing",
+              "valid_cut_count": null,
+              "threshold_test_count": null,
+              "hit_cut_count": null,
+              "tested_cut_hit_fraction": null,
+              "cell_pfa": null,
+              "cell_pfa_status": "NOT_EVALUABLE"
+            },
+            "cfar_geometry": {
+              "status": "NOT_EVALUABLE",
+              "branch_geometry_status": "NOT_EVALUABLE",
+              "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+              "tested_cut_hit_fraction": null,
+              "threshold_test_count": null,
+              "valid_cut_count": null,
+              "hit_cut_count": null,
+              "cell_pfa": null,
+              "cell_pfa_status": "NOT_EVALUABLE",
+              "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+              "definition": null,
+              "reason": "cfar_geometry_diagnostics_missing",
+              "branch_summaries": {},
+              "source_paths": [],
+              "rows": []
+            },
+            "audit": {
+              "status": "missing",
+              "total_violations": null,
+              "protocol_target_failures": {
+                "missing_track_debug_dir": 1
+              }
+            },
+            "track_audit_total_violations": null,
+            "metrics": {
+              "branch": "A0_Ideal_ON",
+              "expected_periods": 3,
+              "truth_visible_periods": 3,
+              "detection_snapshot_periods": 0,
+              "target_detection_opportunity_count": 3,
+              "target_detection_hit_count": 0,
+              "target_detection_pd": 0.0,
+              "target_detection_definition": "one target detection opportunity per visible truth period; hit if any production detection record matches that period's target",
+              "raw_detection_count": 0,
+              "detection_match_count": 0,
+              "detection_record_count": 0,
+              "detection_record_target_match_count": 0,
+              "detection_record_false_alarm_count": 0,
+              "detection_record_false_alarm_rate": null,
+              "detection_record_definition": "production detection_results rows matched against truth; not CFAR hit-cell count",
+              "period_detection_match_count": 0,
+              "period_detection_pd": 0.0,
+              "detection_pd": null,
+              "detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+              "raw_detection_pd": null,
+              "raw_detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+              "cell_false_hit_count": null,
+              "cell_false_hit_fraction": null,
+              "cell_false_hit_status": "not_evaluable_no_target_cell_link_or_valid_cut_denominator",
+              "raw_empirical_false_hit_fraction": null,
+              "raw_empirical_false_hit_status": "not_evaluable_detection_records_are_not_cfar_cells",
+              "eligible_protocol_payload_count": 0,
+              "matched_protocol_payload_count": 0,
+              "matched_protocol_period_count": 0,
+              "matched_protocol_periods": [],
+              "false_track_count": 0,
+              "false_track_rate": null,
+              "false_track_payload_count": 0,
+              "track_output_count": 0,
+              "unique_false_track_count": 0,
+              "unique_false_track_rate": null,
+              "cfar_hit_cell_count": null,
+              "cfar_cluster_count": 0,
+              "cfar_selected_cluster_count": null,
+              "cfar_pfa": null,
+              "cfar_pfa_status": "not_evaluable_missing_cfar_summary",
+              "cluster_false_alarm_count": null,
+              "cluster_false_alarm_rate": null,
+              "cluster_false_alarm_definition": null,
+              "cluster_false_alarm_status": "not_evaluable_missing_cfar_summary",
+              "protocol_detection_false_alarm_count": null,
+              "protocol_detection_false_alarm_rate": null,
+              "protocol_detection_false_alarm_status": "not_evaluable_payloads_do_not_preserve_production_detection_identity",
+              "protocol_payload_false_alarm_count": 0,
+              "protocol_payload_false_alarm_rate": null,
+              "track_pd_all_visible": 0.0,
+              "track_pd_after_confirmation": 0.0,
+              "track_continuity": 0.0,
+              "track_continuity_after_confirmation": 0.0,
+              "track_id_switch_count": 0,
+              "angle_rmse_deg": null,
+              "velocity_rmse_mps_ground_speed": null,
+              "position_rmse_m": null,
+              "track_debug_payload_count": 0,
+              "track_debug_detection_rows": 0,
+              "track_debug_state_rows": 0,
+              "track_audit_status": "missing",
+              "track_audit_total_violations": null,
+              "protocol_target_failures": {
+                "missing_track_debug_dir": 1
+              }
+            },
+            "cycle_rows": [],
+            "protocol_rows": [],
+            "target_off_waterfall": null,
+            "id_switch_audit_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/id_switch_audit.csv",
+            "id_switch_audit_row_count": 0,
+            "id_switch_classification_counts": {
+              "miss_to_reacquisition": 0,
+              "multiple_candidate_competition": 0,
+              "false_track_takeover": 0,
+              "gate_boundary_crossing": 0,
+              "position_velocity_jump": 0,
+              "lifecycle_transition": 0,
+              "track_confirmation_or_reset": 0,
+              "unclassifiable_production_fields": 0,
+              "other": 0
+            },
+            "id_switch_missing_production_field_counts": {},
+            "id_switch_audit_status": "NOT_EVALUABLE",
+            "id_switch_audit_reason": "missing_audit_inputs:track_debug_dir,track_output_payloads.csv,detection_results_GMTI*.csv",
+            "id_switch_audit_sources": {
+              "track_debug_dir": null,
+              "detection_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/result",
+              "payload_path": null,
+              "truth_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/truth"
+            },
+            "production_status": "failed",
+            "production_path_gate": {
+              "status": "NOT_EVALUABLE",
+              "reasons": [
+                "production_branch_not_passed",
+                "production_returncode_nonzero",
+                "runtime_config_dump_missing",
+                "csi_cancellation_missing_from_runtime_log",
+                "cfar_summary_missing_from_runtime_log",
+                "beam_stage_timing_missing_from_runtime_log",
+                "csi_metric_tap_summary_missing_or_empty",
+                "valid_cfar_cut_branch_missing"
+              ],
+              "production_returncode": 1,
+              "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/production.xml",
+              "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/gmt_pipe_core.log",
+              "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/result/runtime_config_dump.json",
+              "csi_tap_paths": [],
+              "csi_tap_row_count": 0,
+              "runtime_log_stage_counts": {
+                "csi_cancellation": 0,
+                "cfar_summary": 0,
+                "beam_stage_timing": 0
+              },
+              "valid_cfar_branches": [],
+              "valid_cfar_cut_count_by_branch": {}
+            }
+          },
+          "OFF": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A0_Ideal",
+            "role": "OFF"
+          },
+          "TO": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A0_Ideal",
+            "role": "TO"
+          }
+        },
+        "truth_used_in_estimator": false,
+        "correction_applied": false
+      },
+      "A1_Current_unknown_error": {
+        "input_preparation": {
+          "ON": {
+            "schema_version": 1,
+            "condition": "A1_Current_unknown_error",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": null,
+            "applied_delay_ns": null,
+            "delay_residual_ns": null,
+            "residual_ns": null,
+            "correction_source": "none",
+            "correction_model": "none",
+            "source": "none",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": false,
+            "correction_applied": false,
+            "correction_audit": [],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          },
+          "OFF": {
+            "schema_version": 1,
+            "condition": "A1_Current_unknown_error",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": null,
+            "applied_delay_ns": null,
+            "delay_residual_ns": null,
+            "residual_ns": null,
+            "correction_source": "none",
+            "correction_model": "none",
+            "source": "none",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": false,
+            "correction_applied": false,
+            "correction_audit": [],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          },
+          "TO": {
+            "schema_version": 1,
+            "condition": "A1_Current_unknown_error",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": null,
+            "applied_delay_ns": null,
+            "delay_residual_ns": null,
+            "residual_ns": null,
+            "correction_source": "none",
+            "correction_model": "none",
+            "source": "none",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": false,
+            "correction_applied": false,
+            "correction_audit": [],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          }
+        },
+        "production": {
+          "ON": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A1_Current_unknown_error",
+            "role": "ON"
+          },
+          "OFF": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A1_Current_unknown_error",
+            "role": "OFF"
+          },
+          "TO": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A1_Current_unknown_error",
+            "role": "TO"
+          }
+        },
+        "truth_used_in_estimator": false,
+        "correction_applied": false
+      },
+      "A2_Known_error_correction_upper_bound": {
+        "input_preparation": {
+          "ON": {
+            "schema_version": 1,
+            "condition": "A2_Known_error_correction_upper_bound",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+            ],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": 4.0,
+            "applied_delay_ns": 4.0,
+            "delay_residual_ns": 0.0,
+            "residual_ns": 0.0,
+            "correction_source": "truth_evaluation_only",
+            "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+            "source": "truth_evaluation_only",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": true,
+            "correction_applied": true,
+            "correction_audit": [
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              },
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              },
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/ON/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              }
+            ],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          },
+          "OFF": {
+            "schema_version": 1,
+            "condition": "A2_Known_error_correction_upper_bound",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+            ],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": 4.0,
+            "applied_delay_ns": 4.0,
+            "delay_residual_ns": 0.0,
+            "residual_ns": 0.0,
+            "correction_source": "truth_evaluation_only",
+            "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+            "source": "truth_evaluation_only",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": true,
+            "correction_applied": true,
+            "correction_audit": [
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              },
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              },
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/OFF/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              }
+            ],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          },
+          "TO": {
+            "schema_version": 1,
+            "condition": "A2_Known_error_correction_upper_bound",
+            "raw_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+            ],
+            "corrected_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+            ],
+            "period_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin"
+            ],
+            "calibration_input": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+            "calibration_input_exists": false,
+            "calibration_source": "A1_OFF_target_free_C_plus_N_only",
+            "delay_truth_ns": 4.0,
+            "delay_estimate_ns": null,
+            "estimate": 4.0,
+            "applied_delay_ns": 4.0,
+            "delay_residual_ns": 0.0,
+            "residual_ns": 0.0,
+            "correction_source": "truth_evaluation_only",
+            "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+            "source": "truth_evaluation_only",
+            "truth_used_in_estimator": false,
+            "truth_used_to_apply_correction": true,
+            "correction_applied": true,
+            "correction_audit": [
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0000.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              },
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0001.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              },
+              {
+                "status": "passed",
+                "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+                "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A2_Known_error_correction_upper_bound/TO/prepared_inputs/A2_Known_error_correction_upper_bound/period_0002.bin",
+                "packets_rewritten": 130,
+                "input_bytes": 49204480,
+                "output_bytes": 49204480,
+                "pulse_len": 11820,
+                "channel_count": 4,
+                "channel_index": 1,
+                "channel_indices": [
+                  1
+                ],
+                "fs_hz": 60000000.0,
+                "delta_tau_sec": 4e-09,
+                "delta_tau_ns": 4.0,
+                "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz"
+              }
+            ],
+            "layout": {
+              "pulse_len": 11820,
+              "channel_count": 4,
+              "fs_hz": 60000000.0,
+              "correction_channel_indices": [
+                1
+              ]
+            }
+          }
+        },
+        "production": {
+          "ON": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A2_Known_error_correction_upper_bound",
+            "role": "ON"
+          },
+          "OFF": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A2_Known_error_correction_upper_bound",
+            "role": "OFF"
+          },
+          "TO": {
+            "status": "NOT_RUN",
+            "reason": "earlier_stage_or_production_branch_failed",
+            "condition": "A2_Known_error_correction_upper_bound",
+            "role": "TO"
+          }
+        },
+        "truth_used_in_estimator": false,
+        "correction_applied": true
+      }
+    },
+    "additive_audits": {
+      "A0_Ideal": {
+        "status": "passed",
+        "max_abs_error": 3.844384073399806e-06,
+        "rms_error": 3.31736650907441e-07,
+        "sample_count": 18439200,
+        "tolerance": 5e-05,
+        "reason": "on_minus_off_minus_target_within_tolerance"
+      },
+      "A1_Current_unknown_error": {
+        "status": "passed",
+        "max_abs_error": 7.882249476822156e-06,
+        "rms_error": 4.1877789780689787e-07,
+        "sample_count": 18439200,
+        "tolerance": 5e-05,
+        "reason": "on_minus_off_minus_target_within_tolerance"
+      },
+      "A2_Known_error_correction_upper_bound": {
+        "status": "passed",
+        "max_abs_error": 1.56511163569375e-05,
+        "rms_error": 5.464306019405894e-07,
+        "sample_count": 18439200,
+        "tolerance": 5e-05,
+        "reason": "on_minus_off_minus_target_within_tolerance"
+      }
+    },
+    "status": "production_path_failed",
+    "area_clutter_gate": {
+      "status": "passed",
+      "reasons": [],
+      "area_enabled": true,
+      "area_model": "continuous_texture",
+      "platform_height_m": 6000.0,
+      "ground_height_m": 0.0,
+      "minimum_slant_range_m": 6000.0,
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ],
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_max_m": 85289.213854977,
+      "continuous_area_packets": 390,
+      "continuous_area_samples": 1952655,
+      "area_mean_power_measured": 0.111635636238,
+      "report_values": {
+        "area_rho_lag1_measured": "0.980007493963",
+        "area_rho_at_CTDR_lag": "0.960420856451",
+        "area_ctdr_lag_pulses": "2",
+        "area_power_cv_measured": "2.14404715838",
+        "mean_noise_power_per_complex_sample": "0.0100011664565"
+      },
+      "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "report_sha256": "0c66e7b9fb5b9d38f5a8426ba5d5345079cfc011b884ebc7b702ea67a3bf07dd"
+    },
+    "paired_background": {
+      "directory": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_background",
+      "source_condition": "A0_Ideal_zero_delay",
+      "role_contract": "A0_ON writes C+N; A0/A1 OFF and TO plus A1 ON reuse identical background"
+    },
+    "protocol_layout": {
+      "header_bytes": 256,
+      "pulse_len": 11820,
+      "pulse_count": 130,
+      "channel_count": 4,
+      "iq_data_type": "float32",
+      "fs_hz": 60000000.0,
+      "packet_bytes": 378496,
+      "beam_id": 50,
+      "beam_index_base": 1,
+      "expected_theta_deg": 38.0,
+      "scan_min_deg": -60.0,
+      "scan_step_deg": 2.0,
+      "read_channel_1": 1,
+      "read_channel_2": 2,
+      "correction_channel_indices": [
+        1
+      ],
+      "fusion_pairs": [
+        [
+          1,
+          3
+        ],
+        [
+          2,
+          4
+        ]
+      ],
+      "enable_four_channel_fusion": true,
+      "four_channel_phase_compensation_enable": true,
+      "fusion_channel_3": 3,
+      "fusion_channel_4": 4
+    },
+    "delay_estimator": {
+      "status": "NOT_REQUESTED",
+      "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+      "input_role": null,
+      "truth_used_in_estimator": false,
+      "reason": "selected conditions do not include the blind-estimation condition"
+    },
+    "production_smoke_gate": {
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "production_branch_not_passed",
+        "production_returncode_nonzero",
+        "runtime_config_dump_missing",
+        "csi_cancellation_missing_from_runtime_log",
+        "cfar_summary_missing_from_runtime_log",
+        "beam_stage_timing_missing_from_runtime_log",
+        "csi_metric_tap_summary_missing_or_empty",
+        "valid_cfar_cut_branch_missing"
+      ],
+      "production_returncode": 1,
+      "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/production.xml",
+      "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/gmt_pipe_core.log",
+      "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/result/runtime_config_dump.json",
+      "csi_tap_paths": [],
+      "csi_tap_row_count": 0,
+      "runtime_log_stage_counts": {
+        "csi_cancellation": 0,
+        "cfar_summary": 0,
+        "beam_stage_timing": 0
+      },
+      "valid_cfar_branches": [],
+      "valid_cfar_cut_count_by_branch": {}
+    },
+    "calibration_input": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+      "exists": false,
+      "bytes": null,
+      "sha256": null
+    },
+    "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/config/temp_config_stage2_period_0000.xml",
+    "git": {
+      "commit": "74877fe1463b9362dfce7c935a136d82a26ad26b",
+      "dirty": true,
+      "dirty_tracked": true,
+      "untracked_count": 57,
+      "untracked_output_count": 21,
+      "untracked_non_output_count": 36,
+      "untracked_non_output_examples": [
+        ".pytest_cache/",
+        ".scratch/",
+        "\"Failed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\n/\"",
+        "docs/research/phase_r/00_ChatGPT_review_request_20261019.md",
+        "docs/research/phase_r/00_external_review_addendum.md",
+        "docs/research/phase_r/00_minimal_review_brief_20261019.md",
+        "docs/research/phase_r/05_experiment_design.md",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v5.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v6.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v7.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v8.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v5.zip"
+      ]
+    },
+    "production_failure": {
+      "branch": "A0_Ideal_ON",
+      "reason": "production_path_evidence_gate_failed",
+      "evidence_gate": {
+        "status": "NOT_EVALUABLE",
+        "reasons": [
+          "production_branch_not_passed",
+          "production_returncode_nonzero",
+          "runtime_config_dump_missing",
+          "csi_cancellation_missing_from_runtime_log",
+          "cfar_summary_missing_from_runtime_log",
+          "beam_stage_timing_missing_from_runtime_log",
+          "csi_metric_tap_summary_missing_or_empty",
+          "valid_cfar_cut_branch_missing"
+        ],
+        "production_returncode": 1,
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/production.xml",
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/gmt_pipe_core.log",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/result/runtime_config_dump.json",
+        "csi_tap_paths": [],
+        "csi_tap_row_count": 0,
+        "runtime_log_stage_counts": {
+          "csi_cancellation": 0,
+          "cfar_summary": 0,
+          "beam_stage_timing": 0
+        },
+        "valid_cfar_branches": [],
+        "valid_cfar_cut_count_by_branch": {}
+      }
+    }
+  },
+  "source_identity_after": {
+    "git": {
+      "commit": "74877fe1463b9362dfce7c935a136d82a26ad26b",
+      "dirty": true,
+      "dirty_tracked": true,
+      "untracked_count": 57,
+      "untracked_output_count": 21,
+      "untracked_non_output_count": 36,
+      "untracked_non_output_examples": [
+        ".pytest_cache/",
+        ".scratch/",
+        "\"Failed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\nFailed to create stream fd: Operation not permitted\\n/\"",
+        "docs/research/phase_r/00_ChatGPT_review_request_20261019.md",
+        "docs/research/phase_r/00_external_review_addendum.md",
+        "docs/research/phase_r/00_minimal_review_brief_20261019.md",
+        "docs/research/phase_r/05_experiment_design.md",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v5.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v6.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v7.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_min_review_20261019_v8.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v2.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v3.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v4.zip",
+        "docs/research/phase_r/phase_r_ai_necessity_review_20261019_current_v5.zip"
+      ]
+    },
+    "tracked_status": [
+      " M scripts/estimate_channel_delay.py",
+      " M scripts/run_delay_stage1_formal.py",
+      " M src/processOnePeriod.cpp",
+      " M tests/test_channel_delay_correction.py",
+      " M tests/test_delay_stage1_contract.py"
+    ],
+    "files": {
+      "pilot_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r3_minimal_cuda_causal_pilot.py",
+        "exists": true,
+        "bytes": 35837,
+        "sha256": "61355e1d8b385b73f8b7fe51f4c3765b8058469dabe35e1a2ce954483874419e"
+      },
+      "stage1_runner": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "exists": true,
+        "bytes": 138112,
+        "sha256": "34bdf89c4ca13b6f684689fee657d38c5f5cca05332f5bc7c0825cb5d6db9d3b"
+      },
+      "production_cfar_period_identity_source": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/src/processOnePeriod.cpp",
+        "exists": true,
+        "bytes": 262554,
+        "sha256": "07d875c9ba7cd727b6f33dc69eda234a6ea2d49924bea509aea90d170bb62957"
+      },
+      "stage2_delay_correction_operator": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/estimate_channel_delay.py",
+        "exists": true,
+        "bytes": 26432,
+        "sha256": "c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7"
+      },
+      "stage1_config": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/channel_delay_stage1_formal.json",
+        "exists": true,
+        "bytes": 3595,
+        "sha256": "ad47b0d02b05ddc4839da39a7498faf1af25ca3ba8eec678597c0ce7a0f651f6"
+      },
+      "scene_template": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/simulator/scenarios/beam50_one_targets_continuous.run.json",
+        "exists": true,
+        "bytes": 2543,
+        "sha256": "1f4f9c8b9383614601dc019414b8c8a8788b195301526438b95a672b1ee13998"
+      },
+      "design": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/05_experiment_design.md",
+        "exists": true,
+        "bytes": 6540,
+        "sha256": "41a86e7b9df698464d0551df881e37738195ff2d3f4e931138585e93aed3862f"
+      }
+    },
+    "build": {
+      "simulate_stage2_statistical": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+        "exists": true,
+        "bytes": 645944,
+        "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+      },
+      "GMTI_pipe_core": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+        "exists": true,
+        "bytes": 6278056,
+        "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+      }
+    }
+  },
+  "gpu_status_after": {
+    "available": false,
+    "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+    "returncode": 9,
+    "stdout": "NVIDIA-SMI has failed because it couldn't communicate with the NVIDIA driver. Make sure that the latest NVIDIA driver is installed and running.",
+    "stderr": ""
+  },
+  "disk_status_after": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/replication_seed_202",
+    "total_bytes": 497777065984,
+    "used_bytes": 459047264256,
+    "free_bytes": 13368893440
+  }
+}

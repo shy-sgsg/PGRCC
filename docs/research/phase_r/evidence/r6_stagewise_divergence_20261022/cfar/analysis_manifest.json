@@ -1,0 +1,23 @@
+{
+  "analysis": "R6 exact branch CFAR margin and A0/C hit-index comparison",
+  "root": "outputs/phase_r6_stagewise_divergence_20261022",
+  "production_executable": "build/GMTI_pipe_core",
+  "production_executable_sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962",
+  "margin_definition": "10*log10(power/threshold); detector hit is strict power > threshold",
+  "valid_cut_mask": "include/cfar_geometry.hpp count_geometry contract reconstructed from each geometry row",
+  "near_threshold_bands_db": [
+    0.25,
+    0.5,
+    1.0
+  ],
+  "period_mapping": "forced result IDs 1,2,3 map to period IDs 0,1,2",
+  "checks": {
+    "branch_count_and_hit_hash_match_union_geometry": true,
+    "branch_or_matches_production_union": true
+  },
+  "nonpositive_threshold_valid_cuts_total": 471017,
+  "nonpositive_threshold_hits_total": 471017,
+  "branch_map_rows": 36,
+  "union_map_rows": 18,
+  "a0_c_hit_comparison_rows": 27
+}

@@ -16,7 +16,7 @@ import math
 import re
 from collections import Counter
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Mapping
 
 
 EPS = 1.0e-9
@@ -73,6 +73,84 @@ def _near(lhs: float, rhs: float, *, atol: float = 2.0e-6) -> bool:
     return math.isclose(lhs, rhs, rel_tol=1.0e-9, abs_tol=atol)
 
 
+def _record_period(row: Mapping[str, object]) -> int:
+    value = row.get("result_id")
+    if value in (None, ""):
+        value = row.get("period_id")
+    return _period(str(value))
+
+
+def _record_int(row: Mapping[str, object], name: str) -> int:
+    value = row.get(name)
+    if value in (None, ""):
+        raise ValueError(f"missing integer field {name!r}")
+    return int(str(value))
+
+
+def protocol_target_is_eligible(
+    payload: Mapping[str, object],
+    state: Mapping[str, object] | None,
+    detection: Mapping[str, object] | None,
+    association: Mapping[str, object] | None,
+) -> tuple[bool, str]:
+    """Check the causal source contract for one emitted protocol target.
+
+    A protocol payload may explicitly select the production measurement,
+    prediction, or Kalman-filtered value source, but the output target must
+    still be tied to a same-period association.  In particular, a Tentative
+    or Coasted state, a prior-period detection, a raw-only detection, and an
+    unmatched prediction are not protocol targets.
+    """
+
+    if state is None:
+        return False, "missing_track_state"
+    if detection is None:
+        return False, "missing_same_period_detection"
+    if association is None:
+        return False, "missing_accepted_association"
+    try:
+        payload_period = _record_period(payload)
+        state_period = _record_period(state)
+        detection_period = _record_period(detection)
+        association_period = _record_period(association)
+        payload_track = _record_int(payload, "track_id")
+        state_track = _record_int(state, "track_id")
+        detection_track = _record_int(detection, "matched_track_id")
+        association_track = _record_int(association, "track_id")
+        payload_det = _record_int(payload, "matched_det_index")
+        state_det = _record_int(state, "matched_det_index")
+        detection_det = _record_int(detection, "det_index")
+        association_det = _record_int(
+            association,
+            "det_index" if association.get("det_index") not in (None, "") else "det_id",
+        )
+    except (TypeError, ValueError, KeyError):
+        return False, "invalid_identity_fields"
+
+    if len({payload_period, state_period, detection_period, association_period}) != 1:
+        return False, "period_identity_mismatch"
+    if len({payload_track, state_track, detection_track, association_track}) != 1:
+        return False, "track_identity_mismatch"
+    if len({payload_det, state_det, detection_det, association_det}) != 1:
+        return False, "detection_identity_mismatch"
+    if str(state.get("state", "")) != "Confirmed":
+        return False, "state_not_confirmed"
+    if str(state.get("matched_this_frame", "")) not in ("1", "true", "True"):
+        return False, "state_not_matched_this_frame"
+    if str(state.get("is_output", "")) not in ("1", "true", "True"):
+        return False, "state_not_output"
+    if str(detection.get("matched", "")) not in ("1", "true", "True"):
+        return False, "detection_not_matched"
+    if str(association.get("post_assignment_accepted", association.get("assigned", ""))) \
+            not in ("1", "true", "True"):
+        return False, "association_not_accepted"
+    if str(payload.get("resolved_source", "")) not in {
+        "measurement", "prediction", "kalman_filtered",
+    }:
+        return False, "payload_source_unknown"
+    return True, "eligible"
+
+
 def audit_debug_dir(debug_dir: Path) -> dict[str, Any]:
     debug_dir = debug_dir.resolve()
     accepted_path = debug_dir / "track_association_accepts.csv"
@@ -96,6 +174,7 @@ def audit_debug_dir(debug_dir: Path) -> dict[str, Any]:
     max_instant_speed_mps = 0.0
     accepted_track_keys: list[tuple[int, int]] = []
     accepted_detection_keys: list[tuple[int, int]] = []
+    accepted_by_key: dict[tuple[int, int, int], dict[str, str]] = {}
 
     for row in accepts:
         period = _period(row["result_id"] if detailed_accepts else row["period_id"])
@@ -103,6 +182,7 @@ def audit_debug_dir(debug_dir: Path) -> dict[str, Any]:
         det_index = _int(row, "det_index" if detailed_accepts else "det_id")
         accepted_track_keys.append((period, track_id))
         accepted_detection_keys.append((period, det_index))
+        accepted_by_key[(period, track_id, det_index)] = row
 
         if not detailed_accepts:
             distance = _float(row, "distance_m")
@@ -252,6 +332,24 @@ def audit_debug_dir(debug_dir: Path) -> dict[str, Any]:
         matched_detections[key] = row
         invalid_detection_links += int(_int(row, "matched_track_id") < 0)
 
+    protocol_target_failures: Counter[str] = Counter()
+    for row in payloads:
+        try:
+            period = _record_period(row)
+            track_id = _record_int(row, "track_id")
+            det_index = _record_int(row, "matched_det_index")
+        except (TypeError, ValueError, KeyError):
+            protocol_target_failures["invalid_identity_fields"] += 1
+            continue
+        eligible, reason = protocol_target_is_eligible(
+            row,
+            states_by_key.get((period, track_id)),
+            matched_detections.get((period, det_index)),
+            accepted_by_key.get((period, track_id, det_index)),
+        )
+        if not eligible:
+            protocol_target_failures[reason] += 1
+
     accepted_state_link_violations = 0
     accepted_detection_link_violations = 0
     for row in accepts:
@@ -392,6 +490,7 @@ def audit_debug_dir(debug_dir: Path) -> dict[str, Any]:
         "payload_numeric_source": payload_numeric_violations,
         "payload_without_accepted_match": payload_without_accepted_match,
         "state_payload_key_mismatch": state_payload_key_mismatch,
+        "protocol_target_contract": sum(protocol_target_failures.values()),
     }
     total_violations = sum(violations.values())
     frame_utc_by_period = {
@@ -455,6 +554,7 @@ def audit_debug_dir(debug_dir: Path) -> dict[str, Any]:
             "measurement_step_speed_mps": max_measurement_speed_mps,
         },
         "resolved_sources": dict(sorted(resolved_sources.items())),
+        "protocol_target_failures": dict(sorted(protocol_target_failures.items())),
         "violations": violations,
         "total_violations": total_violations,
     }

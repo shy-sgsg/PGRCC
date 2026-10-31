@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "phase": "PGRCC Phase R6 A0/C stagewise divergence",
+  "created_on": "2026-10-22",
+  "branch": "codex/unknown-system-error-next-stage",
+  "review_baseline_commit": "3492cde4129bc03f9fbe39960aa07e73a0b57a07",
+  "historical_reference": {
+    "r3_case_manifest": "outputs/phase_r_minimal_cuda_causal_pilot_20261021/cases/base__seed_101__v_p6d7__snr_p30__delay_p4ns/case_manifest.json",
+    "historical_source_commit": "74877fe1463b9362dfce7c935a136d82a26ad26b",
+    "historical_tracked_worktree_dirty": true,
+    "historical_binary_sha256_available": false,
+    "historical_binary_identity": "NOT_VERIFIABLE"
+  },
+  "experiment": {
+    "seed": 101,
+    "period_count": 3,
+    "beam_id": 50,
+    "conditions": {
+      "A0": "0 ns channel delay, Production Current",
+      "C": "+4 ns injected channel delay with evaluator-only known physical correction"
+    },
+    "paired_roles": {
+      "ON": "target + clutter + noise",
+      "OFF": "clutter + noise",
+      "TO": "target only"
+    },
+    "ai_training": false,
+    "router": false,
+    "production_algorithm_modified": false
+  },
+  "input_identity": {
+    "r3_registered_files_reconstructed_and_sha256_matched": 27,
+    "r3_registered_files_expected": 27,
+    "r3_original_bin_files_at_registered_paths_present": false,
+    "mapping": {
+      "A0": "reconstruction/stages/A0_ON, A0_OFF_bg_replay1, A0_TO_bg_replay1",
+      "A1_plus_4ns": "reconstruction/stages/A1_ON_bg_replay1, A1_OFF_bg_replay1, A1_TO_bg_replay1",
+      "known_corrected_C": "reconstruction/corrected_C/{ON,OFF,TO}/prepared_inputs/A2_Known_error_correction_upper_bound/period_000N.bin"
+    },
+    "sha256_gate": "27/27 exact; each reconstructed file matches the SHA-256 registered in the R3 case manifest; per-file values are recorded in input_sha256_matches.csv. The original R3 bin paths are absent; this is a manifest-hash reconstruction check, not a byte reread of those original paths."
+  },
+  "stage2_area_clutter": {
+    "continuous_area_packets": 390,
+    "continuous_area_samples": 1952655,
+    "measured_mean_power": 0.111676389594,
+    "measured_rho_lag1": 0.980006534954
+  },
+  "production_identity": {
+    "git_commit": "3492cde4129bc03f9fbe39960aa07e73a0b57a07",
+    "build_type": "Release",
+    "binary": "build/GMTI_pipe_core",
+    "binary_sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962",
+    "processOnePeriod_cpp_sha256": "07d875c9ba7cd727b6f33dc69eda234a6ea2d49924bea509aea90d170bb62957",
+    "known_delay_correction_script_sha256": "c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7",
+    "runtime_xml_a0_c_semantic_diff": ["GMTI_data_new", "result_add", "track_debug_dir"],
+    "effective_algorithm_config_equal": true
+  },
+  "run_time_device_observation": {
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "driver": "580.178.04",
+    "pstate": "P0",
+    "temperature_c": "63-64",
+    "power_draw_w": "39-40",
+    "gpu_utilization_pct": 96,
+    "background_load_note": "another Python process was active; no performance benchmark claim is made"
+  },
+  "controls": {
+    "successful_production_runs": ["A0_ON_rep1", "A0_ON_rep2", "A0_ON_diagoff", "A0_ON_complexdiag", "A0_OFF", "A0_TO", "C_ON", "C_OFF", "C_TO"],
+    "a0_repeat_csi_cfarthreshold_cfartap_gmti_track_outputs_exact": true,
+    "diagnostics_off_on_scientific_output_parity": true,
+    "track_manager_audit_all_six_conditions": "pass, zero violations"
+  },
+  "cluster_detection_audit": {
+    "period_rows": 27,
+    "all_selected_equal_cluster_count": true,
+    "all_detection_rows_equal_selected_count": true,
+    "a0_on_repeat_and_diagnostic_controls_cluster_counts_exact": true,
+    "per_candidate_cluster_id_lineage_persisted": false,
+    "source": "production/*/logs/gmt_pipe_core.log plus result/detection_results_GMTI01-03.csv"
+  },
+  "cfar_audit": {
+    "branch_period_maps": 36,
+    "valid_cut_per_map": 527280,
+    "branch_or_matches_production_union_maps": 18,
+    "nonpositive_threshold_valid_cuts": 471017,
+    "nonpositive_threshold_hits": 471017,
+    "pfa_claim": "NOT_EVALUABLE"
+  },
+  "task_metric_reproduction": {
+    "r3_seed101_on_rmse_exactly_reproduced": true,
+    "independent_seeds": 0,
+    "statistical_significance": false,
+    "details": "r6_task_metrics.csv; frozen evaluator uses 1000 m position and 150 m range matching gates"
+  },
+  "evidence_paths": {
+    "full_local_run_root": "outputs/phase_r6_stagewise_divergence_20261022",
+    "stagewise_metrics": "stagewise/",
+    "cfar_metrics_and_exact_indices": "cfar/",
+    "task_metrics": "r6_task_metrics.csv"
+  },
+  "known_limitations": [
+    "The original R3 Stage2 bin files at their case-manifest paths are absent; reconstructed R6 inputs match the registered SHA-256 values 27/27.",
+    "R3 historical binary identity cannot be reconstructed from the dirty historical manifest.",
+    "Production runner run_manifest.json does not serialize the complete argv; runtime XML, logs, forced IDs and CLI replay form are retained/documented.",
+    "No durable per-cluster ID lineage exists for the specific disappearing candidate; attribution is localized to post-CFAR candidate selection, not one exact suppression predicate.",
+    "Full raw Stage2/CSI/CFAR arrays and logs remain in the local ignored outputs tree and are not included in this compact GitHub evidence package.",
+    "No multi-seed or statistically powered performance result was run."
+  ],
+  "decision": "INCONCLUSIVE; verify/fix GO-CFAR integral-image numerical stability and target-association metric contract before extending the unknown-error performance claim. No AI training started."
+}

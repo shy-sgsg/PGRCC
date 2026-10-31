@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "delay_error_ns": 0.0,
+  "scene_identity": {
+    "seed": 707,
+    "period_count": 3,
+    "beam_id": 50,
+    "expected_bin": 2048,
+    "range_m": 85000.0,
+    "texture_sigma": 0.25,
+    "clutter_rho": 0.98,
+    "target_velocity_mps": 0.5,
+    "target_snr_db": 30.0,
+    "target": {
+      "target_id": "PGRCC_DELAY_PILOT_TARGET",
+      "enabled": true
+    },
+    "clutter": {
+      "mean_power": 0.02
+    },
+    "noise": {
+      "noise_power": 0.001
+    },
+    "production": {
+      "identity": "stage2_production_delay_pilot_v1"
+    }
+  },
+  "background_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr30/cases/r18_frozen__seed_707__v_0d5__snr_30__delay_0ns/scenes/A0_background",
+  "variants": {
+    "A0_ON": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr30/cases/r18_frozen__seed_707__v_0d5__snr_30__delay_0ns/scenes/scenarios/A0_ON.json",
+      "sha256": "c940c2b28edba225775ae2161c99ca96297b0512a60a6a90eee18bd1202d48a9"
+    },
+    "A0_OFF": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr30/cases/r18_frozen__seed_707__v_0d5__snr_30__delay_0ns/scenes/scenarios/A0_OFF.json",
+      "sha256": "80709ab3851b2b480b526d99a95eae581a2294622995b9d6d111dfd9efc0837e"
+    },
+    "A0_TO": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr30/cases/r18_frozen__seed_707__v_0d5__snr_30__delay_0ns/scenes/scenarios/A0_TO.json",
+      "sha256": "73c8eeca89514e5a2ab8173a2856864e4fda9c1ed5c683110d4049c7fb38c1aa"
+    },
+    "A1_ON": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr30/cases/r18_frozen__seed_707__v_0d5__snr_30__delay_0ns/scenes/scenarios/A1_ON.json",
+      "sha256": "03122d5b6b91ff72250d7efcb682fc8816ba13bb942e17b1203ffe22711ab9d4"
+    },
+    "A1_OFF": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr30/cases/r18_frozen__seed_707__v_0d5__snr_30__delay_0ns/scenes/scenarios/A1_OFF.json",
+      "sha256": "773541ebf64b1aaaecb9f9ffc8b3ed0107359e5aef19af738226a5ce230a4c2e"
+    },
+    "A1_TO": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr30/cases/r18_frozen__seed_707__v_0d5__snr_30__delay_0ns/scenes/scenarios/A1_TO.json",
+      "sha256": "986c49109fbe6d9a371b157e05ab77ec7c3be8361b4ff499af7a0ad9a36d38a8"
+    }
+  },
+  "pairing_rule": "A0 ON writes zero-error C+N; all A0/A1 OFF/TO and A1 ON reuse it"
+}

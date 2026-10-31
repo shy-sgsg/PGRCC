@@ -1,0 +1,7 @@
+method,input_role,available_channels,required_prior,uses_truth,uses_A0,uses_Known,uses_paired_OFF,uses_future,online_deployability,estimated_parameter,correction_operator
+A0,Ideal/No-error reference,protocol C1-C4 fused to F1/F2,none,False,True,False,False,False,reference only,none,none
+B,Current +4 ns,protocol C1-C4 fused to F1/F2,none,False,False,False,False,False,production baseline,none,none
+Known,B input with evaluator-known correction,B protocol IQ; truth used only by correction adapter,+4 ns evaluator-only,True,False,False,False,False,"upper-bound reference, not blind",none; fixed by evaluator,rewrite_float32_protocol_delay
+D3_R9_fixed,B input with frozen R9 value,same-seed B input; fixed value 3.4099650318669545 ns,R9 frozen calibration,False,False,False,False,False,fixed calibration; not same-input estimate,none at R21 inference,rewrite_float32_protocol_delay
+D3_Huber,same-seed B ON raw C1/C2 estimate applied to B ON/OFF/TO,B ON C1/C2 and B geometry,Huber weighted LS phase-slope model,False,False,False,False,False,blind estimate; production path executed,channel delay,rewrite_float32_protocol_delay
+M1,same-seed B ON raw C1/C2 estimate applied to B ON/OFF/TO,B ON C1/C2 and B Production geometry,physics-matched delay model,False,False,False,False,False,blind estimate; production path executed,channel delay,rewrite_float32_protocol_delay

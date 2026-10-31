@@ -1,0 +1,3258 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-10-23T08:57:18.663752+00:00",
+  "status": "passed",
+  "gates": {
+    "baseline_known_correction_closure_passed": true,
+    "online_estimates_available": true,
+    "static_calibration_physics_gate_passed": true,
+    "online_d3_physics_gate_passed": true
+  },
+  "selection_rule_frozen_before_production": true,
+  "seeds": {
+    "202": {
+      "case_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns",
+      "case_manifest": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/case_manifest.json",
+        "exists": true,
+        "bytes": 416848,
+        "sha256": "e853f83649898ee20b85712f53ddb8039629553816e4020abb30f5e5af630d7c"
+      },
+      "layout": {
+        "header_bytes": 256,
+        "pulse_len": 11820,
+        "pulse_count": 130,
+        "channel_count": 4,
+        "iq_data_type": "float32",
+        "fs_hz": 60000000.0,
+        "packet_bytes": 378496,
+        "beam_id": 50,
+        "beam_index_base": 1,
+        "expected_theta_deg": 38.0,
+        "scan_min_deg": -60.0,
+        "scan_step_deg": 2.0,
+        "read_channel_1": 1,
+        "read_channel_2": 2,
+        "correction_channel_indices": [
+          1
+        ],
+        "fusion_pairs": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "enable_four_channel_fusion": true,
+        "four_channel_phase_compensation_enable": true,
+        "fusion_channel_3": 3,
+        "fusion_channel_4": 4
+      },
+      "online_estimation": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "b38329fad982d387dd8667d0da1c95382f3a740ab78ede7d86be67390c33dff4"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "039c7fdfc23211a18f12423cba1c4b9795e3de6b80c09291df720c47ca910ce0"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "a81e6b44abb0f8dc0dd8570757cbe15ede3d9b650e07f3fab24e81b1f4f80daa"
+          }
+        ],
+        "input_role": "A1_Current_unknown_error_ON_target_present",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.3272190380545794,
+            "finite": true,
+            "residual_phase_rms_rad": 0.044581949107568936,
+            "runtime_sec": 0.00020673499966505915,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 2.090553377367273e-08,
+            "r2": 0.727133773226124,
+            "confidence": 0.727133773226124,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.321667102474191,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04461901603881134,
+            "runtime_sec": 0.000154563007527031,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 2.0870649933607628e-08,
+            "r2": 0.7231362931443795,
+            "confidence": 0.7231362931443795,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.3212301410878045,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04326999282236591,
+            "runtime_sec": 0.004905829002382234,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 2.0867904424244877e-08,
+            "r2": 0.737980220527098,
+            "confidence": 0.737980220527098,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "b38329fad982d387dd8667d0da1c95382f3a740ab78ede7d86be67390c33dff4"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.864068261271154,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07208463372739432,
+                "runtime_sec": 0.00016629499441478401,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.4278656925157884e-08,
+                "r2": 0.6624595880397561,
+                "confidence": 0.6624595880397561,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.869454203859837,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07138573036996967,
+                "runtime_sec": 0.00015532999532297254,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.4312497800496414e-08,
+                "r2": 0.6622494248747933,
+                "confidence": 0.6622494248747933,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.8387005537829277,
+                "finite": true,
+                "residual_phase_rms_rad": 0.0674420541586476,
+                "runtime_sec": 0.0013874269934603944,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.4119266918191035e-08,
+                "r2": 0.6855377976852687,
+                "confidence": 0.6855377976852687,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "039c7fdfc23211a18f12423cba1c4b9795e3de6b80c09291df720c47ca910ce0"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.139539937310602,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07850645806447434,
+                "runtime_sec": 0.00019660800171550363,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9726311205413494e-08,
+                "r2": 0.5116758579659775,
+                "confidence": 0.5116758579659775,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.085592812288063,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07869649470616685,
+                "runtime_sec": 0.00016978800704237074,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9387351422107298e-08,
+                "r2": 0.4920159262233009,
+                "confidence": 0.4920159262233009,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.113563545891023,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07312851933582232,
+                "runtime_sec": 0.0013576039928011596,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.956309672451245e-08,
+                "r2": 0.5348177483803114,
+                "confidence": 0.5348177483803114,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "a81e6b44abb0f8dc0dd8570757cbe15ede3d9b650e07f3fab24e81b1f4f80daa"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.158612080109586,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07985710994970248,
+                "runtime_sec": 0.0001660859998082742,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.98461450128245e-08,
+                "r2": 0.4524322890455571,
+                "confidence": 0.4524322890455571,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.1571147653320635,
+                "finite": true,
+                "residual_phase_rms_rad": 0.08014851546243942,
+                "runtime_sec": 0.000148974999319762,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9836737106614148e-08,
+                "r2": 0.4425135865248768,
+                "confidence": 0.4425135865248768,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.188823841361519,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07396186849184955,
+                "runtime_sec": 0.001418437997926958,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0035971107226664e-08,
+                "r2": 0.4857471655869211,
+                "confidence": 0.4857471655869211,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false,
+        "selection_rule": [
+          "D3_Huber_weighted_LS",
+          "D2_weighted_LS",
+          "D1_ordinary_LS"
+        ],
+        "selected_delay_ns": 3.3212301410878045,
+        "selected_method": "D3_Huber_weighted_LS",
+        "selection_is_finite": true,
+        "status": "ESTIMATED"
+      },
+      "zero_injection_diagnostic": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "553e01abf13c47180289e3eafd14adb0bf86fb20396ac6f97a1774e79b0109bd"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "558aec81dc17e00abd561c6ce333906e2340b3fbafdba1cb5656205f12720638"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "19d25b0dd0f233b8d2fa403abdf9ee0fd42f934e2c8142103980f2cfd24889ac"
+          }
+        ],
+        "input_role": "A0_Ideal_ON_zero_injection_bias_diagnostic",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.07647186349326072,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04392513970599993,
+            "runtime_sec": 0.00020275400311220437,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -4.804868891134988e-10,
+            "r2": 0.0012074539270121587,
+            "confidence": 0.0012074539270121587,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.08145151949894865,
+            "finite": true,
+            "residual_phase_rms_rad": 0.043756171004858416,
+            "runtime_sec": 0.0001329810038441792,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -5.117749905632457e-10,
+            "r2": 0.0013513928522561613,
+            "confidence": 0.0013513928522561613,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.09109014803407767,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04211090549603297,
+            "runtime_sec": 0.0013092040026094764,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -5.723362797565303e-10,
+            "r2": 0.0018472146718720994,
+            "confidence": 0.0018472146718720994,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "553e01abf13c47180289e3eafd14adb0bf86fb20396ac6f97a1774e79b0109bd"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 0.5427716283339765,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07035049518018473,
+                "runtime_sec": 0.00016552700253669173,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 3.410334720301981e-09,
+                "r2": 0.03248904241329231,
+                "confidence": 0.03248904241329231,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 0.5338745833029399,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06940136710067563,
+                "runtime_sec": 0.0001246699976036325,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 3.3544329376856564e-09,
+                "r2": 0.031143055127121344,
+                "confidence": 0.031143055127121344,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 0.5233820830159974,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06538384505881636,
+                "runtime_sec": 0.0011710539984051138,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 3.2885066140471617e-09,
+                "r2": 0.03379946572819925,
+                "confidence": 0.03379946572819925,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "558aec81dc17e00abd561c6ce333906e2340b3fbafdba1cb5656205f12720638"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.4245209998945626,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07852402762774985,
+                "runtime_sec": 0.00017279101302847266,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.6673441091267023e-09,
+                "r2": 0.016422077847982774,
+                "confidence": 0.016422077847982774,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.4673145158844465,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07825214460939042,
+                "runtime_sec": 0.00013528500858228654,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.9362237000368955e-09,
+                "r2": 0.019326976853935807,
+                "confidence": 0.019326976853935807,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.3897937257734708,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07201970687701474,
+                "runtime_sec": 0.0012899959983769804,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.4491462106106605e-09,
+                "r2": 0.015981200614634816,
+                "confidence": 0.015981200614634816,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "19d25b0dd0f233b8d2fa403abdf9ee0fd42f934e2c8142103980f2cfd24889ac"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.43496367235076877,
+                "finite": true,
+                "residual_phase_rms_rad": 0.0785681117447036,
+                "runtime_sec": 0.00020219499128870666,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.732957355271226e-09,
+                "r2": 0.014295450066686533,
+                "confidence": 0.014295450066686533,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.4170740926381029,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07984101588552904,
+                "runtime_sec": 0.00014813599409535527,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.6205538108689857e-09,
+                "r2": 0.012382040601992328,
+                "confidence": 0.012382040601992328,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.46393269750787125,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07305307777935038,
+                "runtime_sec": 0.0013105300022289157,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.914975108501648e-09,
+                "r2": 0.018373344417980997,
+                "confidence": 0.018373344417980997,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false
+      },
+      "r8_known_correction_closure": {
+        "status": "passed",
+        "by_role": {
+          "ON": {
+            "status": "passed",
+            "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+            "tolerance_relative_rms": 0.001,
+            "channels": {
+              "F1": {
+                "sample_count": 4609800,
+                "reference_mean_power": 30.082373024753856,
+                "error_mean_power": 0.0,
+                "relative_rms_error": 0.0,
+                "max_abs_error": 0.0,
+                "phase_rms_rad": 2.963533149808247e-18,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              },
+              "F2": {
+                "sample_count": 4609800,
+                "reference_mean_power": 30.109158524455452,
+                "error_mean_power": 2.2693749985330676e-07,
+                "relative_rms_error": 8.681680996092785e-05,
+                "max_abs_error": 0.132487869210728,
+                "phase_rms_rad": 0.010240696908850972,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              }
+            }
+          },
+          "OFF": {
+            "status": "passed",
+            "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+            "tolerance_relative_rms": 0.001,
+            "channels": {
+              "F1": {
+                "sample_count": 4609800,
+                "reference_mean_power": 27.197086177765836,
+                "error_mean_power": 0.0,
+                "relative_rms_error": 0.0,
+                "max_abs_error": 0.0,
+                "phase_rms_rad": 3.804120189658811e-18,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              },
+              "F2": {
+                "sample_count": 4609800,
+                "reference_mean_power": 27.22381412543135,
+                "error_mean_power": 2.2693748632080524e-07,
+                "relative_rms_error": 9.130165177353307e-05,
+                "max_abs_error": 0.132487869210728,
+                "phase_rms_rad": 0.010240696908717416,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              }
+            }
+          },
+          "TO": {
+            "status": "passed",
+            "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+            "tolerance_relative_rms": 0.001,
+            "channels": {
+              "F1": {
+                "sample_count": 4609800,
+                "reference_mean_power": 2.8853469549885786,
+                "error_mean_power": 0.0,
+                "relative_rms_error": 0.0,
+                "max_abs_error": 0.0,
+                "phase_rms_rad": 1.5152605245666063e-18,
+                "phase_sample_count": 3042000,
+                "status": "passed"
+              },
+              "F2": {
+                "sample_count": 4609800,
+                "reference_mean_power": 2.885312606090503,
+                "error_mean_power": 1.4663723435283097e-14,
+                "relative_rms_error": 7.128952054835573e-08,
+                "max_abs_error": 7.152557373046875e-07,
+                "phase_rms_rad": 5.678017094419091e-08,
+                "phase_sample_count": 3042000,
+                "status": "passed"
+              }
+            }
+          }
+        }
+      },
+      "current_vs_ideal_closure": {
+        "ON": {
+          "status": "failed",
+          "channels": {
+            "F1": {
+              "relative_rms_error": 0.0,
+              "phase_rms_rad": 2.963533149808247e-18,
+              "reference_mean_power": 30.082373024753856,
+              "error_mean_power": 0.0,
+              "status": "passed"
+            },
+            "F2": {
+              "relative_rms_error": 0.32788400978120746,
+              "phase_rms_rad": 0.37952446932856293,
+              "reference_mean_power": 30.109158524455452,
+              "error_mean_power": 3.236973122443029,
+              "status": "failed"
+            }
+          }
+        },
+        "OFF": {
+          "status": "failed",
+          "channels": {
+            "F1": {
+              "relative_rms_error": 0.0,
+              "phase_rms_rad": 3.804120189658811e-18,
+              "reference_mean_power": 27.197086177765836,
+              "error_mean_power": 0.0,
+              "status": "passed"
+            },
+            "F2": {
+              "relative_rms_error": 0.3161257274668525,
+              "phase_rms_rad": 0.3444660358999962,
+              "reference_mean_power": 27.22381412543135,
+              "error_mean_power": 2.7206248113575313,
+              "status": "failed"
+            }
+          }
+        },
+        "TO": {
+          "status": "failed",
+          "channels": {
+            "F1": {
+              "relative_rms_error": 0.0,
+              "phase_rms_rad": 1.5152605245666063e-18,
+              "reference_mean_power": 2.8853469549885786,
+              "error_mean_power": 0.0,
+              "status": "passed"
+            },
+            "F2": {
+              "relative_rms_error": 0.42303158538611063,
+              "phase_rms_rad": 0.3568188393360786,
+              "reference_mean_power": 2.885312606090503,
+              "error_mean_power": 0.5163432012946165,
+              "status": "failed"
+            }
+          }
+        }
+      },
+      "corrections": {
+        "R9_Static_R3_D3": {
+          "status": "PREPARED",
+          "applied_delay_ns": 3.4099650318669545,
+          "source": "R3_seed101_A1_OFF_target_free_D3",
+          "correction_operator": "inverse_stage2_zero_extended_linear_interpolator",
+          "correction_channel_indices_zero_based": [
+            1
+          ],
+          "roles": {
+            "ON": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "636e0eda3931208fe5251b1e32c0f7c46dfee3553a908df2a317d5cf2837470e"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "6ab279d7bcea773bbc06048e4ef4cb15da93e91f1806e15bea219c23420a6ea6"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/ON/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "7f793b80f9f2b1ddb3900e07b1ad1ddc0b89e0e8fdf81bb623840c2ff70e5517"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.963533149808247e-18,
+                    "reference_mean_power": 30.082373024753856,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.32788400978120746,
+                    "phase_rms_rad": 0.37952446932856293,
+                    "reference_mean_power": 30.109158524455452,
+                    "error_mean_power": 3.236973122443029,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.963533149808247e-18,
+                    "reference_mean_power": 30.082373024753856,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.06350040389610999,
+                    "phase_rms_rad": 0.0827321032739813,
+                    "reference_mean_power": 30.109158524455452,
+                    "error_mean_power": 0.12140919890859164,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.963533149808247e-18,
+                    "reference_mean_power": 30.082373024753856,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.2738847391956025,
+                    "phase_rms_rad": 0.3149112615321183,
+                    "reference_mean_power": 28.618157052946792,
+                    "error_mean_power": 2.1467295327131097,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.8063327213227539,
+                "physics_gate": true
+              }
+            },
+            "OFF": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "94c44eab51c9dcf99d77a2e29b323c5814d849ad0365437934ea72c387e791d4"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "2974ec3fee77081da32317995b13bfaf27645afe94f2b3c3f5706892466d45f7"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/OFF/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "62fd0bee7260092f6e3886c2053ff2929ecd33aa12d91c2abf5047b0796dda4b"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.804120189658811e-18,
+                    "reference_mean_power": 27.197086177765836,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.3161257274668525,
+                    "phase_rms_rad": 0.3444660358999962,
+                    "reference_mean_power": 27.22381412543135,
+                    "error_mean_power": 2.7206248113575313,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.804120189658811e-18,
+                    "reference_mean_power": 27.197086177765836,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.06088153834557476,
+                    "phase_rms_rad": 0.07429465496450616,
+                    "reference_mean_power": 27.22381412543135,
+                    "error_mean_power": 0.10090674707351686,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.804120189658811e-18,
+                    "reference_mean_power": 27.197086177765836,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.2649304225115235,
+                    "phase_rms_rad": 0.2874344892744835,
+                    "reference_mean_power": 25.771818925003767,
+                    "error_mean_power": 1.8088757454002933,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.807413528682323,
+                "physics_gate": true
+              }
+            },
+            "TO": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "f72b13de74c9195f9bf0d96491190c31aaefbf832bc8e544176788d263d54701"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "24868815e5366793702baf1d7d616cfb2b2d3d55843fd00292408edadef90b06"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Static_R3_D3/prepared_inputs/TO/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "24ee8d98fab9ecc48056b6f881e683bb08c241a99c314d6a9f62cdb2ce975370"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.5152605245666063e-18,
+                    "reference_mean_power": 2.8853469549885786,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.42303158538611063,
+                    "phase_rms_rad": 0.3568188393360786,
+                    "reference_mean_power": 2.885312606090503,
+                    "error_mean_power": 0.5163432012946165,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.5152605245666063e-18,
+                    "reference_mean_power": 2.8853469549885786,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.08429549927931543,
+                    "phase_rms_rad": 0.059273309175284845,
+                    "reference_mean_power": 2.885312606090503,
+                    "error_mean_power": 0.02050225580324127,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.5152605245666063e-18,
+                    "reference_mean_power": 2.8853469549885786,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.3445252541931172,
+                    "phase_rms_rad": 0.30259247267124567,
+                    "reference_mean_power": 2.846310891522034,
+                    "error_mean_power": 0.3378504162041758,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.8007347389855606,
+                "physics_gate": true
+              }
+            }
+          },
+          "physics_gate": "passed"
+        },
+        "R9_Online_D3": {
+          "status": "PREPARED",
+          "applied_delay_ns": 3.3212301410878045,
+          "source": "this_seed_A1_ON_D3_frozen_selection",
+          "correction_operator": "inverse_stage2_zero_extended_linear_interpolator",
+          "correction_channel_indices_zero_based": [
+            1
+          ],
+          "roles": {
+            "ON": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "2dd84b91d7055605b8187b0acb03eaba41f7090dbfd082e7eda41c503bd5d699"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "5576b7936cc72a584be57715fa42432f9ee74366d5061eac11968a81e1ba252e"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/ON/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "70a0d83c101e7a3a6f07d37417c785f35cabed8b971ba430f8f686d75952c76e"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.963533149808247e-18,
+                    "reference_mean_power": 30.082373024753856,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.32788400978120746,
+                    "phase_rms_rad": 0.37952446932856293,
+                    "reference_mean_power": 30.109158524455452,
+                    "error_mean_power": 3.236973122443029,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.963533149808247e-18,
+                    "reference_mean_power": 30.082373024753856,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.07246544371450203,
+                    "phase_rms_rad": 0.09308750937957526,
+                    "reference_mean_power": 30.109158524455452,
+                    "error_mean_power": 0.15811043365030436,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.963533149808247e-18,
+                    "reference_mean_power": 30.082373024753856,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.2649682115030218,
+                    "phase_rms_rad": 0.3056926225746366,
+                    "reference_mean_power": 28.618157052946792,
+                    "error_mean_power": 2.0092279520166114,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.7789906138977096,
+                "physics_gate": true
+              }
+            },
+            "OFF": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "bc569662d9d78b592cf90c42a38355e2c09765864da5ba8261246c26cc48d122"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "eae9470420b5995bc988b22651190bafadd3bf99d60d76dae4ed817c52bbcb82"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/OFF/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "9faa3ff8a4c0a844bf8c4b9ea98e50ba565a5bc043eed86c1d737645ecbf1603"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.804120189658811e-18,
+                    "reference_mean_power": 27.197086177765836,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.3161257274668525,
+                    "phase_rms_rad": 0.3444660358999962,
+                    "reference_mean_power": 27.22381412543135,
+                    "error_mean_power": 2.7206248113575313,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.804120189658811e-18,
+                    "reference_mean_power": 27.197086177765836,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.06948964096874628,
+                    "phase_rms_rad": 0.08374168055599908,
+                    "reference_mean_power": 27.22381412543135,
+                    "error_mean_power": 0.13145863138528893,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.804120189658811e-18,
+                    "reference_mean_power": 27.197086177765836,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.25635176041351565,
+                    "phase_rms_rad": 0.27917443363468264,
+                    "reference_mean_power": 25.771818925003767,
+                    "error_mean_power": 1.6936266528643142,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.7801835316423822,
+                "physics_gate": true
+              }
+            },
+            "TO": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "57bcd6aae342c8ab97cea3f4b4a38c8b9ccf391bc013277ecdec4872739f4549"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "2677b7f4ebe71bea957ee4aeaabb84d3464d8390b6eac9cc732b5cd7f43de9b1"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.3212301410878045e-09,
+                  "delta_tau_ns": 3.3212301410878045,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed202/R9_Online_D3/prepared_inputs/TO/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "6d6a423e405ef638698f0aa3be112e4fdae931979ba36ad655a9fdbd3f879624"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.5152605245666063e-18,
+                    "reference_mean_power": 2.8853469549885786,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.42303158538611063,
+                    "phase_rms_rad": 0.3568188393360786,
+                    "reference_mean_power": 2.885312606090503,
+                    "error_mean_power": 0.5163432012946165,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.5152605245666063e-18,
+                    "reference_mean_power": 2.8853469549885786,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.09610915984192912,
+                    "phase_rms_rad": 0.06789937651362288,
+                    "reference_mean_power": 2.885312606090503,
+                    "error_mean_power": 0.026651547730198556,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.5152605245666063e-18,
+                    "reference_mean_power": 2.8853469549885786,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.3329860603666676,
+                    "phase_rms_rad": 0.2944686639629083,
+                    "reference_mean_power": 2.846310891522034,
+                    "error_mean_power": 0.31559814443396467,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.7728085486708798,
+                "physics_gate": true
+              }
+            }
+          },
+          "physics_gate": "passed"
+        }
+      }
+    },
+    "303": {
+      "case_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns",
+      "case_manifest": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/case_manifest.json",
+        "exists": true,
+        "bytes": 461575,
+        "sha256": "691c50292eaec04028f22e3abe22e08ce83714f005072b69a7bb3140af7191c0"
+      },
+      "layout": {
+        "header_bytes": 256,
+        "pulse_len": 11820,
+        "pulse_count": 130,
+        "channel_count": 4,
+        "iq_data_type": "float32",
+        "fs_hz": 60000000.0,
+        "packet_bytes": 378496,
+        "beam_id": 50,
+        "beam_index_base": 1,
+        "expected_theta_deg": 38.0,
+        "scan_min_deg": -60.0,
+        "scan_step_deg": 2.0,
+        "read_channel_1": 1,
+        "read_channel_2": 2,
+        "correction_channel_indices": [
+          1
+        ],
+        "fusion_pairs": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "enable_four_channel_fusion": true,
+        "four_channel_phase_compensation_enable": true,
+        "fusion_channel_3": 3,
+        "fusion_channel_4": 4
+      },
+      "online_estimation": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "922621f8ff1d2cfffd4c847b535b5ae633c0311139036da6ff0f92e16fb12297"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "f7506d535f54e77da8f74843b7cf2e7506e656f45d2430ab81ee6bfb6c236a0f"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "8106c3b626b9661617d0895dc9a3705f877fc06e0e5a31056c65ee45fcabb90c"
+          }
+        ],
+        "input_role": "A1_Current_unknown_error_ON_target_present",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.010953075321258,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04776879837888379,
+            "runtime_sec": 0.00016601600509602576,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 1.8918376123465718e-08,
+            "r2": 0.6473060552508776,
+            "confidence": 0.6473060552508776,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.0021973021659485,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04762383298755453,
+            "runtime_sec": 0.00012927901116199791,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 1.886336197822328e-08,
+            "r2": 0.644688629440664,
+            "confidence": 0.644688629440664,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 2.9879938215503463,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04462073169567404,
+            "runtime_sec": 0.0013152800092939287,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 1.877411887750852e-08,
+            "r2": 0.6733028005314845,
+            "confidence": 0.6733028005314845,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "922621f8ff1d2cfffd4c847b535b5ae633c0311139036da6ff0f92e16fb12297"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 2.8916868892596845,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07685294468674009,
+                "runtime_sec": 0.00018689900753088295,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.8169004575560294e-08,
+                "r2": 0.41495626006173136,
+                "confidence": 0.41495626006173136,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 2.822565572561141,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07680165702095268,
+                "runtime_sec": 0.00012858099944423884,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.77347025340671e-08,
+                "r2": 0.39810176287266374,
+                "confidence": 0.39810176287266374,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 2.853084799585804,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06910574450106449,
+                "runtime_sec": 0.0013146510027581826,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.792646049289494e-08,
+                "r2": 0.45692631537317907,
+                "confidence": 0.45692631537317907,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "f7506d535f54e77da8f74843b7cf2e7506e656f45d2430ab81ee6bfb6c236a0f"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.2281253480602583,
+                "finite": true,
+                "residual_phase_rms_rad": 0.0786490462361634,
+                "runtime_sec": 0.00016629499441478401,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0282909756666203e-08,
+                "r2": 0.4970374321777815,
+                "confidence": 0.4970374321777815,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.213008992698453,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07818506747703001,
+                "runtime_sec": 0.00013989499711897224,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0187930894758803e-08,
+                "r2": 0.4946125493206208,
+                "confidence": 0.4946125493206208,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.174342099305607,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07430838300760347,
+                "runtime_sec": 0.00119619800534565,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9944979638318594e-08,
+                "r2": 0.5127460854925698,
+                "confidence": 0.5127460854925698,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "8106c3b626b9661617d0895dc9a3705f877fc06e0e5a31056c65ee45fcabb90c"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.2786754697166978,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07858303025755113,
+                "runtime_sec": 0.00017754000145941973,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0600525538334084e-08,
+                "r2": 0.5376437448671452,
+                "confidence": 0.5376437448671452,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.2011921714075307,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07807194888355853,
+                "runtime_sec": 0.00015316499047912657,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.011368361684611e-08,
+                "r2": 0.5256743134854298,
+                "confidence": 0.5256743134854298,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.163584473483015,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07004725761180496,
+                "runtime_sec": 0.0013046640087850392,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.987738748180995e-08,
+                "r2": 0.5717391719141593,
+                "confidence": 0.5717391719141593,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false,
+        "selection_rule": [
+          "D3_Huber_weighted_LS",
+          "D2_weighted_LS",
+          "D1_ordinary_LS"
+        ],
+        "selected_delay_ns": 2.9879938215503463,
+        "selected_method": "D3_Huber_weighted_LS",
+        "selection_is_finite": true,
+        "status": "ESTIMATED"
+      },
+      "zero_injection_diagnostic": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "3be74c05161046fe775c42c26854b8a702353c226ce9a1afacaea4e9188fad66"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "8f2e089f89ad29080146837cd93d964e29ed1daf6e39b17a2e472a2f42905b81"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "921806a03ba63d0ec3aef8f01d95900aed5444b3089250d5511c535455e512e1"
+          }
+        ],
+        "input_role": "A0_Ideal_ON_zero_injection_bias_diagnostic",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.24514283611359827,
+            "finite": true,
+            "residual_phase_rms_rad": 0.050314583693618777,
+            "runtime_sec": 0.00019786400662269443,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -1.5402778660292938e-09,
+            "r2": 0.008837004833675333,
+            "confidence": 0.008837004833675333,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.22527011912058376,
+            "finite": true,
+            "residual_phase_rms_rad": 0.050284315107593194,
+            "runtime_sec": 0.00015637799515388906,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -1.4154139026050471e-09,
+            "r2": 0.007366480134318953,
+            "confidence": 0.007366480134318953,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.2881988492164989,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04588942733344308,
+            "runtime_sec": 0.0012916729901917279,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -1.810806774943171e-09,
+            "r2": 0.014522983245672694,
+            "confidence": 0.014522983245672694,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "3be74c05161046fe775c42c26854b8a702353c226ce9a1afacaea4e9188fad66"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.5149115478223393,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07830627564623725,
+                "runtime_sec": 0.00018878599803429097,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -3.2352846717744215e-09,
+                "r2": 0.015840178363687674,
+                "confidence": 0.015840178363687674,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.5769577441863684,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07842073914807851,
+                "runtime_sec": 0.00013074598973616958,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -3.625132421135268e-09,
+                "r2": 0.01939969875662284,
+                "confidence": 0.01939969875662284,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.5168472490401186,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07029015479592683,
+                "runtime_sec": 0.0012922320020152256,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -3.247447041225062e-09,
+                "r2": 0.01961653652103834,
+                "confidence": 0.01961653652103834,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "8f2e089f89ad29080146837cd93d964e29ed1daf6e39b17a2e472a2f42905b81"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.1728551450677843,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07973348937132584,
+                "runtime_sec": 0.00018389600154478103,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -1.0860809077602982e-09,
+                "r2": 0.0025264512843629072,
+                "confidence": 0.0025264512843629072,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.13998271209920563,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07966008559197524,
+                "runtime_sec": 0.0001602889969944954,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -8.795373199208788e-10,
+                "r2": 0.0016430170736598804,
+                "confidence": 0.0016430170736598804,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.1523351400950213,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07679431748883238,
+                "runtime_sec": 0.0014111740019870922,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -9.571499140121818e-10,
+                "r2": 0.0020939621523459184,
+                "confidence": 0.0020939621523459184,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "921806a03ba63d0ec3aef8f01d95900aed5444b3089250d5511c535455e512e1"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.1399396964156171,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07905378050968531,
+                "runtime_sec": 0.00016552800661884248,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -8.792670444097771e-10,
+                "r2": 0.002038288631633356,
+                "confidence": 0.002038288631633356,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.22068806208054573,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07861062717908347,
+                "runtime_sec": 0.0001266250037588179,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -1.3866239891344214e-09,
+                "r2": 0.005001774677213855,
+                "confidence": 0.005001774677213855,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.2554206363428012,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06991993487004346,
+                "runtime_sec": 0.0011790160060627386,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -1.6048551894195486e-09,
+                "r2": 0.00846067781163351,
+                "confidence": 0.00846067781163351,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false
+      },
+      "r8_known_correction_closure": {
+        "status": "passed",
+        "by_role": {
+          "ON": {
+            "status": "passed",
+            "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+            "tolerance_relative_rms": 0.001,
+            "channels": {
+              "F1": {
+                "sample_count": 4609800,
+                "reference_mean_power": 29.34973897240815,
+                "error_mean_power": 0.0,
+                "relative_rms_error": 0.0,
+                "max_abs_error": 0.0,
+                "phase_rms_rad": 2.9538153915471514e-18,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              },
+              "F2": {
+                "sample_count": 4609800,
+                "reference_mean_power": 29.3510853674149,
+                "error_mean_power": 2.44331782606003e-07,
+                "relative_rms_error": 9.123845006627241e-05,
+                "max_abs_error": 0.14236096207342616,
+                "phase_rms_rad": 0.010377323802871803,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              }
+            }
+          },
+          "OFF": {
+            "status": "passed",
+            "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+            "tolerance_relative_rms": 0.001,
+            "channels": {
+              "F1": {
+                "sample_count": 4609800,
+                "reference_mean_power": 26.759557660941635,
+                "error_mean_power": 0.0,
+                "relative_rms_error": 0.0,
+                "max_abs_error": 0.0,
+                "phase_rms_rad": 3.788729268965967e-18,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              },
+              "F2": {
+                "sample_count": 4609800,
+                "reference_mean_power": 26.761036385370947,
+                "error_mean_power": 2.443317705141721e-07,
+                "relative_rms_error": 9.555171949212829e-05,
+                "max_abs_error": 0.14236096207342616,
+                "phase_rms_rad": 0.010377323802848419,
+                "phase_sample_count": 4609800,
+                "status": "passed"
+              }
+            }
+          },
+          "TO": {
+            "status": "passed",
+            "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+            "tolerance_relative_rms": 0.001,
+            "channels": {
+              "F1": {
+                "sample_count": 4609800,
+                "reference_mean_power": 2.59013833070736,
+                "error_mean_power": 0.0,
+                "relative_rms_error": 0.0,
+                "max_abs_error": 0.0,
+                "phase_rms_rad": 1.597494773540346e-18,
+                "phase_sample_count": 3042000,
+                "status": "passed"
+              },
+              "F2": {
+                "sample_count": 4609800,
+                "reference_mean_power": 2.590107405036461,
+                "error_mean_power": 1.3179979573476307e-14,
+                "relative_rms_error": 7.133431280229397e-08,
+                "max_abs_error": 5.331201499700045e-07,
+                "phase_rms_rad": 5.659369085923089e-08,
+                "phase_sample_count": 3042000,
+                "status": "passed"
+              }
+            }
+          }
+        }
+      },
+      "current_vs_ideal_closure": {
+        "ON": {
+          "status": "failed",
+          "channels": {
+            "F1": {
+              "relative_rms_error": 0.0,
+              "phase_rms_rad": 2.9538153915471514e-18,
+              "reference_mean_power": 29.34973897240815,
+              "error_mean_power": 0.0,
+              "status": "passed"
+            },
+            "F2": {
+              "relative_rms_error": 0.32796445100270394,
+              "phase_rms_rad": 0.3779540638307683,
+              "reference_mean_power": 29.3510853674149,
+              "error_mean_power": 3.1570227337745855,
+              "status": "failed"
+            }
+          }
+        },
+        "OFF": {
+          "status": "failed",
+          "channels": {
+            "F1": {
+              "relative_rms_error": 0.0,
+              "phase_rms_rad": 3.788729268965967e-18,
+              "reference_mean_power": 26.759557660941635,
+              "error_mean_power": 0.0,
+              "status": "passed"
+            },
+            "F2": {
+              "relative_rms_error": 0.3172385898403982,
+              "phase_rms_rad": 0.344313121033394,
+              "reference_mean_power": 26.761036385370947,
+              "error_mean_power": 2.693239342532182,
+              "status": "failed"
+            }
+          }
+        },
+        "TO": {
+          "status": "failed",
+          "channels": {
+            "F1": {
+              "relative_rms_error": 0.0,
+              "phase_rms_rad": 1.597494773540346e-18,
+              "reference_mean_power": 2.59013833070736,
+              "error_mean_power": 0.0,
+              "status": "passed"
+            },
+            "F2": {
+              "relative_rms_error": 0.42315754128608757,
+              "phase_rms_rad": 0.3568188393132982,
+              "reference_mean_power": 2.590107405036461,
+              "error_mean_power": 0.46379060148884327,
+              "status": "failed"
+            }
+          }
+        }
+      },
+      "corrections": {
+        "R9_Static_R3_D3": {
+          "status": "PREPARED",
+          "applied_delay_ns": 3.4099650318669545,
+          "source": "R3_seed101_A1_OFF_target_free_D3",
+          "correction_operator": "inverse_stage2_zero_extended_linear_interpolator",
+          "correction_channel_indices_zero_based": [
+            1
+          ],
+          "roles": {
+            "ON": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "6849ce6e458a3e9ceee47784bf87e411830f9159b4bbbdcc5ff891678d8ae084"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "fd85fab8b659832d0bf407ab487e419719e8f87c69da3dbc0d32250a86a42061"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/ON/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "cb6da76df7ca3cd788b8a67c2d9fe22193553d08bdbb8e01ba23b53d0c87ba02"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.9538153915471514e-18,
+                    "reference_mean_power": 29.34973897240815,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.32796445100270394,
+                    "phase_rms_rad": 0.3779540638307683,
+                    "reference_mean_power": 29.3510853674149,
+                    "error_mean_power": 3.1570227337745855,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.9538153915471514e-18,
+                    "reference_mean_power": 29.34973897240815,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.06351519497813217,
+                    "phase_rms_rad": 0.08218326530128628,
+                    "reference_mean_power": 29.3510853674149,
+                    "error_mean_power": 0.11840756136529318,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.9538153915471514e-18,
+                    "reference_mean_power": 29.34973897240815,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.27424089597180773,
+                    "phase_rms_rad": 0.3133858558501418,
+                    "reference_mean_power": 27.83902253728945,
+                    "error_mean_power": 2.093719128529006,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.8063351232612448,
+                "physics_gate": true
+              }
+            },
+            "OFF": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "6315e4751783df664fc9455d584f50e4211257ebd639acb964c262b47f825883"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "ad4ad99ae28560449e55d297e6b63336c1907521777cdc39f9506c95179d302f"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/OFF/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "efb1f071a11724211190b8874298f9bae1031a6ad4f100a89ae8e2c0ee06cf90"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.788729268965967e-18,
+                    "reference_mean_power": 26.759557660941635,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.3172385898403982,
+                    "phase_rms_rad": 0.344313121033394,
+                    "reference_mean_power": 26.761036385370947,
+                    "error_mean_power": 2.693239342532182,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.788729268965967e-18,
+                    "reference_mean_power": 26.759557660941635,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.06112677603685726,
+                    "phase_rms_rad": 0.07430761008804403,
+                    "reference_mean_power": 26.761036385370947,
+                    "error_mean_power": 0.09999215079020397,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.788729268965967e-18,
+                    "reference_mean_power": 26.759557660941635,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.2660956193871453,
+                    "phase_rms_rad": 0.28724058918718715,
+                    "reference_mean_power": 25.28369936544616,
+                    "error_mean_power": 1.7902598329699353,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.8073160769387798,
+                "physics_gate": true
+              }
+            },
+            "TO": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "4a396ff5fac51e8b48d2fd82e763e56ee159b8e4a45f5eb0644c49b71c3bbe3d"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "10c9e0403d3da6b0f51b8cbab9e0cb425935b0a1e444da046581d98f247324d4"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 3.409965031866955e-09,
+                  "delta_tau_ns": 3.409965031866955,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Static_R3_D3/prepared_inputs/TO/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "8636dd4b086b1b600070c8eff8d725b9dea31c99ed18d0e1f055886e7fde009e"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.597494773540346e-18,
+                    "reference_mean_power": 2.59013833070736,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.42315754128608757,
+                    "phase_rms_rad": 0.3568188393132982,
+                    "reference_mean_power": 2.590107405036461,
+                    "error_mean_power": 0.46379060148884327,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.597494773540346e-18,
+                    "reference_mean_power": 2.59013833070736,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.08432059784577876,
+                    "phase_rms_rad": 0.05927330912252394,
+                    "reference_mean_power": 2.590107405036461,
+                    "error_mean_power": 0.01841556838842913,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.597494773540346e-18,
+                    "reference_mean_power": 2.59013833070736,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.34460861806312215,
+                    "phase_rms_rad": 0.302592472670215,
+                    "reference_mean_power": 2.555381054765039,
+                    "error_mean_power": 0.3034645317854144,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.8007347391481996,
+                "physics_gate": true
+              }
+            }
+          },
+          "physics_gate": "passed"
+        },
+        "R9_Online_D3": {
+          "status": "PREPARED",
+          "applied_delay_ns": 2.9879938215503463,
+          "source": "this_seed_A1_ON_D3_frozen_selection",
+          "correction_operator": "inverse_stage2_zero_extended_linear_interpolator",
+          "correction_channel_indices_zero_based": [
+            1
+          ],
+          "roles": {
+            "ON": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "a0ae8e894338bf0991a02cc0cee4032e7ef42bb6605f237dc2a69823953d43a8"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "72c02a8a18884da9f077f4d7709769eb26ece949228b80c534a256f9573229d3"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/ON/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "96aaacdeda2d4f707727614f7049fe72e3b613b6160b73f8d7bd7eac27ca69d7"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.9538153915471514e-18,
+                    "reference_mean_power": 29.34973897240815,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.32796445100270394,
+                    "phase_rms_rad": 0.3779540638307683,
+                    "reference_mean_power": 29.3510853674149,
+                    "error_mean_power": 3.1570227337745855,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.9538153915471514e-18,
+                    "reference_mean_power": 29.34973897240815,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.10490528059153155,
+                    "phase_rms_rad": 0.12946256700829817,
+                    "reference_mean_power": 29.3510853674149,
+                    "error_mean_power": 0.32301215484360823,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 2.9538153915471514e-18,
+                    "reference_mean_power": 29.34973897240815,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.23281828060443133,
+                    "phase_rms_rad": 0.2703211260374163,
+                    "reference_mean_power": 27.83902253728945,
+                    "error_mean_power": 1.5089961709229096,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.6801321598398887,
+                "physics_gate": true
+              }
+            },
+            "OFF": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "c2066d7d1b6e7a0ddcf6a998dab432c16a665e407f896930342b16558e4d19e4"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "4e1431311620e0e69e40e951d3690d319252ff228b55050ae5f69afb1a73e78c"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/OFF/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "c40b49606da2f9db0e59072d33f224199751ba30661592ee0c5279451c3b52a2"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.788729268965967e-18,
+                    "reference_mean_power": 26.759557660941635,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.3172385898403982,
+                    "phase_rms_rad": 0.344313121033394,
+                    "reference_mean_power": 26.761036385370947,
+                    "error_mean_power": 2.693239342532182,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.788729268965967e-18,
+                    "reference_mean_power": 26.759557660941635,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.10103862356319959,
+                    "phase_rms_rad": 0.11758158693320944,
+                    "reference_mean_power": 26.761036385370947,
+                    "error_mean_power": 0.2731981606179217,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 3.788729268965967e-18,
+                    "reference_mean_power": 26.759557660941635,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.2260752901145889,
+                    "phase_rms_rad": 0.2484561006565485,
+                    "reference_mean_power": 25.28369936544616,
+                    "error_mean_power": 1.2922508050180905,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.6815058861091527,
+                "physics_gate": true
+              }
+            },
+            "TO": {
+              "raw_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin"
+              ],
+              "corrected_paths": [
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0000.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0001.bin",
+                "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0002.bin"
+              ],
+              "rewrite_records": [
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0000.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0000.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "9ba6e622174b367292cae190ad8ca1c4487a569063423f14d2a3629b3ea91b35"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0001.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0001.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "cb74194ed3db2086d55e1601834c31987a750e6ded5cdb10086e7c875bcbc597"
+                  }
+                },
+                {
+                  "status": "passed",
+                  "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+                  "output_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0002.bin",
+                  "packets_rewritten": 130,
+                  "input_bytes": 49204480,
+                  "output_bytes": 49204480,
+                  "pulse_len": 11820,
+                  "channel_count": 4,
+                  "channel_index": 1,
+                  "channel_indices": [
+                    1
+                  ],
+                  "fs_hz": 60000000.0,
+                  "delta_tau_sec": 2.9879938215503464e-09,
+                  "delta_tau_ns": 2.9879938215503463,
+                  "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                  "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+                  "output": {
+                    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r9_deterministic_delay_20261023/cases/seed303/R9_Online_D3/prepared_inputs/TO/period_0002.bin",
+                    "exists": true,
+                    "bytes": 49204480,
+                    "sha256": "0c58a92413bf985ec44566df0a8166ec710eef90fb99795841daa2611dd22cc2"
+                  }
+                }
+              ],
+              "closure": {
+                "f1_unchanged_by_channel2_correction": true,
+                "f2_complex_rms_closer_to_A0": true,
+                "current_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.597494773540346e-18,
+                    "reference_mean_power": 2.59013833070736,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.42315754128608757,
+                    "phase_rms_rad": 0.3568188393132982,
+                    "reference_mean_power": 2.590107405036461,
+                    "error_mean_power": 0.46379060148884327,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_A0": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.597494773540346e-18,
+                    "reference_mean_power": 2.59013833070736,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.13868163685046456,
+                    "phase_rms_rad": 0.09981460023623275,
+                    "reference_mean_power": 2.590107405036461,
+                    "error_mean_power": 0.04981449035248503,
+                    "status": "failed"
+                  }
+                },
+                "corrected_vs_current": {
+                  "F1": {
+                    "relative_rms_error": 0.0,
+                    "phase_rms_rad": 1.597494773540346e-18,
+                    "reference_mean_power": 2.59013833070736,
+                    "error_mean_power": 0.0,
+                    "status": "passed"
+                  },
+                  "F2": {
+                    "relative_rms_error": 0.2912400074443962,
+                    "phase_rms_rad": 0.2639443657377747,
+                    "reference_mean_power": 2.555381054765039,
+                    "error_mean_power": 0.2167493169949105,
+                    "status": "failed"
+                  }
+                },
+                "f2_relative_rms_reduction_fraction": 0.6722694899186379,
+                "physics_gate": true
+              }
+            }
+          },
+          "physics_gate": "passed"
+        }
+      }
+    }
+  }
+}

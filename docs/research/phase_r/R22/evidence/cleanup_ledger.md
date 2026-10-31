@@ -1,0 +1,82 @@
+# R22 磁盘清理台账
+
+更新日期：2026-10-31。只清理本阶段明确生成、且高价值结果已归档验证的临时运行目录；既有 `outputs/`、`.scratch`、用户数据和任务开始时 4,007 项未跟踪/忽略资料未触碰。
+
+## 保留
+
+- `evidence/preflight/seed900101/`：20 target / 20 beam Native CUDA smoke 的配置、run/branch manifest、Stage2 报告、Production runtime/log、CSI summary 与 CFAR/Detection 诊断。
+- `evidence/preflight/seed900202/`：紧凑单周期 pilot 汇总与 27/27 posthoc production gate 审计；约 11 MB。
+- `evidence/preflight/seed900203_closure/`：953 个 manifest 登记项、约 39.58 MB payload；包括失败 PKR reference/adapter、Production logs/XML、Stage2 杂波/配对与输入身份、成功分支 CSI/CFAR/Detection/TrackManager 证据。所有登记文件经 SHA-256/大小核验。
+- `evidence/results/`：baseline 注册/可比性矩阵、机器可读实验 manifest、逐条件任务指标、面积配对审计和一张明确标注为单周期描述统计的图。
+- runner、scenario factory、实验配置、测试及报告。
+
+## 已删除的本阶段临时结果
+
+| 删除路径 | 删除前大小 | 原因与保留替代 |
+|---|---:|---|
+| `/tmp/r22_multitarget_method_preflight_seed900201` | 1,962,014,009 bytes apparent（此前已删除） | 较早的筛选前方法 smoke；由后续冻结的 seed900202/900203 生产分支审计与评估替代 |
+| `/tmp/r22_runner_smoke_seed900202` | 3,181,607,889 bytes apparent（此前已删除） | 原始单周期 IQ/生产中间文件；compact seed900202 包保留 manifest、配置、日志、tap、CFAR、任务输出与输入 SHA/大小 |
+| `/tmp/r22_runner_smoke_seed900203` | 2,107,212,248 apparent / 2,112,536,576 allocated bytes | 与 closure run 的 A0/A1 及 `A0_background` 七份 Stage2 `.bin` SHA 全部相同；Production 和 Stage2 binary SHA 相同；目标关联、参数、航迹、H0、Doppler 评估表与 closure 版一致（task 表仅多/少一个空 reason 列）。closure 版包含完整 PKR 失败现场，故旧目录冗余 |
+| `/tmp/r22_runner_smoke_seed900203_closure` | 2,116,247,403 apparent / 2,121,658,368 allocated bytes | 953 项紧凑归档逐文件验证完成后删除；raw IQ、数组和图像不留在临时目录 |
+| `/tmp/pgrcc-r22-mpl` | 286,460 apparent / 286,720 allocated bytes | 本任务生成的临时 Matplotlib 缓存，随运行 scratch 一并清理 |
+
+此次本轮删除的临时目录共释放约 **4,234,481,664 allocated bytes（约 3.94 GiB）**。此前两项临时目录按记录共 5,143,621,898 apparent bytes，已在本轮之前删除。
+
+## 输入身份与清理边界
+
+未保留生成/校正后的大 `.bin`、`.npy`、`.f32` arrays、临时 PNG 或重复日志副本。七份 seed900203 Stage2 输入的 SHA-256、原路径与 49,204,480-byte 文件大小保存在 `preflight/seed900203_closure/stage2/input_file_identities.json`；Production 输入/输出身份、程序 binary SHA 与运行配置保存在原始 run/case manifest。输入内容未伪装为可从压缩包重建；若需信号级重放，应按清单重新运行 Stage2。
+
+## 空间验收
+
+清理后 nested Git worktree `du -sh .` 为约 **6.7 GB**，低于用户要求的 20 GB。`/tmp` 清理后可用空间约 7.2 GB。后续大型运行仍需在启动前核验容量并使用独立输出目录。
+
+## 2026-10-28 R22 延续工程失败 case
+
+- 保留：`extension_engineering/seed1930101/` 下的 case/run/matrix manifest、6 份场景配置、Stage2 解析配置、period-0 runtime XML、报告、日志、背景复用映射、周期清单、目标生成 manifest、盲估计结果、首样本边界诊断及逐文件 SHA-256。
+- 删除：当前失败 case 中 52 个 `.bin`，共 **2,952,268,800 bytes**：50 份可再生 Stage2 raw IQ（2,460,224,000 bytes）、合并 C+N estimator 输入（492,044,800 bytes）和 1 个零字节失败校正输出。删除前逐项重新核验路径、大小和 SHA-256；清理记录见 `extension_engineering/seed1930101/raw_cleanup.json`。
+- 理由：该 case 在 Production 前失败，Stage2 raw IQ 可由归档的配置、seed、源码与 binary 重建；本次不保留大体积派生二进制。其他 `outputs/`、`.scratch/`、R21 基线和已有用户资料未触碰。
+- 项目 worktree 从清理前约 **9.7 GB** 降至清理后约 **6.9 GB**，满足小于 20 GB 的要求。
+
+## 2026-10-28 V1A Production gate case
+
+- 保留：`extension_engineering_v1a/seed1930101/` 的精简审查包，含 case/matrix/run 摘要、41 行分支状态、Stage2 场景与 runtime XML、杂波报告/日志、代表性 Production XML/runtime dump/逐周期日志/CSI tap/CFAR geometry、C4/PKR robust gamma reference failure rows，以及逐文件 SHA-256 清单。
+- 本机完整 case manifest 和原始 cleanup ledger 位于 `outputs/r22_extension_20261028_v1a/engineering/.../attempt_001/`，不属于 GitHub 精简包；精简包明确保留输入 SHA 摘要及关键失败证据。
+- Production 汇总后删除本次 case 产生的 921 个可再生 `.bin`，合计 **4,429,702,312 bytes**；删除清单逐项写入原始 `raw_cleanup.json`。CSI 全尺寸 `.npy` 未生成/未留存；CSI tap summary CSV 已保留。
+- case 生成期间 worktree 峰值约 **12 GB**；清理后本次工程输出约 **296 MB**，当时 worktree 总占用约 **6.9 GB**；本次交付前复测约 **7.2 GB**，低于 20 GB 上限。其他 `outputs/`、`.scratch/`、用户输入与历史基线未清理。
+- 失败原因是 C4/PKR 的 133-bin robust gamma reference 有少数组 support 低于 8，触发质量验证停止；未降低 `min_support`，未删除唯一失败审计，也未继续性能矩阵。
+
+## 2026-10-30 独立 H0 interrupted attempts
+
+用户授权恢复 H0 矩阵并清理无用数据后，先将 seed1935015 / +4 ns 的两次中断 attempt 压缩为可校验审查档，再删除精确对应的 raw attempt 目录。矩阵是 case-level retry：attempt001/002 的 raw 不能作为 runner 的断点继续输入，恢复会创建 attempt003；原始失败日志、配置、manifest 与已完成分支证据因此保留在压缩档中。
+
+| 删除的 raw attempt | 清理内容 | 压缩审查档 | SHA-256 |
+|---|---|---|---|
+| `outputs/r22_h0_engineering_post_review_20261029/raw/h0/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10/attempt_001/` | 72 个可重建 `.bin`，合计 3,939,007,872 bytes | `evidence/h0_checkpoint_20261030/interrupted_attempt_archives/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10__attempt_001_INTERRUPTED.zip`（412,531 bytes，164 included / 1 excluded） | `7110bf311bb1bb68c0d2bb3b72f8dec9ca459116aca1e64550d55ba4be73cc9e` |
+| `outputs/r22_h0_engineering_post_review_20261029/raw/h0/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10/attempt_002/` | 871 个生成二进制及 510 个内部 `.bin` symlink 路径，实际文件合计 9,841,040,440 bytes；未删除 CSI `.npy` | `evidence/h0_checkpoint_20261030/interrupted_attempt_archives/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10__attempt_002_INTERRUPTED.zip`（3,453,103 bytes，1,804 included / 1,309 excluded） | `cbd44572da8e39411c15c46fe2939c5dd1b5d4e3676c916478dd5f4969f625b4` |
+
+两个 ZIP 均通过 CRC 检查，归档器在删除源目录前逐项核验纳入文件的 SHA-256 与大小；matrix manifest 中的 attempt 记录包含 archive 路径、SHA 和 CRC 状态。attempt002 的紧凑 case manifest 保留完整 1,381 条 raw-cleanup 记录。attempt001 没有完整 case manifest；其 20,629-byte `raw_cleanup.json` 被归档器的规则排除，archive manifest 保留了该文件的 SHA/大小，具体逐文件 cleanup 记录未保留；本台账保留其准确总文件数和总字节数。
+
+此次释放 **13,780,048,312 bytes（约 12.83 GiB）** 可重建二进制数据。清理前文件系统可用约 7.1 GB，清理后约 20 GB。两份中断 ZIP、失败原因、branch/XML/日志和逐 case 分析汇总继续保留；29 个已完成 H0 case 的 compact ZIP 仍在本地 `outputs/.../archives/`，未全部复制进 Git。清理只针对上述两个 interrupted attempt，没有删除 29 个已归档 case、历史失败现场、配置或用户资料。
+
+## 2026-10-31 R22 H0 seed1935029 interrupted attempt
+
+- 保留：中断 attempt 的压缩审查档、外层运行 manifest、配置、逐分支审计、日志与 cleanup SHA/路径记录；归档通过 ZIP CRC 和纳入文件 SHA/大小校验。审查档：`docs/research/phase_r/R22/evidence/h0_checkpoint_20261030/interrupted_attempt_archives/h0__seed_1935029__vr_0__snr_20__delay_4ns__targets_0__periods_10__attempt_001_INTERRUPTED.zip`，SHA-256 `85fd6c32c8f66696a0bd92ec9ade3d2feeb2de3582d617a93a5fbc3b7907fa7f`。
+- 删除：精确 case 内 1257 个生成 `.bin` 路径（实际文件 787 个、内部 symlink 470 个），实际二进制 8,050,376,328 bytes；未发现 `.npy/.npz`。清理明细含逐路径 SHA-256，保存在归档的 compact manifest 中。
+- 原因：runner 已停止，case-level retry 不消费半成品；后续创建新 attempt。归档校验后才删除 attempt_001 raw 目录。
+- 本次操作完成后工作区文件系统可用空间：13,609,340,928 bytes。
+
+
+## 2026-10-31 R22 H0 matrix completed case compaction
+
+- 60 个冻结 H0 case 均完成 compact archive 校验；每个 case 的 compact ZIP 在本机 `outputs/r22_h0_engineering_post_review_20261029/archives/h0/`，总计 **180,896,331 bytes**。60 个 ZIP 中未发现 `.bin/.npy/.npz` raw-array members；每 case cleanup 记录保存在 archive compact manifest 中。
+- 60 个完成 case 共清理 **72,060 个生成 `.bin` 路径**、合计 **472,370,816,936 bytes**；其中 symlink 路径计入 path count，但不重复计入实际删除字节。未删除 CSI `.npy`（本矩阵未生成需保留/删除的 CSI map）。
+- 3 个 interrupted attempt（seed1935015/+4 ns attempt001/002；seed1935029/+4 ns attempt001）另清理 **21,830,424,640 bytes**。删除前先生成并验证审查 ZIP；索引和各 ZIP SHA 见 `h0_checkpoint_20261030/h0_interrupted_attempt_archive_index.json`。三次中断不构成独立实验 seed，最终每 case 只采用最新完成 attempt。
+- 本次合计清理生成 raw **494,201,241,576 bytes**。保留 60 个 compact ZIP、分析 CSV/manifest、30 对 Stage2 配对报告身份、3 个 interrupted archive 和清理账，待 ChatGPT 独立审查后按用户 20 GB 最终占用规则再清理本机 compact ZIP。
+- 最小可审查汇总已写入 `evidence/h0_final_20261031/`；完整 case ZIP 不随本次 GitHub 精简证据提交，避免上传重复/较大逐分支包。
+
+## 2026-10-31 R22-S1d 审查后的待清理项
+
+- **继续保留到 ChatGPT 审查结束：** `outputs/r22_s1d_period_corrected_crossover_20261031/`（约8.2 MB，period-correct 的7分支原始运行归档）、`outputs/r22_s1d_phase_vector_crossover_20261031/`（约2.5 MB，周期错配的无效初试）及 `outputs/r22_s1d_phase_vector_self_controls_20261031/`（约2.5 MB，周期错配的无效对照）。无效目录不会用于结果或提交，保留是为了审查期间可核对失败更正过程。
+- **Git 保留替代：** `docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/` 中约2.6 MB 紧凑证据，包含7分支运行 XML、日志、manifest、选中组输入单元、CSI sidecar、CFAR/CSI tap 摘要、support 结果、目标距离格事后交叉表和逐文件 SHA-256。115个登记文件在提交前逐项验证。
+- **审查后操作：** 删除上述三个 S1d 本地输出目录；然后按用户“只保留必要记录/配置/审计和高价值结果、最终项目占用小于20 GB”的要求，继续清理可再生及重复的 `outputs/` 产物，保留对应的高价值精简审查包、配置、脚本和清理账，并复核实际目录体积。审查前不删除这些运行现场。
+- **当前容量快照：** `du -shL .` 估算约20 GB，`df -h .` 可用6.7 GB；扫描遇到既有 broken symlink，因此此值只作近似，不作为最终验收。审查后执行清理并重新测量。
