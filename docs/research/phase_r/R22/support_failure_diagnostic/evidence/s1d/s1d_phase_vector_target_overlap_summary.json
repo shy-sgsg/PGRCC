@@ -1,0 +1,210 @@
+{
+  "analysis": "S1d posthoc phase-vector shift and target-truth-bin overlap",
+  "period_index_zero_based": 4,
+  "production_period_label": "GMTI05",
+  "selected_group": {
+    "beam_id": 50,
+    "az_index": 52,
+    "range_start": 1065,
+    "range_end": 1197
+  },
+  "target_truth_bins": [
+    1076,
+    1077,
+    1102,
+    1103,
+    1124,
+    1125,
+    1130,
+    1131,
+    1162,
+    1163,
+    1164
+  ],
+  "target_truth_bin_count": 11,
+  "phase_delta_definition": "abs(atan2(sin(phi_a - phi_b), cos(phi_a - phi_b)))",
+  "reference_threshold_rad_for_descriptive_count_only": 0.35,
+  "threshold_note": "the robust gate applies to each cell's residual from the group phase center, not to this pairwise vector-difference statistic",
+  "phase_sidecar_trace_validation": {
+    "branches": 7,
+    "max_abs_error_rad_by_branch": {
+      "C4_modeb_S1d_native_on_snr20": 4.497375583056851e-09,
+      "C4_modeb_S1d_input_snr20_cross_csi_snr30": 4.969177291869187e-10,
+      "C4_modeb_S1d_input_snr20_shared_off_csi": 4.902954042762531e-09,
+      "C4_modeb_S1d_native_on_snr30": 4.969177291869187e-10,
+      "C4_modeb_S1d_input_snr30_cross_csi_snr20": 4.497375583056851e-09,
+      "C4_modeb_S1d_input_snr30_shared_off_csi": 4.902954042762531e-09,
+      "C4_modea_S1d_native_target_free_OFF": 4.902954042762531e-09
+    }
+  },
+  "phase_vector_comparisons": {
+    "SNR20_ON_vs_SNR30_ON": {
+      "all_group_bins": {
+        "n": 133,
+        "mean_abs_wrapped_rad": 0.14147207286748054,
+        "median_abs_wrapped_rad": 0.14420419931411743,
+        "p90_abs_wrapped_rad": 0.24864786863327026,
+        "max_abs_wrapped_rad": 0.2801697254180908,
+        "count_abs_vector_delta_over_0_35_rad": 0
+      },
+      "truth_target_range_bins": {
+        "n": 11,
+        "mean_abs_wrapped_rad": 0.12578311579471285,
+        "median_abs_wrapped_rad": 0.08908807672560214,
+        "p90_abs_wrapped_rad": 0.24864786863327026,
+        "max_abs_wrapped_rad": 0.25140249729156494,
+        "count_abs_vector_delta_over_0_35_rad": 0
+      },
+      "other_group_bins": {
+        "n": 122,
+        "mean_abs_wrapped_rad": 0.1428866509642055,
+        "median_abs_wrapped_rad": 0.14646439254283905,
+        "p90_abs_wrapped_rad": 0.2458699345588684,
+        "max_abs_wrapped_rad": 0.2801697254180908,
+        "count_abs_vector_delta_over_0_35_rad": 0
+      }
+    },
+    "SNR20_ON_vs_OFF": {
+      "all_group_bins": {
+        "n": 133,
+        "mean_abs_wrapped_rad": 1.775982320313937,
+        "median_abs_wrapped_rad": 1.7329569961875677,
+        "p90_abs_wrapped_rad": 2.6416817903518677,
+        "max_abs_wrapped_rad": 2.8896210193634033,
+        "count_abs_vector_delta_over_0_35_rad": 133
+      },
+      "truth_target_range_bins": {
+        "n": 11,
+        "mean_abs_wrapped_rad": 1.642302030697465,
+        "median_abs_wrapped_rad": 1.640415608882904,
+        "p90_abs_wrapped_rad": 2.262005716562271,
+        "max_abs_wrapped_rad": 2.2795017659664154,
+        "count_abs_vector_delta_over_0_35_rad": 11
+      },
+      "other_group_bins": {
+        "n": 122,
+        "mean_abs_wrapped_rad": 1.788035461180996,
+        "median_abs_wrapped_rad": 1.772143488167785,
+        "p90_abs_wrapped_rad": 2.660403788089752,
+        "max_abs_wrapped_rad": 2.8896210193634033,
+        "count_abs_vector_delta_over_0_35_rad": 122
+      }
+    },
+    "SNR30_ON_vs_OFF": {
+      "all_group_bins": {
+        "n": 133,
+        "mean_abs_wrapped_rad": 1.8242285600128143,
+        "median_abs_wrapped_rad": 1.7983344830572605,
+        "p90_abs_wrapped_rad": 2.4612728357315063,
+        "max_abs_wrapped_rad": 2.6389529705047607,
+        "count_abs_vector_delta_over_0_35_rad": 133
+      },
+      "truth_target_range_bins": {
+        "n": 11,
+        "mean_abs_wrapped_rad": 1.7270563651214947,
+        "median_abs_wrapped_rad": 1.7295036856085062,
+        "p90_abs_wrapped_rad": 2.1867940425872803,
+        "max_abs_wrapped_rad": 2.1995131373405457,
+        "count_abs_vector_delta_over_0_35_rad": 11
+      },
+      "other_group_bins": {
+        "n": 122,
+        "mean_abs_wrapped_rad": 1.832989987421048,
+        "median_abs_wrapped_rad": 1.8273916840553284,
+        "p90_abs_wrapped_rad": 2.4747297763824463,
+        "max_abs_wrapped_rad": 2.6389529705047607,
+        "count_abs_vector_delta_over_0_35_rad": 122
+      }
+    }
+  },
+  "support_target_overlap": [
+    {
+      "condition": "SNR20_self",
+      "branch_name": "C4_modeb_S1d_native_on_snr20",
+      "support_count": 25,
+      "target_truth_bins_retained": 3,
+      "target_truth_bins": [
+        1076,
+        1077,
+        1103
+      ],
+      "non_target_support_count": 22
+    },
+    {
+      "condition": "SNR20_cross_SNR30",
+      "branch_name": "C4_modeb_S1d_input_snr20_cross_csi_snr30",
+      "support_count": 25,
+      "target_truth_bins_retained": 3,
+      "target_truth_bins": [
+        1076,
+        1077,
+        1103
+      ],
+      "non_target_support_count": 22
+    },
+    {
+      "condition": "SNR20_OFF_vector",
+      "branch_name": "C4_modeb_S1d_input_snr20_shared_off_csi",
+      "support_count": 21,
+      "target_truth_bins_retained": 3,
+      "target_truth_bins": [
+        1076,
+        1103,
+        1125
+      ],
+      "non_target_support_count": 18
+    },
+    {
+      "condition": "SNR30_self",
+      "branch_name": "C4_modeb_S1d_native_on_snr30",
+      "support_count": 7,
+      "target_truth_bins_retained": 0,
+      "target_truth_bins": [],
+      "non_target_support_count": 7
+    },
+    {
+      "condition": "SNR30_cross_SNR20",
+      "branch_name": "C4_modeb_S1d_input_snr30_cross_csi_snr20",
+      "support_count": 11,
+      "target_truth_bins_retained": 0,
+      "target_truth_bins": [],
+      "non_target_support_count": 11
+    },
+    {
+      "condition": "SNR30_OFF_vector",
+      "branch_name": "C4_modeb_S1d_input_snr30_shared_off_csi",
+      "support_count": 22,
+      "target_truth_bins_retained": 4,
+      "target_truth_bins": [
+        1077,
+        1103,
+        1125,
+        1131
+      ],
+      "non_target_support_count": 18
+    },
+    {
+      "condition": "OFF_self",
+      "branch_name": "C4_modea_S1d_native_target_free_OFF",
+      "support_count": 55,
+      "target_truth_bins_retained": 3,
+      "target_truth_bins": [
+        1077,
+        1102,
+        1131
+      ],
+      "non_target_support_count": 52
+    }
+  ],
+  "truth_use": "posthoc evaluator join only; not used by the estimator",
+  "source_sha256": {
+    "selected_group_cells_csv": "fcf898ae865d01ea16668338b5780da4bf9fde8a07358e4b9b9c7153e1775101",
+    "target_overlap_audit_csv": "4c1d69495b08b96d9ef8837358891ba79cb13b58a7ec63c6963cedfa91e56887",
+    "phase_vectors": {
+      "SNR20_ON": "c72bd6a30ca8430760157f53d3c1e13ec1406b42ecd687a753681fdc64b10e9d",
+      "SNR30_ON": "dcd37c3c2b379ac9f5e607f09020e3871eae65675de3a6013e64dc5d7b3f8869",
+      "OFF": "dc6f84425613c0ba97526c02ef92b79fbcc8c8cad5f120b69c98df79e9b51747"
+    }
+  },
+  "output_csv": "s1d_phase_vector_target_overlap.csv"
+}

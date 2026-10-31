@@ -40,6 +40,32 @@ S1d 首轮的两次试跑使用了完整十周期 sidecar，与 GMTI05 所需的
 
 支持集合也发生变化：SNR30 原生7格全部包含于 SNR20 ON 向量下的11格，交叉向量额外保留4格；SNR30 原生集合与 OFF 向量下22格没有交集。SNR20 的自身向量与 SNR30 向量有22格交集，各有3格独有；SNR20 自身向量与 OFF 向量有12格交集，各有13格和9格独有。因此 support 数跨过门槛不意味着同一参考单元集合恢复。
 
+## CSI 向量变化与目标真值距离格的事后交叉
+
+为区分“support 数过门”和“支持来自哪些距离格”，将 S1d 七分支 selected-cell 保留集合与 S1c 已核验的 GMTI05 / beam 50 目标真值距离 bin 做 evaluator-only 交叉。真值未进入 Production 或 support 估计。CSI phase sidecar 与各分支 `csi_post_range_phase_pre_c4_adapter` trace 在选定133格逐格相符，七分支最大绝对差为 `4.903e-9 rad`。
+
+| CSI phase 向量对比 | 全133格平均绝对 wrapped 差 | 11个目标真值距离格 | 其余122格 | 向量差绝对值>0.35 rad格数 |
+|---|---:|---:|---:|---:|
+| SNR20 ON vs SNR30 ON | 0.141472 rad | 0.125783 rad | 0.142887 rad | 0 |
+| SNR20 ON vs paired OFF | 1.775982 rad | 1.642302 rad | 1.788035 rad | 133 |
+| SNR30 ON vs paired OFF | 1.824229 rad | 1.727056 rad | 1.832990 rad | 133 |
+
+SNR20 与 SNR30 的 ON CSI 向量差异在目标真值距离格上并未更大；按该组的事后空间标签，差异也没有集中到目标格。这不排除目标通过估计器或处理链的全局作用影响向量，但不能据此把变化归因于直接的目标距离格污染。表中的 `>0.35 rad` 仅统计两向量逐格差值；C4 的±0.35 rad质量门实际作用于单元相对组相位中心的残差，二者不能混同。
+
+| 条件 | support | 保留的目标真值距离格 | 其他保留格 |
+|---|---:|---:|---:|
+| SNR20 native ON | 25 | 3 | 22 |
+| SNR20 ON 输入 / SNR30 CSI 向量 | 25 | 3 | 22 |
+| SNR20 ON 输入 / OFF CSI 向量 | 21 | 3 | 18 |
+| SNR30 native ON | 7 | 0 | 7 |
+| SNR30 ON 输入 / SNR20 CSI 向量 | 11 | 0 | 11 |
+| SNR30 ON 输入 / OFF CSI 向量 | 22 | 4 | 18 |
+| target-free OFF 自身拟合 | 55 | 3 | 52 |
+
+这里“目标真值距离格”只表示 ON 场景目标真值映射到的距离坐标；在 OFF 行中这些格并没有目标信号。对 SNR30 ON，SNR20 ON 交叉向量使 support 达11，且11格都不在目标真值距离坐标；OFF 交叉向量使 support 达22，其中4格落在目标真值距离坐标。两个干预得到的有效支持不等价，OFF 的较大 support 不能单独作为更好的参考或部署收益证据。
+
+逐格相位差、真值格标签和七分支成员集合见 [`s1d_phase_vector_target_overlap.csv`](evidence/s1d/s1d_phase_vector_target_overlap.csv)；汇总及输入 SHA 见 [`s1d_phase_vector_target_overlap_summary.json`](evidence/s1d/s1d_phase_vector_target_overlap_summary.json)，生成脚本为 [`analyze_r22_s1d_vector_target_overlap.py`](evidence/s1d/analyze_r22_s1d_vector_target_overlap.py)。
+
 ## 解释边界
 
 可支持的结论是：**在这一固定 Production 输入和失败组上，CSI range-phase 向量来源对 robust-phase 筛选成员及 support count 有因果影响。** 对 SNR30 输入，SNR20 ON 向量让支持数从7增至11，OFF 向量让它增至22。
@@ -54,9 +80,9 @@ S1d 首轮的两次试跑使用了完整十周期 sidecar，与 GMTI05 所需的
 - `EXECUTED`：7个本机 Native CUDA Production 分支，均返回0；Stage2 未运行。
 - `EVALUABLE`：该固定组的相位来源干预、support count、成员集合和生产记录可交叉核验；更广的物理根因不可唯一评估。
 - `PERFORMANCE_VERIFIED=false`：没有 GMTI 任务级性能对照或统计验证。
-- 精简审查证据：[S1d evidence](evidence/s1d/)，112个登记文件，逐文件大小和 SHA-256 已复核；入口为 [`s1d_manifest.json`](evidence/s1d/s1d_manifest.json)、[`s1d_analysis.json`](evidence/s1d/s1d_analysis.json)、[`s1d_support_summary.csv`](evidence/s1d/s1d_support_summary.csv) 和 [`evidence_manifest.json`](evidence/s1d/evidence_manifest.json)。为通过 Git whitespace 检查，GitHub 副本的文本日志/CSV 统一 LF 并去掉行尾空格；manifest 同时保留这些文件的原始 source SHA 和字节数。本机原始输出没有改动。
+- 精简审查证据：[S1d evidence](evidence/s1d/)，115个登记文件，逐文件大小和 SHA-256 已复核；入口为 [`s1d_manifest.json`](evidence/s1d/s1d_manifest.json)、[`s1d_analysis.json`](evidence/s1d/s1d_analysis.json)、[`s1d_support_summary.csv`](evidence/s1d/s1d_support_summary.csv) 和 [`evidence_manifest.json`](evidence/s1d/evidence_manifest.json)。为通过 Git whitespace 检查，GitHub 副本的文本日志/CSV 统一 LF 并去掉行尾空格；manifest 同时保留这些文件的原始 source SHA 和字节数。本机原始输出没有改动。
 - **复现限制：** GitHub 精简包含选定组逐格 F1/F2、运行 XML/日志和身份 manifest，但没有原始 Stage2 `.bin` IQ；可独立重算选定组 support，不能从该 GitHub 快照端到端重放 Production 或独立重算输入文件内容。
-- 本地完整运行目录：`outputs/r22_s1d_period_corrected_crossover_20261031/`，约8.2 MB；紧凑 Git 证据约2.2 MB。高价值审计证据已提交后，本地完整输出及两次无效试跑在 ChatGPT 审查完成后按清理台账移除。
+- 本地完整运行目录：`outputs/r22_s1d_period_corrected_crossover_20261031/`，约8.2 MB；紧凑 Git 证据约2.6 MB。高价值审计证据已提交后，本地完整输出及两次无效试跑在 ChatGPT 审查完成后按清理台账移除。
 - 矩阵恢复：[`r22_experiment_matrix.py`](../../../../../scripts/phase_r/r22_experiment_matrix.py) 对 `GATE_FAILED` manifest 显式拒绝 `--resume`。因此没有尝试重启矩阵；S1d 是单独批准的诊断实验，不改变该矩阵状态。
 - 执行命令：
 

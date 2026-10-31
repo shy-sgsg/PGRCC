@@ -9,7 +9,7 @@
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；本次 H0 工作未修改总纲。
 - 本状态整理日期：2026-10-31。
 - 最近完成阶段：R22 H0 独立虚警侧筛选完成；完整矩阵、Stage2 杂波配对审计、统计分析和清理记录见 [H0 最终报告](phase_r/R22/18_h0_false_alarm_checkpoint_20261030.md) 及[最终证据包](phase_r/R22/evidence/h0_final_20261031/)。
-- 当前阶段状态：R22 V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`：seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON robust reference support=7，低于冻结的8。R22 H0 已完成，但无目标 H0 不解除该失败门，也没有启动 confirmatory、dense、bridge 或 AI 训练。S1c/S1d 表明选定组 support 对 CSI phase-vector 来源敏感，period-correct S1d 下 SNR30 support 为自身 ON=7、SNR20 ON 向量=11、paired OFF=22；支持集合并不相同。S1c 的目标重合审计支持但未唯一证明目标影响 ON 相位向量的解释；S1d 同样没有分解相位变化的物理来源，且无 GMTI 任务收益证据。冻结门槛保持不变，ChatGPT 对补充诊断的双层审查待完成。详见 [S1c目标交叉表](phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)、[S1d结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)与[S1d evidence](phase_r/R22/support_failure_diagnostic/evidence/s1d/)。
+- 当前阶段状态：R22 V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`：seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON robust reference support=7，低于冻结的8。R22 H0 已完成，但无目标 H0 不解除该失败门，也没有启动 confirmatory、dense、bridge 或 AI 训练。S1d 的 period-correct 事后交叉显示 SNR30 support 为自身 ON=7、SNR20 ON 向量=11（11格均不在目标真值距离坐标）、paired OFF=22（其中4格落在目标真值距离坐标）；CSI向量差异在目标格上未更大。这仍不能唯一归因目标污染或证明任务收益。S1c 及其他证据对目标影响 ON 相位向量的解释有支持但未闭合物理来源。冻结门槛保持不变，ChatGPT 对补充诊断的双层审查待完成。详见 [S1c目标交叉表](phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)、[S1d结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)与[S1d evidence](phase_r/R22/support_failure_diagnostic/evidence/s1d/)。
 
 ## 当前研究阶段：R22 screening 停在方法级 gate；独立 H0 虚警侧矩阵已完成（2026-10-31）
 

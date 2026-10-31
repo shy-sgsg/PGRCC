@@ -11,6 +11,11 @@
   },
   "files": [
     {
+      "path": "analyze_r22_s1d_vector_target_overlap.py",
+      "bytes": 11423,
+      "sha256": "41786bbcfe45ac52fae993148bfae50ad5bee17bb36a4a699b54ee76aa6ca833"
+    },
+    {
       "path": "branches/C4_modea_S1d_native_target_free_OFF/branch_manifest.json",
       "bytes": 19186,
       "sha256": "1aed17eece5eb5c97b4cd61a87d4ec4ab0c9249ff0f2c3c3f7b7a094a761cb95"
@@ -593,6 +598,28 @@
       "normalization": "CRLF/CR to LF; trailing ASCII spaces and tabs removed from line ends"
     },
     {
+      "path": "s1d_phase_vector_target_overlap.csv",
+      "bytes": 22979,
+      "sha256": "8c60cbe862198dfa57fac3f17fa435c785615c14ba0dd0175b66b44fbfbf8d64",
+      "derived_from": [
+        "s1d_selected_group_cells.csv",
+        "branches/*/result/debug/paired_range_phase_csi_period050_beam050.f32",
+        "branches/*/result/production_phase_boundary_trace.csv",
+        "../s1c/v2/s1c_target_overlap_audit.csv"
+      ]
+    },
+    {
+      "path": "s1d_phase_vector_target_overlap_summary.json",
+      "bytes": 6914,
+      "sha256": "1f229788cd3b48c18415ca7e3f4d49a94996439277bb9b89204a4d7e1914474a",
+      "derived_from": [
+        "s1d_selected_group_cells.csv",
+        "branches/*/result/debug/paired_range_phase_csi_period050_beam050.f32",
+        "branches/*/result/production_phase_boundary_trace.csv",
+        "../s1c/v2/s1c_target_overlap_audit.csv"
+      ]
+    },
+    {
       "path": "s1d_selected_group_cells.csv",
       "bytes": 294053,
       "sha256": "fcf898ae865d01ea16668338b5780da4bf9fde8a07358e4b9b9c7153e1775101",
@@ -616,5 +643,14 @@
     "rule": "CRLF/CR to LF and trailing ASCII spaces/tabs removed at line ends",
     "entries_updated": 10,
     "original_sha256_and_bytes_recorded_per_changed_file": true
+  },
+  "posthoc_target_overlap_analysis": {
+    "script": "analyze_r22_s1d_vector_target_overlap.py",
+    "outputs": [
+      "s1d_phase_vector_target_overlap.csv",
+      "s1d_phase_vector_target_overlap_summary.json"
+    ],
+    "truth_use": "posthoc truth-bin join only; estimator inputs unchanged",
+    "phase_vector_trace_validation": "7/7 branches; maximum absolute error 4.903e-9 rad"
   }
 }
