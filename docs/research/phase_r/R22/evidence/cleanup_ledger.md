@@ -87,3 +87,21 @@
 - **Git 紧凑替代：** `support_failure_diagnostic/evidence/s1e/` 含72个登记文件、约1.5 MB；逐文件保留 SHA/大小与源路径，包括runtime XML、branch manifest、日志、phase trace、complex-cell audit、CSI tap、CFAR geometry、三个 Stage2 role 配置/报告/背景映射及A0_ON杂波生成证据。未纳入原始 Stage2 `.bin` 和全量 target truth CSV。
 - **审查后清理：** 若 ChatGPT 确认紧凑证据足以支持审查，删除上述 S1e 本地输出目录，保留 Git 紧凑证据、复现脚本、分析表和清理记录。历史 S1b/S1c/S1d 输入与完整 Production 输出仍按前一节待审范围处理；删除前重新确认无其他未归档证据依赖。
 - **最终空间门：** 本阶段尚未完成审查后清理，项目最终 `<20 GB` 尚未验证；中间占用允许超过该值。审查完成后再清理可再生/重复 raw 数据，并以实际 `du -shL` 与 symlink-aware 文件统计复核。
+
+## 2026-10-31 用户授权清理旧运行产物
+
+清理前确认没有对应的 R22/旧 pilot 运行进程。删除的是已完成、已复核或有紧凑证据替代的旧运行树与重复重试；未删除当前 S1b–S1e 审查现场、Screening `GATE_FAILED` case、H0 compact case archives、配置、脚本或研究报告。
+
+| 删除路径 | 清理前分配空间 | 理由与保留替代 |
+|---|---:|---|
+| `outputs/r22_extension_20261028_v2_range_roi/` | 5,342,416,896 bytes | 六 seed 工程完整运行树已由 `docs/research/phase_r/R22/15_v2_six_seed_engineering_results_20261028.md` 和紧凑审查 ZIP 汇总；ZIP CRC 检查通过并保留在 `outputs/r22_chatgpt_review_evidence_v3_six_seed_20261028.zip`。保留逐 seed 任务指标、估计值、资源摘要、运行身份和历史结果，不再留 48,558 个重复/详细运行输出文件。 |
+| `outputs/r22_extension_20261028_v1a/` | 310,095,872 bytes | V1A 失败条件和关键 Production/reference 证据已保存在 `docs/research/phase_r/R22/evidence/extension_engineering_v1a/seed1930101/`、`docs/research/phase_r/R22/11_v1a_engineering_gate_result_20261028.md` 与 `docs/research/phase_r/R22/12_v2_range_support_domain_amendment_20261028.md`；完整本机运行树已由精简审查证据替代。 |
+| `outputs/r22_extension_20261028/` | 116,760,576 bytes | 首个工程失败的失败原因、执行身份和清理审计保存在 `docs/research/phase_r/R22/10_engineering_gate_failure_20261028.md` 与 `docs/research/phase_r/R22/evidence/extension_engineering/seed1930101/`；仅清除已归档的运行派生产物。 |
+| `outputs/r22_v1a_gate_diagnostic_cells_20261028/pipeline/` | 203,317,248 bytes | 预审诊断运行数据可重建；保留根目录的 run manifest、场景模板和目标生成 manifest。 |
+| `outputs/r22_v1a_gate_diagnostic_maps_20261028/pipeline/` | 205,877,248 bytes | 预校正 map 与实际 robust estimator 输入不一致，不能作为 estimator 输入证据。先将诊断评估、七份评价 CSV、配置、manifest、计划和清理记录共 17 个文件（3,833,777 bytes）逐字节归档到 `docs/research/phase_r/R22/evidence/v1a_gate_diagnostics_20261028/`，再清除此 pipeline；GPU 预检文本原件继续保留在该输出根目录。 |
+| `outputs/phase_r_e1_e4_e5_cuda_pilot_seed101_20261022_retry1/` 及四个 `retry_v2/v4_*_cleanclone/` 目录 | 213,757,952 bytes | 旧 pilot 的失败/重复重试，无研究报告或后续任务引用；主 pilot 报告、最终输出和高价值审计资料保留。 |
+| `outputs/r22_chatgpt_review_evidence_v3_six_seed_20261028/` | 7,139,328 bytes | 仅为保留 ZIP 的解包副本；ZIP 本身继续保留供审查使用。 |
+
+本次共释放 **6,399,365,120 allocated bytes**。V1A map 诊断包中归档的 17 个文件复制后逐项比较大小和字节内容；GPU 预检原件留在本机诊断 metadata 根。六 seed 审查 ZIP 在清理前通过 CRC 检查。`.scratch/` 中仍被历史审计文档引用的 R3 失败现场/紧凑报告没有删除。当前 R22 的 S1 replay、S1e 输出、失败 Screening 输入、H0 compact archives 和紧凑汇总均保留供后续审查与分析。
+
+清理后 `du -s -B1 .` 测得工作树占用 **14,588,624,896 bytes（14.59 GB 十进制）**，其中 `outputs/` 为 **13,282,574,336 bytes**；`df -B1` 显示所在文件系统可用 **19,259,727,872 bytes**。当前占用低于 20 GB。S1b–S1e 目录仍按待审记录保留；其后 ChatGPT 审查结束时，再按本台账后续记录决定是否清理并复验最终空间门。

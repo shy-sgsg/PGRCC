@@ -1,0 +1,83 @@
+{
+  "purpose": "Same-seed R22 V1A 0 ns diagnostic replay retaining Production CSI intermediate maps to investigate robust gamma support failure; not a performance comparison.",
+  "created_from_commit": "e27a78e234e7647dd870d06b0db058d4b71fdf02",
+  "branch": "codex/unknown-system-error-next-stage",
+  "source_design": "docs/research/phase_r/R22/config/r22_extension_experiment_design.json",
+  "source_method_config": "docs/research/phase_r/R22/config/r22_method_config.json",
+  "source_method_config_sha256": "348da3b932c2b9fbc6f3a6599ba888dcbb35f4d4039162a3e0f6e60cfbc69c7e",
+  "diagnostic_method_config": "outputs/r22_gate_diagnostic_method_config_20261028.json",
+  "diagnostic_method_config_sha256": "da0614325fbb886a434e74ced9e8648b26d5839c042af637ada29eed88facbc8",
+  "only_configuration_changes": {
+    "production.csi_metrics_dump_power_maps": {
+      "from": false,
+      "to": true
+    },
+    "production.csi_metrics_dump_intermediate_maps": {
+      "from": false,
+      "to": true
+    }
+  },
+  "quality_gates_unchanged": {
+    "min_support": 8,
+    "range_band_bins": 133,
+    "robust_phase_threshold_rad": 0.35,
+    "method_quality_gates": "unchanged"
+  },
+  "method_subset": [
+    "C0",
+    "PK",
+    "C4",
+    "PKR"
+  ],
+  "scenario": {
+    "seed": 1930101,
+    "delay_error_ns": 0,
+    "target_velocity_mps": 2.5,
+    "target_snr_db": 20,
+    "target_count": 20,
+    "period_count": 10,
+    "beam_id": 50
+  },
+  "production_binary_sha256": "3c4c6bef08291e7d02cefa1b23387d442dfb00cf0fbed0604e9a0fbecaa86760",
+  "stage2_binary_sha256": "ca8aa9eb8b7d97e5743a27e67c312e66a4efecbf2c76880db581192afd08ce8e",
+  "command": [
+    "python3",
+    "scripts/phase_r/run_r22_cuda_pilot.py",
+    "--output-root",
+    "outputs/r22_v1a_gate_diagnostic_maps_20261028",
+    "--phase",
+    "engineering",
+    "--seed",
+    "1930101",
+    "--speed-mps",
+    "2.5",
+    "--snr-db",
+    "20",
+    "--delay-ns",
+    "0",
+    "--target-count",
+    "20",
+    "--period-count",
+    "10",
+    "--first-beam",
+    "50",
+    "--beam-count",
+    "1",
+    "--stage2-binary",
+    "build/simulate_stage2_statistical",
+    "--production-binary",
+    "build/GMTI_pipe_core",
+    "--method-config",
+    "outputs/r22_gate_diagnostic_method_config_20261028.json",
+    "--method-ids",
+    "C0,PK,C4,PKR",
+    "--calibration-modes",
+    "Mode-A,Mode-B",
+    "--keep-raw"
+  ],
+  "environment": {
+    "PGRCC_EXPECTED_GMTI_PIPE_CORE_SHA256": "3c4c6bef08291e7d02cefa1b23387d442dfb00cf0fbed0604e9a0fbecaa86760",
+    "PGRCC_EXPECTED_STAGE2_SIMULATOR_SHA256": "ca8aa9eb8b7d97e5743a27e67c312e66a4efecbf2c76880db581192afd08ce8e"
+  },
+  "raw_policy": "--keep-raw for diagnostic capture; later compact only regenerated .bin after hash-ledger preservation, retain diagnostically necessary CSI maps."
+}

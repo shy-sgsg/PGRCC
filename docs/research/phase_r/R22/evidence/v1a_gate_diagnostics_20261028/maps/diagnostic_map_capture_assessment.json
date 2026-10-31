@@ -1,0 +1,165 @@
+{
+  "purpose": "Assessment of whether first map-enabled replay CSI dump equals final F1/F2 consumed by robust calibration estimator.",
+  "replay": {
+    "status_labels": {
+      "EVALUABLE": false,
+      "EXECUTED": true,
+      "IMPLEMENTED": true,
+      "PERFORMANCE_VERIFIED": false,
+      "performance_note": "single case is feasibility evidence; no inferential claim"
+    },
+    "implementation_result": "completed_with_gaps",
+    "stage2_runs": 6,
+    "stage2_elapsed_sec": 195.8053467029822,
+    "production_branches": 21,
+    "production_elapsed_sec_sum": 143.03230178594822,
+    "area_clutter_gate": {
+      "area_enabled": true,
+      "area_mean_power_measured": 0.0225128995081,
+      "area_model": "continuous_texture",
+      "continuous_area_packets": 1300,
+      "continuous_area_samples": 6508782,
+      "ground_height_m": 0.0,
+      "ground_range_max_m": 85289.213854977,
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ],
+      "minimum_slant_range_m": 6000.0,
+      "platform_height_m": 6000.0,
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "reasons": [],
+      "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_v1a_gate_diagnostic_maps_20261028/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "report_sha256": "2b83ef831b6e85d10a9e509d640bf9f645e451561cda06c75405168bb8320747",
+      "report_values": {
+        "area_ctdr_lag_pulses": "2",
+        "area_power_cv_measured": "1.9925009136",
+        "area_rho_at_CTDR_lag": "0.960397551126",
+        "area_rho_lag1_measured": "0.979999807132",
+        "mean_noise_power_per_complex_sample": "0.00100014187201"
+      },
+      "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_v1a_gate_diagnostic_maps_20261028/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/scenarios/A0_ON.json",
+      "scenario_sha256": "d4ac6d834b7ca96f9a149c68a740301f6ec877a3b3db3f889f541fea6e3ee636",
+      "status": "passed"
+    }
+  },
+  "gamma_replay_comparison": {
+    "C4_modea_OFF": {
+      "row_count_old": 12090,
+      "row_count_replay": 12090,
+      "invalid_old": 15,
+      "invalid_replay": 15,
+      "all_rows_byte_values_equal": true
+    },
+    "C4_modeb_ON": {
+      "row_count_old": 12090,
+      "row_count_replay": 12090,
+      "invalid_old": 11,
+      "invalid_replay": 11,
+      "all_rows_byte_values_equal": true
+    },
+    "PKR_modea_OFF": {
+      "row_count_old": 12090,
+      "row_count_replay": 12090,
+      "invalid_old": 15,
+      "invalid_replay": 15,
+      "all_rows_byte_values_equal": true
+    },
+    "PKR_modeb_ON": {
+      "row_count_old": 12090,
+      "row_count_replay": 12090,
+      "invalid_old": 11,
+      "invalid_replay": 11,
+      "all_rows_byte_values_equal": true
+    }
+  },
+  "map_reconstruction": {
+    "C4_modea_OFF": {
+      "failed_groups": 15,
+      "recomputed_from_ctdr_prefit_maps": 15,
+      "support_matches": 0,
+      "coherence_matches_within_1e-6": 0,
+      "mean_absolute_coherence_difference": 0.07560869785903217,
+      "example": {
+        "period_id": "1",
+        "az_index": "48",
+        "range_start": "3991",
+        "range_end": "4095",
+        "csv_support": "7",
+        "csv_phase_coherence": "0.107105558514922",
+        "tap_pre_correction_map": {
+          "candidate_count": 105,
+          "coherence": 0.005946518662696367,
+          "kept": 15
+        }
+      }
+    },
+    "C4_modeb_ON": {
+      "failed_groups": 11,
+      "recomputed_from_ctdr_prefit_maps": 11,
+      "support_matches": 0,
+      "coherence_matches_within_1e-6": 0,
+      "mean_absolute_coherence_difference": 0.21088356980209133,
+      "example": {
+        "period_id": "1",
+        "az_index": "51",
+        "range_start": "3991",
+        "range_end": "4095",
+        "csv_support": "7",
+        "csv_phase_coherence": "0.046468205313956",
+        "tap_pre_correction_map": {
+          "candidate_count": 105,
+          "coherence": 0.08352511718746237,
+          "kept": 13
+        }
+      }
+    }
+  },
+  "map_identity": {
+    "C4_modea_OFF": {
+      "period001_channel1_shape": [
+        130,
+        4096
+      ],
+      "sample_map_path": "outputs/r22_v1a_gate_diagnostic_maps_20261028/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/production/C4_modea_OFF/result/csi_metrics/20261028_041939_790086/period001_beam050_channel1_real.npy",
+      "sample_map_sha256": "cd798497fc73dbe8892a9fbd0957f50525f1b26ed5955170c4798c55c4a085e8",
+      "per_period_map_arrays": 40
+    },
+    "C4_modeb_ON": {
+      "period001_channel1_shape": [
+        130,
+        4096
+      ],
+      "sample_map_path": "outputs/r22_v1a_gate_diagnostic_maps_20261028/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/production/C4_modeb_ON/result/csi_metrics/20261028_041949_129642/period001_beam050_channel1_real.npy",
+      "sample_map_sha256": "d034c5265d0871c6f5475ca2d1b2db01033d4cde4493dd6996dcc44967b467af",
+      "per_period_map_arrays": 40
+    },
+    "PKR_modea_OFF": {
+      "period001_channel1_shape": [
+        130,
+        4096
+      ],
+      "sample_map_path": "outputs/r22_v1a_gate_diagnostic_maps_20261028/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/production/PKR_modea_OFF/result/csi_metrics/20261028_042046_957468/period001_beam050_channel1_real.npy",
+      "sample_map_sha256": "cd798497fc73dbe8892a9fbd0957f50525f1b26ed5955170c4798c55c4a085e8",
+      "per_period_map_arrays": 40
+    },
+    "PKR_modeb_ON": {
+      "period001_channel1_shape": [
+        130,
+        4096
+      ],
+      "sample_map_path": "outputs/r22_v1a_gate_diagnostic_maps_20261028/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/production/PKR_modeb_ON/result/csi_metrics/20261028_042054_907843/period001_beam050_channel1_real.npy",
+      "sample_map_sha256": "d034c5265d0871c6f5475ca2d1b2db01033d4cde4493dd6996dcc44967b467af",
+      "per_period_map_arrays": 40
+    }
+  },
+  "source_alignment_notes": {
+    "production_calibration_input": "src/gpu/gpu_kernels.cu captures final f1_host/f2_host after stage alignment, FFT/DBS and CSI range-phase correction before adapter call.",
+    "existing_csi_metrics_arrays": "src/processOnePeriod.cpp passes F1_pre/F2_pre to ctdr_channel maps before stage alignment, FFT/DBS and the second CSI range-phase correction.",
+    "interpretation": "Existing CSI maps are not the exact estimator input. Recomputed phase metrics do not match the Production gamma CSV; physical root cause remains unresolved without per-failure-group final F1/F2 cells."
+  }
+}
