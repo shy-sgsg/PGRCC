@@ -1,6 +1,6 @@
 # R22 磁盘清理台账
 
-更新日期：2026-10-27。只清理本阶段明确生成、且高价值结果已归档验证的临时运行目录；既有 `outputs/`、`.scratch`、用户数据和任务开始时 4,007 项未跟踪/忽略资料未触碰。
+更新日期：2026-10-31。只清理本阶段明确生成、且高价值结果已归档验证的临时运行目录；既有 `outputs/`、`.scratch`、用户数据和任务开始时 4,007 项未跟踪/忽略资料未触碰。
 
 ## 保留
 
@@ -44,3 +44,32 @@
 - Production 汇总后删除本次 case 产生的 921 个可再生 `.bin`，合计 **4,429,702,312 bytes**；删除清单逐项写入原始 `raw_cleanup.json`。CSI 全尺寸 `.npy` 未生成/未留存；CSI tap summary CSV 已保留。
 - case 生成期间 worktree 峰值约 **12 GB**；清理后本次工程输出约 **296 MB**，当时 worktree 总占用约 **6.9 GB**；本次交付前复测约 **7.2 GB**，低于 20 GB 上限。其他 `outputs/`、`.scratch/`、用户输入与历史基线未清理。
 - 失败原因是 C4/PKR 的 133-bin robust gamma reference 有少数组 support 低于 8，触发质量验证停止；未降低 `min_support`，未删除唯一失败审计，也未继续性能矩阵。
+
+## 2026-10-30 独立 H0 interrupted attempts
+
+用户授权恢复 H0 矩阵并清理无用数据后，先将 seed1935015 / +4 ns 的两次中断 attempt 压缩为可校验审查档，再删除精确对应的 raw attempt 目录。矩阵是 case-level retry：attempt001/002 的 raw 不能作为 runner 的断点继续输入，恢复会创建 attempt003；原始失败日志、配置、manifest 与已完成分支证据因此保留在压缩档中。
+
+| 删除的 raw attempt | 清理内容 | 压缩审查档 | SHA-256 |
+|---|---|---|---|
+| `outputs/r22_h0_engineering_post_review_20261029/raw/h0/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10/attempt_001/` | 72 个可重建 `.bin`，合计 3,939,007,872 bytes | `evidence/h0_checkpoint_20261030/interrupted_attempt_archives/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10__attempt_001_INTERRUPTED.zip`（412,531 bytes，164 included / 1 excluded） | `7110bf311bb1bb68c0d2bb3b72f8dec9ca459116aca1e64550d55ba4be73cc9e` |
+| `outputs/r22_h0_engineering_post_review_20261029/raw/h0/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10/attempt_002/` | 871 个生成二进制及 510 个内部 `.bin` symlink 路径，实际文件合计 9,841,040,440 bytes；未删除 CSI `.npy` | `evidence/h0_checkpoint_20261030/interrupted_attempt_archives/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10__attempt_002_INTERRUPTED.zip`（3,453,103 bytes，1,804 included / 1,309 excluded） | `cbd44572da8e39411c15c46fe2939c5dd1b5d4e3676c916478dd5f4969f625b4` |
+
+两个 ZIP 均通过 CRC 检查，归档器在删除源目录前逐项核验纳入文件的 SHA-256 与大小；matrix manifest 中的 attempt 记录包含 archive 路径、SHA 和 CRC 状态。attempt002 的紧凑 case manifest 保留完整 1,381 条 raw-cleanup 记录。attempt001 没有完整 case manifest；其 20,629-byte `raw_cleanup.json` 被归档器的规则排除，archive manifest 保留了该文件的 SHA/大小，具体逐文件 cleanup 记录未保留；本台账保留其准确总文件数和总字节数。
+
+此次释放 **13,780,048,312 bytes（约 12.83 GiB）** 可重建二进制数据。清理前文件系统可用约 7.1 GB，清理后约 20 GB。两份中断 ZIP、失败原因、branch/XML/日志和逐 case 分析汇总继续保留；29 个已完成 H0 case 的 compact ZIP 仍在本地 `outputs/.../archives/`，未全部复制进 Git。清理只针对上述两个 interrupted attempt，没有删除 29 个已归档 case、历史失败现场、配置或用户资料。
+
+## 2026-10-31 R22 H0 seed1935029 interrupted attempt
+
+- 保留：中断 attempt 的压缩审查档、外层运行 manifest、配置、逐分支审计、日志与 cleanup SHA/路径记录；归档通过 ZIP CRC 和纳入文件 SHA/大小校验。审查档：`docs/research/phase_r/R22/evidence/h0_checkpoint_20261030/interrupted_attempt_archives/h0__seed_1935029__vr_0__snr_20__delay_4ns__targets_0__periods_10__attempt_001_INTERRUPTED.zip`，SHA-256 `85fd6c32c8f66696a0bd92ec9ade3d2feeb2de3582d617a93a5fbc3b7907fa7f`。
+- 删除：精确 case 内 1257 个生成 `.bin` 路径（实际文件 787 个、内部 symlink 470 个），实际二进制 8,050,376,328 bytes；未发现 `.npy/.npz`。清理明细含逐路径 SHA-256，保存在归档的 compact manifest 中。
+- 原因：runner 已停止，case-level retry 不消费半成品；后续创建新 attempt。归档校验后才删除 attempt_001 raw 目录。
+- 本次操作完成后工作区文件系统可用空间：13,609,340,928 bytes。
+
+
+## 2026-10-31 R22 H0 matrix completed case compaction
+
+- 60 个冻结 H0 case 均完成 compact archive 校验；每个 case 的 compact ZIP 在本机 `outputs/r22_h0_engineering_post_review_20261029/archives/h0/`，总计 **180,896,331 bytes**。60 个 ZIP 中未发现 `.bin/.npy/.npz` raw-array members；每 case cleanup 记录保存在 archive compact manifest 中。
+- 60 个完成 case 共清理 **72,060 个生成 `.bin` 路径**、合计 **472,370,816,936 bytes**；其中 symlink 路径计入 path count，但不重复计入实际删除字节。未删除 CSI `.npy`（本矩阵未生成需保留/删除的 CSI map）。
+- 3 个 interrupted attempt（seed1935015/+4 ns attempt001/002；seed1935029/+4 ns attempt001）另清理 **21,830,424,640 bytes**。删除前先生成并验证审查 ZIP；索引和各 ZIP SHA 见 `h0_checkpoint_20261030/h0_interrupted_attempt_archive_index.json`。三次中断不构成独立实验 seed，最终每 case 只采用最新完成 attempt。
+- 本次合计清理生成 raw **494,201,241,576 bytes**。保留 60 个 compact ZIP、分析 CSV/manifest、30 对 Stage2 配对报告身份、3 个 interrupted archive 和清理账，待 ChatGPT 独立审查后按用户 20 GB 最终占用规则再清理本机 compact ZIP。
+- 最小可审查汇总已写入 `evidence/h0_final_20261031/`；完整 case ZIP 不随本次 GitHub 精简证据提交，避免上传重复/较大逐分支包。

@@ -1,6 +1,10 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
-> **最新状态（2026-10-29）：** 用户批准并完成 [R22-S1c 单组共同 OFF 相位 CUDA 反事实](support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)。SNR20/SNR30 support gap 从18缩小到1，说明该组对 CSI range-phase 向量敏感；目标污染和任务收益仍未证实。V2 screening 继续保持 `GATE_FAILED / INCOMPLETE`，等待独立科研审查。
+> **最新状态（2026-10-31）：** 冻结的 R22 H0 矩阵已按 seed-level case retry 恢复并完成：30 个独立 seed、60/60 个唯一 0/+4 ns case，分析状态 `COMPLETE_EVALUABLE`。最终结果、配对杂波/噪声审计和精简审查证据见[最终报告](18_h0_false_alarm_checkpoint_20261030.md)及[最终证据包](evidence/h0_final_20261031/)；可直接交给 ChatGPT 的固定审查提示词见 [V4](CHATGPT_REVIEW_PROMPT_V4.md)。
+
+> **仍有效的 Screening 门控：** R22 target-present V2 screening 仍为 `GATE_FAILED / INCOMPLETE`。seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON reference support=7，小于冻结的8；S1c 只表明该组选定支持数对 CSI phase vector 敏感，未证明唯一物理根因或任务收益。H0 无目标矩阵不解除该门控。详见 [S1c 结果](support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)。
+
+> **历史检查点（2026-10-30）：** 当时 29/60 case 完成，seed1935015/+4 ns 的 attempt001/002 尚未完成；其归档与检查点数据保留在[历史证据目录](evidence/h0_checkpoint_20261030/)。最终终态以 2026-10-31 报告及其 matrix audit summary 为准。
 
 > **最新 V2 状态（2026-10-28 11:34:54 UTC）：** screening matrix 为 `GATE_FAILED` 并已停止：17 个通过，1 个方法级不可评估 case，4 条更早中断 attempt；无活动 case。根因是 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 的 C4 Mode-B ON robust reference 有一组 support=7 < 8。详情、失败 ZIP 和当前审查入口见 [05 资源与执行记录](05_resource_and_execution_plan.md) 与 [ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。后续旧的“screening 正在执行”提示属于较早 checkpoint。
 
@@ -29,6 +33,8 @@
 15. [V2 六 seed 工程结果](15_v2_six_seed_engineering_results_20261028.md)：六个 seed、12 个最终有效 CUDA Production case 的描述统计、审计边界和资源门；显式记录 seed1930101 与后续 seed 的 Stage2 binary 版本差异。
 16. [V2 六 seed ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V3.md)：用于审查总体科研价值、六 seed 结果、Stage2 Rmin 精度修复及是否需要重跑 seed1930101；精简审查包位于 `outputs/r22_chatgpt_review_evidence_v3_six_seed_20261028.zip`。
 17. [V2 screening checkpoint ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)：可直接复制给 ChatGPT，要求先读取本次研究总纲并核查最新矩阵 manifest、运行证据和总体科研价值；本地 `outputs/` 中的 manifest、日志与 case ZIP 需一并附上。
+18. [R22 H0 检查点与最终报告](18_h0_false_alarm_checkpoint_20261030.md)：保留 2026-10-30 的 29/60 检查点，并记录 2026-10-31 恢复后的 60/60 最终结果。
+19. [V4 ChatGPT 独立科研审查提示词](CHATGPT_REVIEW_PROMPT_V4.md)：固定审查 commit、优先读取总纲并开展阶段正确性与总体科研价值双层审查。最终 CSV、manifest、矩阵审计与清理记录见 [H0 最终证据包](evidence/h0_final_20261031/)；60 个 compact case ZIP 与 raw IQ 未上传，限制已写入提示词。
 
 ## 关键证据
 
@@ -43,6 +49,8 @@
 - [V1A seed1930101 精简工程审查证据](evidence/extension_engineering_v1a/seed1930101/README.md)：Stage2 杂波报告、实际 XML/log、CSI tap、CFAR geometry、robust gamma failure rows、case/matrix 摘要与 cleanup ledger。
 - [清理台账](evidence/cleanup_ledger.md)
 - [2026-10-28 历史大数组清理记录](14_storage_cleanup_20261028.md)
+- [2026-10-30 H0 检查点审查证据](evidence/h0_checkpoint_20261030/README.md)
+- [2026-10-31 H0 最终精简审查证据](evidence/h0_final_20261031/README.md)
 
 ## 历史 preflight 结果边界（2026-10-27）
 

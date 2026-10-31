@@ -133,3 +133,36 @@ Stage2 也必须按实际 simulator variant 计数，不能只报 594 个场景�
 - 失败压缩审查包：`outputs/r22_full_v2_compact/failures/screening/screening__seed_1932001__vr_2d5__snr_30__delay_4ns__targets_20__periods_10__GATE_FAILED_attempt_001.zip`，6,729,552 bytes，SHA-256 `be76237104d6c6f11f1681de556e49ecad5e694658e8d5c94ce3e7c05850890b`，archive-manifest SHA-256 `cc21231237d14b6dd8e1115e0ea891f6ad2361d2105dee95f21f4032cd12916a`；包含 2,284 个记录项，ZIP CRC 与纳入文件 SHA/大小已由归档器校验。失败 raw case 目录仍保留；runner 已记录清理 1,781 个可再生数组、`11,320,004,032` bytes，归档检查确认剩余 `.bin/.npy/.npz` 为 0。未触碰其他项目数据。
 - 本阶段停在 screening gate。未启动其余 screening、180 confirmatory、48 dense、6 bridge 或 60 H0 cases；未降低任何质量门，未修改算法、冻结配置或研究总纲，未训练 AI。后续只能在独立审查后决定：将 C4 Mode-B 高 SNR 支持不足作为方法能力边界，或提出保持 `min_support=8` 的新分组/目标保护 amendment；若需修改冻结设计，先冻结新版本并重新评估受影响 case，不从当前失败结果直接继续矩阵。
 - 20 GB 是汇总、ChatGPT 审查和最终清理后的上限。当前 raw/compact 中间产物继续保留到审查完成；本次 gate failure 不触发项目级清理。
+
+## 2026-10-30 独立 H0 矩阵执行检查点
+
+- 本次只执行 V2 冻结设计的独立 H0 子矩阵：30 个 seed、0/+4 ns 配对、无目标、20 dB、10 周期、beam 50，共 60 个唯一 case。研究总纲保持不变；screening 原有 `GATE_FAILED` 未解除，也未启动 target Pd 确认性矩阵。
+- 预恢复检查点有 29/60 个唯一 case 完成并通过 compact archive 校验（14 个完整 0/+4 ns seed 配对，另有 seed1935015 的 0 ns）。seed1935015 的 +4 ns 有两个未完成 attempt：attempt001 在 Stage2/盲校正输入准备后中断；attempt002 有 51 个 Production branch 目录，`R22_D3_Huber_B_ON_TO` 没有终态 branch manifest，且未生成最终 `evaluation/`。两次中断证据已压缩到 [H0 检查点证据目录](evidence/h0_checkpoint_20261030/)，包含 29-case 部分汇总、archive index 和两份中断 ZIP；raw `.bin` 已按[清理台账](evidence/cleanup_ledger.md)删除。
+- 因果配对审计已对 14 个完整 seed 配对逐项比较 Stage2 杂波/噪声字段：面积杂波模型、注入 packet/sample 数、测得面积功率、地距窗、时间相关统计和噪声功率均完全相同；14 对无字段差异。面积功率范围为 `0.0222964064483–0.023308819045`，噪声功率范围为 `0.000999645705034–0.00100010972546`。这些仅是部分矩阵的配对有效性检查，不构成完整 30-seed H0 结论或虚警改善声明。
+- 运行身份：源码 commit `a688ca52616cc380b07810d4f8fbd79ed73d46bc`、Stage2 SHA-256 `47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f`、Production SHA-256 `d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`、本机 Native CUDA、`USE_COREX=false`。第一次暂停时文件系统可用 7.1 GB；完成上述定点归档清理后回升到约 20 GB。20 GB 仍是 ChatGPT 审查完成后的最终项目占用上限，不是本机卷可用空间指标。
+- 用户随后明确要求在外部训练仍运行时恢复矩阵。启动前 RTX 3050 Laptop GPU 为 4096 MiB 总显存、3102 MiB 已用、97% 利用率、86°C、P0、53.15 W；外部 Python 训练进程占用约 2610 MiB，观测可用约 994 MiB。按用户指示，runner 已启动 attempt003；当前活动目录为 `outputs/r22_h0_engineering_post_review_20261029/raw/h0/h0__seed_1935015__vr_0__snr_20__delay_4ns__targets_0__periods_10/attempt_003/`。本次只记录设备状态，不作性能基准结论。
+- 矩阵 manifest：`outputs/r22_h0_engineering_post_review_20261029/matrix/matrix_manifest.json`。`--resume --retry-interrupted` 会校验并跳过 29 个已归档 case，保留旧 attempt 记录，并为中断 case 创建新 attempt；不支持在单个 Production branch 中间续算。启动命令如下：
+
+```bash
+python3 scripts/phase_r/r22_experiment_matrix.py \
+  --design docs/research/phase_r/R22/config/r22_extension_experiment_design_v2_range_roi.json \
+  --phase h0 \
+  --output-root outputs/r22_h0_engineering_post_review_20261029/matrix \
+  --raw-output-root outputs/r22_h0_engineering_post_review_20261029/raw \
+  --compact-archive-root outputs/r22_h0_engineering_post_review_20261029/archives \
+  --stage2-binary build/simulate_stage2_statistical \
+  --production-binary build/GMTI_pipe_core \
+  --resume --retry-interrupted
+```
+
+- 只有 60/60 case 终态已归档、30 个独立 seed 的冻结条件完整、分析 manifest 为 `COMPLETE_EVALUABLE` 后，才报告 H0 seed-level 汇总与配对区间。任何 TO target-only gap 按冻结评价规则记录，不得通过放宽门槛修补。GPU 运行、H0 分析、最终 ChatGPT 审查和审查后的空间清理状态分别报告。
+
+
+## 2026-10-31 H0 matrix resumed and completed
+
+- 按冻结命令执行 `--resume --retry-interrupted`；matrix 最终状态 `COMPLETED`，60 个唯一 case 全部终态归档，63 条 attempt 记录中包含 3 个已归档的 interrupted attempt。此次恢复新执行了 seed1935029/+4 ns attempt002，以及 seed1935030 的 0 ns 与 +4 ns attempt001；57 个已完成 case 按 matrix/archive SHA 校验后跳过。runner 是 case-level retry，不是 branch-level checkpoint。
+- H0 source commit `a688ca52616cc380b07810d4f8fbd79ed73d46bc`，Stage2 SHA `47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f`，Production SHA `d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`，Native CUDA、`USE_COREX=false`。恢复时外部训练 Python 进程 PID31526 约占 1650 MiB；RTX3050 Laptop GPU 启动前总显存4096 MiB、已用2231 MiB，矩阵期间抽样空闲约393–745 MiB、温度50–61°C。runner 退出码0；不以此报告性能基准。
+- 60 个 `A0_ON` Stage2 area gate 全部有效；每 case 1,300 packets / 6,508,782 samples。0/+4 ns 的30个同 seed 配对在面积功率、实测噪声、相关性、power CV、packet/sample计数和几何字段上30/30完全相同。完整数值、Stage2 report SHA 与case/archive SHA见[最终审查包](evidence/h0_final_20261031/)。
+- 10,000次 seed-clustered bootstrap 分析 `COMPLETE_EVALUABLE`：60/72个适用条件汇总完整，24/36个适用配对汇总完整；其余均是零时延冻结不适用项。H0 是无目标 CUT-hit fraction，不等于系统Pfa或目标Pd，不改变 target-present screening 的 `GATE_FAILED`。
+- raw 清理：60个完成case逐 case compact/archive 后删除72,060个生成 `.bin` 路径，合计472,370,816,936 bytes；3个中断attempt另清理21,830,424,640 bytes。60个 compact ZIP 合计180,896,331 bytes，当前仍留本机待审查后按用户上限清理。清理审计见 [cleanup ledger](evidence/cleanup_ledger.md) 与 [raw cleanup summary](evidence/h0_final_20261031/h0_raw_cleanup_summary.json)。
+- 状态裁决：H0 `IMPLEMENTED/EXECUTED/EVALUABLE=true`，`PERFORMANCE_VERIFIED=false`；Screening 仍 `GATE_FAILED`，`AI_ENTRY_GATE=FAIL`。下一步仅提交 ChatGPT 双层审查，不自动启动新实验。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未改变。

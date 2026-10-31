@@ -189,3 +189,15 @@
 - **因果边界：** 可评估的是这一固定输入组的 support 对 CSI phase 向量替换敏感；该介入解释了大部分观测到的组间 support 差。不能唯一判定 ON phase 向量为何偏离 OFF（目标分量、CSI估计过程或交互），不证明目标污染唯一根因；paired OFF 是 privileged diagnostic reference，不代表在线部署能力。没有 task-Pd/Pfa、幅相保持、SCNR或速度/方位性能比较。
 - **方向与停止：** R22 screening 仍 `GATE_FAILED / INCOMPLETE`；本次 `PERFORMANCE_VERIFIED=false`。不降低门槛、不修订算法、不恢复全矩阵、不训练AI。先提交 [S1c 结果](phase_r/R22/support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)作 ChatGPT 独立双层审查，再由用户决定是否开展更窄的 ON CSI phase 误差来源诊断。
 - **来源：** [S1c 报告](phase_r/R22/support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)、[紧凑 CUDA 证据包](phase_r/R22/support_failure_diagnostic/evidence/s1c/v2/)、[首轮失效说明](phase_r/R22/support_failure_diagnostic/evidence/s1c/ATTEMPT1_INVALIDATION.md)。
+
+
+## 2026-10-31｜R22 H0：冻结的 30-seed 独立虚警侧矩阵完成
+
+- **决策编号与范围：** `D-2026-10-31-R22-H0`。按用户指示恢复冻结的 case-level matrix 并清理已归档 raw 数组；没有改变设计、门槛或算法。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 保持不变。
+- **执行身份：** 分支 `codex/unknown-system-error-next-stage`；矩阵/Production 执行源码 commit `a688ca52616cc380b07810d4f8fbd79ed73d46bc`；seed-clustered 分析脚本随本次审查交付提交提供；本机 Native CUDA，`USE_COREX=false`。Stage2 SHA-256 `47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f`；Production SHA-256 `d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`。
+- **完成状态：** 30 个独立 seed、60/60 唯一 0/+4 ns case；matrix `COMPLETED`，analysis `COMPLETE_EVALUABLE`。每 seed 按 `observed_cut_hit_count / valid_cut_count` 计算经验 CUT-hit fraction；10,000 次 seed-level bootstrap，配对重抽样保留 seed 对应关系。60/72 方法/条件摘要、24/36 配对摘要可评价，其余为 0 ns 不适用项。
+- **杂波与可比性：** 60 个 `A0_ON` case 均通过面积杂波 gate，每 case 1,300 packets、6,508,782 samples；30/30 seed 对的面积功率、几何、相关性和噪声审计字段匹配。结果只覆盖无目标的经验 CUT-hit fraction，不是系统 Pfa 或 target Pd；不同 CUT 区域方向并不一致。
+- **执行与清理：** 恢复按 case 创建新 attempt，未实现单个 Production branch 的内部断点续算。Matrix 保留 63 条 attempt 记录，3 个中断现场有 compact audit archive。清理 72,060 个完成 case 生成路径（472,370,816,936 bytes）及 3 个中断 attempt（21,830,424,640 bytes）；60 个 compact case ZIP 共 180,896,331 bytes 暂留本机供独立审查，未上传 GitHub。外部训练期间 GPU 高负载，最低可用显存约 393 MiB；无 OOM/CUDA 错误，不将设备观察当作性能基准。
+- **裁决：** H0 `IMPLEMENTED=true`、`EXECUTED=true`、`EVALUABLE=true`；GMTI target-task `PERFORMANCE_VERIFIED=false`。R22 target-present screening 仍 `GATE_FAILED / INCOMPLETE`（C4 Mode-B ON support=7<8），H0 不解除门控。`AI_ENTRY_GATE=FAIL`；未知误差目标任务收益、低速目标和复杂杂波优先级仍未由本 H0 证明。
+- **下一步与停止：** 仅提交精简证据和固定 commit 给 ChatGPT 完成双层独立审查；审查返回前不启动实验。审查结束后再按 cleanup ledger 清理本地 case ZIP，并核验项目目录低于 20 GB。没有修改研究总纲、没有启动 AI 或其他新研究任务。
+- **证据：** [H0 最终报告](phase_r/R22/18_h0_false_alarm_checkpoint_20261030.md)、[V4 独立审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT_V4.md)、[最终精简证据](phase_r/R22/evidence/h0_final_20261031/README.md)。
