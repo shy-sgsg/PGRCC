@@ -80,3 +80,10 @@
 - **Git 保留替代：** `docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/` 中约3.2 MB 紧凑证据，包含7分支运行 XML、日志、manifest、selected-cell 复数值、CSI sidecar、CFAR/CSI tap 摘要、S1d support/目标距离格交叉结果，以及 S1b ON/OFF/TO 的9个紧凑 trace/phase-vector 源文件和逐文件 SHA-256。128个登记文件已逐项核验；原始 Stage2 `.bin` 不在 GitHub 包内。
 - **审查后操作：** 删除三个 S1d 本地目录：`outputs/r22_s1d_period_corrected_crossover_20261031/`（约8.2 MB）、`outputs/r22_s1d_phase_vector_crossover_20261031/`（约2.5 MB，周期错配初试）和 `outputs/r22_s1d_phase_vector_self_controls_20261031/`（约2.5 MB，周期错配对照）。再评估较大的历史输入/结果目录：`outputs/r22_s1_c4_support_replay_20261029/`（约11 GB）、`outputs/r22_s1c_shared_off_phase_period5_20261029/`（约251 MB）及 `outputs/r22_s1b_phase_boundary_20261029/`（约18.7 MB）；这些目录在 ChatGPT 审查结束前保留，以便需要时核对原始输入、完整 Production 轨迹和失败现场。审查后按用户“只保留必要记录/配置/审计和高价值结果、最终项目占用小于20 GB”的要求清理可再生与重复产物，保留紧凑证据、配置、脚本和清理账，再复核实际项目体积。审查前不删除这些运行现场。
 - **当前容量快照：** `du -shL .` 估算约20 GB，`df -h .` 可用6.7 GB；扫描遇到既有 broken symlink，因此此值只作近似，不作为最终验收。审查后执行清理并重新测量。
+
+## 2026-10-31 R22-S1e 当前 Mode-B ON/OFF/TO 诊断
+
+- **保留至本轮 ChatGPT 审查结束：** `outputs/r22_s1e_current_modeb_role_triplet_20261031/`，当前约4.0 MB；包含3个当前 Mode-B Native CUDA Production 分支及原始逐格/CSI/CFAR运行记录。Stage2 输入为指向既有49,204,480-byte role文件的符号链接，没有复制新的大 IQ。
+- **Git 紧凑替代：** `support_failure_diagnostic/evidence/s1e/` 含72个登记文件、约1.5 MB；逐文件保留 SHA/大小与源路径，包括runtime XML、branch manifest、日志、phase trace、complex-cell audit、CSI tap、CFAR geometry、三个 Stage2 role 配置/报告/背景映射及A0_ON杂波生成证据。未纳入原始 Stage2 `.bin` 和全量 target truth CSV。
+- **审查后清理：** 若 ChatGPT 确认紧凑证据足以支持审查，删除上述 S1e 本地输出目录，保留 Git 紧凑证据、复现脚本、分析表和清理记录。历史 S1b/S1c/S1d 输入与完整 Production 输出仍按前一节待审范围处理；删除前重新确认无其他未归档证据依赖。
+- **最终空间门：** 本阶段尚未完成审查后清理，项目最终 `<20 GB` 尚未验证；中间占用允许超过该值。审查完成后再清理可再生/重复 raw 数据，并以实际 `du -shL` 与 symlink-aware 文件统计复核。

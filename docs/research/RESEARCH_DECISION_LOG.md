@@ -209,3 +209,12 @@
 - **直接证据：** 7个 Production 分支均返回0；选定组为 beam50/az52/range1065–1197，冻结 `min_support=8`、phase residual `0.35 rad`、133-bin 不变。SNR20自身ON、SNR30自身ON、SNR20向量应用于ON20、OFF向量应用于ON20、SNR20向量应用于ON30、OFF向量应用于ON30、OFF自身拟合的 support 分别为25、7、25、21、11、22、55。逐cell按 Production 输入复数值重算的支持数与 CUDA 记录一致。
 - **裁决边界：** SNR30 的 ON 观测在交叉应用 SNR20 ON / paired OFF 相位向量后 support 由7变为11/22，证明该固定组对向量来源敏感。保留集合并不等同，SNR30 native 7格与 OFF向量22格无交集。该反事实不能识别 ON CSI 相位变化的唯一物理原因；paired OFF 是 privileged diagnostic reference。无 Detection、Pd/Pfa、SCNR、目标保持或估计误差比较，`PERFORMANCE_VERIFIED=false`。
 - **状态与下一步：** R22 target-present Screening 仍 `GATE_FAILED / INCOMPLETE`；matrix runner 明确拒绝对该状态执行 `--resume`，本次没有续跑矩阵或跳过失败 case。先提交 [S1d 结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)及紧凑 Production 证据供 ChatGPT 双层审查。审查前不扩大实验、不改 C4、不训练 AI；审查完成后按清理台账删除本地无效周期试跑和已归档可再生输出，并复核项目占用低于20GB。
+
+## 2026-10-31｜R22-S1e：当前 Mode-B 配对 ON/OFF/TO 相位与复数闭合诊断
+
+- **决策编号与总纲：** `D-2026-10-31-R22-S1E`。用户授权在 GPU 并发使用期间运行一个最小配对三角色诊断；不恢复 target-present matrix、不改研究总纲。总纲 blob 仍为 `e637e3769bde7814298ff012d0f42301884e2985`。
+- **执行身份：** 实验输入/报告 HEAD `9bb8c351d2d4ca8910a92f079d239a74ccbdddb2`；运行时 runner SHA-256 `f1aa85ec70454932622145bdb0278273e524b612af5fb4378abdcbb990dbae4f`。Production source commit `461fbd949ea7c024c28f30e7aea36ae9642a4456`，Native CUDA Release、`USE_COREX=OFF`，binary SHA-256 `c7db0d12f930b297851f1b3b53f3e56de5cafef0fa90394595de0b8babf7d7c9de`。复用 seed1932001/SNR30/+4 ns 的 GMTI05 配对输入，未重跑 Stage2。
+- **执行与评价：** ON/OFF/TO 三个当前 Mode-B Production 分支均 return code 0。C4 support 为7/55/14，Production Gamma 与 selected-cell 独立重算一致；ON 继续 `NOT_EVALUABLE`，冻结门槛8未降低。CFAR geometry 每支有527,280 valid CUT，false counts 因需要 truth join 均不可评价。
+- **机制证据：** 相位校正前 `ON−OFF−TO` F1/F2 相对 L2 为0.00937/0.01806；各角色 CSI range-phase 校正后 F2残差为0.78770。TO-only 能量约71%落在目标真值距离格，但 ON/OFF phase vector差在目标格均值1.727 rad，其他格1.833 rad。支持角色相关 CSI phase correction是近端机制；不唯一判定目标污染、全局 CSI 响应或目标/背景交互各自贡献。没有 GMTI task-performance 结论。
+- **裁决与下一步：** `IMPLEMENTED=true`、`EXECUTED=true`、`EVALUABLE=true`（仅固定组机制指标）、`PERFORMANCE_VERIFIED=false`。R22 Screening 保持 `GATE_FAILED / INCOMPLETE`，`AI_ENTRY_GATE=FAIL`。唯一下一步是提交 S1e 固定快照供 ChatGPT 双层审查；审查返回前不再启动实验。审查后按 cleanup ledger 清理可再生本地输出，并实测项目占用是否低于20 GB。
+- **证据：** [S1e 结果报告](phase_r/R22/support_failure_diagnostic/S1E_MODEB_ROLE_TRIPLET_RESULT.md)、[精简运行证据](phase_r/R22/support_failure_diagnostic/evidence/s1e/)和待发布的固定快照审查提示词。
