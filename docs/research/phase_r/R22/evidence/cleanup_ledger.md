@@ -77,6 +77,6 @@
 ## 2026-10-31 R22-S1d 审查后的待清理项
 
 - **继续保留到 ChatGPT 审查结束：** `outputs/r22_s1d_period_corrected_crossover_20261031/`（约8.2 MB，period-correct 的7分支原始运行归档）、`outputs/r22_s1d_phase_vector_crossover_20261031/`（约2.5 MB，周期错配的无效初试）及 `outputs/r22_s1d_phase_vector_self_controls_20261031/`（约2.5 MB，周期错配的无效对照）。无效目录不会用于结果或提交，保留是为了审查期间可核对失败更正过程。
-- **Git 保留替代：** `docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/` 中约2.6 MB 紧凑证据，包含7分支运行 XML、日志、manifest、选中组输入单元、CSI sidecar、CFAR/CSI tap 摘要、support 结果、目标距离格事后交叉表和逐文件 SHA-256。115个登记文件在提交前逐项验证。
-- **审查后操作：** 删除上述三个 S1d 本地输出目录；然后按用户“只保留必要记录/配置/审计和高价值结果、最终项目占用小于20 GB”的要求，继续清理可再生及重复的 `outputs/` 产物，保留对应的高价值精简审查包、配置、脚本和清理账，并复核实际目录体积。审查前不删除这些运行现场。
+- **Git 保留替代：** `docs/research/phase_r/R22/support_failure_diagnostic/evidence/s1d/` 中约3.2 MB 紧凑证据，包含7分支运行 XML、日志、manifest、selected-cell 复数值、CSI sidecar、CFAR/CSI tap 摘要、S1d support/目标距离格交叉结果，以及 S1b ON/OFF/TO 的9个紧凑 trace/phase-vector 源文件和逐文件 SHA-256。128个登记文件已逐项核验；原始 Stage2 `.bin` 不在 GitHub 包内。
+- **审查后操作：** 删除三个 S1d 本地目录：`outputs/r22_s1d_period_corrected_crossover_20261031/`（约8.2 MB）、`outputs/r22_s1d_phase_vector_crossover_20261031/`（约2.5 MB，周期错配初试）和 `outputs/r22_s1d_phase_vector_self_controls_20261031/`（约2.5 MB，周期错配对照）。再评估较大的历史输入/结果目录：`outputs/r22_s1_c4_support_replay_20261029/`（约11 GB）、`outputs/r22_s1c_shared_off_phase_period5_20261029/`（约251 MB）及 `outputs/r22_s1b_phase_boundary_20261029/`（约18.7 MB）；这些目录在 ChatGPT 审查结束前保留，以便需要时核对原始输入、完整 Production 轨迹和失败现场。审查后按用户“只保留必要记录/配置/审计和高价值结果、最终项目占用小于20 GB”的要求清理可再生与重复产物，保留紧凑证据、配置、脚本和清理账，再复核实际项目体积。审查前不删除这些运行现场。
 - **当前容量快照：** `du -shL .` 估算约20 GB，`df -h .` 可用6.7 GB；扫描遇到既有 broken symlink，因此此值只作近似，不作为最终验收。审查后执行清理并重新测量。
