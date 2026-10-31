@@ -86,3 +86,13 @@ python3 scripts/phase_r/analyze_r22_s1c_period5_shared_off_phase.py \
 runner 默认使用本机已构建 binary `/tmp/pgrcc_r22_s1b_cuda_20261029/GMTI_pipe_core`；Stage2 simulator 只作存在性检查，本轮没有启动 Stage2。执行 binary 仍要求 SHA 与 runner 内冻结值一致。
 
 **停止点：** S1c 已完成。下一步先做 ChatGPT 独立科研审查，再决定是否针对 ON 自估 CSI range-phase 的差异做更窄的目标/背景机制实验；本报告不自动启动该后续实验，也不恢复 R22 大矩阵。
+
+## 2026-10-31 补记：目标距离坐标核对
+
+对 S1c manifest 所绑定的 SNR30 `period_0004.bin`（SHA-256 `d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831`）重新核对其 Stage2 真值后，确认 `R22_T010` 在 period 4、beam 50 的 `range_bin/expected_bin` 为 **1076/1077**，距离约 85,490.16 m。S1c 诊断组覆盖 range 1065–1197；同组还覆盖 T004（1124–1125）、T012（1162–1164）、T017（1130–1131）和 T019（1102–1103）。因此，先前审查文字将 T010 标为 range bin 1175 的说法不符合这份场景真值；1175 是组内普通距离单元，不是 T010 的真值距离单元。
+
+相邻 S1b `A1_TO` target-only 分支的 `production_calibration_selected_cells.csv` 在 GMTI05、beam 50、`az_index=52`、range 1076 记录到 `|F1|=29.5312`、`|F2|=127.0090`。该单元与 T010 真值距离一致，支持目标响应进入本次参考组/行的判断。S1c 相位逐 bin 表中，T010 的 1076、1077 两格在 SNR20 baseline 均被保留，在 SNR30 baseline 均被剔除。
+
+这些证据修正了目标距离坐标，并确认目标响应与失效参考组存在空间重合；但 target-only 分支不是 S1c 的 ON 输入，且该重合本身不能证明目标响应造成了全部 25→7 的支持数下降。S1c 已证明支持数对 CSI range-phase 向量替换敏感；ON 相位差异的来源及其对支持下降的具体贡献仍未唯一归因。未降低门槛、未更改方法、未启动新 CUDA 实验。独立审查完成前继续保持停止状态。
+
+审计来源：S1c `s1c_manifest.json` 与 `s1c_period5_phase_bin_diagnostics.csv`；Stage2 `A1_ON/truth/moving_target_truth.csv`（SHA-256 `5bad1373ffcf3e7b4ccf7ffa231cae6aae567fb12f707473919b12c35ce12f1e`）；S1b target-only `production_calibration_selected_cells.csv`（SHA-256 `f873bfe687b81a92177c4cd1bb3e8a54d8d8d23e58621b4cec08db0536636c5f`）。逐 bin 表 SHA-256 为 `b2fe117d454a1a2f446e97949a982b484d464e47003779c92e058d53489c2095`。
