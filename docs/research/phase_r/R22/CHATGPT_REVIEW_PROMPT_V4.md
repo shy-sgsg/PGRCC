@@ -1,6 +1,6 @@
 # PGRCC R22 H0 完整矩阵独立科研审查请求（V4）
 
-本提示词用于审查固定 GitHub 快照。提交完成后，将 `<REVIEW_COMMIT_SHA>` 替换为报告与精简证据所在提交的完整 40 位 SHA；不要用远端最新 HEAD 代替该快照。
+本提示词已绑定固定 GitHub 审查快照 `8479e0e93eb91d72c2a80979795a42d51e867222`。请将本文件链接与该 commit 链接一并交给 ChatGPT；不要用远端最新 HEAD 代替该快照。
 
 ---
 
@@ -10,7 +10,7 @@
 
 分支：`codex/unknown-system-error-next-stage`
 
-审查 commit：`<REVIEW_COMMIT_SHA>`
+审查 commit：`8479e0e93eb91d72c2a80979795a42d51e867222`
 
 请首先读取**审查 commit 对应版本**的 `docs/research/RESEARCH_MASTER_PLAN.md`，理解 PGRCC 的研究主题、总体 GMTI 目标、核心科学问题、研究内容、总体思路和长期技术路线。随后按顺序读取：
 
