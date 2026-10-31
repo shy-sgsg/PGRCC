@@ -4,7 +4,7 @@
 
 ## 状态身份
 
-- **2026-10-31 最新更新：** R22-S1d 已完成 period-correct GMTI05 的7分支 Native CUDA phase-vector crossover。选定失败组的 SNR30 support 对 CSI 向量来源敏感（自身 ON=7，SNR20 ON=11，paired OFF=22），但没有任务性能验证，也没有唯一确定 ON 相位差异的物理来源。S1d 独立审查待提交；R22 target-present matrix 仍为 `GATE_FAILED / INCOMPLETE`。详见 [S1d 结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md) 和[证据包](phase_r/R22/support_failure_diagnostic/evidence/s1d/)。
+- **2026-10-31 最新更新：** R22-S1d 已完成 period-correct GMTI05 的7分支 Native CUDA phase-vector crossover。选定失败组的 SNR30 support 对 CSI 向量来源敏感（自身 ON=7，SNR20 ON=11，paired OFF=22），但没有任务性能验证，也没有唯一确定 ON 相位差异的物理来源。固定快照审查提示词已形成；R22 target-present matrix 仍为 `GATE_FAILED / INCOMPLETE`。详见 [S1d 结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)、[证据包](phase_r/R22/support_failure_diagnostic/evidence/s1d/)和[ChatGPT 独立审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT_S1D_20261031.md)。
 - R18 执行源码版本：`014352ace1c4ad0bade0d759a099a47fe9ecfaa9`（工作分支 `codex/unknown-system-error-next-stage`）；完整阶段报告随原交付提交。
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；本次 H0 工作未修改总纲。
 - 本状态整理日期：2026-10-31。

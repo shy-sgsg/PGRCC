@@ -55,6 +55,7 @@ S1d 首轮的两次试跑使用了完整十周期 sidecar，与 GMTI05 所需的
 - `EVALUABLE`：该固定组的相位来源干预、support count、成员集合和生产记录可交叉核验；更广的物理根因不可唯一评估。
 - `PERFORMANCE_VERIFIED=false`：没有 GMTI 任务级性能对照或统计验证。
 - 精简审查证据：[S1d evidence](evidence/s1d/)，112个登记文件，逐文件大小和 SHA-256 已复核；入口为 [`s1d_manifest.json`](evidence/s1d/s1d_manifest.json)、[`s1d_analysis.json`](evidence/s1d/s1d_analysis.json)、[`s1d_support_summary.csv`](evidence/s1d/s1d_support_summary.csv) 和 [`evidence_manifest.json`](evidence/s1d/evidence_manifest.json)。为通过 Git whitespace 检查，GitHub 副本的文本日志/CSV 统一 LF 并去掉行尾空格；manifest 同时保留这些文件的原始 source SHA 和字节数。本机原始输出没有改动。
+- **复现限制：** GitHub 精简包含选定组逐格 F1/F2、运行 XML/日志和身份 manifest，但没有原始 Stage2 `.bin` IQ；可独立重算选定组 support，不能从该 GitHub 快照端到端重放 Production 或独立重算输入文件内容。
 - 本地完整运行目录：`outputs/r22_s1d_period_corrected_crossover_20261031/`，约8.2 MB；紧凑 Git 证据约2.2 MB。高价值审计证据已提交后，本地完整输出及两次无效试跑在 ChatGPT 审查完成后按清理台账移除。
 - 矩阵恢复：[`r22_experiment_matrix.py`](../../../../../scripts/phase_r/r22_experiment_matrix.py) 对 `GATE_FAILED` manifest 显式拒绝 `--resume`。因此没有尝试重启矩阵；S1d 是单独批准的诊断实验，不改变该矩阵状态。
 - 执行命令：

@@ -38,7 +38,7 @@
 18. [R22 H0 检查点与最终报告](18_h0_false_alarm_checkpoint_20261030.md)：保留 2026-10-30 的 29/60 检查点，并记录 2026-10-31 恢复后的 60/60 最终结果。
 19. [V4 ChatGPT 独立科研审查提示词](CHATGPT_REVIEW_PROMPT_V4.md)：固定审查 commit、优先读取总纲并开展阶段正确性与总体科研价值双层审查。最终 CSV、manifest、矩阵审计与清理记录见 [H0 最终证据包](evidence/h0_final_20261031/)；60 个 compact case ZIP 与 raw IQ 未上传，限制已写入提示词。
 20. [S1c 共同 OFF phase 结果](support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)、[目标重合交叉表](support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)与[S1c 补充证据独立审查提示词](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1C_20261031.md)：固定审查到明确 commit，评估 phase-vector 干预、目标坐标/响应及当前因果解释边界。
-21. [S1d phase-vector crossover 结果](support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)与[紧凑 Production 证据](support_failure_diagnostic/evidence/s1d/)：复核 period mapping、7个 CUDA 分支、门槛重算和支持集合变化；独立审查提示词在结果证据提交后固定 commit。
+21. [S1d phase-vector crossover 结果](support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)、[紧凑 Production 证据](support_failure_diagnostic/evidence/s1d/)与[固定快照 ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_S1D_20261031.md)：固定审查到 `781bf3d96bb327a423eab944ce09a13a65c85ad9`，检查 S1d 执行正确性、S1c/S1d 因果边界及对整体 GMTI 方向的价值。
 
 ## 关键证据
 
