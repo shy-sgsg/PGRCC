@@ -2,7 +2,7 @@
 
 > **最新执行状态（2026-10-28 11:34:54 UTC）：** V2 screening runner 因 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 的 C4 Mode-B ON reference support gate `7 < min_support=8` 而停止，matrix `GATE_FAILED`。此前“正在执行”的文字是较早 checkpoint；当前根因与失败 ZIP 见 [05](05_resource_and_execution_plan.md)。
 
-> **状态更新（2026-10-28）：** 本报告主体记录 V2 全矩阵启动前的历史工程 pilot；其中“没有执行预注册 screening matrix”仅描述当时状态。V2 screening 已恢复运行：seed1932001 的 0 ns / +4 ns 配对 case 均通过单 case 门，但仅作可行性证据，不能作统计性能结论。其余冻结 screening 正在执行；最新矩阵、日志和活动 case 见[资源和执行记录](05_resource_and_execution_plan.md)及[R22 导航](README.md)。独立审查提示词见[ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+> **历史状态快照（2026-10-28 11:16 UTC，随后被 gate 失败更新）：** 本报告主体记录 V2 全矩阵启动前的历史工程 pilot；其中“没有执行预注册 screening matrix”仅描述当时状态。11:16 时 V2 screening 已恢复运行，seed1932001 的0 ns / +4 ns配对 case均通过单 case门；该检查点随后于11:34:54 UTC因 C4 Mode-B ON support=7<8 停止。当前17个 case通过、1个 gate失败、270个未开始；当前 matrix manifest和审查入口见[资源与执行记录](05_resource_and_execution_plan.md)及[S1e独立审查请求](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1E_20261031.md)。早期状态不能作为当前运行状态或统计性能结论。
 
 ## 执行边界
 

@@ -1,8 +1,8 @@
 # R22-06：阶段科研价值与方向评估
 
-> **最新执行裁决（2026-10-28 11:34:54 UTC）：** V2 screening 已在方法级可评估性 gate 停止。高信噪比目标条件下，C4 Mode-B ON reference 有一组 support=7 < 8；配对 OFF 为55，SNR20同组为25，SNR30目标 T010 位于该组。现有证据支持“ON侧盲参考在该样本局部支持不足”的机制解释，但仅一个 seed/一个失败 case，不能推断通用 SNR 阈值或长期主线。confirmatory、dense、bridge、H0 未启动。完整证据和待审查选项见 [05](05_resource_and_execution_plan.md) 与 [ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+> **Screening gate裁决（2026-10-28；后续机制证据截至10-31）：** V2 screening 在高信噪比目标条件下因 C4 Mode-B ON reference 有一组 support=7<8而停止；配对OFF为55，SNR20同组为25，目标T010位于该range group。S1b–S1e后续诊断表明support对CSI phase-vector来源敏感，逐角色CSI校正后复数分量不闭合，但仍不能唯一归因于目标污染或证明任务收益。独立H0矩阵已于2026-10-31完成60个case；它不解除target-present screening门。confirmatory、dense、bridge仍未启动。当前状态见[动态研究状态](../../RESEARCH_STATUS.md)、[05资源与执行记录](05_resource_and_execution_plan.md)和[S1e审查请求](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1E_20261031.md)。
 
-> **后续执行更新（2026-10-28）：** 本文下方裁决对应早期工程 pilot / V1A gate 阶段，不是当前 screening 总结。V2 seed1932001 的 0 ns 与 +4 ns 单 case 已通过冻结工程/evaluator 门，+4 ns 的 `PERFORMANCE_VERIFIED=false`；完整 V2 screening 已恢复执行。因此旧的“先停止、不执行 screening”只保留为当时的历史裁决。当前仍没有足够独立 seed 证据判断未知误差退化、Known recovery、盲估计差距、AI 必要性或方向切换。当前矩阵进度见 [05 资源与执行记录](05_resource_and_execution_plan.md)，独立审查入口见 [V2 screening ChatGPT 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+> **历史阶段裁决说明（2026-10-28）：** 本文下方裁决对应早期工程 pilot / V1A gate 阶段。V2 的首个0 ns/+4 ns配对case通过后，screening曾于11:16恢复；同日11:34:54又因C4 support gate失败而停止。该运行快照已由上方 gate 裁决和[当前状态记录](05_resource_and_execution_plan.md)更新。screening仍没有足够独立seed证据判断未知误差退化、Known recovery、盲估计差距、AI必要性或方向切换。
 
 ## 阶段裁决
 

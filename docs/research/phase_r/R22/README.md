@@ -65,4 +65,4 @@ seed900202/900203 均为 20 个目标、单 beam、单周期、+4 ns 的工程 p
 
 ## V2 六 seed 工程结果历史边界（2026-10-28）
 
-六个 seed 的 0 ns / +4 ns 工程 case 已完成，结果见 [V2 六 seed 工程结果](15_v2_six_seed_engineering_results_20261028.md)。最终 12 个 case 均 `IMPLEMENTED / EXECUTED / EVALUABLE`，但 `PERFORMANCE_VERIFIED=false`。seed1930101 使用精度修复前的 Stage2 binary；seed1930102 修复重跑及 seed1930103–1930106 使用修复版。该二进制版本边界和是否需要补跑 seed1930101，须在下一步决策前审查。当前完整 594-case 资源门未通过，不启动 screening；没有 AI 训练或 Router 开发。
+六个 seed 的 0 ns / +4 ns 工程 case 已完成，结果见 [V2 六 seed 工程结果](15_v2_six_seed_engineering_results_20261028.md)。最终 12 个 case 均 `IMPLEMENTED / EXECUTED / EVALUABLE`，但 `PERFORMANCE_VERIFIED=false`。seed1930101 使用精度修复前的 Stage2 binary；seed1930102 修复重跑及 seed1930103–1930106 使用修复版。该二进制版本边界和是否需要补跑 seed1930101，须在下一步决策前审查。**当时**完整594-case设计的screening尚未启动；后续启动后停在C4 Mode-B support gate，当前状态见导航页顶部和[05资源与执行记录](05_resource_and_execution_plan.md)。没有 AI 训练或 Router 开发。

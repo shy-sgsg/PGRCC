@@ -2,7 +2,7 @@
 
 > **最新执行状态（2026-10-28 11:34:54 UTC）：** 本文下方历史 pre-screening pilot 身份不代表 V2 最新矩阵。V2 screening 17 个 case 通过，随后 `seed1932001 / 2.5 m/s / 30 dB / +4 ns` 因 C4 Mode-B ON 的一组 robust support=7 < 8 触发 `GATE_FAILED`。失败 case compact ZIP、源码/二进制身份和 paired SNR 对照见 [05](05_resource_and_execution_plan.md)；未继续算法比较。
 
-> **版本边界：** 下文具体运行身份和表格记录 seed900101/900202/900203 的历史 pre-screening pilot，不是当前 V2 screening 的执行身份。seed1932001 的 +4 ns attempt004 已通过并归档；完整 screening 已恢复。当前活动 case 和源码/二进制身份以 matrix manifest 与 compact ZIP 为准。最新入口见[资源和执行记录](05_resource_and_execution_plan.md)与[ChatGPT checkpoint 提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+> **历史版本边界：** 下文具体运行身份和表格记录 seed900101/900202/900203 的历史 pre-screening pilot，不是当前 V2 screening 的执行身份。seed1932001 的 +4 ns attempt004 曾通过并归档；screening随后恢复，但于2026-10-28 11:34:54 UTC因 C4 support gate失败停止。当前无活动 case；17个唯一 case通过、1个 gate失败、270个未开始。独立H0 60-case矩阵已于2026-10-31完成；confirmatory/dense/bridge未启动。当前状态和身份见[05资源与执行记录](05_resource_and_execution_plan.md)及[动态研究状态](../../RESEARCH_STATUS.md)。
 
 ## 版本和执行身份
 

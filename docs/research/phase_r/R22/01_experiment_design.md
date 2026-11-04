@@ -1,6 +1,6 @@
 # R22-01：实验设计与信息条件
 
-> **2026-10-28 V2 状态更新：** 原始工程门修复后，V2 设计配置与方法配置已冻结；六 seed engineering gate 已完成，screening 矩阵已在本机 Native CUDA 启动。当前逐 case 状态以 `outputs/r22_full_v2_compact/matrices/screening_diskquota_retry/matrix_manifest.json` 为准。screening 尚未完成，confirmatory、40-target dense、bridge 与独立 H0 批次尚未完成；当前单 case 通过不构成性能验证。下文描述的“原始 R22 未冻结/未启动”是形成 V2 前的历史状态，保留作审计，不代表当前状态。冻结配置及阶段更新见 `config/r22_extension_experiment_design_v2_range_roi.json`、`config/r22_method_config_v2_range_roi.json` 和 [05 资源与执行记录](05_resource_and_execution_plan.md)。
+> **历史执行快照（截至2026-10-28 11:16 UTC）：** V2 设计配置与方法配置已冻结，六 seed engineering gate 已完成，screening 矩阵已在本机 Native CUDA 启动；当时 confirmatory、dense、bridge 与 H0 批次尚未完成。Screening 随后于11:34:54 UTC因 C4 Mode-B ON support=7<8停止；独立H0矩阵后于2026-10-31完成60个case。截至2026-11-04，target-present screening仍为 `GATE_FAILED`，17个case通过、1个失败、270个未开始；confirmatory、dense、bridge未启动。冻结设计和当前资源/状态记录见 `config/r22_extension_experiment_design_v2_range_roi.json`、`config/r22_method_config_v2_range_roi.json`、[05 资源与执行记录](05_resource_and_execution_plan.md)和[动态研究状态](../../RESEARCH_STATUS.md)。
 
 ## 科研定位
 
@@ -27,7 +27,7 @@
 
 最初资源草案包含 24 个 screening 条件、至少 12 个 seed/条件；6 个 confirmatory 条件、至少 30 个全新 seed/条件；另有目标密集、桥接与独立 H0 条件。该草案没有完成资源与方法门审计，不能误称已冻结或已执行。
 
-当前已执行的仅是工程 pilot：seed900101 零时延 smoke；seed900202/900203 的 2.5 m/s、20 dB、+4 ns、20 targets、单 beam、单周期方法观察。详细实际执行见 [02](02_screening_experiment.md)。PKR gate 未通过后，筛选矩阵、确认 seed 清单及 H0 方案保持未启动。
+**Pre-V2 历史 pilot 状态：** 当时已执行 seed900101 零时延 smoke，以及 seed900202/900203 的 2.5 m/s、20 dB、+4 ns、20 targets、单 beam、单周期方法观察；随后旧 PKR gate 未通过，早期筛选矩阵、确认 seed 清单及 H0 方案尚未启动。V2 后续执行不回写这段历史；截至当前的 screening 与独立 H0 状态见本文件顶部和[05](05_resource_and_execution_plan.md)。详细 pre-V2 pilot 见 [02](02_screening_experiment.md)。
 
 2026-10-28 扩展工程矩阵的首个 `0 ns` 条件在盲校正预处理阶段失败；故障原因和原始执行边界记录于 [10 工程门失败记录](10_engineering_gate_failure_20261028.md)。复核后明确：无误差参考条件保留 P1/P2 盲估计数值作为诊断，但所有仅为校正时延而设计的物理校正分支在该条件标记 `NOT_APPLICABLE_ZERO_DELAY_REFERENCE`，不向无误差输入施加非零校正。该规则不改变 +4 ns 条件的校正、盲估计隔离或质量门，也不构成任何 Production 成功证据；新的执行设计版本及适用条件见 [09 延续执行契约](09_extension_execution_contract.md)。
 

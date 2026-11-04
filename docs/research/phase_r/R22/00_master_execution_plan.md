@@ -1,10 +1,10 @@
 # PGRCC R22 总执行计划
 
-状态：`STOPPED_AT_GATE / INCOMPLETE`。工程 pilot 已执行并达到阶段停止门；完整筛选与确认实验没有启动。PKR 支持量矛盾修复及独立复核前，不得扩展 seed 或方法矩阵。
+**历史状态（2026-10-27）：** `STOPPED_AT_GATE / INCOMPLETE`。当时工程 pilot 已执行并达到阶段停止门；V2 扩展设计尚未运行。该段保留为历史裁决，不代表当前执行状态。
 
 > **状态时间界限：** 上述状态记录的是 2026-10-27 的停止裁决。用户于 2026-10-28 明确要求继续 R22 并完成扩展实验；本轮续行范围、修复后工程门和冻结设计见 [09 延续执行契约](09_extension_execution_contract.md) 与 [机器可读扩展设计](config/r22_extension_experiment_design.json)。旧 pilot 结论保留为历史记录，不作为当前禁止执行的指令。研究总纲仍保持不变。
 
-> **当前执行更新（2026-10-28）：** 续行采用 V2 range/ROI 冻结设计 `config/r22_extension_experiment_design_v2_range_roi.json`（288 screening / 594 全设计 case）。17 个 screening case 已通过；seed1932001、2.5 m/s、30 dB、+4 ns case 因 C4 Mode-B ON reference 有一组 support=7 < `min_support=8` 而 `GATE_FAILED`，runner 已停止。当前无活动 case；confirmatory/dense/bridge/H0 未启动。单 seed 仍为 `PERFORMANCE_VERIFIED=false`，不据此改变长期科研方向。用户明确 20 GB 是结果汇总、审查和清理后的最终项目上限，运行中可超过；最新阶段结果见 [05 资源与执行记录](05_resource_and_execution_plan.md)、[07 执行质量审计](07_execution_and_quality_audit.md) 和 [ChatGPT screening 审查提示词](CHATGPT_REVIEW_PROMPT_SCREENING_CHECKPOINT_20261028.md)。
+> **当前执行状态（截至2026-11-04）：** 冻结 V2 设计为288个 screening case；22条 attempt 对应18个唯一 case，其中17个 `PASSED`、1个因 C4 Mode-B ON support=7<8 而 `GATE_FAILED`，另有270个未开始。当前无活动 case，runner拒绝从 `GATE_FAILED` 状态 `--resume`。独立 H0 的60个 case 已于2026-10-31完成，但不解除 target-present screening 门；confirmatory、dense、bridge 未启动。S1e 双层审查待完成，审查前不启动新 Production 实验。20 GB 是最终汇总/审查/清理后的项目占用上限。资源估算、状态 manifest 和证据见 [05 资源与执行记录](05_resource_and_execution_plan.md)、[动态研究状态](../../RESEARCH_STATUS.md)、[07 执行质量审计](07_execution_and_quality_audit.md) 和 [S1e ChatGPT 审查提示词](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1E_20261031.md)。
 
 ## 科研定位
 
