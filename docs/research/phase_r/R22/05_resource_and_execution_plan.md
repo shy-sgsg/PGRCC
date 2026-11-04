@@ -166,3 +166,23 @@ python3 scripts/phase_r/r22_experiment_matrix.py \
 - 10,000次 seed-clustered bootstrap 分析 `COMPLETE_EVALUABLE`：60/72个适用条件汇总完整，24/36个适用配对汇总完整；其余均是零时延冻结不适用项。H0 是无目标 CUT-hit fraction，不等于系统Pfa或目标Pd，不改变 target-present screening 的 `GATE_FAILED`。
 - raw 清理：60个完成case逐 case compact/archive 后删除72,060个生成 `.bin` 路径，合计472,370,816,936 bytes；3个中断attempt另清理21,830,424,640 bytes。60个 compact ZIP 合计180,896,331 bytes，当前仍留本机待审查后按用户上限清理。清理审计见 [cleanup ledger](evidence/cleanup_ledger.md) 与 [raw cleanup summary](evidence/h0_final_20261031/h0_raw_cleanup_summary.json)。
 - 状态裁决：H0 `IMPLEMENTED/EXECUTED/EVALUABLE=true`，`PERFORMANCE_VERIFIED=false`；Screening 仍 `GATE_FAILED`，`AI_ENTRY_GATE=FAIL`。下一步仅提交 ChatGPT 双层审查，不自动启动新实验。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未改变。
+
+## 2026-11-04 V2 target-present screening 离线资源重估
+
+本节根据最新本地矩阵 manifest 作只读汇总；未启动或续跑 CUDA。审计工作树 HEAD 为 `eb8a6b49f94851eae8504ac29a982cbe38e7f15c`；输入 `outputs/r22_full_v2_compact/matrices/screening_diskquota_retry/matrix_manifest.json` 的 SHA-256 为 `8f3b54fa6a43368b7b5c98f5e8d07e9b28d1ed5a1f388ae46fa61988e0ce3fdb`，与 Git 跟踪的 [`evidence/screening_checkpoint/screening_final_manifest.json`](evidence/screening_checkpoint/screening_final_manifest.json) 逐字节一致。manifest 中的冻结设计 SHA `4955e2416a724c6e9415718ce0b50054c014f3aa5d6d703665fcdc0b4e105083` 已用当前设计文件及 runner 的 `_design_digest` 规则复算一致。
+
+| 项目 | 实测/推算 |
+|---|---:|
+| 冻结计划 | 288 cases |
+| attempt / 唯一 case | 22 / 18 |
+| 唯一 case 状态 | 17 `PASSED`，1 `GATE_FAILED` |
+| 尚未开始 | 270 cases |
+| 已通过 case 执行时长合计 | 4.5688 h |
+| 单 case 执行时长 | 均值 16.13 min；中位数 16.45 min；范围 10.44–27.52 min |
+| 17 个通过 case 紧凑归档 | 合计 86,995,829 bytes；均值 5,117,402 bytes/case |
+| 全288 case线性外推 | 约77.4 h case执行时间；约1.47 GB紧凑归档 |
+| 剩余270个未开始 + 1个失败case后续等效重跑 | 约72.8 h；约1.39 GB紧凑归档 |
+
+**计算口径与限制：** 时长由每个唯一 case 的最新 attempt 中 `PASSED` 行的 `started_at_utc` 至 `finished_at_utc` 计算并求和；中断 attempt 不计入通过 case 时长。归档均值使用这17个通过 case 的实际 `archive_bytes`。全部17个通过 case 都来自 seed1932001，且只覆盖筛选条件的一部分；这些数值是首批实测速率的线性规划参考，不是独立重复、置信区间或完整矩阵工期承诺。外部GPU负载、case条件差异、gate失败处置、如需新方法契约的重跑、其他阶段、等待和分析均不在推算内。
+
+**执行门：** 最新 manifest 状态仍为 `GATE_FAILED`。runner 在此状态明确拒绝 `--resume`；当前有1个 C4 Mode-B ON reference support=7<冻结门槛8，故不能从该状态跳过失败条件继续排名。S1e双层审查完成且解除/修订门控的研究决定形成前，不启动新 Production 实验。该资源汇总不改变筛选设计、方法、阈值或研究结论。
