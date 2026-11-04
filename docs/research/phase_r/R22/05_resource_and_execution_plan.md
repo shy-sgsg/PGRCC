@@ -186,3 +186,9 @@ python3 scripts/phase_r/r22_experiment_matrix.py \
 **计算口径与限制：** 时长由每个唯一 case 的最新 attempt 中 `PASSED` 行的 `started_at_utc` 至 `finished_at_utc` 计算并求和；中断 attempt 不计入通过 case 时长。归档均值使用这17个通过 case 的实际 `archive_bytes`。全部17个通过 case 都来自 seed1932001，且只覆盖筛选条件的一部分；这些数值是首批实测速率的线性规划参考，不是独立重复、置信区间或完整矩阵工期承诺。外部GPU负载、case条件差异、gate失败处置、如需新方法契约的重跑、其他阶段、等待和分析均不在推算内。
 
 **执行门：** 最新 manifest 状态仍为 `GATE_FAILED`。runner 在此状态明确拒绝 `--resume`；当前有1个 C4 Mode-B ON reference support=7<冻结门槛8，故不能从该状态跳过失败条件继续排名。S1e双层审查完成且解除/修订门控的研究决定形成前，不启动新 Production 实验。该资源汇总不改变筛选设计、方法、阈值或研究结论。
+
+## 2026-11-04 清理被新版完整覆盖的审查包
+
+- 删除 `outputs/r22_chatgpt_review_evidence_v1a_20261028.zip`（2,079,877 bytes）和 `outputs/r22_chatgpt_review_evidence_v1a_20261028_v3.zip`（6,354,499 bytes）。ZIP 成员分别为97项和155项，全部包含在保留的 v4（158项）中；v2 包因审查协议和本文件记录了其固定 SHA-256，继续保留。
+- 删除 `outputs/r22_chatgpt_screening_gate_review_20261028.zip`（13,157,172 bytes）。其8项成员全部包含在保留的 v2（10项）中。
+- 本次共清理21,591,548 bytes。保留 v4、被固定审查记录引用的 v2、独立的 engineering-pair/six-seed 审查包，以及被 S1b–S1e、矩阵恢复和历史证据索引引用的实验输入与结果；没有删除 `.scratch` 或仍被脚本/manifest 引用的实验数据。
