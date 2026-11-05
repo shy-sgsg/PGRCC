@@ -96,6 +96,51 @@ def test_matrix_checkpoint_resume_does_not_rerun_completed_cases(tmp_path):
     assert len(calls) == 1
 
 
+def test_matrix_persists_stable_identity_and_appends_resume_preflight_snapshot(tmp_path):
+    design = {
+        "schema_version": 1,
+        "design_id": "execution-identity-test",
+        "seed_sets": {"engineering": [101], "screening": [201],
+                      "confirmatory": [301], "h0": [501]},
+        "method_ids": ["C0"],
+        "calibration_modes": ["Mode-A"],
+        "common": {"first_beam": 50, "beam_count": 1, "area": {}},
+        "phases": {"engineering": {"seed_set": "engineering", "target_count": 20,
+                                     "period_count": 5, "conditions": [
+                                         {"condition_id": "c0", "radial_speed_mps": 2.5,
+                                          "target_snr_db": 20.0, "delay_error_ns": 4.0}]}},
+    }
+    output_root = tmp_path / "matrix"
+
+    def fake_runner(case_root, **kwargs):
+        case_root.mkdir(parents=True)
+        return {"implementation_result": "passed", "status_labels": {"EVALUABLE": True},
+                "all_production_branches_passed": True}
+
+    identity = {"design_sha256": "design", "binary_sha256": "binary"}
+    first = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        run_case_fn=fake_runner,
+        manifest_metadata={"execution_identity": identity,
+                           "preflight_snapshot": {"gpu_load": 97}},
+    )
+    second = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        run_case_fn=fake_runner, resume=True,
+        manifest_metadata={"execution_identity": identity,
+                           "preflight_snapshot": {"gpu_load": 81}},
+    )
+
+    assert first["execution_identity"] == identity
+    assert second["preflight_snapshots"] == [{"gpu_load": 97}, {"gpu_load": 81}]
+    with pytest.raises(ValueError, match="changed V3 source, configuration, or binary identity"):
+        matrix.run_matrix(
+            design, phase="engineering", output_root=output_root,
+            run_case_fn=fake_runner, resume=True,
+            manifest_metadata={"execution_identity": {"design_sha256": "changed"}},
+        )
+
+
 def test_matrix_writes_running_case_checkpoint_before_starting_runner(tmp_path):
     design = {
         "schema_version": 1,
@@ -391,6 +436,160 @@ def test_matrix_resumes_archive_failure_without_rerunning_passed_case(tmp_path, 
     assert len(calls) == 1
     assert not raw_case.exists()
     assert second["cases"][0]["compact_archive_status"] == "VERIFIED_AND_RAW_REMOVED"
+
+
+def _v3_small_design(design_id: str, condition_count: int = 2):
+    return {
+        "schema_version": 1,
+        "design_id": design_id,
+        "seed_sets": {"engineering": [101], "screening": [201],
+                      "confirmatory": [301], "h0": [501]},
+        "method_ids": ["C0"],
+        "calibration_modes": ["Mode-A"],
+        "common": {"first_beam": 50, "beam_count": 1, "area": {}},
+        "phases": {
+            "screening": {"seed_set": "screening", "target_count": 20,
+                          "period_count": 5, "conditions": [
+                              {"condition_id": f"c{index}", "radial_speed_mps": 2.5 + index,
+                               "target_snr_db": 20.0, "delay_error_ns": 4.0}
+                              for index in range(condition_count)]},
+        },
+    }
+
+
+def test_v3_archives_method_gap_and_continues_to_next_case(tmp_path):
+    design = _v3_small_design("v3-method-gap-continuation")
+    output_root = tmp_path / "v3-matrix"
+    raw_root = tmp_path / "v3-raw"
+    archive_root = tmp_path / "v3-archives"
+    calls = []
+
+    def fake_runner(case_root, **kwargs):
+        calls.append(kwargs["snr_db"])
+        case_root.mkdir(parents=True)
+        (case_root / "result.txt").write_text("native-run-placeholder")
+        return {"case_index": len(calls)}
+
+    def classify_case(case_root, result):
+        state = "CASE_VALID_WITH_METHOD_GAPS" if result["case_index"] == 1 else "CASE_VALID"
+        return {"scenario_status": state, "continue_matrix": True,
+                "method_units": [{"method_id": "C0", "mode": "Mode-A",
+                                  "status": "REFERENCE_NOT_EVALUABLE" if result["case_index"] == 1 else "EVALUABLE"}]}
+
+    result = matrix.run_matrix(
+        design, phase="screening", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        failure_archive_root=archive_root / "failures",
+        run_case_fn=fake_runner, case_evaluator_fn=classify_case,
+    )
+
+    assert result["status"] == "COMPLETED"
+    assert [row["status"] for row in result["cases"]] == ["PASSED_WITH_METHOD_GAPS", "PASSED"]
+    assert [row["case_evaluation"]["scenario_status"] for row in result["cases"]] == [
+        "CASE_VALID_WITH_METHOD_GAPS", "CASE_VALID",
+    ]
+    assert len(calls) == 2
+    assert result["cases"][0]["compact_archive_status"] == "VERIFIED_AND_RAW_REMOVED"
+
+
+def test_v3_resume_sha_checks_and_skips_terminal_method_gap_case(tmp_path):
+    design = _v3_small_design("v3-method-gap-resume", condition_count=1)
+    output_root = tmp_path / "v3-matrix"
+    raw_root = tmp_path / "v3-raw"
+    archive_root = tmp_path / "v3-archives"
+    calls = []
+
+    def fake_runner(case_root, **kwargs):
+        calls.append(case_root)
+        case_root.mkdir(parents=True)
+        (case_root / "result.txt").write_text("case evidence")
+        return {}
+
+    def classify_case(case_root, result):
+        return {"scenario_status": "CASE_VALID_WITH_METHOD_GAPS", "continue_matrix": True,
+                "method_units": [{"method_id": "C0", "mode": "Mode-A",
+                                  "status": "REFERENCE_NOT_EVALUABLE"}]}
+
+    first = matrix.run_matrix(
+        design, phase="screening", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        failure_archive_root=archive_root / "failures",
+        run_case_fn=fake_runner, case_evaluator_fn=classify_case,
+    )
+    second = matrix.run_matrix(
+        design, phase="screening", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        failure_archive_root=archive_root / "failures",
+        run_case_fn=fake_runner, case_evaluator_fn=classify_case, resume=True,
+    )
+
+    assert first["cases"][0]["status"] == "PASSED_WITH_METHOD_GAPS"
+    assert second["skipped_cases"] == 1
+    assert len(calls) == 1
+    archive = Path(first["cases"][0]["compact_archive"]["archive_path"])
+    archive.write_bytes(b"corrupt")
+    with pytest.raises(ValueError, match="archive SHA-256 mismatch"):
+        matrix.run_matrix(
+            design, phase="screening", output_root=output_root,
+            raw_output_root=raw_root, compact_archive_root=archive_root,
+            failure_archive_root=archive_root / "failures",
+            run_case_fn=fake_runner, case_evaluator_fn=classify_case, resume=True,
+        )
+    assert len(calls) == 1
+
+
+def test_v3_global_failure_is_archived_separately_and_stops(tmp_path):
+    design = _v3_small_design("v3-global-failure-archive", condition_count=1)
+    output_root = tmp_path / "v3-matrix"
+    raw_root = tmp_path / "v3-raw"
+    archive_root = tmp_path / "v3-archives"
+    failure_root = archive_root / "failures"
+
+    def fake_runner(case_root, **kwargs):
+        case_root.mkdir(parents=True)
+        (case_root / "shared-gate.json").write_text('{"status":"failed"}')
+        return {"case_index": 1}
+
+    def classify_case(case_root, result):
+        return {"scenario_status": "CASE_INVALID", "continue_matrix": False,
+                "scenario_reason": "shared_area_gate_failed", "method_units": []}
+
+    result = matrix.run_matrix(
+        design, phase="screening", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        failure_archive_root=failure_root,
+        run_case_fn=fake_runner, case_evaluator_fn=classify_case,
+    )
+
+    record = result["cases"][0]
+    assert result["status"] == "GATE_FAILED"
+    assert record["status"] == "GATE_FAILED"
+    assert Path(record["compact_archive"]["archive_path"]).is_relative_to(failure_root)
+    assert not Path(record["output_root"]).exists()
+    with pytest.raises(RuntimeError, match="phase previously failed its gate"):
+        matrix.run_matrix(
+            design, phase="screening", output_root=output_root,
+            raw_output_root=raw_root, compact_archive_root=archive_root,
+            failure_archive_root=failure_root,
+            run_case_fn=fake_runner, case_evaluator_fn=classify_case, resume=True,
+        )
+def test_v2_completed_with_gaps_fails_and_gate_failed_resume_is_refused(tmp_path):
+    assert matrix._case_state("screening", {
+        "implementation_result": "completed_with_gaps",
+        "status_labels": {"EVALUABLE": False},
+        "all_production_branches_passed": False,
+    }) == "GATE_FAILED"
+
+    design = _v3_small_design("v2-fail-closed-regression", condition_count=1)
+    output_root = tmp_path / "matrix"
+    output_root.mkdir()
+    (output_root / "matrix_manifest.json").write_text(json.dumps({
+        "schema_version": 1, "design_id": design["design_id"],
+        "design_sha256": matrix._design_digest(design), "phase": "screening",
+        "status": "GATE_FAILED", "planned_case_count": 1, "cases": [],
+    }), encoding="utf-8")
+    with pytest.raises(RuntimeError, match="phase previously failed its gate"):
+        matrix.run_matrix(design, phase="screening", output_root=output_root, resume=True)
 
 
 def test_case_gate_requires_explicit_production_branch_success():

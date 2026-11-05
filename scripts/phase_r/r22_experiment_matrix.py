@@ -231,9 +231,16 @@ def _ensure_compact_archive(
     archive_base: Path,
     manifest: dict[str, Any],
     manifest_path: Path,
+    failure_archive_root: Path | None = None,
 ) -> None:
     case_root = _case_output_path(raw_base, str(record["output_root"]))
-    archive_path = archive_base / phase / (
+    selected_archive_base = (
+        failure_archive_root
+        if failure_archive_root is not None
+        and record.get("status") in {"GATE_FAILED", "UNKNOWN_STOP"}
+        else archive_base
+    )
+    archive_path = selected_archive_base / phase / (
         f"{record['case_id']}__attempt_{int(record['attempt']):03d}.zip"
     )
     prior = record.get("compact_archive")
@@ -289,6 +296,9 @@ def run_matrix(
     resume: bool = False,
     retry_interrupted: bool = False,
     run_case_fn: Callable[..., Mapping[str, Any]] | None = None,
+    case_evaluator_fn: Callable[[Path, Mapping[str, Any]], Mapping[str, Any]] | None = None,
+    failure_archive_root: Path | None = None,
+    manifest_metadata: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     validate_design(design)
     if retry_interrupted and not resume:
@@ -306,8 +316,17 @@ def run_matrix(
         Path(compact_archive_root).expanduser().resolve()
         if compact_archive_root is not None else None
     )
+    failure_archive_base = (
+        Path(failure_archive_root).expanduser().resolve()
+        if failure_archive_root is not None else None
+    )
+    if case_evaluator_fn is not None and archive_base is not None and failure_archive_base is None:
+        raise ValueError("V3 case classification with compaction requires failure_archive_root")
     manifest_path = output_root / "matrix_manifest.json"
     digest = _design_digest(design)
+    metadata = dict(manifest_metadata or {})
+    execution_identity = metadata.get("execution_identity", metadata)
+    preflight_snapshot = metadata.get("preflight_snapshot")
     if manifest_path.is_file():
         if not resume:
             raise FileExistsError(f"matrix output already exists; pass --resume: {output_root}")
@@ -316,6 +335,14 @@ def run_matrix(
             raise ValueError("cannot resume with a different frozen design")
         if manifest.get("status") == "GATE_FAILED":
             raise RuntimeError("phase previously failed its gate; use a new evidence root after review")
+        if case_evaluator_fn is not None and manifest.get("status") == "UNKNOWN_STOP":
+            raise RuntimeError("phase previously stopped on unknown evidence; use a new evidence root after review")
+        if metadata:
+            if manifest.get("execution_identity") != execution_identity:
+                raise ValueError("cannot resume with changed V3 source, configuration, or binary identity")
+            if isinstance(preflight_snapshot, Mapping):
+                manifest.setdefault("preflight_snapshots", []).append(dict(preflight_snapshot))
+                _write_json_atomic(manifest_path, manifest)
     else:
         if any(output_root.iterdir()):
             raise FileExistsError(f"refuse to use non-empty matrix output root: {output_root}")
@@ -329,8 +356,47 @@ def run_matrix(
             "cases": [],
             "started_at_utc": _utc_now(),
         }
+        if metadata:
+            manifest["execution_identity"] = execution_identity
+            if isinstance(preflight_snapshot, Mapping):
+                manifest["preflight_snapshots"] = [dict(preflight_snapshot)]
     if manifest.get("phase") != phase:
         raise ValueError("matrix output root belongs to a different phase")
+
+    default_passed_states = {"PASSED", "H0_EVALUABLE_WITH_GAPS"}
+    passed_states = set(default_passed_states)
+    if case_evaluator_fn is not None:
+        passed_states.add("PASSED_WITH_METHOD_GAPS")
+    failure_states = {"GATE_FAILED", "UNKNOWN_STOP"} if case_evaluator_fn is not None else set()
+
+    if manifest.get("status") == "ARCHIVE_PENDING":
+        pending = next((row for row in manifest.get("cases", [])
+                        if row.get("compact_archive_status") == "PENDING"
+                        and row.get("status") in passed_states | failure_states), None)
+        if pending is not None and archive_base is not None:
+            try:
+                _ensure_compact_archive(
+                    pending, phase=phase, raw_base=raw_base,
+                    archive_base=archive_base, manifest=manifest,
+                    manifest_path=manifest_path,
+                    failure_archive_root=failure_archive_base,
+                )
+            except Exception as exc:
+                pending["compact_archive_status"] = "PENDING"
+                pending["compact_archive_error"] = {
+                    "type": type(exc).__name__, "message": str(exc),
+                }
+                manifest["status"] = "ARCHIVE_PENDING"
+                manifest["finished_at_utc"] = _utc_now()
+                _write_json_atomic(manifest_path, manifest)
+                raise
+            if pending.get("status") in failure_states:
+                manifest["status"] = pending["status"]
+                manifest["finished_at_utc"] = _utc_now()
+                _write_json_atomic(manifest_path, manifest)
+                return {**manifest, "completed_cases": 0, "skipped_cases": 0}
+            manifest["status"] = "RUNNING"
+            _write_json_atomic(manifest_path, manifest)
 
     existing = {row["case_id"]: row for row in manifest.get("cases", []) if "case_id" in row}
     completed_now = skipped_now = 0
@@ -343,7 +409,7 @@ def run_matrix(
             target_count=spec["target_count"], period_count=spec["period_count"],
         )
         previous = existing.get(case_id)
-        if previous and previous.get("status") in {"PASSED", "H0_EVALUABLE_WITH_GAPS"}:
+        if previous and previous.get("status") in passed_states:
             if archive_base is not None:
                 prior_archive = previous.get("compact_archive")
                 if prior_archive is not None:
@@ -359,6 +425,7 @@ def run_matrix(
                         previous, phase=phase, raw_base=raw_base,
                         archive_base=archive_base, manifest=manifest,
                         manifest_path=manifest_path,
+                        failure_archive_root=failure_archive_base,
                     )
                     if manifest.get("status") == "ARCHIVE_PENDING":
                         manifest["status"] = "RUNNING"
@@ -438,7 +505,21 @@ def run_matrix(
                 calibration_modes=tuple(spec["calibration_modes"]),
                 area=spec["area"],
             ))
-            state = _case_state(phase, result)
+            if case_evaluator_fn is None:
+                state = _case_state(phase, result)
+            else:
+                classification = dict(case_evaluator_fn(case_root, result))
+                record["case_evaluation"] = classification
+                scenario_status = classification.get("scenario_status")
+                can_continue = classification.get("continue_matrix") is True
+                if scenario_status == "CASE_VALID" and can_continue:
+                    state = "PASSED"
+                elif scenario_status == "CASE_VALID_WITH_METHOD_GAPS" and can_continue:
+                    state = "PASSED_WITH_METHOD_GAPS"
+                elif scenario_status == "CASE_INVALID":
+                    state = "GATE_FAILED"
+                else:
+                    state = "UNKNOWN_STOP"
             record.update({
                 "implementation_result": result.get("implementation_result"),
                 "status_labels": result.get("status_labels"),
@@ -446,18 +527,22 @@ def run_matrix(
                 "all_production_branches_passed": result.get("all_production_branches_passed"),
             })
         except Exception as exc:
-            state = "GATE_FAILED"
+            state = "GATE_FAILED" if case_evaluator_fn is None else "UNKNOWN_STOP"
             record["failure"] = {"type": type(exc).__name__, "message": str(exc)}
         record["status"] = state
         record["finished_at_utc"] = _utc_now()
         completed_now += 1
-        passed_states = {"PASSED", "H0_EVALUABLE_WITH_GAPS"}
         manifest["status"] = "RUNNING" if state in passed_states else "GATE_FAILED"
+        if state == "UNKNOWN_STOP":
+            manifest["status"] = "UNKNOWN_STOP"
         manifest.pop("active_case_id", None)
         manifest.pop("active_case_output_root", None)
         manifest["finished_at_utc"] = _utc_now()
         _write_json_atomic(manifest_path, manifest)
-        if state in passed_states and archive_base is not None:
+        should_archive = state in passed_states or (
+            state in failure_states and failure_archive_base is not None
+        )
+        if should_archive and archive_base is not None:
             try:
                 record["compact_archive_status"] = "PENDING"
                 _write_json_atomic(manifest_path, manifest)
@@ -465,6 +550,7 @@ def run_matrix(
                     record, phase=phase, raw_base=raw_base,
                     archive_base=archive_base, manifest=manifest,
                     manifest_path=manifest_path,
+                    failure_archive_root=failure_archive_base,
                 )
             except Exception as exc:
                 record["compact_archive_status"] = "PENDING"
@@ -477,15 +563,15 @@ def run_matrix(
                 print(f"[{phase}] ARCHIVE_PENDING {case_id}: {exc}", flush=True)
                 break
         print(f"[{phase}] {state} {case_id}", flush=True)
-        if state == "GATE_FAILED":
+        if state in failure_states or state == "GATE_FAILED":
             break
 
     terminal_ids = {
         row["case_id"] for row in manifest.get("cases", [])
-        if row.get("status") in {"PASSED", "H0_EVALUABLE_WITH_GAPS"}
+        if row.get("status") in passed_states
     }
     if manifest.get("status") not in {
-        "GATE_FAILED", "ARCHIVE_PENDING", "INTERRUPTED_REVIEW_REQUIRED",
+        "GATE_FAILED", "UNKNOWN_STOP", "ARCHIVE_PENDING", "INTERRUPTED_REVIEW_REQUIRED",
     }:
         full_case_count = len(build_case_specs(design, phase))
         manifest["status"] = "COMPLETED" if len(terminal_ids) == full_case_count else "PARTIAL_BOUNDED_RUN"

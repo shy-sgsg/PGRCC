@@ -2,6 +2,8 @@
 
 > **2026-11-05 独立审查更新：** S1e 固定快照审查裁决为 `PASS_WITH_LIMITATIONS`；角色相关 CSI phase-vector 是该组 C4 support 变化的近端机制，但目标污染未证明，任务收益未验证。V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`。18个终态 case 的只读复核保留269/270个适用ON方法单元，C4 Mode-B的1个缺口不再抹掉其他方法的归档行；全方法 CUT/unique-hit 汇总仍不可评价，不恢复排名。见[离线复核](19_v2_screening_method_level_offline_dry_run_20261105.md)和[V3契约草案](20_v3_method_level_evaluability_contract_draft_20261105.md)。V3尚未冻结或实现，本次没有启动CUDA。
 
+> **2026-11-05 V3 设计更新：** 完成历史 Baseline、Stage2 面积几何、Native CUDA Production 与 V2 compact archive 的交叉审计。V2 仍只读保留；新 V3 使用独立设计和输出根，对288个 screening case 全量重跑，旧V2归档不并入V3覆盖率。V3只允许已确认的单方法 reference/estimator 缺口在公共输入门通过时隔离，其余未知或共享故障仍停机。见[历史 Baseline/仿真/Production 审计](21_historical_baseline_simulator_production_audit_20261105.md)和[V3 Screening 契约](22_v3_screening_contract_20261105.md)。
+
 > **最新状态（2026-10-31）：** 冻结的 R22 H0 矩阵已按 seed-level case retry 恢复并完成：30 个独立 seed、60/60 个唯一 0/+4 ns case，分析状态 `COMPLETE_EVALUABLE`。最终结果、配对杂波/噪声审计和精简审查证据见[最终报告](18_h0_false_alarm_checkpoint_20261030.md)及[最终证据包](evidence/h0_final_20261031/)；可直接交给 ChatGPT 的固定审查提示词见 [V4](CHATGPT_REVIEW_PROMPT_V4.md)。
 
 > **仍有效的 Screening 门控：** R22 target-present V2 screening 仍为 `GATE_FAILED / INCOMPLETE`。seed1932001、2.5 m/s、30 dB、+4 ns 的 C4 Mode-B ON reference support=7，小于冻结的8。S1c 证明选定支持数对 CSI phase vector 敏感；补充审计确认目标响应与失败组/行重合，但目标真值距离单元只占 SNR20-only 支持格的3/24，具体相位变化贡献和任务收益仍未唯一确定。H0 无目标矩阵不解除该门控。详见 [S1c 结果](support_failure_diagnostic/S1C_SHARED_OFF_PHASE_RESULT.md)、[目标重合交叉表](support_failure_diagnostic/evidence/s1c/v2/s1c_target_overlap_audit.csv)与[固定快照审查提示词](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1C_20261031.md)。
