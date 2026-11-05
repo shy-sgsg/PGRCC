@@ -1,5 +1,7 @@
 # R22-S1c：GMTI05 共同 target-free OFF CSI 相位反事实结果
 
+> **2026-11-05 清理更新：** 独立审查完成后，S1c 本地运行目录（包括十周期无效初试和 GMTI05 period-correct 重放）及其共享 replay raw 输入已删除；紧凑 Git 证据、配置、分析脚本和结果表保留。需重新执行时须先重建 Stage2 输入；历史运行身份和结果未改写。
+
 ## 阶段裁决
 
 **`PASS_WITH_LIMITATIONS / MECHANISM_EVALUABLE`；整个 R22 Screening 仍为 `GATE_FAILED / INCOMPLETE`。**

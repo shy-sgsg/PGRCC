@@ -218,3 +218,12 @@
 - **机制证据：** 相位校正前 `ON−OFF−TO` F1/F2 相对 L2 为0.00937/0.01806；各角色 CSI range-phase 校正后 F2残差为0.78770。TO-only 能量约71%落在目标真值距离格，但 ON/OFF phase vector差在目标格均值1.727 rad，其他格1.833 rad。支持角色相关 CSI phase correction是近端机制；不唯一判定目标污染、全局 CSI 响应或目标/背景交互各自贡献。没有 GMTI task-performance 结论。
 - **裁决与下一步：** `IMPLEMENTED=true`、`EXECUTED=true`、`EVALUABLE=true`（仅固定组机制指标）、`PERFORMANCE_VERIFIED=false`。R22 Screening 保持 `GATE_FAILED / INCOMPLETE`，`AI_ENTRY_GATE=FAIL`。唯一下一步是提交 S1e 固定快照供 ChatGPT 双层审查；审查返回前不再启动实验。审查后按 cleanup ledger 清理可再生本地输出，并实测项目占用是否低于20 GB。
 - **证据：** [S1e 结果报告](phase_r/R22/support_failure_diagnostic/S1E_MODEB_ROLE_TRIPLET_RESULT.md)、[精简运行证据](phase_r/R22/support_failure_diagnostic/evidence/s1e/)和[固定快照 ChatGPT 审查提示词](phase_r/R22/support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1E_20261031.md)。审查快照固定为 `d2462657803375c3b0ebf45076d8eb4b94d63a8e`。
+
+## 2026-11-05｜R22-S1e 独立审查完成；提出 V3 方法级可评价契约
+
+- **决策编号、快照与总纲：** `D-2026-11-05-R22-S1E-REVIEW`。审查研究快照为 `d2462657803375c3b0ebf45076d8eb4b94d63a8e`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 保持不变。
+- **独立审查裁决：** S1e `PASS_WITH_LIMITATIONS`；C4 ON/OFF/TO support=7/55/14，单组 support 和 CSI phase-vector 来源的敏感性可评价。目标污染不是已证实的唯一根因，复数闭合残差不是目标能量损失比例，本阶段没有GMTI任务性能结论。R22 V2 target-present screening 继续为 `GATE_FAILED / INCOMPLETE`；`min_support=8` 不变，不强制续跑、不回退Current。
+- **V2离线重分类：** 按V2冻结适用性，对18个终态case（17 PASSED、1 GATE_FAILED；均为seed1932001）读取并校验compact ZIP。CRC 18/18通过；17个成功ZIP匹配matrix SHA，失败ZIP匹配checkpoint provenance SHA。area gate 18/18、+4 ns triplet 9/9通过；270个适用ON方法单元中269个可评价，唯一缺项是C4 Mode-B。该单seed子集不是统计重复。C4缺失导致全方法valid-CUT/unique-hit汇总仍不可评价，故不恢复全方法排名或Pfa结论。
+- **研究判断：** 总体GMTI方向 `CONTINUE`；未知物理状态、低速目标、复杂/非平稳杂波均未由本审查升级为已证实主瓶颈。`AI_ENTRY_GATE=FAIL`。不修改研究总纲。
+- **下一项建议：** 提交 [R22-V3方法级可评价性契约草案](phase_r/R22/20_v3_method_level_evaluability_contract_draft_20261105.md)，将全局输入完整性与每方法可评价覆盖分开，并保留V2所有门槛、结果与失败现场。V2离线复核见[报告](phase_r/R22/19_v2_screening_method_level_offline_dry_run_20261105.md)。这是草案：没有实现runner/evaluator，没有启动CUDA。实现V3状态机需用户明确批准草案范围；任何新的CUDA screening须等V3设计独立冻结并取得明确运行授权。
+- **审查后空间清理：** 删除8个S1b–S1e本机运行树，共释放 `11,356,172,288` allocated bytes。保留S1b–S1e紧凑Git evidence、报告、配置、分析脚本和哈希审计；S1原始Stage2 IQ/完整运行树需重建才可重放。保留V2 compact archives和失败ZIP供V3离线工作。详细路径和理由见[R22 cleanup ledger](phase_r/R22/evidence/cleanup_ledger.md)。

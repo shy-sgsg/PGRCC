@@ -105,3 +105,26 @@
 本次共释放 **6,399,365,120 allocated bytes**。V1A map 诊断包中归档的 17 个文件复制后逐项比较大小和字节内容；GPU 预检原件留在本机诊断 metadata 根。六 seed 审查 ZIP 在清理前通过 CRC 检查。`.scratch/` 中仍被历史审计文档引用的 R3 失败现场/紧凑报告没有删除。当前 R22 的 S1 replay、S1e 输出、失败 Screening 输入、H0 compact archives 和紧凑汇总均保留供后续审查与分析。
 
 清理后 `du -s -B1 .` 测得工作树占用 **14,588,624,896 bytes（14.59 GB 十进制）**，其中 `outputs/` 为 **13,282,574,336 bytes**；`df -B1` 显示所在文件系统可用 **19,259,727,872 bytes**。当前占用低于 20 GB。S1b–S1e 目录仍按待审记录保留；其后 ChatGPT 审查结束时，再按本台账后续记录决定是否清理并复验最终空间门。
+
+## 2026-11-05 R22-S1 独立审查后的本地运行树清理
+
+本节更新并取代上一节末尾“待 ChatGPT 审查、S1 本地目录仍保留”的当时状态记录。
+
+用户提供的 S1e 固定快照独立审查报告后，按“保留紧凑审计/配置/高价值结果，清理已审查可再生成运行树”的要求，确认没有 R22/Stage2/Production 运行进程，再删除以下8个**明确路径**。不删除 Git 跟踪的 evidence、报告、配置、脚本、V2 compact archives、失败 ZIP 或中断 attempt 记录。
+
+| 删除路径 | 删除前 allocated bytes | 清理理由与保留替代 |
+|---|---:|---|
+| `outputs/r22_s1_c4_support_replay_20261029/` | 11,299,381,248 | S1b–S1e共享的完整SNR20/30 Stage2与Production重放树；独立审查已完成，紧凑 `support_failure_diagnostic/evidence/`、manifest、报告和计算表保留。需要端到端重放时须重新生成Stage2输入。 |
+| `outputs/r22_s1b_phase_boundary_20261029/` | 19,443,712 | S1b完整派生运行记录由 `evidence/s1b/` 和边界审计报告替代。 |
+| `outputs/r22_s1c_shared_off_phase_20261029/` | 14,573,568 | 十周期错误sidecar范围的失败初试；失效原因和审计证据保留。 |
+| `outputs/r22_s1c_shared_off_phase_period5_20261029/` | 5,607,424 | S1c period-correct完整Production重放由 `evidence/s1c/` 中紧凑证据替代。 |
+| `outputs/r22_s1d_phase_vector_crossover_20261031/` | 2,449,408 | S1d周期错配无效初试；失败更正记录保留。 |
+| `outputs/r22_s1d_period_corrected_crossover_20261031/` | 8,237,056 | S1d period-correct结果已由 `evidence/s1d/` 紧凑证据替代。 |
+| `outputs/r22_s1d_phase_vector_self_controls_20261031/` | 2,461,696 | S1d周期错配对照；无效原因及审计记录保留。 |
+| `outputs/r22_s1e_current_modeb_role_triplet_20261031/` | 4,018,176 | 三角色当前Production记录由72项 `evidence/s1e/`、分析表和manifest替代。 |
+
+**释放 allocated bytes：11,356,172,288（约11.36 GB）**。S1e 原始 Stage2 IQ 和未归档的全量本地运行树现已不在本机；紧凑证据不包含完整原始 IQ，未来端到端重放需按保留配置重新生成。V2 失败 case compact ZIP、17个通过 case ZIP、矩阵manifest和4条中断attempt记录均保留给下一项 V3 离线评价契约工作；没有删去接下来要用的数据。
+
+**保留给后续 V3/审计的数据：** `outputs/r22_full_v2_compact/`（约100 MB）保留18个终态case ZIP、失败case ZIP、矩阵与中断记录，是本次离线dry-run和拟议V3状态审计的直接输入。另保留 `outputs/r22_full_v2_raw_relocated/`（547,024,896 allocated bytes）：它只含V2失败case的展开审计输出，不含 `.bin/.npy` Stage2 IQ；其中完整 case manifest（约34.6 MB）和真值CSV未完全收入紧凑失败ZIP，可能用于V3后续 truth-lineage/任务机会核验。删除它会丢失这些唯一记录，故暂不清理。`.scratch/` 中约137 MB的pilot/检查目录仍被R3历史审计文档直接引用，保留作审计证据，不当作可再生缓存处理。
+
+**清理后空间复测：** 当前 worktree `du -s -B1 .` 为 **3,206,619,136 bytes（约3.21 GB十进制 / 2.99 GiB）**，其中 `outputs/` 为 **1,900,531,712 bytes**、`.scratch/` 为 **143,302,656 bytes**。worktree 占用低于20 GB最终上限。该数字是目录当前分配空间，不代表文件系统释放量；旧运行树实际释放量按上表逐目录记录。

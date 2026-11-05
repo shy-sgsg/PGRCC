@@ -1,5 +1,7 @@
 # R22-S1b：C4 处理阶段闭合审计
 
+> **2026-11-05 清理更新：** 固定快照独立审查完成后，删除本地完整运行目录 `outputs/r22_s1b_phase_boundary_20261029/` 与其共享的 S1 replay raw 输入；紧凑 `evidence/s1b/`、运行身份与数值审计仍保留。复现需重新生成 Stage2 输入；这不更改本文记录的原始执行事实。
+
 日期：2026-10-29
 
 研究范围：R22 C4 Robust DDC-RB 在 `GMTI05 / beam 50 / azimuth 52 / range 1065–1197` 的支持数失效。

@@ -1,5 +1,7 @@
 # R22-S1e：当前 Mode-B 下配对 ON/OFF/TO 角色诊断
 
+> **2026-11-05 清理更新：** 独立审查结束后，`outputs/r22_s1e_current_modeb_role_triplet_20261031/` 与它读取的 S1 replay Stage2 raw 输入已从本机删除；`evidence/s1e/` 中72项紧凑记录及分析脚本保留。复现需重新生成 Stage2 输入。审查报告指出原始 IQ 未随 Git 快照提供；本地清理后该限制也适用于本机重放。
+
 ## 阶段裁决
 
 **S1e：`PASS_WITH_LIMITATIONS / MECHANISM_EVALUABLE`。R22 target-present Screening 仍为 `GATE_FAILED / INCOMPLETE`，不得从该失败状态续跑。**

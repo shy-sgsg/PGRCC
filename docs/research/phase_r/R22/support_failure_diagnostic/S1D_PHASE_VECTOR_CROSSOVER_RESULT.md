@@ -1,5 +1,7 @@
 # R22-S1d：C4 单组 CSI 相位向量交叉诊断
 
+> **2026-11-05 清理更新：** S1d 独立审查完成后，周期错配的两份无效初试、period-correct 完整运行目录及共享 replay raw 输入已删除；`evidence/s1d/` 中的紧凑 Production 证据、复数表和哈希记录保留。复现需重建输入；本文当时的运行与失败修正记录保持不变。
+
 ## 阶段裁决
 
 **S1d `EVALUABLE` 的范围仅限于固定失败组的相位向量敏感性。R22 target-present Screening 仍为 `GATE_FAILED / INCOMPLETE`，不得从该状态续跑或跳过失败条件。**
