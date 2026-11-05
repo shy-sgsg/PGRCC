@@ -46,6 +46,7 @@
 22. [S1e 当前 Mode-B ON/OFF/TO 三角色诊断](support_failure_diagnostic/S1E_MODEB_ROLE_TRIPLET_RESULT.md)、[紧凑 CUDA Production 证据](support_failure_diagnostic/evidence/s1e/)与[固定快照 ChatGPT 独立科研审查提示词](support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1E_20261031.md)：审查快照固定为 `d2462657803375c3b0ebf45076d8eb4b94d63a8e`；检查三角色运行、逐格复数闭合、CSI phase-vector 作用、C4 support gate 及整体研究价值。
 23. [V2 screening 方法级可评价性离线复核](19_v2_screening_method_level_offline_dry_run_20261105.md)：对18个终态case归档做只读重分类，报告CRC/SHA、269/270个ON方法单元可评价及全方法比较仍不完整的边界。
 24. [V3 方法级可评价性契约草案](20_v3_method_level_evaluability_contract_draft_20261105.md)：提出场景级完整性与方法级状态分离、覆盖率分母和公平比较规则；状态为草案，不修改V2、不实现runner，也不授权CUDA。
+25. [V3 方法级契约 ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V3_METHOD_LEVEL_20261105.md)：固定审查快照为 `3b99486406d9d224f4968df23bbcfeec1315e378`，先读该版本研究总纲，再审查契约正确性与整体GMTI研究价值；提示词明确本机 ZIP/IQ/真值不可从GitHub快照独立验证。
 
 ## 关键证据
 
