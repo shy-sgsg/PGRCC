@@ -2,6 +2,16 @@
 
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
+## 2026-11-06｜R22 V3.1：资源/身份门控早停；完整 Screening 未完成
+
+- **决策编号与身份：** `D-2026-11-06-R22-V3.1-UNKNOWN-STOP`。分支 `codex/unknown-system-error-next-stage`；实验源码 commit `a2d8e65514847e4cc97e9e78df0c5cbafe528217`；Production binary SHA-256 `d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`；总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
+- **原计划与执行：** V3.1 计划288个 case / 4,320个适用 ON method×mode 单元。Native CUDA实际尝试6个 case：5个通过，seed1932001、0.5 m/s、30 dB、+4 ns case `UNKNOWN_STOP`；该失败 case 15/18单元可评价、3单元未知，282个 case和4,230个方法单元未执行。6个 case全部来自1个 seed，不能支持统计性能结论。
+- **物理和失败事实：** 6个 case 的连续面积杂波 gate 均通过，每 case 1,300 packets / 6,508,782 samples。失败 case 的50份 branch manifest中47份通过、3份 return code=1；C2 Mode-B ON 日志直接记录 CUDA memory allocation OOM；C2 Mode-A TO 与 C3 Mode-A OFF 的根因 `NOT_VERIFIED`。不能把资源错误改称算法性能失败。
+- **身份审计：** matrix manifest 设计 SHA `696dce5b18fab9209f57c7d49922ff3c1ae4ea52f0a524c34cede8e8b933e635` 与仓库冻结 V3.1 JSON SHA `26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839` 不一致；未找到 manifest hash 对应文件。因此精确实验设计身份未闭合，6-case运行与已提交冻结设计的逐字节绑定 `NOT_VERIFIED`。保留原 manifest，不追溯修改。
+- **可评价性与方向：** V3.1 `UNKNOWN_STOP / INCOMPLETE`；不排名、不报告 Pd/Pfa 或算法增益；`PERFORMANCE_VERIFIED=false`、`AI_ENTRY_GATE=FAIL`。总体 GMTI研究方向没有新证据要求改变；不修改研究总纲。
+- **磁盘与保留：** 六个compact ZIP CRC均通过、合计29,776,837 bytes；ledger累计移除8,826个文件、47,246,962,032 logical bytes，raw文件为0。44.0 GiB仅为 ledger逻辑大小之和，不等于实际物理释放量。项目树约3.4 GiB，低于20 GiB最终上限；失败compact ZIP已纳入Git审查包，成功case归档仍在本机输出根。
+- **停止条件与下一步：** V3.1终态不续跑、不重试失败分支、不降低门槛或缩小288-case范围。若恢复完整筛选，必须创建独立新版本与输出根，先闭合实际design path/SHA并记录显存用量；设备资源满足 Production 分配需求后才从队列起点启动完整范围。任何资源失败仍按新版本契约停止。详情见[V3.1早停审计](phase_r/R22/24_v3_1_screening_early_stop_20261106.md)、[compact证据摘要](phase_r/R22/evidence/v3_1_early_stop_20261106/case_summary.json)和[失败归档](phase_r/R22/evidence/v3_1_early_stop_20261106/failure_case.zip)。
+
 ## 2026-11-06｜R22 V3：保留 UNKNOWN_STOP；通过独立 V3.1 全量重跑继续
 
 - **决策编号与固定身份：** `D-2026-11-06-R22-V3-REPLAY`。V3 执行源码 commit `003366a7c04877d36281b268c83bfcb08bf7b810`；V3 design `R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985`。
