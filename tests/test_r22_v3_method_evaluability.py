@@ -372,9 +372,13 @@ def test_v3_2_records_exact_design_path_and_memory_preflight(tmp_path, monkeypat
         "gpus": [{"memory.used": 1 * 1024**3, "memory.free": 3 * 1024**3,
                   "memory.total": 4 * 1024**3}],
     }
-    monkeypatch.setattr(v3_runner.r21, "_native_cuda_preflight", lambda *_a: {
-        "binary": {"sha256": "production-sha"}, "gpu": {"available": True},
-    })
+    disk_preflight_roots = []
+
+    def fake_native_preflight(_binary, disk_root):
+        disk_preflight_roots.append(Path(disk_root))
+        return {"binary": {"sha256": "production-sha"}, "gpu": {"available": True}}
+
+    monkeypatch.setattr(v3_runner.r21, "_native_cuda_preflight", fake_native_preflight)
     monkeypatch.setattr(v3_runner, "_gpu_device_identity", lambda: ["test-gpu"])
     process_snapshot = {"status": "available", "processes": []}
     monkeypatch.setattr(v3_runner, "_gpu_process_snapshot", lambda: process_snapshot)
@@ -406,6 +410,7 @@ def test_v3_2_records_exact_design_path_and_memory_preflight(tmp_path, monkeypat
     assert metadata["preflight_snapshot"]["gpu_resource_snapshot"]["gpus"][0]["memory.free"] == 3 * 1024**3
     assert metadata["preflight_snapshot"]["gpu_resource_snapshot"]["gpus"][0]["memory.used"] == 1 * 1024**3
     assert metadata["preflight_snapshot"]["gpu_process_snapshot"] == process_snapshot
+    assert disk_preflight_roots == [tmp_path]
 
 
 def test_v3_roots_reject_v2_reuse_and_root_overlap(tmp_path):

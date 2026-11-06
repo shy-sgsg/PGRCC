@@ -272,7 +272,12 @@ def build_execution_metadata(
         if not required.is_file():
             raise FileNotFoundError(f"required V3 execution input is missing: {required}")
 
-    production_preflight = r21._native_cuda_preflight(production_binary, output_root)
+    disk_probe = output_root
+    while not disk_probe.is_dir() and disk_probe != disk_probe.parent:
+        disk_probe = disk_probe.parent
+    if not disk_probe.is_dir():
+        raise FileNotFoundError(f"no existing directory is available for output disk preflight: {output_root}")
+    production_preflight = r21._native_cuda_preflight(production_binary, disk_probe)
     gpu_identity = _gpu_device_identity()
     gpu_processes = _gpu_process_snapshot()
     design_identity = validate_design_identity(design_path)
