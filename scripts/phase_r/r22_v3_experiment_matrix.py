@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the separately frozen R22 V3 method-level Native CUDA screening."""
+"""Run the separately frozen R22 V3.1 method-level Native CUDA screening."""
 
 from __future__ import annotations
 
@@ -23,8 +23,9 @@ from scripts.phase_r import r22_experiment_matrix as matrix  # noqa: E402
 from scripts.phase_r.r22_v3_case_evaluator import classify_v3_case  # noqa: E402
 
 V2_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design_v2_range_roi.json"
-DEFAULT_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_method_level_20261105.json"
-V3_DESIGN_ID = "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION"
+V3_PARENT_DESIGN_ID = "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION"
+DEFAULT_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json"
+V3_DESIGN_ID = "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING"
 EXPECTED_SCREENING_CASES = 288
 EXPECTED_APPLICABLE_ON_UNITS = 4320
 
@@ -42,48 +43,58 @@ def load_v3_design(path: str | Path = DEFAULT_DESIGN) -> dict[str, Any]:
     design_path = Path(path).expanduser().resolve()
     design = matrix.load_design(design_path)
     if design.get("design_id") != V3_DESIGN_ID:
-        raise ValueError(f"V3 design_id must be {V3_DESIGN_ID}")
-    if design.get("supersedes_design_id") != "R22_EXTENSION_20261028_V2_RANGE_ROI":
-        raise ValueError("V3 design must explicitly supersede the frozen V2 range/ROI design")
+        raise ValueError(f"V3.1 design_id must be {V3_DESIGN_ID}")
+    if design.get("supersedes_design_id") != V3_PARENT_DESIGN_ID:
+        raise ValueError("V3.1 design must explicitly supersede the terminal V3 design")
     if design.get("period_count") != 10:
-        raise ValueError("V3 screening period_count is frozen at 10")
+        raise ValueError("V3.1 screening period_count is frozen at 10")
     execution_policy = design.get("v3_execution_policy")
     if (not isinstance(execution_policy, Mapping)
             or execution_policy.get("resource_failure")
             != "stop_and_report_partial_without_reducing_frozen_design"):
-        raise ValueError("V3 must stop on resource failure without reducing the frozen design")
+        raise ValueError("V3.1 must stop on resource failure without reducing the frozen design")
+
+    provenance = design.get("v3_1_resource_replay_provenance")
+    if (not isinstance(provenance, Mapping)
+            or provenance.get("parent_design_id") != V3_PARENT_DESIGN_ID
+            or provenance.get("parent_matrix_status") != "UNKNOWN_STOP"
+            or provenance.get("diagnostic_only") is not True
+            or provenance.get("diagnostic_not_in_new_screening_denominator") is not True
+            or provenance.get("scientific_factors_changed") is not False):
+        raise ValueError("V3.1 must retain the diagnostic provenance without changing scientific factors")
 
     v2 = matrix.load_design(V2_DESIGN)
     v3_only = {
         "design_id", "state", "supersedes_design_id", "v3_method_unit_applicability",
         "v3_execution_policy", "period_policy", "minimum_period_count_if_resource_gate_fails",
+        "v3_1_resource_replay_provenance",
     }
     if any(design.get(key) != value for key, value in v2.items() if key not in v3_only):
-        raise ValueError("V3 scientific factors or evaluation rules differ from frozen V2")
+        raise ValueError("V3.1 scientific factors or evaluation rules differ from frozen V2")
 
     applicability = design.get("v3_method_unit_applicability")
     if not isinstance(applicability, Mapping):
-        raise ValueError("V3 method-unit applicability table is missing")
+        raise ValueError("V3.1 method-unit applicability table is missing")
     zero_units = applicability.get("zero_delay_method_units")
     plus4_units = applicability.get("plus4_delay_method_units")
     if not isinstance(zero_units, list) or len(zero_units) != 12:
-        raise ValueError("V3 zero-delay applicability must contain 12 method units")
+        raise ValueError("V3.1 zero-delay applicability must contain 12 method units")
     if not isinstance(plus4_units, list) or len(plus4_units) != 18:
-        raise ValueError("V3 +4 ns applicability must contain 18 method units")
+        raise ValueError("V3.1 +4 ns applicability must contain 18 method units")
     for label, rows in (("zero_delay", zero_units), ("plus4_delay", plus4_units)):
         identities = [(row.get("method_id"), row.get("mode")) for row in rows]
         if any(not method or not mode for method, mode in identities):
-            raise ValueError(f"V3 {label} applicability has an incomplete unit")
+            raise ValueError(f"V3.1 {label} applicability has an incomplete unit")
         if len(identities) != len(set(identities)):
-            raise ValueError(f"V3 {label} applicability has duplicate method units")
+            raise ValueError(f"V3.1 {label} applicability has duplicate method units")
 
     specs = matrix.build_case_specs(design, "screening")
     if len(specs) != EXPECTED_SCREENING_CASES:
-        raise ValueError(f"V3 screening must contain exactly {EXPECTED_SCREENING_CASES} cases")
+        raise ValueError(f"V3.1 screening must contain exactly {EXPECTED_SCREENING_CASES} cases")
     denominator = sum(len(expected_method_units(design, spec)) for spec in specs)
     if denominator != EXPECTED_APPLICABLE_ON_UNITS:
         raise ValueError(
-            f"V3 ON method-unit denominator must be {EXPECTED_APPLICABLE_ON_UNITS}, got {denominator}"
+            f"V3.1 ON method-unit denominator must be {EXPECTED_APPLICABLE_ON_UNITS}, got {denominator}"
         )
     return design
 
@@ -140,9 +151,9 @@ def validate_resume_target(output_root: str | Path, *, resume: bool) -> None:
         raise FileExistsError(f"V3 matrix already exists; pass --resume: {root}")
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     if manifest.get("design_id") != V3_DESIGN_ID:
-        raise ValueError("existing matrix root does not belong to the frozen V3 design")
+        raise ValueError("existing matrix root does not belong to the frozen V3.1 design")
     if manifest.get("status") in {"GATE_FAILED", "UNKNOWN_STOP"}:
-        raise RuntimeError(f"refusing to resume a V3 matrix in {manifest['status']} state")
+        raise RuntimeError(f"refusing to resume a V3.1 matrix in {manifest['status']} state")
 
 
 def _git_output(*args: str) -> str:

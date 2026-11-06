@@ -2,6 +2,17 @@
 
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
+## 2026-11-06｜R22 V3：保留 UNKNOWN_STOP；通过独立 V3.1 全量重跑继续
+
+- **决策编号与固定身份：** `D-2026-11-06-R22-V3-REPLAY`。V3 执行源码 commit `003366a7c04877d36281b268c83bfcb08bf7b810`；V3 design `R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985`。
+- **问题与 V3 停止结果：** 288-case Screening 运行了3个完整通过 case；第4个 case 的54个 Production branches中53个通过，`P2 / Mode-A / ON` 在第10周期 `raw_align` 失败，日志记录 beam quality gate `valid=0/1`。失败时空闲显存约 `0.056 GiB`，具体 CUDA error code未保存。按冻结规则，V3 matrix 保持终态 `UNKNOWN_STOP`，不以普通方法能力缺口继续，也不直接续跑。
+- **后续诊断：** 同 seed1932001、0.5 m/s、20 dB、+4 ns、20目标、10周期、beam50 使用相同 Production binary做诊断重放。运行前 GPU 空闲1215 MiB、利用率94%、76°C；9/9 production branches通过，包含原失败分支。面积杂波门通过（1300 packets、6,508,782 samples），3条ON任务行可评价，1200个目标机会行，H0=0，实测Pfa不可评价，`PERFORMANCE_VERIFIED=false`。重放支持资源状态相关假设但未证明原失败根因，也不回写V3结果。
+- **磁盘清理：** 该诊断生成的401个可再生 `.bin`、6,888,974,776 bytes，在清理前逐文件记入 SHA ledger 并移除；剩余 `.bin/.npy/.npz` 为0。保留约200 MiB的manifest、XML、日志、CSI/CFAR/task/truth和cleanup证据。项目 worktree约3.3 GiB，低于20 GiB最终上限。
+- **方向判断：** `CONTINUE` 传统强 Baseline 能力边界与关键 GMTI任务指标评价；`AI_ENTRY_GATE=FAIL`。本证据不证明算法改进，不证明目标任务性能，不改变长期研究方向。研究总纲未修改。
+- **下一项唯一任务：** V3.1 新设计、新matrix/raw/archive根，从队列起点执行全部288个 case和4,320个适用ON method×mode单元。V2/V3历史归档与这次诊断重放均不计入V3.1覆盖率。任何未知/shared/runtime gate失败仍按契约停机；不降低门槛或缩小矩阵。只有全量Screening汇总和方向评估完成后才裁决是否单独冻结Confirmatory，不自动启动AI、Dense或Router。
+- **V3.1 design SHA-256：** `26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839`。
+- **证据：** [V3早停与重放审计](phase_r/R22/21_v3_screening_early_stop_20261106.md)、[V3.1契约](phase_r/R22/23_v3_1_post_replay_screening_contract_20261106.md)、[V3.1设计](phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json)及本机诊断 manifest `outputs/r22_v3_diagnostics_20261106/p2_modea_on_case/attempt_001/r22_run_manifest.json`。
+
 ## 2026-10-22｜R3/R4：阶段状态 INCONCLUSIVE，AI 必要性未建立
 
 - **当时问题：** 修复后的生产链中，未知通道误差是否造成任务损失，或零误差下低速/杂波是否已成为更重要瓶颈？

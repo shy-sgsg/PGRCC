@@ -1,5 +1,7 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
+> **2026-11-06 V3 / V3.1 状态：** V3 在第4个 case 的 `P2 / Mode-A / ON` 分支因 `raw_align`/beam quality gate 失败而以 `UNKNOWN_STOP` 终止，历史矩阵保持终态。随后同场景诊断重放在约1215 MiB空闲显存下9/9分支通过，包含该 P2 ON 分支；这使设备资源状态成为合理解释，但根因仍未证明。新 V3.1 使用独立设计与输出根，从头执行288个 case、4,320个适用 ON 方法单元；历史 V3 case 和诊断重放都不计入覆盖率。见[V3早停与重放审计](21_v3_screening_early_stop_20261106.md)、[V3.1契约](23_v3_1_post_replay_screening_contract_20261106.md)和[V3.1机器可读设计](config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json)。
+
 > **2026-11-05 独立审查更新：** S1e 固定快照审查裁决为 `PASS_WITH_LIMITATIONS`；角色相关 CSI phase-vector 是该组 C4 support 变化的近端机制，但目标污染未证明，任务收益未验证。V2 target-present screening 仍为 `GATE_FAILED / INCOMPLETE`。18个终态 case 的只读复核保留269/270个适用ON方法单元，C4 Mode-B的1个缺口不再抹掉其他方法的归档行；全方法 CUT/unique-hit 汇总仍不可评价，不恢复排名。见[离线复核](19_v2_screening_method_level_offline_dry_run_20261105.md)和[V3契约草案](20_v3_method_level_evaluability_contract_draft_20261105.md)。V3尚未冻结或实现，本次没有启动CUDA。
 
 > **2026-11-05 V3 设计更新：** 完成历史 Baseline、Stage2 面积几何、Native CUDA Production 与 V2 compact archive 的交叉审计。V2 仍只读保留；新 V3 使用独立设计和输出根，对288个 screening case 全量重跑，旧V2归档不并入V3覆盖率。V3只允许已确认的单方法 reference/estimator 缺口在公共输入门通过时隔离，其余未知或共享故障仍停机。见[历史 Baseline/仿真/Production 审计](21_historical_baseline_simulator_production_audit_20261105.md)和[V3 Screening 契约](22_v3_screening_contract_20261105.md)。
@@ -49,6 +51,7 @@
 23. [V2 screening 方法级可评价性离线复核](19_v2_screening_method_level_offline_dry_run_20261105.md)：对18个终态case归档做只读重分类，报告CRC/SHA、269/270个ON方法单元可评价及全方法比较仍不完整的边界。
 24. [V3 方法级可评价性契约草案](20_v3_method_level_evaluability_contract_draft_20261105.md)：提出场景级完整性与方法级状态分离、覆盖率分母和公平比较规则；状态为草案，不修改V2、不实现runner，也不授权CUDA。
 25. [V3 方法级契约 ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V3_METHOD_LEVEL_20261105.md)：固定审查快照为 `3b99486406d9d224f4968df23bbcfeec1315e378`，先读该版本研究总纲，再审查契约正确性与整体GMTI研究价值；提示词明确本机 ZIP/IQ/真值不可从GitHub快照独立验证。
+26. [V3早停与重放审计](21_v3_screening_early_stop_20261106.md)、[V3.1全量 Screening 契约](23_v3_1_post_replay_screening_contract_20261106.md)与[V3.1设计 JSON](config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json)：保留V3终态失败、后续同条件重放、全量288-case新版本边界和磁盘清理身份。
 
 ## 关键证据
 

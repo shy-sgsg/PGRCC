@@ -263,7 +263,7 @@ def test_zero_delay_not_applicable_rows_are_outside_frozen_unit_denominator():
     assert result["scenario_status"] == "CASE_VALID"
 
 
-def test_v3_design_preserves_v2_factors_and_freezes_exact_screening_coverage():
+def test_v3_1_design_preserves_v2_factors_and_freezes_exact_screening_coverage():
     v2 = matrix.load_design(V2_DESIGN)
     v3 = load_v3_design(DEFAULT_DESIGN)
     v2_specs = matrix.build_case_specs(v2, "screening")
@@ -293,11 +293,29 @@ def test_v3_design_preserves_v2_factors_and_freezes_exact_screening_coverage():
         assert v3[key] == v2[key]
     assert v3["period_count"] == 10
     assert "do not reduce periods" in v3["period_policy"]
+    assert v3["design_id"] == "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING"
+    assert v3["supersedes_design_id"] == "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION"
+    provenance = v3["v3_1_resource_replay_provenance"]
+    assert provenance["diagnostic_only"] is True
+    assert provenance["diagnostic_not_in_new_screening_denominator"] is True
+    assert provenance["scientific_factors_changed"] is False
+    assert "all 288 cases" in provenance["new_screening_policy"]
 
 
 def test_v3_loader_rejects_v2_design_identity():
-    with pytest.raises(ValueError, match="V3 design_id"):
+    with pytest.raises(ValueError, match="V3.1 design_id"):
         load_v3_design(V2_DESIGN)
+
+
+def test_v3_1_cannot_resume_terminal_v3_unknown_stop(tmp_path):
+    output = tmp_path / "old-v3-matrix"
+    output.mkdir()
+    (output / "matrix_manifest.json").write_text(json.dumps({
+        "design_id": "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION",
+        "status": "UNKNOWN_STOP",
+    }))
+    with pytest.raises(ValueError, match="frozen V3.1 design"):
+        validate_resume_target(output, resume=True)
 
 
 def test_v3_roots_reject_v2_reuse_and_root_overlap(tmp_path):
@@ -328,7 +346,7 @@ def test_v3_cli_rejects_v2_design_before_gpu_preflight(tmp_path):
     ], capture_output=True, text=True, check=False)
 
     assert result.returncode == 2
-    assert "V3 design_id" in result.stderr
+    assert "V3.1 design_id" in result.stderr
     assert not (tmp_path / "matrix").exists()
 
 
