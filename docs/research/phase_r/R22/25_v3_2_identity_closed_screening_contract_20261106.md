@@ -41,12 +41,12 @@ V3.2 JSON 与 V3.1 只应在以下 execution/provenance 字段不同：design ID
 
 ## 4. 资源调度与早停
 
-V3.1 失败 case 的一条 C2 Mode-B ON 日志明确为 CUDA OOM；V3.1 执行前 GPU 利用率99%，但没有保存空闲显存。随后审查时发现外部训练进程 PID 347130 使用约1,954 MiB，RTX 3050 Laptop GPU 仅约1,063 MiB空闲、利用率99%。不停止、不干预该外部进程。
+V3.1 失败 case 的一条 C2 Mode-B ON 日志明确为 CUDA OOM；V3.1 执行前 GPU 利用率99%，没有保存空闲显存。当前外部训练进程 PID 347130 使用约1,954 MiB。用户已明确授权在外部训练仍运行时并行启动本实验；最近一次提权快照为 RTX 3050 Laptop GPU 空闲1,223 MiB、利用率95%。不停止、不干预该外部进程。
 
 启动门仅用于资源调度，不改变科学质量门或分母：
 
-1. 在外部训练进程退出前不启动新的 CUDA matrix；进程状态必须用 `nvidia-smi --query-compute-apps` 实际核验，不能靠等待时间推断。
-2. 启动前重新记录上述 GPU 与磁盘状态。此契约不发明显存最低阈值；若Production在新运行中发生OOM或其他资源错误，仍按 `UNKNOWN_STOP` 停止并完整归档。
+1. 启动前重新记录 `nvidia-smi` GPU状态和 `--query-compute-apps` 进程列表。外部训练可以继续运行；不得终止或干预。将并发占用列为本次已知资源风险。
+2. 不设未经证据支持的显存最低阈值。启动前必须确认Native CUDA设备可见、记录显存总量/已用/空闲及磁盘空间；若Production发生OOM或其他资源错误，仍按 `UNKNOWN_STOP` 停止并完整归档。
 3. 所有288个 case 从队列起点运行，不设置 `--max-cases`，不重用终态目录，不降低目标数、周期数、seed数、方法数、支持门或 CFAR 门。
 
 每个 case 必须先生成 compact archive，再逐项验证 SHA-256 与 ZIP CRC；验证成功后才清理可重建 raw `.bin`/CSI `.npy`。保留 runtime XML、manifest、日志、CSI taps、CFAR geometry、task/truth rows 和 cleanup ledger。若 archive 校验失败，保留 raw 并终止。
@@ -64,4 +64,4 @@ V3.1 失败 case 的一条 C2 Mode-B ON 日志明确为 CUDA OOM；V3.1 执行�
 5. 完成与研究总纲的双层方向判断，明确 `IMPLEMENTED / EXECUTED / EVALUABLE / PERFORMANCE_VERIFIED`；
 6. 清理可再生大数组后项目占用小于20 GiB，并保留必要审查证据。
 
-当前 V3.2 尚未执行 CUDA。外部训练进程 PID 347130 最近一次核验仍在运行（RTX 3050 Laptop GPU 空闲 993 MiB、利用率95%）；在该进程退出后重新核验 GPU 与磁盘状态前保持 `NOT_STARTED_RESOURCE_WAIT`。检查时项目工作树约3.4 GiB，`outputs/` 约2.1 GiB，文件系统可用约17 GiB；每个 case 的 raw 数据仅在 compact ZIP SHA 与 CRC 校验通过后删除。研究总纲没有修改。
+当前 V3.2 尚未执行 CUDA；用户已授权在外部训练进程 PID 347130 继续运行时并行启动。最近快照为空闲1,223 MiB、利用率95%；启动前仍需再次记录 GPU、compute-process list 和磁盘状态。检查时项目树约3.9 GiB，`outputs/` 约2.1 GiB，文件系统可用约17 GiB；每个 case 的 raw 数据仅在 compact ZIP SHA 与 CRC 校验通过后删除。研究总纲没有修改。
