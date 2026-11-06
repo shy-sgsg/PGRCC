@@ -27,9 +27,12 @@
 7. `docs/research/phase_r/R22/evidence/v3_1_early_stop_20261106/case_summary.json`
 8. `docs/research/phase_r/R22/evidence/v3_1_early_stop_20261106/matrix_manifest.json`
 9. `docs/research/phase_r/R22/evidence/v3_1_early_stop_20261106/failure_case.zip`
-10. 报告指向的冻结设计 JSON、Production runner/source、method config 与 scenario template。
+10. `docs/research/phase_r/R22/26_v3_1_design_digest_semantics_correction_20261106.md`
+11. 报告指向的冻结设计 JSON、Production runner/source、method config 与 scenario template。
 
 如任何链接或 ZIP 无法实际读取，请说明文件名并标记 `NOT_VERIFIED`；不能声称检查了未读取的文件。归档中保留运行日志与配置，没有保留原始 IQ 和可重建大数组。
+
+**后续哈希语义更正：** 本提示词最初版本把 manifest 的规范化 JSON `design_sha256` 与设计文件原始字节 SHA 直接比较。上述更正说明按 runner 实际算法复算后，V3.1 manifest 的规范化哈希与已提交设计 JSON 完全一致。请以更正说明为准；V3.1 manifest 未单独记录的是执行时解析路径和原始文件 SHA，而不是缺失设计内容。
 
 ## 阶段身份与关键问题
 
@@ -41,7 +44,7 @@
 2. 6个 case 的 Stage2 连续面积地杂波是否真实存在；数量、平均功率与配对可比性是否支持报告中的说法。
 3. +4 ns / 30 dB 失败 case 的方法级可评价性、失败分支、task rows、valid-CUT/unique-hit gate 与 H0 统计是否被正确解释。
 4. `C2 / Mode-B / ON` 的 OOM 是否只能说明 CUDA 执行资源失败；另两条 return code 1 的分支在日志不足时应如何标记。
-5. 一个需要明确审计的身份冲突：matrix manifest 中 `design_sha256=696dce5b18fab9209f57c7d49922ff3c1ae4ea52f0a524c34cede8e8b933e635`，仓库 V3.1 设计 JSON 的 SHA-256 为 `26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839`。请判断这对实验与冻结设计绑定、可复现性和阶段裁决的影响，不要自行推测缺失设计文件内容。
+5. 复算 matrix manifest 与已提交 V3.1 JSON 的规范化设计摘要，核对其与原始文件字节 SHA 的语义差别；区分已经验证的设计内容身份和没有单独记录的原始路径/字节来源字段。不要再把规范化哈希与原始字节哈希直接比较。
 6. 工作树、阶段归档和 raw cleanup 的体量是否准确；区分 ledger 累计逻辑文件大小与实际释放的物理空间。
 
 ## 请完成双层独立审查
@@ -52,7 +55,7 @@
 - 核对面积杂波 gate、ON/OFF/TO 配对、valid CUT、unique hit、Production statuses 与压缩归档证据。
 - 判断 OOM 和两条未知分支如何限制 case 与整个 Screening 的可评价性。
 - 区分 `IMPLEMENTED`、`EXECUTED`、`EVALUABLE`、`PERFORMANCE_VERIFIED`。
-- 评价设计 SHA 不匹配是否使实验配置身份整体 `NOT_VERIFIED`，以及报告当前表述是否充分、准确。
+- 评价V3.1设计内容身份与文件级来源身份分别达到何种证据等级，并检查历史审计报告是否依据更正说明完成了准确表述。
 - 说明 GitHub 可直接读取的材料与仍未提供/不可核验的数据边界。
 
 ### 第二层：总体 GMTI 科研价值与方向
@@ -67,7 +70,7 @@
 先给裁决（`PASS_WITH_LIMITATIONS` / `INCONCLUSIVE` / 其他有依据的标签），再给：
 
 1. 可验证事实与对应文件；
-2. 设计身份冲突的处理；
+2. 规范化设计摘要与原始文件哈希的核对；
 3. 阶段任务正确性结论；
 4. 总体研究价值与方向建议；
 5. 一个下一步及停止条件；

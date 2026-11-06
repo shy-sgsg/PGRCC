@@ -1,6 +1,6 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
-> **2026-11-06 V3.1 最新状态：** 全量 Native CUDA Screening 只尝试6/288个 case 后以 `UNKNOWN_STOP` 停止；5个 case 通过，SNR30 dB/+4 ns case中3/18个方法单元未知，282个 case 未启动。杂波 gate 六例均通过；1个 Production OOM 已由日志确认，另2条失败根因未核实。matrix manifest 的设计文件 SHA 与仓库冻结 JSON 不一致，精确设计身份 `NOT_VERIFIED`。全部6个 compact ZIP CRC通过，raw文件已清除，完整失败 case ZIP已纳入证据包。详见[V3.1早停审计](24_v3_1_screening_early_stop_20261106.md)、[精简 case 摘要](evidence/v3_1_early_stop_20261106/case_summary.json)、[matrix manifest](evidence/v3_1_early_stop_20261106/matrix_manifest.json)、[失败case归档](evidence/v3_1_early_stop_20261106/failure_case.zip)与[ChatGPT独立审查提示词](CHATGPT_REVIEW_PROMPT_V3_1_EARLY_STOP_20261106.md)。不得续跑该V3.1终态矩阵，也不得报告性能排名。
+> **2026-11-06 V3.2 当前状态：** V3.1完整Screening尝试6/288个case后以 `UNKNOWN_STOP` 停止；其中5个通过，1个case有3/18个方法单元未知，其余282个未启动。连续面积杂波 gate 六例均通过；1个Production OOM有日志确认，另2条失败根因未核实。哈希语义复核确认 V3.1 manifest 的规范化 JSON SHA 与已提交设计一致；旧 manifest 未单独记录设计文件路径和原始字节SHA，详细更正见[审计说明](26_v3_1_design_digest_semantics_correction_20261106.md)。V3.1终态不续跑。V3.2保持完整288-case/4,320-unit范围，路径和哈希已冻结、离线检查22项通过，CUDA尚未启动；最近核验外部训练PID 347130仍占用GPU，因此等待资源变化。当前目录约3.4 GiB、`outputs/`约2.1 GiB、文件系统约17 GiB可用；按每case archive SHA+CRC验证后清理raw。见[V3.2契约](25_v3_2_identity_closed_screening_contract_20261106.md)和[机器可读设计](config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json)。
 
 > **2026-11-06 V3 早停/重放状态：** V3 在第4个 case 的 `P2 / Mode-A / ON` 分支因 `raw_align`/beam quality gate 失败而以 `UNKNOWN_STOP` 终止，历史矩阵保持终态。随后同场景诊断重放在约1215 MiB空闲显存下9/9分支通过，包含该 P2 ON 分支；这使设备资源状态成为合理解释，但根因仍未证明。其后另建V3.1并尝试完整 Screening，最新结果见上条。V3早停详见[审计报告](21_v3_screening_early_stop_20261106.md)，原V3契约见[历史V3契约](22_v3_screening_contract_20261105.md)。
 
@@ -54,7 +54,9 @@
 24. [V3 方法级可评价性契约草案](20_v3_method_level_evaluability_contract_draft_20261105.md)：提出场景级完整性与方法级状态分离、覆盖率分母和公平比较规则；状态为草案，不修改V2、不实现runner，也不授权CUDA。
 25. [V3 方法级契约 ChatGPT 独立审查提示词](CHATGPT_REVIEW_PROMPT_V3_METHOD_LEVEL_20261105.md)：固定审查快照为 `3b99486406d9d224f4968df23bbcfeec1315e378`，先读该版本研究总纲，再审查契约正确性与整体GMTI研究价值；提示词明确本机 ZIP/IQ/真值不可从GitHub快照独立验证。
 26. [V3早停与重放审计](21_v3_screening_early_stop_20261106.md)、[V3.1全量 Screening 契约](23_v3_1_post_replay_screening_contract_20261106.md)与[V3.1设计 JSON](config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json)：保留V3终态失败、后续同条件重放、全量288-case新版本边界和磁盘清理身份。
-27. [V3.1全量 Screening 早停审计](24_v3_1_screening_early_stop_20261106.md)、[精简case摘要与matrix manifest](evidence/v3_1_early_stop_20261106/)、[完整失败case compact归档](evidence/v3_1_early_stop_20261106/failure_case.zip)和[ChatGPT独立审查提示词](CHATGPT_REVIEW_PROMPT_V3_1_EARLY_STOP_20261106.md)：记录6/288停止、设计SHA不匹配、已确认OOM、未知失败、raw清理与方向结论。
+27. [V3.1全量 Screening 早停审计](24_v3_1_screening_early_stop_20261106.md)、[精简case摘要与matrix manifest](evidence/v3_1_early_stop_20261106/)、[完整失败case compact归档](evidence/v3_1_early_stop_20261106/failure_case.zip)和[ChatGPT独立审查提示词](CHATGPT_REVIEW_PROMPT_V3_1_EARLY_STOP_20261106.md)：记录6/288停止、运行OOM与未知失败、raw清理和方向结论。初审中的哈希语义误判由下一条更正说明纠正。
+28. [V3.1设计摘要哈希语义更正](26_v3_1_design_digest_semantics_correction_20261106.md)：确认 manifest 使用规范化 JSON 哈希并与已提交V3.1设计一致；区分已验证的设计内容身份与旧manifest未记录的原始文件路径/字节SHA。
+29. [V3.2身份闭合 Screening 契约](25_v3_2_identity_closed_screening_contract_20261106.md)与[机器可读设计](config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json)：冻结独立288-case矩阵，记录规范化设计哈希、原始文件SHA、资源和磁盘身份；当前仍等待外部GPU训练进程结束，尚未执行。
 
 ## 关键证据
 

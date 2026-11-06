@@ -248,3 +248,12 @@
 - **研究判断：** 总体GMTI方向 `CONTINUE`；未知物理状态、低速目标、复杂/非平稳杂波均未由本审查升级为已证实主瓶颈。`AI_ENTRY_GATE=FAIL`。不修改研究总纲。
 - **下一项建议：** 提交 [R22-V3方法级可评价性契约草案](phase_r/R22/20_v3_method_level_evaluability_contract_draft_20261105.md)，将全局输入完整性与每方法可评价覆盖分开，并保留V2所有门槛、结果与失败现场。V2离线复核见[报告](phase_r/R22/19_v2_screening_method_level_offline_dry_run_20261105.md)。这是草案：没有实现runner/evaluator，没有启动CUDA。实现V3状态机需用户明确批准草案范围；任何新的CUDA screening须等V3设计独立冻结并取得明确运行授权。
 - **审查后空间清理：** 删除8个S1b–S1e本机运行树，共释放 `11,356,172,288` allocated bytes。保留S1b–S1e紧凑Git evidence、报告、配置、分析脚本和哈希审计；S1原始Stage2 IQ/完整运行树需重建才可重放。保留V2 compact archives和失败ZIP供V3离线工作。详细路径和理由见[R22 cleanup ledger](phase_r/R22/evidence/cleanup_ledger.md)。
+
+## 2026-11-06｜更正 R22 V3.1 设计哈希语义；V3.2 仅补充文件级身份
+
+- **更正编号与证据身份：** `CORR-2026-11-06-R22-V3.1-DESIGN-DIGEST`。V3.1 matrix manifest 位于 `phase_r/R22/evidence/v3_1_early_stop_20261106/matrix_manifest.json`；冻结设计为 `phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json`；runner 定义见 `scripts/phase_r/r22_experiment_matrix.py::_design_digest()`。
+- **更正事实：** manifest 的 `design_sha256=696dce5b18fab9209f57c7d49922ff3c1ae4ea52f0a524c34cede8e8b933e635` 是解析后的 JSON 按排序键、紧凑分隔符规范化后计算的哈希；对已提交 V3.1 JSON 使用同一算法重算，结果完全一致。V3.1 JSON 的原始字节 SHA 为 `26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839`。此前将两种输入语义不同的哈希直接比较并称未找到设计文件，是审计解释错误。
+- **修正后的身份判断：** V3.1规范化设计内容身份已验证；旧 manifest 未单独保存运行时解析路径与原始文件字节 SHA，因此该文件级来源字段未记录。该更正不改变 V3.1 `UNKNOWN_STOP`、6/288执行状态、已确认OOM、另外两项失败根因未知、不可续跑、无性能结论等事实。
+- **V3.2 当前设计决定：** 继续使用独立版本/新输出根并从队列起点开始，原因是V3.1为终态且完整筛选未完成；不继承V3.1 case。V3.2同时保存规范化设计SHA、原始文件路径/字节SHA、GPU资源和compute-process快照。科学因素与质量门保持不变；CUDA尚未启动，最近GPU核验显示外部训练PID 347130仍运行。
+- **磁盘状态与清理规则：** 检查时工作树约3.4 GiB、`outputs/`约2.1 GiB、文件系统约17 GiB可用。V3.2尚无实验产物；运行时逐case先验证compact ZIP的SHA/CRC再删除可重建raw。未知历史输出不因体积大而自动删除。
+- **方向与总纲：** 仅纠正证据解释并补充执行身份记录，不形成新的算法结论，不改变研究方向，不修改研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985`。

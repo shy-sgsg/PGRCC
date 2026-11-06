@@ -10,14 +10,20 @@ import pytest
 from scripts.phase_r.r22_v3_case_evaluator import classify_method_level_case
 from scripts.phase_r.r22_v3_experiment_matrix import (
     DEFAULT_DESIGN,
+    V3_1_DESIGN,
+    V3_1_DESIGN_ID,
     V2_DESIGN,
     V3_DESIGN_ID,
+    V3_2_DESIGN_FILE_SHA256,
+    build_execution_metadata,
     expected_method_units,
     load_v3_design,
+    validate_design_identity,
     validate_output_roots,
     validate_resume_target,
 )
 from scripts.phase_r import r22_experiment_matrix as matrix
+from scripts.phase_r import r22_v3_experiment_matrix as v3_runner
 
 
 def _valid_run_manifest():
@@ -263,8 +269,9 @@ def test_zero_delay_not_applicable_rows_are_outside_frozen_unit_denominator():
     assert result["scenario_status"] == "CASE_VALID"
 
 
-def test_v3_1_design_preserves_v2_factors_and_freezes_exact_screening_coverage():
+def test_v3_2_design_preserves_scientific_factors_and_freezes_exact_screening_coverage():
     v2 = matrix.load_design(V2_DESIGN)
+    v3_1 = matrix.load_design(V3_1_DESIGN)
     v3 = load_v3_design(DEFAULT_DESIGN)
     v2_specs = matrix.build_case_specs(v2, "screening")
     v3_specs = matrix.build_case_specs(v3, "screening")
@@ -286,36 +293,119 @@ def test_v3_1_design_preserves_v2_factors_and_freezes_exact_screening_coverage()
     assert sum(len(expected_method_units(v3, item)) for item in v3_specs) == 4320
     assert len(expected_method_units(v3, next(x for x in v3_specs if x["delay_ns"] == 0))) == 12
     assert len(expected_method_units(v3, next(x for x in v3_specs if x["delay_ns"] == 4))) == 18
-    for key in set(v2) - {
-        "design_id", "state", "supersedes_design_id", "period_policy",
-        "minimum_period_count_if_resource_gate_fails",
-    }:
+    v3_only = {
+        "design_id", "state", "supersedes_design_id", "entered_from_commit",
+        "period_policy", "minimum_period_count_if_resource_gate_fails",
+        "v3_1_resource_replay_provenance", "v3_2_identity_provenance",
+    }
+    for key in set(v2) - v3_only:
         assert v3[key] == v2[key]
+    v3_2_only = {
+        "design_id", "state", "supersedes_design_id", "entered_from_commit",
+        "v3_2_identity_provenance",
+    }
+    assert {k: v for k, v in v3.items() if k not in v3_2_only} == {
+        k: v for k, v in v3_1.items() if k not in v3_2_only
+    }
     assert v3["period_count"] == 10
     assert "do not reduce periods" in v3["period_policy"]
-    assert v3["design_id"] == "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING"
-    assert v3["supersedes_design_id"] == "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION"
-    provenance = v3["v3_1_resource_replay_provenance"]
-    assert provenance["diagnostic_only"] is True
-    assert provenance["diagnostic_not_in_new_screening_denominator"] is True
-    assert provenance["scientific_factors_changed"] is False
-    assert "all 288 cases" in provenance["new_screening_policy"]
+    assert v3["design_id"] == V3_DESIGN_ID
+    assert v3["supersedes_design_id"] == V3_1_DESIGN_ID
+    prior_provenance = v3["v3_1_resource_replay_provenance"]
+    assert prior_provenance["diagnostic_only"] is True
+    assert prior_provenance["diagnostic_not_in_new_screening_denominator"] is True
+    assert prior_provenance["scientific_factors_changed"] is False
+    assert "all 288 cases" in prior_provenance["new_screening_policy"]
+    identity = v3["v3_2_identity_provenance"]
+    assert identity["parent_matrix_status"] == "UNKNOWN_STOP"
+    assert identity["parent_matrix_manifest_design_canonical_sha256"] == matrix._design_digest(v3_1)
+    assert identity["committed_parent_design_file_sha256"] == v3_runner._sha256(V3_1_DESIGN)
+    assert identity["parent_matrix_manifest_design_canonical_sha256"] == "696dce5b18fab9209f57c7d49922ff3c1ae4ea52f0a524c34cede8e8b933e635"
+    assert identity["committed_parent_design_file_sha256"] == "26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839"
+    assert "exactly equals the canonical digest" in identity["parent_digest_reconciliation"]
+    assert identity["new_matrix_from_queue_start"] is True
+    assert identity["parent_cases_and_method_units_excluded"] is True
+    assert identity["scientific_factors_changed"] is False
+    assert identity["quality_gates_changed"] is False
+    assert validate_design_identity(DEFAULT_DESIGN)["design_file_sha256"] == V3_2_DESIGN_FILE_SHA256
 
 
 def test_v3_loader_rejects_v2_design_identity():
-    with pytest.raises(ValueError, match="V3.1 design_id"):
+    with pytest.raises(ValueError, match="V3.2 design_id"):
         load_v3_design(V2_DESIGN)
 
 
-def test_v3_1_cannot_resume_terminal_v3_unknown_stop(tmp_path):
+def test_v3_loader_rejects_terminal_v3_1_design():
+    with pytest.raises(ValueError, match="V3.1 is terminal"):
+        load_v3_design(V3_1_DESIGN)
+
+
+def test_v3_2_rejects_design_path_or_frozen_sha_mismatch(tmp_path, monkeypatch):
+    copied_design = tmp_path / DEFAULT_DESIGN.name
+    copied_design.write_bytes(DEFAULT_DESIGN.read_bytes())
+    with pytest.raises(ValueError, match="committed design path"):
+        validate_design_identity(copied_design)
+
+    monkeypatch.setattr(v3_runner, "V3_2_DESIGN_FILE_SHA256", "0" * 64)
+    with pytest.raises(ValueError, match="frozen design file SHA mismatch"):
+        validate_design_identity(DEFAULT_DESIGN)
+
+
+def test_v3_2_cannot_resume_terminal_v3_1_root(tmp_path):
     output = tmp_path / "old-v3-matrix"
     output.mkdir()
     (output / "matrix_manifest.json").write_text(json.dumps({
-        "design_id": "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION",
+        "design_id": V3_1_DESIGN_ID,
         "status": "UNKNOWN_STOP",
     }))
-    with pytest.raises(ValueError, match="frozen V3.1 design"):
+    with pytest.raises(ValueError, match="expected design"):
         validate_resume_target(output, resume=True)
+
+
+def test_v3_2_records_exact_design_path_and_memory_preflight(tmp_path, monkeypatch):
+    stage2 = tmp_path / "stage2"
+    production = tmp_path / "production"
+    stage2.write_bytes(b"stage2")
+    production.write_bytes(b"production")
+    gpu_snapshot = {
+        "status": "available",
+        "gpus": [{"memory.used": 1 * 1024**3, "memory.free": 3 * 1024**3,
+                  "memory.total": 4 * 1024**3}],
+    }
+    monkeypatch.setattr(v3_runner.r21, "_native_cuda_preflight", lambda *_a: {
+        "binary": {"sha256": "production-sha"}, "gpu": {"available": True},
+    })
+    monkeypatch.setattr(v3_runner, "_gpu_device_identity", lambda: ["test-gpu"])
+    process_snapshot = {"status": "available", "processes": []}
+    monkeypatch.setattr(v3_runner, "_gpu_process_snapshot", lambda: process_snapshot)
+    monkeypatch.setattr(v3_runner, "collect_resource_snapshot", lambda _root: {
+        "captured_at_utc": "2026-11-06T00:00:00Z",
+        "gpu": gpu_snapshot,
+        "memory_available_bytes": 8 * 1024**3,
+    })
+    monkeypatch.setattr(v3_runner, "_git_output", lambda *args: {
+        "rev-parse": "source-commit", "branch": "test-branch", "status": "",
+    }[args[1]])
+    monkeypatch.setattr(v3_runner.r22, "file_identity", lambda path: {
+        "path": str(Path(path).resolve()), "exists": Path(path).is_file(),
+        "bytes": Path(path).stat().st_size if Path(path).is_file() else 0,
+        "sha256": "file-sha",
+    })
+
+    metadata = build_execution_metadata(
+        load_v3_design(DEFAULT_DESIGN), design_path=DEFAULT_DESIGN,
+        output_root=tmp_path / "matrix", raw_output_root=tmp_path / "raw",
+        compact_archive_root=tmp_path / "archives", stage2_binary=stage2,
+        production_binary=production,
+    )
+    identity = metadata["execution_identity"]
+    assert identity["design_path"] == str(DEFAULT_DESIGN.resolve())
+    assert identity["design_file_sha256"] == V3_2_DESIGN_FILE_SHA256
+    assert identity["design_file"]["sha256"] == "file-sha"
+    assert metadata["preflight_snapshot"]["gpu_resource_snapshot"] == gpu_snapshot
+    assert metadata["preflight_snapshot"]["gpu_resource_snapshot"]["gpus"][0]["memory.free"] == 3 * 1024**3
+    assert metadata["preflight_snapshot"]["gpu_resource_snapshot"]["gpus"][0]["memory.used"] == 1 * 1024**3
+    assert metadata["preflight_snapshot"]["gpu_process_snapshot"] == process_snapshot
 
 
 def test_v3_roots_reject_v2_reuse_and_root_overlap(tmp_path):
@@ -346,7 +436,7 @@ def test_v3_cli_rejects_v2_design_before_gpu_preflight(tmp_path):
     ], capture_output=True, text=True, check=False)
 
     assert result.returncode == 2
-    assert "V3.1 design_id" in result.stderr
+    assert "V3.2 design_id" in result.stderr
     assert not (tmp_path / "matrix").exists()
 
 
