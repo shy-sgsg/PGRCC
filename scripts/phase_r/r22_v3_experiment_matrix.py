@@ -23,6 +23,7 @@ from scripts.phase_r.r22_v3_case_evaluator import classify_v3_case  # noqa: E402
 from scripts.resource_preflight import collect_resource_snapshot  # noqa: E402
 
 V2_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design_v2_range_roi.json"
+V3_PARENT_DESIGN_ID = "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION"
 V3_1_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json"
 V3_1_DESIGN_ID = "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING"
 V3_2_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json"
