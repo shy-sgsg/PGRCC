@@ -7,6 +7,7 @@
 #include <array>
 #include <cstddef>
 #include <cstdint>
+#include <cmath>
 #include <limits>
 #include <memory>
 
@@ -193,6 +194,13 @@ struct Config {
     // by default.  Header vn/ve/vd are optional and must never become an
     // implicit zero-speed source when a deployment omits those fields.
     std::string new_protocol_velocity_source = "position_delta"; // header / position_delta
+    // Stage2 provenance carried into the generated XML.  These fields are
+    // metadata for runtime auditing; the production processor still selects
+    // its velocity source through new_protocol_velocity_source.
+    double stage2_platform_velocity_true_mps =
+        std::numeric_limits<double>::quiet_NaN();
+    double stage2_platform_velocity_reported_mps =
+        std::numeric_limits<double>::quiet_NaN();
     // 本地旧协议回放可选读取 RawData 同级 DBS_parameter_ID*.xml 中的逐周期
     // squint_angle；默认关闭，避免改变现网或普通文件输入的既有配置语义。
     bool legacy_replay_use_companion_parameters = false;
@@ -436,6 +444,19 @@ struct Config {
     // 关闭后仅写 after_power/fa_axis/range_axis，避免实时测试落盘无关中间图。
     bool csi_metrics_dump_intermediate_maps = true;
     int csi_metrics_beam_id = -1; // <0 表示全部处理波位
+    // Research-only production calibration tap. The default is an inert
+    // baseline selector and must not change the existing CSI branch.
+    bool research_calibration_enable = false;
+    std::string research_calibration_method = "production_current";
+    int research_calibration_min_support = 8;
+    int research_calibration_range_band_bins = 0;
+    double research_calibration_robust_phase_threshold_rad = 0.35;
+    // Non-empty only for a research branch that applies a previously
+    // persisted, truth-blind Gamma reference.  Empty preserves the existing
+    // per-input estimator behavior for research experiments and all legacy
+    // production runs.
+    std::string research_calibration_reference_gamma_csv;
+    std::string research_calibration_mode = "not_applicable";
     // legacy_min_magnitude: 旧 P38 线性相位 + 逐像素最小幅度均衡；
     // row_complex_ls: 每个多普勒行用距离训练单元估计复最小二乘系数。
     // row_phase_ls_linear: 每个多普勒行只使用复最小二乘系数的相位，
@@ -601,6 +622,40 @@ struct Config {
     int squint_side = 0;      // 右斜视侧，默认0
     double squint_angle = 0.0; // 斜视角度，单位：度
 };
+
+inline bool validateResearchCalibrationConfig(
+    const Config& cfg, std::string* error = nullptr)
+{
+    const auto fail = [error](const char* reason) {
+        if (error != nullptr) *error = reason;
+        return false;
+    };
+    const std::string& method = cfg.research_calibration_method;
+    if (method != "production_current" &&
+        method != "ordinary_subtraction" &&
+        method != "scc" &&
+        method != "ddc" &&
+        method != "robust_ddc" &&
+        method != "robust_ddc_rb") {
+        return fail("method must be production_current, ordinary_subtraction, scc, ddc, robust_ddc, or robust_ddc_rb");
+    }
+    if (cfg.research_calibration_min_support <= 0) {
+        return fail("min_support must be positive");
+    }
+    if (cfg.research_calibration_range_band_bins < 0) {
+        return fail("range_band_bins must be non-negative");
+    }
+    if (method == "robust_ddc_rb" &&
+        cfg.research_calibration_range_band_bins <= 0) {
+        return fail("robust_ddc_rb requires a positive range_band_bins");
+    }
+    if (!std::isfinite(cfg.research_calibration_robust_phase_threshold_rad) ||
+        cfg.research_calibration_robust_phase_threshold_rad <= 0.0) {
+        return fail("robust_phase_threshold_rad must be finite and positive");
+    }
+    if (error != nullptr) error->clear();
+    return true;
+}
 
 inline int effectivePulseNum(const Config& cfg)
 {

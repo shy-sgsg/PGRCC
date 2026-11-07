@@ -1,0 +1,53 @@
+{
+  "execution_commit": "095221bbfa458fd5f65bc1d095401cd04445aa9f",
+  "execution_source_dirty": true,
+  "execution_tracked_status": "M scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py",
+  "evaluator_sha256_at_packaging": "a454611d18f9860071b67aa3697d9d5324864fe7b2d20915fe4b52b8f3faab45",
+  "runner_sha256": "0429528d22164f5a1a4a1c0a29b60f4b5c374aea2efabaaf6f52499ed995e2d9",
+  "r14_config_sha256": "cffc1bdbae654f2edf85ef7a711b0c90d2da26ad132571a3306c5437292b6dba",
+  "stage2_binary": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+    "exists": true,
+    "bytes": 645944,
+    "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+  },
+  "production_binary": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+    "exists": true,
+    "bytes": 6278056,
+    "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+  },
+  "gpu_probe": {
+    "command": "nvidia-smi",
+    "returncode": 0,
+    "available": true,
+    "stdout": "Sun Oct 25 13:09:58 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    Off |   00000000:01:00.0  On |                  N/A |\n| N/A   39C    P8              6W /   40W |     731MiB /   4096MiB |     15%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            4369      G   /usr/bin/gnome-shell                    151MiB |\n|    0   N/A  N/A            4848      G   /usr/bin/Xwayland                         6MiB |\n|    0   N/A  N/A            6954    C+G   /usr/bin/nautilus                        53MiB |\n|    0   N/A  N/A            6966      G   .../9036/usr/lib/firefox/firefox        225MiB |\n|    0   N/A  N/A            8162    C+G   /usr/bin/resources                       29MiB |\n+-----------------------------------------------------------------------------------------+\n",
+    "stderr": ""
+  },
+  "config": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r14_scc_robust_ddc_seed505/inputs/r14_runner_config.json",
+    "sha256": "cffc1bdbae654f2edf85ef7a711b0c90d2da26ad132571a3306c5437292b6dba"
+  },
+  "source": {
+    "commit": "095221bbfa458fd5f65bc1d095401cd04445aa9f",
+    "dirty": true,
+    "dirty_tracked": true,
+    "tracked_status": "M scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py",
+    "scope": "tracked_source_only; existing untracked output roots are not scanned"
+  },
+  "output_bytes_before_cleanup": 6007532085,
+  "output_files_before_cleanup": 1598,
+  "raw_output_root": "outputs/phase_r14_scc_robust_ddc_seed505_20261025",
+  "cleanup": {
+    "verified": true,
+    "removed_root": "outputs/phase_r14_scc_robust_ddc_seed505_20261025",
+    "removed_files": 1598,
+    "removed_bytes": 6007532085,
+    "root_exists_after_cleanup": false,
+    "filesystem_snapshot_after_cleanup": {
+      "total": "464G",
+      "used": "415G",
+      "available": "26G"
+    }
+  }
+}

@@ -1,0 +1,3009 @@
+{
+  "schema_version": 2,
+  "task": "R22-S1c GMTI05 selected-group shared target-free OFF CSI phase counterfactual",
+  "created_utc": "2026-10-29T10:55:24.937662+00:00",
+  "repository": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage",
+  "git_commit": "0189933420d73bb04c3a466e633bd664a23871c0",
+  "tracked_worktree_status": "",
+  "runner_file": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r22_s1c_period5_shared_off_phase.py",
+  "runner_sha256": "3542ed8d230e56960f300097bc46f93c272c6482e536f9eaba976e71988da99f",
+  "source_hashes": {
+    "include/GMTIProcessor.hpp": "970bb22d2283c69a2014e8408e9dab6dce2c3015a5b3bec352233a83f349dc5d",
+    "include/runtime_diagnostics.hpp": "d45e0274ebe703f5550ac26044168e504e461cb7cdf1bcf0bc08456a62b82e72",
+    "src/runtime_diagnostics.cpp": "a9338c9f8ade93bc3358de967e858f976f40c65bbabe8c7cffb18574cbc4e43e",
+    "src/processOnePeriod.cpp": "0b6dbee497d38cfec7f429e141435f8c43c6abd3723dbb4e521e154bd7761eb7",
+    "src/production_calibration_adapter.cpp": "6168d06159b72f6fcd6d1826ecde8ab3c9c9f8f2b5fd378eed3bfdc965918266",
+    "src/gpu/gpu_kernels.cu": "c85694e3bf35217bc8beedf5b28d0dae581d479b9aafdfda1f5b6ece479a6932"
+  },
+  "production_binary": "/tmp/pgrcc_r22_s1b_cuda_20261029/GMTI_pipe_core",
+  "production_binary_sha256": "16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998",
+  "production_binary_source_commit": "1ed2a2e67a88a918858784be81794238ef112c7d",
+  "cmake_cache": "/tmp/pgrcc_r22_s1b_cuda_20261029/CMakeCache.txt",
+  "cmake_cache_sha256": "4efb2ac9a682ef9cf9d2a34d10de6da909dd4768ba88af1c6078d6e33a7c5145",
+  "native_cuda": "USE_COREX=OFF",
+  "simulator_binary": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+  "simulator_used": false,
+  "stage2_regenerated": false,
+  "source_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029",
+  "output_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029",
+  "selected_group": {
+    "source_period_index_zero_based": 4,
+    "source_period_label": "GMTI05",
+    "production_period_id": 1,
+    "trace_selector": "1,50,52,1065,1197",
+    "beam_id": 50,
+    "azimuth_row": 52,
+    "range_start": 1065,
+    "range_end": 1197
+  },
+  "conditions": {
+    "20": {
+      "snr_db": 20,
+      "case_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns",
+      "case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/case_manifest.json",
+      "case_manifest_sha256": "984ba6e7d8ef3667f081051babbeb952701593a52f095f4b2a8ca8b362d40d1d",
+      "case_status_before_replay": "completed",
+      "identity": {
+        "allow_target_free_h0": false,
+        "delay_error_ns": 4.0,
+        "period_count": 10,
+        "scene_identity_override": {
+          "case_id": "screening__seed_1932001__vr_2d5__snr_20__delay_4ns__targets_20__periods_10",
+          "delay_error_ns": 4.0,
+          "period_count": 10,
+          "radial_speed_mps": 2.5,
+          "seed": 1932001,
+          "target_count": 20,
+          "target_snr_db": 20.0
+        },
+        "seed": 1932001,
+        "target_count": 20,
+        "target_snr_db": 20.0,
+        "target_velocity_mps": 2.5,
+        "working_point": "r22_multi_target"
+      },
+      "protocol_layout": {
+        "beam_id": 50,
+        "beam_index_base": 1,
+        "channel_count": 4,
+        "correction_channel_indices": [
+          1
+        ],
+        "enable_four_channel_fusion": true,
+        "expected_theta_deg": 38.0,
+        "four_channel_phase_compensation_enable": true,
+        "fs_hz": 60000000.0,
+        "fusion_channel_3": 3,
+        "fusion_channel_4": 4,
+        "fusion_pairs": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "header_bytes": 256,
+        "iq_data_type": "float32",
+        "last_beam_id": 50,
+        "packet_bytes": 378496,
+        "pulse_count": 130,
+        "pulse_len": 11820,
+        "read_channel_1": 1,
+        "read_channel_2": 2,
+        "scan_beam_count": 1,
+        "scan_min_deg": -60.0,
+        "scan_step_deg": 2.0
+      },
+      "input_identities": {
+        "OFF": [
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+            "sha256": "a0eb1f462628f5fdaae52de1483bf97202e954a47654b400a73a97bfd5a56b92"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+            "sha256": "5d9587381247cbbb0d91839798ef1a30b0d91318414646f3af9b8e28d30e512a"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+            "sha256": "cd90d34773fe9b438784a08e77fc0e6b2b3f37f781ce1b04f6cace0ac648558e"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0003.bin",
+            "sha256": "44a9e23aba417e151a486216c06a3ab3e3147770249bb62763653b1f2ad2cd40"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+            "sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0005.bin",
+            "sha256": "c49c80802e41ed073302991e2a9d19b863e403cb36fef5e3c26fdffb4bca535b"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0006.bin",
+            "sha256": "f108f080f3bf739831e39130ab946ef078930b563bae213b98ee41ee3f06e967"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0007.bin",
+            "sha256": "3cdf89daa8d17430b4a796f6c0e763cc09c1b6bbcbbde2afd59524de15a6f889"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0008.bin",
+            "sha256": "92df82533a2a31975ee90e1d9e73c0b8304f139bc980fe173b682ce57de02253"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0009.bin",
+            "sha256": "fe8072b18c2c3632e78cdbc08535acc2dde073d44032080938a78d36ff8d63a7"
+          }
+        ],
+        "ON": [
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "sha256": "9a7edb18304bc7a9e5092e50528e039bed71c6c39a42390b9071a247e494a385"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "sha256": "5e8fbdd1e71d8868942cba7c155ba1ea71a6f66c2d01a807dabaff3c2e36f397"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "sha256": "f5484ef43fd158750353eec61ae14b0f344bd7c81383ef9bb3ad2b95ac46fd45"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+            "sha256": "d630a5036b8de0cd76ba5012efc9fd5360596069fa8f89ea4fa58919d985c210"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+            "sha256": "dcd6cbfff80dfd68a24026782d5f8b3cae8074db58df28f340630998fbf4d024"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+            "sha256": "efeaf4b8ca220163165642d28181f9092d1b8b5025f94f44464a8ebed9f1d990"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+            "sha256": "06187ffeabd8f5e1b6d01fbe55414854d33d73f75725e51a3cdcdf9afd6b0f0b"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+            "sha256": "b47084f75f194e111fb159af3a62e6d04c96f01c78606a75e3833094048e5833"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+            "sha256": "f3ebbef32ad74e31b3e478749d0a1b9baa8553616d1c54e5e2a7062ce55e2e94"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+            "sha256": "c91b912c3fbfa40789975e461805aa1d2c7c761886ea88738a63ba5458a6e945"
+          }
+        ],
+        "TO": [
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+            "sha256": "a5876fd6a4040b08d4a2f07c5fcac385e07fa2e0081e88d8b09051c63bca29c5"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+            "sha256": "3630dd42e7fce5871f3091497ee71e88a5a6ab3afd2022d5dd6c96411885a6bc"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+            "sha256": "2fc97ee8283a6de70f62d415c0c2c6a38c8b0b1b74efba2bd2c2775cfdfb10d7"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0003.bin",
+            "sha256": "44e0350bece49dd6bf1b0b2036e7f0552c9b1a58cec8e84ac47c2031051dc3e9"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+            "sha256": "3dd421f28004eefe2941bc4c500bf39b7503d7194ffe9ebd57cb4edcec409c32"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0005.bin",
+            "sha256": "41dab92d19f37263192a54c0bb94d18b661656ccc5b77d3db9449a0d9a3f752b"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0006.bin",
+            "sha256": "96acad64973fb580b350fde04eaf07d090f87af7a7eb2fb40e3476db089ad299"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0007.bin",
+            "sha256": "132885a066935dcdbf0edcc0f5c8ccd80c40e4271775b38c608ad2f61e855da0"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0008.bin",
+            "sha256": "894be5bc09d9b3ac1fdce1348000c2b8a99989425428cf39269fcde1a5ea35b7"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0009.bin",
+            "sha256": "1c8ed2ffc28e8c506f816433dedca02ec09bf4360b6ed7bc83d63789b6b0a12f"
+          }
+        ]
+      },
+      "source_ON": {
+        "role": "ON",
+        "source_branch_name": "C4_modeb_ON",
+        "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/production/C4_modeb_ON/branch_manifest.json",
+        "source_branch_manifest_sha256": "e7f5f5604eb17984bce467a6f5c12bec4edb804cef184a3d92ebc3afd70a1b6e",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+        "source_xml_sha256": "d881568663f69c2ee89a58cbf83b59da9c600704552cd09d8d2bb595418255fe",
+        "source_xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-B",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50
+        },
+        "source_period_index_zero_based": 4,
+        "source_period_label": "GMTI05",
+        "source_period_file": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+        "source_period_bytes": 49204480,
+        "source_period_sha256": "dcd6cbfff80dfd68a24026782d5f8b3cae8074db58df28f340630998fbf4d024",
+        "production_period_id": 1,
+        "truth_used_in_estimator": false
+      },
+      "source_OFF": {
+        "role": "OFF",
+        "source_branch_name": "C4_modea_OFF",
+        "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/production/C4_modea_OFF/branch_manifest.json",
+        "source_branch_manifest_sha256": "d581c063c466238068a9b2433aaecc9de47dde5d9f246344ff77ed8e07778e81",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-A_OFF.xml",
+        "source_xml_sha256": "7352f41abaa53ce5584ed1b4d2ce95326e76f6d844fe4dee0335e701cf21aea7",
+        "source_xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-A",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50
+        },
+        "source_period_index_zero_based": 4,
+        "source_period_label": "GMTI05",
+        "source_period_file": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+        "source_period_bytes": 49204480,
+        "source_period_sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48",
+        "production_period_id": 1,
+        "truth_used_in_estimator": false
+      }
+    },
+    "30": {
+      "snr_db": 30,
+      "case_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns",
+      "case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/case_manifest.json",
+      "case_manifest_sha256": "58a02646e07343f60b8e09c56fd02180676fb5b10ce76957cea5e116f47215c1",
+      "case_status_before_replay": "completed_with_gaps",
+      "identity": {
+        "allow_target_free_h0": false,
+        "delay_error_ns": 4.0,
+        "period_count": 10,
+        "scene_identity_override": {
+          "case_id": "screening__seed_1932001__vr_2d5__snr_30__delay_4ns__targets_20__periods_10",
+          "delay_error_ns": 4.0,
+          "period_count": 10,
+          "radial_speed_mps": 2.5,
+          "seed": 1932001,
+          "target_count": 20,
+          "target_snr_db": 30.0
+        },
+        "seed": 1932001,
+        "target_count": 20,
+        "target_snr_db": 30.0,
+        "target_velocity_mps": 2.5,
+        "working_point": "r22_multi_target"
+      },
+      "protocol_layout": {
+        "beam_id": 50,
+        "beam_index_base": 1,
+        "channel_count": 4,
+        "correction_channel_indices": [
+          1
+        ],
+        "enable_four_channel_fusion": true,
+        "expected_theta_deg": 38.0,
+        "four_channel_phase_compensation_enable": true,
+        "fs_hz": 60000000.0,
+        "fusion_channel_3": 3,
+        "fusion_channel_4": 4,
+        "fusion_pairs": [
+          [
+            1,
+            3
+          ],
+          [
+            2,
+            4
+          ]
+        ],
+        "header_bytes": 256,
+        "iq_data_type": "float32",
+        "last_beam_id": 50,
+        "packet_bytes": 378496,
+        "pulse_count": 130,
+        "pulse_len": 11820,
+        "read_channel_1": 1,
+        "read_channel_2": 2,
+        "scan_beam_count": 1,
+        "scan_min_deg": -60.0,
+        "scan_step_deg": 2.0
+      },
+      "input_identities": {
+        "OFF": [
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+            "sha256": "a0eb1f462628f5fdaae52de1483bf97202e954a47654b400a73a97bfd5a56b92"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+            "sha256": "5d9587381247cbbb0d91839798ef1a30b0d91318414646f3af9b8e28d30e512a"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+            "sha256": "cd90d34773fe9b438784a08e77fc0e6b2b3f37f781ce1b04f6cace0ac648558e"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0003.bin",
+            "sha256": "44a9e23aba417e151a486216c06a3ab3e3147770249bb62763653b1f2ad2cd40"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+            "sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0005.bin",
+            "sha256": "c49c80802e41ed073302991e2a9d19b863e403cb36fef5e3c26fdffb4bca535b"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0006.bin",
+            "sha256": "f108f080f3bf739831e39130ab946ef078930b563bae213b98ee41ee3f06e967"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0007.bin",
+            "sha256": "3cdf89daa8d17430b4a796f6c0e763cc09c1b6bbcbbde2afd59524de15a6f889"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0008.bin",
+            "sha256": "92df82533a2a31975ee90e1d9e73c0b8304f139bc980fe173b682ce57de02253"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0009.bin",
+            "sha256": "fe8072b18c2c3632e78cdbc08535acc2dde073d44032080938a78d36ff8d63a7"
+          }
+        ],
+        "ON": [
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "sha256": "184ee12706a106a9c00aa3085ed25b4f5f682ebf46f47b36ad0bf5643398bd64"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "sha256": "64f4af29615aa66714755af661642df5418a40cb0377e172d91c6144dce16e0c"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "sha256": "2d1bf467fe6e881af23349e41c83ce49c6df735ff7ca408baa61b237e04124dd"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+            "sha256": "4834c7119e641feb085ea85006afd8a8f5288f40f44960543a8c88d15173834c"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+            "sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+            "sha256": "63e526ed40863f57d0122b553760a062597f1585db65301325530146f2af7c8b"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+            "sha256": "9d985b98b5c38c75cca74d73aa177e92d9309372fc5b7595b2fc7e1d836a3496"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+            "sha256": "89eabb7dd19535ab2da0663e0220e2e4cfc94a83ef57b97b9c7082b1c1668b9c"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+            "sha256": "1f8006cb6b01f6da6b54a3cff930959527b3b4e3546ed1b30bc21ac3639851e0"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+            "sha256": "e9847fe01345bf7a3fb94e43fae461bf1c22c2e0801a5be5ae559bbfd29e557e"
+          }
+        ],
+        "TO": [
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+            "sha256": "c793212c5430f8a4ccfdfda68365694368a800826327d9d1bb42178694ad7b4b"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+            "sha256": "d4f861d167f83fe6e39416c2795733b8405ef8b8832231de69ab488025ae5612"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+            "sha256": "efb52eef511fbdb5aee00e5c91cd604359c55b8c6b57fb7780f7921195fdc484"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0003.bin",
+            "sha256": "ea509d567e7573822dbb5595af9549245bf1db7702efb3c72a25f9bf93d347c9"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+            "sha256": "cb8f77cc3153fa9e8d9f3c71a4959692165ab725ce430677b02675adf823b667"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0005.bin",
+            "sha256": "41262818bea6741b6649b62f367554b6b51462728e4518ab58fcc49cc0d50509"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0006.bin",
+            "sha256": "02e1531bab9832bbfdd3725a17d08ecb10a81b542e36c67e03b82e599e29ae19"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0007.bin",
+            "sha256": "6b6253850af8154d53cc59b1de918009b2848149df79ef96e398862189cfda0f"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0008.bin",
+            "sha256": "63c2c5854bddc634a3ddf4033799e608d051958daa0b8d11773f24df3a7e9059"
+          },
+          {
+            "bytes": 49204480,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0009.bin",
+            "sha256": "f1ce8010bdbaf33331db386662ba6b1637646fbc70128cf0c2edf3d6f354c27f"
+          }
+        ]
+      },
+      "source_ON": {
+        "role": "ON",
+        "source_branch_name": "C4_modeb_ON",
+        "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/production/C4_modeb_ON/branch_manifest.json",
+        "source_branch_manifest_sha256": "642c16c002756525b4ff38e7af492ea36a82da959b6a6ed210921097c05c3fa7",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+        "source_xml_sha256": "5a9aa00466207aa677664c2a506999eabb042d269fdf8ec10bce8434a2663767",
+        "source_xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-B",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50
+        },
+        "source_period_index_zero_based": 4,
+        "source_period_label": "GMTI05",
+        "source_period_file": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+        "source_period_bytes": 49204480,
+        "source_period_sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831",
+        "production_period_id": 1,
+        "truth_used_in_estimator": false
+      },
+      "source_OFF": {
+        "role": "OFF",
+        "source_branch_name": "C4_modea_OFF",
+        "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/production/C4_modea_OFF/branch_manifest.json",
+        "source_branch_manifest_sha256": "c5c17fed5a3285df2bec5ee0e2a69cb2ca6972a6cfbea0e9031f64b6f89e4898",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/method_xml/C4_Mode-A_OFF.xml",
+        "source_xml_sha256": "558636b7624bf7a49d423ac5380eacf07417389ae95fc52b4b8472087cbf662b",
+        "source_xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-A",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50
+        },
+        "source_period_index_zero_based": 4,
+        "source_period_label": "GMTI05",
+        "source_period_file": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+        "source_period_bytes": 49204480,
+        "source_period_sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48",
+        "production_period_id": 1,
+        "truth_used_in_estimator": false
+      }
+    }
+  },
+  "shared_target_free_off_input": {
+    "role": "OFF",
+    "source_branch_name": "C4_modea_OFF",
+    "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/production/C4_modea_OFF/branch_manifest.json",
+    "source_branch_manifest_sha256": "d581c063c466238068a9b2433aaecc9de47dde5d9f246344ff77ed8e07778e81",
+    "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-A_OFF.xml",
+    "source_xml_sha256": "7352f41abaa53ce5584ed1b4d2ce95326e76f6d844fe4dee0335e701cf21aea7",
+    "source_xml_overrides": {
+      "rg_st": 666,
+      "rg_ed": 1197,
+      "research_calibration_enable": "true",
+      "research_calibration_method": "robust_ddc_rb",
+      "research_calibration_min_support": 8,
+      "research_calibration_range_band_bins": 133,
+      "research_calibration_robust_phase_threshold_rad": 0.35,
+      "research_calibration_mode": "Mode-A",
+      "research_calibration_reference_gamma_csv": "",
+      "csi_metrics_enable": "true",
+      "csi_metrics_dump_power_maps": "false",
+      "csi_metrics_dump_intermediate_maps": "false",
+      "csi_metrics_beam_id": 50
+    },
+    "source_period_index_zero_based": 4,
+    "source_period_label": "GMTI05",
+    "source_period_file": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+    "source_period_bytes": 49204480,
+    "source_period_sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48",
+    "production_period_id": 1,
+    "truth_used_in_estimator": false,
+    "source_snr_db": 20,
+    "cross_snr30_off_input_identical": true
+  },
+  "method": "C4 Robust DDC-RB Mode-B ON estimator",
+  "truth_used_in_estimator": false,
+  "raw_range_phase_policy": "preserve period-5 raw phase vector from the same ON Production input",
+  "csi_range_phase_policy": "apply one period-5 CSI phase vector estimated from the paired target-free OFF input",
+  "quality_gates": {
+    "research_calibration_min_support": 8,
+    "research_calibration_robust_phase_threshold_rad": 0.35,
+    "research_calibration_range_band_bins": 133,
+    "fallback_to_current": false
+  },
+  "gpu_snapshot_before": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P8, 41, 6.11 W, 0 %, 2236 MiB, 4096 MiB, 210 MHz",
+  "branches": [
+    {
+      "branch_name": "C4_modeb_S1c_period5_baseline_snr20",
+      "source_role": "ON",
+      "source_period_index_zero_based": 4,
+      "source_period_label": "GMTI05",
+      "production_period_id": 1,
+      "input_symlink": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+      "input_sha256": "dcd6cbfff80dfd68a24026782d5f8b3cae8074db58df28f340630998fbf4d024",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/production/C4_modeb_ON/branch_manifest.json",
+      "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+      "gpu_snapshot_before": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P8, 41, 6.11 W, 0 %, 2236 MiB, 4096 MiB, 210 MHz",
+      "status": "passed",
+      "production_returncode": 0,
+      "production_elapsed_sec": 1.6553143519995501,
+      "production_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/branch_manifest.json",
+      "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/production.xml",
+      "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/gmt_pipe_core.log",
+      "xml_overrides": {
+        "rg_st": 666,
+        "rg_ed": 1197,
+        "research_calibration_enable": "true",
+        "research_calibration_method": "robust_ddc_rb",
+        "research_calibration_min_support": 8,
+        "research_calibration_range_band_bins": 133,
+        "research_calibration_robust_phase_threshold_rad": 0.35,
+        "research_calibration_mode": "Mode-B",
+        "research_calibration_reference_gamma_csv": "",
+        "csi_metrics_enable": "true",
+        "csi_metrics_dump_power_maps": "false",
+        "csi_metrics_dump_intermediate_maps": "false",
+        "csi_metrics_beam_id": 50
+      },
+      "phase_vectors": {
+        "raw": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/result/debug/paired_range_phase_raw_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "27d77ad4b930ed7665badd8e8e3bf0abd0fac1ce9a4ad47670145d63d6d2126c",
+          "min_rad": -2.71185302734375,
+          "max_rad": 89.24227142333984
+        },
+        "csi": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/result/debug/paired_range_phase_csi_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "c72bd6a30ca8430760157f53d3c1e13ec1406b42ecd687a753681fdc64b10e9d",
+          "min_rad": -2.287336587905884,
+          "max_rad": 260.5098571777344
+        }
+      },
+      "branch_record": {
+        "branch_name": "C4_modeb_S1c_period5_baseline_snr20",
+        "condition": "C4_modeb_S1c_period5_baseline",
+        "role": "snr20",
+        "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+        "truth_used_in_estimator": false,
+        "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+        "input_mode": "local",
+        "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/inputs/snr20_ON_period5",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+        "period_count_expected": 1,
+        "truth_period_count": 0,
+        "xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-B",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50
+        },
+        "status": "passed",
+        "configuration_returncode": 0,
+        "configuration_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/production.configure.log",
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/production.xml",
+        "period_paths": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+            "bytes": 49204480,
+            "sha256": "dcd6cbfff80dfd68a24026782d5f8b3cae8074db58df28f340630998fbf4d024"
+          }
+        ],
+        "runtime_xml_protocol_layout": {
+          "status": "passed",
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/production.xml",
+          "values": {
+            "pulse_len": "11820",
+            "new_protocol_channel_count": "4",
+            "new_protocol_read_channel_1": "1",
+            "new_protocol_read_channel_2": "2",
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": "true",
+            "four_channel_phase_compensation_enable": "true",
+            "four_channel_fusion_channel_3": "3",
+            "four_channel_fusion_channel_4": "4",
+            "new_protocol_file_first_beam": "50",
+            "new_protocol_file_scan_beam_count": "1",
+            "wavepos_st": "50",
+            "wavepos_ed": "50",
+            "fs_hz": 60000000.0
+          },
+          "expected": {
+            "pulse_len": 11820,
+            "new_protocol_channel_count": 4,
+            "new_protocol_read_channel_1": 1,
+            "new_protocol_read_channel_2": 2,
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": true,
+            "four_channel_phase_compensation_enable": true,
+            "four_channel_fusion_channel_3": 3,
+            "four_channel_fusion_channel_4": 4,
+            "fs_hz": 60000000.0,
+            "new_protocol_file_first_beam": 50,
+            "new_protocol_file_scan_beam_count": 1,
+            "wavepos_st": 50,
+            "wavepos_ed": 50
+          },
+          "errors": []
+        },
+        "production_returncode": 0,
+        "production_elapsed_sec": 1.6553143519995501,
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/gmt_pipe_core.log",
+        "pipe_run_dir": null,
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/result",
+        "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/track_debug_runs/local_test_20261029_185525_427849_pid986187",
+        "pipe_runtime_metrics": {
+          "status": "not_applicable",
+          "input_mode": "local"
+        },
+        "cfar_summary": {
+          "status": "passed",
+          "summary_count": 1,
+          "hit_cells": null,
+          "clusters": 106,
+          "selected": 106,
+          "summaries": [
+            {
+              "hit_cells": 1315,
+              "clusters": 106,
+              "selected": 106
+            }
+          ],
+          "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+          "aggregate_hit_fraction_reason": "multiple_detector_branches_require_unique_hit_union",
+          "expected_period_count": 1,
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1083,
+              "hit_fraction": 0.002053937187073282,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1021,
+              "hit_fraction": 0.0019363526020330754,
+              "reason": null
+            }
+          },
+          "valid_cut_count": null,
+          "threshold_test_count": null,
+          "hit_cut_count": null,
+          "tested_cut_hit_fraction": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE"
+        },
+        "cfar_geometry": {
+          "status": "NOT_EVALUABLE",
+          "branch_geometry_status": "evaluable",
+          "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+          "tested_cut_hit_fraction": null,
+          "threshold_test_count": null,
+          "valid_cut_count": null,
+          "hit_cut_count": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE",
+          "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "definition": null,
+          "reason": "multiple_detector_branches_require_unique_hit_union",
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1083,
+              "hit_fraction": 0.002053937187073282,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1021,
+              "hit_fraction": 0.0019363526020330754,
+              "reason": null
+            }
+          },
+          "source_paths": [
+            "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/result/debug/cfar_geometry_diagnostics.csv"
+          ],
+          "rows": [
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1083",
+              "hit_index_hash": "fnv1a64:5e9d14f2f34bbe03",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.002053937187073282,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1021",
+              "hit_index_hash": "fnv1a64:6b79e7de27b71b5d",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.0019363526020330754,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            }
+          ]
+        },
+        "audit": {
+          "schema_version": 1,
+          "debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/track_debug_runs/local_test_20261029_185525_427849_pid986187",
+          "status": "pass",
+          "association_evidence": "accepted_assignment_audit",
+          "unverified_checks": [],
+          "periods": [
+            1
+          ],
+          "frame_transitions": [],
+          "counts": {
+            "frames": 1,
+            "accepted_associations": 0,
+            "frame_reported_matches": 0,
+            "output_states": 0,
+            "payloads": 0,
+            "frame_reported_outputs": 0,
+            "state_steps": 0,
+            "matched_state_steps": 0,
+            "coasted_state_steps": 0,
+            "measurement_steps": 0
+          },
+          "maxima": {
+            "accepted_distance_m": 0.0,
+            "accepted_instant_speed_mps": 0.0,
+            "distance_to_gate_ratio": 0.0,
+            "mahalanobis_to_gate_ratio": 0.0,
+            "legacy_max_mahalanobis_distance": null,
+            "speed_to_gate_ratio": 0.0,
+            "state_step_m": 0.0,
+            "matched_state_step_m": 0.0,
+            "coasted_state_step_m": 0.0,
+            "measurement_step_m": 0.0,
+            "measurement_step_speed_mps": 0.0
+          },
+          "resolved_sources": {},
+          "protocol_target_failures": {},
+          "violations": {
+            "distance_gate": 0,
+            "mahalanobis_gate": 0,
+            "speed_gate": 0,
+            "cost_vs_dummy": 0,
+            "accepted_flags": 0,
+            "accepted_track_one_to_one": 0,
+            "accepted_detection_one_to_one": 0,
+            "frame_match_count": 0,
+            "frame_output_count": 0,
+            "output_state_semantics": 0,
+            "duplicate_states": 0,
+            "duplicate_output_states": 0,
+            "detection_links": 0,
+            "accepted_state_links": 0,
+            "accepted_detection_links": 0,
+            "payload_provenance": 0,
+            "payload_numeric_source": 0,
+            "payload_without_accepted_match": 0,
+            "state_payload_key_mismatch": 0,
+            "protocol_target_contract": 0
+          },
+          "total_violations": 0
+        },
+        "track_audit_total_violations": 0,
+        "metrics": {
+          "branch": "C4_modeb_S1c_period5_baseline_snr20",
+          "expected_periods": 1,
+          "truth_visible_periods": 0,
+          "detection_snapshot_periods": 1,
+          "target_detection_opportunity_count": 0,
+          "target_detection_hit_count": 0,
+          "target_detection_pd": null,
+          "target_detection_definition": "one target detection opportunity per visible truth period; hit if any production detection record matches that period's target",
+          "raw_detection_count": 106,
+          "detection_match_count": 0,
+          "detection_record_count": 106,
+          "detection_record_target_match_count": 0,
+          "detection_record_false_alarm_count": 106,
+          "detection_record_false_alarm_rate": 1.0,
+          "detection_record_definition": "production detection_results rows matched against truth; not CFAR hit-cell count",
+          "period_detection_match_count": 0,
+          "period_detection_pd": null,
+          "detection_pd": null,
+          "detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "raw_detection_pd": null,
+          "raw_detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "cell_false_hit_count": null,
+          "cell_false_hit_fraction": null,
+          "cell_false_hit_status": "not_evaluable_no_target_cell_link_or_valid_cut_denominator",
+          "raw_empirical_false_hit_fraction": null,
+          "raw_empirical_false_hit_status": "not_evaluable_detection_records_are_not_cfar_cells",
+          "eligible_protocol_payload_count": 0,
+          "matched_protocol_payload_count": 0,
+          "matched_protocol_period_count": 0,
+          "matched_protocol_periods": [],
+          "false_track_count": 0,
+          "false_track_rate": null,
+          "false_track_payload_count": 0,
+          "track_output_count": 0,
+          "unique_false_track_count": 0,
+          "unique_false_track_rate": null,
+          "cfar_hit_cell_count": null,
+          "cfar_cluster_count": 106,
+          "cfar_selected_cluster_count": 106,
+          "cfar_pfa": null,
+          "cfar_pfa_status": "not_evaluable_target_on_without_valid_cut_or_target_off_denominator",
+          "cluster_false_alarm_count": 106,
+          "cluster_false_alarm_rate": 1.0,
+          "cluster_false_alarm_definition": "selected CFAR clusters minus one target-associated cluster per matched target period",
+          "cluster_false_alarm_status": "period_association_proxy_no_cluster_id",
+          "protocol_detection_false_alarm_count": null,
+          "protocol_detection_false_alarm_rate": null,
+          "protocol_detection_false_alarm_status": "not_evaluable_payloads_do_not_preserve_production_detection_identity",
+          "protocol_payload_false_alarm_count": 0,
+          "protocol_payload_false_alarm_rate": null,
+          "track_pd_all_visible": null,
+          "track_pd_after_confirmation": null,
+          "track_continuity": null,
+          "track_continuity_after_confirmation": null,
+          "track_id_switch_count": 0,
+          "angle_rmse_deg": null,
+          "velocity_rmse_mps_ground_speed": null,
+          "position_rmse_m": null,
+          "track_debug_payload_count": 0,
+          "track_debug_detection_rows": 106,
+          "track_debug_state_rows": 106,
+          "track_audit_status": "pass",
+          "track_audit_total_violations": 0,
+          "protocol_target_failures": {}
+        },
+        "cycle_rows": [
+          {
+            "result_id": 1,
+            "period_id": 0,
+            "detection_count": 106,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/result/detection_results_GMTI01.csv"
+          }
+        ],
+        "protocol_rows": [],
+        "target_off_waterfall": null,
+        "id_switch_audit_path": null,
+        "id_switch_audit_row_count": null,
+        "id_switch_classification_counts": null,
+        "id_switch_missing_production_field_counts": null,
+        "id_switch_audit_status": "NOT_APPLICABLE",
+        "id_switch_audit_reason": null,
+        "id_switch_audit_sources": null,
+        "production_status": "passed"
+      }
+    },
+    {
+      "branch_name": "C4_modeb_S1c_period5_baseline_snr30",
+      "source_role": "ON",
+      "source_period_index_zero_based": 4,
+      "source_period_label": "GMTI05",
+      "production_period_id": 1,
+      "input_symlink": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+      "input_sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/production/C4_modeb_ON/branch_manifest.json",
+      "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+      "gpu_snapshot_before": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P3, 43, 12.93 W, 0 %, 2236 MiB, 4096 MiB, 1950 MHz",
+      "status": "passed",
+      "production_returncode": 0,
+      "production_elapsed_sec": 1.629663656000048,
+      "production_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/branch_manifest.json",
+      "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/production.xml",
+      "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/gmt_pipe_core.log",
+      "xml_overrides": {
+        "rg_st": 666,
+        "rg_ed": 1197,
+        "research_calibration_enable": "true",
+        "research_calibration_method": "robust_ddc_rb",
+        "research_calibration_min_support": 8,
+        "research_calibration_range_band_bins": 133,
+        "research_calibration_robust_phase_threshold_rad": 0.35,
+        "research_calibration_mode": "Mode-B",
+        "research_calibration_reference_gamma_csv": "",
+        "csi_metrics_enable": "true",
+        "csi_metrics_dump_power_maps": "false",
+        "csi_metrics_dump_intermediate_maps": "false",
+        "csi_metrics_beam_id": 50
+      },
+      "phase_vectors": {
+        "raw": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/result/debug/paired_range_phase_raw_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "c2abb0d69fbefee073e397a49e3a21094caa1a4bdd464c78fac3f6c5e0137ed1",
+          "min_rad": -2.6931071281433105,
+          "max_rad": 77.03627014160156
+        },
+        "csi": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/result/debug/paired_range_phase_csi_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "dcd37c3c2b379ac9f5e607f09020e3871eae65675de3a6013e64dc5d7b3f8869",
+          "min_rad": -2.245889663696289,
+          "max_rad": 146.55030822753906
+        }
+      },
+      "branch_record": {
+        "branch_name": "C4_modeb_S1c_period5_baseline_snr30",
+        "condition": "C4_modeb_S1c_period5_baseline",
+        "role": "snr30",
+        "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+        "truth_used_in_estimator": false,
+        "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+        "input_mode": "local",
+        "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/inputs/snr30_ON_period5",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+        "period_count_expected": 1,
+        "truth_period_count": 0,
+        "xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-B",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50
+        },
+        "status": "passed",
+        "configuration_returncode": 0,
+        "configuration_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/production.configure.log",
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/production.xml",
+        "period_paths": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+            "bytes": 49204480,
+            "sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831"
+          }
+        ],
+        "runtime_xml_protocol_layout": {
+          "status": "passed",
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/production.xml",
+          "values": {
+            "pulse_len": "11820",
+            "new_protocol_channel_count": "4",
+            "new_protocol_read_channel_1": "1",
+            "new_protocol_read_channel_2": "2",
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": "true",
+            "four_channel_phase_compensation_enable": "true",
+            "four_channel_fusion_channel_3": "3",
+            "four_channel_fusion_channel_4": "4",
+            "new_protocol_file_first_beam": "50",
+            "new_protocol_file_scan_beam_count": "1",
+            "wavepos_st": "50",
+            "wavepos_ed": "50",
+            "fs_hz": 60000000.0
+          },
+          "expected": {
+            "pulse_len": 11820,
+            "new_protocol_channel_count": 4,
+            "new_protocol_read_channel_1": 1,
+            "new_protocol_read_channel_2": 2,
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": true,
+            "four_channel_phase_compensation_enable": true,
+            "four_channel_fusion_channel_3": 3,
+            "four_channel_fusion_channel_4": 4,
+            "fs_hz": 60000000.0,
+            "new_protocol_file_first_beam": 50,
+            "new_protocol_file_scan_beam_count": 1,
+            "wavepos_st": 50,
+            "wavepos_ed": 50
+          },
+          "errors": []
+        },
+        "production_returncode": 0,
+        "production_elapsed_sec": 1.629663656000048,
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/gmt_pipe_core.log",
+        "pipe_run_dir": null,
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/result",
+        "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/track_debug_runs/local_test_20261029_185527_062228_pid986201",
+        "pipe_runtime_metrics": {
+          "status": "not_applicable",
+          "input_mode": "local"
+        },
+        "cfar_summary": {
+          "status": "passed",
+          "summary_count": 1,
+          "hit_cells": null,
+          "clusters": 151,
+          "selected": 151,
+          "summaries": [
+            {
+              "hit_cells": 1975,
+              "clusters": 151,
+              "selected": 151
+            }
+          ],
+          "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+          "aggregate_hit_fraction_reason": "multiple_detector_branches_require_unique_hit_union",
+          "expected_period_count": 1,
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1719,
+              "hit_fraction": 0.003260127446517979,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1625,
+              "hit_fraction": 0.003081854043392505,
+              "reason": null
+            }
+          },
+          "valid_cut_count": null,
+          "threshold_test_count": null,
+          "hit_cut_count": null,
+          "tested_cut_hit_fraction": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE"
+        },
+        "cfar_geometry": {
+          "status": "NOT_EVALUABLE",
+          "branch_geometry_status": "evaluable",
+          "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+          "tested_cut_hit_fraction": null,
+          "threshold_test_count": null,
+          "valid_cut_count": null,
+          "hit_cut_count": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE",
+          "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "definition": null,
+          "reason": "multiple_detector_branches_require_unique_hit_union",
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1719,
+              "hit_fraction": 0.003260127446517979,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1625,
+              "hit_fraction": 0.003081854043392505,
+              "reason": null
+            }
+          },
+          "source_paths": [
+            "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/result/debug/cfar_geometry_diagnostics.csv"
+          ],
+          "rows": [
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1719",
+              "hit_index_hash": "fnv1a64:6ff032da1b327b5c",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.003260127446517979,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1625",
+              "hit_index_hash": "fnv1a64:bbca8565ffa84c70",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.003081854043392505,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            }
+          ]
+        },
+        "audit": {
+          "schema_version": 1,
+          "debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/track_debug_runs/local_test_20261029_185527_062228_pid986201",
+          "status": "pass",
+          "association_evidence": "accepted_assignment_audit",
+          "unverified_checks": [],
+          "periods": [
+            1
+          ],
+          "frame_transitions": [],
+          "counts": {
+            "frames": 1,
+            "accepted_associations": 0,
+            "frame_reported_matches": 0,
+            "output_states": 0,
+            "payloads": 0,
+            "frame_reported_outputs": 0,
+            "state_steps": 0,
+            "matched_state_steps": 0,
+            "coasted_state_steps": 0,
+            "measurement_steps": 0
+          },
+          "maxima": {
+            "accepted_distance_m": 0.0,
+            "accepted_instant_speed_mps": 0.0,
+            "distance_to_gate_ratio": 0.0,
+            "mahalanobis_to_gate_ratio": 0.0,
+            "legacy_max_mahalanobis_distance": null,
+            "speed_to_gate_ratio": 0.0,
+            "state_step_m": 0.0,
+            "matched_state_step_m": 0.0,
+            "coasted_state_step_m": 0.0,
+            "measurement_step_m": 0.0,
+            "measurement_step_speed_mps": 0.0
+          },
+          "resolved_sources": {},
+          "protocol_target_failures": {},
+          "violations": {
+            "distance_gate": 0,
+            "mahalanobis_gate": 0,
+            "speed_gate": 0,
+            "cost_vs_dummy": 0,
+            "accepted_flags": 0,
+            "accepted_track_one_to_one": 0,
+            "accepted_detection_one_to_one": 0,
+            "frame_match_count": 0,
+            "frame_output_count": 0,
+            "output_state_semantics": 0,
+            "duplicate_states": 0,
+            "duplicate_output_states": 0,
+            "detection_links": 0,
+            "accepted_state_links": 0,
+            "accepted_detection_links": 0,
+            "payload_provenance": 0,
+            "payload_numeric_source": 0,
+            "payload_without_accepted_match": 0,
+            "state_payload_key_mismatch": 0,
+            "protocol_target_contract": 0
+          },
+          "total_violations": 0
+        },
+        "track_audit_total_violations": 0,
+        "metrics": {
+          "branch": "C4_modeb_S1c_period5_baseline_snr30",
+          "expected_periods": 1,
+          "truth_visible_periods": 0,
+          "detection_snapshot_periods": 1,
+          "target_detection_opportunity_count": 0,
+          "target_detection_hit_count": 0,
+          "target_detection_pd": null,
+          "target_detection_definition": "one target detection opportunity per visible truth period; hit if any production detection record matches that period's target",
+          "raw_detection_count": 151,
+          "detection_match_count": 0,
+          "detection_record_count": 151,
+          "detection_record_target_match_count": 0,
+          "detection_record_false_alarm_count": 151,
+          "detection_record_false_alarm_rate": 1.0,
+          "detection_record_definition": "production detection_results rows matched against truth; not CFAR hit-cell count",
+          "period_detection_match_count": 0,
+          "period_detection_pd": null,
+          "detection_pd": null,
+          "detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "raw_detection_pd": null,
+          "raw_detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "cell_false_hit_count": null,
+          "cell_false_hit_fraction": null,
+          "cell_false_hit_status": "not_evaluable_no_target_cell_link_or_valid_cut_denominator",
+          "raw_empirical_false_hit_fraction": null,
+          "raw_empirical_false_hit_status": "not_evaluable_detection_records_are_not_cfar_cells",
+          "eligible_protocol_payload_count": 0,
+          "matched_protocol_payload_count": 0,
+          "matched_protocol_period_count": 0,
+          "matched_protocol_periods": [],
+          "false_track_count": 0,
+          "false_track_rate": null,
+          "false_track_payload_count": 0,
+          "track_output_count": 0,
+          "unique_false_track_count": 0,
+          "unique_false_track_rate": null,
+          "cfar_hit_cell_count": null,
+          "cfar_cluster_count": 151,
+          "cfar_selected_cluster_count": 151,
+          "cfar_pfa": null,
+          "cfar_pfa_status": "not_evaluable_target_on_without_valid_cut_or_target_off_denominator",
+          "cluster_false_alarm_count": 151,
+          "cluster_false_alarm_rate": 1.0,
+          "cluster_false_alarm_definition": "selected CFAR clusters minus one target-associated cluster per matched target period",
+          "cluster_false_alarm_status": "period_association_proxy_no_cluster_id",
+          "protocol_detection_false_alarm_count": null,
+          "protocol_detection_false_alarm_rate": null,
+          "protocol_detection_false_alarm_status": "not_evaluable_payloads_do_not_preserve_production_detection_identity",
+          "protocol_payload_false_alarm_count": 0,
+          "protocol_payload_false_alarm_rate": null,
+          "track_pd_all_visible": null,
+          "track_pd_after_confirmation": null,
+          "track_continuity": null,
+          "track_continuity_after_confirmation": null,
+          "track_id_switch_count": 0,
+          "angle_rmse_deg": null,
+          "velocity_rmse_mps_ground_speed": null,
+          "position_rmse_m": null,
+          "track_debug_payload_count": 0,
+          "track_debug_detection_rows": 151,
+          "track_debug_state_rows": 151,
+          "track_audit_status": "pass",
+          "track_audit_total_violations": 0,
+          "protocol_target_failures": {}
+        },
+        "cycle_rows": [
+          {
+            "result_id": 1,
+            "period_id": 0,
+            "detection_count": 151,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/result/detection_results_GMTI01.csv"
+          }
+        ],
+        "protocol_rows": [],
+        "target_off_waterfall": null,
+        "id_switch_audit_path": null,
+        "id_switch_audit_row_count": null,
+        "id_switch_classification_counts": null,
+        "id_switch_missing_production_field_counts": null,
+        "id_switch_audit_status": "NOT_APPLICABLE",
+        "id_switch_audit_reason": null,
+        "id_switch_audit_sources": null,
+        "production_status": "passed"
+      }
+    },
+    {
+      "branch_name": "C4_modea_S1c_period5_target_free_OFF",
+      "source_role": "OFF",
+      "source_period_index_zero_based": 4,
+      "source_period_label": "GMTI05",
+      "production_period_id": 1,
+      "input_symlink": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+      "input_sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/production/C4_modea_OFF/branch_manifest.json",
+      "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-A_OFF.xml",
+      "gpu_snapshot_before": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P3, 43, 17.79 W, 6 %, 2236 MiB, 4096 MiB, 1950 MHz",
+      "status": "passed",
+      "production_returncode": 0,
+      "production_elapsed_sec": 1.0282240259984974,
+      "production_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/branch_manifest.json",
+      "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/production.xml",
+      "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/gmt_pipe_core.log",
+      "xml_overrides": {
+        "rg_st": 666,
+        "rg_ed": 1197,
+        "research_calibration_enable": "true",
+        "research_calibration_method": "robust_ddc_rb",
+        "research_calibration_min_support": 8,
+        "research_calibration_range_band_bins": 133,
+        "research_calibration_robust_phase_threshold_rad": 0.35,
+        "research_calibration_mode": "Mode-A",
+        "research_calibration_reference_gamma_csv": "",
+        "csi_metrics_enable": "true",
+        "csi_metrics_dump_power_maps": "false",
+        "csi_metrics_dump_intermediate_maps": "false",
+        "csi_metrics_beam_id": 50
+      },
+      "phase_vectors": {
+        "raw": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/paired_range_phase_raw_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "1456f8755d01a9a7ce2b448d3146acb39bb187254009514045ea1d8db885f12c",
+          "min_rad": -2.6547529697418213,
+          "max_rad": 13.93814754486084
+        },
+        "csi": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/paired_range_phase_csi_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "dc6f84425613c0ba97526c02ef92b79fbcc8c8cad5f120b69c98df79e9b51747",
+          "min_rad": -43.89588928222656,
+          "max_rad": -1.7349294424057007
+        }
+      },
+      "branch_record": {
+        "branch_name": "C4_modea_S1c_period5_target_free_OFF",
+        "condition": "C4_modea_S1c_period5_target_free",
+        "role": "OFF",
+        "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+        "truth_used_in_estimator": false,
+        "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+        "input_mode": "local",
+        "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/inputs/target_free_OFF_period5",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-A_OFF.xml",
+        "period_count_expected": 1,
+        "truth_period_count": 0,
+        "xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-A",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50
+        },
+        "status": "passed",
+        "configuration_returncode": 0,
+        "configuration_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/production.configure.log",
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/production.xml",
+        "period_paths": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+            "bytes": 49204480,
+            "sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48"
+          }
+        ],
+        "runtime_xml_protocol_layout": {
+          "status": "passed",
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/production.xml",
+          "values": {
+            "pulse_len": "11820",
+            "new_protocol_channel_count": "4",
+            "new_protocol_read_channel_1": "1",
+            "new_protocol_read_channel_2": "2",
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": "true",
+            "four_channel_phase_compensation_enable": "true",
+            "four_channel_fusion_channel_3": "3",
+            "four_channel_fusion_channel_4": "4",
+            "new_protocol_file_first_beam": "50",
+            "new_protocol_file_scan_beam_count": "1",
+            "wavepos_st": "50",
+            "wavepos_ed": "50",
+            "fs_hz": 60000000.0
+          },
+          "expected": {
+            "pulse_len": 11820,
+            "new_protocol_channel_count": 4,
+            "new_protocol_read_channel_1": 1,
+            "new_protocol_read_channel_2": 2,
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": true,
+            "four_channel_phase_compensation_enable": true,
+            "four_channel_fusion_channel_3": 3,
+            "four_channel_fusion_channel_4": 4,
+            "fs_hz": 60000000.0,
+            "new_protocol_file_first_beam": 50,
+            "new_protocol_file_scan_beam_count": 1,
+            "wavepos_st": 50,
+            "wavepos_ed": 50
+          },
+          "errors": []
+        },
+        "production_returncode": 0,
+        "production_elapsed_sec": 1.0282240259984974,
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/gmt_pipe_core.log",
+        "pipe_run_dir": null,
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result",
+        "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/track_debug_runs/local_test_20261029_185528_799229_pid986217",
+        "pipe_runtime_metrics": {
+          "status": "not_applicable",
+          "input_mode": "local"
+        },
+        "cfar_summary": {
+          "status": "passed",
+          "summary_count": 1,
+          "hit_cells": null,
+          "clusters": 7,
+          "selected": 7,
+          "summaries": [
+            {
+              "hit_cells": 92,
+              "clusters": 7,
+              "selected": 7
+            }
+          ],
+          "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+          "aggregate_hit_fraction_reason": "multiple_detector_branches_require_unique_hit_union",
+          "expected_period_count": 1,
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 76,
+              "hit_fraction": 0.000144135942952511,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 63,
+              "hit_fraction": 0.00011948111060537096,
+              "reason": null
+            }
+          },
+          "valid_cut_count": null,
+          "threshold_test_count": null,
+          "hit_cut_count": null,
+          "tested_cut_hit_fraction": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE"
+        },
+        "cfar_geometry": {
+          "status": "NOT_EVALUABLE",
+          "branch_geometry_status": "evaluable",
+          "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+          "tested_cut_hit_fraction": null,
+          "threshold_test_count": null,
+          "valid_cut_count": null,
+          "hit_cut_count": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE",
+          "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "definition": null,
+          "reason": "multiple_detector_branches_require_unique_hit_union",
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 76,
+              "hit_fraction": 0.000144135942952511,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 63,
+              "hit_fraction": 0.00011948111060537096,
+              "reason": null
+            }
+          },
+          "source_paths": [
+            "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/cfar_geometry_diagnostics.csv"
+          ],
+          "rows": [
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "76",
+              "hit_index_hash": "fnv1a64:ab867a411c10f6a1",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.000144135942952511,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "63",
+              "hit_index_hash": "fnv1a64:7274bda7dd174027",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.00011948111060537096,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            }
+          ]
+        },
+        "audit": {
+          "schema_version": 1,
+          "debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/track_debug_runs/local_test_20261029_185528_799229_pid986217",
+          "status": "pass",
+          "association_evidence": "accepted_assignment_audit",
+          "unverified_checks": [],
+          "periods": [
+            1
+          ],
+          "frame_transitions": [],
+          "counts": {
+            "frames": 1,
+            "accepted_associations": 0,
+            "frame_reported_matches": 0,
+            "output_states": 0,
+            "payloads": 0,
+            "frame_reported_outputs": 0,
+            "state_steps": 0,
+            "matched_state_steps": 0,
+            "coasted_state_steps": 0,
+            "measurement_steps": 0
+          },
+          "maxima": {
+            "accepted_distance_m": 0.0,
+            "accepted_instant_speed_mps": 0.0,
+            "distance_to_gate_ratio": 0.0,
+            "mahalanobis_to_gate_ratio": 0.0,
+            "legacy_max_mahalanobis_distance": null,
+            "speed_to_gate_ratio": 0.0,
+            "state_step_m": 0.0,
+            "matched_state_step_m": 0.0,
+            "coasted_state_step_m": 0.0,
+            "measurement_step_m": 0.0,
+            "measurement_step_speed_mps": 0.0
+          },
+          "resolved_sources": {},
+          "protocol_target_failures": {},
+          "violations": {
+            "distance_gate": 0,
+            "mahalanobis_gate": 0,
+            "speed_gate": 0,
+            "cost_vs_dummy": 0,
+            "accepted_flags": 0,
+            "accepted_track_one_to_one": 0,
+            "accepted_detection_one_to_one": 0,
+            "frame_match_count": 0,
+            "frame_output_count": 0,
+            "output_state_semantics": 0,
+            "duplicate_states": 0,
+            "duplicate_output_states": 0,
+            "detection_links": 0,
+            "accepted_state_links": 0,
+            "accepted_detection_links": 0,
+            "payload_provenance": 0,
+            "payload_numeric_source": 0,
+            "payload_without_accepted_match": 0,
+            "state_payload_key_mismatch": 0,
+            "protocol_target_contract": 0
+          },
+          "total_violations": 0
+        },
+        "track_audit_total_violations": 0,
+        "metrics": {
+          "branch": "C4_modea_S1c_period5_target_free_OFF",
+          "expected_periods": 1,
+          "truth_visible_periods": 0,
+          "detection_snapshot_periods": 1,
+          "target_detection_opportunity_count": 0,
+          "target_detection_hit_count": 0,
+          "target_detection_pd": null,
+          "target_detection_definition": "one target detection opportunity per visible truth period; hit if any production detection record matches that period's target",
+          "raw_detection_count": 7,
+          "detection_match_count": 0,
+          "detection_record_count": 7,
+          "detection_record_target_match_count": 0,
+          "detection_record_false_alarm_count": 7,
+          "detection_record_false_alarm_rate": 1.0,
+          "detection_record_definition": "production detection_results rows matched against truth; not CFAR hit-cell count",
+          "period_detection_match_count": 0,
+          "period_detection_pd": null,
+          "detection_pd": null,
+          "detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "raw_detection_pd": null,
+          "raw_detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "cell_false_hit_count": null,
+          "cell_false_hit_fraction": null,
+          "cell_false_hit_status": "not_evaluable_no_target_cell_link_or_valid_cut_denominator",
+          "raw_empirical_false_hit_fraction": null,
+          "raw_empirical_false_hit_status": "not_evaluable_detection_records_are_not_cfar_cells",
+          "eligible_protocol_payload_count": 0,
+          "matched_protocol_payload_count": 0,
+          "matched_protocol_period_count": 0,
+          "matched_protocol_periods": [],
+          "false_track_count": 0,
+          "false_track_rate": null,
+          "false_track_payload_count": 0,
+          "track_output_count": 0,
+          "unique_false_track_count": 0,
+          "unique_false_track_rate": null,
+          "cfar_hit_cell_count": null,
+          "cfar_cluster_count": 7,
+          "cfar_selected_cluster_count": 7,
+          "cfar_pfa": null,
+          "cfar_pfa_status": "not_evaluable_target_on_without_valid_cut_or_target_off_denominator",
+          "cluster_false_alarm_count": 7,
+          "cluster_false_alarm_rate": 1.0,
+          "cluster_false_alarm_definition": "selected CFAR clusters minus one target-associated cluster per matched target period",
+          "cluster_false_alarm_status": "period_association_proxy_no_cluster_id",
+          "protocol_detection_false_alarm_count": null,
+          "protocol_detection_false_alarm_rate": null,
+          "protocol_detection_false_alarm_status": "not_evaluable_payloads_do_not_preserve_production_detection_identity",
+          "protocol_payload_false_alarm_count": 0,
+          "protocol_payload_false_alarm_rate": null,
+          "track_pd_all_visible": null,
+          "track_pd_after_confirmation": null,
+          "track_continuity": null,
+          "track_continuity_after_confirmation": null,
+          "track_id_switch_count": 0,
+          "angle_rmse_deg": null,
+          "velocity_rmse_mps_ground_speed": null,
+          "position_rmse_m": null,
+          "track_debug_payload_count": 0,
+          "track_debug_detection_rows": 7,
+          "track_debug_state_rows": 7,
+          "track_audit_status": "pass",
+          "track_audit_total_violations": 0,
+          "protocol_target_failures": {}
+        },
+        "cycle_rows": [
+          {
+            "result_id": 1,
+            "period_id": 0,
+            "detection_count": 7,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/detection_results_GMTI01.csv"
+          }
+        ],
+        "protocol_rows": [],
+        "target_off_waterfall": {
+          "schema_version": 1,
+          "theoretical_go_cfar_cell_pfa": 1e-06,
+          "valid_cut_denominators": {
+            "status": "passed",
+            "row_count": 2,
+            "reason": null,
+            "definition": "each recorded period/beam/branch has a positive valid CUT denominator; overlapping branch denominators are not summed"
+          },
+          "unique_final_union_hits": {
+            "status": "passed",
+            "expected_period_count": 1,
+            "summary_count": 1,
+            "hit_cells_by_production_order": [
+              92
+            ],
+            "total_hit_cells": 92,
+            "source": "production_cfar_summary",
+            "definition": "positive CUT cells in the merged final CFAR hit map, in production period order; descriptive counts, not Pfa"
+          },
+          "cell_false_hit_fraction": {
+            "status": "NOT_EVALUABLE",
+            "value": null,
+            "denominator": null,
+            "definition": "unique production detector CUT hits / unique valid CUTs",
+            "reason": "multiple_detector_branches_require_unique_hit_union",
+            "hit_cell_count": null,
+            "valid_cut_count": null,
+            "metric_name": "empirical_structured_clutter_false_hit_fraction"
+          },
+          "empirical_structured_clutter_false_hit_fraction": {
+            "status": "NOT_EVALUABLE",
+            "value": null,
+            "denominator": null,
+            "definition": "unique production detector CUT hits / unique valid CUTs",
+            "reason": "multiple_detector_branches_require_unique_hit_union",
+            "hit_cell_count": null,
+            "valid_cut_count": null,
+            "metric_name": "empirical_structured_clutter_false_hit_fraction"
+          },
+          "false_clusters": {
+            "status": "passed",
+            "value": 7,
+            "denominator": 1,
+            "definition": "explicit false-cluster count in one target-off evaluation",
+            "source": "cfar_summary.clusters"
+          },
+          "protocol_false_detections": {
+            "status": "passed",
+            "value": 7,
+            "denominator": 1,
+            "definition": "all production OFF detection rows; no truth match is possible",
+            "source_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/detection_results_GMTI01.csv"
+            ]
+          },
+          "false_tracks": {
+            "status": "NOT_EVALUABLE",
+            "value": null,
+            "denominator": null,
+            "definition": "unique production debug track IDs with Confirmed/output evidence",
+            "reason": "no_output_track_ids",
+            "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/track_debug_runs/local_test_20261029_185528_799229_pid986217/track_results.csv"
+          },
+          "layer_definitions": {
+            "valid_cut_denominators": "each recorded period/beam/branch has a positive valid CUT denominator; overlapping branch denominators are not summed",
+            "unique_final_union_hits": "positive CUT cells in the merged final CFAR hit map, in production period order; descriptive counts, not Pfa",
+            "cell_false_hit_fraction": "hit_cells / valid_cut_count when the denominator is exported",
+            "false_clusters": "explicit OFF CFAR cluster count or IDs",
+            "protocol_false_detections": "rows in production detection CSV",
+            "false_tracks": "unique production debug track IDs with Confirmed/output evidence"
+          }
+        },
+        "id_switch_audit_path": null,
+        "id_switch_audit_row_count": null,
+        "id_switch_classification_counts": null,
+        "id_switch_missing_production_field_counts": null,
+        "id_switch_audit_status": "NOT_APPLICABLE",
+        "id_switch_audit_reason": null,
+        "id_switch_audit_sources": null,
+        "production_status": "passed"
+      }
+    },
+    {
+      "branch_name": "C4_modeb_S1c_period5_shared_off_phase_snr20",
+      "source_role": "ON",
+      "source_period_index_zero_based": 4,
+      "source_period_label": "GMTI05",
+      "production_period_id": 1,
+      "input_symlink": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+      "input_sha256": "dcd6cbfff80dfd68a24026782d5f8b3cae8074db58df28f340630998fbf4d024",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/production/C4_modeb_ON/branch_manifest.json",
+      "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+      "gpu_snapshot_before": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P3, 44, 18.09 W, 35 %, 2236 MiB, 4096 MiB, 1950 MHz",
+      "status": "passed",
+      "production_returncode": 0,
+      "production_elapsed_sec": 1.479514435006422,
+      "production_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/branch_manifest.json",
+      "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/production.xml",
+      "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/gmt_pipe_core.log",
+      "xml_overrides": {
+        "rg_st": 666,
+        "rg_ed": 1197,
+        "research_calibration_enable": "true",
+        "research_calibration_method": "robust_ddc_rb",
+        "research_calibration_min_support": 8,
+        "research_calibration_range_band_bins": 133,
+        "research_calibration_robust_phase_threshold_rad": 0.35,
+        "research_calibration_mode": "Mode-B",
+        "research_calibration_reference_gamma_csv": "",
+        "csi_metrics_enable": "true",
+        "csi_metrics_dump_power_maps": "false",
+        "csi_metrics_dump_intermediate_maps": "false",
+        "csi_metrics_beam_id": 50,
+        "paired_raw_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/result/debug/paired_range_phase_raw_period050_beam050.f32",
+        "paired_csi_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/paired_range_phase_csi_period050_beam050.f32"
+      },
+      "phase_vectors": {
+        "raw": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/result/debug/paired_range_phase_raw_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "27d77ad4b930ed7665badd8e8e3bf0abd0fac1ce9a4ad47670145d63d6d2126c",
+          "min_rad": -2.71185302734375,
+          "max_rad": 89.24227142333984
+        },
+        "csi": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/result/debug/paired_range_phase_csi_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "dc6f84425613c0ba97526c02ef92b79fbcc8c8cad5f120b69c98df79e9b51747",
+          "min_rad": -43.89588928222656,
+          "max_rad": -1.7349294424057007
+        }
+      },
+      "branch_record": {
+        "branch_name": "C4_modeb_S1c_period5_shared_off_phase_snr20",
+        "condition": "C4_modeb_S1c_period5_shared_off_phase",
+        "role": "snr20",
+        "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+        "truth_used_in_estimator": false,
+        "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+        "input_mode": "local",
+        "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/inputs/snr20_ON_period5_shared_off_phase",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+        "period_count_expected": 1,
+        "truth_period_count": 0,
+        "xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-B",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50,
+          "paired_raw_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr20/result/debug/paired_range_phase_raw_period050_beam050.f32",
+          "paired_csi_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/paired_range_phase_csi_period050_beam050.f32"
+        },
+        "status": "passed",
+        "configuration_returncode": 0,
+        "configuration_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/production.configure.log",
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/production.xml",
+        "period_paths": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+            "bytes": 49204480,
+            "sha256": "dcd6cbfff80dfd68a24026782d5f8b3cae8074db58df28f340630998fbf4d024"
+          }
+        ],
+        "runtime_xml_protocol_layout": {
+          "status": "passed",
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/production.xml",
+          "values": {
+            "pulse_len": "11820",
+            "new_protocol_channel_count": "4",
+            "new_protocol_read_channel_1": "1",
+            "new_protocol_read_channel_2": "2",
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": "true",
+            "four_channel_phase_compensation_enable": "true",
+            "four_channel_fusion_channel_3": "3",
+            "four_channel_fusion_channel_4": "4",
+            "new_protocol_file_first_beam": "50",
+            "new_protocol_file_scan_beam_count": "1",
+            "wavepos_st": "50",
+            "wavepos_ed": "50",
+            "fs_hz": 60000000.0
+          },
+          "expected": {
+            "pulse_len": 11820,
+            "new_protocol_channel_count": 4,
+            "new_protocol_read_channel_1": 1,
+            "new_protocol_read_channel_2": 2,
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": true,
+            "four_channel_phase_compensation_enable": true,
+            "four_channel_fusion_channel_3": 3,
+            "four_channel_fusion_channel_4": 4,
+            "fs_hz": 60000000.0,
+            "new_protocol_file_first_beam": 50,
+            "new_protocol_file_scan_beam_count": 1,
+            "wavepos_st": 50,
+            "wavepos_ed": 50
+          },
+          "errors": []
+        },
+        "production_returncode": 0,
+        "production_elapsed_sec": 1.479514435006422,
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/gmt_pipe_core.log",
+        "pipe_run_dir": null,
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/result",
+        "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/track_debug_runs/local_test_20261029_185529_962446_pid986233",
+        "pipe_runtime_metrics": {
+          "status": "not_applicable",
+          "input_mode": "local"
+        },
+        "cfar_summary": {
+          "status": "passed",
+          "summary_count": 1,
+          "hit_cells": null,
+          "clusters": 108,
+          "selected": 108,
+          "summaries": [
+            {
+              "hit_cells": 1311,
+              "clusters": 108,
+              "selected": 108
+            }
+          ],
+          "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+          "aggregate_hit_fraction_reason": "multiple_detector_branches_require_unique_hit_union",
+          "expected_period_count": 1,
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1079,
+              "hit_fraction": 0.002046351084812623,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1012,
+              "hit_fraction": 0.0019192838719465938,
+              "reason": null
+            }
+          },
+          "valid_cut_count": null,
+          "threshold_test_count": null,
+          "hit_cut_count": null,
+          "tested_cut_hit_fraction": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE"
+        },
+        "cfar_geometry": {
+          "status": "NOT_EVALUABLE",
+          "branch_geometry_status": "evaluable",
+          "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+          "tested_cut_hit_fraction": null,
+          "threshold_test_count": null,
+          "valid_cut_count": null,
+          "hit_cut_count": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE",
+          "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "definition": null,
+          "reason": "multiple_detector_branches_require_unique_hit_union",
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1079,
+              "hit_fraction": 0.002046351084812623,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1012,
+              "hit_fraction": 0.0019192838719465938,
+              "reason": null
+            }
+          },
+          "source_paths": [
+            "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/result/debug/cfar_geometry_diagnostics.csv"
+          ],
+          "rows": [
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1079",
+              "hit_index_hash": "fnv1a64:fa8994297121fcee",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.002046351084812623,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1012",
+              "hit_index_hash": "fnv1a64:91f28d008c61ae1a",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.0019192838719465938,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            }
+          ]
+        },
+        "audit": {
+          "schema_version": 1,
+          "debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/track_debug_runs/local_test_20261029_185529_962446_pid986233",
+          "status": "pass",
+          "association_evidence": "accepted_assignment_audit",
+          "unverified_checks": [],
+          "periods": [
+            1
+          ],
+          "frame_transitions": [],
+          "counts": {
+            "frames": 1,
+            "accepted_associations": 0,
+            "frame_reported_matches": 0,
+            "output_states": 0,
+            "payloads": 0,
+            "frame_reported_outputs": 0,
+            "state_steps": 0,
+            "matched_state_steps": 0,
+            "coasted_state_steps": 0,
+            "measurement_steps": 0
+          },
+          "maxima": {
+            "accepted_distance_m": 0.0,
+            "accepted_instant_speed_mps": 0.0,
+            "distance_to_gate_ratio": 0.0,
+            "mahalanobis_to_gate_ratio": 0.0,
+            "legacy_max_mahalanobis_distance": null,
+            "speed_to_gate_ratio": 0.0,
+            "state_step_m": 0.0,
+            "matched_state_step_m": 0.0,
+            "coasted_state_step_m": 0.0,
+            "measurement_step_m": 0.0,
+            "measurement_step_speed_mps": 0.0
+          },
+          "resolved_sources": {},
+          "protocol_target_failures": {},
+          "violations": {
+            "distance_gate": 0,
+            "mahalanobis_gate": 0,
+            "speed_gate": 0,
+            "cost_vs_dummy": 0,
+            "accepted_flags": 0,
+            "accepted_track_one_to_one": 0,
+            "accepted_detection_one_to_one": 0,
+            "frame_match_count": 0,
+            "frame_output_count": 0,
+            "output_state_semantics": 0,
+            "duplicate_states": 0,
+            "duplicate_output_states": 0,
+            "detection_links": 0,
+            "accepted_state_links": 0,
+            "accepted_detection_links": 0,
+            "payload_provenance": 0,
+            "payload_numeric_source": 0,
+            "payload_without_accepted_match": 0,
+            "state_payload_key_mismatch": 0,
+            "protocol_target_contract": 0
+          },
+          "total_violations": 0
+        },
+        "track_audit_total_violations": 0,
+        "metrics": {
+          "branch": "C4_modeb_S1c_period5_shared_off_phase_snr20",
+          "expected_periods": 1,
+          "truth_visible_periods": 0,
+          "detection_snapshot_periods": 1,
+          "target_detection_opportunity_count": 0,
+          "target_detection_hit_count": 0,
+          "target_detection_pd": null,
+          "target_detection_definition": "one target detection opportunity per visible truth period; hit if any production detection record matches that period's target",
+          "raw_detection_count": 108,
+          "detection_match_count": 0,
+          "detection_record_count": 108,
+          "detection_record_target_match_count": 0,
+          "detection_record_false_alarm_count": 108,
+          "detection_record_false_alarm_rate": 1.0,
+          "detection_record_definition": "production detection_results rows matched against truth; not CFAR hit-cell count",
+          "period_detection_match_count": 0,
+          "period_detection_pd": null,
+          "detection_pd": null,
+          "detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "raw_detection_pd": null,
+          "raw_detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "cell_false_hit_count": null,
+          "cell_false_hit_fraction": null,
+          "cell_false_hit_status": "not_evaluable_no_target_cell_link_or_valid_cut_denominator",
+          "raw_empirical_false_hit_fraction": null,
+          "raw_empirical_false_hit_status": "not_evaluable_detection_records_are_not_cfar_cells",
+          "eligible_protocol_payload_count": 0,
+          "matched_protocol_payload_count": 0,
+          "matched_protocol_period_count": 0,
+          "matched_protocol_periods": [],
+          "false_track_count": 0,
+          "false_track_rate": null,
+          "false_track_payload_count": 0,
+          "track_output_count": 0,
+          "unique_false_track_count": 0,
+          "unique_false_track_rate": null,
+          "cfar_hit_cell_count": null,
+          "cfar_cluster_count": 108,
+          "cfar_selected_cluster_count": 108,
+          "cfar_pfa": null,
+          "cfar_pfa_status": "not_evaluable_target_on_without_valid_cut_or_target_off_denominator",
+          "cluster_false_alarm_count": 108,
+          "cluster_false_alarm_rate": 1.0,
+          "cluster_false_alarm_definition": "selected CFAR clusters minus one target-associated cluster per matched target period",
+          "cluster_false_alarm_status": "period_association_proxy_no_cluster_id",
+          "protocol_detection_false_alarm_count": null,
+          "protocol_detection_false_alarm_rate": null,
+          "protocol_detection_false_alarm_status": "not_evaluable_payloads_do_not_preserve_production_detection_identity",
+          "protocol_payload_false_alarm_count": 0,
+          "protocol_payload_false_alarm_rate": null,
+          "track_pd_all_visible": null,
+          "track_pd_after_confirmation": null,
+          "track_continuity": null,
+          "track_continuity_after_confirmation": null,
+          "track_id_switch_count": 0,
+          "angle_rmse_deg": null,
+          "velocity_rmse_mps_ground_speed": null,
+          "position_rmse_m": null,
+          "track_debug_payload_count": 0,
+          "track_debug_detection_rows": 108,
+          "track_debug_state_rows": 108,
+          "track_audit_status": "pass",
+          "track_audit_total_violations": 0,
+          "protocol_target_failures": {}
+        },
+        "cycle_rows": [
+          {
+            "result_id": 1,
+            "period_id": 0,
+            "detection_count": 108,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr20/result/detection_results_GMTI01.csv"
+          }
+        ],
+        "protocol_rows": [],
+        "target_off_waterfall": null,
+        "id_switch_audit_path": null,
+        "id_switch_audit_row_count": null,
+        "id_switch_classification_counts": null,
+        "id_switch_missing_production_field_counts": null,
+        "id_switch_audit_status": "NOT_APPLICABLE",
+        "id_switch_audit_reason": null,
+        "id_switch_audit_sources": null,
+        "production_status": "passed"
+      }
+    },
+    {
+      "branch_name": "C4_modeb_S1c_period5_shared_off_phase_snr30",
+      "source_role": "ON",
+      "source_period_index_zero_based": 4,
+      "source_period_label": "GMTI05",
+      "production_period_id": 1,
+      "input_symlink": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+      "input_sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/production/C4_modeb_ON/branch_manifest.json",
+      "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+      "gpu_snapshot_before": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P3, 43, 12.11 W, 0 %, 2236 MiB, 4096 MiB, 1717 MHz",
+      "status": "passed",
+      "production_returncode": 0,
+      "production_elapsed_sec": 1.6297766799980309,
+      "production_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/branch_manifest.json",
+      "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/production.xml",
+      "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/gmt_pipe_core.log",
+      "xml_overrides": {
+        "rg_st": 666,
+        "rg_ed": 1197,
+        "research_calibration_enable": "true",
+        "research_calibration_method": "robust_ddc_rb",
+        "research_calibration_min_support": 8,
+        "research_calibration_range_band_bins": 133,
+        "research_calibration_robust_phase_threshold_rad": 0.35,
+        "research_calibration_mode": "Mode-B",
+        "research_calibration_reference_gamma_csv": "",
+        "csi_metrics_enable": "true",
+        "csi_metrics_dump_power_maps": "false",
+        "csi_metrics_dump_intermediate_maps": "false",
+        "csi_metrics_beam_id": 50,
+        "paired_raw_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/result/debug/paired_range_phase_raw_period050_beam050.f32",
+        "paired_csi_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/paired_range_phase_csi_period050_beam050.f32"
+      },
+      "phase_vectors": {
+        "raw": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/result/debug/paired_range_phase_raw_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "c2abb0d69fbefee073e397a49e3a21094caa1a4bdd464c78fac3f6c5e0137ed1",
+          "min_rad": -2.6931071281433105,
+          "max_rad": 77.03627014160156
+        },
+        "csi": {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/result/debug/paired_range_phase_csi_period050_beam050.f32",
+          "bytes": 16384,
+          "count": 4096,
+          "sha256": "dc6f84425613c0ba97526c02ef92b79fbcc8c8cad5f120b69c98df79e9b51747",
+          "min_rad": -43.89588928222656,
+          "max_rad": -1.7349294424057007
+        }
+      },
+      "branch_record": {
+        "branch_name": "C4_modeb_S1c_period5_shared_off_phase_snr30",
+        "condition": "C4_modeb_S1c_period5_shared_off_phase",
+        "role": "snr30",
+        "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+        "truth_used_in_estimator": false,
+        "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+        "input_mode": "local",
+        "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/inputs/snr30_ON_period5_shared_off_phase",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/method_xml/C4_Mode-B_ON.xml",
+        "period_count_expected": 1,
+        "truth_period_count": 0,
+        "xml_overrides": {
+          "rg_st": 666,
+          "rg_ed": 1197,
+          "research_calibration_enable": "true",
+          "research_calibration_method": "robust_ddc_rb",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 133,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-B",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "false",
+          "csi_metrics_dump_intermediate_maps": "false",
+          "csi_metrics_beam_id": 50,
+          "paired_raw_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_baseline_snr30/result/debug/paired_range_phase_raw_period050_beam050.f32",
+          "paired_csi_range_phase_override_f32": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/paired_range_phase_csi_period050_beam050.f32"
+        },
+        "status": "passed",
+        "configuration_returncode": 0,
+        "configuration_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/production.configure.log",
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/production.xml",
+        "period_paths": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+            "bytes": 49204480,
+            "sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831"
+          }
+        ],
+        "runtime_xml_protocol_layout": {
+          "status": "passed",
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/production.xml",
+          "values": {
+            "pulse_len": "11820",
+            "new_protocol_channel_count": "4",
+            "new_protocol_read_channel_1": "1",
+            "new_protocol_read_channel_2": "2",
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": "true",
+            "four_channel_phase_compensation_enable": "true",
+            "four_channel_fusion_channel_3": "3",
+            "four_channel_fusion_channel_4": "4",
+            "new_protocol_file_first_beam": "50",
+            "new_protocol_file_scan_beam_count": "1",
+            "wavepos_st": "50",
+            "wavepos_ed": "50",
+            "fs_hz": 60000000.0
+          },
+          "expected": {
+            "pulse_len": 11820,
+            "new_protocol_channel_count": 4,
+            "new_protocol_read_channel_1": 1,
+            "new_protocol_read_channel_2": 2,
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": true,
+            "four_channel_phase_compensation_enable": true,
+            "four_channel_fusion_channel_3": 3,
+            "four_channel_fusion_channel_4": 4,
+            "fs_hz": 60000000.0,
+            "new_protocol_file_first_beam": 50,
+            "new_protocol_file_scan_beam_count": 1,
+            "wavepos_st": 50,
+            "wavepos_ed": 50
+          },
+          "errors": []
+        },
+        "production_returncode": 0,
+        "production_elapsed_sec": 1.6297766799980309,
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/gmt_pipe_core.log",
+        "pipe_run_dir": null,
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/result",
+        "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/track_debug_runs/local_test_20261029_185531_556911_pid986268",
+        "pipe_runtime_metrics": {
+          "status": "not_applicable",
+          "input_mode": "local"
+        },
+        "cfar_summary": {
+          "status": "passed",
+          "summary_count": 1,
+          "hit_cells": null,
+          "clusters": 151,
+          "selected": 151,
+          "summaries": [
+            {
+              "hit_cells": 1974,
+              "clusters": 151,
+              "selected": 151
+            }
+          ],
+          "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+          "aggregate_hit_fraction_reason": "multiple_detector_branches_require_unique_hit_union",
+          "expected_period_count": 1,
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1719,
+              "hit_fraction": 0.003260127446517979,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1624,
+              "hit_fraction": 0.0030799575178273404,
+              "reason": null
+            }
+          },
+          "valid_cut_count": null,
+          "threshold_test_count": null,
+          "hit_cut_count": null,
+          "tested_cut_hit_fraction": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE"
+        },
+        "cfar_geometry": {
+          "status": "NOT_EVALUABLE",
+          "branch_geometry_status": "evaluable",
+          "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+          "tested_cut_hit_fraction": null,
+          "threshold_test_count": null,
+          "valid_cut_count": null,
+          "hit_cut_count": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE",
+          "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 2,
+          "valid_cut_denominator_reason": null,
+          "definition": null,
+          "reason": "multiple_detector_branches_require_unique_hit_union",
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1719,
+              "hit_fraction": 0.003260127446517979,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 1,
+              "period_ids": [
+                0
+              ],
+              "threshold_test_count": 527280,
+              "valid_cut_count": 527280,
+              "hit_cut_count": 1624,
+              "hit_fraction": 0.0030799575178273404,
+              "reason": null
+            }
+          },
+          "source_paths": [
+            "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/result/debug/cfar_geometry_diagnostics.csv"
+          ],
+          "rows": [
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1719",
+              "hit_index_hash": "fnv1a64:bdcc609f4d6fe421",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.003260127446517979,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "1624",
+              "hit_index_hash": "fnv1a64:845e0b9e4acee1a7",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.0030799575178273404,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            }
+          ]
+        },
+        "audit": {
+          "schema_version": 1,
+          "debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/track_debug_runs/local_test_20261029_185531_556911_pid986268",
+          "status": "pass",
+          "association_evidence": "accepted_assignment_audit",
+          "unverified_checks": [],
+          "periods": [
+            1
+          ],
+          "frame_transitions": [],
+          "counts": {
+            "frames": 1,
+            "accepted_associations": 0,
+            "frame_reported_matches": 0,
+            "output_states": 0,
+            "payloads": 0,
+            "frame_reported_outputs": 0,
+            "state_steps": 0,
+            "matched_state_steps": 0,
+            "coasted_state_steps": 0,
+            "measurement_steps": 0
+          },
+          "maxima": {
+            "accepted_distance_m": 0.0,
+            "accepted_instant_speed_mps": 0.0,
+            "distance_to_gate_ratio": 0.0,
+            "mahalanobis_to_gate_ratio": 0.0,
+            "legacy_max_mahalanobis_distance": null,
+            "speed_to_gate_ratio": 0.0,
+            "state_step_m": 0.0,
+            "matched_state_step_m": 0.0,
+            "coasted_state_step_m": 0.0,
+            "measurement_step_m": 0.0,
+            "measurement_step_speed_mps": 0.0
+          },
+          "resolved_sources": {},
+          "protocol_target_failures": {},
+          "violations": {
+            "distance_gate": 0,
+            "mahalanobis_gate": 0,
+            "speed_gate": 0,
+            "cost_vs_dummy": 0,
+            "accepted_flags": 0,
+            "accepted_track_one_to_one": 0,
+            "accepted_detection_one_to_one": 0,
+            "frame_match_count": 0,
+            "frame_output_count": 0,
+            "output_state_semantics": 0,
+            "duplicate_states": 0,
+            "duplicate_output_states": 0,
+            "detection_links": 0,
+            "accepted_state_links": 0,
+            "accepted_detection_links": 0,
+            "payload_provenance": 0,
+            "payload_numeric_source": 0,
+            "payload_without_accepted_match": 0,
+            "state_payload_key_mismatch": 0,
+            "protocol_target_contract": 0
+          },
+          "total_violations": 0
+        },
+        "track_audit_total_violations": 0,
+        "metrics": {
+          "branch": "C4_modeb_S1c_period5_shared_off_phase_snr30",
+          "expected_periods": 1,
+          "truth_visible_periods": 0,
+          "detection_snapshot_periods": 1,
+          "target_detection_opportunity_count": 0,
+          "target_detection_hit_count": 0,
+          "target_detection_pd": null,
+          "target_detection_definition": "one target detection opportunity per visible truth period; hit if any production detection record matches that period's target",
+          "raw_detection_count": 151,
+          "detection_match_count": 0,
+          "detection_record_count": 151,
+          "detection_record_target_match_count": 0,
+          "detection_record_false_alarm_count": 151,
+          "detection_record_false_alarm_rate": 1.0,
+          "detection_record_definition": "production detection_results rows matched against truth; not CFAR hit-cell count",
+          "period_detection_match_count": 0,
+          "period_detection_pd": null,
+          "detection_pd": null,
+          "detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "raw_detection_pd": null,
+          "raw_detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "cell_false_hit_count": null,
+          "cell_false_hit_fraction": null,
+          "cell_false_hit_status": "not_evaluable_no_target_cell_link_or_valid_cut_denominator",
+          "raw_empirical_false_hit_fraction": null,
+          "raw_empirical_false_hit_status": "not_evaluable_detection_records_are_not_cfar_cells",
+          "eligible_protocol_payload_count": 0,
+          "matched_protocol_payload_count": 0,
+          "matched_protocol_period_count": 0,
+          "matched_protocol_periods": [],
+          "false_track_count": 0,
+          "false_track_rate": null,
+          "false_track_payload_count": 0,
+          "track_output_count": 0,
+          "unique_false_track_count": 0,
+          "unique_false_track_rate": null,
+          "cfar_hit_cell_count": null,
+          "cfar_cluster_count": 151,
+          "cfar_selected_cluster_count": 151,
+          "cfar_pfa": null,
+          "cfar_pfa_status": "not_evaluable_target_on_without_valid_cut_or_target_off_denominator",
+          "cluster_false_alarm_count": 151,
+          "cluster_false_alarm_rate": 1.0,
+          "cluster_false_alarm_definition": "selected CFAR clusters minus one target-associated cluster per matched target period",
+          "cluster_false_alarm_status": "period_association_proxy_no_cluster_id",
+          "protocol_detection_false_alarm_count": null,
+          "protocol_detection_false_alarm_rate": null,
+          "protocol_detection_false_alarm_status": "not_evaluable_payloads_do_not_preserve_production_detection_identity",
+          "protocol_payload_false_alarm_count": 0,
+          "protocol_payload_false_alarm_rate": null,
+          "track_pd_all_visible": null,
+          "track_pd_after_confirmation": null,
+          "track_continuity": null,
+          "track_continuity_after_confirmation": null,
+          "track_id_switch_count": 0,
+          "angle_rmse_deg": null,
+          "velocity_rmse_mps_ground_speed": null,
+          "position_rmse_m": null,
+          "track_debug_payload_count": 0,
+          "track_debug_detection_rows": 151,
+          "track_debug_state_rows": 151,
+          "track_audit_status": "pass",
+          "track_audit_total_violations": 0,
+          "protocol_target_failures": {}
+        },
+        "cycle_rows": [
+          {
+            "result_id": 1,
+            "period_id": 0,
+            "detection_count": 151,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modeb_S1c_period5_shared_off_phase_snr30/result/detection_results_GMTI01.csv"
+          }
+        ],
+        "protocol_rows": [],
+        "target_off_waterfall": null,
+        "id_switch_audit_path": null,
+        "id_switch_audit_row_count": null,
+        "id_switch_classification_counts": null,
+        "id_switch_missing_production_field_counts": null,
+        "id_switch_audit_status": "NOT_APPLICABLE",
+        "id_switch_audit_reason": null,
+        "id_switch_audit_sources": null,
+        "production_status": "passed"
+      }
+    }
+  ],
+  "frozen_target_free_off_csi_phase_vector": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/production/C4_modea_S1c_period5_target_free_OFF/result/debug/paired_range_phase_csi_period050_beam050.f32",
+    "bytes": 16384,
+    "count": 4096,
+    "sha256": "dc6f84425613c0ba97526c02ef92b79fbcc8c8cad5f120b69c98df79e9b51747",
+    "min_rad": -43.89588928222656,
+    "max_rad": -1.7349294424057007
+  },
+  "run_status": "period5_production_branches_passed",
+  "gpu_snapshot_after": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P3, 44, 14.64 W, 0 %, 2236 MiB, 4096 MiB, 1950 MHz",
+  "analysis": {
+    "status": "passed",
+    "analysis_script": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/analyze_r22_s1c_period5_shared_off_phase.py",
+    "analysis_script_sha256": "858d8b05219c6337c3134e8bf61a81def7bab72bc59961cece8d00e1048dd06d",
+    "analysis_json": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/s1c_period5_analysis.json",
+    "analysis_json_sha256": "01212ba21d5da172d4ac82ad50535c95d1f3ffd5b903ea408c2babbeab045b20",
+    "group_comparison_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/s1c_period5_group_comparison.csv",
+    "phase_bin_diagnostics_csv": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_period5_20261029/s1c_period5_phase_bin_diagnostics.csv",
+    "scope": "mechanism-only; no Pd/Pfa or detection performance claim"
+  }
+}

@@ -1,0 +1,1700 @@
+{
+  "schema_version": 1,
+  "stage": "R18 independent seed909 reference secondary",
+  "status": "RUNNING",
+  "implementation_status": "IMPLEMENTED",
+  "execution_status": "PARTIALLY_EXECUTED",
+  "evaluation_status": "NOT_EVALUABLE",
+  "reference_seed": 909,
+  "evaluation_seed": 606,
+  "evaluation_velocity_mps": 6.7,
+  "evaluation_snr_db": 30.0,
+  "selected_methods": [
+    "C2",
+    "C3"
+  ],
+  "roles": [
+    "OFF",
+    "ON",
+    "TO"
+  ],
+  "truth_used_in_estimator": false,
+  "algorithmic_results_claimed": false,
+  "performance_verified": false,
+  "statistical_significance_claimed": false,
+  "primary_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/manifest.json",
+  "config": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/phase_r18_native_cuda.json",
+  "scratch_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3",
+  "evidence_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/independent_seed909_secondary_attempt3",
+  "gates": {
+    "physics_configuration_match": {
+      "status": "passed",
+      "source_signature": {
+        "platform": {
+          "speed_mps": 60.0,
+          "height_m": 6000.0,
+          "origin_lat_deg": 40.4512107203,
+          "origin_lon_deg": 116.985931582,
+          "origin_alt_m": 6000.0,
+          "projection_ref_lon_deg": 117.0,
+          "squint_side": 1
+        },
+        "waveform": {
+          "fc_ghz": 16.0,
+          "bandwidth_mhz": 50.0,
+          "fs_mhz": 60.0,
+          "tr_us": 130.0,
+          "prf_hz": 1300.0,
+          "pulse_len": 11820,
+          "pulse_num": 130,
+          "d_chan_m": 0.17,
+          "iq_data_type": "float32",
+          "new_protocol_channel_count": 4,
+          "new_protocol_read_channel_1": 1,
+          "new_protocol_read_channel_2": 2
+        },
+        "scene": {
+          "range_min_m": 84500.0,
+          "range_max_m": 85500.0,
+          "azimuth_min_deg": -60.0,
+          "azimuth_max_deg": 60.0,
+          "ground_z_m": 0.0,
+          "clutter_amplitude_scale": 1.0,
+          "area_clutter": {
+            "enabled": true,
+            "model": "continuous_texture",
+            "scatterer_count": 0,
+            "mean_power": 0.02,
+            "texture_sigma": 0.25,
+            "spatial_cell_m": 30.0,
+            "temporal_correlation_rho": 0.98
+          },
+          "thermal_noise": {
+            "enabled": true,
+            "noise_power": 0.001
+          }
+        },
+        "period_start": 0,
+        "period_count": 3,
+        "beam_start": 50,
+        "beam_count": 1,
+        "protocol_layout": {
+          "header_bytes": 256,
+          "pulse_len": 11820,
+          "pulse_count": 130,
+          "channel_count": 4,
+          "iq_data_type": "float32",
+          "fs_hz": 60000000.0,
+          "packet_bytes": 378496,
+          "beam_id": 50,
+          "beam_index_base": 1,
+          "expected_theta_deg": 38.0,
+          "scan_min_deg": -60.0,
+          "scan_step_deg": 2.0,
+          "read_channel_1": 1,
+          "read_channel_2": 2,
+          "correction_channel_indices": [
+            1
+          ],
+          "fusion_pairs": [
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "enable_four_channel_fusion": true,
+          "four_channel_phase_compensation_enable": true,
+          "fusion_channel_3": 3,
+          "fusion_channel_4": 4
+        }
+      },
+      "area_owner_signature": {
+        "platform": {
+          "speed_mps": 60.0,
+          "height_m": 6000.0,
+          "origin_lat_deg": 40.4512107203,
+          "origin_lon_deg": 116.985931582,
+          "origin_alt_m": 6000.0,
+          "projection_ref_lon_deg": 117.0,
+          "squint_side": 1
+        },
+        "waveform": {
+          "fc_ghz": 16.0,
+          "bandwidth_mhz": 50.0,
+          "fs_mhz": 60.0,
+          "tr_us": 130.0,
+          "prf_hz": 1300.0,
+          "pulse_len": 11820,
+          "pulse_num": 130,
+          "d_chan_m": 0.17,
+          "iq_data_type": "float32",
+          "new_protocol_channel_count": 4,
+          "new_protocol_read_channel_1": 1,
+          "new_protocol_read_channel_2": 2
+        },
+        "scene": {
+          "range_min_m": 84500.0,
+          "range_max_m": 85500.0,
+          "azimuth_min_deg": -60.0,
+          "azimuth_max_deg": 60.0,
+          "ground_z_m": 0.0,
+          "clutter_amplitude_scale": 1.0,
+          "area_clutter": {
+            "enabled": true,
+            "model": "continuous_texture",
+            "scatterer_count": 0,
+            "mean_power": 0.02,
+            "texture_sigma": 0.25,
+            "spatial_cell_m": 30.0,
+            "temporal_correlation_rho": 0.98
+          },
+          "thermal_noise": {
+            "enabled": true,
+            "noise_power": 0.001
+          }
+        },
+        "period_start": 0,
+        "period_count": 3,
+        "beam_start": 50,
+        "beam_count": 1,
+        "protocol_layout": {
+          "header_bytes": 256,
+          "pulse_len": 11820,
+          "pulse_count": 130,
+          "channel_count": 4,
+          "iq_data_type": "float32",
+          "fs_hz": 60000000.0,
+          "packet_bytes": 378496,
+          "beam_id": 50,
+          "beam_index_base": 1,
+          "expected_theta_deg": 38.0,
+          "scan_min_deg": -60.0,
+          "scan_step_deg": 2.0,
+          "read_channel_1": 1,
+          "read_channel_2": 2,
+          "correction_channel_indices": [
+            1
+          ],
+          "fusion_pairs": [
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "enable_four_channel_fusion": true,
+          "four_channel_phase_compensation_enable": true,
+          "fusion_channel_3": 3,
+          "fusion_channel_4": 4
+        }
+      },
+      "reference_signature": {
+        "platform": {
+          "speed_mps": 60.0,
+          "height_m": 6000.0,
+          "origin_lat_deg": 40.4512107203,
+          "origin_lon_deg": 116.985931582,
+          "origin_alt_m": 6000.0,
+          "projection_ref_lon_deg": 117.0,
+          "squint_side": 1
+        },
+        "waveform": {
+          "fc_ghz": 16.0,
+          "bandwidth_mhz": 50.0,
+          "fs_mhz": 60.0,
+          "tr_us": 130.0,
+          "prf_hz": 1300.0,
+          "pulse_len": 11820,
+          "pulse_num": 130,
+          "d_chan_m": 0.17,
+          "iq_data_type": "float32",
+          "new_protocol_channel_count": 4,
+          "new_protocol_read_channel_1": 1,
+          "new_protocol_read_channel_2": 2
+        },
+        "scene": {
+          "range_min_m": 84500.0,
+          "range_max_m": 85500.0,
+          "azimuth_min_deg": -60.0,
+          "azimuth_max_deg": 60.0,
+          "ground_z_m": 0.0,
+          "clutter_amplitude_scale": 1.0,
+          "area_clutter": {
+            "enabled": true,
+            "model": "continuous_texture",
+            "scatterer_count": 0,
+            "mean_power": 0.02,
+            "texture_sigma": 0.25,
+            "spatial_cell_m": 30.0,
+            "temporal_correlation_rho": 0.98
+          },
+          "thermal_noise": {
+            "enabled": true,
+            "noise_power": 0.001
+          }
+        },
+        "period_start": 0,
+        "period_count": 3,
+        "beam_start": 50,
+        "beam_count": 1,
+        "protocol_layout": {
+          "header_bytes": 256,
+          "pulse_len": 11820,
+          "pulse_count": 130,
+          "channel_count": 4,
+          "iq_data_type": "float32",
+          "fs_hz": 60000000.0,
+          "packet_bytes": 378496,
+          "beam_id": 50,
+          "beam_index_base": 1,
+          "expected_theta_deg": 38.0,
+          "scan_min_deg": -60.0,
+          "scan_step_deg": 2.0,
+          "read_channel_1": 1,
+          "read_channel_2": 2,
+          "correction_channel_indices": [
+            1
+          ],
+          "fusion_pairs": [
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "enable_four_channel_fusion": true,
+          "four_channel_phase_compensation_enable": true,
+          "fusion_channel_3": 3,
+          "fusion_channel_4": 4
+        }
+      }
+    },
+    "primary_area": {
+      "status": "passed",
+      "reasons": [],
+      "area_enabled": true,
+      "area_model": "continuous_texture",
+      "platform_height_m": 6000.0,
+      "ground_height_m": 0.0,
+      "minimum_slant_range_m": 6000.0,
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ],
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_max_m": 85289.213854977,
+      "continuous_area_packets": 390,
+      "continuous_area_samples": 1952655,
+      "area_mean_power_measured": 0.0227469995924,
+      "report_values": {
+        "area_rho_lag1_measured": "0.979977053458",
+        "area_rho_at_CTDR_lag": "0.960345053969",
+        "area_ctdr_lag_pulses": "2",
+        "area_power_cv_measured": "1.97777211621",
+        "mean_noise_power_per_complex_sample": "0.000999776808015"
+      },
+      "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "report_sha256": "2120b2e6b4f6c86ea566a182e74aaf0838b48d61478e5c0e7d7501da0cdbda23",
+      "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/scenarios/A0_ON.json",
+      "scenario_sha256": "24bed4722cb55e1946c8afb5fcdeafaf2e0c93b4d2ed6c7457a84cf4ff6cbdfa",
+      "recomputed_audit": {
+        "status": "passed",
+        "reasons": [],
+        "area_enabled": true,
+        "area_model": "continuous_texture",
+        "platform_height_m": 6000.0,
+        "ground_height_m": 0.0,
+        "minimum_slant_range_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ],
+        "ground_range_window_m": [
+          84286.71306914276,
+          85289.213854977
+        ],
+        "ground_range_min_m": 84286.71306914276,
+        "ground_range_max_m": 85289.213854977,
+        "continuous_area_packets": 390,
+        "continuous_area_samples": 1952655,
+        "area_mean_power_measured": 0.0227469995924,
+        "report_values": {
+          "area_rho_lag1_measured": "0.979977053458",
+          "area_rho_at_CTDR_lag": "0.960345053969",
+          "area_ctdr_lag_pulses": "2",
+          "area_power_cv_measured": "1.97777211621",
+          "mean_noise_power_per_complex_sample": "0.000999776808015"
+        }
+      }
+    },
+    "reference_area": {
+      "status": "passed",
+      "reasons": [],
+      "area_enabled": true,
+      "area_model": "continuous_texture",
+      "platform_height_m": 6000.0,
+      "ground_height_m": 0.0,
+      "minimum_slant_range_m": 6000.0,
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ],
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_max_m": 85289.213854977,
+      "continuous_area_packets": 390,
+      "continuous_area_samples": 1952655,
+      "area_mean_power_measured": 0.0225120348144,
+      "report_values": {
+        "area_rho_lag1_measured": "0.979961727697",
+        "area_rho_at_CTDR_lag": "0.960319890341",
+        "area_ctdr_lag_pulses": "2",
+        "area_power_cv_measured": "2.00230993779",
+        "mean_noise_power_per_complex_sample": "0.00100039870805"
+      },
+      "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene/reports/stage2_simulation_report.md",
+      "report_sha256": "a53cf506d77b6a629bd888754baaa78305fb5cd53202b239c3eac60c0c6d78a7",
+      "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene.json",
+      "scenario_sha256": "c4e52f11a58217be96f6c4ba250c87e81061b2a2d93cb4bbf55e899bb58f8dd8"
+    },
+    "area_statistics_comparability": {
+      "status": "passed",
+      "classification": "compatible_under_frozen_tolerances_not_statistically_proven",
+      "checks": [
+        {
+          "metric": "area_mean_power_measured",
+          "primary": 0.0227469995924,
+          "independent_reference": 0.0225120348144,
+          "relative_difference": 0.010329484424772488,
+          "tolerance": 0.1,
+          "status": "passed"
+        },
+        {
+          "metric": "area_power_cv_measured",
+          "primary": 1.97777211621,
+          "independent_reference": 2.00230993779,
+          "relative_difference": 0.012254756926933747,
+          "tolerance": 0.15,
+          "status": "passed"
+        },
+        {
+          "metric": "mean_noise_power_per_complex_sample",
+          "primary": 0.000999776808015,
+          "independent_reference": 0.00100039870805,
+          "relative_difference": 0.0006216521772726207,
+          "tolerance": 0.05,
+          "status": "passed"
+        },
+        {
+          "metric": "area_rho_lag1_measured",
+          "primary": 0.979977053458,
+          "independent_reference": 0.979961727697,
+          "absolute_difference": 1.532576100005123e-05,
+          "tolerance": 0.02,
+          "status": "passed"
+        },
+        {
+          "metric": "area_rho_at_CTDR_lag",
+          "primary": 0.960345053969,
+          "independent_reference": 0.960319890341,
+          "absolute_difference": 2.5163628000091087e-05,
+          "tolerance": 0.02,
+          "status": "passed"
+        }
+      ],
+      "gamma_distribution_claim": "descriptive_only_no_acceptance_threshold"
+    }
+  },
+  "reference_methods": {
+    "C2": {
+      "production_record": {
+        "branch_name": "C2_Mode-A_reference_OFF",
+        "condition": "C2_Mode-A_reference",
+        "role": "OFF",
+        "scientific_input": "four_channel_protocol_iq_fused_to_f1_f2",
+        "truth_used_in_estimator": false,
+        "production_gate_policy": "shared_configure_xml_and_production_track_manager",
+        "input_mode": "local",
+        "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_inputs",
+        "source_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/method_xml/C2_Mode-A_OFF.xml",
+        "period_count_expected": 3,
+        "truth_period_count": 0,
+        "xml_overrides": {
+          "research_calibration_enable": "true",
+          "research_calibration_method": "scc",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 0,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-A",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "true",
+          "csi_metrics_dump_intermediate_maps": "true",
+          "csi_metrics_beam_id": 50
+        },
+        "status": "passed",
+        "configuration_returncode": 0,
+        "configuration_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/production.configure.log",
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/production.xml",
+        "period_paths": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene/data/stage2_statistical_newprotocol_period_0000.bin",
+            "bytes": 49204480,
+            "sha256": "b7ab55f9f991aca9e9eb660bacb16cde40988864e3d761f655f5d4e1122a3305"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene/data/stage2_statistical_newprotocol_period_0001.bin",
+            "bytes": 49204480,
+            "sha256": "3a619b8ed40cdfe74346c41d2b140de54caedd06f824f88892adc5d8e7d33350"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene/data/stage2_statistical_newprotocol_period_0002.bin",
+            "bytes": 49204480,
+            "sha256": "55f59ac9cf0fc908f1fda53300e4430c74ab067b4f2c46459bfc158968929a09"
+          }
+        ],
+        "runtime_xml_protocol_layout": {
+          "status": "passed",
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/production.xml",
+          "values": {
+            "pulse_len": "11820",
+            "new_protocol_channel_count": "4",
+            "new_protocol_read_channel_1": "1",
+            "new_protocol_read_channel_2": "2",
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": "true",
+            "four_channel_phase_compensation_enable": "true",
+            "four_channel_fusion_channel_3": "3",
+            "four_channel_fusion_channel_4": "4",
+            "fs_hz": 60000000.0
+          },
+          "expected": {
+            "pulse_len": 11820,
+            "new_protocol_channel_count": 4,
+            "new_protocol_read_channel_1": 1,
+            "new_protocol_read_channel_2": 2,
+            "iq_data_type": "float32",
+            "enable_four_channel_fusion": true,
+            "four_channel_phase_compensation_enable": true,
+            "four_channel_fusion_channel_3": 3,
+            "four_channel_fusion_channel_4": 4,
+            "fs_hz": 60000000.0
+          },
+          "errors": []
+        },
+        "production_returncode": 0,
+        "production_elapsed_sec": 2.23193591699237,
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/gmt_pipe_core.log",
+        "pipe_run_dir": null,
+        "result_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result",
+        "track_debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/track_debug_runs/local_test_20261025_200753_966721_pid629704",
+        "pipe_runtime_metrics": {
+          "status": "not_applicable",
+          "input_mode": "local"
+        },
+        "cfar_summary": {
+          "status": "passed",
+          "summary_count": 3,
+          "hit_cells": null,
+          "clusters": 18,
+          "selected": 18,
+          "summaries": [
+            {
+              "hit_cells": 102,
+              "clusters": 4,
+              "selected": 4
+            },
+            {
+              "hit_cells": 117,
+              "clusters": 9,
+              "selected": 9
+            },
+            {
+              "hit_cells": 89,
+              "clusters": 5,
+              "selected": 5
+            }
+          ],
+          "aggregate_hit_fraction_status": "NOT_EVALUABLE",
+          "aggregate_hit_fraction_reason": "multiple_detector_branches_require_unique_hit_union",
+          "expected_period_count": 3,
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 6,
+          "valid_cut_denominator_reason": null,
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 3,
+              "period_ids": [
+                0,
+                1,
+                2
+              ],
+              "threshold_test_count": 1581840,
+              "valid_cut_count": 1581840,
+              "hit_cut_count": 255,
+              "hit_fraction": 0.00016120467303899256,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 3,
+              "period_ids": [
+                0,
+                1,
+                2
+              ],
+              "threshold_test_count": 1581840,
+              "valid_cut_count": 1581840,
+              "hit_cut_count": 276,
+              "hit_fraction": 0.0001744803519951449,
+              "reason": null
+            }
+          },
+          "valid_cut_count": null,
+          "threshold_test_count": null,
+          "hit_cut_count": null,
+          "tested_cut_hit_fraction": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE"
+        },
+        "cfar_geometry": {
+          "status": "NOT_EVALUABLE",
+          "branch_geometry_status": "evaluable",
+          "tested_cut_hit_fraction_status": "NOT_EVALUABLE",
+          "tested_cut_hit_fraction": null,
+          "threshold_test_count": null,
+          "valid_cut_count": null,
+          "hit_cut_count": null,
+          "cell_pfa": null,
+          "cell_pfa_status": "NOT_EVALUABLE",
+          "cell_pfa_reason": "truth_filtered_false_hits_and_valid_h0_denominator_required",
+          "valid_cut_denominator_status": "passed",
+          "valid_cut_denominator_row_count": 6,
+          "valid_cut_denominator_reason": null,
+          "definition": null,
+          "reason": "multiple_detector_branches_require_unique_hit_union",
+          "branch_summaries": {
+            "union_dynamic_in_band": {
+              "status": "evaluable",
+              "period_count": 3,
+              "period_ids": [
+                0,
+                1,
+                2
+              ],
+              "threshold_test_count": 1581840,
+              "valid_cut_count": 1581840,
+              "hit_cut_count": 255,
+              "hit_fraction": 0.00016120467303899256,
+              "reason": null
+            },
+            "union_full_band": {
+              "status": "evaluable",
+              "period_count": 3,
+              "period_ids": [
+                0,
+                1,
+                2
+              ],
+              "threshold_test_count": 1581840,
+              "valid_cut_count": 1581840,
+              "hit_cut_count": 276,
+              "hit_fraction": 0.0001744803519951449,
+              "reason": null
+            }
+          },
+          "source_paths": [
+            "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/debug/cfar_geometry_diagnostics.csv"
+          ],
+          "rows": [
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "86",
+              "hit_index_hash": "fnv1a64:6e7d0749db26cc34",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.00016310119860415718,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "0",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "96",
+              "hit_index_hash": "fnv1a64:ab4d65d9a5ba7331",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.00018206645425580337,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "1",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "90",
+              "hit_index_hash": "fnv1a64:518b9661c1ee384e",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.00017068730086481566,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "1",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "106",
+              "hit_index_hash": "fnv1a64:20d18eac02992a86",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.00020103170990744956,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "2",
+              "beam_id": "50",
+              "branch": "union_dynamic_in_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "46",
+              "cut_band_end": "84",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "79",
+              "hit_index_hash": "fnv1a64:1a5f4115605513e",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.00014982551964800485,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            },
+            {
+              "schema_version": "1",
+              "period_id": "2",
+              "beam_id": "50",
+              "branch": "union_full_band",
+              "height": "130",
+              "width": "4096",
+              "guard_cells": "4",
+              "background_cells": "16",
+              "doppler_circular": "true",
+              "exclude_row_start": "-1",
+              "exclude_row_end": "-1",
+              "cut_band_start": "0",
+              "cut_band_end": "129",
+              "cut_band_mode": "0",
+              "total_cells": "532480",
+              "edge_invalid_cells": "5200",
+              "excluded_cells": "0",
+              "cut_band_filtered_cells": "0",
+              "threshold_test_count": "527280",
+              "valid_cut_count": "527280",
+              "hit_cut_count": "74",
+              "hit_index_hash": "fnv1a64:a55295ffa6fa3c92",
+              "configured_pfa": "9.9999999747524271e-07",
+              "cfar_type": "GO",
+              "alpha": "13.447822570800781",
+              "hit_rate": 0.00014034289182218176,
+              "hit_rate_status": "evaluable",
+              "cluster_count": "0",
+              "protocol_detection_row_count": 0,
+              "false_cut_hit_count": null,
+              "false_cluster_count": null,
+              "false_track_count": null,
+              "false_counts_status": "truth_join_required_for_false_counts"
+            }
+          ]
+        },
+        "audit": {
+          "schema_version": 1,
+          "debug_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/track_debug_runs/local_test_20261025_200753_966721_pid629704",
+          "status": "pass",
+          "association_evidence": "accepted_assignment_audit",
+          "unverified_checks": [],
+          "periods": [
+            1,
+            2,
+            3
+          ],
+          "frame_transitions": [
+            {
+              "from_result_id": 1,
+              "to_result_id": 2,
+              "state_steps": 4,
+              "max_state_step_m": 0.0,
+              "coasted_steps": 0,
+              "nonzero_coasted_steps": 0,
+              "max_coasted_step_m": 0.0,
+              "frame_dt_s": 6.10000038147
+            },
+            {
+              "from_result_id": 2,
+              "to_result_id": 3,
+              "state_steps": 13,
+              "max_state_step_m": 208.47240867148616,
+              "coasted_steps": 0,
+              "nonzero_coasted_steps": 0,
+              "max_coasted_step_m": 0.0,
+              "frame_dt_s": 6.099999427795
+            }
+          ],
+          "counts": {
+            "frames": 3,
+            "accepted_associations": 2,
+            "frame_reported_matches": 2,
+            "output_states": 2,
+            "payloads": 2,
+            "frame_reported_outputs": 2,
+            "state_steps": 17,
+            "matched_state_steps": 2,
+            "coasted_state_steps": 0,
+            "measurement_steps": 2
+          },
+          "maxima": {
+            "accepted_distance_m": 208.472408561508,
+            "accepted_instant_speed_mps": 34.175807888043,
+            "distance_to_gate_ratio": 0.4632720190255733,
+            "mahalanobis_to_gate_ratio": 0.07897352683279044,
+            "legacy_max_mahalanobis_distance": null,
+            "speed_to_gate_ratio": 0.68351615776086,
+            "state_step_m": 208.47240867148616,
+            "matched_state_step_m": 208.47240867148616,
+            "coasted_state_step_m": 0.0,
+            "measurement_step_m": 208.47240867148616,
+            "measurement_step_speed_mps": 34.17580790607448
+          },
+          "resolved_sources": {
+            "measurement": 2
+          },
+          "protocol_target_failures": {},
+          "violations": {
+            "distance_gate": 0,
+            "mahalanobis_gate": 0,
+            "speed_gate": 0,
+            "cost_vs_dummy": 0,
+            "accepted_flags": 0,
+            "accepted_track_one_to_one": 0,
+            "accepted_detection_one_to_one": 0,
+            "frame_match_count": 0,
+            "frame_output_count": 0,
+            "output_state_semantics": 0,
+            "duplicate_states": 0,
+            "duplicate_output_states": 0,
+            "detection_links": 0,
+            "accepted_state_links": 0,
+            "accepted_detection_links": 0,
+            "payload_provenance": 0,
+            "payload_numeric_source": 0,
+            "payload_without_accepted_match": 0,
+            "state_payload_key_mismatch": 0,
+            "protocol_target_contract": 0
+          },
+          "total_violations": 0
+        },
+        "track_audit_total_violations": 0,
+        "metrics": {
+          "branch": "C2_Mode-A_reference_OFF",
+          "expected_periods": 3,
+          "truth_visible_periods": 0,
+          "detection_snapshot_periods": 3,
+          "target_detection_opportunity_count": 0,
+          "target_detection_hit_count": 0,
+          "target_detection_pd": null,
+          "target_detection_definition": "one target detection opportunity per visible truth period; hit if any production detection record matches that period's target",
+          "raw_detection_count": 18,
+          "detection_match_count": 0,
+          "detection_record_count": 18,
+          "detection_record_target_match_count": 0,
+          "detection_record_false_alarm_count": 18,
+          "detection_record_false_alarm_rate": 1.0,
+          "detection_record_definition": "production detection_results rows matched against truth; not CFAR hit-cell count",
+          "period_detection_match_count": 0,
+          "period_detection_pd": null,
+          "detection_pd": null,
+          "detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "raw_detection_pd": null,
+          "raw_detection_pd_status": "not_evaluable_no_independent_detection_opportunity_denominator",
+          "cell_false_hit_count": null,
+          "cell_false_hit_fraction": null,
+          "cell_false_hit_status": "not_evaluable_no_target_cell_link_or_valid_cut_denominator",
+          "raw_empirical_false_hit_fraction": null,
+          "raw_empirical_false_hit_status": "not_evaluable_detection_records_are_not_cfar_cells",
+          "eligible_protocol_payload_count": 0,
+          "matched_protocol_payload_count": 0,
+          "matched_protocol_period_count": 0,
+          "matched_protocol_periods": [],
+          "false_track_count": 0,
+          "false_track_rate": null,
+          "false_track_payload_count": 0,
+          "track_output_count": 0,
+          "unique_false_track_count": 0,
+          "unique_false_track_rate": null,
+          "cfar_hit_cell_count": null,
+          "cfar_cluster_count": 18,
+          "cfar_selected_cluster_count": 18,
+          "cfar_pfa": null,
+          "cfar_pfa_status": "not_evaluable_target_on_without_valid_cut_or_target_off_denominator",
+          "cluster_false_alarm_count": 18,
+          "cluster_false_alarm_rate": 1.0,
+          "cluster_false_alarm_definition": "selected CFAR clusters minus one target-associated cluster per matched target period",
+          "cluster_false_alarm_status": "period_association_proxy_no_cluster_id",
+          "protocol_detection_false_alarm_count": null,
+          "protocol_detection_false_alarm_rate": null,
+          "protocol_detection_false_alarm_status": "not_evaluable_payloads_do_not_preserve_production_detection_identity",
+          "protocol_payload_false_alarm_count": 0,
+          "protocol_payload_false_alarm_rate": null,
+          "track_pd_all_visible": null,
+          "track_pd_after_confirmation": null,
+          "track_continuity": null,
+          "track_continuity_after_confirmation": null,
+          "track_id_switch_count": 0,
+          "angle_rmse_deg": null,
+          "velocity_rmse_mps_ground_speed": null,
+          "position_rmse_m": null,
+          "track_debug_payload_count": 2,
+          "track_debug_detection_rows": 18,
+          "track_debug_state_rows": 33,
+          "track_audit_status": "pass",
+          "track_audit_total_violations": 0,
+          "protocol_target_failures": {}
+        },
+        "cycle_rows": [
+          {
+            "result_id": 1,
+            "period_id": 0,
+            "detection_count": 4,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI01.csv"
+          },
+          {
+            "result_id": 2,
+            "period_id": 1,
+            "detection_count": 9,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI02.csv"
+          },
+          {
+            "result_id": 3,
+            "period_id": 2,
+            "detection_count": 5,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI03.csv"
+          }
+        ],
+        "protocol_rows": [
+          {
+            "branch": "C2_Mode-A_reference_OFF",
+            "period_id": 2,
+            "track_id": 6,
+            "matched_det_index": 0,
+            "resolved_source": "measurement",
+            "eligible": 0,
+            "matched_truth": 0,
+            "position_error_m": null,
+            "range_error_m": null
+          },
+          {
+            "branch": "C2_Mode-A_reference_OFF",
+            "period_id": 2,
+            "track_id": 11,
+            "matched_det_index": 4,
+            "resolved_source": "measurement",
+            "eligible": 0,
+            "matched_truth": 0,
+            "position_error_m": null,
+            "range_error_m": null
+          }
+        ],
+        "target_off_waterfall": {
+          "schema_version": 1,
+          "theoretical_go_cfar_cell_pfa": 1e-06,
+          "valid_cut_denominators": {
+            "status": "passed",
+            "row_count": 6,
+            "reason": null,
+            "definition": "each recorded period/beam/branch has a positive valid CUT denominator; overlapping branch denominators are not summed"
+          },
+          "unique_final_union_hits": {
+            "status": "passed",
+            "expected_period_count": 3,
+            "summary_count": 3,
+            "hit_cells_by_production_order": [
+              102,
+              117,
+              89
+            ],
+            "total_hit_cells": 308,
+            "source": "production_cfar_summary",
+            "definition": "positive CUT cells in the merged final CFAR hit map, in production period order; descriptive counts, not Pfa"
+          },
+          "cell_false_hit_fraction": {
+            "status": "NOT_EVALUABLE",
+            "value": null,
+            "denominator": null,
+            "definition": "unique production detector CUT hits / unique valid CUTs",
+            "reason": "multiple_detector_branches_require_unique_hit_union",
+            "hit_cell_count": null,
+            "valid_cut_count": null,
+            "metric_name": "empirical_structured_clutter_false_hit_fraction"
+          },
+          "empirical_structured_clutter_false_hit_fraction": {
+            "status": "NOT_EVALUABLE",
+            "value": null,
+            "denominator": null,
+            "definition": "unique production detector CUT hits / unique valid CUTs",
+            "reason": "multiple_detector_branches_require_unique_hit_union",
+            "hit_cell_count": null,
+            "valid_cut_count": null,
+            "metric_name": "empirical_structured_clutter_false_hit_fraction"
+          },
+          "false_clusters": {
+            "status": "passed",
+            "value": 18,
+            "denominator": 1,
+            "definition": "explicit false-cluster count in one target-off evaluation",
+            "source": "cfar_summary.clusters"
+          },
+          "protocol_false_detections": {
+            "status": "passed",
+            "value": 18,
+            "denominator": 1,
+            "definition": "all production OFF detection rows; no truth match is possible",
+            "source_paths": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI01.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI02.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI03.csv"
+            ]
+          },
+          "false_tracks": {
+            "status": "passed",
+            "value": 2,
+            "denominator": 1,
+            "definition": "unique production debug track IDs with Confirmed/output evidence",
+            "unique_track_ids": [
+              "11",
+              "6"
+            ],
+            "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/track_debug_runs/local_test_20261025_200753_966721_pid629704/track_results.csv"
+          },
+          "layer_definitions": {
+            "valid_cut_denominators": "each recorded period/beam/branch has a positive valid CUT denominator; overlapping branch denominators are not summed",
+            "unique_final_union_hits": "positive CUT cells in the merged final CFAR hit map, in production period order; descriptive counts, not Pfa",
+            "cell_false_hit_fraction": "hit_cells / valid_cut_count when the denominator is exported",
+            "false_clusters": "explicit OFF CFAR cluster count or IDs",
+            "protocol_false_detections": "rows in production detection CSV",
+            "false_tracks": "unique production debug track IDs with Confirmed/output evidence"
+          }
+        },
+        "id_switch_audit_path": null,
+        "id_switch_audit_row_count": null,
+        "id_switch_classification_counts": null,
+        "id_switch_missing_production_field_counts": null,
+        "id_switch_audit_status": "NOT_APPLICABLE",
+        "id_switch_audit_reason": null,
+        "id_switch_audit_sources": null,
+        "production_status": "passed"
+      },
+      "production_gate": {
+        "status": "passed",
+        "reasons": [],
+        "production_returncode": 0,
+        "production_xml": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/production.xml",
+        "production_log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/gmt_pipe_core.log",
+        "runtime_config_dump": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/runtime_config_dump.json",
+        "csi_tap_paths": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/csi_metrics/20261025_200754_150621/csi_metric_tap_summary.csv",
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/csi_metrics/20261025_200754_796496/csi_metric_tap_summary.csv",
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/csi_metrics/20261025_200755_286438/csi_metric_tap_summary.csv"
+        ],
+        "csi_tap_row_count": 12,
+        "runtime_log_stage_counts": {
+          "csi_cancellation": 3,
+          "cfar_summary": 3,
+          "beam_stage_timing": 33
+        },
+        "valid_cfar_branches": [
+          "union_dynamic_in_band",
+          "union_full_band"
+        ],
+        "valid_cfar_cut_count_by_branch": {
+          "union_dynamic_in_band": 1581840,
+          "union_full_band": 1581840
+        }
+      },
+      "runtime_xml": {
+        "method_id": "C2",
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/method_xml/C2_Mode-A_OFF.xml",
+        "sha256": "31837eabe7cfe7d40238be1619a3f9902e9fcfc832450354d95145ccc8f56451",
+        "overrides": {
+          "research_calibration_enable": "true",
+          "research_calibration_method": "scc",
+          "research_calibration_min_support": 8,
+          "research_calibration_range_band_bins": 0,
+          "research_calibration_robust_phase_threshold_rad": 0.35,
+          "research_calibration_mode": "Mode-A",
+          "research_calibration_reference_gamma_csv": "",
+          "csi_metrics_enable": "true",
+          "csi_metrics_dump_power_maps": "true",
+          "csi_metrics_dump_intermediate_maps": "true",
+          "csi_metrics_beam_id": 50
+        },
+        "returncode": 0,
+        "elapsed_sec": 0.03210567799396813,
+        "status": "passed",
+        "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/method_xml/C2_Mode-A_OFF.configure.log"
+      },
+      "artifacts": {
+        "adapter_csv": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_adapter.csv"
+        ],
+        "reference_gamma_csv": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+        ],
+        "csi_metric_tap_summary": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/csi_metrics/20261025_200754_150621/csi_metric_tap_summary.csv",
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/csi_metrics/20261025_200754_796496/csi_metric_tap_summary.csv",
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/csi_metrics/20261025_200755_286438/csi_metric_tap_summary.csv"
+        ],
+        "cfar_geometry": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/debug/cfar_geometry_diagnostics.csv"
+        ],
+        "detection": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI01.csv",
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI02.csv",
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/detection_results_GMTI03.csv"
+        ],
+        "track_frames": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/track_debug_runs/local_test_20261025_200753_966721_pid629704/track_frames.csv"
+        ],
+        "track_association": [],
+        "track_states": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/track_debug_runs/local_test_20261025_200753_966721_pid629704/track_states.csv"
+        ],
+        "track_payloads": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/track_debug_runs/local_test_20261025_200753_966721_pid629704/track_output_payloads.csv"
+        ]
+      },
+      "validation": {
+        "truth_used_in_estimator": false,
+        "support_count": 479115,
+        "support_counts": [
+          159705,
+          159705,
+          159705
+        ],
+        "min_support": 8,
+        "statuses": [
+          "OK",
+          "OK",
+          "OK"
+        ],
+        "rows": [
+          {
+            "period_id": "1",
+            "result_id": "GMTI01",
+            "beam_id": "50",
+            "method": "scc",
+            "group_id": "az_-1_range_1_4095",
+            "az_index": "-1",
+            "range_start": "1",
+            "range_end": "4095",
+            "status": "OK",
+            "support_count": "159705",
+            "phase_coherence": "nan",
+            "gamma_real": "0.381773534306817",
+            "gamma_imag": "0.0247357442466971",
+            "truth_used_in_estimator": "false",
+            "reason": "",
+            "method_id": "C2",
+            "role": "OFF",
+            "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+          },
+          {
+            "period_id": "2",
+            "result_id": "GMTI02",
+            "beam_id": "50",
+            "method": "scc",
+            "group_id": "az_-1_range_1_4095",
+            "az_index": "-1",
+            "range_start": "1",
+            "range_end": "4095",
+            "status": "OK",
+            "support_count": "159705",
+            "phase_coherence": "nan",
+            "gamma_real": "0.398912153234889",
+            "gamma_imag": "0.0319458007198848",
+            "truth_used_in_estimator": "false",
+            "reason": "",
+            "method_id": "C2",
+            "role": "OFF",
+            "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+          },
+          {
+            "period_id": "3",
+            "result_id": "GMTI03",
+            "beam_id": "50",
+            "method": "scc",
+            "group_id": "az_-1_range_1_4095",
+            "az_index": "-1",
+            "range_start": "1",
+            "range_end": "4095",
+            "status": "OK",
+            "support_count": "159705",
+            "phase_coherence": "nan",
+            "gamma_real": "0.390321748493318",
+            "gamma_imag": "0.0569195095843866",
+            "truth_used_in_estimator": "false",
+            "reason": "",
+            "method_id": "C2",
+            "role": "OFF",
+            "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+          }
+        ],
+        "fallback_to_current": false,
+        "status": "evaluable",
+        "reason": null
+      },
+      "gamma_artifact": {
+        "status": "passed",
+        "reason": null,
+        "fallback_to_current": false,
+        "validation": {
+          "truth_used_in_estimator": false,
+          "support_count": 479115,
+          "support_counts": [
+            159705,
+            159705,
+            159705
+          ],
+          "min_support": 8,
+          "statuses": [
+            "OK",
+            "OK",
+            "OK"
+          ],
+          "rows": [
+            {
+              "period_id": "1",
+              "result_id": "GMTI01",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.381773534306817",
+              "gamma_imag": "0.0247357442466971",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+            },
+            {
+              "period_id": "2",
+              "result_id": "GMTI02",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.398912153234889",
+              "gamma_imag": "0.0319458007198848",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+            },
+            {
+              "period_id": "3",
+              "result_id": "GMTI03",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.390321748493318",
+              "gamma_imag": "0.0569195095843866",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+            }
+          ],
+          "fallback_to_current": false,
+          "status": "evaluable",
+          "reason": null
+        },
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/independent_seed909_secondary_attempt3/reference_gamma/C2_seed909_reference_gamma.csv",
+        "row_count": 3,
+        "sha256": "3be6333756f598278555e80c6ef6144e32bf707fa388f06ed5c294ddc4c20a35",
+        "grouping": "period_id/beam_id/group_id"
+      },
+      "gamma_artifact_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/independent_seed909_secondary_attempt3/reference_gamma/C2_seed909_reference_gamma.csv",
+      "gamma_artifact_sha256": "3be6333756f598278555e80c6ef6144e32bf707fa388f06ed5c294ddc4c20a35",
+      "support_gate": {
+        "status": "passed",
+        "baseline_row_count": 3,
+        "reference_row_count": 3,
+        "keys_and_support_counts_equal": true,
+        "baseline_validation": {
+          "truth_used_in_estimator": false,
+          "support_count": 479115,
+          "support_counts": [
+            159705,
+            159705,
+            159705
+          ],
+          "min_support": 8,
+          "statuses": [
+            "OK",
+            "OK",
+            "OK"
+          ],
+          "rows": [
+            {
+              "period_id": "1",
+              "result_id": "GMTI01",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.402507392093363",
+              "gamma_imag": "-0.0239468572706374",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/production_calibration_reference_gamma.csv"
+            },
+            {
+              "period_id": "2",
+              "result_id": "GMTI02",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.415234120275623",
+              "gamma_imag": "-0.0149948352219718",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/production_calibration_reference_gamma.csv"
+            },
+            {
+              "period_id": "3",
+              "result_id": "GMTI03",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.388771300780573",
+              "gamma_imag": "-0.0485323781947814",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/production/C2_modea_OFF/result/production_calibration_reference_gamma.csv"
+            }
+          ],
+          "fallback_to_current": false,
+          "status": "evaluable",
+          "reason": null
+        },
+        "reference_validation": {
+          "truth_used_in_estimator": false,
+          "support_count": 479115,
+          "support_counts": [
+            159705,
+            159705,
+            159705
+          ],
+          "min_support": 8,
+          "statuses": [
+            "OK",
+            "OK",
+            "OK"
+          ],
+          "rows": [
+            {
+              "period_id": "1",
+              "result_id": "GMTI01",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.381773534306817",
+              "gamma_imag": "0.0247357442466971",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+            },
+            {
+              "period_id": "2",
+              "result_id": "GMTI02",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.398912153234889",
+              "gamma_imag": "0.0319458007198848",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+            },
+            {
+              "period_id": "3",
+              "result_id": "GMTI03",
+              "beam_id": "50",
+              "method": "scc",
+              "group_id": "az_-1_range_1_4095",
+              "az_index": "-1",
+              "range_start": "1",
+              "range_end": "4095",
+              "status": "OK",
+              "support_count": "159705",
+              "phase_coherence": "nan",
+              "gamma_real": "0.390321748493318",
+              "gamma_imag": "0.0569195095843866",
+              "truth_used_in_estimator": "false",
+              "reason": "",
+              "method_id": "C2",
+              "role": "OFF",
+              "source_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+            }
+          ],
+          "fallback_to_current": false,
+          "status": "evaluable",
+          "reason": null
+        }
+      },
+      "gamma_summary": {
+        "status": "evaluable",
+        "reason": null,
+        "truth_used_in_estimator": false,
+        "fallback_to_current": false,
+        "row_count": 3,
+        "support_count": 479115,
+        "min_support": 8,
+        "gamma_real_mean": 0.39033581201167467,
+        "gamma_imag_mean": 0.03786701818365617,
+        "gamma_abs_mean": 0.3924044688501594,
+        "phase_coherence_mean": null,
+        "source_paths": [
+          "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_production/C2/production/C2_Mode-A_reference_OFF/result/production_calibration_reference_gamma.csv"
+        ]
+      }
+    }
+  },
+  "evaluation_branches": {},
+  "comparisons": [],
+  "primary_manifest_sha256": "b89722ead4e7b7625c6ee2586849154d6ec4f506afc1699aea661ff3a71bf52f",
+  "config_sha256": "3af60966332877095e5447247ab08cb39a54ef7a15681f37adf33cc251082ae1",
+  "source_identity": {
+    "git_commit": "014352ace1c4ad0bade0d759a099a47fe9ecfaa9",
+    "git_revision_status": "passed",
+    "runner_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_r18_independent_reference_secondary.py",
+    "runner_sha256": "e6d0b2c635d838c69868b0ae7719c85614123630f5d35436584ad509d908a956",
+    "worktree_status_for_runner": "?? scripts/run_r18_independent_reference_secondary.py"
+  },
+  "space_guard": {
+    "project_root": "/home/shy/AIR/SAR+AI/project/PGRCC",
+    "used_bytes_before_run": 9155309568,
+    "budget_bytes": 13958643712,
+    "status": "passed"
+  },
+  "primary_case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/case_manifest.json",
+  "primary_case_manifest_sha256": "1f8c83acafae28f6b80ac3cc5537b60de2a8d8d5f3b909ed9cf0627b33bfa339",
+  "source_scenario": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/scenarios/A0_OFF.json",
+    "sha256": "f4e7ce4da9ed9200502650a6777efc1720f7ea66c5a8a89908b85e02c11ebbc4"
+  },
+  "source_xml": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_ON/config/temp_config_stage2_period_0000.xml",
+    "sha256": "62bbe7b07b23cdc8f35f62f961fd7c31daad950a1379924a23b323dd2e4dc8ee"
+  },
+  "binaries": {
+    "simulate_stage2_statistical": {
+      "path": "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "bytes": 645944,
+      "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+    },
+    "GMTI_pipe_core": {
+      "path": "/tmp/pgrcc-r18-native-release/GMTI_pipe_core",
+      "bytes": 6174864,
+      "sha256": "3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0"
+    }
+  },
+  "gpu_probe": {
+    "command": [
+      "nvidia-smi",
+      "--query-gpu=name,driver_version,pstate,temperature.gpu,power.draw,utilization.gpu,clocks.gr,clocks.mem",
+      "--format=csv"
+    ],
+    "returncode": 0,
+    "output": "name, driver_version, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], clocks.current.graphics [MHz], clocks.current.memory [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, 580.178.04, P8, 40, 6.21 W, 34 %, 210 MHz, 405 MHz",
+    "status": "passed"
+  },
+  "reference_scenario": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene.json",
+    "sha256": "c4e52f11a58217be96f6c4ba250c87e81061b2a2d93cb4bbf55e899bb58f8dd8",
+    "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene",
+    "scene_mode": "area_clutter_only",
+    "truth_output": false,
+    "targets_enabled": false,
+    "random_seed": 909
+  },
+  "stage2_reference": {
+    "command": [
+      "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "--config",
+      "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene.json"
+    ],
+    "returncode": 0,
+    "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/stage2_reference.log",
+    "log_sha256": "a296f3d848f1d0b2a324ced6e8d6b00d95d66a54c570bcd254092fd5d008cd9e",
+    "status": "passed"
+  },
+  "reference_inputs": [
+    {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene/data/stage2_statistical_newprotocol_period_0000.bin",
+      "bytes": 49204480,
+      "sha256": "b7ab55f9f991aca9e9eb660bacb16cde40988864e3d761f655f5d4e1122a3305"
+    },
+    {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene/data/stage2_statistical_newprotocol_period_0001.bin",
+      "bytes": 49204480,
+      "sha256": "3a619b8ed40cdfe74346c41d2b140de54caedd06f824f88892adc5d8e7d33350"
+    },
+    {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt3/reference_scene/data/stage2_statistical_newprotocol_period_0002.bin",
+      "bytes": 49204480,
+      "sha256": "55f59ac9cf0fc908f1fda53300e4430c74ab067b4f2c46459bfc158968929a09"
+    }
+  ],
+  "evaluation_inputs": {
+    "OFF": [
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "4f1eb8f320c839f8dc7e58d54798c6b74723094865fc023d790b13c1a18efac7"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "36605b4442bb869517e118e1fe334e4e985083017f7653927744535644b4df04"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "9473f8719ac972ac1880f702a101e0f20fd4bdac9dc8706a6612e72cc6cb52bc"
+      }
+    ],
+    "ON": [
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "4e8feef3e41e6a16be930e9e26e65759d28fcccd290fe3df1fac96e1891b1a16"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "9f4443d5e441d43e9830ce1175e9db151d009bedb22b3bf56d1a95e36fee4737"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "a31295534d0f2b65a3d4fae5ccd68784b13a69c5eecc6d28022fb0365cd16884"
+      }
+    ],
+    "TO": [
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "346426129c346e9f502692e3c4bcb2eeda15661b362a847a4a6dbe4927338b73"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "22ba201631fe9ba21877e39659a07528da3c9a76cfbf7b59b79c469f58e74167"
+      },
+      {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "072bdfb9e38b1f0abf6f9fde90a33a58618f6814e38755d4a2319584d713aeaf"
+      }
+    ]
+  }
+}

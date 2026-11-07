@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "experiment": "PGRCC Phase R21 unknown static channel delay paired CUDA Production pilot",
+  "configuration_identity": {
+    "stage1_config": "configs/research/channel_delay_stage1_formal.json",
+    "stage1_config_sha256": "ad47b0d02b05ddc4839da39a7498faf1af25ca3ba8eec678597c0ce7a0f651f6",
+    "stage2_template": "simulator/scenarios/beam50_one_targets_continuous.run.json",
+    "stage2_template_sha256": "1f4f9c8b9383614601dc019414b8c8a8788b195301526438b95a672b1ee13998"
+  },
+  "candidate_seeds": [1001, 1002],
+  "target_velocity_mps": 6.7,
+  "target_snr_db": 30.0,
+  "injected_channel_delay_ns": 4.0,
+  "period_count": 3,
+  "roles": ["ON", "OFF", "TO"],
+  "methods": [
+    {"condition": "A0_Ideal", "kind": "no_error_reference", "correction_ns": 0.0},
+    {"condition": "A1_Current_unknown_error", "kind": "current_uncorrected", "correction_ns": null},
+    {"condition": "A2_Known_error_correction_upper_bound", "kind": "evaluator_only_known_physical_correction", "correction_ns": 4.0},
+    {"condition": "R21_D3_R9_Fixed", "kind": "fixed_cross_run_calibration", "correction_ns": 3.4099650318669545},
+    {"condition": "R21_D3_Huber_B_ON", "kind": "blind_huber_weighted_ls", "correction_ns": "same_seed_B_ON_raw_C1_C2_estimate", "availability": "NOT_AVAILABLE_if_blind_input_or_finite_estimate_gate_fails"},
+    {"condition": "R21_M1_Physics_Matched", "kind": "blind_physics_matched_estimator", "correction_ns": "same_seed_B_ON_raw_C1_C2_estimate"}
+  ],
+  "processing": {
+    "backend": "local Native CUDA",
+    "corex": false,
+    "correction_operator": "estimate_channel_delay.rewrite_float32_protocol_delay",
+    "production_path": "run_delay_stage1_formal.run_production_branch",
+    "ai_training": false,
+    "router_enabled": false
+  },
+  "expected_branches_per_seed": {
+    "with_huber": 18,
+    "without_huber": 15
+  },
+  "statistical_claims": {
+    "pd_significance": false,
+    "pfa_status": "NOT_EVALUABLE_WITH_TWO_INDEPENDENT_SEEDS"
+  },
+  "execution_gate": "A0/B/Known base CUDA smoke, six-scene continuous-area report, Known physical closure, and Production configuration comparability must pass before blind correction branches run"
+}

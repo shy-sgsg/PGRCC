@@ -74,7 +74,7 @@ def parse_nvidia_query(text: str) -> list[dict[str, Any]]:
     """
 
     fields = (
-        "index", "name", "memory.free", "memory.total", "utilization.gpu",
+        "index", "name", "memory.used", "memory.free", "memory.total", "utilization.gpu",
         "pstate", "temperature.gpu", "power.draw", "clocks.sm",
     )
     rows: list[dict[str, Any]] = []
@@ -102,7 +102,7 @@ def parse_nvidia_query(text: str) -> list[dict[str, Any]]:
 
 def _nvidia_snapshot() -> dict[str, Any]:
     query = (
-        "index,name,memory.free,memory.total,utilization.gpu,pstate,"
+        "index,name,memory.used,memory.free,memory.total,utilization.gpu,pstate,"
         "temperature.gpu,power.draw,clocks.sm"
     )
     command = ["nvidia-smi", f"--query-gpu={query}",

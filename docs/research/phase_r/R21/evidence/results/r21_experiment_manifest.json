@@ -1,0 +1,70 @@
+{
+  "schema_version": "r21-experiment-manifest-v1",
+  "repository": "https://github.com/shy-sgsg/PGRCC",
+  "branch": "codex/unknown-system-error-next-stage",
+  "evidence_archive": "docs/research/phase_r/R21/evidence/cuda_pilot/r21_cuda_text_audit_evidence_20261027.zip",
+  "evidence_archive_sha256": "e1907ada95980a7a6adfec0e1a5e44e06ec645f8b13c5e1c661f4385f58f535a",
+  "frozen_conditions": {
+    "target_speed_mps": 6.7,
+    "target_snr_db": 30.0,
+    "delay_error_ns": 4.0,
+    "target_periods_per_seed": 3
+  },
+  "methods": [
+    "A0",
+    "B",
+    "Known",
+    "D3_R9_fixed",
+    "D3_Huber",
+    "M1"
+  ],
+  "seeds": [
+    {
+      "seed": 1001,
+      "native_cuda_outer_status": "failed_or_incomplete",
+      "evaluation_status": "evaluation_replay_completed",
+      "production_source_commit": "6f261b218691cf99f2e1d90c2ed5cda70a96a4f4",
+      "production_binary_sha256": "9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566",
+      "production_backend": "local Native CUDA",
+      "use_corex": false,
+      "condition_count": 6,
+      "production_branch_count": 18,
+      "production_branches_passed": 18,
+      "area_clutter_status": "passed",
+      "continuous_area_packets": 390,
+      "continuous_area_samples": 1952655,
+      "area_mean_power_measured": 0.111666783002,
+      "shared_background_reuse_mapping_passed": true,
+      "runtime_xml_count": 18
+    },
+    {
+      "seed": 1002,
+      "native_cuda_outer_status": "completed",
+      "evaluation_status": "completed",
+      "production_source_commit": "0957f49c028377cbd7a15c2ff0b2eda3f75ce9a9",
+      "production_binary_sha256": "9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566",
+      "production_backend": "local Native CUDA",
+      "use_corex": false,
+      "condition_count": 6,
+      "production_branch_count": 18,
+      "production_branches_passed": 18,
+      "area_clutter_status": "passed",
+      "continuous_area_packets": 390,
+      "continuous_area_samples": 1952655,
+      "area_mean_power_measured": 0.110645343505,
+      "shared_background_reuse_mapping_passed": true,
+      "runtime_xml_count": 18
+    }
+  ],
+  "stage1_config_sha256": "ad47b0d02b05ddc4839da39a7498faf1af25ca3ba8eec678597c0ce7a0f651f6",
+  "stage2_template_sha256": "1f4f9c8b9383614601dc019414b8c8a8788b195301526438b95a672b1ee13998",
+  "production_binary_sha256": "9ffc232966bd92a39edfb39b90730851014dfa1ae7237a4ac172a764f31cc566",
+  "evaluator": "r21-task-eval-v3",
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": true,
+    "PERFORMANCE_VERIFIED": false
+  },
+  "scope_note": "re-evaluation uses retained text outputs; F2 current-input closure is recomputed only if Stage1 protocol IQ is present at its manifest path"
+}

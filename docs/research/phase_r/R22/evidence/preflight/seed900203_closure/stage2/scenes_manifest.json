@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "delay_error_ns": 4.0,
+  "scene_identity": {
+    "seed": 900203,
+    "period_count": 1,
+    "delay_error_ns": 4.0,
+    "case_id": "engineering__seed_900203__vr_2d5__snr_20__delay_4ns__targets_20__periods_1",
+    "target_count": 20,
+    "radial_speed_mps": 2.5,
+    "target_snr_db": 20.0
+  },
+  "background_dir": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/A0_background",
+  "variants": {
+    "A0_ON": {
+      "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/scenarios/A0_ON.json",
+      "sha256": "1db8b1a427b6d7cd1da566e388ec8f6a31e8f9f17b646516699e8d38cf1c1c24"
+    },
+    "A0_OFF": {
+      "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/scenarios/A0_OFF.json",
+      "sha256": "4e2082834859389fe3667229205df51eed4798591f1c8081335413b1b79ed009"
+    },
+    "A0_TO": {
+      "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/scenarios/A0_TO.json",
+      "sha256": "7bce34fe4d493c5bdbaadbf2a1173dcd1a547f7529bc6de8362523ed8333a9f0"
+    },
+    "A1_ON": {
+      "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/scenarios/A1_ON.json",
+      "sha256": "c1c7a9965ab9dd43ffa8354a5123059e12ec37f1f7f3f9b4e8abec3286784b47"
+    },
+    "A1_OFF": {
+      "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/scenarios/A1_OFF.json",
+      "sha256": "0f4529ee1ad4304ace01d9de1a8de72d731bdb30fbbc5847f11e502be2161e40"
+    },
+    "A1_TO": {
+      "path": "/tmp/r22_runner_smoke_seed900203_closure/pipeline/cases/r22_multi_target__seed_900203__v_2d5__snr_20__delay_4ns/scenes/scenarios/A1_TO.json",
+      "sha256": "490024381539046f2411a27b6c53eda37b0e981a7a8b8cf4a7336d9c59f1d8a9"
+    }
+  },
+  "pairing_rule": "A0 ON writes zero-error C+N; all A0/A1 OFF/TO and A1 ON reuse it"
+}

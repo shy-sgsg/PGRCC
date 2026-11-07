@@ -1,0 +1,178 @@
+{
+  "schema": "equivalent_vs_physical_calibration_pilot.v1",
+  "seed": 20260920,
+  "dimensions": {
+    "range_bins": 24,
+    "doppler_bins": 6,
+    "range_band_size": 6
+  },
+  "support": {
+    "min_support": 4,
+    "clutter_support_name": "clutter_support"
+  },
+  "thresholds": {
+    "gamma_error_abs_max": 1e-10,
+    "residual_power_max": 1e-20,
+    "coherence_floor_min": 0.8,
+    "decorrelation_floor_ratio_min": 0.95,
+    "mode_b_improvement_ratio_max": 0.5
+  },
+  "methods": {
+    "Mode-A": {
+      "T1": "SCC",
+      "T2": "DDC",
+      "T3": "DDC-RB",
+      "T4": "DDC",
+      "T5": "DDC-RB"
+    },
+    "Mode-B": {
+      "T1": "robust_DDC-RB",
+      "T2": "robust_DDC-RB",
+      "T3": "robust_DDC-RB",
+      "T4": "robust_DDC",
+      "T5": "robust_DDC-RB"
+    }
+  },
+  "robust": {
+    "phase_threshold_rad": 0.45
+  },
+  "cases": [
+    {
+      "case_id": "T1",
+      "label": "constant Gamma",
+      "mechanism": "constant_gamma"
+    },
+    {
+      "case_id": "T2",
+      "label": "Doppler-dependent Gamma",
+      "mechanism": "doppler_gamma"
+    },
+    {
+      "case_id": "T3",
+      "label": "range-Doppler Gamma",
+      "mechanism": "range_doppler_gamma"
+    },
+    {
+      "case_id": "T4",
+      "label": "strong moving target contamination",
+      "mechanism": "target_contamination"
+    },
+    {
+      "case_id": "T5",
+      "label": "true decorrelation below unit coherence",
+      "mechanism": "decorrelation"
+    }
+  ],
+  "modes": [
+    {
+      "mode_id": "Mode-A",
+      "label": "target-free OFF-derived Gamma fixed onto ON",
+      "estimator_source": "OFF=C+N",
+      "apply_source": "ON=S+C+N"
+    },
+    {
+      "mode_id": "Mode-B",
+      "label": "online robust ON-derived Gamma",
+      "estimator_source": "ON=S+C+N",
+      "apply_source": "ON=S+C+N"
+    }
+  ],
+  "mechanism_pilot": {
+    "fast_time_frequency_cycles_per_sample": {
+      "start": -0.5,
+      "stop": 0.5,
+      "endpoint": false
+    },
+    "cases": [
+      {
+        "case_id": "E1",
+        "label": "pure equivalent complex mismatch",
+        "mechanism": "pure_equivalent_mismatch",
+        "physical_observable": "equivalent_complex_gamma",
+        "observable_domain": "range_doppler_multiplicative",
+        "physical_truth": 0.0,
+        "physical_blind_estimate": 0.0,
+        "physical_unit": "none"
+      },
+      {
+        "case_id": "P1",
+        "label": "fast-time channel delay",
+        "mechanism": "fast_time_channel_delay",
+        "physical_observable": "fast_time_range_registration",
+        "observable_domain": "fast_time_frequency_phase",
+        "physical_truth": 0.375,
+        "physical_blind_estimate": 0.35,
+        "physical_unit": "sample"
+      },
+      {
+        "case_id": "P2",
+        "label": "servo pointing bias",
+        "mechanism": "servo_pointing",
+        "physical_observable": "servo_pointing_bias_deg",
+        "observable_domain": "pointing_geometry_state",
+        "physical_truth": 0.18,
+        "sensor_prior_value": 0.16,
+        "physical_unit": "deg"
+      },
+      {
+        "case_id": "P3",
+        "label": "platform velocity bias",
+        "mechanism": "platform_velocity",
+        "physical_observable": "platform_velocity_bias_mps",
+        "observable_domain": "slow_time_kinematic_state",
+        "physical_truth": 1.25,
+        "sensor_prior_value": 1.10,
+        "physical_unit": "mps"
+      },
+      {
+        "case_id": "D1",
+        "label": "true decorrelation",
+        "mechanism": "true_decorrelation",
+        "physical_observable": "decorrelation_coherence_floor",
+        "observable_domain": "stochastic_cross_channel_coherence",
+        "physical_truth": 0.0,
+        "physical_blind_estimate": 0.0,
+        "physical_unit": "coherence"
+      }
+    ],
+    "historical_references": [
+      {
+        "topic": "channel_delay_formal",
+        "path": "docs/AI_CSI_38_ChannelDelay_Final_Formal_Conclusion.md",
+        "limitation": "historical production evidence only; not recomputed by this mechanism pilot"
+      },
+      {
+        "topic": "system_error_observability",
+        "path": "docs/AI_CSI_36_单一系统误差确定性自校准阶段报告.md",
+        "limitation": "historical physical-estimation framing only; not treated as a new measured servo or velocity result"
+      },
+      {
+        "topic": "channel_delay_audit",
+        "path": "docs/AI_CSI_37_ChannelDelay_Finalization_Audit.md",
+        "limitation": "historical audit reference; downstream fields remain NOT_EVALUABLE in this pilot"
+      },
+      {
+        "topic": "target_transfer_audit",
+        "path": "docs/AI_CSI_26_TargetTransfer与目标保护审计.md",
+        "limitation": "historical archive reference only; not promoted to Task 4 measured target transfer"
+      }
+    ],
+    "allowed_decision_labels": [
+      "GO_HIERARCHICAL_CALIBRATION",
+      "GO_EQUIVALENT_CALIBRATION_ONLY",
+      "GO_PHYSICAL_CALIBRATION_ONLY",
+      "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE"
+    ],
+    "physical_status_vocabulary": [
+      "RADAR_ESTIMATED",
+      "SENSOR_PRIOR_ONLY",
+      "PRIOR_PLUS_RADAR_RESIDUAL",
+      "KNOWN_TRUTH",
+      "NOT_EVALUABLE"
+    ]
+  },
+  "evidence_root": "outputs/formal_evidence/equivalent_vs_physical_pilot",
+  "downstream_status": "NOT_EVALUABLE",
+  "ai_training": false,
+  "router_enabled": false
+}

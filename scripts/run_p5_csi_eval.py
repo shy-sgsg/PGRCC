@@ -154,11 +154,21 @@ def map_frequency_to_dft_axis(frequency_hz, axis_hz):
     return frequency_hz + wrap_order * prf_hz, wrap_order
 
 
-def load_truth(truth_dir):
+def load_truth(truth_dir, period_id=None):
     if truth_dir is None:
         return {}, {}
     summaries = read_csv(truth_dir / "truth_targets_by_beam.csv")
     pulses = read_csv(truth_dir / "truth_pulse.csv")
+    if period_id is not None:
+        for source_name, rows in (("truth_targets_by_beam.csv", summaries),
+                                  ("truth_pulse.csv", pulses)):
+            if rows and any(not str(row.get("period_id", "")).strip() for row in rows):
+                raise RuntimeError(
+                    f"{source_name} lacks period_id required for period {period_id}")
+        summaries = [row for row in summaries
+                     if as_int(row.get("period_id"), -1) == period_id]
+        pulses = [row for row in pulses
+                  if as_int(row.get("period_id"), -1) == period_id]
     truth_by_beam = {}
     for row in summaries:
         visible = str(row.get("visible", row.get("visible_by_beam", "1"))).lower()
@@ -181,6 +191,22 @@ def load_truth(truth_dir):
             af_values.setdefault((beam, target_id), []).append(af)
     af_truth = {key: statistics.median(values) for key, values in af_values.items()}
     return truth_by_beam, af_truth
+
+
+def resolve_period_id(taps, requested_period_id=None):
+    """Bind truth to the tap period; reject mixed or explicitly mismatched periods."""
+    period_ids = {as_int(tap["manifest"].get("period_id"), -1)
+                  for tap in taps.values()}
+    if len(period_ids) > 1:
+        raise RuntimeError(f"CSI taps contain mixed period_id values: {sorted(period_ids)}")
+    tap_period_id = next(iter(period_ids)) if period_ids else -1
+    if requested_period_id is not None:
+        if tap_period_id >= 0 and requested_period_id != tap_period_id:
+            raise RuntimeError(
+                f"requested period {requested_period_id} does not match CSI tap period "
+                f"{tap_period_id}")
+        return requested_period_id
+    return tap_period_id if tap_period_id >= 0 else None
 
 
 def clipped_rect(shape, row, col, half_rows, half_cols):
@@ -337,17 +363,20 @@ def main():
     parser.add_argument("--random-seed", default="")
     parser.add_argument("--config-path", type=Path)
     parser.add_argument("--data-path", type=Path)
+    parser.add_argument("--period-id", type=int,
+                        help="truth period to evaluate; defaults to the CSI tap period")
     parser.add_argument("--plots", action="store_true")
     args = parser.parse_args()
 
     tap_dir = args.tap_dir or discover_tap_dir(args.algorithm_output_dir)
     taps = load_taps(tap_dir)
+    period_id = resolve_period_id(taps, args.period_id)
     off_taps = {}
     if args.paired_off_tap_dir:
         off_taps = load_taps(args.paired_off_tap_dir)
     elif args.paired_off_output_dir:
         off_taps = load_taps(discover_tap_dir(args.paired_off_output_dir))
-    truth_by_beam, af_truth = load_truth(args.truth_dir)
+    truth_by_beam, af_truth = load_truth(args.truth_dir, period_id=period_id)
     args.report_dir.mkdir(parents=True, exist_ok=True)
 
     cancellation = []
@@ -563,6 +592,7 @@ def main():
         "tap_dir": str(tap_dir),
         "paired_off_tap_dir": str(args.paired_off_tap_dir or args.paired_off_output_dir or ""),
         "truth_dir": str(args.truth_dir or ""),
+        "period_id": period_id,
         "config_path": str(args.config_path or ""),
         "config_hash": sha256_file(args.config_path),
         "data_path": str(args.data_path or ""),

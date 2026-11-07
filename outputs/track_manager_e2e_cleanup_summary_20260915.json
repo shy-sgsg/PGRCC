@@ -1,0 +1,35 @@
+{
+  "schema": "track_manager_e2e_cleanup_summary_v1",
+  "date": "2026-09-15",
+  "deleted_roots": [
+    "outputs/track_manager_e2e_smoke_20260915",
+    "outputs/track_manager_e2e_smoke_v2_20260915"
+  ],
+  "retained_evidence": {
+    "failed_smoke": {
+      "input_rate_bytes_per_sec": 100000000,
+      "intended_periods": 3,
+      "completed_cycles": 2,
+      "pipe_client_results": 2,
+      "ring_overrun": 2,
+      "gaps": 0,
+      "duplicates": 0,
+      "reason": "生产处理首周期约 15.86 s，而旧 producer 节奏约 0.74 s，导致 SHM ring overrun；该运行被中断，未作为成功证据。"
+    },
+    "paced_smoke": {
+      "input_rate_bytes_per_sec": 1000000,
+      "intended_periods": 3,
+      "completed_cycles": 3,
+      "valid_prt": 390,
+      "pipe_client_results": 3,
+      "ring_overrun": 0,
+      "gaps": 0,
+      "duplicates": 0,
+      "protocol_audit_status": "pass",
+      "reason": "限速后的 SHM/PIPE 链路已完整跑通；逐周期 Pd/连续性统计随后修正为周期去重口径，正式矩阵使用修正后的脚本。"
+    }
+  },
+  "ai_training": false,
+  "router_enabled": false,
+  "raw_and_intermediate_deleted": true
+}

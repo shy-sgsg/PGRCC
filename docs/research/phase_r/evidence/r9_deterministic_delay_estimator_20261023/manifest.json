@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "experiment": "PGRCC Phase R9 deterministic channel-delay task validation",
+  "status": "summary_complete",
+  "created_at_utc": "2026-10-23T08:57:18.674111+00:00",
+  "baseline_commit": "22cefb8e947a8a3565a88445fe2c1d3616408c47",
+  "branch_at_execution": "codex/unknown-system-error-next-stage",
+  "r8_input_root": "outputs/phase_r8_unknown_delay_multiseed_20261023/seed{202,303}",
+  "stage2_rerun": false,
+  "area_clutter_reused_from_r8": {
+    "continuous_area_packets_per_seed": 390,
+    "continuous_area_samples_per_seed": 1952655,
+    "mean_power_seed202": 0.111635636238,
+    "mean_power_seed303": 0.112233884509
+  },
+  "estimator": {
+    "fixed_D3_ns": 3.4099650318669545,
+    "fixed_input_sha256": "d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6",
+    "selection_rule": [
+      "D3_Huber_weighted_LS",
+      "D2_weighted_LS",
+      "D1_ordinary_LS"
+    ],
+    "selection_frozen_before_production": true,
+    "online_policy": "A1 Current ON protocol IQ only; no truth/A0/OFF/TO/paired reference passed into estimator"
+  },
+  "native_cuda": {
+    "backend": "local Native CUDA",
+    "USE_COREX": "OFF",
+    "binary_sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00",
+    "gpu_before": {
+      "returncode": 0,
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, 580.178.04, P8, 6.88 W, [N/A], 48, 36 %, 1220 MiB, 4096 MiB",
+      "stderr": ""
+    },
+    "gpu_after": {
+      "returncode": 0,
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, 580.178.04, P3, 13.12 W, [N/A], 50, 100 %, 1220 MiB, 4096 MiB",
+      "stderr": ""
+    }
+  },
+  "counts": {
+    "production_branches": 12,
+    "production_path_passed": 12,
+    "cfar_map_audits": 8,
+    "cfar_map_audits_passed": 8
+  },
+  "source_identity": {
+    "preflight_runner_sha256": "a7595537f1926ac68a7cf73a7d82b4574f39a78c99ed4c0f573fc7d146a0e931",
+    "current_runner_sha256": "b236c95cced6da6e822fc85e2e4fbf7dd7c1256b11ab9660d1db1a0de27284eb",
+    "runner_phase_hash_note": "run manifest captured preflight runner hash; evaluation and summary orchestration was edited later; production branch manifests preserve binary/input/runtime XML/log hashes but not a per-branch runner hash",
+    "reused_sources": {
+      "run_r9_deterministic_delay_estimator.py": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r9_deterministic_delay_estimator.py",
+        "exists": true,
+        "bytes": 35020,
+        "sha256": "a7595537f1926ac68a7cf73a7d82b4574f39a78c99ed4c0f573fc7d146a0e931"
+      },
+      "delay_stage1_core.py": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/delay_stage1_core.py",
+        "exists": true,
+        "bytes": 44179,
+        "sha256": "30266383a5d5f59c39e6c98741ef91b9b7080e2fc7edf2c773e9111b68579a17"
+      },
+      "run_delay_stage1_formal.py": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "exists": true,
+        "bytes": 138173,
+        "sha256": "cdff90d8ef7266687f1c1d3b6d05913e8fec07780163b3d0ca2ac64ae548ed94"
+      },
+      "estimate_channel_delay.py": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/estimate_channel_delay.py",
+        "exists": true,
+        "bytes": 26432,
+        "sha256": "c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7"
+      },
+      "run_track_manager_e2e.py": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_track_manager_e2e.py",
+        "exists": true,
+        "bytes": 78249,
+        "sha256": "97e6ea6453a6ec0cf751eb7f5cd5ae1b5ba9f447a07d15941896476c8bb7a95f"
+      },
+      "evaluate_r8_multiseed_causal_pilot.py": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/evaluate_r8_multiseed_causal_pilot.py",
+        "exists": true,
+        "bytes": 62950,
+        "sha256": "d2f7471c695c489f2cd1b09682b2209cf2d3edbf39e72cb86119f8de78e7b2fd"
+      },
+      "evaluate_r7_task_metrics.py": {
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/evaluate_r7_task_metrics.py",
+        "exists": true,
+        "bytes": 44448,
+        "sha256": "432a4f30bebcd6b432c17a6cc9a15f825c380ccf3f5075c83b83367e0ce32bad"
+      }
+    }
+  },
+  "evaluation_summary_path": "records/evaluation/r9_evaluation_summary.json",
+  "evidence_root_relative_to_repo": "docs/research/phase_r/evidence/r9_deterministic_delay_estimator_20261023",
+  "full_local_runtime_evidence_root": "outputs/phase_r_r9_deterministic_delay_20261023",
+  "cleanup_ledger": "cleanup_ledger.json will record removal of regenerable corrected input copies after evidence capture",
+  "limits": [
+    "two independent held-out seeds only",
+    "no calibrated Pd/Pfa significance",
+    "radial velocity NOT_EVALUABLE",
+    "D1/D2/D3 uncertainty not calibrated",
+    "online estimator is retrospective three-period batch, not deployment"
+  ],
+  "cleanup": {
+    "ledger": "cleanup_ledger.json",
+    "deleted_file_count": 36,
+    "deleted_bytes": 1771361280,
+    "reclaimed_gib": 1.6497087478637695,
+    "status": "completed_after_all_R9_production_and_evaluation"
+  },
+  "compact_artifact_normalization": "CSV/log copies use LF; trailing alignment spaces are removed from copied log lines only. Original local logs remain unchanged and their original SHA-256 values are in branch manifests."
+}

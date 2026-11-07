@@ -1,0 +1,33 @@
+[LOCAL-TEST] track_debug=/tmp/pgrcc-r7-perf-ab-20261023.iOik3K/post_warmup/track_debug/local_test_20261023_000654_929644_pid120482
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/production_runs_3period/post_fix/A0_ON/runtime/runtime.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[TRIG-LUT] uploaded 16384-entry sin/cos/asin/atan tables to device memory
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/production_runs_3period/post_fix/A0_ON/runtime/runtime.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[STARTUP][CYCLE] prt_bytes=378496 prts_per_beam=130 beam_count=1 prts_per_cycle=130 cycle_bytes=49204480
+[STARTUP] mode=debug input=file beams=1 prts_per_scan=130 result_add=/tmp/pgrcc-r7-perf-ab-20261023.iOik3K/post_warmup/result track_source=measurement track_vis_dump=on motion_comp=on p38_enhanced=off p38_dump=off dynamic_cfar=off
+[fusion][WORKER-POOL] rebuild workers=1 process_pulse_num=130 pulse_dec=1 rg_len=4096 range_fft_len=12288
+[fusion][WORKER-POOL] prewarm workers=1 cuda_free=3304MB total=3759MB
+[LOCAL-TEST] XML snapshot: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/production_runs_3period/post_fix/A0_ON/runtime/runtime.xml
+[LOCAL-TEST] Echo files: 1
+
+[LOCAL-TEST] ===== 1/1 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin result_id=1 =====
+[LOCAL-TEST] Use forced result id 1 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin
+[RUNTIME] runtime_mode=debug, diagnostics disabled for realtime run
+[CSI][LEGACY-GATE] rows=39 gated_rows=0 coherence_mean=0.808544 min=0.5
+[CSI][CANCELLATION] period=0 beam=50 support_rows=[46,84] before_mean_power=26460.416 after_mean_power=27435.25 improvement_db=-0.15712258 strong_top1pct_improvement_db=-0.11033749 phase_coherence=0.99426894 phase_rmse_rad=0.13991235
+[fusion][dbs] writeProducts success:/tmp/pgrcc-r7-perf-ab-20261023.iOik3K/post_warmup/result
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=19 removed_low_velocity=0 removed_nonfinite=0 output=19
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=19 removed_upper_bound=0 removed_nonfinite=0 output=19
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=19 removed_duplicates=0 output=19
+[GMTI] writeResult: 写入当前检测结果 /tmp/pgrcc-r7-perf-ab-20261023.iOik3K/post_warmup/result/GMTI01.bin，目标数: 19
+[GMTI] detection_results_csv = /tmp/pgrcc-r7-perf-ab-20261023.iOik3K/post_warmup/result/detection_results.csv，目标数: 19，周期快照: /tmp/pgrcc-r7-perf-ab-20261023.iOik3K/post_warmup/result/detection_results_GMTI01.csv
+[TRACK] result_id=1 dets=19 active=19 tentative=19 confirmed=0 coasted=0 deleted=0 outputs=0 new=19 suppressed_coasted_speed_outliers=0 matched=0 unmatched_dets=19
+当前周期 GMTI 目标信息包已保存: /tmp/pgrcc-r7-perf-ab-20261023.iOik3K/post_warmup/result/GMTI01_track.bin，目标数: 0
+[GMTI][RESULT] filtered_detection_count=19 confirmed_current_detection_count=0 protocol_target_count=0
+[TIMING][CYCLE] main_total: 1027 ms
+[FILE][CYCLE] result_file_id=1 period_index=0 algorithm_process_ms=1027.3969 end_to_end_ms=1027.4003 success=true

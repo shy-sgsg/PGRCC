@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "stage": "Production Hierarchical Calibration Pilot",
+  "status": "completed_with_gaps",
+  "mode": "e1_pilot",
+  "skip_cuda": false,
+  "algorithmic_results_claimed": false,
+  "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+  "source": {
+    "commit": "3289c13bab6457bd1b190e393ddb01d51e9448e5",
+    "dirty": false,
+    "dirty_tracked": false
+  },
+  "config": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/production_hierarchical_calibration_delay_pilot.json",
+    "sha256": "6c38544849d842ff79903f7489b2907fb7bce615b36413cf9a8e5e89645b71e8"
+  },
+  "runner": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+    "sha256": "0429528d22164f5a1a4a1c0a29b60f4b5c374aea2efabaaf6f52499ed995e2d9"
+  },
+  "analyzer": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/analyze_production_hierarchical_calibration_pilot.py",
+    "sha256": "514f291ee3b4f55c01498557f151093ba11d51903555ad28bc4b13e97071162b"
+  },
+  "selection": {
+    "selection_mode": "targeted",
+    "cartesian_full_matrix": false,
+    "case_count": 1,
+    "delay_errors_ns": [
+      0.0
+    ],
+    "seeds": [
+      101,
+      202,
+      303
+    ],
+    "target_velocities_mps": [
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "target_snr_db": [
+      10.0,
+      30.0
+    ]
+  },
+  "method_ids": [
+    "C0",
+    "C2",
+    "C3"
+  ],
+  "input_contract": {
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S"
+    },
+    "shared_identity_fields": [
+      "seed",
+      "background_id",
+      "target_id",
+      "delay_error_ns",
+      "production_identity"
+    ],
+    "identity_rule": "same seed/background/target/production settings",
+    "causal_target_rule": "ON-OFF with TO=S as the independent target control",
+    "modes": {
+      "Mode-A": {
+        "estimator_input_roles": [
+          "OFF"
+        ],
+        "apply_input_roles": [
+          "ON",
+          "TO"
+        ],
+        "description": "estimate from target-free OFF=C+N and apply the fixed reference to ON=S+C+N and TO=S",
+        "truth_used_in_estimator": false,
+        "target_position_allowed": false,
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false
+      },
+      "Mode-B": {
+        "estimator_input_roles": [
+          "ON"
+        ],
+        "apply_input_roles": [
+          "ON",
+          "OFF",
+          "TO"
+        ],
+        "description": "blind online ON=S+C+N estimate; apply its fixed reference to ON/OFF/TO without target truth or error labels",
+        "truth_used_in_estimator": false,
+        "target_position_allowed": false,
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false
+      }
+    }
+  },
+  "downstream_compact_contract": {
+    "ON_minus_OFF": {
+      "definition": "target causal transfer; compare ON against paired OFF",
+      "required": true
+    },
+    "TO": {
+      "definition": "target-only evaluator; never an estimator input",
+      "required": true
+    },
+    "CFAR": {
+      "definition": "GO-CFAR valid_cut_count/hit_cut_count geometry",
+      "required": true
+    },
+    "cluster": {
+      "definition": "production cluster count/association layer",
+      "required": true
+    },
+    "protocol_detection": {
+      "definition": "production detection CSV and protocol eligibility",
+      "required": true
+    },
+    "track": {
+      "definition": "production TrackManager confirmed/matched output",
+      "required": true
+    },
+    "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
+    "track_evidence": [
+      "track_association_audit_v2",
+      "track_states",
+      "track_output_payloads",
+      "id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    ],
+    "counterfactual_processing_rule": "Mode-A uses the OFF-estimated reference for ON/TO; Mode-B uses the ON-estimated reference for OFF/TO; ON-minus-OFF requires the shared fixed-reference provenance"
+  },
+  "production_contract": {
+    "input_mode": "local",
+    "period_count": 5,
+    "min_support": 8,
+    "range_band_bins": 6,
+    "robust_phase_threshold_rad": 0.35,
+    "theoretical_cell_pfa": 1e-06,
+    "downstream_contract": {
+      "cfar_type": "GO",
+      "clustering": "production",
+      "localization": "production",
+      "track_manager": "production",
+      "pipe": "production",
+      "track_debug": true
+    }
+  },
+  "evidence_files": [
+    "manifest.json",
+    "method_contract.csv",
+    "gamma_recovery.csv",
+    "clutter_metrics.csv",
+    "decision_matrix.csv",
+    "report.md"
+  ],
+  "raw_outputs": "kept outside this compact tracked evidence directory",
+  "analysis": {
+    "status": "NOT_EVALUABLE",
+    "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+    "algorithmic_results_claimed": false,
+    "residual_closure": {
+      "status": "NOT_EVALUABLE",
+      "reason": "case_residual_closure_not_evaluable:e1_low_speed__seed_101__v_0.5__snr_30.0__delay_0.0ns",
+      "actual_production_artifacts": false,
+      "source_paths": {
+        "A0": [],
+        "PK": [],
+        "PKR": []
+      },
+      "per_case": {
+        "e1_low_speed__seed_101__v_0.5__snr_30.0__delay_0.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "closure_conditions": [
+            "A0",
+            "PK"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "residual_branch_missing_or_ambiguous:PK",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/low_speed_seed101_v0p5/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/production/A0_not_applicable_OFF/result/csi_metrics/20261024_233345_221364/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/low_speed_seed101_v0p5/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/production/A0_not_applicable_OFF/result/csi_metrics/20261024_233346_544920/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r13_minimal_baseline_cuda_20261024/low_speed_seed101_v0p5/cases/e1_low_speed__seed_101__v_0d5__snr_30__delay_0ns/production/A0_not_applicable_OFF/result/csi_metrics/20261024_233347_486742/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        }
+      }
+    },
+    "causal_metrics": {
+      "status": "evaluable",
+      "processing_comparability": "passed"
+    },
+    "empirical_cell_pfa": {
+      "status": "NOT_EVALUABLE"
+    },
+    "waterfall": {
+      "status": "NOT_EVALUABLE",
+      "layers": [
+        "CFAR",
+        "cluster",
+        "protocol_detection",
+        "track"
+      ]
+    },
+    "id_switch": {
+      "status": "NOT_EVALUABLE",
+      "classification": "NOT_EVALUABLE",
+      "limitation": "track_provenance_missing_or_empty"
+    },
+    "questions": {
+      "1_robust_ddc_production_f1_f2": "NOT_EVALUABLE",
+      "2_current_vs_ordinary_subtraction": "evaluable",
+      "3_ddc_fast_time_delay_clutter_recovery": "NOT_EVALUABLE",
+      "4_ddc_range_angle_position_velocity_track": "evaluable",
+      "5_blind_physical_delay_recovery": "NOT_EVALUABLE",
+      "6_physical_plus_robust_complementarity": "evaluable",
+      "7_known_delay_to_a0": "NOT_EVALUABLE",
+      "8_target_preservation": "causal_ON_minus_OFF_and_TO_required",
+      "9_false_alarm_waterfall": "NOT_EVALUABLE",
+      "10_delay_class": "NOT_EVALUABLE_until_single_error_closure",
+      "11_channel_delay_research_value": "NOT_EVALUABLE_without_formal_delay_matrix",
+      "12_servo_velocity_gate": "CLOSED",
+      "13_coupled_physical_state_gate": "CLOSED",
+      "14_ai_gate": "CLOSED"
+    },
+    "reason": "formal_production_evidence_incomplete"
+  }
+}
