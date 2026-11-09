@@ -10,8 +10,8 @@
 |---|---|
 | 仓库 | <https://github.com/shy-sgsg/PGRCC> |
 | 分支 | `codex/unknown-system-error-next-stage` |
-| 本阶段审查快照 commit | `f5cd04aa6f001f7a716cb442714c8924113f56c8` |
-| 研究总纲 | [`docs/research/RESEARCH_MASTER_PLAN.md`](https://github.com/shy-sgsg/PGRCC/blob/f5cd04aa6f001f7a716cb442714c8924113f56c8/docs/research/RESEARCH_MASTER_PLAN.md) |
+| 本阶段审查快照 commit | `e0380ffe2cdc9834d2546bc9b4bd222e89bdbce3` |
+| 研究总纲 | [`docs/research/RESEARCH_MASTER_PLAN.md`](https://github.com/shy-sgsg/PGRCC/blob/e0380ffe2cdc9834d2546bc9b4bd222e89bdbce3/docs/research/RESEARCH_MASTER_PLAN.md) |
 | 研究总纲 blob | `e637e3769bde7814298ff012d0f42301884e2985` |
 
 若不能读取上述 commit 或总纲，明确列出无法读取的文件；不得声称已完成整体研究方向审查。不要把远端当前 HEAD 的后续材料混入固定快照。
@@ -25,7 +25,7 @@
 5. `docs/research/phase_r/README.md` 与 `docs/research/phase_r/R22/README.md`
 6. `docs/research/phase_r/R22/V3_3_residual_task_gap_audit/README.md`
 7. `FINAL_RESEARCH_REPORT.md`、`00`–`07`、`09` 阶段文件
-8. `evidence/manifest.json`、`summary.json`、相关 CSV 和图表
+8. `evidence/manifest.json`、`summary.json`、相关 CSV 和图表；重点包括 `production_output_by_case.csv`、`production_output_by_period.csv.gz`、`production_output_by_seed.csv`、`production_output_screening_summary.csv` 与 `figures/detection_cluster_track_output_audit.png`
 9. 分析器 `scripts/phase_r/analyze_r22_v3_3_residual_task_gap.py`，以及 manifest 中记录的 V3.2 evaluator 源文件身份
 
 ## 固定科研身份与边界
@@ -34,7 +34,7 @@
 - 冻结设计 ID：`R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING`
 - 设计 SHA-256：`9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063`
 - Archive index SHA-256：`a5bd66302acc12ac410ad4f8560ecd7e137ba40d4e54a09abd7eaadcf4d8bdd1`
-- V3.3 离线分析器 SHA-256：`87735e636db71742c7e7fb8f36142f940284186f106cc4d53d0d234d976d56a0`
+- V3.3 离线分析器 SHA-256：`60eea069b0d6fbcd53c50e96424a65b0b69e536ce3d565434aa5ac753c772059`
 - 研究总纲 blob：`e637e3769bde7814298ff012d0f42301884e2985`
 
 本阶段只对 V3.2 的 144 个 `+4 ns` compact case 归档做离线审计。没有运行 Stage2、Production、CUDA、新实验或 AI；没有复制、解压、删除或改写 V3.2 ZIP。完整 ZIP 和原始 IQ 留在本机 `outputs/`，不在 GitHub 审查包中。因此只能核验已提交的派生表、manifest、输出摘要和归档 SHA 身份；不能声称独立读取或重跑了本机 ZIP/原始 IQ。
@@ -53,7 +53,10 @@
 6. TrackManager 汇总、false-confirmed tracks、经验虚警和系统 Pfa 是否严格区分。
 7. 时延估计残差的单位、符号和可归因范围是否正确。
 8. `IMPLEMENTED`、`EXECUTED`、`EVALUABLE`、`PERFORMANCE_VERIFIED` 状态是否与证据一致；特别核查 `parameter_evaluator_parity.csv` 是否确有576/576全周期位置 parity 通过、0 mismatch；是否有过度声称、漏报失败或不一致的文件身份。
-9. manifest 的脚本/输出 SHA、archive identities 和总纲 blob 是否自洽。可以读取提交的派生证据；不要把缺失的原始 ZIP/ IQ 当作已检查。
+9. manifest 的脚本/输出 SHA、archive identities 和总纲 blob 是否自洽。可以读取提交的派生证据；不要把缺失的原始 ZIP/IQ 当作已检查。
+10. Production 输出补充审计是否支持 1,872/1,872 个方法×case 均有完整十周期输出与 lineage、共18,720条周期记录；Detection 行数、selected candidate 数和 postfilter cluster 数之间的核对是否正确。
+11. 是否正确区分1,841个拥有完整有效 evaluator target association 的方法×case 与31个仅 Production 输出可评价的单元（P2 Mode-B 7、C4 Mode-B 15、PKR Mode-B 9）；对于后31个单元不得补成零漏检或零真值未关联 Detection。
+12. “真值未关联 Detection 行”是否被严格限制为冻结 target-present evaluator 的未关联行，而没有误称 non-target cluster、false cluster 或系统 Pfa；完整十周期 cluster-to-truth lineage 缺失时，非目标 cluster 数应保持 `NOT_EVALUABLE`。覆盖率不同的方法不得用不相等的评价样本直接排名。
 
 ### 第二层：总体科研价值与方向
 
@@ -70,6 +73,8 @@
 ## 复核时重点对照的结果
 
 报告中的核心 screening 命中率为：A0 69.729%、Current 11.694%、PK Known 69.729%、Fixed D3 69.705%、Huber D3 ON 69.767%、M1 69.767%。Known−Current 平均恢复空间为58.035个百分点。所有这些都只能解释为冻结仿真矩阵内的筛选描述，不是统计显著性或真实机载泛化。
+
+13种方法在144个 case 上均有完整十周期 Production 输出，覆盖1,872个方法×case和18,720条周期记录；31个方法×case缺少有效 target evaluator association，只报告 Production 输出数量，不推定任务漏检或虚警。真值未关联 Detection 行不等于 non-target cluster 或系统 Pfa，且非目标 cluster truth attribution 为 `NOT_EVALUABLE`。
 
 全十周期位置四方法共同成功为19,682/28,800（68.340%），576个 case×方法位置 evaluator parity 全部通过。共同成功 seed 均值中，M1 比 PK Known 高18.387±4.503 m；比 Fixed D3 低13.979±4.133 m，12/12 seed同向。Huber 比 Fixed D3 低7.493±4.126 m，12/12 seed同向。全十周期角度、斜距、折叠 Doppler共同成功、地速共同成功、有效径向速度和 target-only复数幅相仍为 `NOT_EVALUABLE`。period 8 四方法共同成功参数机会为1,982/2,880。
 
