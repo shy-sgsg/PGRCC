@@ -1,6 +1,6 @@
 # PGRCC R22 V3.2 Screening 独立科研审查请求
 
-**固定审查 commit：`REVIEW_COMMIT_SHA_PENDING`**<br>
+**固定审查 commit：`d9783c2f09d93434a8ab60763635e1bcb91aa441`**<br>
 仓库：`https://github.com/shy-sgsg/PGRCC`<br>
 分支：`codex/unknown-system-error-next-stage`
 
