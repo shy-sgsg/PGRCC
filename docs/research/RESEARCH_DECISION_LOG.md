@@ -267,3 +267,12 @@
 - **方向决定：** `CONTINUE` 有界物理时延/通道状态估计及任务级验证；低速目标和复杂杂波没有证据要求成为主线；`AI_ENTRY_GATE=FAIL`。研究总纲不修改。
 - **下一项建议：** 先拟定最小确认性设计，约束估计器只使用部署可得的 target-present 多通道观测，并加入独立 H0、target-only complex response 和共同机会参数评价；本建议不自动授权 CUDA。
 - **证据：** [执行与结果报告](phase_r/R22/27_v3_2_screening_execution_report_20261109.md)、[方向评估](phase_r/R22/28_v3_2_preliminary_direction_assessment_20261109.md)、[紧凑 GitHub 审查包](phase_r/R22/evidence/v3_2_screening_20261106/README.md)、[ChatGPT 审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT_V3_2_SCREENING_20261109.md)。
+
+## 2026-11-09｜R22 V3.3：target-present 确定性校正检测接近 Known，参数残差尚待完整确认
+
+- **决策编号与身份：** `D-2026-11-09-R22-V3.3-RESIDUAL-AUDIT`。V3.2 实验源码 commit `74bccce61f3ec2f74746512d67271c815ce6a3a8`；设计 SHA-256 `9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063`；V3.2 archive index SHA-256 `a5bd66302acc12ac410ad4f8560ecd7e137ba40d4e54a09abd7eaadcf4d8bdd1`。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
+- **范围与清理：** 对144个 `+4 ns` compact case ZIP 做只读离线复核；使用中的归档 SHA 与索引一致、每 case 有效面积杂波为1,300 packets / 6,508,782 samples。未运行 Stage2/Production/CUDA/AI，未复制、解压、删除或改写归档。本轮分析输出约4.5 MB；仅删除本轮生成的 Matplotlib 临时缓存。工作树约4.8 GiB，低于20 GB最终上限。
+- **核心结果：** A0 / Current / PK Known 命中率分别69.729% / 11.694% / 69.729%；target-present Fixed D3 / Huber D3 ON / M1 为69.705% / 69.767% / 69.767%。Known−Current恢复空间58.035个百分点；三种 target-present deterministic 方法恢复比例约99.97%–100.07%，只作筛选描述。period 8 四方法共同成功参数机会1,982/2,880；M1方位/位置RMSE为0.03197°/48.48 m，PK为0.01782°/27.08 m。全十周期共同参数、共同地速、有效径向速度及 target-only复数幅相不可评价。
+- **阶段裁决：** 离线审计 `COMPLETE`，算法 `PERFORMANCE_VERIFIED=false`，不声明显著性。研究方向 `CONTINUE` 有界 deterministic target-present 估计的确认性评价；`AI_ENTRY_GATE=FAIL`。当前证据不支持转到低速保护或复杂非平稳杂波。
+- **唯一建议：** 若用户批准，先冻结 output-complete R22-V4 确认性契约（建议30 seeds × 3 speeds × SNR20 × 0/+4 ns，共180 case），保存全十周期 Detection/TrackManager lineage、目标专属复数响应、共同参数机会和独立 H0定义。此建议不授权 CUDA；本阶段结束后停止。
+- **证据：** [V3.3 最终研究报告](phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[离线审计导航](phase_r/R22/V3_3_residual_task_gap_audit/README.md)、[机器证据](phase_r/R22/V3_3_residual_task_gap_audit/evidence/manifest.json)。固定快照及 ChatGPT 独立审查要求见同目录 `CHATGPT_REVIEW_REQUEST.md`。

@@ -1,5 +1,7 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
+> **2026-11-09 V3.3 离线任务残差审计：** 144 个 V3.2 `+4 ns` compact case 归档身份均匹配。Current 命中率11.694%，Known 69.729%，target-present Fixed D3/Huber/M1 约69.71%–69.77%；period 8 参数共同成功显示方位/位置残差，完整十周期共同参数、地速和有效径向速度不可评价。`PERFORMANCE_VERIFIED=false`，AI entry gate `FAIL`。建议先冻结输出完整的确认性契约；本次没有启动 CUDA。见[最终报告](V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[证据包](V3_3_residual_task_gap_audit/README.md)与[审查提示词](V3_3_residual_task_gap_audit/CHATGPT_REVIEW_REQUEST.md)。
+
 > **2026-11-09 V3.2 全量 Screening 终态：** Native CUDA 完成 288/288 个 case、4,320/4,320 个适用 ON 方法单元分类；255 个 `PASSED`、33 个 `PASSED_WITH_METHOD_GAPS`，49 个方法单元因 `insufficient_robust_support` 不可评价。288 个最新 ZIP 已通过 SHA/CRC 校验，raw 已按 ledger 清理。目标检测与 Known/estimated recovery 只作 Screening 描述，`PERFORMANCE_VERIFIED=false`、本矩阵无独立 H0/Pfa。详见[执行与结果报告](27_v3_2_screening_execution_report_20261109.md)、[方向评估](28_v3_2_preliminary_direction_assessment_20261109.md)、[ChatGPT 审查提示词](CHATGPT_REVIEW_PROMPT_V3_2_SCREENING_20261109.md)和[精简证据包](evidence/v3_2_screening_20261106/README.md)。完整 288-case ZIP 留在本机 outputs，未上传 GitHub。
 
 > **2026-11-06 V3 早停/重放状态：** V3 在第4个 case 的 `P2 / Mode-A / ON` 分支因 `raw_align`/beam quality gate 失败而以 `UNKNOWN_STOP` 终止，历史矩阵保持终态。随后同场景诊断重放在约1215 MiB空闲显存下9/9分支通过，包含该 P2 ON 分支；这使设备资源状态成为合理解释，但根因仍未证明。其后另建V3.1并尝试完整 Screening，最新结果见上条。V3早停详见[审计报告](21_v3_screening_early_stop_20261106.md)，原V3契约见[历史V3契约](22_v3_screening_contract_20261105.md)。

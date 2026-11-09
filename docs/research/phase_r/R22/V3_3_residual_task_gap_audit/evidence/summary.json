@@ -1,0 +1,50 @@
+{
+  "analysis_status": "COMPLETE_OFFLINE_AUDIT",
+  "delay_ns": 4.0,
+  "case_count": 144,
+  "independent_seed_count": 12,
+  "speed_mps": [
+    0.5,
+    1.5,
+    2.5,
+    6.7
+  ],
+  "snr_db": [
+    10,
+    20,
+    30
+  ],
+  "truth_opportunities_per_case": 200,
+  "total_truth_opportunities_per_primary_method": 28800,
+  "core_methods": [
+    "PK",
+    "Fixed_D3",
+    "Huber_D3_ON",
+    "M1_Physics_Matched"
+  ],
+  "core_method_parameter_evaluator_parity_mismatches": 0,
+  "core_method_parameter_evaluator_parity_status": "PARTIAL_PRODUCTS_PREVENT_FULL_PERIOD_PARITY_CHECK",
+  "core_common_retained_detection_period_ids": [
+    8
+  ],
+  "cases_with_full_10_period_parameter_products": 0,
+  "area_clutter_positive_cases": 144,
+  "all_core_truth_association_sets_match": true,
+  "all_core_production_branches_passed": true,
+  "parameter_opportunity_rows": 115200,
+  "parameter_common_success_full_10_period_status": "NOT_EVALUABLE_ARCHIVE_RETAINS_ONLY_TARGET_PERIOD_SUBSET",
+  "parameter_common_success_retained_period_status": "EVALUABLE_SUBSET_ONLY_IF_COMMON_SUPPORT_IS_NONZERO",
+  "ground_speed_common_success": "NOT_EVALUABLE_TRACK_DEBUG_NOT_ARCHIVED",
+  "radial_velocity_common_success": "NOT_EVALUABLE_NO_RESOLVED_VALID_SAMPLES_EXPECTED",
+  "performance_verified": false,
+  "statistical_significance_claim": false,
+  "cuda_executed": false,
+  "archives_deleted": 0,
+  "plots": [
+    "figures/detection_rate_by_snr_speed.png",
+    "figures/detection_overlap_core_methods.png",
+    "figures/parameter_rmse_own_vs_fourway_common.png",
+    "figures/track_retention_summary.png",
+    "figures/delay_estimation_residual_by_seed.png"
+  ]
+}

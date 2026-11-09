@@ -4,6 +4,7 @@
 
 ## 当前决策
 
+- **R22 V3.3（2026-11-09，离线任务残差审计完成）：** 144 个 V3.2 `+4 ns` compact case ZIP 的身份复核通过。Current 命中11.694%，Known 69.729%，target-present Fixed D3/Huber/M1 检测约69.71%–69.77%；period 8 参数共同成功仍显示方位/位置残差，完整十周期参数共同机会和地速共同成功不可评价。`PERFORMANCE_VERIFIED=false`、不作显著性结论；AI entry gate `FAIL`。唯一建议是先冻结 output-complete 确认性契约，未授权新 CUDA。入口：[最终研究报告](R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[证据导航](R22/V3_3_residual_task_gap_audit/README.md)、[机器 manifest](R22/V3_3_residual_task_gap_audit/evidence/manifest.json)。
 - **R22 V3.2（2026-11-09，full Screening 已完成）：** 288/288 个 Native CUDA case 归档通过，4,320/4,320 个适用方法单元均分类；255 个 case 通过、33 个带方法级 support 缺口。+4 ns Current 检测下降、Known 与 target-free OFF 估计恢复接近无误差参考；由于 blind delay estimator 使用 paired OFF，不能当作 target-present 在线部署结论。系统 Pfa、target-only complex retention 和统计显著性未验证。方向为有界继续物理时延估计，不转低速/复杂杂波，不启动 AI。入口：[完整报告](R22/27_v3_2_screening_execution_report_20261109.md)、[方向评估](R22/28_v3_2_preliminary_direction_assessment_20261109.md)、[ChatGPT 提示词](R22/CHATGPT_REVIEW_PROMPT_V3_2_SCREENING_20261109.md)、[紧凑证据](R22/evidence/v3_2_screening_20261106/README.md)。
 
 - **R22 更新（2026-10-27，工程 gate 停止）：** seed900101 完成 20 目标 Native CUDA smoke；seed900202/900203 完成 +4 ns 单周期方法 pilot。seed900203 有效面积地杂波为 130 packets / 650,892 samples，A1 角色通过 A0_ON C+N 背景配对复用，causal triplet 闭合。PKR 因 `range_band_bins=6` 下 support 6 小于 `min_support=8`，26,637/26,637 参考组不可用并触发 Production beam gate；residual closure 不可评价，停止扩 seed。命中差异只能作两 seed 单周期描述；统计 Pd/Pfa 与航迹性能未验证，AI 必要性未建立。完整报告和可直接复制的 ChatGPT 审查提示词见 [R22 导航](R22/README.md)。

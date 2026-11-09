@@ -4,6 +4,7 @@
 
 ## 状态身份
 
+- **2026-11-09 R22 V3.3 离线任务残差审计完成：** 只读核验 V3.2 的 144 个 `+4 ns` compact case ZIP；归档 SHA 均与冻结索引匹配，未解包、复制或删除归档。Current 命中率 11.694%，PK Known 69.729%，target-present Fixed D3/Huber/M1 检测命中约 69.71%–69.77%；period 8 四方法共同参数机会为1,982/2,880，方位/位置仍有 Known 残差，完整十周期参数共同成功、地速共同成功与有效径向速度不可评价。`PERFORMANCE_VERIFIED=false`，不宣称统计显著性。AI entry gate 仍为 `FAIL`；低速保护与复杂杂波没有成为优先方向。研究总纲 blob 保持不变。报告与证据见[V3.3 最终研究报告](phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[证据导航](phase_r/R22/V3_3_residual_task_gap_audit/README.md)；下一项仅建议冻结输出完整的确认性契约，未授权 CUDA。
 - **2026-11-09 R22 V3.2 全量 Screening 完成：** Native CUDA 执行冻结的 288/288 个 case，4,320/4,320 个适用 ON 方法单元已分类；255 个 case `PASSED`、33 个 `PASSED_WITH_METHOD_GAPS`。49 个方法单元因 `insufficient_robust_support` 保持不可评价。288 个最新 ZIP 的 SHA/CRC 均核验，raw 已清理；`PERFORMANCE_VERIFIED=false`，独立 H0/Pfa不可评价。逐项结论见[R22 V3.2 执行报告](phase_r/R22/27_v3_2_screening_execution_report_20261109.md)、[方向评估](phase_r/R22/28_v3_2_preliminary_direction_assessment_20261109.md)及[精简审查证据](phase_r/R22/evidence/v3_2_screening_20261106/README.md)。研究总纲 blob保持不变。
 - **2026-11-06 R22 V3.1 全量 Screening 早停：** 本机 Native CUDA 实际尝试6/288个case：5个case通过、SNR30 dB/+4 ns case按冻结门控 `UNKNOWN_STOP`；282个case未执行。90个已访问适用方法单元中87个可评价、3个未知，4,230个未访问。连续面积杂波 gate 在6个case均通过（每case 1,300 packets、6,508,782 samples、平均功率约0.02215967）；失败case有3个 Production 分支退出码1，其中 C2 Mode-B ON 日志确认 CUDA 显存分配 OOM，另2个根因 `NOT_VERIFIED`。所有6个 compact ZIP CRC通过，合计约29.8 MB；cleanup ledger记录移除8,826个文件、47,246,962,032 bytes（逻辑大小，不等于可用磁盘物理回收量），残留raw文件为0。初审曾将 manifest 规范化哈希 `696dce…` 与 V3.1 JSON 原始字节 SHA `26e202…` 混比并误判设计身份未闭合；后续更正确认规范化设计内容哈希与 manifest 一致，原始文件路径/SHA 未在旧 manifest 单独记录。V3.1终态不得续跑；未降低门槛、未做性能排名。详见[V3.1早停审计](phase_r/R22/24_v3_1_screening_early_stop_20261106.md)、[哈希语义更正](phase_r/R22/26_v3_1_design_digest_semantics_correction_20261106.md)、[紧凑证据摘要](phase_r/R22/evidence/v3_1_early_stop_20261106/case_summary.json)和[失败case完整compact归档](phase_r/R22/evidence/v3_1_early_stop_20261106/failure_case.zip)。`PERFORMANCE_VERIFIED=false`；研究总纲 blob保持不变。
 - **2026-11-06 R22 V3 早停与设备状态重放：** V3 按冻结门控在第4个唯一 case 以 `UNKNOWN_STOP` 终止；3个 case 通过、1个 case 的54个 Production branch 中53个通过。之后同条件诊断重放完成9/9 branch，包含原失败的 `P2 / Mode-A / ON`，运行前空闲显存1215 MiB；这使设备资源状态成为合理解释，但根因仍未证明。原V3状态与失败归档保持不变。V3.1独立设计本计划288个case和4,320个适用ON方法单元；V3/V2历史case与诊断重放均不计入覆盖率。V3.1实际执行状态见上条及对应审计报告。详见[R22 V3早停与重放审计](phase_r/R22/21_v3_screening_early_stop_20261106.md)、[V3.1契约](phase_r/R22/23_v3_1_post_replay_screening_contract_20261106.md)和[V3.1设计](phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json)。
@@ -114,10 +115,10 @@ R17 的状态为：`IMPLEMENTED` 不适用（未改算法/软件）；`EXECUTED`
 
 ## 当前唯一优先任务与阶段门
 
-- **当前唯一优先任务：** 无；R22 V3.2 报告、审查材料与清理完成后停止，等待用户决定是否启动下一项工作。
-- **阶段建议：** 若继续，先冻结一份最小确认性设计：估计器只用部署可得的 target-present 多通道观测；配对 Known 上限；独立 H0；target-only complex response；共同任务机会参数比较。先审查契约和资源预算，再由用户决定是否运行。
+- **当前唯一优先任务：** 无；R22 V3.3 离线审计与审查包完成后停止，等待用户决定是否启动下一项工作。
+- **阶段建议：** 若继续，先冻结 output-complete 的 R22-V4 确认性契约，保存全部十周期 Detection/TrackManager lineage、target-only complex response、共同机会参数结果，并为系统 Pfa 定义独立 H0。拟议范围为30 seeds × 3 speeds × SNR20 × 0/+4 ns（180 cases）；统计与资源设计需在契约中复核。估计器只能使用部署时可用的 target-present 观测，Known 仅作 evaluator-only 参考。
 - **停止条件：** 不把本轮筛选均值写成统计显著性能结论；不把 paired OFF 估计写成在线部署验证；不以 false-CUT fraction 代替系统 Pfa；不自动启动 AI、Router、Dense 或新 CUDA 矩阵；研究总纲正文仍受用户明确审批保护。
-- **后续任务授权：** 上述阶段建议尚未获得自动执行授权。
+- **后续任务授权：** R22-V4 契约及任何新实验均尚未获得用户授权；不自动启动 CUDA、AI 训练或扩展矩阵。
 
 ## 总纲修订讨论
 
