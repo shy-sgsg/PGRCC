@@ -38,6 +38,12 @@
 
 Known−Current 可恢复空间为 58.035 个百分点。Fixed D3、Huber、M1 的实际恢复分别为 58.010、58.073、58.073 个百分点；平均 recovery ratio 分别为 99.970%、100.071%、100.074%。略高于 100% 是有限筛选比值，不表示超过物理上界。A0/PK 总命中相同，但在 144 个 case 中只有 142 个 case 命中数逐 case 相同，故只称任务级近似闭合。
 
+## 十周期 Production 输出与真值关联覆盖
+
+13 种方法的 Production 输出补充审计覆盖 144 个 case：1,872/1,872 个方法×case 单元均有完整十周期 `cycle_metrics` 与 cluster lineage，共核对 18,720 个周期记录；每周期 Detection 数均与 selected candidate 数一致，簇 summary 与逐簇 lineage 一致。全部方法的最终 Detection 行数与 postfilter cluster 数逐 case 相同。
+
+31 个方法×case 的原 task status 不可评价；其 Production 输出计数仍可报告，但不计算这些单元的目标漏检或真值未关联 Detection 数。分别为 P2 Mode-B 7/144、C4 Mode-B 15/144、PKR Mode-B 9/144。所有方法的 144-case Detection/cluster 总数、真值关联覆盖、目标命中/漏检和真值未关联 Detection 行见[详细审计表](03_detection_and_opportunity_overlap.md)。此处“真值未关联 Detection 行”不是非目标簇计数、false cluster 或系统 Pfa；完整十周期 cluster-to-truth lineage 未保留，因此非目标簇数仍为 `NOT_EVALUABLE`。各方法 coverage 不同，不作全方法直接排名。
+
 ## 参数误差
 
 ### 全十周期位置共同成功
@@ -81,23 +87,27 @@ Known−Current 可恢复空间为 58.035 个百分点。Fixed D3、Huber、M1 �
 
 归档 TrackManager 汇总显示，确认后匹配率为 A0/PK 99.383%、Current 79.996%、Fixed 99.614%、Huber 99.614%、M1 99.460%。每个目标场景 case 的 false-confirmed tracks 分别为 155.95、156.13、189.06、158.05、156.72、156.45（按 A0、PK、Current、Fixed、Huber、M1 顺序）。这些是 target-present 汇总，**不是独立 H0 或系统 Pfa**。
 
+额外报告的未匹配确认 payload 与 cross-target association payload 均为 TrackManager evaluator 的 target-present 汇总指标，不能代替逐帧 lineage 审计；核心方法每 case 约 397–419 条未匹配确认 payload、4–62 条 cross-target payload，定义和限制见[航迹分析](05_target_retention_and_track_analysis.md)。
+
 平均有符号时延残差（估计减注入值）为 Fixed D3 −0.5900 ns、Huber D3 ON −0.4555 ns、M1 −0.3342 ns。Huber/M1 来源于 ON-only、truth-free 的 C1/C2，但估计拟合使用完整十周期、1,300 pulses 的 batch/offline 数据；后续周期参与较早周期结果的估计。实时因果可用性和独立 estimator runtime 未验证。
 
 ## 状态、证据和磁盘
 
 | 状态 | 本轮判定 |
 |---|---|
-| `IMPLEMENTED` | 离线审计器、parity 校验、位置共同成功表、图表与报告已更新 |
-| `EXECUTED` | 144 个 compact ZIP 直接读取并完成 SHA、面积杂波、任务和参数审计；未运行 CUDA |
-| `EVALUABLE` | 检测/航迹筛选汇总、全十周期位置共同成功、period 8 多参数共同成功 |
+| `IMPLEMENTED` | 离线审计器、Production 输出/覆盖率复算、parity 校验、汇总表、图表与报告已更新 |
+| `EXECUTED` | 144 个 compact ZIP 直接读取并完成 SHA、面积杂波、任务、Production 输出、检测关联和参数审计；未运行 CUDA |
+| `EVALUABLE` | 13 方法十周期输出/簇数；1,841 个方法×case 的真值关联；全十周期位置共同成功；period 8 多参数共同成功。31 个方法×case 仅 Production 输出可评价 |
 | `PERFORMANCE_VERIFIED` | `false`：仍为筛选数据，且多个任务维度与实时估计边界未闭合 |
 
 - V3.2 实验源码 commit：`74bccce61f3ec2f74746512d67271c815ce6a3a8`。
 - V3.2 design SHA-256：`9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063`。
 - Archive index SHA-256：`a5bd66302acc12ac410ad4f8560ecd7e137ba40d4e54a09abd7eaadcf4d8bdd1`。
+- Production 输出补充复算源码 commit：`957782747c9c4886733f70689f0a0d08d25f2da4`；分析器 SHA-256：`60eea069b0d6fbcd53c50e96424a65b0b69e536ce3d565434aa5ac753c772059`。
 - 144/144 使用中归档 SHA 与索引一致；面积杂波 144/144 case 均有效。
+- 13 方法×144 case 输出均完成十周期数量/lineage 核对；1,841 个方法×case 有完整 target association，31 个仅保留可审计的 Production 数量。方法 coverage 不同，未进行不公平排名。
 - 本地 1.5 GiB V3.2 ZIP 保留在 `outputs/r22_v3_2_screening_20261106/archives/screening/`，未上传 GitHub；无 ZIP 复制、解压、删除或改写。Git 审查包包含紧凑派生证据，不包含原始 IQ 与完整 CUDA 日志。
-- 本轮分析输出约 6.1 MB；项目工作树约 4.8 GiB，低于 20 GB 上限，文件系统约 11 GiB 可用。没有删除既有输入、实验归档或用户数据。
+- 本轮证据目录约 6.96 MB；逐周期表 gzip 后约 151 KiB。项目工作树约 4.8 GiB，低于 20 GB 上限，文件系统约 11 GiB 可用。仅删除本轮生成的 4.2 MiB 未压缩逐周期副本和本轮 Matplotlib 临时缓存；没有删除既有输入、实验归档或用户数据。
 - 研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 保持不变。
 
 ## 唯一下一步建议

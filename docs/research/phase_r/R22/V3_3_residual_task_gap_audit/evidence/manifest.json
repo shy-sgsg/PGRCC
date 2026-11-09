@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "analysis_id": "R22_V3_3_RESIDUAL_TASK_GAP_OFFLINE_AUDIT",
-  "created_date": "2026-11-09",
-  "analysis_worktree_head": "28a0969c42b68b782a024e1cb25ea5b3db90cb5d",
+  "created_date": "2026-11-10",
+  "analysis_worktree_head": "957782747c9c4886733f70689f0a0d08d25f2da4",
   "analysis_branch": "codex/unknown-system-error-next-stage",
   "analysis_script_path": "scripts/phase_r/analyze_r22_v3_3_residual_task_gap.py",
-  "analysis_script_sha256": "87735e636db71742c7e7fb8f36142f940284186f106cc4d53d0d234d976d56a0",
+  "analysis_script_sha256": "60eea069b0d6fbcd53c50e96424a65b0b69e536ce3d565434aa5ac753c772059",
   "v3_2_experiment_source_commit": "74bccce61f3ec2f74746512d67271c815ce6a3a8",
   "v3_2_frozen_design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
   "v3_2_frozen_design_sha256": "9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063",
@@ -66,7 +66,9 @@
       "position_m_full_10_period_common_success_from_evaluator_associations": true,
       "angle_range_doppler_full_10_period_common_success": false,
       "ground_speed_common_success": false,
-      "radial_velocity_common_success": false
+      "radial_velocity_common_success": false,
+      "period_detection_cluster_and_truth_unmatched_summary": true,
+      "non_target_cluster_truth_attribution": false
     },
     "PERFORMANCE_VERIFIED": false
   },
@@ -74,6 +76,75 @@
     "8"
   ],
   "cases_with_full_10_period_parameter_products": 0,
+  "production_output_method_coverage": [
+    {
+      "method_label": "A0",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "C0",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "PK",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "Fixed_D3",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "Huber_D3_ON",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "M1_Physics_Matched",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "P1_OFF_estimate",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "P2_Mode-A",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "P2_Mode-B",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 0.9513888888888888
+    },
+    {
+      "method_label": "C4_Mode-A",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "C4_Mode-B",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 0.8958333333333334
+    },
+    {
+      "method_label": "PKR_Mode-A",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "PKR_Mode-B",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 0.9375
+    }
+  ],
+  "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+  "truth_unmatched_detection_status": "TARGET_PRESENT_FROZEN_EVALUATOR_ASSOCIATION; NOT_SYSTEM_PFA",
   "ground_speed_common_success_reason": "Compact ZIPs retain aggregate own-success parameter_metrics.csv and track_level_metrics.csv but omit per-opportunity track_debug_runs/track_output_payloads.csv required by the frozen evaluator.",
   "figure_paths": [
     "figures/detection_rate_by_snr_speed.png",
@@ -81,6 +152,7 @@
     "figures/parameter_common_success_paired_differences.png",
     "figures/parameter_rmse_own_vs_fourway_common.png",
     "figures/track_retention_summary.png",
+    "figures/detection_cluster_track_output_audit.png",
     "figures/delay_estimation_residual_by_seed.png",
     "figures/residual_mechanism_summary.png"
   ],
@@ -134,6 +206,11 @@
       "path": "figures/delay_estimation_residual_by_seed.png",
       "bytes": 80456,
       "sha256": "af493c54441422661613f8b757a1ccd88f72f8d15e63b57696d244c33f0bd52d"
+    },
+    {
+      "path": "figures/detection_cluster_track_output_audit.png",
+      "bytes": 175527,
+      "sha256": "56651b04cba10a417c8925e7e9280edf570a795d4bc045ead0626fd00329c8e0"
     },
     {
       "path": "figures/detection_overlap_core_methods.png",
@@ -208,7 +285,7 @@
     {
       "path": "parameter_opportunity_audit.csv.gz",
       "bytes": 2289164,
-      "sha256": "e05b4b4a7401b16befb74caecfb722388c29635bdb58fc7b900674a0e1a5c11b"
+      "sha256": "ed99ec0a1ee2c6b63a6244f8fe4305a60d146e5ed4721c20b26a7e68358cc636"
     },
     {
       "path": "parameter_pairwise_common_success_by_seed.csv",
@@ -236,14 +313,34 @@
       "sha256": "4dfd79bb3e199ececf360f5fa3a6fe5ea5ae74d2141c6f91e5a98b4ab2daa59a"
     },
     {
+      "path": "production_output_by_case.csv",
+      "bytes": 474030,
+      "sha256": "72278ef9ac387c7c1bd239988c78ad94db56653a8ad3473a3180dd300c36a93b"
+    },
+    {
+      "path": "production_output_by_period.csv.gz",
+      "bytes": 154332,
+      "sha256": "d7141bb52d0c3f5a8e59bbabdac442d7d22e03e312bb8d45a617e7c5afe7b123"
+    },
+    {
+      "path": "production_output_by_seed.csv",
+      "bytes": 25731,
+      "sha256": "aee7e53b64e980ab6c185793fc33f401087b47a6758e72811cc4ad0a201cfef0"
+    },
+    {
+      "path": "production_output_screening_summary.csv",
+      "bytes": 2710,
+      "sha256": "655ccb93bf019e4763a051f7d4bb5047b8b3e0882830dfa273c472c686d31a02"
+    },
+    {
       "path": "seed_method_detection_summary.csv",
       "bytes": 27308,
       "sha256": "10b861cf58fcf8c1b5c51b06775b18a4d2ea2a1b1103a674c0c911840282aef6"
     },
     {
       "path": "summary.json",
-      "bytes": 2024,
-      "sha256": "b8d3af79ac8356edbd3ad98f220bfa0f062a5feeec09b87382e8226358235dcd"
+      "bytes": 11766,
+      "sha256": "71b82eaaa735a4e0c1b0ce1652a1b05d4540b725e9ea6210052eed8b85517c7b"
     },
     {
       "path": "track_screening_summary.csv",

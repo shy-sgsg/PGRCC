@@ -28,11 +28,12 @@
 - [`position_all_periods_common_success_summary.csv`](evidence/position_all_periods_common_success_summary.csv)、[`position_all_periods_pairwise_common_by_seed.csv`](evidence/position_all_periods_pairwise_common_by_seed.csv)：全十周期位置 own-success、pairwise 与四方法共同成功比较。
 - [`parameter_fourway_common_success_by_seed.csv`](evidence/parameter_fourway_common_success_by_seed.csv) 与 [`parameter_common_success_summary.csv`](evidence/parameter_common_success_summary.csv)：period 8 可读取 Detection 产品的其余参数复算和共同成功集。
 - [`track_screening_summary.csv`](evidence/track_screening_summary.csv)、[`delay_estimation_summary.csv`](evidence/delay_estimation_summary.csv)：航迹与物理时延残差。
-- [`figures/`](evidence/figures/)：七张报告图，包括全十周期位置配对差异与残余任务差距汇总。
+- [`production_output_by_case.csv`](evidence/production_output_by_case.csv)、[`production_output_by_period.csv.gz`](evidence/production_output_by_period.csv.gz)、[`production_output_by_seed.csv`](evidence/production_output_by_seed.csv)、[`production_output_screening_summary.csv`](evidence/production_output_screening_summary.csv)：13 种方法十周期 Detection/cluster 数量、method-case 任务关联状态和覆盖率。真值未关联 Detection 行不是系统 Pfa；非目标 cluster attribution 不可评价。
+- [`figures/`](evidence/figures/)：八张报告图，包括全十周期位置配对差异，以及 Detection/cluster 与 TrackManager 汇总。
 
 ## 空间与证据保留
 
-分析器在 ZIP 内直接读取所需成员；没有复制、解压、删除或改写任何 V3.2 compact archive。144 个使用中的归档 SHA 与 V3.2 索引全部一致；额外历史归档保持未触碰。分析输出约 6.1 MB。项目工作树检查为约 4.8 GiB，低于 20 GB 最终上限，文件系统约有 11 GiB 可用；本轮仅清理自身 Matplotlib 临时缓存。
+分析器在 ZIP 内直接读取所需成员；没有复制、解压、删除或改写任何 V3.2 compact archive。144 个使用中的归档 SHA 与 V3.2 索引全部一致；额外历史归档保持未触碰。证据目录约 6.96 MB，其中 18,720 行逐周期输出表压缩后约 151 KiB。项目工作树检查为约 4.8 GiB，低于 20 GB 最终上限，文件系统约有 11 GiB 可用；仅清理本轮生成的未压缩副本和 Matplotlib 临时缓存，没有清理既有输入或历史结果。
 
 **完整 V3.2 ZIP 仍保存在本机 `outputs/r22_v3_2_screening_20261106/archives/screening/`，没有上传 GitHub。** GitHub 审查快照只能审查本目录的紧凑重算证据；不能声称 ChatGPT 已读取本机 ZIP、全部逐 beam 日志或原始 IQ。
 

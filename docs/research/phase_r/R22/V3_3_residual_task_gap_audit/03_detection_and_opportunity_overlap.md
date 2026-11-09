@@ -22,6 +22,32 @@ A0 和 PK 汇总命中总数都为 20,082/28,800（69.729%）。每 case 命中�
 
 全十周期位置机会的补充复算使用冻结 evaluator 保存的逐目标 `position_error_m`，不依赖仅保留 period 8 的 Detection CSV；四方法共同位置成功为 19,682/28,800（68.340%）。这扩展了位置参数的可评价范围，不改变上面的检测分母或检测筛选裁决。
 
+## 十周期 Production 输出与真值未关联检测行
+
+补充审计直接读取每个方法分支的 `cycle_metrics.csv` 与 `cluster_detection_lineage.csv`：144/144 case 的每个方法均有 10 个周期记录，合计 1,872 个方法×case 输出单元、18,720 个方法×case×周期记录。逐周期 `cycle_metrics.detection_count` 与 `selected_candidate_count` 完全一致；lineage 中簇行、selected/raw 标记也与各 beam summary 计数一致。13 种方法在全部 144 case 中的最终 Detection 行总数与 postfilter cluster 总数相同（逐 case 核对无差异）。
+
+下表的“真值关联”只在冻结 evaluator 的 ON target-association 完整可评价时统计。31 个方法×case 单元因原 task status 不可评价，仍保留 Production 输出数量，但不计算目标漏检或未关联 Detection 数；它们分别是 P2 Mode-B 7 个、C4 Mode-B 15 个、PKR Mode-B 9 个。
+
+| 方法 | 144 case 最终 Detection 行（= postfilter clusters） | 真值关联可评价 case | 目标机会 | 命中 / 漏检 | 真值未关联最终 Detection 行 |
+|---|---:|---:|---:|---:|---:|
+| A0 | 116,046 | 144/144 | 28,800 | 20,082 / 8,718 | 95,964 |
+| C0 | 107,449 | 144/144 | 28,800 | 3,368 / 25,432 | 104,081 |
+| PK | 116,048 | 144/144 | 28,800 | 20,082 / 8,718 | 95,966 |
+| Fixed D3 | 117,330 | 144/144 | 28,800 | 20,075 / 8,725 | 97,255 |
+| Huber D3 ON | 116,881 | 144/144 | 28,800 | 20,093 / 8,707 | 96,788 |
+| M1 Physics Matched | 116,510 | 144/144 | 28,800 | 20,093 / 8,707 | 96,417 |
+| P1 OFF estimate | 117,548 | 144/144 | 28,800 | 20,041 / 8,759 | 97,507 |
+| P2 Mode-A | 111,579 | 144/144 | 28,800 | 20,479 / 8,321 | 91,100 |
+| P2 Mode-B | 111,706 | 137/144 | 27,400 | 18,859 / 8,541 | 85,294 |
+| C4 Mode-A | 101,621 | 144/144 | 28,800 | 3,231 / 25,569 | 98,390 |
+| C4 Mode-B | 101,820 | 129/144 | 25,800 | 2,838 / 22,962 | 84,685 |
+| PKR Mode-A | 110,507 | 144/144 | 28,800 | 20,537 / 8,263 | 89,970 |
+| PKR Mode-B | 110,724 | 135/144 | 27,000 | 18,612 / 8,388 | 81,355 |
+
+“真值未关联最终 Detection 行”按冻结 evaluator 的定义重算：最终 Detection 行数减去唯一关联到某个真值机会的 `det_id` 数。它表示未通过本次一对一真值关联门的检测行，可能包含未关联杂波候选、目标重复候选或未达到关联门的目标检测；**不是非目标簇计数，不是 false CUT/false cluster，也不是系统 Pfa**。compact ZIP 没有完整十周期的 cluster-to-truth lineage，因此非目标簇数为 `NOT_EVALUABLE`。各方法关联覆盖率不同，不能用表中未关联行数直接排算法名次。
+
+逐 case、逐周期及 seed 汇总见 [`production_output_by_case.csv`](evidence/production_output_by_case.csv)、[`production_output_by_period.csv.gz`](evidence/production_output_by_period.csv.gz)、[`production_output_by_seed.csv`](evidence/production_output_by_seed.csv) 与 [`production_output_screening_summary.csv`](evidence/production_output_screening_summary.csv)。
+
 ## 同机会重叠
 
 四个核心方法的预定真值机会和有效分母在 144/144 case 中对齐；所有核心方法完整记录 28,800 个机会/方法。全四方法共同命中率为 **68.340% ± 5.371%（seed 间 SD）**。

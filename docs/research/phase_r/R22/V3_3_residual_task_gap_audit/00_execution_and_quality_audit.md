@@ -22,6 +22,7 @@
 | V3.2 执行设备（历史记录） | Native CUDA，RTX 3050 Laptop，driver `580.178.04`，CoreX=false |
 | 研究总纲 blob | `e637e3769bde7814298ff012d0f42301884e2985`，保持不变 |
 | 本阶段分析器 | `scripts/phase_r/analyze_r22_v3_3_residual_task_gap.py`；脚本 SHA-256 记录于本目录 `evidence/manifest.json` |
+| 2026-11-10 Production 输出补充分析源码 | commit `957782747c9c4886733f70689f0a0d08d25f2da4`；分析器 SHA-256 `60eea069b0d6fbcd53c50e96424a65b0b69e536ce3d565434aa5ac753c772059` |
 
 V3.2 Production 运行身份来自 V3.2 的机器 manifest/compact archive。本阶段没有重新执行或独立重建这些二进制。
 
@@ -29,11 +30,13 @@ V3.2 Production 运行身份来自 V3.2 的机器 manifest/compact archive。本
 
 - 从冻结 V3.2 archive index 选取所有 144 个 `delay=+4 ns` case，覆盖 12 个 seed、4 个径向速度、3 个 SNR。
 - 每个压缩包按 index 中记录的 SHA-256 复算；144/144 匹配。ZIP 成员通过 `zipfile` 在压缩包中直接读取，没有落地解压。
-- 读取 case manifest、Stage2 面积杂波统计、task/truth/association/parameter/track 汇总，以及四个核心条件的 Production Detection 产品。
+- 读取 case manifest、Stage2 面积杂波统计、task/truth/association/parameter/track 汇总，以及 13 种方法的逐周期 `cycle_metrics.csv` 和 `cluster_detection_lineage.csv`。对四个核心条件，仅归档实际保留的 period 8 Detection CSV 做逐 Detection lineage 核对。
 - 核心检测任务单位是独立 seed；每个 seed 聚合 12 个速度×SNR case、2,400 个有效目标周期机会。
 - 逐机会审计表共 115,200 行（4 个核心方法×144 case×200 目标周期机会），压缩存档；其中全十周期位置误差直接取自冻结 evaluator association 记录。
 - 对四个核心方法验证 Production branch 状态、task 分子/分母、truth opportunity/sample_key、Detection `period/beam/det_id` lineage，并使用 evaluator 的 `_parameter_errors` 只重算归档实际保留的检测周期。
-- 输出分析表与图约 6.1 MB。`evidence/manifest.json` 记录输入/代码身份及每个产物的 SHA-256；包括 576 行位置 evaluator parity 明细和全周期位置共同成功表。
+- 对 13 种方法×144 个 case 核对十周期最终 Detection 数、postfilter cluster 数、selected candidate 数和逐簇 summary；其中 31 个方法×case 的原 task status 不可评价，因此只报告 Production 输出数量，不填目标漏检或未关联检测数。
+- `truth_unmatched_final_detection_count` 按冻结 evaluator 语义以最终 Detection 行减去唯一真值关联 `det_id` 计算；不解释为 false cluster 或系统 Pfa。compact ZIP 无完整十周期 cluster-to-truth lineage，非目标 cluster 数保持 `NOT_EVALUABLE`。
+- 输出分析表与图约 6.96 MB；18,720 行逐周期输出表 gzip 后约 151 KiB。`evidence/manifest.json` 记录输入/代码身份及每个产物的 SHA-256，包括 576 行位置 evaluator parity 明细、全周期位置共同成功表及 Production 输出/覆盖率表。
 
 未发生 CUDA、Stage2、Production、AI 训练、参数调整或确认性矩阵执行。没有删除任何 V3.2 compact ZIP。分析器输出中的 `PERFORMANCE_VERIFIED=false` 与“统计显著性声明=false”保持不变。
 
@@ -48,6 +51,7 @@ V3.2 Production 运行身份来自 V3.2 的机器 manifest/compact archive。本
 | 方位、斜距、折叠 Doppler 全十周期共同成功 RMSE | 已定义/有 evaluator | 历史生产有 own-success 汇总；其余9周期 Detection lineage 未归档 | `NOT_EVALUABLE` | 否 |
 | period 8 共同成功参数 RMSE | 已实现 | 使用 period_id=8 归档 Detection 产品离线重算 | 是，period 8 子集 | 否 |
 | TrackManager seed/case 汇总 | 已实现 | V3.2 历史执行且被归档 | 描述性可评估；逐机会地速不可重建 | 否 |
+| Production Detection/cluster 周期计数与 evaluator 关联覆盖 | 已实现 | 本轮离线复算 13 方法×144 case | 十周期输出可评价；31 个方法×case 的真值关联不可评价；非目标 cluster truth attribution 不可评价 | 否 |
 | 全十周期共同地速、有效径向速度 | 已实现 | TrackManager 历史汇总存在；逐周期 track debug / 有效径向样本未归档 | `NOT_EVALUABLE` | 否 |
 | 独立 H0 系统 Pfa | 不在本轮分析输入中 | 未执行/未重算 | 否 | 否 |
 
@@ -64,4 +68,4 @@ PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/pgrcc-r22-v33-matplotlib \
 
 ## 磁盘与清理
 
-分析开始和完成检查时，工作树约 4.8 GiB，文件系统可用空间约 11 GiB，工作树占用明显低于 20 GB 最终上限。144 个所需 ZIP 仍是后续复现与审计输入，因此保留。V3.2 `raw/screening` 下没有普通文件；没有为腾空间删除目录、输入或失败证据。只清理本轮创建的 `/tmp/pgrcc-r22-v33-matplotlib` 临时缓存，不清理其它用户数据。
+分析开始和完成检查时，工作树约 4.8 GiB，文件系统可用空间约 11 GiB，工作树占用明显低于 20 GB 最终上限。144 个所需 ZIP 仍是后续复现与审计输入，因此保留。V3.2 `raw/screening` 下没有普通文件；没有为腾空间删除目录、输入或失败证据。清理本轮生成的 4.2 MiB 未压缩逐周期副本，并在最终执行后清理本轮创建的 `/tmp/pgrcc-r22-v33-matplotlib` 缓存；未清理其它用户数据。

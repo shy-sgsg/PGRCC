@@ -2,20 +2,20 @@
 
 ## 航迹汇总
 
-compact ZIP 保留了 `track_level_metrics.csv` 的聚合统计，但未保留逐周期 TrackManager debug 和 PIPE payload lineage。因此这里报告归档中可复核的 seed 汇总，不把它们解释成逐目标的完整航迹审计。
+compact ZIP 保留了 `track_level_metrics.csv` 的聚合统计，但未保留逐周期 TrackManager debug 和完整 PIPE payload lineage。因此这里报告归档中可复核的 seed 汇总，不把它们解释成逐目标的完整航迹审计。以下均为 12 个独立 seed 的 seed 等权均值，每个 seed 汇总 12 个 case。
 
-| 方法 | 每 case 目标确认唯一周期数 | 确认后匹配率 | 每个目标场景 case 的 false-confirmed tracks |
-|---|---:|---:|---:|
-| A0 no-error | 8.944 | 99.383% | 155.95 |
-| C0 Current +4 ns | 8.444 | 79.996% | 189.06 |
-| PK Known correction | 8.944 | 99.383% | 156.13 |
-| Fixed D3 | 8.917 | 99.614% | 158.05 |
-| Huber D3 ON | 8.924 | 99.614% | 156.72 |
-| M1 Physics Matched | 8.944 | 99.460% | 156.45 |
+| 方法 | 目标确认唯一周期 / case | 确认后匹配率 | false-confirmed tracks / case | 未匹配确认 payload / case | cross-target association payload / case |
+|---|---:|---:|---:|---:|---:|
+| A0 no-error | 8.944 | 99.383% | 155.95 | 397.30 | 40.87 |
+| C0 Current +4 ns | 8.444 | 79.996% | 189.06 | 419.13 | 3.54 |
+| PK Known correction | 8.944 | 99.383% | 156.13 | 397.51 | 40.90 |
+| Fixed D3 | 8.917 | 99.614% | 158.05 | 402.20 | 62.38 |
+| Huber D3 ON | 8.924 | 99.614% | 156.72 | 399.80 | 58.72 |
+| M1 Physics Matched | 8.944 | 99.460% | 156.45 | 399.57 | 53.81 |
 
-数值为 12 个 seed 的描述性均值。各估计方法的目标确认周期和匹配率接近 PK，但这不等同于完整轨迹质量闭合：逐目标 ID 连续性、状态来源和协议载荷 lineage 无法从 compact ZIP 独立重建。
+`cross-target association payload` 沿用保存的 V3.2 evaluator 计数，表示落在关联到多个目标 ID 的 track 上的目标关联 payload 数；它不是独立的 track 数，也不能仅凭汇总值确定目标身份切换发生的周期。数值为描述性均值。各估计方法的目标确认周期和匹配率接近 PK，但这不等同于完整轨迹质量闭合：逐目标 ID 连续性、状态来源和协议载荷 lineage 无法从 compact ZIP 独立重建。
 
-按 seed 汇总每个 seed 的 12 个 case 的 track fragmentation 总数，A0/PK 为 0.583、C0 为 56.667、Fixed D3 为 1.083、Huber D3 ON 为 0.917、M1 为 1.917。该数是 seed 内 case 总量的均值，不是每 case 数值。
+逐 seed 汇总中，Observed fragmentation 总数除以每 seed 的 12 个 case 后，A0/PK 为 0.049、C0 为 4.722、Fixed D3 为 0.090、Huber D3 ON 为 0.076、M1 为 0.076 次/case。它仍是 evaluator 保存的 case 级派生指标，不替代逐帧 track association 审计。
 
 ## false-confirmed 与虚警的区别
 
@@ -26,6 +26,7 @@ compact ZIP 保留了 `track_level_metrics.csv` 的聚合统计，但未保留�
 - A0 与 PK 的归档 track-level 摘要相近；Fixed、Huber、M1 的目标确认周期和确认后匹配率也接近 Known。
 - 这些结果说明现有筛选中没有显现明显的确认后目标保持崩塌，但不证明逐目标复数幅相保持、track state 精度或全扫描部署性能相同。
 - `track_debug_runs` 与逐字段 PIPE payload 不在 compact ZIP 中，地速共同成功集为 `NOT_EVALUABLE_TRACK_DEBUG_NOT_ARCHIVED`。
+- 未匹配确认 payload 与 cross-target payload 只是 target-present 的 TrackManager 衍生量；没有独立 H0、完整 payload lineage 或系统 false-alarm 统计时，不能解释为系统虚警或 Pfa。
 - 统计系统 Pfa 仍须独立 H0 与预先定义的统计单位；不能用这里的 target-present false-confirmed 汇总替代。
 
-机器可读表：[`track_screening_summary.csv`](evidence/track_screening_summary.csv) 与 [`track_seed_summary.csv`](evidence/track_seed_summary.csv)。
+机器可读表：[`track_screening_summary.csv`](evidence/track_screening_summary.csv) 与 [`track_seed_summary.csv`](evidence/track_seed_summary.csv)。与逐周期 Detection/cluster 输出统计的联合图见[`detection_cluster_track_output_audit.png`](evidence/figures/detection_cluster_track_output_audit.png)。
