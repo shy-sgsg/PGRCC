@@ -2,10 +2,10 @@
   "schema_version": 1,
   "analysis_id": "R22_V3_3_RESIDUAL_TASK_GAP_OFFLINE_AUDIT",
   "created_date": "2026-11-09",
-  "analysis_worktree_head": "7f8d74f542cb338fcd7244ee956a92db026f4064",
+  "analysis_worktree_head": "28a0969c42b68b782a024e1cb25ea5b3db90cb5d",
   "analysis_branch": "codex/unknown-system-error-next-stage",
   "analysis_script_path": "scripts/phase_r/analyze_r22_v3_3_residual_task_gap.py",
-  "analysis_script_sha256": "9cccfc8f3b0745c67171ade7d8397cebc9e8db22a81e06beedeb1fc91643150d",
+  "analysis_script_sha256": "87735e636db71742c7e7fb8f36142f940284186f106cc4d53d0d234d976d56a0",
   "v3_2_experiment_source_commit": "74bccce61f3ec2f74746512d67271c815ce6a3a8",
   "v3_2_frozen_design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
   "v3_2_frozen_design_sha256": "9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063",
@@ -63,7 +63,8 @@
     "EVALUABLE": {
       "detection_and_track_screening": true,
       "parameter_common_success_retained_period_subset": true,
-      "full_10_period_parameter_common_success": false,
+      "position_m_full_10_period_common_success_from_evaluator_associations": true,
+      "angle_range_doppler_full_10_period_common_success": false,
       "ground_speed_common_success": false,
       "radial_velocity_common_success": false
     },
@@ -77,9 +78,11 @@
   "figure_paths": [
     "figures/detection_rate_by_snr_speed.png",
     "figures/detection_overlap_core_methods.png",
+    "figures/parameter_common_success_paired_differences.png",
     "figures/parameter_rmse_own_vs_fourway_common.png",
     "figures/track_retention_summary.png",
-    "figures/delay_estimation_residual_by_seed.png"
+    "figures/delay_estimation_residual_by_seed.png",
+    "figures/residual_mechanism_summary.png"
   ],
   "outputs": [
     {
@@ -99,8 +102,8 @@
     },
     {
       "path": "delay_estimation_by_case.csv",
-      "bytes": 153386,
-      "sha256": "0b32d87b5ea82063d6ce5e1299a8e447a945c22030d7762ef750931311409ca5"
+      "bytes": 178700,
+      "sha256": "602f70adb1a7aeaf3e455732819d8b2bdabb82b271d68348144ed56eefc49905"
     },
     {
       "path": "delay_estimation_by_seed.csv",
@@ -143,9 +146,19 @@
       "sha256": "0aaa4e507060af4a5306313a294a22128fe84bc0e2eaadd2cc0ab22403c206bc"
     },
     {
+      "path": "figures/parameter_common_success_paired_differences.png",
+      "bytes": 123230,
+      "sha256": "59dea3d9986e3aa5db6735ec9fdfa9ed987bdc9b791274711b835a13c652336e"
+    },
+    {
       "path": "figures/parameter_rmse_own_vs_fourway_common.png",
-      "bytes": 71725,
-      "sha256": "35cddc111079d0f121d666ee0dcf0dacda2bbdd58277c28953ac6d1552d85427"
+      "bytes": 81761,
+      "sha256": "2dfb26ecd0fc46e2bd8244c9004cd4238562cf8384a09a9f3689882328b340b7"
+    },
+    {
+      "path": "figures/residual_mechanism_summary.png",
+      "bytes": 206967,
+      "sha256": "826eb927fb7fac50badc113ddde7e051e9b30588106677a800b5d966511447af"
     },
     {
       "path": "figures/track_retention_summary.png",
@@ -154,8 +167,8 @@
     },
     {
       "path": "method_information_conditions.csv",
-      "bytes": 1895,
-      "sha256": "d608139ae9d8c536112f1f7054ae2ab37cc891b96b196c74ed219783254ca605"
+      "bytes": 2161,
+      "sha256": "161f1634826158871c49c2e1460d3aa58ba186a96068c58e367ebacca4809817"
     },
     {
       "path": "paired_detection_vs_PK.csv",
@@ -184,8 +197,8 @@
     },
     {
       "path": "parameter_evaluator_parity.csv",
-      "bytes": 1336950,
-      "sha256": "7ba459aca0211cf45292ea80457a590894b5aae8d38102e33b5e0255c90fdecd"
+      "bytes": 1517320,
+      "sha256": "2a9a30fda660589ffc061b5c6a434078e1b4d77e1e4bca772755bcd4ea0792ae"
     },
     {
       "path": "parameter_fourway_common_success_by_seed.csv",
@@ -194,8 +207,8 @@
     },
     {
       "path": "parameter_opportunity_audit.csv.gz",
-      "bytes": 1253374,
-      "sha256": "54c25e2d5808b0afd07d39ab493acaa055604e0bd5163e9383e6f8cddbd22c37"
+      "bytes": 2289164,
+      "sha256": "e05b4b4a7401b16befb74caecfb722388c29635bdb58fc7b900674a0e1a5c11b"
     },
     {
       "path": "parameter_pairwise_common_success_by_seed.csv",
@@ -208,14 +221,29 @@
       "sha256": "96ecb19ee4dd13dbf56fa62efd681dec9971a4eb04770be3cf46fae46f2070f2"
     },
     {
+      "path": "position_all_periods_common_success_summary.csv",
+      "bytes": 3961,
+      "sha256": "5d7477d41d56fd876dac5da5473c8db5deb2975707509e4833a5cc553accf46e"
+    },
+    {
+      "path": "position_all_periods_own_vs_fourway_common_by_seed.csv",
+      "bytes": 8427,
+      "sha256": "8c55ade9ac29a37054309e9d998c31dd472ae5e93245e79f55edf0ff67e7f03a"
+    },
+    {
+      "path": "position_all_periods_pairwise_common_by_seed.csv",
+      "bytes": 12783,
+      "sha256": "4dfd79bb3e199ececf360f5fa3a6fe5ea5ae74d2141c6f91e5a98b4ab2daa59a"
+    },
+    {
       "path": "seed_method_detection_summary.csv",
       "bytes": 27308,
       "sha256": "10b861cf58fcf8c1b5c51b06775b18a4d2ea2a1b1103a674c0c911840282aef6"
     },
     {
       "path": "summary.json",
-      "bytes": 1635,
-      "sha256": "720d465781f48316a48da93b5a1a35034e3ba89fc66300e2843dce96d0169fc5"
+      "bytes": 2024,
+      "sha256": "b8d3af79ac8356edbd3ad98f220bfa0f062a5feeec09b87382e8226358235dcd"
     },
     {
       "path": "track_screening_summary.csv",

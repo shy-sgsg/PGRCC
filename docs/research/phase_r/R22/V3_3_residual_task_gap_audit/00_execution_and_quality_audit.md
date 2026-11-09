@@ -31,9 +31,9 @@ V3.2 Production 运行身份来自 V3.2 的机器 manifest/compact archive。本
 - 每个压缩包按 index 中记录的 SHA-256 复算；144/144 匹配。ZIP 成员通过 `zipfile` 在压缩包中直接读取，没有落地解压。
 - 读取 case manifest、Stage2 面积杂波统计、task/truth/association/parameter/track 汇总，以及四个核心条件的 Production Detection 产品。
 - 核心检测任务单位是独立 seed；每个 seed 聚合 12 个速度×SNR case、2,400 个有效目标周期机会。
-- 逐机会参数表共 115,200 行（4 个核心方法×144 case×200 目标周期机会），压缩存档。
+- 逐机会审计表共 115,200 行（4 个核心方法×144 case×200 目标周期机会），压缩存档；其中全十周期位置误差直接取自冻结 evaluator association 记录。
 - 对四个核心方法验证 Production branch 状态、task 分子/分母、truth opportunity/sample_key、Detection `period/beam/det_id` lineage，并使用 evaluator 的 `_parameter_errors` 只重算归档实际保留的检测周期。
-- 输出分析表与图约 4.5 MB。`evidence/manifest.json` 记录输入/代码身份及每个产物的 SHA-256。
+- 输出分析表与图约 6.1 MB。`evidence/manifest.json` 记录输入/代码身份及每个产物的 SHA-256；包括 576 行位置 evaluator parity 明细和全周期位置共同成功表。
 
 未发生 CUDA、Stage2、Production、AI 训练、参数调整或确认性矩阵执行。没有删除任何 V3.2 compact ZIP。分析器输出中的 `PERFORMANCE_VERIFIED=false` 与“统计显著性声明=false”保持不变。
 
@@ -44,9 +44,11 @@ V3.2 Production 运行身份来自 V3.2 的机器 manifest/compact archive。本
 | V3.3 离线分析器与固定输入契约 | 是 | 是 | 是 | 不适用 |
 | V3.2 +4 ns 目标检测、truth/association | 已由历史生产实现 | V3.2 Native CUDA 历史执行；本轮离线复核 | 是，按归档完整任务记录 | 否 |
 | Huber/M1 target-present delay estimate | 已实现于 V3.2 方法链 | V3.2 Production 历史执行；本轮读取归档 | 时延估计残差可评估 | 否 |
-| 全十周期共同机会参数 RMSE | 已定义/有 evaluator | 历史生产曾输出 own-success 汇总 | 本轮 `NOT_EVALUABLE`：缺少 9 个周期检测产品 | 否 |
-| 当前周期子集共同成功参数 RMSE | 已实现 | 使用 period_id=8 归档产品离线重算 | 是，只有 period 8 子集 | 否 |
+| 全十周期位置共同成功 RMSE | 已定义/有 evaluator | 本轮从 `target_associations.csv` 读取冻结 evaluator 的逐机会位置误差 | 是；576/576 个 case×方法 parity 通过 | 否 |
+| 方位、斜距、折叠 Doppler 全十周期共同成功 RMSE | 已定义/有 evaluator | 历史生产有 own-success 汇总；其余9周期 Detection lineage 未归档 | `NOT_EVALUABLE` | 否 |
+| period 8 共同成功参数 RMSE | 已实现 | 使用 period_id=8 归档 Detection 产品离线重算 | 是，period 8 子集 | 否 |
 | TrackManager seed/case 汇总 | 已实现 | V3.2 历史执行且被归档 | 描述性可评估；逐机会地速不可重建 | 否 |
+| 全十周期共同地速、有效径向速度 | 已实现 | TrackManager 历史汇总存在；逐周期 track debug / 有效径向样本未归档 | `NOT_EVALUABLE` | 否 |
 | 独立 H0 系统 Pfa | 不在本轮分析输入中 | 未执行/未重算 | 否 | 否 |
 
 ## 复现命令
@@ -62,4 +64,4 @@ PYTHONDONTWRITEBYTECODE=1 MPLCONFIGDIR=/tmp/pgrcc-r22-v33-matplotlib \
 
 ## 磁盘与清理
 
-分析开始和完成检查时，工作树约 4.8 GiB，文件系统可用空间约 12 GiB，工作树占用明显低于 20 GB 最终上限。144 个所需 ZIP 仍是后续可复现和审查所需输入，因此保留。V3.2 `raw/screening` 下没有普通文件；没有为腾空间删除目录、输入或失败证据。清理仅针对本轮创建的 `/tmp/pgrcc-r22-v33-matplotlib` 临时缓存，不清理任何其它用户数据。
+分析开始和完成检查时，工作树约 4.8 GiB，文件系统可用空间约 11 GiB，工作树占用明显低于 20 GB 最终上限。144 个所需 ZIP 仍是后续复现与审计输入，因此保留。V3.2 `raw/screening` 下没有普通文件；没有为腾空间删除目录、输入或失败证据。只清理本轮创建的 `/tmp/pgrcc-r22-v33-matplotlib` 临时缓存，不清理其它用户数据。

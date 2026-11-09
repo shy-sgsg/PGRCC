@@ -8,13 +8,13 @@
 | C0 | `+4 ns` 未知误差的 Production Current，不作校正 | 否 | 当前失配 endpoint |
 | PK | 真实物理时延只供 evaluator/known correction branch | 不进入 estimator | `Known physical correction upper bound`；只作为本误差条件的校正上界参考 |
 | Fixed D3 | 历史 R9 冻结的固定校正量 | 否 | 静态确定性 Baseline；不读取本 case truth |
-| Huber D3 ON | 同 case、target-present A1/Current 的 raw C1/C2 | 否 | 盲确定性估计；部署信息条件候选 |
-| M1 Physics Matched | 同 case、target-present A1/Current 的 raw C1/C2；物理时延模型加常复增益拟合 | 否 | 盲确定性估计；部署信息条件候选 |
+| Huber D3 ON | 同 case、target-present A1/Current 的 raw C1/C2；完整 case 的 10 个周期、1,300 pulses | 否 | 盲确定性估计；本次为全 case batch/offline fit，实时因果可用性和 estimator runtime 未验证 |
+| M1 Physics Matched | 同 case、target-present A1/Current 的 raw C1/C2；物理时延模型加常复增益拟合；完整 case 的 10 个周期、1,300 pulses | 否 | 盲确定性估计；全 case batch/offline fit，较早周期处理使用了后续周期观测；实时因果可用性和 estimator runtime 未验证 |
 | P1 | 配对 target-free OFF 输入估计物理时延，应用于 ON | 否 | privileged/诊断性信息条件，不能证明在线部署能力 |
 | P2 Mode-A | paired-OFF 估计，Mode-A robust reference | 否 | 只与 C4 Mode-A / PKR Mode-A / P2 Mode-A 比较 |
 | P2 Mode-B | paired-OFF delay estimate，Mode-B ON reference | 否 | 只与 C4 Mode-B / PKR Mode-B / P2 Mode-B 比较；覆盖不完整 |
 
-V3.2 branch manifest 将 Huber/M1 估计器的输入角色标为 `A1_Current_unknown_error_ON_raw_C1_C2_only`，并记录 `truth_used_in_estimator=false` 与 `truth_used_to_apply_correction=false`。本轮还逐 case 核对实际 branch correction 与 qualification 记录中 applied delay 的一致性。Known 的真值只作 evaluator-only 物理校正参数。
+V3.2 branch manifest 将 Huber/M1 估计器的输入角色标为 `A1_Current_unknown_error_ON_raw_C1_C2_only`，并记录 `truth_used_in_estimator=false` 与 `truth_used_to_apply_correction=false`。本轮逐 case 核对实际 branch correction 与 qualification 记录中 applied delay 的一致性，并从源码确认估计记录合并完整十周期观测（1,300 pulses）。这证明本次离线估计值使用 ON-only、truth-free 信息；不证明实时处理中可取得未来周期，也没有保存独立 estimator runtime。Known 的真值只作 evaluator-only 物理校正参数。
 
 ### 关键比较规则
 

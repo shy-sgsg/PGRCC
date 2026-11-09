@@ -4,7 +4,7 @@
 
 ## 状态身份
 
-- **2026-11-09 R22 V3.3 离线任务残差审计完成：** 只读核验 V3.2 的 144 个 `+4 ns` compact case ZIP；归档 SHA 均与冻结索引匹配，未解包、复制或删除归档。Current 命中率 11.694%，PK Known 69.729%，target-present Fixed D3/Huber/M1 检测命中约 69.71%–69.77%；period 8 四方法共同参数机会为1,982/2,880，方位/位置仍有 Known 残差，完整十周期参数共同成功、地速共同成功与有效径向速度不可评价。`PERFORMANCE_VERIFIED=false`，不宣称统计显著性。AI entry gate 仍为 `FAIL`；低速保护与复杂杂波没有成为优先方向。研究总纲 blob 保持不变。报告与证据见[V3.3 最终研究报告](phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[证据导航](phase_r/R22/V3_3_residual_task_gap_audit/README.md)；下一项仅建议冻结输出完整的确认性契约，未授权 CUDA。
+- **2026-11-10 R22 V3.3 离线任务残差审计补充完成：** 复核 144 个 `+4 ns` compact case ZIP，SHA 与冻结索引 144/144 一致；未复制、解压、删除或改写 ZIP。使用冻结 evaluator 保存的逐机会 `target_associations.csv.position_error_m`，补出全十周期位置共同成功比较；与 `parameter_metrics.csv` 做 576 个 case×方法 parity，576/576 通过。四方法共同位置成功为19,682/28,800（68.340%）；M1 相对 PK Known 的位置 RMSE 高18.387±4.503 m，较 Fixed D3 低13.979±4.133 m，后者差值在12/12 seed同向。全周期角度/斜距/Doppler共同成功、共同地速、有效径向速度和目标复数幅相仍不可评价。检测结论维持筛选描述：Current 11.694%，PK 69.729%，target-present deterministic 69.705%–69.767%；`PERFORMANCE_VERIFIED=false`，不作显著性主张。Huber/M1 用完整十周期、1,300 pulses batch/offline拟合，实时因果可用性与估计耗时未验证。AI entry gate仍为`FAIL`。详细见[V3.3最终报告](phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)和[证据导航](phase_r/R22/V3_3_residual_task_gap_audit/README.md)。研究总纲未修改；只建议先冻结 output-complete 确认性契约，未授权 CUDA。
 - **2026-11-09 R22 V3.2 全量 Screening 完成：** Native CUDA 执行冻结的 288/288 个 case，4,320/4,320 个适用 ON 方法单元已分类；255 个 case `PASSED`、33 个 `PASSED_WITH_METHOD_GAPS`。49 个方法单元因 `insufficient_robust_support` 保持不可评价。288 个最新 ZIP 的 SHA/CRC 均核验，raw 已清理；`PERFORMANCE_VERIFIED=false`，独立 H0/Pfa不可评价。逐项结论见[R22 V3.2 执行报告](phase_r/R22/27_v3_2_screening_execution_report_20261109.md)、[方向评估](phase_r/R22/28_v3_2_preliminary_direction_assessment_20261109.md)及[精简审查证据](phase_r/R22/evidence/v3_2_screening_20261106/README.md)。研究总纲 blob保持不变。
 - **2026-11-06 R22 V3.1 全量 Screening 早停：** 本机 Native CUDA 实际尝试6/288个case：5个case通过、SNR30 dB/+4 ns case按冻结门控 `UNKNOWN_STOP`；282个case未执行。90个已访问适用方法单元中87个可评价、3个未知，4,230个未访问。连续面积杂波 gate 在6个case均通过（每case 1,300 packets、6,508,782 samples、平均功率约0.02215967）；失败case有3个 Production 分支退出码1，其中 C2 Mode-B ON 日志确认 CUDA 显存分配 OOM，另2个根因 `NOT_VERIFIED`。所有6个 compact ZIP CRC通过，合计约29.8 MB；cleanup ledger记录移除8,826个文件、47,246,962,032 bytes（逻辑大小，不等于可用磁盘物理回收量），残留raw文件为0。初审曾将 manifest 规范化哈希 `696dce…` 与 V3.1 JSON 原始字节 SHA `26e202…` 混比并误判设计身份未闭合；后续更正确认规范化设计内容哈希与 manifest 一致，原始文件路径/SHA 未在旧 manifest 单独记录。V3.1终态不得续跑；未降低门槛、未做性能排名。详见[V3.1早停审计](phase_r/R22/24_v3_1_screening_early_stop_20261106.md)、[哈希语义更正](phase_r/R22/26_v3_1_design_digest_semantics_correction_20261106.md)、[紧凑证据摘要](phase_r/R22/evidence/v3_1_early_stop_20261106/case_summary.json)和[失败case完整compact归档](phase_r/R22/evidence/v3_1_early_stop_20261106/failure_case.zip)。`PERFORMANCE_VERIFIED=false`；研究总纲 blob保持不变。
 - **2026-11-06 R22 V3 早停与设备状态重放：** V3 按冻结门控在第4个唯一 case 以 `UNKNOWN_STOP` 终止；3个 case 通过、1个 case 的54个 Production branch 中53个通过。之后同条件诊断重放完成9/9 branch，包含原失败的 `P2 / Mode-A / ON`，运行前空闲显存1215 MiB；这使设备资源状态成为合理解释，但根因仍未证明。原V3状态与失败归档保持不变。V3.1独立设计本计划288个case和4,320个适用ON方法单元；V3/V2历史case与诊断重放均不计入覆盖率。V3.1实际执行状态见上条及对应审计报告。详见[R22 V3早停与重放审计](phase_r/R22/21_v3_screening_early_stop_20261106.md)、[V3.1契约](phase_r/R22/23_v3_1_post_replay_screening_contract_20261106.md)和[V3.1设计](phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json)。
@@ -13,9 +13,9 @@
 - **2026-10-31 S1e 阶段结果：** 用户授权后，S1e 在当前 Mode-B Native CUDA Production 中完成配对 ON/OFF/TO 三角色单周期诊断。ON/OFF/TO 的 C4 support 为7/55/14；raw 复数分量 `ON−OFF−TO` 的 F1/F2 相对 L2 为0.00937/0.01806，逐角色 CSI phase correction 后 F2 闭合残差为0.78770。TO能量主要落在11个目标真值距离格，但ON/OFF CSI phase-vector差在目标格没有更大（1.727 vs 1.833 rad）。这加强了角色相关CSI相位校正为近端机制的证据，仍不能唯一归因于目标污染，也没有任务性能验证。R22 target-present matrix 仍为 `GATE_FAILED / INCOMPLETE`；双层独立审查待完成。详见 [S1e 结果](phase_r/R22/support_failure_diagnostic/S1E_MODEB_ROLE_TRIPLET_RESULT.md)、[紧凑证据包](phase_r/R22/support_failure_diagnostic/evidence/s1e/)、[S1d 结果](phase_r/R22/support_failure_diagnostic/S1D_PHASE_VECTOR_CROSSOVER_RESULT.md)和[固定快照 ChatGPT 独立审查请求](phase_r/R22/support_failure_diagnostic/CHATGPT_REVIEW_PROMPT_S1E_20261031.md)，审查快照为 `d2462657803375c3b0ebf45076d8eb4b94d63a8e`。
 - R18 执行源码版本：`014352ace1c4ad0bade0d759a099a47fe9ecfaa9`（工作分支 `codex/unknown-system-error-next-stage`）；完整阶段报告随原交付提交。
 - 研究总纲版本：Git blob `e637e3769bde7814298ff012d0f42301884e2985`；本次 H0 工作未修改总纲。
-- 本状态整理日期：2026-11-09。
-- 最近完成阶段：R22 V3.2 全量 Screening 完成；288 个最新 case ZIP 核验并清理 raw，保留精简汇总、archive SHA 索引、runtime XML/日志/CSI/CFAR 证据；
-- 当前阶段状态：R22 V3.2 已完成筛选但不是确认性性能验证；V2/V3/V3.1 的历史失败或早停状态保持不变。Known correction 与 target-free OFF 估计在本筛选中接近恢复检测损失，但在线 target-present 估计、独立 H0、目标专属复数幅相和径向速度仍未闭合。不得自动启动新实验、AI 训练或修改研究总纲。
+- 本状态整理日期：2026-11-10。
+- 最近完成阶段：R22 V3.3 V3.2 archive 离线残差审计补充；保留全周期 position audit、parity、汇总及报告，不改写 V3.2 历史归档；
+- 当前阶段状态：V3.2 screening 及 V3.3 离线审计已完成，但不是确认性性能验证。V2/V3/V3.1 历史失败或早停状态保持不变。全周期位置差距现可评价，角度/斜距/Doppler联合机会、独立 H0、目标专属复数幅相、地速共同成功和有效径向速度仍未闭合。不得自动启动新实验、AI训练或修改研究总纲。
 
 ## R22 H0 独立虚警侧矩阵历史结果（2026-10-31）
 
@@ -116,7 +116,7 @@ R17 的状态为：`IMPLEMENTED` 不适用（未改算法/软件）；`EXECUTED`
 ## 当前唯一优先任务与阶段门
 
 - **当前唯一优先任务：** 无；R22 V3.3 离线审计与审查包完成后停止，等待用户决定是否启动下一项工作。
-- **阶段建议：** 若继续，先冻结 output-complete 的 R22-V4 确认性契约，保存全部十周期 Detection/TrackManager lineage、target-only complex response、共同机会参数结果，并为系统 Pfa 定义独立 H0。拟议范围为30 seeds × 3 speeds × SNR20 × 0/+4 ns（180 cases）；统计与资源设计需在契约中复核。估计器只能使用部署时可用的 target-present 观测，Known 仅作 evaluator-only 参考。
+- **阶段建议：** 若继续，先冻结 output-complete 的 R22-V4 确认性契约，确认全周期位置共同成功差距，并保存全部十周期 Detection/TrackManager lineage、target-only complex response、其他参数共同机会结果及独立 H0。拟议范围为30 seeds × 3 speeds × SNR20 × 0/+4 ns（180 cases）；统计与资源设计需在契约中复核。估计器只能使用部署时可用的 target-present 观测，Known 仅作 evaluator-only 参考。
 - **停止条件：** 不把本轮筛选均值写成统计显著性能结论；不把 paired OFF 估计写成在线部署验证；不以 false-CUT fraction 代替系统 Pfa；不自动启动 AI、Router、Dense 或新 CUDA 矩阵；研究总纲正文仍受用户明确审批保护。
 - **后续任务授权：** R22-V4 契约及任何新实验均尚未获得用户授权；不自动启动 CUDA、AI 训练或扩展矩阵。
 

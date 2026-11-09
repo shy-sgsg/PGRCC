@@ -276,3 +276,13 @@
 - **阶段裁决：** 离线审计 `COMPLETE`，算法 `PERFORMANCE_VERIFIED=false`，不声明显著性。研究方向 `CONTINUE` 有界 deterministic target-present 估计的确认性评价；`AI_ENTRY_GATE=FAIL`。当前证据不支持转到低速保护或复杂非平稳杂波。
 - **唯一建议：** 若用户批准，先冻结 output-complete R22-V4 确认性契约（建议30 seeds × 3 speeds × SNR20 × 0/+4 ns，共180 case），保存全十周期 Detection/TrackManager lineage、目标专属复数响应、共同参数机会和独立 H0定义。此建议不授权 CUDA；本阶段结束后停止。
 - **证据：** [V3.3 最终研究报告](phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[离线审计导航](phase_r/R22/V3_3_residual_task_gap_audit/README.md)、[机器证据](phase_r/R22/V3_3_residual_task_gap_audit/evidence/manifest.json)。固定快照及 ChatGPT 独立审查要求见同目录 `CHATGPT_REVIEW_REQUEST.md`。
+
+## 2026-11-10｜R22 V3.3 补充复算：全周期位置共同成功可评价
+
+- **决策编号与身份：** `D-2026-11-10-R22-V3.3-POSITION-OPPORTUNITY-RECOVERY`。输入仍为 V3.2 冻结设计 `9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063`、archive index `a5bd66302acc12ac410ad4f8560ecd7e137ba40d4e54a09abd7eaadcf4d8bdd1` 与实验源码 commit `74bccce61f3ec2f74746512d67271c815ce6a3a8`。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
+- **更正与方法：** 旧版 V3.3 报告将全周期参数共同成功统一标为不可评价。离线审计发现，compact archive 的 `target_associations.csv` 含冻结 evaluator 保存的逐机会 `position_error_m`；分析器据此构造全周期位置 own/pairwise/four-way 成功集合，并对每个四核心方法 case 的 RMSE和有效计数与归档 `parameter_metrics.csv` 核对。576/576 parity 通过，0 mismatch。该复算只恢复全周期位置指标；角度、斜距、折叠 Doppler仍缺完整 Detection lineage。
+- **新增结果：** 四方法位置共同成功19,682/28,800（68.340%）。M1 相对 PK Known 高18.387±4.503 m、相对 Fixed D3 低13.979±4.133 m；M1 对 Fixed 的差值在12/12 seed方向一致。Huber 相对 Fixed 低7.493±4.126 m（12/12同向）。这些是筛选描述，不是显著性、实机性能或部署收益。
+- **方法信息边界：** Huber/M1估计器输入为target-present、truth-free的ON侧C1/C2，但源码确认拟合使用完整十周期（1,300 pulses）batch输入；后续周期可能参与较早周期的校正。实时因果可用性与独立估计耗时未验证。
+- **质量与资源：** 144/144 使用 ZIP SHA 与冻结索引一致，144 case连续面积杂波计数为正；新增离线证据约6.1 MB。未运行 CUDA/Stage2/Production/AI；未复制、展开或删除ZIP及其他用户数据。工作树约4.8 GiB，文件系统约11 GiB可用。
+- **裁决与下一步：** V3.3 `OFFLINE_AUDIT_COMPLETE`，`PERFORMANCE_VERIFIED=false`。研究方向`CONTINUE`有界确定性方法确认；`AI_ENTRY_GATE=FAIL`，不转向低速保护或复杂杂波。下一步只建议冻结 output-complete R22-V4确认性契约并由用户另行决定是否运行；不构成CUDA授权。
+- **证据：** [V3.3最终报告](phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[全周期位置比较表](phase_r/R22/V3_3_residual_task_gap_audit/evidence/position_all_periods_common_success_summary.csv)、[逐机会 parity 表](phase_r/R22/V3_3_residual_task_gap_audit/evidence/parameter_evaluator_parity.csv)及[机器 manifest](phase_r/R22/V3_3_residual_task_gap_audit/evidence/manifest.json)。

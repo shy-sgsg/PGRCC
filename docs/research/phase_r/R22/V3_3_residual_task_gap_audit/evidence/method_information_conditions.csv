@@ -3,8 +3,8 @@ A0,No-error reference; zero applied physical error.,Reference endpoint.
 C0,Production Current with +4 ns unknown channel delay and no correction.,Unknown-error endpoint.
 PK,Known physical correction; true delay is evaluator-only and not estimator input.,Upper-bound reference; not deployable estimator.
 Fixed_D3,"Static R9-frozen D3 correction; same fixed value across cases, no case truth used.",Historical deterministic calibration baseline.
-Huber_D3_ON,Robust D3 delay fit from same-case target-present A1/Current raw C1-C2 observations.,Deployable-information condition in this simulator; estimator is deterministic.
-M1_Physics_Matched,Physics-matched delay plus constant-complex-gain fit from same-case target-present A1/Current raw C1-C2 observations.,Deployable-information condition in this simulator; estimator is deterministic.
+Huber_D3_ON,Huber delay fit from same-case target-present A1/Current raw C1-C2; fit record is derived from the full 10-period case (1300 pulses).,"ON-only and truth-free, but batch/offline over the complete case; causal real-time availability and estimator runtime cost are not verified."
+M1_Physics_Matched,"Physics-matched delay plus constant-complex-gain fit from same-case target-present raw C1/C2, with runtime geometry; full 10-period case (1300 pulses).","ON-only and truth-free, but batch/offline over the complete case; later periods are available to earlier-period outputs. Causal real-time availability and estimator runtime cost are not verified."
 P1_OFF_estimate,Blind physical delay estimate from paired target-free OFF input; applies correction to ON.,Diagnostic-only information; does not establish target-present online estimation.
 P2_Mode-A,Paired target-free OFF physical-delay estimate; robust DDC-RB Mode-A reference policy.,Compare only with C4 Mode-A and PKR Mode-A; not directly with PK.
 P2_Mode-B,Paired target-free OFF physical-delay estimate; robust DDC-RB Mode-B uses ON reference observations.,Compare only with C4 Mode-B and PKR Mode-B; incomplete triplet coverage.

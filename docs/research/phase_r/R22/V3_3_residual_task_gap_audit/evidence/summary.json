@@ -23,7 +23,7 @@
     "M1_Physics_Matched"
   ],
   "core_method_parameter_evaluator_parity_mismatches": 0,
-  "core_method_parameter_evaluator_parity_status": "PARTIAL_PRODUCTS_PREVENT_FULL_PERIOD_PARITY_CHECK",
+  "core_method_parameter_evaluator_parity_status": "FULL_PERIOD_POSITION_ASSOCIATION_VERIFIED; OTHER_RECOMPUTED_PARAMETERS_PERIOD_8_ONLY",
   "core_common_retained_detection_period_ids": [
     8
   ],
@@ -32,7 +32,10 @@
   "all_core_truth_association_sets_match": true,
   "all_core_production_branches_passed": true,
   "parameter_opportunity_rows": 115200,
-  "parameter_common_success_full_10_period_status": "NOT_EVALUABLE_ARCHIVE_RETAINS_ONLY_TARGET_PERIOD_SUBSET",
+  "position_m_full_10_period_common_success_status": "EVALUABLE_FROM_FROZEN_EVALUATOR_ASSOCIATION_RECORDS",
+  "position_m_full_10_period_evaluator_parity_checks": 576,
+  "position_m_full_10_period_evaluator_parity_failures": 0,
+  "angle_range_doppler_full_10_period_common_success_status": "NOT_EVALUABLE_ARCHIVE_RETAINS_ONLY_PERIOD_8_DETECTION_PRODUCTS",
   "parameter_common_success_retained_period_status": "EVALUABLE_SUBSET_ONLY_IF_COMMON_SUPPORT_IS_NONZERO",
   "ground_speed_common_success": "NOT_EVALUABLE_TRACK_DEBUG_NOT_ARCHIVED",
   "radial_velocity_common_success": "NOT_EVALUABLE_NO_RESOLVED_VALID_SAMPLES_EXPECTED",
@@ -43,8 +46,10 @@
   "plots": [
     "figures/detection_rate_by_snr_speed.png",
     "figures/detection_overlap_core_methods.png",
+    "figures/parameter_common_success_paired_differences.png",
     "figures/parameter_rmse_own_vs_fourway_common.png",
     "figures/track_retention_summary.png",
-    "figures/delay_estimation_residual_by_seed.png"
+    "figures/delay_estimation_residual_by_seed.png",
+    "figures/residual_mechanism_summary.png"
   ]
 }

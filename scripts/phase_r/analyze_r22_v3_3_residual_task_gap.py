@@ -89,8 +89,8 @@ INFORMATION_CONDITIONS = (
     {"label": "C0", "information": "Production Current with +4 ns unknown channel delay and no correction.", "comparability": "Unknown-error endpoint."},
     {"label": "PK", "information": "Known physical correction; true delay is evaluator-only and not estimator input.", "comparability": "Upper-bound reference; not deployable estimator."},
     {"label": "Fixed_D3", "information": "Static R9-frozen D3 correction; same fixed value across cases, no case truth used.", "comparability": "Historical deterministic calibration baseline."},
-    {"label": "Huber_D3_ON", "information": "Robust D3 delay fit from same-case target-present A1/Current raw C1-C2 observations.", "comparability": "Deployable-information condition in this simulator; estimator is deterministic."},
-    {"label": "M1_Physics_Matched", "information": "Physics-matched delay plus constant-complex-gain fit from same-case target-present A1/Current raw C1-C2 observations.", "comparability": "Deployable-information condition in this simulator; estimator is deterministic."},
+    {"label": "Huber_D3_ON", "information": "Huber delay fit from same-case target-present A1/Current raw C1-C2; fit record is derived from the full 10-period case (1300 pulses).", "comparability": "ON-only and truth-free, but batch/offline over the complete case; causal real-time availability and estimator runtime cost are not verified."},
+    {"label": "M1_Physics_Matched", "information": "Physics-matched delay plus constant-complex-gain fit from same-case target-present raw C1/C2, with runtime geometry; full 10-period case (1300 pulses).", "comparability": "ON-only and truth-free, but batch/offline over the complete case; later periods are available to earlier-period outputs. Causal real-time availability and estimator runtime cost are not verified."},
     {"label": "P1_OFF_estimate", "information": "Blind physical delay estimate from paired target-free OFF input; applies correction to ON.", "comparability": "Diagnostic-only information; does not establish target-present online estimation."},
     {"label": "P2_Mode-A", "information": "Paired target-free OFF physical-delay estimate; robust DDC-RB Mode-A reference policy.", "comparability": "Compare only with C4 Mode-A and PKR Mode-A; not directly with PK."},
     {"label": "P2_Mode-B", "information": "Paired target-free OFF physical-delay estimate; robust DDC-RB Mode-B uses ON reference observations.", "comparability": "Compare only with C4 Mode-B and PKR Mode-B; incomplete triplet coverage."},
@@ -184,6 +184,37 @@ def _index_rows(rows: Sequence[Mapping[str, Any]], key_fields: Sequence[str], de
 
 def _sample_key(target_id: str, period_id: int, beam_id: int) -> str:
     return f"{target_id}/{period_id}/{beam_id}"
+
+
+def _association_position_errors(
+    rows: Sequence[Mapping[str, Any]], description: str,
+) -> dict[str, float]:
+    """Read frozen-evaluator position errors for every matched truth opportunity."""
+
+    output: dict[str, float] = {}
+    seen: set[str] = set()
+    for row in rows:
+        sample_key = str(row.get("sample_key", "")).strip()
+        if not sample_key:
+            raise ValueError(f"{description}: association has empty sample_key")
+        if sample_key in seen:
+            raise ValueError(f"{description}: duplicate association sample_key {sample_key}")
+        seen.add(sample_key)
+        matched = _truth(row.get("matched"))
+        if matched is None:
+            raise ValueError(f"{description}: malformed association match flag for {sample_key}")
+        error = _float(row.get("position_error_m"))
+        if matched:
+            if error is None:
+                raise ValueError(
+                    f"{description}: matched association lacks finite position_error_m for {sample_key}"
+                )
+            output[sample_key] = error
+        elif error is not None:
+            raise ValueError(
+                f"{description}: unmatched association has position_error_m for {sample_key}"
+            )
+    return output
 
 
 def _same_key_sets(*sets: Iterable[str]) -> bool:
@@ -414,6 +445,11 @@ def _load_case(
                 core_truth_keys[label] = valid_keys
 
             parameter_saved = _metric_row_map(parameter_rows, method_id, mode)
+            association_position_errors: dict[str, float] = {}
+            if label in CORE_LABELS:
+                association_position_errors = _association_position_errors(
+                    method_associations, f"{case_id} {label}"
+                )
             track_row = track_by_unit.get((method_id, mode, "ON"))
             branch_name = method["branch"]
             branch_manifest_member = branch_member_by_name.get(branch_name)
@@ -502,6 +538,11 @@ def _load_case(
                             "period_id": period, "beam_id": beam, "matched": matched,
                             "det_id": det_id,
                             "parameter_product_available": parameter_product_available,
+                            "position_m_all_periods_association": association_position_errors.get(sample_key),
+                            "position_m_all_periods_source": (
+                                "evaluation/target_associations.csv; V3.2 r19_task_evaluator._position_error"
+                                if label in CORE_LABELS else "NOT_IN_CORE_METHOD_AUDIT"
+                            ),
                             **{metric: errors_by_metric[metric].get(sample_key) for metric in RECOMPUTABLE_METRICS},
                             "ground_speed_status": "NOT_RECONSTRUCTABLE_TRACK_DEBUG_NOT_IN_COMPACT_ZIP",
                         })
@@ -509,6 +550,10 @@ def _load_case(
                         raise ValueError(f"{case_id}: {label} association hits ({len(hit_set)}) disagree with task hits ({hits_value})")
                     if len(method_associations) != opportunities_value:
                         raise ValueError(f"{case_id}: {label} association row count disagrees with task denominator")
+                    if label in CORE_LABELS and set(association_position_errors) != hit_set:
+                        raise ValueError(
+                            f"{case_id}: {label} matched opportunities do not have one finite saved position error"
+                        )
 
                     for metric in RECOMPUTABLE_METRICS:
                         sample_errors = errors_by_metric[metric]
@@ -535,6 +580,33 @@ def _load_case(
                             "evaluator_source": "V3.2 r19_task_evaluator._parameter_errors; target_id/period_id/beam_id/det_id lineage",
                         })
 
+                    association_count, association_rmse = _rmse(association_position_errors.values())
+                    saved_position = parameter_saved.get("position_m")
+                    saved_position_count = _int(saved_position.get("own_success_count")) if saved_position else None
+                    saved_position_rmse = _float(saved_position.get("own_success_rmse")) if saved_position else None
+                    saved_position_valid = _int(saved_position.get("valid_parameter_opportunities")) if saved_position else None
+                    association_parity = (
+                        association_count == saved_position_count == saved_position_valid
+                        and association_rmse is not None and saved_position_rmse is not None
+                        and math.isclose(association_rmse, saved_position_rmse, rel_tol=0.0, abs_tol=1e-8)
+                    )
+                    parameter_parity_rows.append({
+                        "case_id": case_id, "seed": seed, "speed_mps": speed, "snr_db": snr,
+                        "method_label": label, "metric": "position_m_all_periods_association",
+                        "recomputed_count": association_count, "saved_count": saved_position_count,
+                        "recomputed_own_success_rmse": association_rmse,
+                        "saved_own_success_rmse": saved_position_rmse,
+                        "count_match": association_count == saved_position_count == saved_position_valid,
+                        "rmse_match_abs_1e_8": (
+                            math.isclose(association_rmse, saved_position_rmse, rel_tol=0.0, abs_tol=1e-8)
+                            if association_rmse is not None and saved_position_rmse is not None else False
+                        ),
+                        "recomputed_period_ids": "0;1;2;3;4;5;6;7;8;9",
+                        "recomputed_period_count": 10,
+                        "status": "PASS" if association_parity else "MISMATCH",
+                        "evaluator_source": "V3.2 evaluation/target_associations.csv position_error_m; r19_task_evaluator._position_error",
+                    })
+
             for metric in ("ground_speed_mps",):
                 saved = parameter_saved.get(metric)
                 parameter_parity_rows.append({
@@ -557,6 +629,7 @@ def _load_case(
                 "parameter_available_keys": parameter_available_keys,
                 "detection_period_ids": detection_periods,
                 "hit_set": hit_set if task_status == "EVALUABLE" and label in CORE_LABELS else set(),
+                "association_position_errors": association_position_errors,
                 "errors": errors_by_metric,
                 "saved_parameter_rows": parameter_saved,
                 "track_row": track_row,
@@ -623,6 +696,10 @@ def _load_case(
                 "correction_source": correction.get("correction_source"),
                 "input_role": correction.get("input_role"),
                 "estimator_input_role": (run.get("r22_blind_method_qualification") or {}).get("input_role") if label != "Fixed_D3" else "historical_static_R9_calibration",
+                "estimator_input_period_count": int(design.get("period_count", 0)) if label != "Fixed_D3" else 0,
+                "estimator_input_pulse_count": _int((run.get("r22_delay_estimator") or {}).get("input_pulse_count")) if label != "Fixed_D3" else None,
+                "estimator_fit_runtime_recorded": False,
+                "estimator_execution_scope": "same-case full-period batch before Production" if label != "Fixed_D3" else "historical fixed calibration; no per-case fit",
                 "truth_used_in_estimator": False,
                 "truth_used_to_apply_correction": correction.get("truth_used_to_apply_correction"),
                 "support_count": fit.get("support_count"),
@@ -1062,6 +1139,140 @@ def _aggregate_parameters(case_units: Mapping[str, Mapping[str, Any]], seeds: Se
     return own_seed_rows, pair_seed_rows, fourway_seed_rows, summary_rows
 
 
+def _aggregate_association_position_metrics(
+    case_units: Mapping[str, Mapping[str, Any]], seeds: Sequence[int],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    """Compare evaluator-saved position errors over all ten archived periods."""
+
+    cases_by_seed: dict[int, list[str]] = defaultdict(list)
+    for case_id, units in case_units.items():
+        if "PK" in units:
+            cases_by_seed[int(units["PK"]["seed"])].append(case_id)
+
+    own_common_rows: list[dict[str, Any]] = []
+    pairwise_rows: list[dict[str, Any]] = []
+    summary_rows: list[dict[str, Any]] = []
+
+    for seed in seeds:
+        case_ids = sorted(cases_by_seed.get(seed, []))
+        own_count = {label: 0 for label in CORE_LABELS}
+        own_sum_sq = {label: 0.0 for label in CORE_LABELS}
+        common_sum_sq = {label: 0.0 for label in CORE_LABELS}
+        truth_denominator = 0
+        fourway_denominator = 0
+        fourway_count = 0
+        pair_count = {(a, b): 0 for a, b in CORE_PAIRS}
+        pair_denominator = {(a, b): 0 for a, b in CORE_PAIRS}
+        pair_sum_sq_a = {(a, b): 0.0 for a, b in CORE_PAIRS}
+        pair_sum_sq_b = {(a, b): 0.0 for a, b in CORE_PAIRS}
+        included_case_count = 0
+
+        for case_id in case_ids:
+            group = {label: case_units[case_id][label] for label in CORE_LABELS}
+            if any(row["task_status"] != "EVALUABLE" for row in group.values()):
+                continue
+            if not _same_key_sets(*(row["valid_keys"] for row in group.values())):
+                continue
+            included_case_count += 1
+            valid_keys = set(group[CORE_LABELS[0]]["valid_keys"])
+            truth_denominator += len(valid_keys)
+            error_maps = {
+                label: group[label]["association_position_errors"] for label in CORE_LABELS
+            }
+            for label, errors in error_maps.items():
+                if not set(errors).issubset(valid_keys):
+                    raise ValueError(f"{case_id}: {label} position errors include an invalid truth opportunity")
+                own_count[label] += len(errors)
+                own_sum_sq[label] += sum(value * value for value in errors.values())
+
+            common_fourway = set.intersection(*(set(error_maps[label]) for label in CORE_LABELS))
+            fourway_denominator += len(valid_keys)
+            fourway_count += len(common_fourway)
+            for label in CORE_LABELS:
+                common_sum_sq[label] += sum(error_maps[label][key] ** 2 for key in common_fourway)
+
+            for left, right in CORE_PAIRS:
+                common = set(error_maps[left]) & set(error_maps[right])
+                pair_denominator[(left, right)] += len(valid_keys)
+                pair_count[(left, right)] += len(common)
+                pair_sum_sq_a[(left, right)] += sum(error_maps[left][key] ** 2 for key in common)
+                pair_sum_sq_b[(left, right)] += sum(error_maps[right][key] ** 2 for key in common)
+
+        for label in CORE_LABELS:
+            own_rmse = math.sqrt(own_sum_sq[label] / own_count[label]) if own_count[label] else None
+            common_rmse = math.sqrt(common_sum_sq[label] / fourway_count) if fourway_count else None
+            own_common_rows.append({
+                "seed": seed, "method_label": label,
+                "included_case_count": included_case_count,
+                "truth_opportunities": truth_denominator,
+                "own_success_count": own_count[label],
+                "own_success_coverage": own_count[label] / truth_denominator if truth_denominator else None,
+                "own_success_rmse_m": own_rmse,
+                "fourway_common_success_count": fourway_count,
+                "fourway_common_success_coverage": fourway_count / fourway_denominator if fourway_denominator else None,
+                "fourway_common_success_rmse_m": common_rmse,
+                "fourway_common_truth_opportunities": fourway_denominator,
+                "evaluator_scope": "full 10 periods; target_associations.csv position_error_m",
+                "inference_unit": "seed",
+            })
+
+        for left, right in CORE_PAIRS:
+            n = pair_count[(left, right)]
+            rmse_a = math.sqrt(pair_sum_sq_a[(left, right)] / n) if n else None
+            rmse_b = math.sqrt(pair_sum_sq_b[(left, right)] / n) if n else None
+            pairwise_rows.append({
+                "seed": seed, "method_a": left, "method_b": right,
+                "included_case_count": included_case_count,
+                "paired_truth_opportunities": pair_denominator[(left, right)],
+                "common_success_count": n,
+                "common_success_coverage": n / pair_denominator[(left, right)] if pair_denominator[(left, right)] else None,
+                "method_a_common_success_rmse_m": rmse_a,
+                "method_b_common_success_rmse_m": rmse_b,
+                "rmse_difference_b_minus_a_m": rmse_b - rmse_a if rmse_a is not None and rmse_b is not None else None,
+                "evaluator_scope": "full 10 periods; target_associations.csv position_error_m",
+                "inference_unit": "seed",
+            })
+
+    for label in CORE_LABELS:
+        rows = [row for row in own_common_rows if row["method_label"] == label]
+        for scope, rmse_field, coverage_field, count_field in (
+            ("own_success", "own_success_rmse_m", "own_success_coverage", "own_success_count"),
+            ("fourway_common_success", "fourway_common_success_rmse_m", "fourway_common_success_coverage", "fourway_common_success_count"),
+        ):
+            rmse_values = [float(row[rmse_field]) for row in rows if row[rmse_field] is not None]
+            coverage_values = [float(row[coverage_field]) for row in rows if row[coverage_field] is not None]
+            summary_rows.append({
+                "scope": scope, "method_a": label, "method_b": "", "metric": "position_m",
+                "evaluable_seed_count": len(rmse_values),
+                "mean_seed_rmse_m": _mean(rmse_values), "sd_seed_rmse_m": _sd(rmse_values),
+                "mean_seed_coverage": _mean(coverage_values),
+                "mean_success_count_per_seed": _mean([float(row[count_field]) for row in rows]),
+                "interpretation": "descriptive V3.2 screening; full-period position error from frozen evaluator association records",
+            })
+
+    for left, right in CORE_PAIRS:
+        rows = [row for row in pairwise_rows if row["method_a"] == left and row["method_b"] == right]
+        deltas = [float(row["rmse_difference_b_minus_a_m"]) for row in rows if row["rmse_difference_b_minus_a_m"] is not None]
+        a_values = [float(row["method_a_common_success_rmse_m"]) for row in rows if row["method_a_common_success_rmse_m"] is not None]
+        b_values = [float(row["method_b_common_success_rmse_m"]) for row in rows if row["method_b_common_success_rmse_m"] is not None]
+        summary_rows.append({
+            "scope": "pairwise_common_success", "method_a": left, "method_b": right,
+            "metric": "position_m", "evaluable_seed_count": len(deltas),
+            "mean_method_a_common_rmse_m": _mean(a_values), "sd_method_a_common_rmse_m": _sd(a_values),
+            "mean_method_b_common_rmse_m": _mean(b_values), "sd_method_b_common_rmse_m": _sd(b_values),
+            "mean_rmse_difference_b_minus_a_m": _mean(deltas), "sd_rmse_difference_b_minus_a_m": _sd(deltas),
+            "method_b_lower_rmse_seed_count": sum(value < 0 for value in deltas),
+            "method_b_higher_rmse_seed_count": sum(value > 0 for value in deltas),
+            "tied_seed_count": sum(value == 0 for value in deltas),
+            "mean_common_success_coverage": _mean([
+                float(row["common_success_coverage"]) for row in rows if row["common_success_coverage"] is not None
+            ]),
+            "interpretation": "paired seed differences on full-period common matched opportunities; exploratory screening",
+        })
+
+    return own_common_rows, pairwise_rows, summary_rows
+
+
 def _aggregate_tracks(case_metric_rows: Sequence[Mapping[str, Any]], seeds: Sequence[int]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     seed_rows: list[dict[str, Any]] = []
     summary_rows: list[dict[str, Any]] = []
@@ -1245,7 +1456,20 @@ def _write_gzip_csv(path: Path, rows: Sequence[Mapping[str, Any]]) -> None:
         writer.writerows(rows)
 
 
-def _write_plots(output: Path, scenario_rows: Sequence[Mapping[str, Any]], pair_rows: Sequence[Mapping[str, Any]], fourway_rows: Sequence[Mapping[str, Any]], own_rows: Sequence[Mapping[str, Any]], fourway_param_rows: Sequence[Mapping[str, Any]], track_summary: Sequence[Mapping[str, Any]], delay_seed_rows: Sequence[Mapping[str, Any]]) -> list[str]:
+def _write_plots(
+    output: Path,
+    scenario_rows: Sequence[Mapping[str, Any]],
+    pair_rows: Sequence[Mapping[str, Any]],
+    fourway_rows: Sequence[Mapping[str, Any]],
+    own_rows: Sequence[Mapping[str, Any]],
+    fourway_param_rows: Sequence[Mapping[str, Any]],
+    pair_parameter_rows: Sequence[Mapping[str, Any]],
+    track_summary: Sequence[Mapping[str, Any]],
+    delay_seed_rows: Sequence[Mapping[str, Any]],
+    position_own_common_rows: Sequence[Mapping[str, Any]],
+    position_pairwise_rows: Sequence[Mapping[str, Any]],
+    position_summary_rows: Sequence[Mapping[str, Any]],
+) -> list[str]:
     os.environ.setdefault("MPLCONFIGDIR", "/tmp/pgrcc-r22-v33-matplotlib")
     import matplotlib
     matplotlib.use("Agg")
@@ -1308,13 +1532,61 @@ def _write_plots(output: Path, scenario_rows: Sequence[Mapping[str, Any]], pair_
     plt.close(fig)
     generated.append(str(path.relative_to(output)))
 
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6.2))
+    display_pairs = [(left, right, f"{right} − {left}") for left, right in CORE_PAIRS]
+    for ax, metric, title, source_rows, value_field in (
+        (axes[0], "angle_deg", "Angle, retained period 8", pair_parameter_rows, "rmse_difference_b_minus_a"),
+        (axes[1], "position_m", "Position, all 10 periods", position_pairwise_rows, "rmse_difference_b_minus_a_m"),
+    ):
+        y_positions = list(range(len(display_pairs)))
+        for y, (left, right, label) in zip(y_positions, display_pairs):
+            values = [
+                float(row[value_field]) for row in source_rows
+                if row.get("method_a") == left and row.get("method_b") == right
+                and (metric == "position_m" or row.get("metric") == metric)
+                and row.get(value_field) is not None
+            ]
+            seed_rows = [
+                row for row in source_rows
+                if row.get("method_a") == left and row.get("method_b") == right
+                and (metric == "position_m" or row.get("metric") == metric)
+                and row.get(value_field) is not None
+            ]
+            for idx, row in enumerate(sorted(seed_rows, key=lambda item: int(item["seed"]))):
+                jitter = ((idx % 5) - 2) * 0.035
+                ax.scatter(float(row[value_field]), y + jitter, s=20, color="#4472C4", alpha=0.65)
+            if values:
+                ax.scatter(_mean(values), y, marker="D", s=44, color="#C00000", zorder=3)
+        ax.axvline(0.0, color="black", linewidth=0.9)
+        ax.set_yticks(y_positions, [item[2] for item in display_pairs], fontsize=8)
+        ax.invert_yaxis()
+        ax.set_title(title)
+        ax.set_xlabel("Paired ΔRMSE (method B − method A); negative favors B")
+        ax.grid(axis="x", alpha=0.25)
+    fig.suptitle("Common-success parameter differences by independent seed")
+    fig.tight_layout()
+    path = figures / "parameter_common_success_paired_differences.png"
+    fig.savefig(path, dpi=180, bbox_inches="tight")
+    plt.close(fig)
+    generated.append(str(path.relative_to(output)))
+
     fig, axes = plt.subplots(1, 2, figsize=(11.5, 4.5))
     for ax, metric, title, unit in zip(axes, ("angle_deg", "position_m"), ("Azimuth error", "Position error"), ("deg", "m")):
         x = list(range(len(CORE_LABELS)))
         own_means, own_sds, common_means, common_sds = [], [], [], []
         for label in CORE_LABELS:
-            own_values = [float(row["own_success_rmse"]) for row in own_rows if row["method_label"] == label and row["metric"] == metric and row.get("own_success_rmse") is not None]
-            common_values = [float(row[f"{label}_common_success_rmse"]) for row in fourway_param_rows if row["metric"] == metric and row.get(f"{label}_common_success_rmse") is not None]
+            if metric == "position_m":
+                own_values = [
+                    float(row["own_success_rmse_m"]) for row in position_own_common_rows
+                    if row["method_label"] == label and row.get("own_success_rmse_m") is not None
+                ]
+                common_values = [
+                    float(row["fourway_common_success_rmse_m"]) for row in position_own_common_rows
+                    if row["method_label"] == label and row.get("fourway_common_success_rmse_m") is not None
+                ]
+            else:
+                own_values = [float(row["own_success_rmse"]) for row in own_rows if row["method_label"] == label and row["metric"] == metric and row.get("own_success_rmse") is not None]
+                common_values = [float(row[f"{label}_common_success_rmse"]) for row in fourway_param_rows if row["metric"] == metric and row.get(f"{label}_common_success_rmse") is not None]
             own_mean, own_sd = _mean(own_values), _sd(own_values)
             common_mean, common_sd = _mean(common_values), _sd(common_values)
             own_means.append(own_mean if own_mean is not None else math.nan)
@@ -1326,10 +1598,10 @@ def _write_plots(output: Path, scenario_rows: Sequence[Mapping[str, Any]], pair_
         ax.bar([value+width/2 for value in x], common_means, width, yerr=common_sds, label="Four-way common success", color="#ED7D31", capsize=2)
         ax.set_xticks(x, [label.replace("_", "\n") for label in CORE_LABELS], fontsize=7)
         ax.set_ylabel(f"RMSE ({unit})")
-        ax.set_title(title)
+        ax.set_title(f"{title} ({'all 10 periods' if metric == 'position_m' else 'period 8 only'})")
         ax.grid(axis="y", alpha=0.25)
     axes[-1].legend(fontsize=8, frameon=False)
-    fig.suptitle("Parameter RMSE: retained archive period_id=8 only (mean ± seed SD)")
+    fig.suptitle("Own-success vs four-way common-success parameter RMSE (mean ± seed SD)")
     fig.tight_layout()
     path = figures / "parameter_rmse_own_vs_fourway_common.png"
     fig.savefig(path, dpi=180, bbox_inches="tight")
@@ -1381,6 +1653,91 @@ def _write_plots(output: Path, scenario_rows: Sequence[Mapping[str, Any]], pair_
     fig.savefig(path, dpi=180, bbox_inches="tight")
     plt.close(fig)
     generated.append(str(path.relative_to(output)))
+
+    fig, axes = plt.subplots(1, 2, figsize=(15.5, 6.0), gridspec_kw={"width_ratios": [1.0, 1.45]})
+    m1_residual = {
+        int(row["seed"]): float(row["mean_signed_residual_ns"])
+        for row in delay_seed_rows
+        if row["method_label"] == "M1_Physics_Matched" and row.get("mean_signed_residual_ns") is not None
+    }
+    m1_fixed_position = {
+        int(row["seed"]): float(row["rmse_difference_b_minus_a_m"])
+        for row in position_pairwise_rows
+        if row["method_a"] == "Fixed_D3" and row["method_b"] == "M1_Physics_Matched"
+        and row.get("rmse_difference_b_minus_a_m") is not None
+    }
+    paired_seeds = sorted(set(m1_residual) & set(m1_fixed_position))
+    axes[0].scatter(
+        [m1_residual[seed] for seed in paired_seeds],
+        [m1_fixed_position[seed] for seed in paired_seeds],
+        color="#4472C4", s=48,
+    )
+    for seed in paired_seeds:
+        axes[0].annotate(str(seed), (m1_residual[seed], m1_fixed_position[seed]), xytext=(3, 3), textcoords="offset points", fontsize=7)
+    axes[0].axhline(0.0, color="black", linewidth=0.8)
+    axes[0].set_xlabel("M1 mean applied-delay residual (ns; estimate − 4 ns)")
+    axes[0].set_ylabel("M1 − Fixed D3 common position RMSE (m)")
+    axes[0].set_title("Across 12 seeds; descriptive association only")
+    axes[0].grid(alpha=0.25)
+
+    fixed_m1_position = next((
+        row for row in position_summary_rows
+        if row.get("scope") == "pairwise_common_success"
+        and row.get("method_a") == "Fixed_D3" and row.get("method_b") == "M1_Physics_Matched"
+    ), {})
+    fixed_m1_angle_values = [
+        float(row["rmse_difference_b_minus_a"])
+        for row in pair_parameter_rows
+        if row.get("metric") == "angle_deg" and row.get("method_a") == "Fixed_D3"
+        and row.get("method_b") == "M1_Physics_Matched" and row.get("rmse_difference_b_minus_a") is not None
+    ]
+    mean_fourway_hit = _mean([
+        100.0 * float(row["all_four_common_hit_fraction"])
+        for row in fourway_rows if row.get("all_four_common_hit_fraction") is not None
+    ])
+    track_by_label = {row["method_label"]: row for row in track_summary}
+    false_fixed = track_by_label.get("Fixed_D3", {}).get("mean_seed_false_confirmed_tracks_per_case")
+    false_m1 = track_by_label.get("M1_Physics_Matched", {}).get("mean_seed_false_confirmed_tracks_per_case")
+    position_text = (
+        f"{float(fixed_m1_position['mean_rmse_difference_b_minus_a_m']):.2f} m; "
+        f"M1 lower in {fixed_m1_position['method_b_lower_rmse_seed_count']}/12 seeds"
+        if fixed_m1_position.get("mean_rmse_difference_b_minus_a_m") is not None else "NOT_EVALUABLE"
+    )
+    angle_text = (
+        f"{_mean(fixed_m1_angle_values):.5f} deg; period 8 only"
+        if fixed_m1_angle_values else "NOT_EVALUABLE"
+    )
+    detection_text = f"four-way common correct hits {mean_fourway_hit:.1f}% of truth opportunities" if mean_fourway_hit is not None else "NOT_EVALUABLE"
+    track_text = (
+        f"false-confirmed tracks/case: Fixed {float(false_fixed):.1f}, M1 {float(false_m1):.1f}; not Pfa"
+        if false_fixed is not None and false_m1 is not None else "case-level TrackManager summary only"
+    )
+    table_rows = [
+        ["Evidence", "Observed result", "Interpretation limit"],
+        ["Position", position_text, "All 10 periods; common matched opportunities"],
+        ["Angle", angle_text, "Four-method common set from retained period 8"],
+        ["Detection", detection_text, "12 seeds are the inference units"],
+        ["Track output", track_text, "No target-specific causal attribution"],
+        ["CSI phase", "Target-only complex response not archived", "NOT_EVALUABLE"],
+        ["Ground speed", "Per-opportunity TrackManager payload absent", "NOT_EVALUABLE for common-success RMSE"],
+    ]
+    axes[1].axis("off")
+    table = axes[1].table(cellText=table_rows, loc="center", cellLoc="left", colWidths=[0.16, 0.44, 0.40])
+    table.auto_set_font_size(False)
+    table.set_fontsize(8)
+    table.scale(1.0, 2.0)
+    for (row, col), cell in table.get_celld().items():
+        if row == 0:
+            cell.set_facecolor("#D9EAF7")
+            cell.set_text_props(weight="bold")
+        elif row % 2:
+            cell.set_facecolor("#F3F6F9")
+    fig.suptitle("Residual task-gap evidence and unresolved mechanisms")
+    fig.tight_layout()
+    path = figures / "residual_mechanism_summary.png"
+    fig.savefig(path, dpi=180, bbox_inches="tight")
+    plt.close(fig)
+    generated.append(str(path.relative_to(output)))
     return generated
 
 
@@ -1425,7 +1782,8 @@ def _write_manifest(output: Path, case_validation: Sequence[Mapping[str, Any]], 
             "EVALUABLE": {
                 "detection_and_track_screening": True,
                 "parameter_common_success_retained_period_subset": True,
-                "full_10_period_parameter_common_success": False,
+                "position_m_full_10_period_common_success_from_evaluator_associations": True,
+                "angle_range_doppler_full_10_period_common_success": False,
                 "ground_speed_common_success": False,
                 "radial_velocity_common_success": False,
             },
@@ -1500,6 +1858,7 @@ def run_analysis(output: Path) -> dict[str, Any]:
 
     task_seed, scenario_rows, paired_rows, overlap_rows, fourway_detection_rows = _aggregate_detection(case_units, case_method_rows, all_seeds)
     own_seed_rows, pair_parameter_rows, fourway_parameter_rows, parameter_summary_rows = _aggregate_parameters(case_units, all_seeds)
+    position_own_common_rows, position_pairwise_rows, position_summary_rows = _aggregate_association_position_metrics(case_units, all_seeds)
     track_seed_rows, track_summary_rows = _aggregate_tracks(case_method_rows, all_seeds)
     delay_seed_rows, delay_summary_rows = _aggregate_delay(delay_rows, all_seeds)
     recovery_case_rows, recovery_seed_rows, recovery_summary_rows = _aggregate_recovery(case_units, all_seeds)
@@ -1519,6 +1878,9 @@ def run_analysis(output: Path) -> dict[str, Any]:
     _write_csv(output / "parameter_pairwise_common_success_by_seed.csv", pair_parameter_rows)
     _write_csv(output / "parameter_fourway_common_success_by_seed.csv", fourway_parameter_rows)
     _write_csv(output / "parameter_common_success_summary.csv", parameter_summary_rows)
+    _write_csv(output / "position_all_periods_own_vs_fourway_common_by_seed.csv", position_own_common_rows)
+    _write_csv(output / "position_all_periods_pairwise_common_by_seed.csv", position_pairwise_rows)
+    _write_csv(output / "position_all_periods_common_success_summary.csv", position_summary_rows)
     _write_csv(output / "parameter_evaluator_parity.csv", parameter_parity_rows)
     _write_gzip_csv(output / "parameter_opportunity_audit.csv.gz", opportunity_audit_rows)
     _write_csv(output / "track_seed_summary.csv", track_seed_rows)
@@ -1529,7 +1891,11 @@ def run_analysis(output: Path) -> dict[str, Any]:
     _write_csv(output / "paired_recovery_by_case.csv", recovery_case_rows)
     _write_csv(output / "paired_recovery_by_seed.csv", recovery_seed_rows)
     _write_csv(output / "paired_recovery_screening_summary.csv", recovery_summary_rows)
-    plots = _write_plots(output, scenario_rows, overlap_rows, fourway_detection_rows, own_seed_rows, fourway_parameter_rows, track_summary_rows, delay_seed_rows)
+    plots = _write_plots(
+        output, scenario_rows, overlap_rows, fourway_detection_rows, own_seed_rows,
+        fourway_parameter_rows, pair_parameter_rows, track_summary_rows, delay_seed_rows,
+        position_own_common_rows, position_pairwise_rows, position_summary_rows,
+    )
 
     summary = {
         "analysis_status": "COMPLETE_OFFLINE_AUDIT",
@@ -1539,7 +1905,11 @@ def run_analysis(output: Path) -> dict[str, Any]:
         "total_truth_opportunities_per_primary_method": 28800,
         "core_methods": list(CORE_LABELS),
         "core_method_parameter_evaluator_parity_mismatches": len(parity_mismatches),
-        "core_method_parameter_evaluator_parity_status": "FULL_PERIOD_VERIFIED" if all(row["status"] == "PASS" for row in parity_recomputed) else "PARTIAL_PRODUCTS_PREVENT_FULL_PERIOD_PARITY_CHECK",
+        "core_method_parameter_evaluator_parity_status": (
+            "FULL_PERIOD_POSITION_ASSOCIATION_VERIFIED; OTHER_RECOMPUTED_PARAMETERS_PERIOD_8_ONLY"
+            if all(row["status"] == "PASS" for row in parity_recomputed if row["metric"] == "position_m_all_periods_association")
+            else "POSITION_ASSOCIATION_PARITY_FAILED"
+        ),
         "core_common_retained_detection_period_ids": sorted({
             int(period)
             for row in case_validation_rows
@@ -1551,7 +1921,10 @@ def run_analysis(output: Path) -> dict[str, Any]:
         "all_core_truth_association_sets_match": all(row["core_method_truth_keys_match"] for row in case_validation_rows),
         "all_core_production_branches_passed": all(row["core_method_production_branches_passed"] for row in case_validation_rows),
         "parameter_opportunity_rows": len(opportunity_audit_rows),
-        "parameter_common_success_full_10_period_status": "NOT_EVALUABLE_ARCHIVE_RETAINS_ONLY_TARGET_PERIOD_SUBSET",
+        "position_m_full_10_period_common_success_status": "EVALUABLE_FROM_FROZEN_EVALUATOR_ASSOCIATION_RECORDS",
+        "position_m_full_10_period_evaluator_parity_checks": sum(row["metric"] == "position_m_all_periods_association" for row in parameter_parity_rows),
+        "position_m_full_10_period_evaluator_parity_failures": sum(row["metric"] == "position_m_all_periods_association" and row["status"] != "PASS" for row in parameter_parity_rows),
+        "angle_range_doppler_full_10_period_common_success_status": "NOT_EVALUABLE_ARCHIVE_RETAINS_ONLY_PERIOD_8_DETECTION_PRODUCTS",
         "parameter_common_success_retained_period_status": "EVALUABLE_SUBSET_ONLY_IF_COMMON_SUPPORT_IS_NONZERO",
         "ground_speed_common_success": "NOT_EVALUABLE_TRACK_DEBUG_NOT_ARCHIVED",
         "radial_velocity_common_success": "NOT_EVALUABLE_NO_RESOLVED_VALID_SAMPLES_EXPECTED",

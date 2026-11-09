@@ -30,12 +30,13 @@ V3.2 机器审查包的 `review_manifest.json` 固定研究总纲 blob、design 
 
 - 十周期目标检测命中率可由已保存的全周期 task/association rows 评价。
 - 四方法在 period 8 的 Detection→truth 参数误差可以用 V3.2 `r19_task_evaluator._parameter_errors` 重算。
-- 十周期共同成功参数 RMSE无法从现存 Detection 产品重建；归档只保留 full-period own-success 汇总，缺完整的每周期 Detection 产品。
+- **位置误差是例外：** `target_associations.csv` 为每个目标周期机会保存了冻结 `r19_task_evaluator._position_error` 的 `position_error_m`。本轮对四个核心方法逐机会重建全十周期位置成功集合，并与归档 `parameter_metrics.csv` 的每 case/method own-success位置 RMSE和样本数核对；576/576 parity 通过、0 mismatch。因此全十周期位置 own-success、pairwise common-success 和四方法 common-success 可评价。
+- 方位、斜距和折叠 Doppler 的十周期共同成功 RMSE仍无法从现存 Detection 产品重建；这些参数缺少完整的逐周期 Detection lineage。其 archive own-success 汇总仍可引用，但不能替代共同成功比较。
 - `track_debug_runs` 和逐机会 TrackManager payload 未在 compact ZIP 中保留，因此 ground-speed common-success 与每个参数机会的航迹状态无法重建。
 - radial velocity 在保存 evaluator 记录中没有有效估计样本。
 - 完整 CSI maps、target-only complex response 和完整原始 IQ 不在 GitHub 精简包；不得用 CSI ROI 摘要或历史配置替代它们。
 
-分析器读取 144 个被索引 ZIP 中的必要成员并复算其完整 archive SHA。ZIP 内成员 CRC 在读取相应成员时由 ZIP reader 检查；本轮没有声称逐项重验 ZIP 中全部成员 CRC。V3.2 执行报告保存了全矩阵归档核验记录。
+分析器读取 144 个被索引 ZIP 中的必要成员并复算其完整 archive SHA。ZIP 内成员 CRC 在读取相应成员时由 ZIP reader 检查；本轮没有声称逐项重验 ZIP 中全部成员 CRC。V3.2 执行报告保存了全矩阵归档核验记录。位置误差 parity 证明离线复算与归档 evaluator 汇总一致，不等于独立重跑 Production 或对原始 IQ 做物理验证。
 
 ## V3.2 方法缺口如何影响本轮
 

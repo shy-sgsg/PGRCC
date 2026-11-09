@@ -10,7 +10,7 @@
 3. [数据身份与可评价性](01_data_identity_and_evaluability.md)：样本分母、输入/归档身份、可读产物边界。
 4. [方法信息条件](02_method_information_conditions.md)：Known、固定校正、target-present 估计与 paired-OFF 方法的公平边界。
 5. [检测与机会重叠](03_detection_and_opportunity_overlap.md)：seed 级命中率、恢复量和机会重叠。
-6. [共同成功参数误差](04_common_success_parameter_analysis.md)：period 8 可复算数据与完整十周期缺口。
+6. [共同成功参数误差](04_common_success_parameter_analysis.md)：period 8 多参数复算，以及从 evaluator association 重建的全十周期位置共同成功。
 7. [目标保持与航迹输出](05_target_retention_and_track_analysis.md)：TrackManager 汇总及非 Pfa 的 false-confirmed 指标。
 8. [残余误差机制](06_residual_error_mechanism.md)：物理时延估计残差及不能归因的部分。
 9. [科研价值与方向判断](07_scientific_value_and_direction.md)。
@@ -24,13 +24,15 @@
 - [`summary.json`](evidence/summary.json)：机器可读审计结论。
 - [`case_validation.csv`](evidence/case_validation.csv) 与 [`archive_identity.csv`](evidence/archive_identity.csv)：144 个 case 的输入门、面积杂波、生产分支与归档 SHA 复核。
 - [`case_method_screening.csv`](evidence/case_method_screening.csv)、[`paired_recovery_by_seed.csv`](evidence/paired_recovery_by_seed.csv) 和 [`paired_recovery_screening_summary.csv`](evidence/paired_recovery_screening_summary.csv)：方法级命中和 A0/C0/PK/estimated 配对恢复。
-- [`parameter_opportunity_audit.csv.gz`](evidence/parameter_opportunity_audit.csv.gz)、[`parameter_fourway_common_success_by_seed.csv`](evidence/parameter_fourway_common_success_by_seed.csv) 与 [`parameter_common_success_summary.csv`](evidence/parameter_common_success_summary.csv)：检测产品可读周期上的参数复算和共同成功集。
+- [`parameter_opportunity_audit.csv.gz`](evidence/parameter_opportunity_audit.csv.gz)、[`parameter_evaluator_parity.csv`](evidence/parameter_evaluator_parity.csv)：115,200 条逐机会审计及 576 个全周期位置 evaluator parity 检查。
+- [`position_all_periods_common_success_summary.csv`](evidence/position_all_periods_common_success_summary.csv)、[`position_all_periods_pairwise_common_by_seed.csv`](evidence/position_all_periods_pairwise_common_by_seed.csv)：全十周期位置 own-success、pairwise 与四方法共同成功比较。
+- [`parameter_fourway_common_success_by_seed.csv`](evidence/parameter_fourway_common_success_by_seed.csv) 与 [`parameter_common_success_summary.csv`](evidence/parameter_common_success_summary.csv)：period 8 可读取 Detection 产品的其余参数复算和共同成功集。
 - [`track_screening_summary.csv`](evidence/track_screening_summary.csv)、[`delay_estimation_summary.csv`](evidence/delay_estimation_summary.csv)：航迹与物理时延残差。
-- [`figures/`](evidence/figures/)：五张报告图。
+- [`figures/`](evidence/figures/)：七张报告图，包括全十周期位置配对差异与残余任务差距汇总。
 
 ## 空间与证据保留
 
-分析器在 ZIP 内直接读取所需成员；没有复制、解压、删除或改写任何 V3.2 compact archive。144 个使用中的归档 SHA 与 V3.2 索引全部一致；额外历史归档保持未触碰。分析输出约 4.5 MB。项目工作树检查为约 4.8 GiB，低于 20 GB 最终上限；本轮只清理自身 Matplotlib 临时缓存。
+分析器在 ZIP 内直接读取所需成员；没有复制、解压、删除或改写任何 V3.2 compact archive。144 个使用中的归档 SHA 与 V3.2 索引全部一致；额外历史归档保持未触碰。分析输出约 6.1 MB。项目工作树检查为约 4.8 GiB，低于 20 GB 最终上限，文件系统约有 11 GiB 可用；本轮仅清理自身 Matplotlib 临时缓存。
 
 **完整 V3.2 ZIP 仍保存在本机 `outputs/r22_v3_2_screening_20261106/archives/screening/`，没有上传 GitHub。** GitHub 审查快照只能审查本目录的紧凑重算证据；不能声称 ChatGPT 已读取本机 ZIP、全部逐 beam 日志或原始 IQ。
 
