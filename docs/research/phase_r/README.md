@@ -1,8 +1,10 @@
 # PGRCC Phase R：研究审查与证据导航
 
-更新日期：2026-10-27。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
+更新日期：2026-11-09。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
 
 ## 当前决策
+
+- **R22 V3.2（2026-11-09，full Screening 已完成）：** 288/288 个 Native CUDA case 归档通过，4,320/4,320 个适用方法单元均分类；255 个 case 通过、33 个带方法级 support 缺口。+4 ns Current 检测下降、Known 与 target-free OFF 估计恢复接近无误差参考；由于 blind delay estimator 使用 paired OFF，不能当作 target-present 在线部署结论。系统 Pfa、target-only complex retention 和统计显著性未验证。方向为有界继续物理时延估计，不转低速/复杂杂波，不启动 AI。入口：[完整报告](R22/27_v3_2_screening_execution_report_20261109.md)、[方向评估](R22/28_v3_2_preliminary_direction_assessment_20261109.md)、[ChatGPT 提示词](R22/CHATGPT_REVIEW_PROMPT_V3_2_SCREENING_20261109.md)、[紧凑证据](R22/evidence/v3_2_screening_20261106/README.md)。
 
 - **R22 更新（2026-10-27，工程 gate 停止）：** seed900101 完成 20 目标 Native CUDA smoke；seed900202/900203 完成 +4 ns 单周期方法 pilot。seed900203 有效面积地杂波为 130 packets / 650,892 samples，A1 角色通过 A0_ON C+N 背景配对复用，causal triplet 闭合。PKR 因 `range_band_bins=6` 下 support 6 小于 `min_support=8`，26,637/26,637 参考组不可用并触发 Production beam gate；residual closure 不可评价，停止扩 seed。命中差异只能作两 seed 单周期描述；统计 Pd/Pfa 与航迹性能未验证，AI 必要性未建立。完整报告和可直接复制的 ChatGPT 审查提示词见 [R22 导航](R22/README.md)。
 - **R21 更新（2026-10-27，最终）：** 两个独立 seed 的 B(+4 ns) 命中低于 A0，Known correction 恢复到 A0 命中数并通过 F2 物理闭合；M1 相对 R9/Huber 在两个 seed 的共同成功机会角度、位置和 F2 残差方向一致地改善，但仍落后 Known。ground-speed 样本不足且方向不稳，radial velocity 与统计 Pfa 不可评价。阶段 `PASS_WITH_LIMITATIONS`；固定静态时延估计 `CONTINUE` 仅作为有界候选，AI entry gate `FAIL`、`PERFORMANCE_VERIFIED=false`。以 [R21 导航](R21/README.md)和[最终方向裁决](R21/10_scientific_value_and_direction_decision.md)为准；早期 `06`/`07` 是历史快照。最终 ChatGPT 提示词见 [R21/12](R21/12_ChatGPT_review_request.md)。

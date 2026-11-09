@@ -257,3 +257,13 @@
 - **V3.2 当前设计决定：** 继续使用独立版本/新输出根并从队列起点开始，原因是V3.1为终态且完整筛选未完成；不继承V3.1 case。V3.2同时保存规范化设计SHA、原始文件路径/字节SHA、GPU资源和compute-process快照。科学因素与质量门保持不变；CUDA尚未启动，最近GPU核验显示外部训练PID 347130仍运行。
 - **磁盘状态与清理规则：** 检查时工作树约3.4 GiB、`outputs/`约2.1 GiB、文件系统约17 GiB可用。V3.2尚无实验产物；运行时逐case先验证compact ZIP的SHA/CRC再删除可重建raw。未知历史输出不因体积大而自动删除。
 - **方向与总纲：** 仅纠正证据解释并补充执行身份记录，不形成新的算法结论，不改变研究方向，不修改研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985`。
+
+## 2026-11-09｜R22 V3.2：Unknown +4 ns 退化获全量筛选支持；部署估计仍未验证
+
+- **决策编号与身份：** `D-2026-11-09-R22-V3.2-SCREENING`。分支 `codex/unknown-system-error-next-stage`；实验源码 commit `74bccce61f3ec2f74746512d67271c815ce6a3a8`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。设计 raw SHA `9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063`；Native CUDA Production binary SHA `d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`。
+- **原问题与执行：** V3.2 冻结 12 seeds × 4 speeds × 3 SNR × 2 delays，共 288 case / 4,320 applicable ON method units；本机 CUDA 全部完成。255 case `PASSED`、33 case `PASSED_WITH_METHOD_GAPS`。全部 288 个最新归档通过校验，raw 按 archive ledger 清理。
+- **关键结果：** +4 ns 下 A0 命中率 69.73%，C0 Current 11.69%，PK Known 69.73%；P1 OFF-only blind delay 69.59%，P2 Mode-A 71.11%。P1、P2 Mode-A 的平均 recovery ratio 分别 99.77%、99.69%，但估计器使用配对 target-free OFF，故只作为诊断性恢复，不证明 target-present 在线部署。P2 Mode-B 仅 1/12 seed 具完整 triplet，不排名。
+- **质量与未闭合项：** C4 Mode-B、PKR Mode-B、P2 Mode-B 合计 49 个 `insufficient_robust_support` 缺口，保持不可评价；独立 H0/Pfa、目标专属复数幅相、有效径向速度和确认性性能未完成。CSI ROI/false-CUT 仅作诊断。
+- **方向决定：** `CONTINUE` 有界物理时延/通道状态估计及任务级验证；低速目标和复杂杂波没有证据要求成为主线；`AI_ENTRY_GATE=FAIL`。研究总纲不修改。
+- **下一项建议：** 先拟定最小确认性设计，约束估计器只使用部署可得的 target-present 多通道观测，并加入独立 H0、target-only complex response 和共同机会参数评价；本建议不自动授权 CUDA。
+- **证据：** [执行与结果报告](phase_r/R22/27_v3_2_screening_execution_report_20261109.md)、[方向评估](phase_r/R22/28_v3_2_preliminary_direction_assessment_20261109.md)、[紧凑 GitHub 审查包](phase_r/R22/evidence/v3_2_screening_20261106/README.md)、[ChatGPT 审查提示词](phase_r/R22/CHATGPT_REVIEW_PROMPT_V3_2_SCREENING_20261109.md)。
