@@ -21,7 +21,7 @@ import statistics
 import subprocess
 import sys
 import zipfile
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -307,6 +307,208 @@ def _load_detections(archive: zipfile.ZipFile, case_prefix: str, branch: str) ->
     return detection_map, result_period_map, all_rows
 
 
+def _audit_production_output(
+    cycle_rows: Sequence[Mapping[str, Any]],
+    lineage_rows: Sequence[Mapping[str, Any]],
+    association_rows: Sequence[Mapping[str, Any]],
+    *,
+    task_status: str,
+    expected_period_count: int = 10,
+    expected_opportunities_per_period: int = 20,
+    retained_detection_counts: Mapping[int, int] | None = None,
+) -> tuple[list[dict[str, Any]], dict[str, Any]]:
+    """Reconcile period Detection counts with retained Production lineage.
+
+    Target-unmatched Detection rows are derived only when the frozen evaluator
+    supplied a complete EVALUABLE target-association table. Cluster rows are
+    never called false/non-target without a cluster-to-truth association.
+    """
+    if expected_period_count <= 0 or expected_opportunities_per_period <= 0:
+        raise ValueError("expected period and opportunity counts must be positive")
+    expected_periods = set(range(expected_period_count))
+    cycle_by_period: dict[int, dict[str, Any]] = {}
+    for row in cycle_rows:
+        period = _int(row.get("period_id"))
+        result_id = _int(row.get("result_id"))
+        detection_count = _int(row.get("detection_count"))
+        if period is None or result_id is None or detection_count is None or detection_count < 0:
+            raise ValueError(f"invalid cycle_metrics row: {row}")
+        if period not in expected_periods:
+            raise ValueError(f"cycle_metrics period_id outside expected range: {period}")
+        if result_id != period + 1:
+            raise ValueError(f"cycle_metrics result_id does not map to period_id={period}")
+        if period in cycle_by_period:
+            raise ValueError(f"duplicate cycle_metrics period_id={period}")
+        cycle_by_period[period] = {"result_id": result_id, "detection_count": detection_count}
+    if set(cycle_by_period) != expected_periods:
+        raise ValueError(f"cycle_metrics periods do not cover expected periods: {sorted(cycle_by_period)}")
+    for raw_period, raw_count in (retained_detection_counts or {}).items():
+        period, count = _int(raw_period), _int(raw_count)
+        if period is None or period not in expected_periods or count is None or count < 0:
+            raise ValueError(f"invalid retained Detection period/count: {raw_period}={raw_count}")
+        if count != cycle_by_period[period]["detection_count"]:
+            raise ValueError(
+                f"retained Detection row count disagrees with cycle_metrics for period {period}: "
+                f"{count} != {cycle_by_period[period]['detection_count']}"
+            )
+
+    summaries: dict[tuple[int, int], dict[str, int]] = {}
+    cluster_rows: dict[tuple[int, int], list[Mapping[str, Any]]] = defaultdict(list)
+    for row in lineage_rows:
+        record_type = str(row.get("record_type", "")).strip()
+        if record_type not in {"beam_summary", "cluster"}:
+            continue
+        period, beam = _int(row.get("period_id")), _int(row.get("beam_id"))
+        if period is None or beam is None or period not in expected_periods:
+            raise ValueError(f"invalid Production lineage identity: {row}")
+        key = (period, beam)
+        if record_type == "beam_summary":
+            values = {
+                field: _int(row.get(field))
+                for field in ("postfilter_cluster_count", "selected_candidate_count", "raw_detection_count")
+            }
+            if any(value is None or value < 0 for value in values.values()):
+                raise ValueError(f"invalid beam_summary counts for period/beam {key}: {row}")
+            if key in summaries:
+                raise ValueError(f"duplicate beam_summary for period/beam {key}")
+            summaries[key] = {field: int(value) for field, value in values.items()}
+        else:
+            cluster_rows[key].append(row)
+
+    summary_periods = {period for period, _ in summaries}
+    if summary_periods != expected_periods:
+        raise ValueError(f"cluster lineage summaries do not cover expected periods: {sorted(summary_periods)}")
+    if set(cluster_rows) - set(summaries):
+        raise ValueError("cluster lineage contains rows without a beam_summary")
+
+    period_counts: dict[int, dict[str, int]] = {
+        period: {
+            "postfilter_cluster_count": 0,
+            "selected_candidate_count": 0,
+            "raw_detection_count": 0,
+        }
+        for period in expected_periods
+    }
+    for key, summary in summaries.items():
+        rows = cluster_rows.get(key, [])
+        selected_count = 0
+        raw_count = 0
+        for row in rows:
+            selected, raw = _truth(row.get("selected")), _truth(row.get("raw_detection"))
+            if selected is None or raw is None:
+                raise ValueError(f"invalid cluster selected/raw_detection flag for {key}: {row}")
+            selected_count += int(selected)
+            raw_count += int(raw)
+        period, _ = key
+        observed = {
+            "postfilter_cluster_count": len(rows),
+            "selected_candidate_count": selected_count,
+            "raw_detection_count": raw_count,
+        }
+        if observed != summary:
+            raise ValueError(f"cluster lineage rows disagree with beam_summary for {key}: {observed} != {summary}")
+        for field, value in summary.items():
+            period_counts[period][field] += value
+
+    period_rows: list[dict[str, Any]] = []
+    association_by_period: dict[int, list[Mapping[str, Any]]] = defaultdict(list)
+    association_keys: set[str] = set()
+    if task_status == "EVALUABLE":
+        for row in association_rows:
+            period = _int(row.get("period_id"))
+            beam = _int(row.get("beam_id"))
+            sample_key = str(row.get("sample_key", "")).strip()
+            matched = _truth(row.get("matched"))
+            if period is None or period not in expected_periods or beam is None or not sample_key or matched is None:
+                raise ValueError(f"invalid target association row: {row}")
+            if sample_key in association_keys:
+                raise ValueError(f"duplicate target association sample_key: {sample_key}")
+            association_keys.add(sample_key)
+            association_by_period[period].append({**row, "_beam": beam, "_matched": matched})
+        expected_association_count = expected_period_count * expected_opportunities_per_period
+        if len(association_keys) != expected_association_count:
+            raise ValueError(f"evaluable target associations expected {expected_association_count} rows, got {len(association_keys)}")
+        if set(association_by_period) != expected_periods or any(
+            len(association_by_period[period]) != expected_opportunities_per_period
+            for period in expected_periods
+        ):
+            raise ValueError("evaluable target association opportunities do not cover every period uniformly")
+
+    total_detections = 0
+    total_clusters = 0
+    total_selected = 0
+    total_raw = 0
+    total_hits = 0
+    total_misses = 0
+    total_matched_detections = 0
+    for period in range(expected_period_count):
+        counts = period_counts[period]
+        cycle_detection_count = cycle_by_period[period]["detection_count"]
+        if cycle_detection_count != counts["selected_candidate_count"]:
+            raise ValueError(
+                f"cycle_metrics detection_count disagrees with selected_candidate_count for period {period}: "
+                f"{cycle_detection_count} != {counts['selected_candidate_count']}"
+            )
+        matched_keys: set[tuple[int, int, str]] = set()
+        matched_opportunities = 0
+        missed_opportunities: int | None = None
+        unmatched_detections: int | None = None
+        if task_status == "EVALUABLE":
+            for row in association_by_period[period]:
+                if not row["_matched"]:
+                    continue
+                det_id = str(row.get("det_id", "")).strip()
+                if not det_id:
+                    raise ValueError(f"matched target association lacks det_id in period {period}")
+                key = (period, int(row["_beam"]), det_id)
+                if key in matched_keys:
+                    raise ValueError(f"one Production detection assigned to multiple truth opportunities: {key}")
+                matched_keys.add(key)
+            matched_opportunities = len(matched_keys)
+            if matched_opportunities > cycle_detection_count:
+                raise ValueError(f"matched target detections exceed final Detection rows in period {period}")
+            missed_opportunities = expected_opportunities_per_period - matched_opportunities
+            unmatched_detections = cycle_detection_count - matched_opportunities
+            total_hits += matched_opportunities
+            total_misses += missed_opportunities
+            total_matched_detections += matched_opportunities
+        total_detections += cycle_detection_count
+        total_clusters += counts["postfilter_cluster_count"]
+        total_selected += counts["selected_candidate_count"]
+        total_raw += counts["raw_detection_count"]
+        period_rows.append({
+            "period_id": period,
+            "final_detection_count": cycle_detection_count,
+            **counts,
+            "target_opportunity_count": expected_opportunities_per_period if task_status == "EVALUABLE" else None,
+            "target_hit_opportunity_count": matched_opportunities if task_status == "EVALUABLE" else None,
+            "target_missed_opportunity_count": missed_opportunities,
+            "truth_matched_final_detection_count": matched_opportunities if task_status == "EVALUABLE" else None,
+            "truth_unmatched_final_detection_count": unmatched_detections,
+            "non_target_cluster_count": None,
+            "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+        })
+
+    summary = {
+        "production_output_status": "EVALUABLE" if task_status == "EVALUABLE" else "PRODUCTION_OUTPUTS_ONLY",
+        "production_period_count": expected_period_count,
+        "final_detection_count": total_detections,
+        "postfilter_cluster_count": total_clusters,
+        "selected_candidate_count": total_selected,
+        "raw_detection_count": total_raw,
+        "target_association_status": "EVALUABLE_FROZEN_TARGET_ASSOCIATIONS" if task_status == "EVALUABLE" else "NOT_EVALUABLE_TASK_STATUS",
+        "target_opportunity_count": expected_period_count * expected_opportunities_per_period if task_status == "EVALUABLE" else None,
+        "target_hit_opportunity_count": total_hits if task_status == "EVALUABLE" else None,
+        "target_missed_opportunity_count": total_misses if task_status == "EVALUABLE" else None,
+        "truth_matched_final_detection_count": total_matched_detections if task_status == "EVALUABLE" else None,
+        "truth_unmatched_final_detection_count": total_detections - total_matched_detections if task_status == "EVALUABLE" else None,
+        "non_target_cluster_count": None,
+        "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+        "evaluator_formula": "final Detection rows minus unique truth-matched det_id rows; NOT system Pfa",
+    }
+    return period_rows, summary
+
+
 def _load_case(
     archive_path: Path,
     archive_record: Mapping[str, str],
@@ -454,8 +656,10 @@ def _load_case(
             branch_name = method["branch"]
             branch_manifest_member = branch_member_by_name.get(branch_name)
             branch_status = "NOT_READ"
+            branch_manifest: dict[str, Any] = {}
             branch_correction: dict[str, Any] = {}
             detection_count = 0
+            detection_map: dict[tuple[str, str, str], Mapping[str, str]] | None = None
             detection_periods: set[int] = set()
             errors_by_metric: dict[str, dict[str, float]] = {metric: {} for metric in RECOMPUTABLE_METRICS}
             parameter_available_keys: set[str] = set()
@@ -619,6 +823,80 @@ def _load_case(
                     "evaluator_source": "V3.2 parameter_metrics.csv; no per-opportunity TrackManager output payload in compact ZIP",
                 })
 
+            production_output_periods: list[dict[str, Any]] = []
+            production_output: dict[str, Any] = {
+                "production_output_status": "NOT_AVAILABLE_BRANCH_MANIFEST_MISSING",
+                "production_period_count": 0,
+                "final_detection_count": None,
+                "postfilter_cluster_count": None,
+                "selected_candidate_count": None,
+                "raw_detection_count": None,
+                "target_association_status": "NOT_EVALUABLE_PRODUCTION_OUTPUTS_UNAVAILABLE",
+                "target_opportunity_count": None,
+                "target_hit_opportunity_count": None,
+                "target_missed_opportunity_count": None,
+                "truth_matched_final_detection_count": None,
+                "truth_unmatched_final_detection_count": None,
+                "non_target_cluster_count": None,
+                "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+                "evaluator_formula": "final Detection rows minus unique truth-matched det_id rows; NOT system Pfa",
+                "production_output_error": "branch_manifest_missing",
+            }
+            if branch_manifest_member is not None:
+                if not branch_manifest:
+                    branch_manifest = _read_json_member(archive, branch_manifest_member)
+                    branch_status = str(branch_manifest.get("status", ""))
+                production_passed = (
+                    branch_status.lower() == "passed"
+                    and str(branch_manifest.get("production_status", "")).lower() == "passed"
+                    and _int(branch_manifest.get("production_returncode")) == 0
+                )
+                if production_passed:
+                    cycle_member = f"{case_prefix}/production/{branch_name}/cycle_metrics.csv"
+                    lineage_member = f"{case_prefix}/production/{branch_name}/result/debug/cluster_detection_lineage.csv"
+                    if cycle_member in members and lineage_member in members:
+                        try:
+                            retained_detection_counts = None
+                            if label in CORE_LABELS and task_status == "EVALUABLE":
+                                if detection_map is None:
+                                    raise ValueError(f"retained Detection map unavailable for {label}")
+                                retained_detection_counts = Counter(int(key[0]) for key in detection_map)
+                            production_output_periods, production_output = _audit_production_output(
+                                _read_csv_member(archive, cycle_member),
+                                _read_csv_member(archive, lineage_member),
+                                method_associations,
+                                task_status=task_status,
+                                expected_period_count=10,
+                                expected_opportunities_per_period=20,
+                                retained_detection_counts=retained_detection_counts,
+                            )
+                        except ValueError as exc:
+                            production_output_periods = []
+                            production_output = {
+                                "production_output_status": "NOT_EVALUABLE_PRODUCTION_OUTPUT_AUDIT_FAILED",
+                                "production_period_count": 0,
+                                "final_detection_count": None,
+                                "postfilter_cluster_count": None,
+                                "selected_candidate_count": None,
+                                "raw_detection_count": None,
+                                "target_association_status": "NOT_EVALUABLE_PRODUCTION_OUTPUT_AUDIT_FAILED",
+                                "target_opportunity_count": None,
+                                "target_hit_opportunity_count": None,
+                                "target_missed_opportunity_count": None,
+                                "truth_matched_final_detection_count": None,
+                                "truth_unmatched_final_detection_count": None,
+                                "non_target_cluster_count": None,
+                                "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+                                "evaluator_formula": "final Detection rows minus unique truth-matched det_id rows; NOT system Pfa",
+                                "production_output_error": str(exc),
+                            }
+                    else:
+                        production_output["production_output_status"] = "NOT_AVAILABLE_PRODUCTION_OUTPUT_FILES_MISSING"
+                        production_output["production_output_error"] = "cycle_metrics.csv or cluster_detection_lineage.csv missing"
+                else:
+                    production_output["production_output_status"] = "NOT_AVAILABLE_PRODUCTION_NOT_PASSED"
+                    production_output["production_output_error"] = "Production branch manifest does not record a successful process"
+
             unit = {
                 "case_id": case_id, "seed": seed, "speed_mps": speed, "snr_db": snr,
                 "method_id": method_id, "mode": mode, "label": label,
@@ -635,6 +913,8 @@ def _load_case(
                 "track_row": track_row,
                 "branch_status": branch_status,
                 "branch_correction": branch_correction,
+                "production_output": production_output,
+                "production_output_periods": production_output_periods,
             }
             case_units[label] = unit
             case_metric_rows.append({
@@ -1319,6 +1599,109 @@ def _aggregate_tracks(case_metric_rows: Sequence[Mapping[str, Any]], seeds: Sequ
     return seed_rows, summary_rows
 
 
+def _aggregate_production_outputs(
+    case_units: Mapping[str, Mapping[str, Any]], seeds: Sequence[int],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+    case_rows: list[dict[str, Any]] = []
+    period_rows: list[dict[str, Any]] = []
+    seed_rows: list[dict[str, Any]] = []
+    summary_rows: list[dict[str, Any]] = []
+    labels = [method["label"] for method in METHODS]
+
+    for case_id in sorted(case_units):
+        units = case_units[case_id]
+        for label in labels:
+            unit = units[label]
+            output = unit.get("production_output") or {}
+            output_status = str(output.get("production_output_status", "NOT_AVAILABLE"))
+            output_evaluable = output_status in {"EVALUABLE", "PRODUCTION_OUTPUTS_ONLY"}
+            association_evaluable = (
+                output_evaluable
+                and output.get("target_association_status") == "EVALUABLE_FROZEN_TARGET_ASSOCIATIONS"
+            )
+            case_rows.append({
+                "case_id": case_id, "seed": unit["seed"], "speed_mps": unit["speed_mps"],
+                "snr_db": unit["snr_db"], "method_label": label,
+                "task_status": unit.get("task_status"),
+                "production_output_status": output_status,
+                "production_output_evaluable": output_evaluable,
+                "target_association_status": output.get("target_association_status"),
+                "target_association_evaluable": association_evaluable,
+                "production_period_count": output.get("production_period_count"),
+                "final_detection_count": output.get("final_detection_count") if output_evaluable else None,
+                "postfilter_cluster_count": output.get("postfilter_cluster_count") if output_evaluable else None,
+                "selected_candidate_count": output.get("selected_candidate_count") if output_evaluable else None,
+                "raw_detection_count": output.get("raw_detection_count") if output_evaluable else None,
+                "target_opportunity_count": output.get("target_opportunity_count") if association_evaluable else None,
+                "target_hit_opportunity_count": output.get("target_hit_opportunity_count") if association_evaluable else None,
+                "target_missed_opportunity_count": output.get("target_missed_opportunity_count") if association_evaluable else None,
+                "truth_matched_final_detection_count": output.get("truth_matched_final_detection_count") if association_evaluable else None,
+                "truth_unmatched_final_detection_count": output.get("truth_unmatched_final_detection_count") if association_evaluable else None,
+                "non_target_cluster_count": None,
+                "non_target_cluster_status": output.get("non_target_cluster_status", "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION"),
+                "production_output_error": output.get("production_output_error"),
+            })
+            for period in unit.get("production_output_periods", []):
+                period_rows.append({
+                    "case_id": case_id, "seed": unit["seed"], "speed_mps": unit["speed_mps"],
+                    "snr_db": unit["snr_db"], "method_label": label,
+                    "task_status": unit.get("task_status"),
+                    "production_output_status": output_status,
+                    "target_association_status": output.get("target_association_status"),
+                    **period,
+                })
+
+    for seed in seeds:
+        for label in labels:
+            rows = [row for row in case_rows if int(row["seed"]) == seed and row["method_label"] == label]
+            output_rows = [row for row in rows if row["production_output_evaluable"]]
+            association_rows = [row for row in rows if row["target_association_evaluable"]]
+            def means(field: str, selected: Sequence[Mapping[str, Any]]) -> float | None:
+                values = [float(row[field]) for row in selected if row.get(field) not in (None, "")]
+                return _mean(values)
+            seed_rows.append({
+                "seed": seed, "method_label": label, "expected_case_count": 12,
+                "production_output_evaluable_case_count": len(output_rows),
+                "production_output_coverage": len(output_rows) / 12,
+                "target_association_evaluable_case_count": len(association_rows),
+                "target_association_coverage": len(association_rows) / 12,
+                "mean_final_detections_per_output_evaluable_case": means("final_detection_count", output_rows),
+                "mean_postfilter_clusters_per_output_evaluable_case": means("postfilter_cluster_count", output_rows),
+                "mean_truth_unmatched_final_detections_per_evaluable_case": means("truth_unmatched_final_detection_count", association_rows),
+                "mean_target_missed_opportunities_per_evaluable_case": means("target_missed_opportunity_count", association_rows),
+                "interpretation": "target-present outputs; truth-unmatched detections are not system Pfa",
+            })
+
+    for label in labels:
+        rows = [row for row in seed_rows if row["method_label"] == label]
+        summary_rows.append({
+            "method_label": label,
+            "expected_independent_seeds": len(seeds),
+            "production_output_evaluable_seeds": sum(int(row["production_output_evaluable_case_count"]) > 0 for row in rows),
+            "mean_seed_production_output_coverage": _mean([float(row["production_output_coverage"]) for row in rows]),
+            "target_association_evaluable_seeds": sum(int(row["target_association_evaluable_case_count"]) > 0 for row in rows),
+            "mean_seed_target_association_coverage": _mean([float(row["target_association_coverage"]) for row in rows]),
+            "mean_seed_final_detections_per_output_evaluable_case": _mean([
+                float(row["mean_final_detections_per_output_evaluable_case"])
+                for row in rows if row.get("mean_final_detections_per_output_evaluable_case") is not None
+            ]),
+            "sd_seed_final_detections_per_output_evaluable_case": _sd([
+                float(row["mean_final_detections_per_output_evaluable_case"])
+                for row in rows if row.get("mean_final_detections_per_output_evaluable_case") is not None
+            ]),
+            "mean_seed_truth_unmatched_final_detections_per_evaluable_case": _mean([
+                float(row["mean_truth_unmatched_final_detections_per_evaluable_case"])
+                for row in rows if row.get("mean_truth_unmatched_final_detections_per_evaluable_case") is not None
+            ]),
+            "sd_seed_truth_unmatched_final_detections_per_evaluable_case": _sd([
+                float(row["mean_truth_unmatched_final_detections_per_evaluable_case"])
+                for row in rows if row.get("mean_truth_unmatched_final_detections_per_evaluable_case") is not None
+            ]),
+            "inference": "seed-equal descriptive summaries; target-present only; no system Pfa claim",
+        })
+    return case_rows, period_rows, seed_rows, summary_rows
+
+
 def _aggregate_delay(delay_rows: Sequence[Mapping[str, Any]], seeds: Sequence[int]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     seed_rows: list[dict[str, Any]] = []
     summary_rows: list[dict[str, Any]] = []
@@ -1465,6 +1848,7 @@ def _write_plots(
     fourway_param_rows: Sequence[Mapping[str, Any]],
     pair_parameter_rows: Sequence[Mapping[str, Any]],
     track_summary: Sequence[Mapping[str, Any]],
+    production_output_summary: Sequence[Mapping[str, Any]],
     delay_seed_rows: Sequence[Mapping[str, Any]],
     position_own_common_rows: Sequence[Mapping[str, Any]],
     position_pairwise_rows: Sequence[Mapping[str, Any]],
@@ -1635,6 +2019,53 @@ def _write_plots(
     plt.close(fig)
     generated.append(str(path.relative_to(output)))
 
+    output_labels = [method["label"] for method in METHODS]
+    output_summary_by_label = {str(row["method_label"]): row for row in production_output_summary}
+    track_summary_by_label = {str(row["method_label"]): row for row in track_summary}
+    fig, axes = plt.subplots(2, 2, figsize=(16.5, 10.0))
+    output_metrics = (
+        ("mean_seed_final_detections_per_output_evaluable_case", "sd_seed_final_detections_per_output_evaluable_case", "Final Detection rows / output-evaluable case", "rows"),
+        ("mean_seed_truth_unmatched_final_detections_per_evaluable_case", "sd_seed_truth_unmatched_final_detections_per_evaluable_case", "Truth-unmatched final Detection rows / association-evaluable case", "rows (not Pfa)"),
+    )
+    for ax, (field, sd_field, title, ylabel) in zip(axes.flat[:2], output_metrics):
+        means = [
+            float(output_summary_by_label[label][field]) if output_summary_by_label.get(label, {}).get(field) is not None else math.nan
+            for label in output_labels
+        ]
+        sds = [
+            float(output_summary_by_label[label][sd_field]) if output_summary_by_label.get(label, {}).get(sd_field) is not None else 0.0
+            for label in output_labels
+        ]
+        ax.bar(range(len(output_labels)), means, yerr=sds, color="#4472C4", capsize=2)
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(range(len(output_labels)), [label.replace("_", "\n") for label in output_labels], fontsize=7)
+        ax.grid(axis="y", alpha=0.25)
+
+    for ax, field, sd_field, title, ylabel in (
+        (axes.flat[2], "mean_seed_false_confirmed_tracks_per_case", "sd_seed_false_confirmed_tracks_per_case", "False-confirmed tracks / target-present case", "tracks (not Pfa)"),
+        (axes.flat[3], "mean_seed_target_confirmed_unique_periods_per_case", "sd_seed_target_confirmed_unique_periods_per_case", "Target-confirmed unique periods / case", "periods (of 10)"),
+    ):
+        means = [
+            float(track_summary_by_label[label][field]) if track_summary_by_label.get(label, {}).get(field) is not None else math.nan
+            for label in output_labels
+        ]
+        sds = [
+            float(track_summary_by_label[label][sd_field]) if track_summary_by_label.get(label, {}).get(sd_field) is not None else 0.0
+            for label in output_labels
+        ]
+        ax.bar(range(len(output_labels)), means, yerr=sds, color="#70AD47", capsize=2)
+        ax.set_title(title)
+        ax.set_ylabel(ylabel)
+        ax.set_xticks(range(len(output_labels)), [label.replace("_", "\n") for label in output_labels], fontsize=7)
+        ax.grid(axis="y", alpha=0.25)
+    fig.suptitle("Target-present Production outputs and TrackManager summaries (mean ± seed SD; no system Pfa claim)")
+    fig.tight_layout()
+    path = figures / "detection_cluster_track_output_audit.png"
+    fig.savefig(path, dpi=180, bbox_inches="tight")
+    plt.close(fig)
+    generated.append(str(path.relative_to(output)))
+
     fig, ax = plt.subplots(figsize=(8.5, 4.5))
     seed_values = sorted({int(row["seed"]) for row in delay_seed_rows})
     seed_position = {seed: index + 1 for index, seed in enumerate(seed_values)}
@@ -1741,7 +2172,14 @@ def _write_plots(
     return generated
 
 
-def _write_manifest(output: Path, case_validation: Sequence[Mapping[str, Any]], archive_identity: Sequence[Mapping[str, Any]], source_identity: Mapping[str, Any], figure_paths: Sequence[str]) -> dict[str, Any]:
+def _write_manifest(
+    output: Path,
+    case_validation: Sequence[Mapping[str, Any]],
+    archive_identity: Sequence[Mapping[str, Any]],
+    source_identity: Mapping[str, Any],
+    figure_paths: Sequence[str],
+    production_output_summary: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
     files = []
     for path in sorted(output.rglob("*")):
         if path.is_file() and path.name != "manifest.json":
@@ -1751,7 +2189,7 @@ def _write_manifest(output: Path, case_validation: Sequence[Mapping[str, Any]], 
     manifest = {
         "schema_version": 1,
         "analysis_id": "R22_V3_3_RESIDUAL_TASK_GAP_OFFLINE_AUDIT",
-        "created_date": "2026-11-09",
+        "created_date": "2026-11-10",
         "analysis_worktree_head": head,
         "analysis_branch": branch,
         "analysis_script_path": str(Path(__file__).resolve().relative_to(ROOT)),
@@ -1786,6 +2224,8 @@ def _write_manifest(output: Path, case_validation: Sequence[Mapping[str, Any]], 
                 "angle_range_doppler_full_10_period_common_success": False,
                 "ground_speed_common_success": False,
                 "radial_velocity_common_success": False,
+                "period_detection_cluster_and_truth_unmatched_summary": True,
+                "non_target_cluster_truth_attribution": False,
             },
             "PERFORMANCE_VERIFIED": False,
         },
@@ -1796,6 +2236,16 @@ def _write_manifest(output: Path, case_validation: Sequence[Mapping[str, Any]], 
             if period
         }),
         "cases_with_full_10_period_parameter_products": sum(bool(row.get("full_10_period_parameter_products_available")) for row in case_validation),
+        "production_output_method_coverage": [
+            {
+                "method_label": row["method_label"],
+                "mean_seed_production_output_coverage": row["mean_seed_production_output_coverage"],
+                "mean_seed_target_association_coverage": row["mean_seed_target_association_coverage"],
+            }
+            for row in production_output_summary
+        ],
+        "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+        "truth_unmatched_detection_status": "TARGET_PRESENT_FROZEN_EVALUATOR_ASSOCIATION; NOT_SYSTEM_PFA",
         "ground_speed_common_success_reason": "Compact ZIPs retain aggregate own-success parameter_metrics.csv and track_level_metrics.csv but omit per-opportunity track_debug_runs/track_output_payloads.csv required by the frozen evaluator.",
         "figure_paths": list(figure_paths),
         "outputs": files,
@@ -1860,6 +2310,7 @@ def run_analysis(output: Path) -> dict[str, Any]:
     own_seed_rows, pair_parameter_rows, fourway_parameter_rows, parameter_summary_rows = _aggregate_parameters(case_units, all_seeds)
     position_own_common_rows, position_pairwise_rows, position_summary_rows = _aggregate_association_position_metrics(case_units, all_seeds)
     track_seed_rows, track_summary_rows = _aggregate_tracks(case_method_rows, all_seeds)
+    production_output_case_rows, production_output_period_rows, production_output_seed_rows, production_output_summary_rows = _aggregate_production_outputs(case_units, all_seeds)
     delay_seed_rows, delay_summary_rows = _aggregate_delay(delay_rows, all_seeds)
     recovery_case_rows, recovery_seed_rows, recovery_summary_rows = _aggregate_recovery(case_units, all_seeds)
 
@@ -1885,6 +2336,10 @@ def run_analysis(output: Path) -> dict[str, Any]:
     _write_gzip_csv(output / "parameter_opportunity_audit.csv.gz", opportunity_audit_rows)
     _write_csv(output / "track_seed_summary.csv", track_seed_rows)
     _write_csv(output / "track_screening_summary.csv", track_summary_rows)
+    _write_csv(output / "production_output_by_case.csv", production_output_case_rows)
+    _write_gzip_csv(output / "production_output_by_period.csv.gz", production_output_period_rows)
+    _write_csv(output / "production_output_by_seed.csv", production_output_seed_rows)
+    _write_csv(output / "production_output_screening_summary.csv", production_output_summary_rows)
     _write_csv(output / "delay_estimation_by_case.csv", delay_rows)
     _write_csv(output / "delay_estimation_by_seed.csv", delay_seed_rows)
     _write_csv(output / "delay_estimation_summary.csv", delay_summary_rows)
@@ -1893,7 +2348,8 @@ def run_analysis(output: Path) -> dict[str, Any]:
     _write_csv(output / "paired_recovery_screening_summary.csv", recovery_summary_rows)
     plots = _write_plots(
         output, scenario_rows, overlap_rows, fourway_detection_rows, own_seed_rows,
-        fourway_parameter_rows, pair_parameter_rows, track_summary_rows, delay_seed_rows,
+        fourway_parameter_rows, pair_parameter_rows, track_summary_rows,
+        production_output_summary_rows, delay_seed_rows,
         position_own_common_rows, position_pairwise_rows, position_summary_rows,
     )
 
@@ -1921,6 +2377,12 @@ def run_analysis(output: Path) -> dict[str, Any]:
         "all_core_truth_association_sets_match": all(row["core_method_truth_keys_match"] for row in case_validation_rows),
         "all_core_production_branches_passed": all(row["core_method_production_branches_passed"] for row in case_validation_rows),
         "parameter_opportunity_rows": len(opportunity_audit_rows),
+        "production_output_case_method_rows": len(production_output_case_rows),
+        "production_output_period_rows": len(production_output_period_rows),
+        "production_output_methods": production_output_summary_rows,
+        "non_target_cluster_count": None,
+        "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+        "truth_unmatched_final_detections_are_system_pfa": False,
         "position_m_full_10_period_common_success_status": "EVALUABLE_FROM_FROZEN_EVALUATOR_ASSOCIATION_RECORDS",
         "position_m_full_10_period_evaluator_parity_checks": sum(row["metric"] == "position_m_all_periods_association" for row in parameter_parity_rows),
         "position_m_full_10_period_evaluator_parity_failures": sum(row["metric"] == "position_m_all_periods_association" and row["status"] != "PASS" for row in parameter_parity_rows),
@@ -1935,7 +2397,7 @@ def run_analysis(output: Path) -> dict[str, Any]:
         "plots": plots,
     }
     (output / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    manifest = _write_manifest(output, case_validation_rows, archive_identity_rows, source_identity, plots)
+    manifest = _write_manifest(output, case_validation_rows, archive_identity_rows, source_identity, plots, production_output_summary_rows)
     print(json.dumps({"summary": summary, "manifest": str((output / "manifest.json").relative_to(ROOT)), "output_bytes": sum(item["bytes"] for item in manifest["outputs"])}, ensure_ascii=False, indent=2))
     return summary
 
