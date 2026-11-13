@@ -56,14 +56,25 @@ H0 的 0 ns branch 为 A0 no-error；+4 ns branch 包括 C0、Fixed D3、Huber D
 | A0 no-error | 0 ns 目标/杂波配对参考 | 不施加非零校正 |
 | C0 Current | +4 ns 输入，不校正 | 当前失配基线 |
 | Fixed D3 | +4 ns；固定校正 `3.4099650318669545 ns` | R9 静态标定值，来自 R3 seed101 的 target-free `A1_OFF` C+N；来源为 `docs/research/phase_r/R9_static_calibration_baseline.md`，原 IQ SHA-256 为 `d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6`。原 IQ 已清理、该值不能从原始 IQ 独立重算；V4 只沿用记录的固定值，不重拟合、不按 V4 seed/检测结果调参；它不是本 case 盲估计或 `+4 ns` 真值输入。 |
-| Huber D3 Causal Prefix | +4 ns；复用冻结 Huber D3 加权最小二乘规则，每周期只拟合当前及过去 ON raw C1/C2 | 与 M1 使用相同观测、周期前缀、几何和校正算子；不读 OFF/TO、真值或未来周期。精确实现 commit、权重/支持规则及校正值必须在冻结前由源码审计固定。 |
+| Huber D3 Causal Prefix | +4 ns；将审计确认的几何校正、幅度加权 Huber phase-slope D3 应用于每周期当前及历史 ON raw C1/C2 前缀 | 与 M1 使用相同观测、周期前缀、几何和校正算子；不读 OFF/TO、真值或未来周期。现有代码只有 full-case batch 版本；V4 前缀 runner 尚未实现。 |
 | M1 Causal Prefix | +4 ns；仅使用当前及历史周期的 target-present ON 原始 C1/C2 | V4 主要待确认条件；禁止读取 OFF、TO、真值或未来周期 |
 | M1 Batch-10 diagnostic | +4 ns；使用同一 ON case 的完整十周期 | 使用未来周期的信息；只能标记为离线诊断，排除在线主排名和部署收益主张 |
 | PK Known correction | +4 ns；真值仅用于 evaluator-only 物理校正 | 已知误差校正上限，不是可部署盲估计器 |
 
 所有 Production 对照共用相同输入、源码身份、Native CUDA backend、运行 XML 主参数、range/CFAR/关联/航迹评价门与输出解释。只允许指定的物理校正输入变化。配置使用 `USE_COREX=OFF` / `use_corex=false`；不得以 CPU 仿真或历史 ZIP 替代 CUDA 证据。
 
-### 3.1 M1 周期因果定义
+### 3.1 现有实现源码审计
+
+只读审计基线为 `1063d67c96af7dbbe7fe871b3a56be0ca453b9b2`；本次仅检查源码，没有执行估计器、Production 或 CUDA。
+
+- `scripts/phase_r/run_r22_cuda_pilot.py:_raw_role_periods` 为每个角色取完整 `period_count` 个周期；`run_case` 随后将全部 A1/ON 路径一次性传给 `r12._blind_m1_from_b_on`。该调用没有当前周期 `k` 或截止周期参数。
+- `scripts/phase_r/run_r12_physics_matched_delay.py:_blind_m1_from_b_on` 逐个读取传入路径、把 C1/C2 pulse 矩阵拼接后只估计一次；几何相位也覆盖全部传入 packet。当前函数没有逐周期结果或前缀输入身份校验。
+- 现有同输入 Huber 候选来自 `scripts/phase_r/physics_matched_delay.py:_slope_baselines`：对 `observed_cross / geometry_cross` 的展开相位做幅度加权斜率拟合。它复用 M1 选出的同一频率 mask（有限非零的 observed/geometry cross、非零频率，且 observed-cross 幅度不低于有效频点第80百分位），因此这是**共享 M1 支持选择与几何的估计规则对照**，不是独立的端到端预处理/选频基线。`scripts/estimate_channel_delay.py:fit_weighted_line` 的 `robust=True` 使用12次迭代、`1.4826 × MAD` 尺度（下限 `1e-6`）及标准化 Huber 截点 `1.345`。R21 qualification 要求至少8个支持频点、频率跨度至少3 MHz、有限 D3 值且 D3/M1 支持数相同；但它不检查 D3 结果是否落在 M1 的 `(-0.49, 0.49)` sample delay bounds 内。V4 必须冻结该共享 mask 是否为目标对照的设计选择，以及 Huber 自己的有效范围和失败/fallback 规则。这一候选不得与固定 R9 D3 校正值混称。
+- `scripts/phase_r/run_r22_cuda_pilot.py:_run_extra_delay_method` 接收一个 case 级 `estimate_ns`，并将同一标量用于全部周期、全部 ON/OFF/TO role 的输入改写。现有 R21/R22 pilot 因此均是整 case batch 估计与整 case 标量校正，不是 V4 所定义的逐周期因果处理。
+
+**审计状态：** full-case batch M1 与上述 Huber D3 已有源码实现；V4 的 period-prefix 调度、逐周期估计、当前周期校正和未来周期隔离尚未实现或执行。V3.3 的 batch 结果不能作为 V4 因果实现或性能证据。V4 冻结前必须新增并审查：带明确 `period_id` 的有序前缀 `{0,…,k}`；M1/Huber 对同一前缀输入和共享 mask 的配对身份；冻结 Huber delay-domain/有效性/fallback 规则；每个前缀只将估计校正应用到当前周期的 ON/OFF/TO；失败时当周期显式 C0 零校正并进入全策略分母；逐周期 correction、输入和产物身份。代码必须证明 `k+1…9` 的样本未进入估计。
+
+### 3.2 M1 周期因果定义
 
 对周期 `k=0..9`，M1 与 Huber D3 前缀估计器可读信息严格限定为当前 case 的 ON 原始 C1/C2 pulses，其周期集合为 `{0,…,k}`，以及运行前已知的采样率、频率轴、通道几何和名义电子扫描延迟等部署配置。两个估计器必须使用同一个前缀输入和对应周期几何。它们不得读：
 
@@ -188,7 +199,7 @@ V3.2 archive 只保留部分时期 Detection，且不含逐帧 TrackManager debu
 1. ChatGPT 独立审查本文件及机器设计，确认总体科学价值和阶段方法学；
 2. 用户/工程需求方批准 `MDE_position_m`、`margin_detection_pp` 及必要的航迹保护界值；
 3. 完成目标 ROI、真值关联、H0 false object 与 per-period output schema 的源码审计；
-4. 实现周期前缀 M1 与同信息 Huber D3 基线，并完成无 GPU 的因果信息泄漏/边界检查；此项不得替代 CUDA 证据；
+4. 实现周期前缀 M1 与同信息几何校正 Huber D3 基线、逐周期 correction runner，并完成无 GPU 的未来周期隔离/边界检查；此项不得替代 CUDA 证据；
 5. 对全部 target/H0 seed 和输入身份做最终碰撞审计；
 6. 用户单独明确授权完整输出尺寸 pilot / CUDA Production；确认 pilot 结果与磁盘恢复机制后，再请求或批准完整矩阵。
 

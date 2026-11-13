@@ -66,7 +66,11 @@
         "delay_ns": 4.0,
         "role": "same-information deterministic prefix baseline",
         "allowed_input": "same-case ON raw C1/C2 periods 0..k; same geometry and correction operator as M1",
-        "algorithm_identity": "freeze exact implementation, weights, support rule, and source commit before execution",
+        "algorithm_identity": "audited batch candidate at source commit 1063d67c96af7dbbe7fe871b3a56be0ca453b9b2: physics_matched_delay._slope_baselines geometry-corrects observed_cross by geometry_cross, unwraps phase, magnitude-weights fit_weighted_line(robust=True); prefix runner not implemented",
+        "robust_fit": "12 IRLS iterations; scale 1.4826*MAD with 1e-6 floor; standardized Huber cutoff 1.345",
+        "shared_support_mask": "same M1-selected mask: finite nonzero observed/geometry cross, nonzero frequency, and observed_cross magnitude >= 80th percentile of valid bins",
+        "qualification_gate": "finite D3 estimate; support_count >= 8; frequency_span_hz >= 3e6; D3 support_count equals M1 support_count",
+        "known_gate_gap": "current R21 qualifier does not enforce the M1 delay_bounds_samples on the D3 estimate; freeze Huber-specific delay-domain validity before V4",
         "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
       },
       {"id": "M1_CAUSAL_PREFIX", "delay_ns": 4.0, "role": "primary target-present period-causal estimator"},
@@ -121,6 +125,8 @@
   },
   "causal_estimator": {
     "method_id": "M1_CAUSAL_PREFIX",
+    "v4_causal_prefix_implemented": false,
+    "v4_causal_prefix_executed": false,
     "allowed_inputs": [
       "same-case target-present ON raw C1/C2 pulses from periods 0 through current period k",
       "pre-known sample rate and frequency axis",
@@ -137,6 +143,25 @@
     "causality_scope": "period-boundary causal; not pulse-by-pulse real-time proof",
     "failure_policy": "explicit zero-correction C0 for that period; log ESTIMATOR_UNAVAILABLE_ZERO_CORRECTION; count all opportunities; no previous-estimate, Fixed D3, batch, paired-reference, or Known fallback",
     "required_diagnostics": ["prefix_period_ids", "pulse_count", "input_identity", "estimate", "fit_diagnostics", "applied_correction", "runtime", "status"]
+  },
+  "existing_source_audit": {
+    "source_audit_commit": "1063d67c96af7dbbe7fe871b3a56be0ca453b9b2",
+    "audit_type": "read-only source inspection; no estimator, Production, or CUDA execution",
+    "r22_input_scope": "run_r22_cuda_pilot._raw_role_periods obtains all period_count paths; run_case passes the complete A1/ON path list to _blind_m1_from_b_on once",
+    "m1_estimator_scope": "run_r12_physics_matched_delay._blind_m1_from_b_on concatenates C1/C2 samples from every passed period and estimates once; no period-k cutoff or period IDs",
+    "huber_candidate_scope": "physics_matched_delay._slope_baselines computes a geometry-corrected magnitude-weighted robust phase-slope estimate from the same pooled input used by M1",
+    "huber_mask_coupling": "Huber D3 reuses the M1-selected support mask: finite nonzero observed/geometry cross, nonzero frequencies, observed_cross magnitude at or above the 80th percentile of valid bins",
+    "huber_domain_gap": "R21 qualifier checks finite D3 value, support >= 8, frequency span >= 3 MHz and support parity with M1, but has no explicit D3 delay-domain bound",
+    "production_correction_scope": "run_r22_cuda_pilot._run_extra_delay_method accepts one case-level scalar estimate_ns and applies it to every period for ON/OFF/TO",
+    "v4_period_causal_runner": {"implemented": false, "executed": false, "evaluable": false, "performance_verified": false},
+    "required_before_freeze": [
+      "ordered period_id mapping and explicit 0..k prefix input for both M1 and Huber",
+      "same prefix identity and geometry for the paired estimators",
+      "freeze whether the M1-shared frequency mask is intended for Huber and define Huber-specific delay-domain, validity, and fallback rules",
+      "per-period estimate and current-period-only correction application to paired ON/OFF/TO roles",
+      "no-future-period data access audit",
+      "explicit current-period zero-correction fallback in the policy denominator"
+    ]
   },
   "primary_comparison": {
     "condition": {"delay_error_ns": 4.0, "target_snr_db": 20.0},
@@ -218,9 +243,10 @@
   "freeze_blockers": [
     "engineering-approved position MDE in meters",
     "engineering-approved detection-coverage noninferiority margin",
-    "frozen Huber D3 prefix source/configuration and matched-input implementation audit",
+    "implement and audit the per-period M1/Huber prefix runner; current source is full-case batch with one case-level correction scalar",
+    "freeze Huber shared-mask policy and Huber-specific delay-domain validity/fallback; current qualifier has no D3 delay-bound check",
     "optional track-protection limits if used for a success claim",
-    "source audit and implementation of causal prefix estimator and output schema",
+    "implement and verify the per-period estimator/output schema, including future-period isolation",
     "final seed collision and pairing audit",
     "user authorization for representative CUDA/output-size pilot",
     "resource and resume/cleanup gate derived from measured pilot"
