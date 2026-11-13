@@ -7,6 +7,9 @@
   "ai_training": false,
   "router_enabled": false,
   "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
+  "updated_on": "2026-11-14",
+  "draft_revision": 2,
+  "case_identity_semantics": "240 unique case identities are paired/nested by seed; they are not 240 statistically independent samples",
   "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
   "supersedes": null,
   "references": {
@@ -40,12 +43,32 @@
     "delay_error_ns": [0.0, 4.0],
     "target_count": 20,
     "case_count": 180,
+    "production_branch_count": 1260,
     "pairing": "same seed, speed, geometry, target state, clutter/noise realization; only channel-delay intervention changes",
     "roles": ["ON", "TO"],
     "methods": [
       {"id": "A0", "delay_ns": 0.0, "role": "no-error reference"},
       {"id": "C0", "delay_ns": 4.0, "role": "uncorrected current"},
-      {"id": "FIXED_D3", "delay_ns": 4.0, "role": "frozen deterministic calibration"},
+      {
+        "id": "FIXED_D3",
+        "delay_ns": 4.0,
+        "role": "frozen deterministic calibration",
+        "fixed_correction_ns": 3.4099650318669545,
+        "provenance": "R9 static calibration from R3 seed101 target-free A1_OFF C+N; docs/research/phase_r/R9_static_calibration_baseline.md",
+        "calibration_iq_sha256": "d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6",
+        "calibration_iq_available": false,
+        "value_rederived_from_raw_iq": false,
+        "refit_on_v4_seed": false,
+        "uses_v4_delay_truth": false
+      },
+      {
+        "id": "HUBER_D3_CAUSAL_PREFIX",
+        "delay_ns": 4.0,
+        "role": "same-information deterministic prefix baseline",
+        "allowed_input": "same-case ON raw C1/C2 periods 0..k; same geometry and correction operator as M1",
+        "algorithm_identity": "freeze exact implementation, weights, support rule, and source commit before execution",
+        "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
+      },
       {"id": "M1_CAUSAL_PREFIX", "delay_ns": 4.0, "role": "primary target-present period-causal estimator"},
       {"id": "M1_BATCH10_DIAGNOSTIC", "delay_ns": 4.0, "role": "full-case offline diagnostic; excluded from online ranking"},
       {"id": "PK_KNOWN", "delay_ns": 4.0, "role": "known-error correction upper bound; evaluator-only truth"}
@@ -59,12 +82,31 @@
     "delay_error_ns": [0.0, 4.0],
     "period_count": 10,
     "case_count": 60,
+    "production_branch_count": 210,
     "paired_by_seed": true,
     "reuse_v3_2_h0_seeds": false,
     "methods": [
       {"id": "A0", "delay_ns": 0.0},
       {"id": "C0", "delay_ns": 4.0},
-      {"id": "FIXED_D3", "delay_ns": 4.0},
+      {
+        "id": "FIXED_D3",
+        "delay_ns": 4.0,
+        "fixed_correction_ns": 3.4099650318669545,
+        "provenance": "R9 static calibration from R3 seed101 target-free A1_OFF C+N",
+        "calibration_iq_sha256": "d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6",
+        "calibration_iq_available": false,
+        "value_rederived_from_raw_iq": false,
+        "refit_on_v4_seed": false,
+        "uses_v4_delay_truth": false
+      },
+      {
+        "id": "HUBER_D3_CAUSAL_PREFIX",
+        "delay_ns": 4.0,
+        "role": "same-information deterministic prefix baseline",
+        "allowed_input": "same-case target-free C1/C2 periods 0..k; same geometry and correction operator as M1",
+        "algorithm_identity": "freeze exact implementation, weights, support rule, and source commit before execution",
+        "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
+      },
       {"id": "M1_CAUSAL_PREFIX", "delay_ns": 4.0},
       {"id": "M1_BATCH10_DIAGNOSTIC", "delay_ns": 4.0, "online_ranking": false},
       {"id": "PK_KNOWN", "delay_ns": 4.0, "truth_use": "evaluator_only"}
@@ -107,6 +149,39 @@
     "detection_coverage_noninferiority_margin_pp": null,
     "threshold_status": "PENDING_ENGINEERING_REQUIREMENTS; do not freeze or run until approved"
   },
+  "secondary_information_matched_comparison": {
+    "methods": ["M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"],
+    "same_information": true,
+    "endpoint": "paired seed-level position RMSE on the same common correctly associated target-period opportunities",
+    "contrast": "M1_CAUSAL_PREFIX minus HUBER_D3_CAUSAL_PREFIX; negative favors M1",
+    "status": "PRESPECIFIED_SECONDARY; descriptive confidence interval only unless a separate engineering MDE is approved",
+    "position_mde_m": null
+  },
+  "planning_only_historical_screening": {
+    "source_opportunity_audit": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/evidence/parameter_opportunity_audit.csv.gz",
+    "condition_slice": {"delay_error_ns": 4.0, "target_snr_db": 20.0, "radial_speed_mps": [0.5, 2.5, 6.7]},
+    "screening_seed_count": 12,
+    "estimators_used_full_10_period_batch": true,
+    "position_delta_definition": "per-seed, per-speed pairwise-common-success RMSE difference; equal-weight mean across three speeds",
+    "position_delta_m1_minus_fixed_d3_mean_m": -11.146172818015659,
+    "position_delta_m1_minus_fixed_d3_seed_sd_m": 4.7967835646439765,
+    "position_delta_m1_minus_fixed_d3_directional_seeds": "12/12",
+    "position_delta_m1_minus_huber_mean_m": -5.6033961503441985,
+    "position_delta_m1_minus_huber_seed_sd_m": 0.9854697467048248,
+    "position_delta_m1_minus_huber_directional_seeds": "12/12",
+    "own_detection_coverage_delta_m1_minus_fixed_d3_mean_pp": 0.08333333333333341,
+    "own_detection_coverage_delta_m1_minus_fixed_d3_seed_sd_pp": 0.4949237263957897,
+    "own_detection_coverage_delta_m1_minus_huber_mean_pp": 0.0,
+    "own_detection_coverage_delta_m1_minus_huber_seed_sd_pp": 0.3333333333333314,
+    "coverage_counts_crosscheck": "matched opportunity counts agree with local V3.2 parameter_metrics_by_case.csv on 108 seed-speed-method rows",
+    "naive_30_seed_t29_mean_interval_halfwidth_if_seed_sd_transfers": {
+      "position_m1_minus_fixed_d3_m": 1.7911487331474871,
+      "position_m1_minus_huber_m": 0.36798051539699433,
+      "coverage_m1_minus_fixed_d3_pp": 0.1848075890003697,
+      "coverage_m1_minus_huber_pp": 0.1244687340318094
+    },
+    "interpretation_limit": "descriptive screening precision only; not power, not evidence of a causal-prefix effect, and not a source for MDE/noninferiority thresholds"
+  },
   "statistics": {
     "primary_interval": "seed-cluster bootstrap 95% interval; resample seed with its full speed/target/period cluster",
     "bootstrap_replicates": 10000,
@@ -120,6 +195,7 @@
     "actual TrackManager per-frame state, associated detection and PIPE payload audit with field sources",
     "truth-aligned target-only complex response at common frozen ROI and named processing taps",
     "per-period causal estimator prefix inputs, estimate, correction, runtime, status and explicit fallback",
+    "per-period Huber D3 causal-prefix inputs, estimate, correction, runtime, status and explicit fallback",
     "runtime XML, Stage2 reports, input hashes, background reuse mapping, source/binary identities, device snapshot, commands, logs and exit codes",
     "compact case archive, member inventory, CRC/SHA verification, evaluability state and cleanup ledger"
   ],
@@ -142,6 +218,7 @@
   "freeze_blockers": [
     "engineering-approved position MDE in meters",
     "engineering-approved detection-coverage noninferiority margin",
+    "frozen Huber D3 prefix source/configuration and matched-input implementation audit",
     "optional track-protection limits if used for a success claim",
     "source audit and implementation of causal prefix estimator and output schema",
     "final seed collision and pairing audit",
@@ -153,6 +230,7 @@
     "A0/C0/Known physical closure failure",
     "Native CUDA production, valid-CUT, scan-beam, or TrackManager lineage failure",
     "future-period or oracle information reaches M1 causal estimator",
+    "Huber and M1 prefix input identities or period bounds differ",
     "estimator failure hidden or excluded from the full policy denominator",
     "missing all-period Detection, target response, or independent H0 lineage",
     "archive identity/CRC failure or unsafe resume identity change",

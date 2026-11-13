@@ -305,3 +305,14 @@
 - **阶段与授权状态：** 契约 `DRAFT_NOT_FROZEN`；本阶段没有实现算法、运行 CUDA、训练 AI 或启动矩阵。用户当前授权覆盖契约草案与审查材料，不覆盖 CUDA。`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。
 - **磁盘治理：** 项目目录约5.3 GiB，低于20 GiB最终上限；13 GiB可用盘空间。保留1.5 GiB V3.2 compact archive 与 V3.3 汇总证据，因为它们支持本次设计/审查；无证据表明当前可安全删除的大型重复结果，本次未删数据。V4 运行后允许中间占用超过20 GiB，最终审查清理后必须降至20 GiB以下，且保留必要记录、配置、审计和高价值结果。
 - **交付入口：** [V4契约草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器设计](phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)、[ChatGPT独立审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)。下一步先审查草案并补齐阈值；任何 pilot 或完整矩阵须另获明确授权。
+
+## 2026-11-14｜R22-V4 契约草案修订与磁盘清理记录
+
+- **承接：** 保持 `D-2026-11-13-R22-V3.3-REVIEW-V4-CONTRACT-DRAFT` 的草案状态，不修改研究总纲，不授权 CUDA/AI。
+- **基线方法身份：** 将 R9 固定 D3 明确为 `3.4099650318669545 ns`，来源是 R3 seed101 target-free `A1_OFF` C+N，原 IQ SHA-256 `d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6`；这是历史静态校正，不是 V4 case 的真值输入或盲估计。
+- **信息匹配对照：** V3.3 中 M1−Huber 的位置 RMSE 筛选差为 `−6.524 ± 0.771 m`、12/12 seed 同向，但每 seed 汇总混合速度/SNR case，仅作设计背景。V4 草案新增 `HUBER_D3_CAUSAL_PREFIX` 次要对照，与 M1 使用同一当前/历史 ON C1/C2 前缀、几何、校正算子与 Production 门；在实现和来源冻结前不得声称可执行或性能收益。主要终点仍为 M1 Causal Prefix 对 Fixed D3；同信息对照不代替主比较。
+- **筛选精度规划（非功效）：** 从 V3.3 opportunity audit 取 V4 候选层 `+4 ns / 20 dB / {0.5,2.5,6.7 m/s}`，按每 seed、每速度 pairwise-common-success RMSE 差再等权平均，M1−Fixed 为 `−11.146 ± 4.797 m`，M1−Huber 为 `−5.603 ± 0.985 m`（均为12/12方向同向）；同一机会表的 own detection coverage 差分别为 `+0.083 ± 0.495 pp` 和 `0.000 ± 0.333 pp`，其命中计数与本机 V3.2 case metrics 在108个 seed×speed×method行上核对相符。若旧 seed SD 转移到30 seeds，t(29)均值区间半宽约为位置1.79/0.37m、覆盖率0.185/0.124pp。两种估计器在筛选中均使用十周期 batch；投影不构成 MDE、非劣界值、因果效果或功效证明。
+- **执行计数：** 保留180 target-present + 60 H0 场景 case identity；明确方法×角色展开约1,470条 Production branches，供完整输出 pilot 做资源估算。
+- **阈值与授权：** 工程定位 MDE、检测覆盖率非劣界值仍待用户/工程需求方；V3.3 筛选差不得替代。Huber 前缀实现审计、全周期输出 schema、seed 碰撞核查、输出大小 pilot 未完成。状态仍 `DRAFT_NOT_FROZEN`、`CUDA_AUTHORIZED=false`、`AI_TRAINING=false`。
+- **清理审计：** 项目目录约5.3 GiB（低于20 GiB最终上限）；删除 `.scratch/task5_targeted_gpu_zero_retry/manifest.json`（13,597 bytes，`not_started`、0 case）及空目录。保留其他有实际 Production 运行/诊断内容的 scratch、V3.2 唯一 compact archives、V3.3 证据和被 S1e manifest 引用的 `build_r22s1/GMTI_pipe_core`。所在文件系统仍约98%使用、可用约13 GiB；本次小清理不改变该显示。
+- **交付入口：** [V4契约草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器设计](phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)、[ChatGPT独立审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)。
