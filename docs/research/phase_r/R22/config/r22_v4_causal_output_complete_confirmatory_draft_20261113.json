@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "design_id": "R22_EXTENSION_20261113_V4_CAUSAL_OUTPUT_COMPLETE_CONFIRMATORY_DRAFT",
+  "status": "DRAFT_NOT_FROZEN",
+  "execution_authorized": false,
+  "cuda_authorized": false,
+  "ai_training": false,
+  "router_enabled": false,
+  "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
+  "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "supersedes": null,
+  "references": {
+    "prior_design": "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json",
+    "prior_design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
+    "v3_3_review": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md",
+    "contract": "docs/research/phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md"
+  },
+  "production": {
+    "backend": "Native CUDA",
+    "use_corex": false,
+    "beam": 50,
+    "period_count": 10,
+    "range_bins_inclusive": [666, 1197],
+    "group_width_bins": 133,
+    "area_clutter": {
+      "range_window_m": [84500.0, 85500.0],
+      "mean_power": 0.02,
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98,
+      "thermal_noise_power": 0.001,
+      "runtime_gate": "measured_packets_and_samples_positive; power_and_correlation_pass_frozen_stage2_gate"
+    }
+  },
+  "target_present": {
+    "seed_range_inclusive": [1933001, 1933030],
+    "seed_count": 30,
+    "seed_audit": "reserved_by_v3_2_confirmatory_design; re-audit all manifests and archives before freeze",
+    "radial_speed_mps": [0.5, 2.5, 6.7],
+    "target_snr_db": 20.0,
+    "delay_error_ns": [0.0, 4.0],
+    "target_count": 20,
+    "case_count": 180,
+    "pairing": "same seed, speed, geometry, target state, clutter/noise realization; only channel-delay intervention changes",
+    "roles": ["ON", "TO"],
+    "methods": [
+      {"id": "A0", "delay_ns": 0.0, "role": "no-error reference"},
+      {"id": "C0", "delay_ns": 4.0, "role": "uncorrected current"},
+      {"id": "FIXED_D3", "delay_ns": 4.0, "role": "frozen deterministic calibration"},
+      {"id": "M1_CAUSAL_PREFIX", "delay_ns": 4.0, "role": "primary target-present period-causal estimator"},
+      {"id": "M1_BATCH10_DIAGNOSTIC", "delay_ns": 4.0, "role": "full-case offline diagnostic; excluded from online ranking"},
+      {"id": "PK_KNOWN", "delay_ns": 4.0, "role": "known-error correction upper bound; evaluator-only truth"}
+    ]
+  },
+  "h0": {
+    "candidate_seed_range_inclusive": [1936001, 1936030],
+    "seed_count": 30,
+    "seed_audit": "initial text, path, and zip-filename scan found no collision; full registry audit required before freeze",
+    "target_count": 0,
+    "delay_error_ns": [0.0, 4.0],
+    "period_count": 10,
+    "case_count": 60,
+    "paired_by_seed": true,
+    "reuse_v3_2_h0_seeds": false,
+    "methods": [
+      {"id": "A0", "delay_ns": 0.0},
+      {"id": "C0", "delay_ns": 4.0},
+      {"id": "FIXED_D3", "delay_ns": 4.0},
+      {"id": "M1_CAUSAL_PREFIX", "delay_ns": 4.0},
+      {"id": "M1_BATCH10_DIAGNOSTIC", "delay_ns": 4.0, "online_ranking": false},
+      {"id": "PK_KNOWN", "delay_ns": 4.0, "truth_use": "evaluator_only"}
+    ],
+    "primary_false_alarm_endpoint": "seed-clustered proportion of valid beam-50 periods with >=1 frozen postfilter Detection",
+    "supporting_endpoints": [
+      "false_unique_cfar_cut_count / valid_cut_count per seed",
+      "false_cluster_count per seed",
+      "false_confirmed_track_count per seed"
+    ],
+    "scope_limit": "beam-50, ten-period H0 endpoint; not full multi-beam system Pfa"
+  },
+  "causal_estimator": {
+    "method_id": "M1_CAUSAL_PREFIX",
+    "allowed_inputs": [
+      "same-case target-present ON raw C1/C2 pulses from periods 0 through current period k",
+      "pre-known sample rate and frequency axis",
+      "channel geometry and nominal electronic-scan delay configuration"
+    ],
+    "forbidden_inputs": [
+      "periods later than k",
+      "paired 0 ns reference",
+      "OFF or TO role data",
+      "target truth, injected delay truth, target SNR truth, or evaluator associations",
+      "Known correction values or estimates from another seed"
+    ],
+    "application_timing": "fit after period k input is complete and before Production processes period k",
+    "causality_scope": "period-boundary causal; not pulse-by-pulse real-time proof",
+    "failure_policy": "explicit zero-correction C0 for that period; log ESTIMATOR_UNAVAILABLE_ZERO_CORRECTION; count all opportunities; no previous-estimate, Fixed D3, batch, paired-reference, or Known fallback",
+    "required_diagnostics": ["prefix_period_ids", "pulse_count", "input_identity", "estimate", "fit_diagnostics", "applied_correction", "runtime", "status"]
+  },
+  "primary_comparison": {
+    "condition": {"delay_error_ns": 4.0, "target_snr_db": 20.0},
+    "methods": ["M1_CAUSAL_PREFIX", "FIXED_D3"],
+    "endpoint": "paired seed-level equal-weight mean across three speed strata of position RMSE difference on frozen common correctly associated target-period opportunities",
+    "contrast": "M1_CAUSAL_PREFIX minus FIXED_D3; negative favors M1",
+    "inferential_unit": "independent seed",
+    "seed_count": 30,
+    "position_mde_m": null,
+    "detection_coverage_noninferiority_margin_pp": null,
+    "threshold_status": "PENDING_ENGINEERING_REQUIREMENTS; do not freeze or run until approved"
+  },
+  "statistics": {
+    "primary_interval": "seed-cluster bootstrap 95% interval; resample seed with its full speed/target/period cluster",
+    "bootstrap_replicates": 10000,
+    "bootstrap_rng": "NumPy PCG64 seed 22029",
+    "secondary_speed_tests": "Holm correction across three speeds if inferential p-values are reported",
+    "power_status": "not validated until engineering MDE and detection margin are specified"
+  },
+  "required_outputs": [
+    "all-period Detection CSV and one-to-one target truth association for periods 0-9",
+    "candidates, clusters, cluster/detection lineage, CFAR geometry, valid CUT denominator and unique-hit summary",
+    "actual TrackManager per-frame state, associated detection and PIPE payload audit with field sources",
+    "truth-aligned target-only complex response at common frozen ROI and named processing taps",
+    "per-period causal estimator prefix inputs, estimate, correction, runtime, status and explicit fallback",
+    "runtime XML, Stage2 reports, input hashes, background reuse mapping, source/binary identities, device snapshot, commands, logs and exit codes",
+    "compact case archive, member inventory, CRC/SHA verification, evaluability state and cleanup ledger"
+  ],
+  "resume_policy": {
+    "case_states": ["PLANNED", "RUNNING", "ARCHIVED", "VERIFIED", "EVALUATED", "FAILED", "NOT_EVALUABLE"],
+    "resume_only_after_archive_identity_and_crc_sha_verification": true,
+    "never_overwrite_attempts": true,
+    "identity_change_requires_new_design_and_output_root": true
+  },
+  "storage_policy": {
+    "final_project_limit_gib": 20,
+    "intermediate_peak_may_exceed_final_limit": true,
+    "current_project_size_gib_approx": 5.3,
+    "v3_2_archives_retained": true,
+    "v4_full_output_size_estimate": null,
+    "required_resource_gate": "user-authorized representative complete-output pilot before the confirmatory matrix",
+    "delete_raw_only_after": ["compact archive complete", "identity and CRC/SHA verified", "required evidence reconstructibility established", "cleanup ledger written"],
+    "post_review_target": "remove dispensable intermediates; retain necessary records/config/audit/high-value evidence and keep final project below 20 GiB"
+  },
+  "freeze_blockers": [
+    "engineering-approved position MDE in meters",
+    "engineering-approved detection-coverage noninferiority margin",
+    "optional track-protection limits if used for a success claim",
+    "source audit and implementation of causal prefix estimator and output schema",
+    "final seed collision and pairing audit",
+    "user authorization for representative CUDA/output-size pilot",
+    "resource and resume/cleanup gate derived from measured pilot"
+  ],
+  "stop_conditions": [
+    "invalid area-clutter injection or paired background identity",
+    "A0/C0/Known physical closure failure",
+    "Native CUDA production, valid-CUT, scan-beam, or TrackManager lineage failure",
+    "future-period or oracle information reaches M1 causal estimator",
+    "estimator failure hidden or excluded from the full policy denominator",
+    "missing all-period Detection, target response, or independent H0 lineage",
+    "archive identity/CRC failure or unsafe resume identity change",
+    "resource state cannot complete one atomic case safely"
+  ]
+}

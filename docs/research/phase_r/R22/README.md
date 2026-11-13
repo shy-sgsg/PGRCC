@@ -1,5 +1,7 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
+> **2026-11-13 R22-V4 契约草案：** 针对 V3.3 发现的 batch M1 使用未来周期、全周期 Detection/TrackManager/target-only complex 输出缺项，提出180个 target-present case和60个新 H0 case的周期因果确认性方案。M1 限定当前/过去 ON C1/C2，Known 仅 evaluator-only，batch-10 仅诊断；MDE、覆盖率非劣门、实现/资源审查与 CUDA 授权未闭合，当前为 `DRAFT_NOT_FROZEN`。见[契约草案](31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器设计](config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)和[ChatGPT独立审查请求](CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)。本草案不改 V3.2/V3.3 历史证据、不授权 CUDA。
+
 > **2026-11-10 V3.3 离线残差与 Production 输出审计：** 144 个 V3.2 `+4 ns` compact case 归档身份均匹配；Current命中率11.694%，Known69.729%，target-present Fixed D3/Huber/M1约69.71%–69.77%。全十周期位置共同成功19,682/28,800，576/576 position evaluator parity通过。新增13方法×144 case十周期Production Detection/cluster计数，1,872/1,872输出完整；1,841个method-case真值关联可评价，31个仅评价Production计数。未关联检测行不是false cluster/Pfa，完整非目标cluster真值关联不可评价。`PERFORMANCE_VERIFIED=false`，AI entry gate `FAIL`。建议先冻结输出完整的确认性契约；本次没有启动CUDA。见[最终报告](V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[逐方法输出与关联覆盖分析](V3_3_residual_task_gap_audit/03_detection_and_opportunity_overlap.md)、[紧凑证据导航](V3_3_residual_task_gap_audit/README.md)与[固定快照ChatGPT审查请求](V3_3_residual_task_gap_audit/CHATGPT_REVIEW_REQUEST.md)。
 
 > **2026-11-09 V3.2 全量 Screening 终态：** Native CUDA 完成 288/288 个 case、4,320/4,320 个适用 ON 方法单元分类；255 个 `PASSED`、33 个 `PASSED_WITH_METHOD_GAPS`，49 个方法单元因 `insufficient_robust_support` 不可评价。288 个最新 ZIP 已通过 SHA/CRC 校验，raw 已按 ledger 清理。目标检测与 Known/estimated recovery 只作 Screening 描述，`PERFORMANCE_VERIFIED=false`、本矩阵无独立 H0/Pfa。详见[执行与结果报告](27_v3_2_screening_execution_report_20261109.md)、[方向评估](28_v3_2_preliminary_direction_assessment_20261109.md)、[ChatGPT 审查提示词](CHATGPT_REVIEW_PROMPT_V3_2_SCREENING_20261109.md)和[精简证据包](evidence/v3_2_screening_20261106/README.md)。完整 288-case ZIP 留在本机 outputs，未上传 GitHub。
@@ -60,6 +62,8 @@
 28. [V3.1设计摘要哈希语义更正](26_v3_1_design_digest_semantics_correction_20261106.md)：确认 manifest 使用规范化 JSON 哈希并与已提交V3.1设计一致；区分已验证的设计内容身份与旧manifest未记录的原始文件路径/字节SHA。
 29. [V3.2身份闭合 Screening 契约](25_v3_2_identity_closed_screening_contract_20261106.md)与[机器可读设计](config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json)：记录冻结时的独立288-case矩阵、设计哈希、资源与磁盘身份。该条只描述2026-11-06冻结时状态；后续执行结果见本页顶部的[最终报告](27_v3_2_screening_execution_report_20261109.md)。
 30. [V3.3离线残差与Production输出审计报告](V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[逐方法输出/关联覆盖分析](V3_3_residual_task_gap_audit/03_detection_and_opportunity_overlap.md)、[紧凑证据导航](V3_3_residual_task_gap_audit/README.md)与[ChatGPT独立审查请求](V3_3_residual_task_gap_audit/CHATGPT_REVIEW_REQUEST.md)：涵盖144个`+4 ns` compact case、全十周期位置共同成功及Production Detection/cluster输出；明确31个method-case association缺口、非目标cluster不可评价和不作系统Pfa解释。证据快照 commit 固定写在审查请求中。
+
+31. [R22-V4 周期因果、输出完整的确认性契约草案](31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器可读设计](config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)与[ChatGPT独立审查请求](CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)：只定义待审查方案；MDE/检测非劣阈值、实现、资源 pilot 与用户 CUDA 授权均未闭合。
 
 ## 关键证据
 

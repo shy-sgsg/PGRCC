@@ -4,6 +4,7 @@
 
 ## 状态身份
 
+- **2026-11-13 R22-V4 契约草案：** 根据 V3.3 独立审查建议，形成周期因果、output-complete 的确认性设计草案和机器可读配置；范围提案为180个 target-present case 加60个全新 H0 case。M1 仅读取当前及过去 ON C1/C2 周期，batch-10 仅作离线诊断。位置 MDE、检测覆盖率非劣界值、因果估计器/完整输出实现审计、资源 pilot 与用户 CUDA 授权仍未闭合；`DRAFT_NOT_FROZEN`、`CUDA_AUTHORIZED=false`、`AI_TRAINING=false`。研究总纲 blob 未改。契约见[草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、机器定义见[JSON](phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)、独立审查提示词见[R22-V4 契约审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)。本次只审计空间，项目目录约5.3 GiB；保留用于当前研究的 V3.2 归档，本次未删除结果。
 - **2026-11-10 R22 V3.3 Production 输出审计补充：** 对同一组144个 V3.2 `+4 ns` compact ZIP 做只读离线复算；1,872/1,872 个方法×case Production 输出均有10周期记录，Detection 数、selected candidates 与 cluster lineage 逐周期闭合。1,841个方法×case具完整冻结 evaluator 真值关联，31个仅报告 Production 输出；P2/C4/PKR Mode-B关联覆盖分别为137/144、129/144、135/144。真值未关联 Detection 行不等于 false cluster/Pfa，非目标 cluster→truth lineage仍不可评价。未运行CUDA/Stage2/Production/AI，未改写或删除144个ZIP。紧凑证据约6.96 MB，工作树约4.8 GiB。源码审计身份见[V3.3 manifest](phase_r/R22/V3_3_residual_task_gap_audit/evidence/manifest.json)，详细表见[Production输出分析](phase_r/R22/V3_3_residual_task_gap_audit/03_detection_and_opportunity_overlap.md)。研究总纲blob不变；阶段仍非确认性性能验证，AI entry gate `FAIL`。
 - **2026-11-10 R22 V3.3 离线任务残差审计补充完成：** 复核 144 个 `+4 ns` compact case ZIP，SHA 与冻结索引 144/144 一致；未复制、解压、删除或改写 ZIP。使用冻结 evaluator 保存的逐机会 `target_associations.csv.position_error_m`，补出全十周期位置共同成功比较；与 `parameter_metrics.csv` 做 576 个 case×方法 parity，576/576 通过。四方法共同位置成功为19,682/28,800（68.340%）；M1 相对 PK Known 的位置 RMSE 高18.387±4.503 m，较 Fixed D3 低13.979±4.133 m，后者差值在12/12 seed同向。全周期角度/斜距/Doppler共同成功、共同地速、有效径向速度和目标复数幅相仍不可评价。检测结论维持筛选描述：Current 11.694%，PK 69.729%，target-present deterministic 69.705%–69.767%；`PERFORMANCE_VERIFIED=false`，不作显著性主张。Huber/M1 用完整十周期、1,300 pulses batch/offline拟合，实时因果可用性与估计耗时未验证。AI entry gate仍为`FAIL`。详细见[V3.3最终报告](phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)和[证据导航](phase_r/R22/V3_3_residual_task_gap_audit/README.md)。研究总纲未修改；只建议先冻结 output-complete 确认性契约，未授权 CUDA。
 - **2026-11-09 R22 V3.2 全量 Screening 完成：** Native CUDA 执行冻结的 288/288 个 case，4,320/4,320 个适用 ON 方法单元已分类；255 个 case `PASSED`、33 个 `PASSED_WITH_METHOD_GAPS`。49 个方法单元因 `insufficient_robust_support` 保持不可评价。288 个最新 ZIP 的 SHA/CRC 均核验，raw 已清理；`PERFORMANCE_VERIFIED=false`，独立 H0/Pfa不可评价。逐项结论见[R22 V3.2 执行报告](phase_r/R22/27_v3_2_screening_execution_report_20261109.md)、[方向评估](phase_r/R22/28_v3_2_preliminary_direction_assessment_20261109.md)及[精简审查证据](phase_r/R22/evidence/v3_2_screening_20261106/README.md)。研究总纲 blob保持不变。
@@ -116,10 +117,11 @@ R17 的状态为：`IMPLEMENTED` 不适用（未改算法/软件）；`EXECUTED`
 
 ## 当前唯一优先任务与阶段门
 
-- **当前唯一优先任务：** 无；R22 V3.3 离线审计与审查包完成后停止，等待用户决定是否启动下一项工作。
-- **阶段建议：** 若继续，先冻结 output-complete 的 R22-V4 确认性契约，确认全周期位置共同成功差距，并保存全部十周期 Detection/TrackManager lineage、target-only complex response、其他参数共同机会结果及独立 H0。拟议范围为30 seeds × 3 speeds × SNR20 × 0/+4 ns（180 cases）；统计与资源设计需在契约中复核。估计器只能使用部署时可用的 target-present 观测，Known 仅作 evaluator-only 参考。
-- **停止条件：** 不把本轮筛选均值写成统计显著性能结论；不把 paired OFF 估计写成在线部署验证；不以 false-CUT fraction 代替系统 Pfa；不自动启动 AI、Router、Dense 或新 CUDA 矩阵；研究总纲正文仍受用户明确审批保护。
-- **后续任务授权：** R22-V4 契约及任何新实验均尚未获得用户授权；不自动启动 CUDA、AI 训练或扩展矩阵。
+- **当前唯一优先任务：** R22-V4 output-complete 确认性契约草案已形成，等待 ChatGPT 独立审查与用户决策。
+- **契约状态：** `DRAFT_NOT_FROZEN`。拟议范围为30个预留 seed × 3个速度 × SNR20 × 0/+4 ns（180个 target-present case），加30个全新 H0 seed × 2个时延（60个 case）。主要对比为周期因果 M1 对 Frozen Fixed D3 的全周期共同成功位置误差；Known 只作 evaluator-only 上限，batch-10 M1 排除在线排名。M1 每周期只读当前和过去 ON C1/C2，估计失败显式零校正并纳入全策略分母。
+- **冻结前置门：** 工程 MDE、检测覆盖率非劣界值、因果估计器和全周期输出实现/源码审计、最终 seed 碰撞核查、用户授权的完整输出尺寸 pilot 均未完成。对应契约见 [R22-V4 草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)。
+- **停止条件：** 不把 V3.3 screening 差值用作工程门槛；不把共同成功 RMSE 单独解释成完整任务收益；不以 CUT 分数代替 H0 beam-period false-alarm 指标；不自动启动 AI、Router、Dense 或 CUDA 矩阵；研究总纲正文仍受用户明确审批保护。
+- **后续任务授权：** 用户本次授权的是契约草案与审查材料；尚未授权实现、CUDA pilot 或完整矩阵。`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。
 
 ## 总纲修订讨论
 

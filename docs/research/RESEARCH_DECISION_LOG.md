@@ -295,3 +295,13 @@
 - **质量与资源：** 脚本检查了完整周期数与分支输出行数；核心方法对归档保留的period 8 Detection明细逐行核验，未把此明细误作十周期明细。证据目录约6.96 MB，逐周期表gzip后约151 KiB；工作树约4.8 GiB，低于20 GB上限。仅删除本轮生成的4.2 MiB未压缩逐周期副本和本轮Matplotlib临时缓存。
 - **研究裁决：** 该补充提高了任务输出计数和方法级覆盖状态的可见性，不改变 V3.3 screening 结论：`PERFORMANCE_VERIFIED=false`，不作统计显著性主张，`AI_ENTRY_GATE=FAIL`。继续有界确定性物理状态估计的确认性评价；低速保护/复杂杂波没有新证据支持提升为主线。下一阶段仍只建议冻结output-complete确认性契约，须由用户另行决定是否运行CUDA。
 - **证据：** [十周期输出审计表](phase_r/R22/V3_3_residual_task_gap_audit/03_detection_and_opportunity_overlap.md)、[方法/周期输出 CSV](phase_r/R22/V3_3_residual_task_gap_audit/evidence/production_output_by_case.csv)、[压缩周期明细](phase_r/R22/V3_3_residual_task_gap_audit/evidence/production_output_by_period.csv.gz)、[机器 manifest](phase_r/R22/V3_3_residual_task_gap_audit/evidence/manifest.json)和[更新后的独立审查请求](phase_r/R22/V3_3_residual_task_gap_audit/CHATGPT_REVIEW_REQUEST.md)。
+
+## 2026-11-13｜R22 V3.3 独立审查后：V4 确认性契约草案
+
+- **决策编号与基线：** `D-2026-11-13-R22-V3.3-REVIEW-V4-CONTRACT-DRAFT`。工作分支 `codex/unknown-system-error-next-stage`；拟稿基线 commit `4a2f51aef8ecea2ff1eee5278d6cc93b36131560`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
+- **审查结论承接：** V3.3 的位置筛选差值有方向性证据但不是确认性性能验证；Huber/M1 的全十周期 batch 输入不能证明在线因果性。C4 局部失败不构成新主线；长期 GMTI 主题继续，`PERFORMANCE_VERIFIED=false`，`AI_ENTRY_GATE=FAIL`。
+- **本次决策：** 形成 `R22_EXTENSION_20261113_V4_CAUSAL_OUTPUT_COMPLETE_CONFIRMATORY_DRAFT`：30个预留 target seed × 3速度 × SNR20 × 0/+4 ns，共180个 target-present case；另拟30个未用 H0 seed × 2时延，共60个 H0 case。主要比较周期前缀 M1 与 Fixed D3；batch-10 M1 只作诊断，Known correction 只作 evaluator-only 上限。候选新 H0 seed `1936001–1936030` 初筛未见冲突，正式冻结前须完成全注册表/归档碰撞审计。
+- **尚未闭合：** 工程定位 MDE、检测覆盖率非劣界值（及若用于成功宣称的航迹保护界值）必须由工程需求方/用户确定；不得用 V3.3 的筛选差值或关联门替代。周期因果 M1 与全周期输出/目标复数响应/H0 评价 schema 尚待源码审计和实现。完整输出大小未测，须先获用户授权进行独立代表性 CUDA/output-size pilot。
+- **阶段与授权状态：** 契约 `DRAFT_NOT_FROZEN`；本阶段没有实现算法、运行 CUDA、训练 AI 或启动矩阵。用户当前授权覆盖契约草案与审查材料，不覆盖 CUDA。`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。
+- **磁盘治理：** 项目目录约5.3 GiB，低于20 GiB最终上限；13 GiB可用盘空间。保留1.5 GiB V3.2 compact archive 与 V3.3 汇总证据，因为它们支持本次设计/审查；无证据表明当前可安全删除的大型重复结果，本次未删数据。V4 运行后允许中间占用超过20 GiB，最终审查清理后必须降至20 GiB以下，且保留必要记录、配置、审计和高价值结果。
+- **交付入口：** [V4契约草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器设计](phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)、[ChatGPT独立审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)。下一步先审查草案并补齐阈值；任何 pilot 或完整矩阵须另获明确授权。
