@@ -2,6 +2,7 @@
 
 #include "tinyxml.h"
 
+#include <cmath>
 #include <cstdlib>
 #include <fstream>
 #include <set>
@@ -164,6 +165,11 @@ bool jsonBool(const std::string &obj, const std::string &key, bool fallback)
     return fallback;
 }
 
+bool hasJsonKey(const std::string &obj, const std::string &key)
+{
+    return obj.find("\"" + key + "\"") != std::string::npos;
+}
+
 std::string valueArg(int &i, int argc, char **argv)
 {
     if (i + 1 >= argc) return "";
@@ -176,7 +182,9 @@ void initTargetFromRangeAzimuth(const RadarConfig &radar,
                                 TargetConfig &target)
 {
     const gmti::sim_geometry::LocalPoint ref_platform(0.0, 0.0, global.platform_height_m);
-    const gmti::sim_geometry::LocalVelocity ref_velocity(global.platform_speed_mps, 0.0, 0.0);
+    const double true_speed = std::isfinite(global.platform_velocity_true_mps)
+        ? global.platform_velocity_true_mps : global.platform_speed_mps;
+    const gmti::sim_geometry::LocalVelocity ref_velocity(true_speed, 0.0, 0.0);
     const gmti::sim_geometry::LocalPoint target_local =
         gmti::sim_geometry::makePointFromRangeAzimuth(ref_platform,
                                                       ref_velocity,
@@ -358,7 +366,44 @@ bool loadTargetConfig(const std::string &json_path,
         g, "lfm_time_reference", global.lfm_time_reference);
     global.chirp_phase_sign = jsonInt(g, "chirp_phase_sign", global.chirp_phase_sign);
     global.carrier_phase_sign = jsonInt(g, "carrier_phase_sign", global.carrier_phase_sign);
-    global.platform_speed_mps = jsonDouble(g, "platform_speed_mps", global.platform_speed_mps);
+    const bool has_true = hasJsonKey(g, "velocity_true_mps") ||
+                          hasJsonKey(g, "platform_velocity_true_mps");
+    const bool has_reported = hasJsonKey(g, "velocity_reported_mps") ||
+                              hasJsonKey(g, "platform_velocity_reported_mps");
+    if (has_true != has_reported) {
+        err = "targets.global must specify velocity_true_mps and velocity_reported_mps together";
+        return false;
+    }
+    const double legacy_speed = jsonDouble(
+        g, "platform_speed_mps", global.platform_speed_mps);
+    if (has_true) {
+        global.platform_velocity_true_mps = hasJsonKey(g, "velocity_true_mps")
+            ? jsonDouble(g, "velocity_true_mps", std::numeric_limits<double>::quiet_NaN())
+            : jsonDouble(g, "platform_velocity_true_mps", std::numeric_limits<double>::quiet_NaN());
+        global.platform_velocity_reported_mps = hasJsonKey(g, "velocity_reported_mps")
+            ? jsonDouble(g, "velocity_reported_mps", std::numeric_limits<double>::quiet_NaN())
+            : jsonDouble(g, "platform_velocity_reported_mps", std::numeric_limits<double>::quiet_NaN());
+        if (!std::isfinite(global.platform_velocity_true_mps) ||
+            !(global.platform_velocity_true_mps > 0.0) ||
+            !std::isfinite(global.platform_velocity_reported_mps) ||
+            !(global.platform_velocity_reported_mps > 0.0)) {
+            err = "targets.global velocity_true_mps/velocity_reported_mps must be finite and positive";
+            return false;
+        }
+        if (hasJsonKey(g, "platform_speed_mps") &&
+            std::fabs(legacy_speed - global.platform_velocity_reported_mps) > 1.0e-9) {
+            err = "targets.global platform_speed_mps must equal velocity_reported_mps when the split is explicit";
+            return false;
+        }
+    } else {
+        if (!std::isfinite(legacy_speed) || !(legacy_speed > 0.0)) {
+            err = "targets.global platform_speed_mps must be finite and positive";
+            return false;
+        }
+        global.platform_velocity_true_mps = legacy_speed;
+        global.platform_velocity_reported_mps = legacy_speed;
+    }
+    global.platform_speed_mps = global.platform_velocity_true_mps;
     global.platform_height_m = jsonDouble(g, "platform_height_m", global.platform_height_m);
     global.platform_origin_lat_deg = jsonDouble(g, "platform_origin_lat_deg", global.platform_origin_lat_deg);
     global.platform_origin_lon_deg = jsonDouble(g, "platform_origin_lon_deg", global.platform_origin_lon_deg);
@@ -593,6 +638,7 @@ bool writeDefaultTargetsJson(const std::string &path, std::string &err)
         "    \"channel_phase_mode\": \"ctdr_exact\",\n"
         "    \"platform_mode\": \"ideal_platform\",\n"
         "    \"platform_speed_mps\": 60.0,\n"
+        "    \"velocity_true_mps\": 60.0, \"velocity_reported_mps\": 60.0,\n"
         "    \"platform_height_m\": 6000.0,\n"
         "    \"platform_origin_lat_deg\": 40.45121057,\n"
         "    \"platform_origin_lon_deg\": 116.98377429,\n"

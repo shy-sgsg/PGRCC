@@ -1,0 +1,221 @@
+{
+  "case_id": "beam50_one_targets_continuous_final_A1_TO",
+  "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr20/cases/r18_frozen__seed_707__v_0d5__snr_20__delay_0ns/scenes/A1_TO",
+  "scene_mode": "full",
+  "truth_output": true,
+  "waveform": {
+    "fc_ghz": 16.0,
+    "bandwidth_mhz": 50.0,
+    "fs_mhz": 60.0,
+    "tr_us": 130.0,
+    "prf_hz": 1300.0,
+    "pulse_len": 11820,
+    "pulse_num": 130,
+    "d_chan_m": 0.17,
+    "iq_data_type": "float32",
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2
+  },
+  "range_processing": {
+    "range_fft_len": 12288,
+    "range_crop_start": 3864,
+    "range_crop_len": 4096,
+    "sample_delay_us": 488.0
+  },
+  "scan": {
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 61,
+    "beam_width_deg": 2.28,
+    "beam_index_base": 1
+  },
+  "platform": {
+    "speed_mps": 60.0,
+    "height_m": 6000.0,
+    "origin_lat_deg": 40.4512107203,
+    "origin_lon_deg": 116.985931582,
+    "origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "random": {
+    "period_start": 0,
+    "period_count": 3,
+    "beam_start": 50,
+    "beam_count": 1,
+    "random_seed": 707
+  },
+  "scene": {
+    "mode": "full",
+    "range_min_m": 84500.0,
+    "range_max_m": 85500.0,
+    "azimuth_min_deg": -60.0,
+    "azimuth_max_deg": 60.0,
+    "ground_z_m": 0.0,
+    "clutter_amplitude_scale": 1.0,
+    "single_point": {
+      "range_m": 85000.0,
+      "beam_id": -1,
+      "expected_bin": -1,
+      "azimuth_deg": 0.0,
+      "amplitude": 1.0
+    },
+    "area_clutter": {
+      "enabled": true,
+      "model": "continuous_texture",
+      "scatterer_count": 0,
+      "mean_power": 0.02,
+      "texture_sigma": 0.25,
+      "spatial_cell_m": 30.0,
+      "temporal_correlation_rho": 0.98
+    },
+    "strong_scatterers": {
+      "enabled": false,
+      "count": 0,
+      "rcs_db_min": 10.0,
+      "rcs_db_max": 30.0
+    },
+    "line_scatterers": {
+      "enabled": false,
+      "line_count": 1,
+      "points_per_line": 50,
+      "rcs_db": 12.0
+    },
+    "thermal_noise": {
+      "enabled": true,
+      "noise_power": 0.001
+    },
+    "output_signal_domain": "raw_lfm",
+    "signal_only": true
+  },
+  "targets": [
+    {
+      "target_id": "PGRCC_DELAY_PILOT_TARGET",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 50,
+        "expected_bin": 2048,
+        "azimuth_offset_deg": 0,
+        "range_m": 85000.0
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.4472135954999579,
+        "vn_mps": -0.22360679774997896
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    }
+  ],
+  "channel_geometry": {
+    "mode": "reported_channel_positions",
+    "channel_1": {
+      "name": "left_upper",
+      "x_m": -0.085,
+      "y_m": 0.0,
+      "z_m": 0.085
+    },
+    "channel_2": {
+      "name": "right_upper",
+      "x_m": 0.085,
+      "y_m": 0.0,
+      "z_m": 0.085
+    },
+    "channel_3": {
+      "name": "left_lower",
+      "x_m": -0.085,
+      "y_m": 0.0,
+      "z_m": -0.085
+    },
+    "channel_4": {
+      "name": "right_lower",
+      "x_m": 0.085,
+      "y_m": 0.0,
+      "z_m": -0.085
+    }
+  },
+  "production": {
+    "identity": "stage2_production_delay_pilot_v1"
+  },
+  "stage1_scene_identity": {
+    "seed": 707,
+    "period_count": 3,
+    "beam_id": 50,
+    "expected_bin": 2048,
+    "range_m": 85000.0,
+    "texture_sigma": 0.25,
+    "clutter_rho": 0.98,
+    "target_velocity_mps": 0.5,
+    "target_snr_db": 20.0,
+    "target": {
+      "target_id": "PGRCC_DELAY_PILOT_TARGET",
+      "enabled": true
+    },
+    "clutter": {
+      "mean_power": 0.02
+    },
+    "noise": {
+      "noise_power": 0.001
+    },
+    "production": {
+      "identity": "stage2_production_delay_pilot_v1"
+    }
+  },
+  "channel_impairments": {
+    "enabled": false,
+    "channel_time_delay_ns": 0.0,
+    "channel_fixed_phase_mismatch_deg": 0.0,
+    "per_pulse_phase_drift_deg": 0.0,
+    "channel_range_shift_samples": 0.0
+  },
+  "stage1_condition": "A1_Current_unknown_error",
+  "stage1_role": "target_only",
+  "stage1_pair_id": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr20/cases/r18_frozen__seed_707__v_0d5__snr_20__delay_0ns/scenes/A0_background",
+  "stage1_background_source_condition": "A0_Ideal_zero_delay",
+  "stage1_pairing": {
+    "on": "S+C+N",
+    "off": "C+N",
+    "target_only": "S",
+    "background_source_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr20/cases/r18_frozen__seed_707__v_0d5__snr_20__delay_0ns/scenes/A0_background",
+    "same_seed_and_scene_identity": true,
+    "same_production_settings": true
+  },
+  "pairing_provenance": {
+    "seed": 707,
+    "scene_identity": {
+      "seed": 707,
+      "period_count": 3,
+      "beam_id": 50,
+      "expected_bin": 2048,
+      "range_m": 85000.0,
+      "texture_sigma": 0.25,
+      "clutter_rho": 0.98,
+      "target_velocity_mps": 0.5,
+      "target_snr_db": 20.0,
+      "target": {
+        "target_id": "PGRCC_DELAY_PILOT_TARGET",
+        "enabled": true
+      },
+      "clutter": {
+        "mean_power": 0.02
+      },
+      "noise": {
+        "noise_power": 0.001
+      },
+      "production": {
+        "identity": "stage2_production_delay_pilot_v1"
+      }
+    },
+    "background_source": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr20/cases/r18_frozen__seed_707__v_0d5__snr_20__delay_0ns/scenes/A0_background",
+    "condition": "A1_Current_unknown_error",
+    "role": "target_only"
+  },
+  "background_input_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed707_v0p5_snr20/cases/r18_frozen__seed_707__v_0d5__snr_20__delay_0ns/scenes/A0_background"
+}

@@ -1,0 +1,95 @@
+{
+  "phase": "R15",
+  "evidence_scope": "fixed-detection offline TrackManager counterfactual",
+  "baseline_commit": "2b1942453b002045aaba4c1e35a8b93e75d0c38b",
+  "tracked_worktree_status_at_capture": "",
+  "r14_cuda_production_reused": true,
+  "r15_cuda_rerun": false,
+  "r15_execution": "CPU offline TrackManager replay; not CUDA production evidence",
+  "track_manager_git_blob": "01ac39a90818faccd29cb5518de8ad67f2e41086",
+  "track_manager_sha256": "a1c13ed9c2dc2139b7127cc843f3da02610d8d48d9250b53ad0e3577129b0f23",
+  "track_manager_blob_matches_r14_source_parent": true,
+  "base_evaluator_sha256": "d83c1de8353927fbc1fd7c5086456e1f718f346d8136013d29b8e9b39c212565",
+  "replay_wrapper_sha256": "599f8506396c76711b29fcf8dc615a0c3a9c7c678b5145e67a037415358cf5e7",
+  "replay_binary_sha256": "06d9c4aabbde07fb5b81459d2b132469d9b057c320ba5fe45bf9955aff3a2502",
+  "replay_inputs": {
+    "C2/track_detections.csv": {
+      "bytes": 124922,
+      "sha256": "effa52deb6d2b6c1db4e0205be6d82f2543e95a8eaf61357f3c9201f7e34d022"
+    },
+    "C2/track_frames.csv": {
+      "bytes": 326,
+      "sha256": "cd7e3db428dacf6979a4082869eab512903458f4e3110a4f388b2637925440fd"
+    },
+    "C2/track_states.csv": {
+      "bytes": 275002,
+      "sha256": "85cbbc3ae3ab2254a8ebc6ac6171893b698986be5c67d27441d968cb48acd175"
+    },
+    "C2/track_association_accepts.csv": {
+      "bytes": 130071,
+      "sha256": "b9a25f9a850b77f6ae3ac46a67f94a46d1b8ce0dd062813d37cca39ff6692ebf"
+    },
+    "C3/track_detections.csv": {
+      "bytes": 88392,
+      "sha256": "080c4fc9d3625f027ac9dafef224e02ad767323b6ccbe18f06c29a0d00d1b05d"
+    },
+    "C3/track_frames.csv": {
+      "bytes": 321,
+      "sha256": "d5fd56e13c48b41b98e3df258e120e78f0f5a20ccdc48c527d32fb315f91c181"
+    },
+    "C3/track_states.csv": {
+      "bytes": 206330,
+      "sha256": "46403593f88ee30a4750d526413352372b04605bad8e56c0582e3963f350c652"
+    },
+    "C3/track_association_accepts.csv": {
+      "bytes": 80318,
+      "sha256": "17ab975567af4d7b3c3dae006fc5f0cbf9ca0e28a3258f19260bce166756b6c6"
+    }
+  },
+  "frozen_config": {
+    "distance_mode": "MahalanobisSquared",
+    "assignment_modes": [
+      "GreedyNearestNeighbor",
+      "Hungarian"
+    ],
+    "output_source": "measurement",
+    "track_v_max_mps": 50,
+    "euclidean_gate_m": 300,
+    "mahalanobis_gate_d2": 9.21,
+    "tentative_gate_scale": 1.5,
+    "tentative_chi2_scale": 1.5,
+    "dummy_cost": 1.5,
+    "confirm_window": 3,
+    "confirm_hits": 2,
+    "max_missed": 2,
+    "tentative_max_missed": 1,
+    "measurement_noise_pos_m": 50,
+    "process_noise_pos": 25,
+    "process_noise_vel": 10,
+    "use_speed_cost": true,
+    "speed_weight": 0.3,
+    "use_heading_cost": true,
+    "heading_weight": 0.5,
+    "use_detection_speed_cost": false,
+    "minimum_linearity_confirm": 0.65,
+    "detection_speed_input_mps": 0,
+    "truth_oracle_fields_in_replay_input": false
+  },
+  "nearest_exact_mapping_rows": {
+    "C2": 990,
+    "C3": 701
+  },
+  "production_mapping_rows": {
+    "C2": 990,
+    "C3": 701
+  },
+  "hungarian_changed_edges_vs_nearest": {
+    "C2": 582,
+    "C3": 483
+  },
+  "retained_outputs": [
+    "replay_summary.csv",
+    "period2_candidate_costs.csv"
+  ],
+  "not_retained": "Full candidate matrices and multi-GB diagnostic CSVs were temporary and removed after extracting the relevant edges."
+}

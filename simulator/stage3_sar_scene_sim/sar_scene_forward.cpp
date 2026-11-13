@@ -743,6 +743,8 @@ bool configureStage3Target(const Stage3Config &cfg,
     ctx.global.coordinate_mode = "project_local";
     ctx.global.platform_mode = "ideal_platform";
     ctx.global.platform_speed_mps = cfg.system.platform_speed_mps;
+    ctx.global.platform_velocity_true_mps = cfg.system.platform_speed_mps;
+    ctx.global.platform_velocity_reported_mps = cfg.system.platform_speed_mps;
     ctx.global.platform_height_m = cfg.system.platform_height_m;
     ctx.global.platform_origin_lat_deg = cfg.system.origin_lat_deg;
     ctx.global.platform_origin_lon_deg = cfg.system.origin_lon_deg;
@@ -770,6 +772,8 @@ bool configureStage3Target(const Stage3Config &cfg,
     ctx.global.coordinate_mode = "project_local";
     ctx.global.platform_mode = "ideal_platform";
     ctx.global.platform_speed_mps = cfg.system.platform_speed_mps;
+    ctx.global.platform_velocity_true_mps = cfg.system.platform_speed_mps;
+    ctx.global.platform_velocity_reported_mps = cfg.system.platform_speed_mps;
     ctx.global.platform_height_m = cfg.system.platform_height_m;
     ctx.global.platform_origin_lat_deg = cfg.system.origin_lat_deg;
     ctx.global.platform_origin_lon_deg = cfg.system.origin_lon_deg;

@@ -1,0 +1,362 @@
+{
+  "schema_version": 1,
+  "analysis_id": "R22_V3_3_RESIDUAL_TASK_GAP_OFFLINE_AUDIT",
+  "created_date": "2026-11-10",
+  "analysis_worktree_head": "957782747c9c4886733f70689f0a0d08d25f2da4",
+  "analysis_branch": "codex/unknown-system-error-next-stage",
+  "analysis_script_path": "scripts/phase_r/analyze_r22_v3_3_residual_task_gap.py",
+  "analysis_script_sha256": "60eea069b0d6fbcd53c50e96424a65b0b69e536ce3d565434aa5ac753c772059",
+  "v3_2_experiment_source_commit": "74bccce61f3ec2f74746512d67271c815ce6a3a8",
+  "v3_2_frozen_design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
+  "v3_2_frozen_design_sha256": "9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063",
+  "v3_2_method_config_sha256": "588c36904f62febad8476ddccb789ba67de2e9c23dc2ff12b52418eb06706bbc",
+  "master_plan_blob_expected_unchanged": "e637e3769bde7814298ff012d0f42301884e2985",
+  "master_plan_blob_current": "e637e3769bde7814298ff012d0f42301884e2985",
+  "v3_2_evaluator_sources": {
+    "scripts/phase_r/r19_task_evaluator.py": {
+      "sha256": "c852bb828a561597296f1b1346da1d3e4c4554856435524084f4bb21b967fb14",
+      "v3_2_source_commit_sha256": "c852bb828a561597296f1b1346da1d3e4c4554856435524084f4bb21b967fb14",
+      "matches": true
+    },
+    "scripts/phase_r/r20_task_evaluator.py": {
+      "sha256": "0a5400c9e2d693f28da9948927ba4f0ede7d3f3eedfc74b5d06992f03aabf9b1",
+      "v3_2_source_commit_sha256": "0a5400c9e2d693f28da9948927ba4f0ede7d3f3eedfc74b5d06992f03aabf9b1",
+      "matches": true
+    },
+    "scripts/phase_r/r20_harmonized_task_review.py": {
+      "sha256": "198ab502ad11e055c1d3803ea14dde4a02934a2199573140b305013f99445f3a",
+      "v3_2_source_commit_sha256": "198ab502ad11e055c1d3803ea14dde4a02934a2199573140b305013f99445f3a",
+      "matches": true
+    },
+    "scripts/phase_r/r21_task_evaluator.py": {
+      "sha256": "c1820472f6fae354e09e4a331a71212b6ba41c20595f729fc80caa2a01d49a1c",
+      "v3_2_source_commit_sha256": "c1820472f6fae354e09e4a331a71212b6ba41c20595f729fc80caa2a01d49a1c",
+      "matches": true
+    },
+    "scripts/phase_r/r21_historical_task_review.py": {
+      "sha256": "b3b6142f9968af619bce3d2a6917073d720246584c623a8acac1ae1eec4a10a5",
+      "v3_2_source_commit_sha256": "b3b6142f9968af619bce3d2a6917073d720246584c623a8acac1ae1eec4a10a5",
+      "matches": true
+    },
+    "scripts/phase_r/run_r22_cuda_pilot.py": {
+      "sha256": "e2882ba2d10b30d85c1ad779d1fd94978fbeb0a351106c6d41d4da05f725e5c6",
+      "v3_2_source_commit_sha256": "e2882ba2d10b30d85c1ad779d1fd94978fbeb0a351106c6d41d4da05f725e5c6",
+      "matches": true
+    }
+  },
+  "archive_index_path": "docs/research/phase_r/R22/evidence/v3_2_screening_20261106/archive_index.csv",
+  "archive_index_sha256": "a5bd66302acc12ac410ad4f8560ecd7e137ba40d4e54a09abd7eaadcf4d8bdd1",
+  "archive_root_local_only": "outputs/r22_v3_2_screening_20261106/archives/screening",
+  "indexed_archive_count": 144,
+  "used_plus4_archive_count": 144,
+  "archives_copied_or_extracted": false,
+  "stage2_or_production_or_cuda_started": false,
+  "ai_training_or_router_started": false,
+  "case_count": 144,
+  "independent_seed_count": 12,
+  "visible_truth_opportunities_per_case": 200,
+  "period_count": 10,
+  "target_count": 20,
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": {
+      "detection_and_track_screening": true,
+      "parameter_common_success_retained_period_subset": true,
+      "position_m_full_10_period_common_success_from_evaluator_associations": true,
+      "angle_range_doppler_full_10_period_common_success": false,
+      "ground_speed_common_success": false,
+      "radial_velocity_common_success": false,
+      "period_detection_cluster_and_truth_unmatched_summary": true,
+      "non_target_cluster_truth_attribution": false
+    },
+    "PERFORMANCE_VERIFIED": false
+  },
+  "core_common_retained_detection_period_ids": [
+    "8"
+  ],
+  "cases_with_full_10_period_parameter_products": 0,
+  "production_output_method_coverage": [
+    {
+      "method_label": "A0",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "C0",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "PK",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "Fixed_D3",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "Huber_D3_ON",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "M1_Physics_Matched",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "P1_OFF_estimate",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "P2_Mode-A",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "P2_Mode-B",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 0.9513888888888888
+    },
+    {
+      "method_label": "C4_Mode-A",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "C4_Mode-B",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 0.8958333333333334
+    },
+    {
+      "method_label": "PKR_Mode-A",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 1.0
+    },
+    {
+      "method_label": "PKR_Mode-B",
+      "mean_seed_production_output_coverage": 1.0,
+      "mean_seed_target_association_coverage": 0.9375
+    }
+  ],
+  "non_target_cluster_status": "NOT_EVALUABLE_NO_CLUSTER_TRUTH_ASSOCIATION",
+  "truth_unmatched_detection_status": "TARGET_PRESENT_FROZEN_EVALUATOR_ASSOCIATION; NOT_SYSTEM_PFA",
+  "ground_speed_common_success_reason": "Compact ZIPs retain aggregate own-success parameter_metrics.csv and track_level_metrics.csv but omit per-opportunity track_debug_runs/track_output_payloads.csv required by the frozen evaluator.",
+  "figure_paths": [
+    "figures/detection_rate_by_snr_speed.png",
+    "figures/detection_overlap_core_methods.png",
+    "figures/parameter_common_success_paired_differences.png",
+    "figures/parameter_rmse_own_vs_fourway_common.png",
+    "figures/track_retention_summary.png",
+    "figures/detection_cluster_track_output_audit.png",
+    "figures/delay_estimation_residual_by_seed.png",
+    "figures/residual_mechanism_summary.png"
+  ],
+  "outputs": [
+    {
+      "path": "archive_identity.csv",
+      "bytes": 47790,
+      "sha256": "3c254a620f689e46b4b36ddb73cb4531a913ce05d009383aee8376c87334bbfe"
+    },
+    {
+      "path": "case_method_screening.csv",
+      "bytes": 572929,
+      "sha256": "01c212d364ce4a6e005644838eb9d2a6e54ddc75311a51d93a95ad814db20dee"
+    },
+    {
+      "path": "case_validation.csv",
+      "bytes": 63248,
+      "sha256": "c6d05a7f770e958fbc55b6735926863b24327486d98cc622e9079b965247fabd"
+    },
+    {
+      "path": "delay_estimation_by_case.csv",
+      "bytes": 178700,
+      "sha256": "602f70adb1a7aeaf3e455732819d8b2bdabb82b271d68348144ed56eefc49905"
+    },
+    {
+      "path": "delay_estimation_by_seed.csv",
+      "bytes": 6219,
+      "sha256": "03e9160dc327eac2f1db6de910ec647b6c88f7bf16447227aecd36a584f0b831"
+    },
+    {
+      "path": "delay_estimation_summary.csv",
+      "bytes": 712,
+      "sha256": "5bdbca7ed7661fe3b0ef78edd68575c92a7f266e7c75739d12f13eb7073d197f"
+    },
+    {
+      "path": "detection_by_speed_snr.csv",
+      "bytes": 19452,
+      "sha256": "c12a3f2e05ed06538f7a6ae370b3598b94778c7426b632c5f0e7842956bd65c2"
+    },
+    {
+      "path": "detection_fourway_common_by_seed.csv",
+      "bytes": 2069,
+      "sha256": "18fb10322df2e866e854b997d16947c2d8ef25bce0558d24ab79805e05d3fb94"
+    },
+    {
+      "path": "detection_pairwise_overlap_by_seed.csv",
+      "bytes": 12037,
+      "sha256": "b8c8fc562766d71cd2e9e9310d96c5e507a313abe21518c81a8431ba3737eceb"
+    },
+    {
+      "path": "figures/delay_estimation_residual_by_seed.png",
+      "bytes": 80456,
+      "sha256": "af493c54441422661613f8b757a1ccd88f72f8d15e63b57696d244c33f0bd52d"
+    },
+    {
+      "path": "figures/detection_cluster_track_output_audit.png",
+      "bytes": 175527,
+      "sha256": "56651b04cba10a417c8925e7e9280edf570a795d4bc045ead0626fd00329c8e0"
+    },
+    {
+      "path": "figures/detection_overlap_core_methods.png",
+      "bytes": 97656,
+      "sha256": "9fb65ae1f8c09927d8573edd2606f141bc01e12a4c90aa50634bc0a6ad7e0750"
+    },
+    {
+      "path": "figures/detection_rate_by_snr_speed.png",
+      "bytes": 146171,
+      "sha256": "0aaa4e507060af4a5306313a294a22128fe84bc0e2eaadd2cc0ab22403c206bc"
+    },
+    {
+      "path": "figures/parameter_common_success_paired_differences.png",
+      "bytes": 123230,
+      "sha256": "59dea3d9986e3aa5db6735ec9fdfa9ed987bdc9b791274711b835a13c652336e"
+    },
+    {
+      "path": "figures/parameter_rmse_own_vs_fourway_common.png",
+      "bytes": 81761,
+      "sha256": "2dfb26ecd0fc46e2bd8244c9004cd4238562cf8384a09a9f3689882328b340b7"
+    },
+    {
+      "path": "figures/residual_mechanism_summary.png",
+      "bytes": 206967,
+      "sha256": "826eb927fb7fac50badc113ddde7e051e9b30588106677a800b5d966511447af"
+    },
+    {
+      "path": "figures/track_retention_summary.png",
+      "bytes": 76151,
+      "sha256": "d2586c0df1de50945ba059cb452b54e0cd351e004dbf214ed528790c4e41f060"
+    },
+    {
+      "path": "method_information_conditions.csv",
+      "bytes": 2161,
+      "sha256": "161f1634826158871c49c2e1460d3aa58ba186a96068c58e367ebacca4809817"
+    },
+    {
+      "path": "paired_detection_vs_PK.csv",
+      "bytes": 29533,
+      "sha256": "c06ce4f27bf7871aaf5af66300e188ecfe705f09fa1ee45b41a66305fd38e30b"
+    },
+    {
+      "path": "paired_recovery_by_case.csv",
+      "bytes": 195037,
+      "sha256": "d1bc656d1fa0b6805dc4eb51e2d96a081b90bc1a688408248eeefa496a83690b"
+    },
+    {
+      "path": "paired_recovery_by_seed.csv",
+      "bytes": 16272,
+      "sha256": "f67b5e82bb1420377327b1ad0981ca6fb354f2a3daa0881c077dc921fc6c8cdf"
+    },
+    {
+      "path": "paired_recovery_screening_summary.csv",
+      "bytes": 1545,
+      "sha256": "6c7bf87cd0b11a6330d1c75e3a5d402bb80c919ee3800f1af376a2fb6af326bf"
+    },
+    {
+      "path": "parameter_common_success_summary.csv",
+      "bytes": 22536,
+      "sha256": "46ecd5fb350fbd64acbc94739f6897affd8ba0b628dc42b7a3d0a698ff2d7246"
+    },
+    {
+      "path": "parameter_evaluator_parity.csv",
+      "bytes": 1517320,
+      "sha256": "2a9a30fda660589ffc061b5c6a434078e1b4d77e1e4bca772755bcd4ea0792ae"
+    },
+    {
+      "path": "parameter_fourway_common_success_by_seed.csv",
+      "bytes": 16888,
+      "sha256": "edbfa0acf835b3dbd6b4c4d209fbd521ba936af1e56f63296cb3d5dc90b68d2e"
+    },
+    {
+      "path": "parameter_opportunity_audit.csv.gz",
+      "bytes": 2289164,
+      "sha256": "ed99ec0a1ee2c6b63a6244f8fe4305a60d146e5ed4721c20b26a7e68358cc636"
+    },
+    {
+      "path": "parameter_pairwise_common_success_by_seed.csv",
+      "bytes": 117306,
+      "sha256": "40fd2bc16a3d133d1ddfedd1872898d67bfb224acb826bafca3c55af48300aac"
+    },
+    {
+      "path": "parameter_seed_metrics.csv",
+      "bytes": 106278,
+      "sha256": "96ecb19ee4dd13dbf56fa62efd681dec9971a4eb04770be3cf46fae46f2070f2"
+    },
+    {
+      "path": "position_all_periods_common_success_summary.csv",
+      "bytes": 3961,
+      "sha256": "5d7477d41d56fd876dac5da5473c8db5deb2975707509e4833a5cc553accf46e"
+    },
+    {
+      "path": "position_all_periods_own_vs_fourway_common_by_seed.csv",
+      "bytes": 8427,
+      "sha256": "8c55ade9ac29a37054309e9d998c31dd472ae5e93245e79f55edf0ff67e7f03a"
+    },
+    {
+      "path": "position_all_periods_pairwise_common_by_seed.csv",
+      "bytes": 12783,
+      "sha256": "4dfd79bb3e199ececf360f5fa3a6fe5ea5ae74d2141c6f91e5a98b4ab2daa59a"
+    },
+    {
+      "path": "production_output_by_case.csv",
+      "bytes": 474030,
+      "sha256": "72278ef9ac387c7c1bd239988c78ad94db56653a8ad3473a3180dd300c36a93b"
+    },
+    {
+      "path": "production_output_by_period.csv.gz",
+      "bytes": 154332,
+      "sha256": "d7141bb52d0c3f5a8e59bbabdac442d7d22e03e312bb8d45a617e7c5afe7b123"
+    },
+    {
+      "path": "production_output_by_seed.csv",
+      "bytes": 25731,
+      "sha256": "aee7e53b64e980ab6c185793fc33f401087b47a6758e72811cc4ad0a201cfef0"
+    },
+    {
+      "path": "production_output_screening_summary.csv",
+      "bytes": 2710,
+      "sha256": "655ccb93bf019e4763a051f7d4bb5047b8b3e0882830dfa273c472c686d31a02"
+    },
+    {
+      "path": "seed_method_detection_summary.csv",
+      "bytes": 27308,
+      "sha256": "10b861cf58fcf8c1b5c51b06775b18a4d2ea2a1b1103a674c0c911840282aef6"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 11766,
+      "sha256": "71b82eaaa735a4e0c1b0ce1652a1b05d4540b725e9ea6210052eed8b85517c7b"
+    },
+    {
+      "path": "track_screening_summary.csv",
+      "bytes": 3315,
+      "sha256": "60778be130192ac816178a787ed958c551f9b513e4af7280d28a6a744ac9e9e7"
+    },
+    {
+      "path": "track_seed_summary.csv",
+      "bytes": 32594,
+      "sha256": "48ec94196947da184841871bf16b136d8e41234ebe753537f6a3143bfc44aeb1"
+    },
+    {
+      "path": "unindexed_archive_preservation.csv",
+      "bytes": 171,
+      "sha256": "a88795aa13c35fc5ba86be9b8ec0ab6a0e1cbef0142523f1d96c7a740d5e1358"
+    }
+  ],
+  "disk_policy": "Read existing ZIP members in place; no raw or compact archive deleted, copied, or extracted."
+}

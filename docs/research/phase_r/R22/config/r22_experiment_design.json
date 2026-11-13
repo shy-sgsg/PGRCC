@@ -1,0 +1,76 @@
+{
+  "schema_version": 1,
+  "phase": "R22",
+  "state": "STOPPED_AT_ENGINEERING_GATE",
+  "entry_commit": "6fdc4a9d08d91293d47ba6bdd967e8a22a688c4e",
+  "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "evidence_baseline": "61da2ae010adb72ab824869031fa5c6a5df69ad4",
+  "implemented": true,
+  "executed": true,
+  "evaluable": "PARTIAL",
+  "performance_verified": false,
+  "ai_training": false,
+  "production_backend": "Native CUDA",
+  "use_corex": false,
+  "planned_matrix": {
+    "screening_conditions": 24,
+    "minimum_seeds_per_screening_condition": 12,
+    "confirmatory_conditions": 6,
+    "minimum_new_seeds_per_confirmatory_condition": 30,
+    "dense_target_conditions": 4,
+    "minimum_seeds_per_dense_target_condition": 12,
+    "minimum_independent_h0_seeds_per_major_clutter_condition": 30,
+    "status": "NOT_FROZEN_NOT_EXECUTED"
+  },
+  "executed_engineering_pilots": [
+    {
+      "seed": 900101,
+      "radial_speed_mps": 0.5,
+      "snr_db": 20,
+      "delay_error_ns": 0,
+      "target_count": 20,
+      "beam_count": 20,
+      "period_count": 1,
+      "purpose": "Native CUDA generation and Production smoke",
+      "production_path_status": "PASSED",
+      "performance_verified": false
+    },
+    {
+      "seed": 900202,
+      "radial_speed_mps": 2.5,
+      "snr_db": 20,
+      "delay_error_ns": 4,
+      "target_count": 20,
+      "beam_count": 1,
+      "period_count": 1,
+      "methods": ["A0", "C0", "C2_Mode-A", "C2_Mode-B", "C3_Mode-A", "C3_Mode-B", "R9", "Huber", "M1"],
+      "status": "COMPLETED_WITH_GAPS_POSTHOC_AUDITED"
+    },
+    {
+      "seed": 900203,
+      "radial_speed_mps": 2.5,
+      "snr_db": 20,
+      "delay_error_ns": 4,
+      "target_count": 20,
+      "beam_count": 1,
+      "period_count": 1,
+      "methods": ["A0", "C0", "C2_Mode-A", "C2_Mode-B", "C3_Mode-A", "C3_Mode-B", "PK", "PKR", "R9", "Huber", "M1"],
+      "production_records": 36,
+      "passed_records": 30,
+      "not_evaluable_records": 6,
+      "status": "COMPLETED_WITH_GAPS_PK_R_GATE_FAILED"
+    }
+  ],
+  "stop_gate": {
+    "name": "PKR_REFERENCE_SUPPORT_AND_RESIDUAL_CLOSURE",
+    "min_support": 8,
+    "range_band_bins": 6,
+    "observed_groups_per_pk_branch": 26637,
+    "support_6_groups": 26598,
+    "support_3_groups": 39,
+    "valid_groups": 0,
+    "beam_quality_gate": "valid=0/1 required=1 min_ratio=0.95",
+    "decision": "STOP_METHOD_COMPARISON_DO_NOT_LOWER_GATES"
+  },
+  "next_action": "Independent review, then user decision on a bounded offline PKR support-contract audit"
+}

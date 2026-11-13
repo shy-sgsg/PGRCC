@@ -1,0 +1,79 @@
+{
+  "description": "R6 Production GO-CFAR negative-threshold counterexample with independent CPU float64 details",
+  "cut_zero_based": {
+    "row": 111,
+    "col": 3337,
+    "power_f32": 17.07845687866211,
+    "valid_cut": true
+  },
+  "geometry": {
+    "height": 130,
+    "width": 4096,
+    "guard_cells": 4,
+    "background_cells": 16,
+    "doppler_circular": true,
+    "alpha": 13.447822570800781
+  },
+  "old_production_cuda": {
+    "threshold_f32": -2.623965263366699,
+    "threshold_map_sha256": "c7d50dec500e6729d7f3fc27abac9bcae2635109c036f9ea5359562c3cb03255"
+  },
+  "cpu_float64_reference": {
+    "direction_order": ["left", "right", "top", "bottom"],
+    "windows_inclusive": [
+      {
+        "direction": "left",
+        "row_interval_unwrapped": [91, 131],
+        "row_index_segments_after_circular_wrap": [[91, 129], [0, 1]],
+        "col_interval": [3317, 3332],
+        "training_cell_count": 656,
+        "sum": 3070.093388118781,
+        "mean": 4.680020408717654
+      },
+      {
+        "direction": "right",
+        "row_interval_unwrapped": [91, 131],
+        "row_index_segments_after_circular_wrap": [[91, 129], [0, 1]],
+        "col_interval": [3342, 3357],
+        "training_cell_count": 656,
+        "sum": 3678.8817050696816,
+        "mean": 5.6080513796793925
+      },
+      {
+        "direction": "top",
+        "row_interval_unwrapped": [91, 106],
+        "row_index_segments_after_circular_wrap": [[91, 106]],
+        "col_interval": [3317, 3357],
+        "training_cell_count": 656,
+        "sum": 529.8229463619646,
+        "mean": 0.807656930429824
+      },
+      {
+        "direction": "bottom",
+        "row_interval_unwrapped": [116, 131],
+        "row_index_segments_after_circular_wrap": [[116, 129], [0, 1]],
+        "col_interval": [3317, 3357],
+        "training_cell_count": 656,
+        "sum": 5600.163322985172,
+        "mean": 8.53683433381886
+      }
+    ],
+    "go_noise_level": 8.53683433381886,
+    "threshold_f64": 114.80183343751631,
+    "threshold_f32_output": 114.80183410644531
+  },
+  "direct_vs_integral_cpu_float64": {
+    "directional_sums_equal": true,
+    "directional_means_equal": true,
+    "threshold_equal": true
+  },
+  "source_files": {
+    "power_map_path_in_local_run": "outputs/phase_r7_cfar_correctness_20261022/pre_fix_focused/branch_dynamic/result/debug/cfar_GMTI01_beam050_power.f32",
+    "power_map_sha256": "63a48c583e89b59e87571aa6b28a2c2c7aed68e2b635f4805703b0e0533ec531",
+    "geometry_csv_path_in_local_run": "outputs/phase_r7_cfar_correctness_20261022/pre_fix_focused/branch_dynamic/result/debug/cfar_geometry_diagnostics.csv",
+    "geometry_csv_sha256": "2ac1c9231b2aeec2783bd98aaf95c7ddff8a9078d4f4c4b340f57f0d1f070cfe",
+    "power_fixture": "docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_power.f32",
+    "geometry_fixture": "docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_geometry.csv"
+  },
+  "limitations": "The legacy focused run manifest did not record an executable SHA; the negative threshold is preserved and identified by the saved threshold-map SHA and CUT."
+}

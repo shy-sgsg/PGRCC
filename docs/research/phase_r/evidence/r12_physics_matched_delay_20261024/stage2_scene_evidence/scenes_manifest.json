@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "delay_error_ns": 4.0,
+  "scene_identity": {
+    "case_id": "base__seed_404__v_p6d7__snr_p30__delay_p4ns",
+    "working_point": "base",
+    "group": "base",
+    "seed": 404,
+    "period_count": 3,
+    "beam_id": 50,
+    "expected_bin": 2048,
+    "range_m": 85000.0,
+    "target_velocity_mps": 6.7,
+    "target_snr_db": 30.0,
+    "texture_sigma": 0.25,
+    "clutter_rho": 0.98,
+    "target": {
+      "target_id": "stage1_target_1",
+      "enabled": true
+    },
+    "clutter": {
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98
+    },
+    "delay_error_ns": 4.0
+  },
+  "background_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/A0_background",
+  "variants": {
+    "A0_ON": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_ON.json",
+      "sha256": "ce38ada8ca6d06321b6b805802c7c983dafa9925af7cc46f04db720eb4cb6fa5"
+    },
+    "A0_OFF": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_OFF.json",
+      "sha256": "0389f92df13cb43a640e286501709e77f613c759e6dca3f521b83df4e81eddf3"
+    },
+    "A0_TO": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A0_TO.json",
+      "sha256": "ffe3820bd6e33262c8706097ce85fbab1f05425e29c9cf61e4c43c09eeabf5e2"
+    },
+    "A1_ON": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_ON.json",
+      "sha256": "7855ba81b131eaeeb08726dc19d0693bcf6d3e26c99ddd3d4adaad6ce476063f"
+    },
+    "A1_OFF": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_OFF.json",
+      "sha256": "da4df5a7c52bbfc0605bf5f1ead3f8e16c3e0da052a9a922a377ae3e0037ec4f"
+    },
+    "A1_TO": {
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_r12_physics_matched_delay_20261024/cases/base__seed_404__v_p6d7__snr_p30__delay_p4ns/scenes/scenarios/A1_TO.json",
+      "sha256": "3f5fda78baf117c34368950cea538705de4033b8e2c25836a039d2bf0766b5b8"
+    }
+  },
+  "pairing_rule": "A0 ON writes zero-error C+N; all A0/A1 OFF/TO and A1 ON reuse it"
+}

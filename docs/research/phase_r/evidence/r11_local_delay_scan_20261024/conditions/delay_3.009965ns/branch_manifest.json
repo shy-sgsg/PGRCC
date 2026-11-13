@@ -1,0 +1,511 @@
+{
+  "attempt": 2,
+  "command": {
+    "argv": [
+      "$REPO_ROOT/build_r7/GMTI_pipe_core",
+      "--config",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/production.xml",
+      "--result-dir",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result",
+      "--track-debug-dir",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs",
+      "--track-debug-dump",
+      "on",
+      "--runtime-mode=debug",
+      "--runtime-diagnostics=on",
+      "--local-test",
+      "2=$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/input/period_0001_corrected.bin"
+    ],
+    "environment": {
+      "GMTI_RUNTIME_MODE": "debug",
+      "USE_COREX": "OFF"
+    },
+    "shell": "$REPO_ROOT/build_r7/GMTI_pipe_core --config $REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/production.xml --result-dir $REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result --track-debug-dir $REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs --track-debug-dump on --runtime-mode=debug --runtime-diagnostics=on --local-test 2=$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/input/period_0001_corrected.bin"
+  },
+  "condition": "delay_3.009965ns",
+  "configure_log": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/production.configure.log",
+  "configure_returncode": 0,
+  "correction_ns": 3.009965,
+  "csi_map_inventory": [
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_after_imag.npy",
+      "sha256": "d0bbd8316831c75b23cfb0ba4e1fef27186f2475877f4e458358ca61da2ed34e",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": -12480.1826171875
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_after_power.npy",
+      "sha256": "ba944367ba0617f4ddfbde659bb89fbfaf865177f68d5198bd2ff8689a47b4b8",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 1486762240.0
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_after_real.npy",
+      "sha256": "67d499b586b6dd49eef2a39c32929c6eb1a556f7994748b574793daaac9b28c2",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 36482.97265625
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_before_power.npy",
+      "sha256": "434d41231298062888c8fbd94bb4250a25df97fa4a8a5ec05602235afb7d43a5",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 1486762240.0
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel1_imag.npy",
+      "sha256": "fa79509b5953147e119d00bc27c2b7f709fb70c7c964d381efcb3e42d2f702d6",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": -12937.6123046875
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel1_power.npy",
+      "sha256": "cf4d6dac9b023eefdd1da27793b3619fd0b998c2b340a51c4782469d47cad1dd",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 1552708352.0
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel1_real.npy",
+      "sha256": "610d72d0aba13ceb26843259295ea926e0e0c4ddf213fd9e327587c8b2917baf",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 37219.9765625
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel2_imag.npy",
+      "sha256": "fb9d111372dfbcf76bbb09ddcf277f32b26022c1bd71dec2d985c5e4d2742184",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": -12480.1826171875
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel2_power.npy",
+      "sha256": "7a2a0904b7997112e0e4644eccf397eecc50e420ffe74cee5789de3905a9af10",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 1486762240.0
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel2_real.npy",
+      "sha256": "b540a2ead4f4aed419bb396d869903d6b0ca04956e0c0e1e268aa659577b3d29",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 36482.97265625
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_csi_after_imag.npy",
+      "sha256": "4ad7713bc0dec32d9a831043efae539305c50ea805edbe4793874ccc967eb173",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 5935.8505859375
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_csi_after_real.npy",
+      "sha256": "730ebda26432b6f22a673c00d11388b96f935f20936b1db8e2d6273f61096650",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 2642.89453125
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel1_imag.npy",
+      "sha256": "78a93e6e63b96bb5eeedb0dcbd8ed581a31cf30ccf07d2bfa185dfb5988c20f2",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 23414.5859375
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel1_real.npy",
+      "sha256": "3e3300a0170f745bcaf1c90afd6642b56912e6aba5f4836a1dfa353aafcf7005",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 32294.380859375
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel2_imag.npy",
+      "sha256": "a5a7f9608f245391238723a001c7e4352d0e2d1909d5236e7a01aba101dac3dd",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 21521.9296875
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel2_real.npy",
+      "sha256": "23396812c1994cd229a2d4351d46fee446e8fcc0b9579cb0541d80cde2945167",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 31993.259765625
+    },
+    {
+      "bytes": 600,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_fa_axis_hz.npy",
+      "retention": "small_axis_or_non_grid_map",
+      "sha256": "dfa42c794958c646609159edfadb1b002034fc56c28d88906b8391f297cde101",
+      "shape": [
+        130
+      ],
+      "target_cell_value": null
+    },
+    {
+      "bytes": 2130000,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_phase_model_residual_rad.npy",
+      "sha256": "3c4d5ca83d9c0412f827fad056bd9c8dafe8c3c6bb876c5d6d6205e75c631f77",
+      "shape": [
+        130,
+        4096
+      ],
+      "target_cell_value": 0.16871336102485657
+    },
+    {
+      "bytes": 16464,
+      "dtype": "float32",
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_range_axis_m.npy",
+      "retention": "small_axis_or_non_grid_map",
+      "sha256": "00b77addae70880eb475b3249b754b09183fe5e2ca9d629967f06013ec5869b8",
+      "shape": [
+        4096
+      ],
+      "target_cell_value": null
+    }
+  ],
+  "csi_maps_cleanup": [
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_after_imag.npy",
+      "sha256": "d0bbd8316831c75b23cfb0ba4e1fef27186f2475877f4e458358ca61da2ed34e"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_after_power.npy",
+      "sha256": "ba944367ba0617f4ddfbde659bb89fbfaf865177f68d5198bd2ff8689a47b4b8"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_after_real.npy",
+      "sha256": "67d499b586b6dd49eef2a39c32929c6eb1a556f7994748b574793daaac9b28c2"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_before_power.npy",
+      "sha256": "434d41231298062888c8fbd94bb4250a25df97fa4a8a5ec05602235afb7d43a5"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel1_imag.npy",
+      "sha256": "fa79509b5953147e119d00bc27c2b7f709fb70c7c964d381efcb3e42d2f702d6"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel1_power.npy",
+      "sha256": "cf4d6dac9b023eefdd1da27793b3619fd0b998c2b340a51c4782469d47cad1dd"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel1_real.npy",
+      "sha256": "610d72d0aba13ceb26843259295ea926e0e0c4ddf213fd9e327587c8b2917baf"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel2_imag.npy",
+      "sha256": "fb9d111372dfbcf76bbb09ddcf277f32b26022c1bd71dec2d985c5e4d2742184"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel2_power.npy",
+      "sha256": "7a2a0904b7997112e0e4644eccf397eecc50e420ffe74cee5789de3905a9af10"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_channel2_real.npy",
+      "sha256": "b540a2ead4f4aed419bb396d869903d6b0ca04956e0c0e1e268aa659577b3d29"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_csi_after_imag.npy",
+      "sha256": "4ad7713bc0dec32d9a831043efae539305c50ea805edbe4793874ccc967eb173"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_csi_after_real.npy",
+      "sha256": "730ebda26432b6f22a673c00d11388b96f935f20936b1db8e2d6273f61096650"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel1_imag.npy",
+      "sha256": "78a93e6e63b96bb5eeedb0dcbd8ed581a31cf30ccf07d2bfa185dfb5988c20f2"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel1_real.npy",
+      "sha256": "3e3300a0170f745bcaf1c90afd6642b56912e6aba5f4836a1dfa353aafcf7005"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel2_imag.npy",
+      "sha256": "a5a7f9608f245391238723a001c7e4352d0e2d1909d5236e7a01aba101dac3dd"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_ctdr_channel2_real.npy",
+      "sha256": "23396812c1994cd229a2d4351d46fee446e8fcc0b9579cb0541d80cde2945167"
+    },
+    {
+      "action": "removed_after_verified_cell_extraction",
+      "bytes": 2130000,
+      "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/period001_beam050_phase_model_residual_rad.npy",
+      "sha256": "3c4d5ca83d9c0412f827fad056bd9c8dafe8c3c6bb876c5d6d6205e75c631f77"
+    }
+  ],
+  "input": {
+    "bytes": 49204480,
+    "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/input/period_0001_corrected.bin",
+    "sha256": "371698042f1c48ace6ccddfe2c5553cc96f811242d0d3cfcc769a5b3159c4d36"
+  },
+  "input_file_period_index": 0,
+  "production_binary": {
+    "path": "$REPO_ROOT/build_r7/GMTI_pipe_core",
+    "sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00"
+  },
+  "production_elapsed_sec": 1.4167608520001522,
+  "production_gate": {
+    "cfar_geometry_path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/debug/cfar_geometry_diagnostics.csv",
+    "cfar_numerical_diagnostics_exists": true,
+    "cluster_detection_lineage_exists": true,
+    "csi_summary_paths": [
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/result/csi_metrics/20261024_143433_275079/csi_metric_tap_summary.csv"
+    ],
+    "csi_summary_row_count": 4,
+    "period1_cfar_geometry_rows": [
+      {
+        "alpha": "13.447822570800781",
+        "background_cells": "16",
+        "beam_id": "50",
+        "branch": "union_dynamic_in_band",
+        "cfar_type": "GO",
+        "cluster_count": "0",
+        "configured_pfa": "9.9999999747524271e-07",
+        "cut_band_end": "84",
+        "cut_band_filtered_cells": "0",
+        "cut_band_mode": "0",
+        "cut_band_start": "46",
+        "doppler_circular": "true",
+        "edge_invalid_cells": "5200",
+        "exclude_row_end": "-1",
+        "exclude_row_start": "-1",
+        "excluded_cells": "0",
+        "false_cluster_count": "NOT_EVALUABLE",
+        "false_counts_status": "truth_join_required_for_false_counts",
+        "false_cut_hit_count": "NOT_EVALUABLE",
+        "false_track_count": "NOT_EVALUABLE",
+        "guard_cells": "4",
+        "height": "130",
+        "hit_cut_count": "219",
+        "hit_index_hash": "fnv1a64:3397257b3fd0475e",
+        "hit_rate": "0.00041533909877105143",
+        "hit_rate_status": "evaluable",
+        "period_id": "1",
+        "protocol_detection_row_count": "0",
+        "schema_version": "1",
+        "threshold_test_count": "527280",
+        "total_cells": "532480",
+        "valid_cut_count": "527280",
+        "width": "4096"
+      },
+      {
+        "alpha": "13.447822570800781",
+        "background_cells": "16",
+        "beam_id": "50",
+        "branch": "union_full_band",
+        "cfar_type": "GO",
+        "cluster_count": "0",
+        "configured_pfa": "9.9999999747524271e-07",
+        "cut_band_end": "129",
+        "cut_band_filtered_cells": "0",
+        "cut_band_mode": "0",
+        "cut_band_start": "0",
+        "doppler_circular": "true",
+        "edge_invalid_cells": "5200",
+        "exclude_row_end": "-1",
+        "exclude_row_start": "-1",
+        "excluded_cells": "0",
+        "false_cluster_count": "NOT_EVALUABLE",
+        "false_counts_status": "truth_join_required_for_false_counts",
+        "false_cut_hit_count": "NOT_EVALUABLE",
+        "false_track_count": "NOT_EVALUABLE",
+        "guard_cells": "4",
+        "height": "130",
+        "hit_cut_count": "198",
+        "hit_index_hash": "fnv1a64:3133c5503f0696b",
+        "hit_rate": "0.00037551206190259442",
+        "hit_rate_status": "evaluable",
+        "period_id": "1",
+        "protocol_detection_row_count": "0",
+        "schema_version": "1",
+        "threshold_test_count": "527280",
+        "total_cells": "532480",
+        "valid_cut_count": "527280",
+        "width": "4096"
+      }
+    ],
+    "period1_csi_row_count": 4,
+    "production_log": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/gmt_pipe_core.log",
+    "production_log_sha256": "455003863755b794949db0858d4996f1c6bc45bed81ffad8f3a4d49ffcd27d9a",
+    "production_returncode": 0,
+    "reasons": [],
+    "runtime_config_dump_exists": true,
+    "runtime_log_stage_counts": {
+      "cfar_summary": 1,
+      "csi_cancellation": 1,
+      "cuda_preprocess": 1,
+      "timing_scope": 11
+    },
+    "runtime_xml_exists": true,
+    "status": "passed",
+    "track_debug_files": [
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_association_accepts.csv",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_detections.csv",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_events.csv",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_frames.csv",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_output_payloads.csv",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_points.csv",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_results.csv",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/track_debug_runs/local_test_20261024_143433_088072_pid81269/track_states.csv"
+    ],
+    "valid_cut_count_by_branch": {
+      "union_dynamic_in_band": 527280,
+      "union_full_band": 527280
+    },
+    "valid_period1_cfar_branches": [
+      "union_dynamic_in_band",
+      "union_full_band"
+    ]
+  },
+  "production_log": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/gmt_pipe_core.log",
+  "runtime_xml": {
+    "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/production.xml",
+    "semantic_sha256": "8d70e5e5f6dead449c2b9ab7d9924376e26d80578ac2247a6caf2909753d81fc",
+    "sha256": "4d8b7ce1dd0cea0d0340b474979cbb1966c86f03aff424de283d96e5dc33dedc"
+  },
+  "runtime_xml_audit": {
+    "errors": [],
+    "expected": {
+      "enable_four_channel_fusion": true,
+      "four_channel_fusion_channel_3": 3,
+      "four_channel_fusion_channel_4": 4,
+      "four_channel_phase_compensation_enable": true,
+      "fs_hz": 60000000.0,
+      "iq_data_type": "float32",
+      "new_protocol_channel_count": 4,
+      "new_protocol_read_channel_1": 1,
+      "new_protocol_read_channel_2": 2,
+      "pulse_len": 11820
+    },
+    "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/attempt_02/conditions/delay_3.009965ns/production.xml",
+    "status": "passed",
+    "values": {
+      "enable_four_channel_fusion": "true",
+      "four_channel_fusion_channel_3": "3",
+      "four_channel_fusion_channel_4": "4",
+      "four_channel_phase_compensation_enable": "true",
+      "fs_hz": 60000000.0,
+      "iq_data_type": "float32",
+      "new_protocol_channel_count": "4",
+      "new_protocol_read_channel_1": "1",
+      "new_protocol_read_channel_2": "2",
+      "pulse_len": "11820"
+    }
+  },
+  "source_xml": {
+    "path": "$REPO_ROOT/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/config/temp_config_stage2_period_0000.xml",
+    "sha256": "2de6fcfa3c448f76099026dcb0ec8291d99f5fc55cb2ac077cd98b58acde8c58"
+  },
+  "stage2_period_id": 1,
+  "status": "passed",
+  "target_cell_csi_response_csv": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/target_cell_csi_responses.csv",
+  "target_cell_tap_count": 11
+}

@@ -1,0 +1,67 @@
+[LOCAL-TEST] track_debug=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/track_debug/local_test_20261022_221645_927891_pid75737
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/runtime.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[TRIG-LUT] uploaded 16384-entry sin/cos/asin/atan tables to device memory
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/runtime.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[STARTUP][CYCLE] prt_bytes=378496 prts_per_beam=130 beam_count=1 prts_per_cycle=130 cycle_bytes=49204480
+[STARTUP] mode=debug input=file beams=1 prts_per_scan=130 result_add=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result track_source=measurement track_vis_dump=on motion_comp=on p38_enhanced=off p38_dump=off dynamic_cfar=off
+[fusion][WORKER-POOL] rebuild workers=1 process_pulse_num=130 pulse_dec=1 rg_len=4096 range_fft_len=12288
+[fusion][WORKER-POOL] prewarm workers=1 cuda_free=2291MB total=3759MB
+[LOCAL-TEST] XML snapshot: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/runtime.xml
+[LOCAL-TEST] Echo files: 3
+
+[LOCAL-TEST] ===== 1/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin result_id=1 =====
+[LOCAL-TEST] Use forced result id 1 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin
+[RUNTIME] runtime_mode=debug, diagnostics disabled for realtime run
+[CSI][LEGACY-GATE] rows=39 gated_rows=0 coherence_mean=0.808544 min=0.5
+[CSI][CANCELLATION] period=0 beam=50 support_rows=[46,84] before_mean_power=26460.416 after_mean_power=27435.25 improvement_db=-0.15712258 strong_top1pct_improvement_db=-0.11033749 phase_coherence=0.99426894 phase_rmse_rad=0.13991235
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=19 removed_low_velocity=0 removed_nonfinite=0 output=19
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=19 removed_upper_bound=0 removed_nonfinite=0 output=19
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=19 removed_duplicates=0 output=19
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/GMTI01.bin，目标数: 19
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results.csv，目标数: 19，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results_GMTI01.csv
+[TRACK] result_id=1 dets=19 active=19 tentative=19 confirmed=0 coasted=0 deleted=0 outputs=0 new=19 suppressed_coasted_speed_outliers=0 matched=0 unmatched_dets=19
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/GMTI01_track.bin，目标数: 0
+[GMTI][RESULT] filtered_detection_count=19 confirmed_current_detection_count=0 protocol_target_count=0
+[TIMING][CYCLE] main_total: 1439 ms
+[FILE][CYCLE] result_file_id=1 period_index=0 algorithm_process_ms=1439.7632 end_to_end_ms=1439.7664 success=true
+
+[LOCAL-TEST] ===== 2/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin result_id=2 =====
+[LOCAL-TEST] Use forced result id 2 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin
+[RUNTIME] runtime_mode=debug, diagnostics disabled for realtime run
+[CSI][LEGACY-GATE] rows=39 gated_rows=0 coherence_mean=0.80968916 min=0.5
+[CSI][CANCELLATION] period=1 beam=50 support_rows=[46,84] before_mean_power=28990.953 after_mean_power=29991.429 improvement_db=-0.14734668 strong_top1pct_improvement_db=-0.10668304 phase_coherence=0.99460091 phase_rmse_rad=0.15191735
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=18 removed_low_velocity=0 removed_nonfinite=0 output=18
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=18 removed_upper_bound=0 removed_nonfinite=0 output=18
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=18 removed_duplicates=0 output=18
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/GMTI02.bin，目标数: 18
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results.csv，目标数: 18，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results_GMTI02.csv
+[TRACK] result_id=2 dets=18 active=28 tentative=19 confirmed=9 coasted=0 deleted=0 outputs=9 new=9 suppressed_coasted_speed_outliers=0 matched=9 unmatched_dets=9
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/GMTI02_track.bin，目标数: 9
+[GMTI][RESULT] filtered_detection_count=18 confirmed_current_detection_count=9 protocol_target_count=9
+[TIMING][CYCLE] main_total: 1171 ms
+[FILE][CYCLE] result_file_id=2 period_index=1 algorithm_process_ms=1171.6871 end_to_end_ms=1171.69 success=true
+
+[LOCAL-TEST] ===== 3/3 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin result_id=3 =====
+[LOCAL-TEST] Use forced result id 3 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin
+[RUNTIME] runtime_mode=debug, diagnostics disabled for realtime run
+[CSI][LEGACY-GATE] rows=39 gated_rows=0 coherence_mean=0.80200601 min=0.5
+[CSI][CANCELLATION] period=2 beam=50 support_rows=[46,84] before_mean_power=20963.557 after_mean_power=21698.609 improvement_db=-0.14966915 strong_top1pct_improvement_db=-0.092473176 phase_coherence=0.99314507 phase_rmse_rad=0.22509945
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=138 removed_low_velocity=0 removed_nonfinite=0 output=138
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=138 removed_upper_bound=0 removed_nonfinite=0 output=138
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=138 removed_duplicates=0 output=138
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/GMTI03.bin，目标数: 138
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results.csv，目标数: 138，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/detection_results_GMTI03.csv
+[TRACK] result_id=3 dets=138 active=144 tentative=122 confirmed=20 coasted=2 deleted=2 outputs=20 new=118 suppressed_coasted_speed_outliers=0 matched=20 unmatched_dets=118
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r7_cfar_correctness_20261022/post_fix_matrix_3period_final/A0_ON_diagoff/result/GMTI03_track.bin，目标数: 20
+[GMTI][RESULT] filtered_detection_count=138 confirmed_current_detection_count=20 protocol_target_count=20
+[TIMING][CYCLE] main_total: 1707 ms
+[FILE][CYCLE] result_file_id=3 period_index=2 algorithm_process_ms=1707.7493 end_to_end_ms=1707.7521 success=true

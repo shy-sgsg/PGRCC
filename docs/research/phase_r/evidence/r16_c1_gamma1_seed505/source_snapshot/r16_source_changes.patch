@@ -1,0 +1,530 @@
+diff --git a/scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py b/scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py
+index e761aaf..18af726 100644
+--- a/scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py
++++ b/scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py
+@@ -29,6 +29,7 @@ from scripts.phase_r import evaluate_r3_minimal_cuda_causal_pilot as r3  # noqa:
+ from scripts.phase_r.evaluate_r7_task_metrics import evaluate_case  # noqa: E402
+ 
+ METHODS = ("C0", "C2", "C3")
++SUPPORTED_METHODS = frozenset({"C0", "C1", "C2", "C3"})
+ CONTROL = "A0"
+ ALL_CONDITIONS = (CONTROL, *METHODS)
+ ROLES = ("OFF", "ON", "TO")
+@@ -369,6 +370,21 @@ def _branch_map(case: Mapping[str, Any]) -> dict[tuple[str, str], Mapping[str, A
+     }
+ 
+ 
++def _selected_methods(case: Mapping[str, Any]) -> tuple[str, ...]:
++    raw = case.get("selected_methods")
++    if not isinstance(raw, list) or not raw:
++        raise ValueError("case manifest must declare a non-empty selected_methods list")
++    methods = tuple(str(value) for value in raw)
++    if len(methods) != len(set(methods)):
++        raise ValueError(f"duplicate selected methods: {methods}")
++    unknown = [method for method in methods if method not in SUPPORTED_METHODS]
++    if unknown:
++        raise ValueError(f"unsupported selected methods: {unknown}")
++    if "C0" not in methods:
++        raise ValueError("selected methods must include C0 Production Current as the operational anchor")
++    return methods
++
++
+ def _load_detection_rows(branch: Mapping[str, Any]) -> tuple[list[dict[str, str]], dict[str, int]]:
+     artifacts = branch.get("artifacts", {})
+     paths = artifacts.get("detection", [])
+@@ -544,6 +560,71 @@ def _audit_adapter(branch: Mapping[str, Any], expected_period_count: int) -> tup
+     artifacts = branch.get("artifacts", {})
+     rows = _read_csv_paths(artifacts.get("adapter_csv", []))
+     contract = branch.get("execution_contract", {})
++    if method == "C1":
++        if not rows:
++            raise ValueError(f"Gamma=1 adapter evidence missing for {method}/{role}")
++        if (
++            str(branch.get("mode")) != "not_applicable"
++            or contract.get("estimator_called") is not False
++            or contract.get("fixed_reference_required") is not False
++            or contract.get("reference_applied") is not False
++            or contract.get("reference_source") != "not_applicable"
++            or contract.get("reference_artifact") is not None
++            or branch.get("reference_applied") is True
++            or branch.get("fallback_to_current") is not False
++        ):
++            raise ValueError(f"Gamma=1 no-reference contract failed for {method}/{role}")
++        if len(rows) != expected_period_count:
++            raise ValueError(f"adapter row count mismatch for {method}/{role}: {len(rows)}")
++        period_ids: set[int] = set()
++        enriched_rows: list[dict[str, Any]] = []
++        for row in rows:
++            try:
++                result_id = str(row.get("result_id", "")).strip()
++                result_match = re.fullmatch(r"GMTI(\d+)", result_id)
++                if result_match is None:
++                    raise ValueError("invalid Production result_id")
++                result_number = int(result_match.group(1))
++                period_id = result_number - 1
++                gamma_real = float(str(row.get("gamma_real", "")).strip())
++                gamma_imag = float(str(row.get("gamma_imag", "")).strip())
++                support_count = int(str(row.get("support_count", "")).strip())
++            except (TypeError, ValueError) as exc:
++                raise ValueError(f"invalid Gamma=1 adapter numeric field for {method}/{role}: {row}") from exc
++            explicit_period_id = str(row.get("period_id", "")).strip()
++            if explicit_period_id:
++                try:
++                    if int(explicit_period_id) != period_id:
++                        raise ValueError("period_id disagrees with Production result_id")
++                except ValueError as exc:
++                    raise ValueError(f"Gamma=1 adapter period identity failed for {method}/{role}: {row}") from exc
++            if (
++                result_number < 1
++                or result_number > expected_period_count
++                or period_id in period_ids
++                or result_id != f"GMTI{result_number:02d}"
++                or str(row.get("method", "")).strip() != "ordinary_subtraction"
++                or str(row.get("status", "")).strip().upper() != "OK"
++                or _flag(row.get("truth_used_in_estimator"))
++                or str(row.get("source", "")) != "production_final_f1_f2_after_p38_range_phase"
++                or support_count <= 0
++                or not math.isfinite(gamma_real)
++                or not math.isfinite(gamma_imag)
++                or not math.isclose(gamma_real, 1.0, rel_tol=0.0, abs_tol=1.0e-12)
++                or not math.isclose(gamma_imag, 0.0, rel_tol=0.0, abs_tol=1.0e-12)
++            ):
++                raise ValueError(f"Gamma=1 adapter evidence failed for {method}/{role}: {row}")
++            period_ids.add(period_id)
++            enriched_rows.append({
++                "method_id": method,
++                "role": role,
++                "branch_name": branch.get("branch_name"),
++                **row,
++                "period_id": period_id,
++            })
++        if period_ids != set(range(expected_period_count)):
++            raise ValueError(f"adapter period identity mismatch for {method}/{role}: {sorted(period_ids)}")
++        return "passed", enriched_rows
+     if method not in {"C2", "C3"}:
+         if rows:
+             raise ValueError(f"unexpected calibration adapter rows for non-adaptive {method}/{role}")
+@@ -590,11 +671,14 @@ def _hashes_for_method_roles(
+     }
+ 
+ 
+-def _verify_shared_inputs(case: Mapping[str, Any], case_root: Path) -> list[dict[str, Any]]:
++def _verify_shared_inputs(
++    case: Mapping[str, Any], case_root: Path, methods: Sequence[str] = METHODS,
++) -> list[dict[str, Any]]:
+     rows: list[dict[str, Any]] = []
+     by_role: dict[str, list[str]] = {}
+     verified_hashes: dict[Path, str] = {}
+-    for method in ALL_CONDITIONS:
++    conditions = (CONTROL, *methods)
++    for method in conditions:
+         method_hashes = _hashes_for_method_roles(case, method)
+         for role in ROLES:
+             refs = method_hashes[role]
+@@ -626,8 +710,8 @@ def _verify_shared_inputs(case: Mapping[str, Any], case_root: Path) -> list[dict
+                     "manifest_sha256_verified": True,
+                 })
+     for role in ROLES:
+-        baseline = by_role[f"{METHODS[0]}/{role}"]
+-        for method in (CONTROL, *METHODS[1:]):
++        baseline = by_role[f"C0/{role}"]
++        for method in conditions:
+             if by_role[f"{method}/{role}"] != baseline:
+                 raise ValueError(f"physical input hashes differ for {method}/{role}")
+     return rows
+@@ -835,6 +919,7 @@ def _tap_array_path(manifest: Path, row: Mapping[str, Any], key: str) -> Path:
+ 
+ def audit_shared_f1f2_inputs(
+     rows: Sequence[Mapping[str, Any]],
++    conditions: Sequence[str] = ALL_CONDITIONS,
+ ) -> list[dict[str, Any]]:
+     """Verify each selected method receives identical production F1/F2 taps."""
+ 
+@@ -842,14 +927,14 @@ def audit_shared_f1f2_inputs(
+     for row in rows:
+         key = (str(row.get("scene", "")), str(row.get("role", "")), str(row.get("period_id", "")))
+         method = str(row.get("method_id", ""))
+-        if method in ALL_CONDITIONS:
++        if method in conditions:
+             if method in grouped.setdefault(key, {}):
+                 raise ValueError(f"duplicate F1/F2 tap identity: {key}/{method}")
+             grouped[key][method] = row
+ 
+     audits: list[dict[str, Any]] = []
+     for (scene, role, period), method_rows in sorted(grouped.items()):
+-        missing = sorted(set(ALL_CONDITIONS) - set(method_rows))
++        missing = sorted(set(conditions) - set(method_rows))
+         f1_hashes = {str(row.get("f1_input_sha256", "")) for row in method_rows.values()}
+         f2_hashes = {str(row.get("f2_input_sha256", "")) for row in method_rows.values()}
+         f1_powers = [_as_float(row.get("f1_input_active_support_mean_power")) for row in method_rows.values()]
+@@ -884,11 +969,12 @@ def _csi_metrics(
+     case: Mapping[str, Any],
+     case_root: Path,
+     branch_records: Mapping[tuple[str, str], Mapping[str, Any]],
++    conditions: Sequence[str] = ALL_CONDITIONS,
+ ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]]]:
+     overall: list[dict[str, Any]] = []
+     per_period: list[dict[str, Any]] = []
+     roi_samples: list[dict[str, Any]] = []
+-    for method in ALL_CONDITIONS:
++    for method in conditions:
+         roles = {role: branch_records[(method, role)] for role in ROLES}
+         target = r3._target_transfer(case_root, case, f"{method}_R13", roles)
+         off_rows = _csi_manifest_rows(roles["OFF"])
+@@ -1045,6 +1131,7 @@ def _common_opportunity_rows(
+     evaluations: Mapping[tuple[str, str], Mapping[str, Any]],
+     *,
+     scene: str,
++    methods: Sequence[str] = METHODS,
+ ) -> list[dict[str, Any]]:
+     rows: list[dict[str, Any]] = []
+     metrics = (
+@@ -1052,14 +1139,14 @@ def _common_opportunity_rows(
+         "folded_doppler_frequency_error_hz",
+     )
+     for role in ("ON", "TO"):
+-        for left_index, left in enumerate(METHODS):
++        for left_index, left in enumerate(methods):
+             left_eval = evaluations[(left, role)]
+             left_associations = {
+                 int(row["period_id"]): row
+                 for row in left_eval["task"]["association_evidence"]
+                 if _flag(row.get("matched"))
+             }
+-            for right in METHODS[left_index + 1 :]:
++            for right in methods[left_index + 1 :]:
+                 right_eval = evaluations[(right, role)]
+                 right_associations = {
+                     int(row["period_id"]): row
+@@ -1155,8 +1242,8 @@ def evaluate_case_manifest(case_manifest_path: Path, scene: str) -> dict[str, An
+     case = json.loads(case_manifest_path.read_text(encoding="utf-8"))
+     if case.get("area_clutter_gate", {}).get("status") != "passed":
+         raise ValueError(f"area clutter gate did not pass: {case_manifest_path}")
+-    if case.get("selected_methods") != list(METHODS):
+-        raise ValueError(f"unexpected selected methods in {case_manifest_path}: {case.get('selected_methods')}")
++    methods = _selected_methods(case)
++    conditions = (CONTROL, *methods)
+     beam_id = int(case["scene_identity"]["beam_id"])
+     truths = _read_truth(case)
+     truth_periods = sorted({_as_int(row.get("period_id"), -1) for row in truths})
+@@ -1164,14 +1251,14 @@ def evaluate_case_manifest(case_manifest_path: Path, scene: str) -> dict[str, An
+     if len(truths) != expected_period_count or len(truth_periods) != expected_period_count:
+         raise ValueError(f"truth opportunities mismatch in {case_manifest_path}")
+     branch_records = _branch_map(case)
+-    for condition in ALL_CONDITIONS:
++    for condition in conditions:
+         for role in ROLES:
+             if (condition, role) not in branch_records:
+                 raise ValueError(f"missing Production branch {condition}/{role}")
+-    input_hashes = _verify_shared_inputs(case, case_root)
++    input_hashes = _verify_shared_inputs(case, case_root, methods)
+     paired_input_audit = audit_paired_scene_inputs(case=case, scene=scene)
+     evaluations: dict[str, dict[str, Any]] = {}
+-    for method in ALL_CONDITIONS:
++    for method in conditions:
+         for role in ROLES:
+             result = _evaluate_branch(
+                 scene=scene,
+@@ -1187,6 +1274,7 @@ def evaluate_case_manifest(case_manifest_path: Path, scene: str) -> dict[str, An
+         case=case,
+         case_root=case_root,
+         branch_records=branch_records,
++        conditions=conditions,
+     )
+     return {
+         "metadata": _manifest_metadata(case, case_root, scene),
+@@ -1354,11 +1442,12 @@ def _pairwise_rows(scene_results: Sequence[Mapping[str, Any]]) -> list[dict[str,
+     result: list[dict[str, Any]] = []
+     for scene_result in scene_results:
+         scene = scene_result["metadata"]["scene"]
++        methods = tuple(scene_result["metadata"].get("selected_methods") or METHODS)
+         evaluations = {
+             tuple(key.split("/", 1)): value
+             for key, value in scene_result["evaluations"].items()
+         }
+-        result.extend(_common_opportunity_rows(evaluations, scene=scene))
++        result.extend(_common_opportunity_rows(evaluations, scene=scene, methods=methods))
+     return result
+ 
+ 
+@@ -1379,13 +1468,20 @@ def main() -> int:
+         scene_results.append(evaluate_case_manifest(
+             args.challenge_case_manifest, args.challenge_scene_label
+         ))
++    methods = tuple(scene_results[0]["metadata"].get("selected_methods") or METHODS)
++    if any(
++        tuple(scene["metadata"].get("selected_methods") or METHODS) != methods
++        for scene in scene_results[1:]
++    ):
++        raise ValueError("all selected scenes must use the same Production method subset")
++    conditions = (CONTROL, *methods)
+     _write_csv(output / "summary.csv", _summary_rows(scene_results))
+     _write_csv(output / "period_metrics.csv", _period_rows(scene_results))
+     _write_csv(output / "pairwise_common_opportunities.csv", _pairwise_rows(scene_results))
+     _write_csv(output / "target_associations.csv", _associations_rows(scene_results)[0])
+     _write_csv(output / "strict_track_associations.csv", _associations_rows(scene_results)[1])
+     csi_period_rows = [row for scene in scene_results for row in scene["csi_periods"]]
+-    f1f2_audits = audit_shared_f1f2_inputs(csi_period_rows)
++    f1f2_audits = audit_shared_f1f2_inputs(csi_period_rows, conditions)
+     _write_csv(output / "csi_results.csv", [row for scene in scene_results for row in scene["csi_overall"]])
+     _write_csv(output / "csi_period_metrics.csv", csi_period_rows)
+     _write_csv(output / "f1f2_input_audit.csv", f1f2_audits)
+@@ -1407,16 +1503,19 @@ def main() -> int:
+     )
+     metadata = {
+         "schema_version": 1,
+-        "stage": "PGRCC Phase R13 minimal Native CUDA baseline comparison",
++        "stage": (
++            "PGRCC Phase R16 minimal C1 Gamma=1 Native CUDA baseline comparison"
++            if "C1" in methods else "PGRCC selected-method Native CUDA baseline comparison"
++        ),
+         "evaluator_status": "evaluated",
+         "scenes": [scene["metadata"] for scene in scene_results],
+-        "method_ids": list(METHODS),
++        "method_ids": list(methods),
+         "control_id": CONTROL,
+         "performance_verified": False,
+         "single_seed_limit": "3 periods are within one seed and are not independent repetitions",
+         "pfa_status": "NOT_EVALUABLE; H0 observed hit fraction is descriptive and is not empirical Pfa",
+         "f1f2_input_audit_status": (
+-            "verified_identical_across_A0_C0_C2_C3"
++            f"verified_identical_across_{'_'.join(conditions)}"
+             if f1f2_audits and all(row["audit_verified"] for row in f1f2_audits)
+             else "NOT_EVALUABLE_OR_INPUT_MISMATCH"
+         ),
+diff --git a/scripts/run_production_hierarchical_calibration_pilot.py b/scripts/run_production_hierarchical_calibration_pilot.py
+index 5e16954..e153828 100644
+--- a/scripts/run_production_hierarchical_calibration_pilot.py
++++ b/scripts/run_production_hierarchical_calibration_pilot.py
+@@ -60,7 +60,7 @@ ALLOWED_DECISION_LABELS = {
+ }
+ DEFAULT_ADDITIVE_TOLERANCE = 5.0e-5
+ DEFAULT_COHERENCE_THRESHOLD = 0.0
+-RESEARCH_METHOD_IDS = frozenset({"C1", "C2", "C3", "C4", "P2", "PKR"})
++REFERENCE_FIT_METHOD_IDS = frozenset({"C2", "C3", "C4", "P2", "PKR"})
+ 
+ 
+ def _json_safe(value: object) -> object:
+@@ -217,7 +217,7 @@ def resolve_calibration_modes(
+         raise ValueError(f"unknown calibration mode in selection: {unknown}")
+     return {
+         str(method["method_id"]): (
+-            modes if str(method["method_id"]) in RESEARCH_METHOD_IDS else ("not_applicable",)
++            modes if str(method["method_id"]) in REFERENCE_FIT_METHOD_IDS else ("not_applicable",)
+         )
+         for method in method_contract
+     }
+@@ -287,24 +287,29 @@ def build_branch_execution_contract(
+     if selected_role not in {"OFF", "ON", "TO"}:
+         raise ValueError(f"unknown paired-input role: {selected_role}")
+ 
+-    research_enabled = method in RESEARCH_METHOD_IDS
++    reference_fit_enabled = method in REFERENCE_FIT_METHOD_IDS
++    if method == "C1" and selected_mode != "not_applicable":
++        raise ValueError("C1 Gamma=1 ordinary subtraction only supports not_applicable mode")
+     if selected_mode == "Mode-A":
+-        estimator_roles = ["OFF"] if research_enabled else []
+-        reference_source = "OFF_estimator_output" if research_enabled else "not_applicable"
+-        estimator_called = research_enabled and selected_role == "OFF"
+-        fixed_reference_required = research_enabled and selected_role in {"ON", "TO"}
++        estimator_roles = ["OFF"] if reference_fit_enabled else []
++        reference_source = "OFF_estimator_output" if reference_fit_enabled else "not_applicable"
++        estimator_called = reference_fit_enabled and selected_role == "OFF"
++        fixed_reference_required = reference_fit_enabled and selected_role in {"ON", "TO"}
+     elif selected_mode == "Mode-B":
+-        estimator_roles = ["ON"] if research_enabled else []
+-        reference_source = "ON_estimator_output" if research_enabled else "not_applicable"
+-        estimator_called = research_enabled and selected_role == "ON"
+-        fixed_reference_required = research_enabled and selected_role in {"OFF", "TO"}
++        estimator_roles = ["ON"] if reference_fit_enabled else []
++        reference_source = "ON_estimator_output" if reference_fit_enabled else "not_applicable"
++        estimator_called = reference_fit_enabled and selected_role == "ON"
++        fixed_reference_required = reference_fit_enabled and selected_role in {"OFF", "TO"}
+     else:
+         estimator_roles = []
+         reference_source = "not_applicable"
+         estimator_called = False
+         fixed_reference_required = False
+ 
+-    reference_value = str(Path(reference_path).resolve()) if reference_path is not None else None
++    reference_value = (
++        str(Path(reference_path).resolve())
++        if reference_fit_enabled and reference_path is not None else None
++    )
+     return {
+         "method_id": method,
+         "mode": selected_mode,
+@@ -961,7 +966,7 @@ def _missing_branches(
+     rows: list[dict[str, object]] = []
+     for method in method_contract:
+         method_id = str(method["method_id"])
+-        modes = tuple(calibration_modes) if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
++        modes = tuple(calibration_modes) if method_id in REFERENCE_FIT_METHOD_IDS else ("not_applicable",)
+         for mode in modes:
+             for role in ("OFF", "ON", "TO"):
+                 contract = build_branch_execution_contract(method_id, mode, role)
+@@ -1955,7 +1960,7 @@ def _run_case(
+         else:
+             family = "none"
+         prepared_family = prepared[family]
+-        modes = tuple(calibration_modes) if method_id in RESEARCH_METHOD_IDS else ("not_applicable",)
++        modes = tuple(calibration_modes) if method_id in REFERENCE_FIT_METHOD_IDS else ("not_applicable",)
+         for mode in modes:
+             mode_root = case_root / "references" / mode / method_id
+             reference_path = mode_root / "reference_gamma.csv"
+diff --git a/tests/test_phase_r13_minimal_baseline_pilot.py b/tests/test_phase_r13_minimal_baseline_pilot.py
+index 65fb133..649a959 100644
+--- a/tests/test_phase_r13_minimal_baseline_pilot.py
++++ b/tests/test_phase_r13_minimal_baseline_pilot.py
+@@ -158,6 +158,32 @@ def test_f1f2_input_audit_requires_identical_maps_for_all_selected_conditions():
+     assert mismatch["audit_reasons"] == "f2_hash_mismatch"
+ 
+ 
++def test_f1f2_input_audit_accepts_the_selected_c1_gamma_one_subset():
++    conditions = ("A0", "C0", "C1")
++    rows = [
++        {
++            "scene": "normal_seed505",
++            "role": role,
++            "period_id": str(period),
++            "method_id": method,
++            "f1_input_sha256": f"f1-{role}-{period}",
++            "f2_input_sha256": f"f2-{role}-{period}",
++            "f1_input_active_support_mean_power": 4.0,
++            "f2_input_active_support_mean_power": 9.0,
++        }
++        for role in ("OFF", "ON", "TO")
++        for period in range(3)
++        for method in conditions
++    ]
++
++    audits = audit_shared_f1f2_inputs(rows, conditions)
++
++    assert len(audits) == 9
++    assert all(row["audit_verified"] for row in audits)
++    assert all(row["method_count"] == 3 for row in audits)
++    assert all(row["methods_present"] == "A0,C0,C1" for row in audits)
++
++
+ def test_paired_input_audit_proves_off_uses_area_background_and_on_uses_writer(tmp_path):
+     case_root = tmp_path / "case"
+     background = case_root / "scenes" / "A0_background"
+diff --git a/tests/test_production_hierarchical_calibration_pilot.py b/tests/test_production_hierarchical_calibration_pilot.py
+index 0e80c99..cbec19c 100644
+--- a/tests/test_production_hierarchical_calibration_pilot.py
++++ b/tests/test_production_hierarchical_calibration_pilot.py
+@@ -84,6 +84,114 @@ def test_method_and_mode_subset_keeps_default_contract_but_allows_bounded_pilot(
+     assert args.calibration_modes == ["Mode-A"]
+ 
+ 
++def test_c1_roles_do_not_select_or_require_a_fitted_reference() -> None:
++    from scripts.run_production_hierarchical_calibration_pilot import (
++        build_branch_execution_contract,
++        build_method_contract,
++        load_pilot_config,
++        resolve_calibration_modes,
++    )
++
++    methods = build_method_contract(
++        load_pilot_config(CONFIG), method_ids=("C0", "C1", "C2", "C3")
++    )
++    modes = resolve_calibration_modes(methods, ("Mode-A",))
++
++    assert modes == {
++        "C0": ("not_applicable",),
++        "C1": ("not_applicable",),
++        "C2": ("Mode-A",),
++        "C3": ("Mode-A",),
++    }
++    for role in ("OFF", "ON", "TO"):
++        contract = build_branch_execution_contract("C1", "not_applicable", role)
++        assert contract["estimator_input_roles"] == []
++        assert contract["reference_source"] == "not_applicable"
++        assert contract["reference_artifact"] is None
++        assert contract["estimator_called"] is False
++        assert contract["fixed_reference_required"] is False
++        assert contract["reference_applied"] is False
++        assert contract["fallback_to_current"] is False
++    with pytest.raises(ValueError, match="only supports not_applicable mode"):
++        build_branch_execution_contract("C1", "Mode-A", "ON", "/tmp/unused_gamma.csv")
++
++    # Mode-A's OFF-fit and fixed-reference application remain frozen for C2/C3.
++    c2_off = build_branch_execution_contract("C2", "Mode-A", "OFF", "/tmp/c2_gamma.csv")
++    c2_on = build_branch_execution_contract("C2", "Mode-A", "ON", "/tmp/c2_gamma.csv")
++    assert c2_off["estimator_called"] is True
++    assert c2_off["fixed_reference_required"] is False
++    assert c2_on["estimator_called"] is False
++    assert c2_on["fixed_reference_required"] is True
++
++
++def test_r13_evaluator_accepts_direct_c1_gamma_one_taps_without_off_reference(
++    tmp_path: Path,
++) -> None:
++    import csv
++
++    from scripts.phase_r.evaluate_r13_minimal_baseline_pilot import _audit_adapter
++    from scripts.run_production_hierarchical_calibration_pilot import (
++        build_branch_execution_contract,
++    )
++
++    adapter_path = tmp_path / "c1_adapter.csv"
++    fields = [
++        "result_id", "beam_id", "method", "group_id", "az_index",
++        "range_start", "range_end", "status", "support_count", "gamma_real",
++        "gamma_imag", "truth_used_in_estimator", "source", "reason",
++    ]
++    with adapter_path.open("w", newline="", encoding="utf-8") as stream:
++        writer = csv.DictWriter(stream, fieldnames=fields)
++        writer.writeheader()
++        for period in (1, 2, 3):
++            writer.writerow({
++                "result_id": f"GMTI{period:02d}",
++                "beam_id": 50,
++                "method": "ordinary_subtraction",
++                "group_id": "az_-1_range_0_9",
++                "az_index": -1,
++                "range_start": 0,
++                "range_end": 9,
++                "status": "OK",
++                "support_count": 10,
++                "gamma_real": 1.0,
++                "gamma_imag": 0.0,
++                "truth_used_in_estimator": "false",
++                "source": "production_final_f1_f2_after_p38_range_phase",
++                "reason": "",
++            })
++
++    branch = {
++        "method_id": "C1",
++        "mode": "not_applicable",
++        "role": "ON",
++        "branch_name": "C1_not_applicable_ON",
++        "fallback_to_current": False,
++        "execution_contract": build_branch_execution_contract(
++            "C1", "not_applicable", "ON"
++        ),
++        "artifacts": {"adapter_csv": [str(adapter_path)]},
++    }
++
++    status, rows = _audit_adapter(branch, expected_period_count=3)
++
++    assert status == "passed"
++    assert len(rows) == 3
++    assert [int(row["period_id"]) for row in rows] == [0, 1, 2]
++    assert {float(row["gamma_real"]) for row in rows} == {1.0}
++    assert {float(row["gamma_imag"]) for row in rows} == {0.0}
++
++    with adapter_path.open(newline="", encoding="utf-8") as stream:
++        corrupted_rows = list(csv.DictReader(stream))
++    corrupted_rows[-1]["gamma_real"] = "0.9"
++    with adapter_path.open("w", newline="", encoding="utf-8") as stream:
++        writer = csv.DictWriter(stream, fieldnames=fields)
++        writer.writeheader()
++        writer.writerows(corrupted_rows)
++    with pytest.raises(ValueError, match="Gamma=1 adapter evidence failed"):
++        _audit_adapter(branch, expected_period_count=3)
++
++
+ def test_selected_methods_only_prepare_their_required_input_families() -> None:
+     from scripts.run_production_hierarchical_calibration_pilot import (
+         _required_prepared_families,

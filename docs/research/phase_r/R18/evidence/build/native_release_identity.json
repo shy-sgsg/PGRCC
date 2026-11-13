@@ -1,0 +1,91 @@
+{
+  "schema_version": 1,
+  "source_commit": "4c6d4d303621324f5e174db0ba1811c5691df2e2",
+  "tracked_worktree_clean": true,
+  "tracked_status": "",
+  "configure_command": [
+    "cmake",
+    "-S",
+    ".",
+    "-B",
+    "/tmp/pgrcc-r18-native-release",
+    "-DCMAKE_BUILD_TYPE=Release",
+    "-DUSE_COREX=OFF",
+    "-DCMAKE_CUDA_ARCHITECTURES=86"
+  ],
+  "build_command": [
+    "cmake",
+    "--build",
+    "/tmp/pgrcc-r18-native-release",
+    "-j4"
+  ],
+  "configure_exit_code": 0,
+  "build_exit_code": 0,
+  "cmake_cache": {
+    "path": "/tmp/pgrcc-r18-native-release/CMakeCache.txt",
+    "bytes": 32983,
+    "sha256": "ee815aadbbedc11739b0246e802263061911856e6aafab4638659090a9a17c5c"
+  },
+  "cache_settings": [
+    "CMAKE_BUILD_TYPE:STRING=Release",
+    "CMAKE_CUDA_ARCHITECTURES:UNINITIALIZED=86",
+    "CMAKE_CUDA_COMPILER:FILEPATH=/usr/bin/nvcc",
+    "CMAKE_CUDA_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
+    "CMAKE_CXX_COMPILER:FILEPATH=/usr/bin/c++",
+    "CMAKE_CXX_FLAGS_RELEASE:STRING=-O3 -DNDEBUG",
+    "USE_COREX:BOOL=OFF"
+  ],
+  "binaries": {
+    "GMTI_pipe_core": {
+      "path": "/tmp/pgrcc-r18-native-release/GMTI_pipe_core",
+      "bytes": 6174864,
+      "sha256": "3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0"
+    },
+    "simulate_stage2_statistical": {
+      "path": "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "bytes": 645944,
+      "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+    },
+    "cfar_cuda_numerical_selftest": {
+      "path": "/tmp/pgrcc-r18-native-release/cfar_cuda_numerical_selftest",
+      "bytes": 138848,
+      "sha256": "fdc4166dcd77a3a86580ae16fe13291f616c3bced8e2adc4769ed75510ec42e5"
+    }
+  },
+  "config_sha256": "3af60966332877095e5447247ab08cb39a54ef7a15681f37adf33cc251082ae1",
+  "master_plan_git_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "tool_versions": {
+    "cmake": {
+      "argv": [
+        "cmake",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "cmake version 4.2.3\n\nCMake suite maintained and supported by Kitware (kitware.com/cmake)."
+    },
+    "nvcc": {
+      "argv": [
+        "nvcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "nvcc: NVIDIA (R) Cuda compiler driver\nCopyright (c) 2005-2024 NVIDIA Corporation\nBuilt on Thu_Mar_28_02:18:24_PDT_2024\nCuda compilation tools, release 12.4, V12.4.131\nBuild cuda_12.4.r12.4/compiler.34097967_0"
+    },
+    "cxx": {
+      "argv": [
+        "/usr/bin/c++",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "c++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    },
+    "gcc": {
+      "argv": [
+        "/usr/bin/gcc",
+        "--version"
+      ],
+      "exit_code": 0,
+      "output": "gcc (Ubuntu 15.2.0-16ubuntu1) 15.2.0\nCopyright (C) 2025 Free Software Foundation, Inc.\nThis is free software; see the source for copying conditions.  There is NO\nwarranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE."
+    }
+  }
+}

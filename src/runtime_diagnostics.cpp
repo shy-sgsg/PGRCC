@@ -4,6 +4,8 @@
 
 #include <algorithm>
 #include <cerrno>
+#include <cmath>
+#include <complex>
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
@@ -13,6 +15,7 @@
 #include <fstream>
 #include <iomanip>
 #include <iostream>
+#include <limits>
 #include <mutex>
 #include <sstream>
 #include <sys/stat.h>
@@ -126,6 +129,15 @@ std::string csvEscape(const std::string& s)
     return out;
 }
 
+std::string gammaGroupId(const ProductionCalibrationGammaGroup& group)
+{
+    std::ostringstream id;
+    id << "az_" << group.az_index
+       << "_range_" << group.range_start
+       << "_" << group.range_end;
+    return id.str();
+}
+
 std::string pathJoin(std::string dir, const std::string& file)
 {
     if (dir.empty()) {
@@ -164,6 +176,54 @@ bool fileExists(const std::string& path)
 {
     struct stat st {};
     return !path.empty() && ::stat(path.c_str(), &st) == 0 && S_ISREG(st.st_mode);
+}
+
+struct ProductionStageTraceSelection {
+    bool configured = false;
+    bool valid = false;
+    int period = -1;
+    int beam = -1;
+    int azimuth = -1;
+    int range_start = -1;
+    int range_end = -1;
+};
+
+ProductionStageTraceSelection productionStageTraceSelection()
+{
+    ProductionStageTraceSelection selection;
+    const char* value = std::getenv("PGRCC_C4_TRACE_GROUP");
+    if (value == nullptr || value[0] == '\0') {
+        return selection;
+    }
+    selection.configured = true;
+
+    long long fields[5] = {};
+    char commas[4] = {};
+    std::istringstream input(value);
+    if (!(input >> fields[0] >> commas[0] >> fields[1] >> commas[1] >>
+          fields[2] >> commas[2] >> fields[3] >> commas[3] >> fields[4]) ||
+        commas[0] != ',' || commas[1] != ',' || commas[2] != ',' ||
+        commas[3] != ',') {
+        return selection;
+    }
+    input >> std::ws;
+    if (!input.eof() || fields[0] <= 0 || fields[1] <= 0 || fields[2] < 0 ||
+        fields[3] < 0 || fields[4] < fields[3] ||
+        fields[0] > std::numeric_limits<int>::max() ||
+        fields[1] > std::numeric_limits<int>::max() ||
+        fields[2] > std::numeric_limits<int>::max() ||
+        fields[3] > std::numeric_limits<int>::max() ||
+        fields[4] > std::numeric_limits<int>::max()) {
+        return selection;
+    }
+
+    selection.valid = true;
+    selection.period = static_cast<int>(fields[0]);
+    selection.beam = static_cast<int>(fields[1]);
+    selection.azimuth = static_cast<int>(fields[2]);
+    selection.range_start = static_cast<int>(fields[3]);
+    selection.range_end = static_cast<int>(fields[4]);
+    return selection;
 }
 
 std::string basenameNoExt(const std::string& path)
@@ -472,6 +532,23 @@ void writeRuntimeConfigJson(const Config& cfg)
     os << "    \"missing_leading_prt_count\": "
        << cfg.echo_cycle_view.missing_leading_prt_count << "\n";
     os << "  },\n";
+    os << "  \"platform_velocity\": {\n";
+    os << "    \"true_mps\": "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps),
+              cfg.stage2_platform_velocity_true_mps) << ",\n";
+    os << "    \"reported_mps\": "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps) << ",\n";
+    os << "    \"reported_minus_true_mps\": "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps) &&
+                  std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps -
+                  cfg.stage2_platform_velocity_true_mps) << ",\n";
+    os << "    \"metadata_source\": " << q("Stage2 generated XML") << "\n";
+    os << "  },\n";
     os << "  \"scan\": {\n";
     os << "    \"scan_mode\": " << q(scanModeName(cfg.scan_mode)) << ",\n";
     os << "    \"acquisition_scan_prt_count\": "
@@ -697,6 +774,25 @@ void writeRuntimeConfigJson(const Config& cfg)
        << cfg.csi_subtraction_gain << ",\n";
     os << "    \"csi_range_phase_correction_enable\": "
        << (cfg.csi_range_phase_correction_enable ? "true" : "false") << ",\n";
+    os << "    \"research_calibration_enable\": "
+       << (cfg.research_calibration_enable ? "true" : "false") << ",\n";
+    os << "    \"research_calibration_method\": "
+       << q(cfg.research_calibration_method) << ",\n";
+    os << "    \"research_calibration_min_support\": "
+       << cfg.research_calibration_min_support << ",\n";
+    os << "    \"research_calibration_range_band_bins\": "
+       << cfg.research_calibration_range_band_bins << ",\n";
+    os << "    \"research_calibration_robust_phase_threshold_rad\": "
+       << cfg.research_calibration_robust_phase_threshold_rad << ",\n";
+    os << "    \"research_calibration_reference_gamma_csv\": "
+       << q(cfg.research_calibration_reference_gamma_csv) << ",\n";
+    os << "    \"research_calibration_mode\": "
+       << q(cfg.research_calibration_mode) << ",\n";
+    os << "    \"research_calibration_estimator_truth_blind\": true,\n";
+    os << "    \"research_calibration_tap_source\": "
+       << q(cfg.research_calibration_enable
+                ? "shared_clutter_cancel_38_paper_1_cuda_after_p38_range_phase"
+                : "disabled") << ",\n";
     os << "    \"paired_raw_range_phase_override_f32\": "
        << q(cfg.paired_raw_range_phase_override_f32) << ",\n";
     os << "    \"paired_csi_range_phase_override_f32\": "
@@ -900,6 +996,23 @@ void writeRuntimeConfigTxt(const Config& cfg)
     os << "beam_count = " << beamCount(cfg) << "\n";
     os << "bytes_per_prt = " << cfg.pkg_bytes << "\n\n";
 
+    os << "[PLATFORM_VELOCITY]\n";
+    os << "true_mps = "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps),
+              cfg.stage2_platform_velocity_true_mps) << "\n";
+    os << "reported_mps = "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps) << "\n";
+    os << "reported_minus_true_mps = "
+       << jsonNullableDouble(
+              std::isfinite(cfg.stage2_platform_velocity_true_mps) &&
+                  std::isfinite(cfg.stage2_platform_velocity_reported_mps),
+              cfg.stage2_platform_velocity_reported_mps -
+                  cfg.stage2_platform_velocity_true_mps) << "\n";
+    os << "metadata_source = Stage2 generated XML\n\n";
+
     os << "[WAVEFORM]\n";
     os << "fc_hz = " << std::setprecision(15) << cfg.fc << "\n";
     os << "Br_hz = " << cfg.Br << "\n";
@@ -1090,6 +1203,23 @@ void writeRuntimeConfigTxt(const Config& cfg)
     os << "csi_subtraction_gain = " << cfg.csi_subtraction_gain << "\n";
     os << "csi_range_phase_correction_enable = "
        << (cfg.csi_range_phase_correction_enable ? 1 : 0) << "\n";
+    os << "research_calibration_enable = "
+       << (cfg.research_calibration_enable ? "true" : "false") << "\n";
+    os << "research_calibration_method = " << cfg.research_calibration_method << "\n";
+    os << "research_calibration_min_support = "
+       << cfg.research_calibration_min_support << "\n";
+    os << "research_calibration_range_band_bins = "
+       << cfg.research_calibration_range_band_bins << "\n";
+    os << "research_calibration_robust_phase_threshold_rad = "
+       << cfg.research_calibration_robust_phase_threshold_rad << "\n";
+    os << "research_calibration_reference_gamma_csv = "
+       << cfg.research_calibration_reference_gamma_csv << "\n";
+    os << "research_calibration_mode = " << cfg.research_calibration_mode << "\n";
+    os << "research_calibration_estimator_truth_blind = true\n";
+    os << "research_calibration_tap_source = "
+       << (cfg.research_calibration_enable
+               ? "shared_clutter_cancel_38_paper_1_cuda_after_p38_range_phase"
+               : "disabled") << "\n";
     os << "paired_raw_range_phase_override_f32 = "
        << cfg.paired_raw_range_phase_override_f32 << "\n";
     os << "paired_csi_range_phase_override_f32 = "
@@ -1338,6 +1468,444 @@ void writeRuntimeConfigDump(const Config& cfg,
     if (!diagnosticsEnabled()) return;
     writeRuntimeConfigJson(cfg);
     writeRuntimeConfigTxt(cfg);
+}
+
+bool recordProductionCalibrationTap(const Config& cfg,
+                                    int beam_id,
+                                    const ProductionCalibrationTap& tap)
+{
+    if (!cfg.research_calibration_enable) return true;
+    if (cfg.result_add.empty()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] result_add is empty"
+                  << std::endl;
+        return false;
+    }
+    if (!tap.gamma_groups.empty() && cfg.result_file_id <= 0) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot emit strict group "
+                  << "reference rows without result_file_id" << std::endl;
+        return false;
+    }
+    if (!mkdirP(cfg.result_add)) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot create output dir: "
+                  << cfg.result_add << std::endl;
+        return false;
+    }
+
+    const std::string path = pathJoin(
+        cfg.result_add, "production_calibration_adapter.csv");
+    std::lock_guard<std::mutex> lock(stateMutex());
+    const bool write_header = !fileExists(path);
+    std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+    if (!os) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write "
+                  << path << std::endl;
+        return false;
+    }
+    if (write_header) {
+        os << "beam_id,run_id,case_id,result_id,method,status,source,"
+              "support_count,excluded_count,groups_total,valid_groups,"
+              "gamma_real,gamma_imag,gamma_abs,phase_coherence,"
+              "truth_used_in_estimator,reason\n";
+        if (!os.good()) {
+            std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV header "
+                      << path << std::endl;
+            return false;
+        }
+    }
+    os << beam_id << ","
+       << csvEscape(state().run_id) << ","
+       << csvEscape(state().case_id) << ","
+       << csvEscape(state().result_id) << ","
+       << csvEscape(tap.method) << ","
+       << csvEscape(tap.status) << ","
+       << csvEscape(tap.source) << ","
+       << tap.support_count << ","
+       << tap.excluded_count << ","
+       << tap.groups_total << ","
+       << tap.valid_groups << ","
+       << std::setprecision(15) << tap.gamma_real << ","
+       << tap.gamma_imag << ","
+       << tap.gamma_abs << ","
+       << tap.phase_coherence << ","
+       << (tap.truth_used_in_estimator ? "true" : "false") << ","
+       << csvEscape(tap.reason) << "\n";
+    os.flush();
+    if (!os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV row "
+                  << path << std::endl;
+        return false;
+    }
+
+    const std::string group_path = pathJoin(
+        cfg.result_add, "production_calibration_reference_gamma.csv");
+    const bool group_write_header = !fileExists(group_path);
+    std::ofstream group_os(group_path.c_str(), std::ios::out | std::ios::app);
+    if (!group_os) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write "
+                  << group_path << std::endl;
+        return false;
+    }
+    if (group_write_header) {
+        group_os << "period_id,result_id,beam_id,method,group_id,az_index,"
+                    "range_start,range_end,status,support_count,"
+                    "phase_coherence,gamma_real,gamma_imag,"
+                    "truth_used_in_estimator,reason\n";
+        if (!group_os.good()) {
+            std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV header "
+                      << group_path << std::endl;
+            return false;
+        }
+    }
+    for (const ProductionCalibrationGammaGroup& group : tap.gamma_groups) {
+        group_os << cfg.result_file_id << ","
+                 << csvEscape(state().result_id) << ","
+                 << beam_id << ","
+                 << csvEscape(tap.method) << ","
+                 << csvEscape(gammaGroupId(group)) << ","
+                 << group.az_index << ","
+                 << group.range_start << ","
+                 << group.range_end << ","
+                 << csvEscape(group.status) << ","
+                 << group.support_count << ","
+                 << std::setprecision(15) << group.phase_coherence << ","
+                 << group.gamma_real << ","
+                 << group.gamma_imag << ","
+                 << (group.truth_used_in_estimator ? "true" : "false") << ","
+                 << csvEscape(group.reason) << "\n";
+    }
+    group_os.flush();
+    if (!group_os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write CSV rows "
+                  << group_path << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool productionStageBoundaryTraceSelected(const Config& cfg, int beam_id)
+{
+    const ProductionStageTraceSelection selection =
+        productionStageTraceSelection();
+    if (!selection.configured) {
+        return false;
+    }
+    if (!selection.valid) {
+        // Keep the selected path active so the writer reports malformed input
+        // and fails the diagnostic run closed.
+        return true;
+    }
+    return cfg.result_file_id == selection.period && beam_id == selection.beam;
+}
+
+bool recordProductionStageBoundaryTrace(
+    const Config& cfg,
+    int beam_id,
+    const std::string& stage,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& channel1,
+    const std::vector<std::complex<float>>& channel2,
+    const std::vector<std::complex<float>>& output,
+    const std::vector<float>& range_phase_rad,
+    double p38_slope_rad_per_hz,
+    double p38_intercept_rad)
+{
+    const ProductionStageTraceSelection selection =
+        productionStageTraceSelection();
+    if (!selection.configured) {
+        return true;
+    }
+    if (!selection.valid) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] invalid "
+                  << "PGRCC_C4_TRACE_GROUP; expected period,beam,az,start,end"
+                  << std::endl;
+        return false;
+    }
+    if (cfg.result_file_id != selection.period || beam_id != selection.beam) {
+        return true;
+    }
+
+    if (rows <= 0 || cols <= 0 || selection.azimuth >= rows ||
+        selection.range_end >= cols || selection.range_start > selection.range_end) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] selected stage trace bounds "
+                  << "are invalid for stage " << stage << std::endl;
+        return false;
+    }
+    const std::size_t row_count = static_cast<std::size_t>(rows);
+    const std::size_t col_count = static_cast<std::size_t>(cols);
+    if (row_count > std::numeric_limits<std::size_t>::max() / col_count) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] selected stage trace dimensions "
+                  << "overflow for stage " << stage << std::endl;
+        return false;
+    }
+    const std::size_t cell_count = row_count * col_count;
+    if (channel1.size() != cell_count || channel2.size() != cell_count ||
+        (!output.empty() && output.size() != cell_count) ||
+        (!range_phase_rad.empty() && range_phase_rad.size() != col_count) ||
+        stage.empty() || stage.find_first_of("\r\n") != std::string::npos) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] selected stage trace data "
+                  << "shape or stage name is invalid for " << stage << std::endl;
+        return false;
+    }
+    if (cfg.result_add.empty() || !mkdirP(cfg.result_add)) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot create selected stage "
+                  << "trace output directory" << std::endl;
+        return false;
+    }
+
+    const std::string path = pathJoin(
+        cfg.result_add, "production_phase_boundary_trace.csv");
+    std::lock_guard<std::mutex> lock(stateMutex());
+    const bool write_header = !fileExists(path);
+    std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+    if (!os) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot write selected stage "
+                  << "trace CSV " << path << std::endl;
+        return false;
+    }
+    if (write_header) {
+        os << "period_id,result_id,beam_id,stage,azimuth_index,range_index,"
+              "f1_real,f1_imag,f2_real,f2_imag,output_real,output_imag,"
+              "range_phase_rad,p38_slope_rad_per_hz,p38_intercept_rad\n";
+    }
+
+    const std::size_t row_offset =
+        static_cast<std::size_t>(selection.azimuth) * col_count;
+    const float nan = std::numeric_limits<float>::quiet_NaN();
+    for (int range = selection.range_start; range <= selection.range_end; ++range) {
+        const std::size_t index = row_offset + static_cast<std::size_t>(range);
+        const std::complex<float> output_value = output.empty() ?
+            std::complex<float>(nan, nan) : output[index];
+        const float range_phase = range_phase_rad.empty() ?
+            nan : range_phase_rad[static_cast<std::size_t>(range)];
+        os << cfg.result_file_id << ","
+           << csvEscape(state().result_id) << ","
+           << beam_id << ","
+           << csvEscape(stage) << ","
+           << selection.azimuth << ","
+           << range << ","
+           << std::setprecision(9)
+           << channel1[index].real() << "," << channel1[index].imag() << ","
+           << channel2[index].real() << "," << channel2[index].imag() << ","
+           << output_value.real() << "," << output_value.imag() << ","
+           << range_phase << ","
+           << std::setprecision(17) << p38_slope_rad_per_hz << ","
+           << p38_intercept_rad << "\n";
+    }
+    os.flush();
+    if (!os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot flush selected stage "
+                  << "trace CSV " << path << std::endl;
+        return false;
+    }
+    return true;
+}
+
+bool recordProductionCalibrationFailureCells(
+    const Config& cfg,
+    int beam_id,
+    const ProductionCalibrationTap& tap,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& f1,
+    const std::vector<std::complex<float>>& f2)
+{
+    const char* selected_group_env = std::getenv("PGRCC_C4_TRACE_GROUP");
+    if (selected_group_env != nullptr && selected_group_env[0] != '\0' &&
+        tap.method == "robust_ddc_rb") {
+        long long trace_period = 0;
+        long long trace_beam = 0;
+        long long trace_az = 0;
+        long long trace_start = 0;
+        long long trace_end = 0;
+        char comma1 = '\0';
+        char comma2 = '\0';
+        char comma3 = '\0';
+        char comma4 = '\0';
+        std::istringstream selector(selected_group_env);
+        if (!(selector >> trace_period >> comma1 >> trace_beam >> comma2 >>
+              trace_az >> comma3 >> trace_start >> comma4 >> trace_end) ||
+            comma1 != ',' || comma2 != ',' || comma3 != ',' || comma4 != ',') {
+            std::cerr << "[RESEARCH_CALIBRATION][ERR] invalid "
+                      << "PGRCC_C4_TRACE_GROUP; expected period,beam,az,start,end"
+                      << std::endl;
+            return false;
+        }
+        selector >> std::ws;
+        if (!selector.eof() || trace_period <= 0 || trace_beam <= 0 ||
+            trace_az < 0 || trace_start < 0 || trace_end < trace_start ||
+            trace_period > std::numeric_limits<int>::max() ||
+            trace_beam > std::numeric_limits<int>::max() ||
+            trace_az > std::numeric_limits<int>::max() ||
+            trace_start > std::numeric_limits<int>::max() ||
+            trace_end > std::numeric_limits<int>::max()) {
+            std::cerr << "[RESEARCH_CALIBRATION][ERR] out-of-range or trailing "
+                      << "data in PGRCC_C4_TRACE_GROUP" << std::endl;
+            return false;
+        }
+
+        if (cfg.result_file_id == static_cast<int>(trace_period) &&
+            beam_id == static_cast<int>(trace_beam)) {
+            if (rows <= 0 || cols <= 0 || trace_az >= rows ||
+                trace_end >= cols ||
+                f1.size() != static_cast<std::size_t>(rows) *
+                                 static_cast<std::size_t>(cols) ||
+                f2.size() != f1.size()) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] selected C4 trace "
+                          << "bounds or input dimensions are invalid" << std::endl;
+                return false;
+            }
+            if (cfg.result_add.empty() || !mkdirP(cfg.result_add)) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot create "
+                          << "selected C4 trace output dir" << std::endl;
+                return false;
+            }
+
+            ProductionCalibrationGammaGroup selected_group;
+            selected_group.az_index = static_cast<int>(trace_az);
+            selected_group.range_start = static_cast<int>(trace_start);
+            selected_group.range_end = static_cast<int>(trace_end);
+            const ProductionCalibrationGammaGroup* summary = nullptr;
+            for (const ProductionCalibrationGammaGroup& group : tap.gamma_groups) {
+                if (group.az_index == selected_group.az_index &&
+                    group.range_start == selected_group.range_start &&
+                    group.range_end == selected_group.range_end) {
+                    summary = &group;
+                    break;
+                }
+            }
+
+            const std::string path = pathJoin(
+                cfg.result_add, "production_calibration_selected_cells.csv");
+            std::lock_guard<std::mutex> lock(stateMutex());
+            const bool write_header = !fileExists(path);
+            std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+            if (!os) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot write "
+                          << "selected C4 trace CSV " << path << std::endl;
+                return false;
+            }
+            if (write_header) {
+                os << "period_id,result_id,beam_id,method,source,group_id,"
+                      "az_index,range_start,range_end,range_index,group_status,"
+                      "group_reason,adapter_support_count,"
+                      "adapter_phase_coherence,f1_real,f1_imag,f2_real,f2_imag\n";
+            }
+            const std::size_t row_offset =
+                static_cast<std::size_t>(trace_az) * static_cast<std::size_t>(cols);
+            for (int range = static_cast<int>(trace_start);
+                 range <= static_cast<int>(trace_end); ++range) {
+                const std::size_t index = row_offset + static_cast<std::size_t>(range);
+                os << cfg.result_file_id << ","
+                   << csvEscape(state().result_id) << ","
+                   << beam_id << ","
+                   << csvEscape(tap.method) << ","
+                   << csvEscape(tap.source) << ","
+                   << csvEscape(gammaGroupId(selected_group)) << ","
+                   << selected_group.az_index << ","
+                   << selected_group.range_start << ","
+                   << selected_group.range_end << ","
+                   << range << ","
+                   << csvEscape(summary ? summary->status : tap.status) << ","
+                   << csvEscape(summary ? summary->reason : tap.reason) << ","
+                   << (summary ? summary->support_count : -1) << ","
+                   << std::setprecision(17)
+                   << (summary ? summary->phase_coherence :
+                                 std::numeric_limits<double>::quiet_NaN()) << ","
+                   << std::setprecision(9) << f1[index].real() << ","
+                   << f1[index].imag() << ","
+                   << f2[index].real() << ","
+                   << f2[index].imag() << "\n";
+            }
+            os.flush();
+            if (!os.good()) {
+                std::cerr << "[RESEARCH_CALIBRATION][ERR] cannot flush "
+                          << "selected C4 trace CSV " << path << std::endl;
+                return false;
+            }
+        }
+    }
+
+    if (!cfg.csi_metrics_enable || !cfg.csi_metrics_dump_power_maps ||
+        !cfg.csi_metrics_dump_intermediate_maps) {
+        return true;
+    }
+    if (rows <= 0 || cols <= 0 ||
+        f1.size() != static_cast<std::size_t>(rows) * static_cast<std::size_t>(cols) ||
+        f2.size() != f1.size()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] invalid failure-cell diagnostic input"
+                  << std::endl;
+        return false;
+    }
+    const bool has_failed_groups = std::any_of(
+        tap.gamma_groups.begin(), tap.gamma_groups.end(),
+        [](const ProductionCalibrationGammaGroup& group) {
+            return group.status != "OK";
+        });
+    if (!has_failed_groups) return true;
+    if (cfg.result_add.empty() || !mkdirP(cfg.result_add)) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot create failure-cell output dir"
+                  << std::endl;
+        return false;
+    }
+
+    const std::string path = pathJoin(
+        cfg.result_add, "production_calibration_failure_cells.csv");
+    std::lock_guard<std::mutex> lock(stateMutex());
+    const bool write_header = !fileExists(path);
+    std::ofstream os(path.c_str(), std::ios::out | std::ios::app);
+    if (!os) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write failure-cell CSV "
+                  << path << std::endl;
+        return false;
+    }
+    if (write_header) {
+        os << "period_id,result_id,beam_id,method,source,group_id,az_index,"
+              "range_start,range_end,range_index,group_status,group_reason,"
+              "adapter_support_count,adapter_phase_coherence,"
+              "f1_real,f1_imag,f2_real,f2_imag\n";
+    }
+
+    for (const ProductionCalibrationGammaGroup& group : tap.gamma_groups) {
+        if (group.status == "OK") continue;
+        if (group.az_index < 0 || group.az_index >= rows ||
+            group.range_start < 0 || group.range_end < group.range_start ||
+            group.range_end >= cols) {
+            std::cerr << "[RESEARCH_CALIBRATION][WARN] invalid failed gamma bounds in "
+                      << path << std::endl;
+            return false;
+        }
+        const std::size_t row_offset = static_cast<std::size_t>(group.az_index) *
+                                       static_cast<std::size_t>(cols);
+        for (int range = group.range_start; range <= group.range_end; ++range) {
+            const std::size_t index = row_offset + static_cast<std::size_t>(range);
+            os << cfg.result_file_id << ","
+               << csvEscape(state().result_id) << ","
+               << beam_id << ","
+               << csvEscape(tap.method) << ","
+               << csvEscape(tap.source) << ","
+               << csvEscape(gammaGroupId(group)) << ","
+               << group.az_index << ","
+               << group.range_start << ","
+               << group.range_end << ","
+               << range << ","
+               << csvEscape(group.status) << ","
+               << csvEscape(group.reason) << ","
+               << group.support_count << ","
+               << std::setprecision(17) << group.phase_coherence << ","
+               << std::setprecision(9) << f1[index].real() << ","
+               << f1[index].imag() << ","
+               << f2[index].real() << ","
+               << f2[index].imag() << "\n";
+        }
+    }
+    os.flush();
+    if (!os.good()) {
+        std::cerr << "[RESEARCH_CALIBRATION][WARN] cannot write failure-cell rows "
+                  << path << std::endl;
+        return false;
+    }
+    return true;
 }
 
 void recordTiming(const char* scope_name,

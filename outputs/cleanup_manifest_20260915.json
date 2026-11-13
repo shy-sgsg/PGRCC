@@ -1,0 +1,59 @@
+{
+  "schema": "pgrcc_cleanup_manifest_v1",
+  "date": "2026-09-15",
+  "user_requested_cleanup": true,
+  "ai_training": false,
+  "router_enabled": false,
+  "measured_workspace": {
+    "outputs_du_before_first_cleanup": "28G",
+    "free_space_before_first_cleanup": "8.5G",
+    "outputs_du_after_cleanup": "85M",
+    "free_space_after_cleanup": "60G"
+  },
+  "deleted_exact_roots": [
+    "outputs/clutter_only_servo_formal_20260914",
+    "outputs/clutter_only_servo_formal_v2_20260914",
+    "outputs/clutter_only_servo_smoke_20260914",
+    "outputs/clutter_only_servo_smoke_v2_20260914",
+    "outputs/clutter_only_servo_cuda_smoke_20260914",
+    "outputs/servo_gmti_e2e_smoke_20260914",
+    "outputs/servo_gmti_e2e_slow_smoke_20260914",
+    "outputs/velocity_split_smoke_20260915",
+    "outputs/velocity_split_smoke_v2_20260915",
+    "outputs/velocity_split_smoke_v3_20260915",
+    "outputs/velocity_split_smoke_v4_20260915",
+    "outputs/velocity_error_formal_compact_20260915",
+    "outputs/yaw_split_smoke_20260915",
+    "outputs/yaw_split_smoke_v2_20260915",
+    "outputs/stage2/data",
+    "outputs/track_manager_e2e_smoke_20260915",
+    "outputs/track_manager_e2e_smoke_v2_20260915"
+  ],
+  "deleted_compact_case_trees": [
+    "outputs/clutter_only_servo_formal_compact_v2_20260914/cases",
+    "outputs/clutter_only_servo_smoke_boolfix_20260914/cases",
+    "outputs/clutter_only_servo_cuda_smoke_boolfix_20260914/cases",
+    "outputs/servo_gmti_e2e_formal_compact_20260914/cases",
+    "outputs/servo_gmti_e2e_cuda_smoke_20260914/cases",
+    "outputs/velocity_error_formal_compact_v2_20260915/cases",
+    "outputs/velocity_error_cuda_smoke_20260915/cases",
+    "outputs/yaw_error_formal_compact_20260915/cases"
+  ],
+  "formal_track_manager_raw_cleanup": {
+    "root": "outputs/track_manager_e2e_formal_compact_20260915",
+    "deleted_before_cleanup_bytes": 451059540,
+    "deleted_before_cleanup_files": 189,
+    "deleted_suffixes": [".bin", ".png", ".f32"],
+    "deleted_redundant_files": ["GMTI*.txt"],
+    "retained": [
+      "manifest.json and seed/case/branch manifests",
+      "scenario/config/truth/report CSV and JSON files",
+      "SHM/PIPE logs and cycle metrics",
+      "TrackManager track_debug CSV files",
+      "track_branch_metrics.csv and track_protocol_payload_audit.csv"
+    ],
+    "remaining_bin_npy_npz_f32_png": 0
+  },
+  "failure_evidence_retained_as_compact_summary": "outputs/track_manager_e2e_cleanup_summary_20260915.json",
+  "retention_rule": "保留可复现命令、配置、truth、manifest、审计 CSV、关键日志和已引用 compact 汇总；删除可重新生成的原始 BIN/NPY/F32/PNG、逐案例 raw 树、重复 smoke 和已失败/被 supersede 的运行。"
+}

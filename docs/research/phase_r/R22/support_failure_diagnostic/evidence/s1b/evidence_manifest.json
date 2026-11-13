@@ -1,0 +1,237 @@
+{
+  "schema_version": 1,
+  "task": "R22-S1b public review evidence snapshot",
+  "execution_commit": "1ed2a2e67a88a918858784be81794238ef112c7d",
+  "production_binary_sha256": "16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998",
+  "source_case_manifest_sha256": "58a02646e07343f60b8e09c56fd02180676fb5b10ce76957cea5e116f47215c1",
+  "trace_source_sha256": {
+    "include/GMTIProcessor.hpp": "970bb22d2283c69a2014e8408e9dab6dce2c3015a5b3bec352233a83f349dc5d",
+    "include/runtime_diagnostics.hpp": "d45e0274ebe703f5550ac26044168e504e461cb7cdf1bcf0bc08456a62b82e72",
+    "src/runtime_diagnostics.cpp": "a9338c9f8ade93bc3358de967e858f976f40c65bbabe8c7cffb18574cbc4e43e",
+    "src/processOnePeriod.cpp": "0b6dbee497d38cfec7f429e141435f8c43c6abd3723dbb4e521e154bd7761eb7",
+    "src/gpu/gpu_kernels.cu": "c85694e3bf35217bc8beedf5b28d0dae581d479b9aafdfda1f5b6ece479a6932"
+  },
+  "input_note": "Full Stage2 period files are not uploaded; their path, byte size and SHA-256 are retained in s1b_manifest.json.",
+  "runtime_log_public_copy_normalization": {
+    "production/C4_modea_S1b_ON/gmt_pipe_core.log": {
+      "source_local_path": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_ON/gmt_pipe_core.log",
+      "source_raw_sha256": "4e8fca067da3d01ae6b8e1499435bcd226276c69d583135f1c78b599a693ef46",
+      "published_normalized_sha256": "fd5fbb8e45c76fc93d2d995ffa93ad06bc4ac8fe0eacbe15c2f3b501ffab726e",
+      "normalization": "remove trailing spaces and tabs per line; preserve all other bytes"
+    },
+    "production/C4_modea_S1b_OFF/gmt_pipe_core.log": {
+      "source_local_path": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_OFF/gmt_pipe_core.log",
+      "source_raw_sha256": "5e84adac77ea4d0e245591ee9d8b188db1b163477077dbc05ca60b600587278c",
+      "published_normalized_sha256": "fd8ad3d1e9b86ca4fc7e4ac962251dd3192c7616cf8ff0c98120ea1db26ff7f5",
+      "normalization": "remove trailing spaces and tabs per line; preserve all other bytes"
+    },
+    "production/C4_modea_S1b_TO/gmt_pipe_core.log": {
+      "source_local_path": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_TO/gmt_pipe_core.log",
+      "source_raw_sha256": "33c0beb0804ac4879b8455b83fa71da406cf48aa906aeb8fbf6bc858cb0b819f",
+      "published_normalized_sha256": "515f58ace917ceb6f0de6bf51f21d19087765310e99ee423dd1b4f83861dfb46",
+      "normalization": "remove trailing spaces and tabs per line; preserve all other bytes"
+    }
+  },
+  "files": [
+    {
+      "path": "analysis/stage_boundary_closure.json",
+      "bytes": 11798,
+      "sha256": "728b1cae81efa17655e527f32e687f53763b21653ddc29151edfe9d16a9d0f6d"
+    },
+    {
+      "path": "analysis/stage_boundary_closure.md",
+      "bytes": 1232,
+      "sha256": "ecbaba5bbf13e995ae74633c5e0bda7250683c122cfaa1d0cdc91165227cf246"
+    },
+    {
+      "path": "case_identity_summary.json",
+      "bytes": 12512,
+      "sha256": "c9bb5eb4837967855ab29637b8f438e738bab4150d42685f58f91b5fca319a9f"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/branch_manifest.json",
+      "bytes": 60322,
+      "sha256": "492b34e87fe3f3accb28c4db5b4d319eb7a3525de933bb0f447616ca94463e12"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/gmt_pipe_core.log",
+      "bytes": 86398,
+      "sha256": "fd8ad3d1e9b86ca4fc7e4ac962251dd3192c7616cf8ff0c98120ea1db26ff7f5"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/production.configure.log",
+      "bytes": 2500,
+      "sha256": "4d924cf0cf9412a88db51130e7d8738974a30820a96844732c057bc5b4ec8779"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/production.xml",
+      "bytes": 14635,
+      "sha256": "b4a31d88fd540490b5bb320501b2f625e50a772bc98a1a35496a6cc2b362e318"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/result/production_calibration_reference_gamma.csv",
+      "bytes": 196774,
+      "sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/result/production_calibration_selected_cells.csv",
+      "bytes": 25017,
+      "sha256": "063ba6a58e949445ae5dcb5cd3ab7669b92934a0da86e8f4bcd9c548a1d50227"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/result/production_phase_boundary_trace.csv",
+      "bytes": 94546,
+      "sha256": "dd07b3c0aaec051737b2cf19b7838777919471e2040d801ff623ae6f7bc1d311"
+    },
+    {
+      "path": "production/C4_modea_S1b_OFF/result/run_manifest.json",
+      "bytes": 6260,
+      "sha256": "e4ee07da8ef15eadd18be283cfaec53eef9b6fbce5a8a18d6a80ab92903c0a11"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/branch_manifest.json",
+      "bytes": 265749,
+      "sha256": "b253aae09970e9492772dcb6ff48c8d3d95e03e48dca22d6af8ed64bd4b37771"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/gmt_pipe_core.log",
+      "bytes": 147563,
+      "sha256": "fd5fbb8e45c76fc93d2d995ffa93ad06bc4ac8fe0eacbe15c2f3b501ffab726e"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/production.configure.log",
+      "bytes": 2734,
+      "sha256": "f68037f9a4b31d130ea32dbee3c940c37a925534ecee8107f9cbf707ffe7b8ad"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/production.xml",
+      "bytes": 14912,
+      "sha256": "136d5da6b82019107ff85d9f2302564ee86cb89b7d029b2807c0ffc2901b87d5"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/result/production_calibration_reference_gamma.csv",
+      "bytes": 196774,
+      "sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/result/production_calibration_selected_cells.csv",
+      "bytes": 23652,
+      "sha256": "1febaea8f09c369ab2d52a90efac87a54e1b3a899eb2288a5edc6f2bcf21db97"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/result/production_phase_boundary_trace.csv",
+      "bytes": 92313,
+      "sha256": "bc39ed43e2aa24fcfa3877795cfa0857192a3dc827671cbbc2748b955b96e51c"
+    },
+    {
+      "path": "production/C4_modea_S1b_ON/result/run_manifest.json",
+      "bytes": 6230,
+      "sha256": "787f825c291ff4f4e862b33f56f9e55a9403d83779cbe561045850245ade97df"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/branch_manifest.json",
+      "bytes": 356298,
+      "sha256": "381307794880d6f0fd467be13b567a8a3a50d632c0ab6eabb0c9d868ce3838c9"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/gmt_pipe_core.log",
+      "bytes": 174200,
+      "sha256": "515f58ace917ceb6f0de6bf51f21d19087765310e99ee423dd1b4f83861dfb46"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/production.configure.log",
+      "bytes": 2734,
+      "sha256": "30559d768aac60c28d77ad0e06434c9530fd37ed3514eb02c6ff5d6f379d2023"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/production.xml",
+      "bytes": 14912,
+      "sha256": "ed261d0cfe7a95597bba065c570c77e75559361b8f109983d096c115f1ab3c4d"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/result/production_calibration_reference_gamma.csv",
+      "bytes": 196774,
+      "sha256": "4b0081b38604e20290572dd79f5a31e0f15708bc0234470aa1f4fe9cdf7bd4e3"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/result/production_calibration_selected_cells.csv",
+      "bytes": 23670,
+      "sha256": "f873bfe687b81a92177c4cd1bb3e8a54d8d8d23e58621b4cec08db0536636c5f"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/result/production_phase_boundary_trace.csv",
+      "bytes": 92673,
+      "sha256": "cd1b99aa82ec4d7f8ffb9046b9f87dfe434981c5072ce3fb2021002e6e0c8edf"
+    },
+    {
+      "path": "production/C4_modea_S1b_TO/result/run_manifest.json",
+      "bytes": 6230,
+      "sha256": "3b4001e3232236f63ce5b91561039d7e8a8ec7510f44bc3b2852efc1fc0e5ca9"
+    },
+    {
+      "path": "s1b_manifest.json",
+      "bytes": 17644,
+      "sha256": "37846c88aa393f44668290ac410bcc6af83e05ad48e0a091043f153e704b52f8"
+    },
+    {
+      "path": "stage2/reports/A0_ON_stage2_simulation_report.md",
+      "bytes": 1946,
+      "sha256": "14676dd43d3c2d59a4facaf642f0d009b1033724ed2f56e847f01b9e12b5ed12"
+    },
+    {
+      "path": "stage2/reports/A0_ON_temporal_clutter_diagnostics.json",
+      "bytes": 358,
+      "sha256": "df6fbb764acc5e420f0afbfb7d0b346d221c4f30904e92b81e13ff317c7c23cf"
+    },
+    {
+      "path": "stage2/reports/A1_OFF_background_reuse_mapping.csv",
+      "bytes": 610,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917"
+    },
+    {
+      "path": "stage2/reports/A1_ON_background_reuse_mapping.csv",
+      "bytes": 610,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917"
+    },
+    {
+      "path": "stage2/reports/A1_TO_background_reuse_mapping.csv",
+      "bytes": 610,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917"
+    },
+    {
+      "path": "stage2/scenarios/A0_ON_resolved.json",
+      "bytes": 14307,
+      "sha256": "f09c513368f809f2d99af5d03947e2f0a260e41cbf08bac5350797369a1ad7c4"
+    },
+    {
+      "path": "stage2/scenarios/A1_OFF.json",
+      "bytes": 20177,
+      "sha256": "627a8f86f054bd5e327b74f31d3337b4ea6eef5cb38f7a8bbb6525c455264270"
+    },
+    {
+      "path": "stage2/scenarios/A1_OFF_resolved.json",
+      "bytes": 14329,
+      "sha256": "96e40099fd946dcb35611e1a3b370a76ade158d941497b0ee494034ac1e3c391"
+    },
+    {
+      "path": "stage2/scenarios/A1_ON.json",
+      "bytes": 20152,
+      "sha256": "e0c589f977ee36d0fabfd1e481c15f10596885af75cf8656cadbcbd9ca355954"
+    },
+    {
+      "path": "stage2/scenarios/A1_ON_resolved.json",
+      "bytes": 14307,
+      "sha256": "de18f66d893c2a318025fa06734be969f569aa24365dac5e449c72bff273d5b3"
+    },
+    {
+      "path": "stage2/scenarios/A1_TO.json",
+      "bytes": 20169,
+      "sha256": "ebfe3d1f9b7f3a80048ce481df36143cf9c2387b41045dddc6bf6277774523ba"
+    },
+    {
+      "path": "stage2/scenarios/A1_TO_resolved.json",
+      "bytes": 14306,
+      "sha256": "4ba86faf0493278ec3e84b45a943052e13361b28a66735cf949274ba04be9886"
+    }
+  ]
+}

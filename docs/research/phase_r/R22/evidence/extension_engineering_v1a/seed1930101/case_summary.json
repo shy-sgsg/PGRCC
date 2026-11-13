@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "phase": "engineering",
+  "design_id": "R22_EXTENSION_20261028_V1A",
+  "design_sha256": "b7613779c4031036e34b8929bfd9525e1f846d8d87d616e00050ffe34b4b5c29",
+  "matrix_status": "GATE_FAILED",
+  "matrix_planned_case_count": 12,
+  "matrix_completed_case_count": 1,
+  "case_id": "r22_multi_target__seed_1930101__v_2.5__snr_20.0__delay_0.0ns",
+  "case_status": "completed_with_gaps",
+  "seed": 1930101,
+  "delay_error_ns": 0.0,
+  "target_velocity_mps": 2.5,
+  "target_snr_db": 20.0,
+  "target_count": 20,
+  "period_count": 10,
+  "source_commit": "91cb5b1de8c2831073465e9192c1a385f0e0e25a",
+  "stage2_binary_sha256": "ca8aa9eb8b7d97e5743a27e67c312e66a4efecbf2c76880db581192afd08ce8e",
+  "production_binary_sha256": "3c4c6bef08291e7d02cefa1b23387d442dfb00cf0fbed0604e9a0fbecaa86760",
+  "started_at_utc": "2026-10-27T18:37:57.049561+00:00",
+  "finished_at_utc": "2026-10-27T18:50:06.956731+00:00",
+  "matrix_case_record": {
+    "all_production_branches_passed": false,
+    "attempt": 1,
+    "case_id": "engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10",
+    "condition_id": "reference_0ns",
+    "evaluation_summary": {
+      "evaluated_on_rows": 8,
+      "evaluator": "r21-task-eval-v3",
+      "independent_h0_seed_rows": 0,
+      "invalid_truth_opportunities": 0,
+      "target_opportunity_rows": 3200,
+      "target_period_opportunities_are_not_independent_seeds": true,
+      "task_rows": 41
+    },
+    "finished_at_utc": "2026-10-27T18:50:06.956707+00:00",
+    "implementation_result": "completed_with_gaps",
+    "output_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001",
+    "seed": 1930101,
+    "started_at_utc": "2026-10-27T18:37:57.049762+00:00",
+    "status": "GATE_FAILED",
+    "status_labels": {
+      "EVALUABLE": false,
+      "EXECUTED": true,
+      "IMPLEMENTED": true,
+      "PERFORMANCE_VERIFIED": false,
+      "performance_note": "single case is feasibility evidence; no inferential claim"
+    }
+  },
+  "status_labels": {
+    "EVALUABLE": false,
+    "EXECUTED": true,
+    "IMPLEMENTED": true,
+    "PERFORMANCE_VERIFIED": false,
+    "performance_note": "single case is feasibility evidence; no inferential claim"
+  },
+  "production_records": {
+    "method_role_records": 41,
+    "records_by_status": {
+      "passed": 24,
+      "NOT_EVALUABLE": 12,
+      "NOT_APPLICABLE_ZERO_DELAY_REFERENCE": 5
+    },
+    "launched_branch_records": 28,
+    "launched_status_and_returncode": {
+      "passed_returncode_0": 24,
+      "NOT_EVALUABLE_returncode_0": 4
+    }
+  },
+  "area_clutter_gate": {
+    "area_enabled": true,
+    "area_mean_power_measured": 0.0225128995081,
+    "area_model": "continuous_texture",
+    "continuous_area_packets": 1300,
+    "continuous_area_samples": 6508782,
+    "ground_height_m": 0.0,
+    "ground_range_max_m": 85289.213854977,
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "minimum_slant_range_m": 6000.0,
+    "platform_height_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "reasons": [],
+    "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "dfffa3c55d7479814187daaa76ddc0da56711ec11c559e01eb6b6d0963b4e264",
+    "report_values": {
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "1.9925009136",
+      "area_rho_at_CTDR_lag": "0.960397551126",
+      "area_rho_lag1_measured": "0.979999807132",
+      "mean_noise_power_per_complex_sample": "0.00100014187201"
+    },
+    "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/scenarios/A0_ON.json",
+    "scenario_sha256": "3373ea80bd80b06740adb7e6072b5977c9c95c1ec681d1cf2fe54eb59057781d",
+    "status": "passed"
+  },
+  "causal_triplets": {
+    "ideal": {
+      "max_abs_error": 1.0535795393888738e-05,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 6.739663726687405e-07,
+      "sample_count": 61464000,
+      "status": "passed",
+      "tolerance": 5e-05
+    },
+    "known": {
+      "max_abs_error": 1.0535795393888738e-05,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 6.739663726687405e-07,
+      "sample_count": 61464000,
+      "status": "passed",
+      "tolerance": 5e-05
+    },
+    "none": {
+      "max_abs_error": 1.0535795393888738e-05,
+      "reason": "on_minus_off_minus_target_within_tolerance",
+      "rms_error": 6.739663726687405e-07,
+      "sample_count": 61464000,
+      "status": "passed",
+      "tolerance": 5e-05
+    }
+  },
+  "evidence_gate": {
+    "causal_triplets": "passed",
+    "empirical_pfa": "NOT_EVALUABLE",
+    "fallback_to_current": false,
+    "truth_used_in_estimator": false,
+    "unique_final_union_hits": "NOT_EVALUABLE",
+    "valid_cut_denominators": "NOT_EVALUABLE"
+  },
+  "evaluation_summary": {
+    "evaluated_on_rows": 8,
+    "evaluator": "r21-task-eval-v3",
+    "independent_h0_seed_rows": 0,
+    "invalid_truth_opportunities": 0,
+    "target_opportunity_rows": 3200,
+    "target_period_opportunities_are_not_independent_seeds": true,
+    "task_rows": 41
+  },
+  "zero_delay_estimate_only": {
+    "status": "estimated",
+    "input_role": "OFF=C+N",
+    "selected_method": "D3_Huber_weighted_LS",
+    "selected_delay_ns": 0.1887625544316421,
+    "methods": [
+      {
+        "method": "D1_ordinary_LS",
+        "delta_tau_ns": 0.160424583130733,
+        "r2": 0.007499222141747364,
+        "support_count": 1182,
+        "status": "ok"
+      },
+      {
+        "method": "D2_weighted_LS",
+        "delta_tau_ns": 0.1726142994396735,
+        "r2": 0.008749426171836272,
+        "support_count": 1182,
+        "status": "ok"
+      },
+      {
+        "method": "D3_Huber_weighted_LS",
+        "delta_tau_ns": 0.1887625544316421,
+        "r2": 0.012462216806405135,
+        "support_count": 1182,
+        "status": "ok"
+      },
+      {
+        "method": "D4_generalized_phase_slope_ML",
+        "delta_tau_ns": 0.06355880785299885,
+        "support_count": 4727,
+        "status": "ok",
+        "truth_used_in_estimator": false
+      },
+      {
+        "method": "cross_correlation",
+        "delta_tau_ns": -0.008068055212973614,
+        "support_count": 15366000,
+        "status": "ok"
+      },
+      {
+        "method": "gcc_phat",
+        "delta_tau_ns": -0.010050501488860412,
+        "support_count": 15366000,
+        "status": "ok"
+      },
+      {
+        "method": "oversampled_cross_correlation",
+        "delta_tau_ns": -0.009856640183397363,
+        "support_count": 15366000,
+        "status": "ok",
+        "truth_used_in_estimator": false
+      }
+    ]
+  },
+  "robust_reference_support_audit": {
+    "mode_a_off": {
+      "row_count": 12090,
+      "status_counts": {
+        "OK": 12075,
+        "NOT_EVALUABLE": 15
+      },
+      "failure_reason_counts": {
+        "insufficient_robust_support": 15
+      },
+      "min_support_count": 3,
+      "max_support_count": 96,
+      "failed_rows": [
+        {
+          "period_id": 1,
+          "beam_id": 50,
+          "group_id": "az_48_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 1,
+          "beam_id": 50,
+          "group_id": "az_82_range_3459_3591",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 2,
+          "beam_id": 50,
+          "group_id": "az_50_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 2,
+          "beam_id": 50,
+          "group_id": "az_52_range_2927_3059",
+          "support_count": 6,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 2,
+          "beam_id": 50,
+          "group_id": "az_63_range_1597_1729",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 2,
+          "beam_id": 50,
+          "group_id": "az_66_range_3592_3724",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 2,
+          "beam_id": 50,
+          "group_id": "az_69_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 3,
+          "beam_id": 50,
+          "group_id": "az_66_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 3,
+          "beam_id": 50,
+          "group_id": "az_76_range_3858_3990",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 5,
+          "beam_id": 50,
+          "group_id": "az_65_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 5,
+          "beam_id": 50,
+          "group_id": "az_80_range_2395_2527",
+          "support_count": 6,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 6,
+          "beam_id": 50,
+          "group_id": "az_50_range_3991_4095",
+          "support_count": 3,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 6,
+          "beam_id": 50,
+          "group_id": "az_84_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 9,
+          "beam_id": 50,
+          "group_id": "az_57_range_2129_2261",
+          "support_count": 6,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 9,
+          "beam_id": 50,
+          "group_id": "az_64_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        }
+      ]
+    },
+    "mode_b_on": {
+      "row_count": 12090,
+      "status_counts": {
+        "OK": 12079,
+        "NOT_EVALUABLE": 11
+      },
+      "failure_reason_counts": {
+        "insufficient_robust_support": 11
+      },
+      "min_support_count": 5,
+      "max_support_count": 133,
+      "failed_rows": [
+        {
+          "period_id": 1,
+          "beam_id": 50,
+          "group_id": "az_51_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 1,
+          "beam_id": 50,
+          "group_id": "az_71_range_3459_3591",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 2,
+          "beam_id": 50,
+          "group_id": "az_72_range_2661_2793",
+          "support_count": 6,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 6,
+          "beam_id": 50,
+          "group_id": "az_66_range_3991_4095",
+          "support_count": 5,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 6,
+          "beam_id": 50,
+          "group_id": "az_72_range_3991_4095",
+          "support_count": 5,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 8,
+          "beam_id": 50,
+          "group_id": "az_47_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 8,
+          "beam_id": 50,
+          "group_id": "az_52_range_1597_1729",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 8,
+          "beam_id": 50,
+          "group_id": "az_58_range_1597_1729",
+          "support_count": 5,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 9,
+          "beam_id": 50,
+          "group_id": "az_54_range_2395_2527",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 9,
+          "beam_id": 50,
+          "group_id": "az_62_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        },
+        {
+          "period_id": 9,
+          "beam_id": 50,
+          "group_id": "az_71_range_3991_4095",
+          "support_count": 7,
+          "reason": "insufficient_robust_support"
+        }
+      ]
+    }
+  },
+  "calibration_input": {
+    "role": "OFF=C+N",
+    "bytes": 492044800,
+    "sha256": "110fac37aecb730fd3e355e0381112afd0797102c29277e126fcde4ac2738462",
+    "truth_used_in_estimator": false
+  },
+  "cleanup_summary": {
+    "status": "completed_with_gaps",
+    "removed_file_count": 921,
+    "removed_bytes": 4429702312,
+    "remaining_bin_count": 0,
+    "removed_numpy_diagnostic_file_count": 0,
+    "removed_numpy_diagnostic_bytes": 0
+  },
+  "local_case_manifest_path": "outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/case_manifest.json",
+  "local_matrix_manifest_path": "outputs/r22_extension_20261028_v1a/engineering/matrix_manifest.json"
+}

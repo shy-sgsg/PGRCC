@@ -558,13 +558,27 @@ void writeScenarioResolved(const Stage2RunConfig &run,
     out << "    \"acquired_pulse_len\": " << run.cfg.acquired_pulse_len << ",\n";
     out << "    \"pulse_num\": " << run.cfg.radar.pulse_num << ",\n";
     out << "    \"prf_hz\": " << run.cfg.radar.prf_hz << ",\n";
+    out << "    \"range_fft_len\": " << run.cfg.radar.range_fft_len << ",\n";
+    out << "    \"range_crop_start\": " << run.cfg.radar.range_crop_start << ",\n";
+    out << "    \"range_crop_len\": " << run.cfg.radar.range_crop_len << ",\n";
     out << "    \"sample_delay_sec\": ";
     writeJsonDouble(run.cfg.radar.sample_delay_sec);
     out << "\n";
     out << "  },\n";
     out << "  \"platform\": {\n";
     out << "    \"speed_mps\": ";
-    writeJsonDouble(run.cfg.platform_speed_mps);
+    writeJsonDouble(run.cfg.platform_velocity_reported_mps);
+    out << ",\n    \"velocity_true_mps\": ";
+    writeJsonDouble(run.cfg.platform_velocity_true_mps);
+    out << ",\n    \"velocity_reported_mps\": ";
+    writeJsonDouble(run.cfg.platform_velocity_reported_mps);
+    out << ",\n    \"delta_velocity_reported_minus_true_mps\": ";
+    writeJsonDouble(
+        run.cfg.platform_velocity_reported_mps -
+        run.cfg.platform_velocity_true_mps);
+    out << ",\n    \"velocity_source\": \""
+        << run.cfg.new_protocol_velocity_source << "\"";
+    out << ",\n    \"header_position_source\": \"reported_velocity_trajectory\"";
     out << ",\n    \"height_m\": ";
     writeJsonDouble(run.cfg.platform_height_m);
     out << ",\n    \"squint_side\": " << run.cfg.geometry.squint_side << "\n";

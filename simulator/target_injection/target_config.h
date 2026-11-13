@@ -70,7 +70,11 @@ struct TargetGlobalConfig {
     std::string lfm_time_reference = "center"; // center / legacy_start
     int chirp_phase_sign = 1;
     int carrier_phase_sign = -1;
+    // `platform_speed_mps` remains the legacy single-speed alias.  New
+    // callers must keep the physical and reported velocities separate.
     double platform_speed_mps = 60.0;
+    double platform_velocity_true_mps = std::numeric_limits<double>::quiet_NaN();
+    double platform_velocity_reported_mps = std::numeric_limits<double>::quiet_NaN();
     double platform_height_m = 6000.0;
     double platform_origin_lat_deg = 40.45121057;
     double platform_origin_lon_deg = 116.98377429;
