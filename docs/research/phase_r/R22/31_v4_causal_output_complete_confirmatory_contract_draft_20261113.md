@@ -91,6 +91,18 @@ H0 的 0 ns branch 为 A0 no-error；+4 ns branch 包括 C0、Fixed D3、Huber D
 
 M1 Batch-10 diagnostic 每个 case 只生成一次十周期估计；其可使用全部十周期。该支路用于量化 V3.3 batch 与周期因果差异，不得混入 M1 Causal Prefix 的结果或替代其失败周期。
 
+### 3.3 Production 输出和归档源码审计
+
+只读审计固定在源码快照 `1063d67c96af7dbbe7fe871b3a56be0ca453b9b2`；相关 `run_delay_stage1_formal.py`、`r22_compact_archive.py` 与 `evaluate_r3_minimal_cuda_causal_pilot.py` 在当前交付基线相对该快照未变。本次只检查实现，不运行 Production、估计器或 CUDA。
+
+- `run_delay_stage1_formal.py::run_production_branch` 的本地 Production 命令为每个周期传入独立输入映射，并请求 `--track-debug-dir`、`--track-debug-dump on`、`--runtime-mode=debug` 和 `--runtime-diagnostics=on`。runner 可生成 `result/detection_results_GMTI*.csv` 以及 TrackManager 帧/事件/载荷调试输出。因此生产生成路径具备获取全周期检测与逐帧 lineage 的入口；本次没有运行它来验证实际文件集。
+- 现有 `scripts/phase_r/r22_compact_archive.py::_exclusion_reason` 会剔除全部 `track_debug_runs`，且从 ON `result/` 中删除除 `detection_results_GMTI09.csv` 外的中间周期 Detection 文件。该默认 compact archive **不能**作为 V4 全周期输出归档策略直接复用，否则会丢失本契约要求的逐周期 Detection、TrackManager/PIPE lineage。
+- `scripts/phase_r/evaluate_r3_minimal_cuda_causal_pilot.py::_target_transfer` 读取 ON/OFF/TO 的 CSI taps 与逐周期真值，在真值中心抽取每角色 `5×5` CSI ROI；计算 `CSI(TO)` 到 `CSI(ON)-CSI(OFF)` 的汇总复增益，并保留每周期中心坐标及 ROI 功率摘要。它没有保存逐格复数响应及其完整 ROI/注入真值映射，且对象是 CSI tap 诊断；因此该 helper **不能直接满足** V4 的 target-only complex response 归档要求，也不能以汇总复增益代替它。
+- V4 冻结前必须实现并静态/离线审查一个固定且方法间共享的目标复数响应提取 schema：记录具名处理 tap、固定 ROI 坐标/边界、逐格复数值、逐格到目标与信号注入真值的映射，以及提取源码/配置身份。应优先使用配对 TO signal-only Production 输出，并在同一 evaluator ROI 对照；CSI 后处理 ROI 摘要只能作为单独诊断。缺少上述数据时，目标保持指标为 `NOT_EVALUABLE`，不可启动确认矩阵。
+- V4 必须建立独立版本化的 compact archive allowlist，明确保留全部 10 期 Detection、Production candidates/clusters 与 lineage、CFAR geometry/valid-CUT/unique-hit 统计、生产 TrackManager 帧/事件/关联 Detection/PIPE payload 与逐字段来源、上述目标逐格复数响应、估计器逐期审计，以及复现所需身份和日志。只有归档成员清单核验确认这些内容完整后，才能清理对应的可再生 raw；不得用现有 R22 compact archive 的裁剪规则静默替代。
+
+**审计结论：** Production runner 有生成检测和 TrackManager 调试输出的路径，但默认归档器会删除 V4 所需的多期与逐帧证据；现有 target-transfer helper 也只提供 CSI ROI 汇总。V4 输出 schema/归档实现仍为 `IMPLEMENTED=false / EXECUTED=false / EVALUABLE=false`。正式尺寸 pilot 前必须先完成 V4 allowlist 与目标复数响应输出；pilot 需要覆盖各 branch kind，并实测完整保留策略下的压缩大小、临时峰值、耗时和可续跑恢复，不以 V3.2 compact archive 大小线性外推。
+
 ## 4. 主要终点、保护门与统计单位
 
 ### 4.1 唯一主要比较
@@ -172,7 +184,7 @@ M1 Batch-10 diagnostic 每个 case 只生成一次十周期估计；其可使用
 
 ### 6.2 空间预算与清理
 
-用户的 **20 GB 是最终项目占用上限**，不限制中间试验峰值。V4 不在本阶段产生大数组。当前项目目录约 5.3 GiB；其中约 1.5 GiB 的 V3.2 compact archives 和 V3.3 汇总证据仍用于本契约与审计，均保留。2026-11-14 清理仅删除 `.scratch/task5_targeted_gpu_zero_retry/manifest.json`（13,597 bytes；状态 `not_started`、0 case），并移除其空目录；其余含真实运行与审计内容的 scratch、R22 归档和 S1e Production binary 均保留。未删除唯一输入或失败证据。
+用户的 **20 GB 是最终项目占用上限**，不限制中间试验峰值。V4 不在本阶段产生大数组。2026-11-14 复核的工作树约 4.8 GiB、项目目录约 5.3 GiB，低于上限；同一文件系统约剩 13 GiB。约 1.5 GiB 的 V3.2 compact archives、V3.3 汇总证据、V2 唯一失败现场和 S1e Production binary 仍支撑当前契约与历史审计，保留。此前仅删除 `.scratch/task5_targeted_gpu_zero_retry/manifest.json`（13,597 bytes；状态 `not_started`、0 case）和空目录。本次未发现能够确认不再支持当前审计的高占用结果，因此未再删除数据。
 
 V3.2 archive 只保留部分时期 Detection，且不含逐帧 TrackManager debug/PIPE payload 与目标专属复数响应，不能据此线性估算 V4 完整输出空间。V4 每个 target-present seed×speed 配对含 14 个 ON/TO method branches（A0 两支、+4 ns 六种方法各两支），共 1,260 支；H0 每个 seed 含 7 支（0 ns A0 一支、+4 ns 六种方法各一支），共 210 支；合计 1,470 支 Production branches。它们不等于 240 个场景 case 身份。正式矩阵前必须先获用户授权，运行一个不计入确认集、涵盖全部 branch kinds 的代表性完整输出/尺寸 pilot，记录每角色/方法压缩前后大小、最大 case、临时峰值与处理时间；再冻结安全可用空间门、归档与恢复行为。pilot 未通过不得启动矩阵。
 
@@ -198,7 +210,7 @@ V3.2 archive 只保留部分时期 Detection，且不含逐帧 TrackManager debu
 
 1. ChatGPT 独立审查本文件及机器设计，确认总体科学价值和阶段方法学；
 2. 用户/工程需求方批准 `MDE_position_m`、`margin_detection_pp` 及必要的航迹保护界值；
-3. 完成目标 ROI、真值关联、H0 false object 与 per-period output schema 的源码审计；
+3. 完成目标 ROI、逐格复数响应、真值关联、H0 false object、全周期输出及 V4 compact archive allowlist 的源码/数据 schema 审计；
 4. 实现周期前缀 M1 与同信息几何校正 Huber D3 基线、逐周期 correction runner，并完成无 GPU 的未来周期隔离/边界检查；此项不得替代 CUDA 证据；
 5. 对全部 target/H0 seed 和输入身份做最终碰撞审计；
 6. 用户单独明确授权完整输出尺寸 pilot / CUDA Production；确认 pilot 结果与磁盘恢复机制后，再请求或批准完整矩阵。

@@ -8,7 +8,7 @@
   "router_enabled": false,
   "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
   "updated_on": "2026-11-14",
-  "draft_revision": 2,
+  "draft_revision": 3,
   "case_identity_semantics": "240 unique case identities are paired/nested by seed; they are not 240 statistically independent samples",
   "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
   "supersedes": null,
@@ -163,6 +163,20 @@
       "explicit current-period zero-correction fallback in the policy denominator"
     ]
   },
+  "output_schema_source_audit": {
+    "source_audit_commit": "1063d67c96af7dbbe7fe871b3a56be0ca453b9b2",
+    "audit_type": "read-only source inspection; no estimator, Production, or CUDA execution",
+    "production_runner": "scripts/run_delay_stage1_formal.py::run_production_branch maps period inputs individually and requests track-debug-dir, track-debug-dump=on, runtime-mode=debug, and runtime-diagnostics=on; it can emit per-period detection_results_GMTI*.csv and TrackManager debug output",
+    "default_compact_archive_gap": "scripts/phase_r/r22_compact_archive.py::_exclusion_reason drops all track_debug_runs and all ON detection_results_GMTI*.csv except GMTI09; this policy loses V4-required all-period Detection and TrackManager/PIPE lineage",
+    "existing_target_response_helper": "scripts/phase_r/evaluate_r3_minimal_cuda_causal_pilot.py::_target_transfer reads ON/OFF/TO CSI taps, extracts truth-centered 5x5 CSI ROIs, computes an aggregate complex transfer and per-period center/power summaries, but does not retain per-cell complex values with complete ROI/injection-truth mapping; it is diagnostic and does not satisfy the V4 target-only complex-response archive contract",
+    "output_schema_ready": false,
+    "required_before_freeze": [
+      "implement and review a fixed shared target-response tap/ROI schema storing every complex sample, ROI coordinates, target and signal-injection truth mapping, and extractor/config identity",
+      "version a V4 compact-archive allowlist retaining all ten Detection periods, candidates/clusters/lineage, CFAR geometry and valid-CUT/unique-hit summaries, TrackManager frame/event/detection/PIPE lineage, target complex responses, estimator diagnostics, and required execution identities",
+      "verify the compact archive member inventory is output-complete before deleting reconstructible raw data",
+      "measure compressed/uncompressed size, temporary peak, runtime, and resume behavior on an authorized representative pilot covering every branch kind"
+    ]
+  },
   "primary_comparison": {
     "condition": {"delay_error_ns": 4.0, "target_snr_db": 20.0},
     "methods": ["M1_CAUSAL_PREFIX", "FIXED_D3"],
@@ -215,10 +229,10 @@
     "power_status": "not validated until engineering MDE and detection margin are specified"
   },
   "required_outputs": [
-    "all-period Detection CSV and one-to-one target truth association for periods 0-9",
+    "all ten per-period Detection CSVs and one-to-one target truth association, retained in the verified compact archive",
     "candidates, clusters, cluster/detection lineage, CFAR geometry, valid CUT denominator and unique-hit summary",
     "actual TrackManager per-frame state, associated detection and PIPE payload audit with field sources",
-    "truth-aligned target-only complex response at common frozen ROI and named processing taps",
+    "truth-aligned target-only per-cell complex response, fixed common ROI coordinates, named processing tap, and signal-injection/truth mapping; aggregate CSI ROI summaries are supplementary only",
     "per-period causal estimator prefix inputs, estimate, correction, runtime, status and explicit fallback",
     "per-period Huber D3 causal-prefix inputs, estimate, correction, runtime, status and explicit fallback",
     "runtime XML, Stage2 reports, input hashes, background reuse mapping, source/binary identities, device snapshot, commands, logs and exit codes",
@@ -235,8 +249,9 @@
     "intermediate_peak_may_exceed_final_limit": true,
     "current_project_size_gib_approx": 5.3,
     "v3_2_archives_retained": true,
+    "v4_archive_must_retain_all_period_detection_and_track_debug": true,
     "v4_full_output_size_estimate": null,
-    "required_resource_gate": "user-authorized representative complete-output pilot before the confirmatory matrix",
+    "required_resource_gate": "implement V4 output-complete archive allowlist, then run a user-authorized representative complete-output pilot before the confirmatory matrix",
     "delete_raw_only_after": ["compact archive complete", "identity and CRC/SHA verified", "required evidence reconstructibility established", "cleanup ledger written"],
     "post_review_target": "remove dispensable intermediates; retain necessary records/config/audit/high-value evidence and keep final project below 20 GiB"
   },
@@ -247,6 +262,8 @@
     "freeze Huber shared-mask policy and Huber-specific delay-domain validity/fallback; current qualifier has no D3 delay-bound check",
     "optional track-protection limits if used for a success claim",
     "implement and verify the per-period estimator/output schema, including future-period isolation",
+    "implement V4 compact-archive allowlist for all-period Detection and TrackManager/PIPE lineage",
+    "implement fixed shared target-only complex-response extraction with per-cell values and truth/ROI mapping",
     "final seed collision and pairing audit",
     "user authorization for representative CUDA/output-size pilot",
     "resource and resume/cleanup gate derived from measured pilot"
@@ -258,7 +275,8 @@
     "future-period or oracle information reaches M1 causal estimator",
     "Huber and M1 prefix input identities or period bounds differ",
     "estimator failure hidden or excluded from the full policy denominator",
-    "missing all-period Detection, target response, or independent H0 lineage",
+    "missing all-period Detection, per-cell target response, or independent H0 lineage",
+    "compact archiver drops required V4 Detection, TrackManager/PIPE, or complex-response evidence",
     "archive identity/CRC failure or unsafe resume identity change",
     "resource state cannot complete one atomic case safely"
   ]
