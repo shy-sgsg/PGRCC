@@ -1,6 +1,6 @@
 # R22-V4 确认性契约草案：ChatGPT 独立审查请求
 
-> **固定设计审查快照：** `9db4592dd2ba7d31694acd80bea2c128c59a2ac9`。本提示词随之后的交付提交保存；ChatGPT 必须将本提示词所列的研究文件固定读取自上述设计审查快照，不能用提示词提交或漂移的分支 `HEAD` 替代。
+> **固定设计审查快照：** `bbdb5cf4ada962cf191a204facc5e7bbf7a2557d`。本提示词随之后的交付提交保存；ChatGPT 必须将本提示词所列的研究文件固定读取自上述设计审查快照，不能用提示词提交或漂移的分支 `HEAD` 替代。
 
 【PGRCC 科研阶段独立审查请求】
 
@@ -18,11 +18,12 @@
 6. `docs/research/phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md`
 7. `docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json`
 8. 在源码审计快照 `1063d67c96af7dbbe7fe871b3a56be0ca453b9b2` 阅读 `scripts/phase_r/run_r22_cuda_pilot.py`、`scripts/phase_r/run_r12_physics_matched_delay.py`、`scripts/phase_r/physics_matched_delay.py`、`scripts/phase_r/run_r21_cuda_pilot.py` 和 `scripts/estimate_channel_delay.py`，核对契约中的实现范围与 D3 定义。
+9. 在同一源码快照检查 `scripts/run_delay_stage1_formal.py::run_production_branch`、`scripts/phase_r/r22_compact_archive.py::_exclusion_reason` 和 `scripts/phase_r/evaluate_r3_minimal_cuda_causal_pilot.py::_target_transfer`，独立确认 Production 实际生成与 compact archive 保留的文件范围，以及目标复数响应证据是否符合 V4 要求。
 
 仓库：`https://github.com/shy-sgsg/PGRCC`<br>
 分支：`codex/unknown-system-error-next-stage`<br>
-审查 commit：`9db4592dd2ba7d31694acd80bea2c128c59a2ac9`<br>
-固定审查快照中的契约：[Markdown](https://github.com/shy-sgsg/PGRCC/blob/9db4592dd2ba7d31694acd80bea2c128c59a2ac9/docs/research/phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)；[机器设计 JSON](https://github.com/shy-sgsg/PGRCC/blob/9db4592dd2ba7d31694acd80bea2c128c59a2ac9/docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)<br>
+审查 commit：`bbdb5cf4ada962cf191a204facc5e7bbf7a2557d`<br>
+固定审查快照中的契约：[Markdown](https://github.com/shy-sgsg/PGRCC/blob/bbdb5cf4ada962cf191a204facc5e7bbf7a2557d/docs/research/phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)；[机器设计 JSON](https://github.com/shy-sgsg/PGRCC/blob/bbdb5cf4ada962cf191a204facc5e7bbf7a2557d/docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)<br>
 V4实验执行源码 commit：无；本阶段只形成方案草案，尚未实现或执行。现有算法源码只读审计快照：`1063d67c96af7dbbe7fe871b3a56be0ca453b9b2`。<br>
 研究总纲 blob：`e637e3769bde7814298ff012d0f42301884e2985`<br>
 阶段：`R22-V4 output-complete confirmatory contract draft`<br>
@@ -40,8 +41,9 @@ CUDA/AI：未运行 / 未训练；CUDA 执行未获授权。
 4. 已有 Huber 候选来自 M1 同一 pooled input 的 `physics_matched_delay._slope_baselines`，并复用 M1 的第80百分位 support mask；它做几何校正、幅度加权 robust `fit_weighted_line`（12次 IRLS、MAD scale、1.345 cutoff）。R21 gate 检查 finite estimate、support≥8、span≥3 MHz、D3/M1 support一致，但没有 D3 delay-domain bound。该共享 mask 的拟合规则对照是否足够公平，还是需独立冻结传统选频/有效范围？如何在相同前缀与逐周期校正时序实现？如果实现无法审计，是否应禁止宣称 M1 特有优势？检查是否存在 oracle、未来数据或配对信息泄漏。
 5. 位置 RMSE 的共同成功机会、漏检/估计覆盖率保护门、MDE 与非劣界值缺口，以及30-seed推断方案是否适当？明确指出阈值未定时不能确认哪些结论。
 6. H0 的 `P_FA_beam50_period`、CUT、cluster 和 TrackManager false-track 单位是否表述准确，是否避免错误宣称完整系统 Pfa？
-7. Detection、truth lineage、TrackManager/PIPE、目标专属复数响应、CFAR geometry、身份、compact archive、续跑与 raw cleanup 是否足以支持本次科学问题和复现？
-8. 目前 V3.2 compact archive 的输出缺口是否被正确识别，且没有用历史不完整归档代替 V4 新证据？
+7. 请直接检查源码，不要只接受草案中的总结：Production runner 是否能生成完整十期 Detection 和 TrackManager/PIPE lineage？默认 compact archiver 是否会删除这些材料（包括只保留某一期 Detection 的行为）？R3 `_target_transfer` 是否保存逐格目标专属复数值、固定 ROI 坐标与完整注入真值映射，还是仅提供 CSI 5×5 ROI 汇总？V4 专用 allowlist 与 target-response extractor 应保留哪些最小内容，才能满足 Detection、CFAR、TrackManager、复数目标保持、身份和复现要求？
+8. 在上述输出约束下，归档/续跑/清理策略是否可行且能完成审计？尺寸 pilot 是否必须涵盖所有 branch kind，并在清理 raw 前验证 archive members、CRC/SHA 和重建能力？
+9. 目前 V3.2 compact archive 的输出缺口是否被正确识别，且没有用历史不完整归档代替 V4 新证据？
 9. V3.3 历史筛选数据被限定在 `+4 ns / 20 dB / {0.5, 2.5, 6.7 m/s}` 时，M1−Fixed D3 位置差为 `−11.146 ± 4.797 m`、M1−Huber 为 `−5.603 ± 0.985 m`（均为12/12 seed 同向）；检测覆盖差分别为 `+0.083 ± 0.495 pp`、`0.000 ± 0.333 pp`。这些估计器使用十周期 batch，且该切片只用于粗略筛选精度规划。其算法和信息条件与V4周期前缀不同，故这些数是否被正确限制为设计背景，而非因果效果、功效、MDE或非劣界值？
 
 ### 第二层：总体 GMTI 科研价值
@@ -53,5 +55,7 @@ CUDA/AI：未运行 / 未训练；CUDA 执行未获授权。
 5. 是否建议 `ACCEPT_DRAFT / REVISE / REJECT`？列出按严重程度排序的问题与最小修改；说明是否可在 MDE/非劣门界值补齐后进入用户审批。
 
 请区分 `IMPLEMENTED`、`EXECUTED`、`EVALUABLE`、`PERFORMANCE_VERIFIED`。本阶段这些实验状态不得被误报为已实现/运行/性能验证。不得直接修改研究总纲；如建议修改，只提出有证据支持的提案并交用户决定。设计审查通过也不等同于 CUDA 授权。
+
+草案在 `1063d67` 源码快照上做过只读审计，暂定发现为：Production 本地路径可请求全期 Detection 与 TrackManager debug；默认 compact archiver 会丢弃 `track_debug_runs` 和 GMTI09 之前的 ON Detection；当前 `_target_transfer` 只保留 CSI 真值中心 ROI 的汇总复增益/功率，不保留 V4 所需逐格复数响应及完整 ROI/注入真值映射。请在相应源码中独立核对这些描述，并评估“V4 专用 archive allowlist + 完整输出尺寸 pilot”是否足够，以及是否还有其他必须先修复的 schema 缺口。
 
 如果你无法实际读取上述 commit 的研究总纲或关键证据，请说明未读取文件和 `NOT_VERIFIED` 边界，不要用本提示词摘要替代真实读取。
