@@ -11,6 +11,7 @@ import math
 import shutil
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -61,6 +62,28 @@ def file_identity(path: Path) -> dict[str, Any]:
         "exists": candidate.is_file(),
         "bytes": candidate.stat().st_size if candidate.is_file() else None,
         "sha256": sha256_file(candidate) if candidate.is_file() else None,
+    }
+
+
+def _cuda_driver_identity() -> dict[str, Any]:
+    command = ["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader,nounits"]
+    try:
+        result = subprocess.run(
+            command, cwd=ROOT, capture_output=True, text=True, check=False, timeout=15.0,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(f"CUDA driver identity query failed: {exc}") from exc
+    versions = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    if result.returncode != 0 or not versions:
+        raise RuntimeError(
+            "CUDA driver identity query returned no driver version "
+            f"(returncode={result.returncode}, stderr={result.stderr.strip()})"
+        )
+    return {
+        "command": command,
+        "returncode": int(result.returncode),
+        "driver_versions": versions,
+        "stderr": result.stderr.strip(),
     }
 
 
@@ -141,9 +164,15 @@ def validate_case_scale(*, phase: str, target_count: int, period_count: int) -> 
 def _source_identity() -> dict[str, Any]:
     sources = (
         Path(__file__), Path(__file__).with_name("r22_scenario_factory.py"),
+        Path(__file__).with_name("r22_v4_evidence.py"),
+        Path(__file__).with_name("r22_compact_archive.py"),
+        Path(__file__).with_name("r22_experiment_matrix.py"),
         ROOT / "scripts/run_delay_stage1_formal.py",
         ROOT / "scripts/run_production_hierarchical_calibration_pilot.py",
         ROOT / "scripts/run_track_manager_e2e.py",
+        ROOT / "scripts/phase_r/run_r12_physics_matched_delay.py",
+        ROOT / "scripts/phase_r/run_r21_cuda_pilot.py",
+        ROOT / "scripts/phase_r/physics_matched_delay.py",
         ROOT / "scripts/phase_r/r21_task_evaluator.py",
         ROOT / "scripts/phase_r/r21_historical_task_review.py",
     )
@@ -389,6 +418,201 @@ def _delay_corrected_inputs(
     return corrected, audits
 
 
+def _causal_prefix_estimates(
+    raw_paths: Sequence[Path], runtime_xml: Path,
+) -> dict[str, list[dict[str, Any]]]:
+    """Estimate M1 and Huber from ON raw C1/C2 prefixes ending at each period."""
+    paths = [Path(path).expanduser().resolve() for path in raw_paths]
+    if not paths:
+        raise FileNotFoundError("causal estimator requires ordered ON period inputs")
+    if len(set(paths)) != len(paths):
+        raise ValueError("causal estimator period inputs must be unique and ordered")
+
+    identities: list[dict[str, Any]] = []
+    records: dict[str, list[dict[str, Any]]] = {
+        "M1_CAUSAL_PREFIX": [],
+        "HUBER_D3_CAUSAL_PREFIX": [],
+    }
+    qualified_keys = {
+        "M1_CAUSAL_PREFIX": "m1",
+        "HUBER_D3_CAUSAL_PREFIX": "d3_huber",
+    }
+    for period_id in range(len(paths)):
+        current_path = paths[period_id]
+        if not current_path.is_file():
+            raise FileNotFoundError(f"causal estimator period input is missing: {current_path}")
+        identities.append({"period_id": period_id, **file_identity(current_path)})
+        prefix_paths = paths[:period_id + 1]
+        prefix_ids = list(range(period_id + 1))
+        prefix_identities = identities[:period_id + 1]
+        estimate_started = time.perf_counter()
+        try:
+            estimate = r12._blind_m1_from_b_on(prefix_paths, Path(runtime_xml))
+        except (OSError, RuntimeError, ValueError, KeyError) as exc:
+            estimate = {
+                "status": "NOT_AVAILABLE",
+                "reason": f"prefix_estimator_failed:{type(exc).__name__}:{exc}",
+                "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+                "truth_used_in_estimator": False,
+            }
+            qualification = {
+                key: {"status": "NOT_AVAILABLE", "correction_ns": None,
+                      "reason": estimate["reason"]}
+                for key in ("m1", "d3_huber")
+            }
+        else:
+            # Qualification errors (wrong input role or truth use) are contract
+            # violations and deliberately propagate instead of becoming fallback.
+            qualification = r21.qualify_blind_methods(estimate)
+        estimator_elapsed_sec = time.perf_counter() - estimate_started
+
+        for method_id, qualification_key in qualified_keys.items():
+            method_qualification = qualification.get(qualification_key, {})
+            try:
+                correction_ns = float(method_qualification.get("correction_ns"))
+            except (TypeError, ValueError):
+                correction_ns = math.nan
+            available = (
+                method_qualification.get("status") == "AVAILABLE"
+                and math.isfinite(correction_ns)
+            )
+            records[method_id].append({
+                "method_id": method_id,
+                "period_id": period_id,
+                "prefix_period_ids": prefix_ids,
+                "prefix_input_identities": prefix_identities,
+                "estimator_input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+                "estimator_status": method_qualification.get("status", "NOT_AVAILABLE"),
+                "estimator_elapsed_sec": estimator_elapsed_sec,
+                "estimate_ns": correction_ns if available else None,
+                "applied_correction_ns": correction_ns if available else 0.0,
+                "fallback_status": None if available else "ESTIMATOR_UNAVAILABLE_ZERO_CORRECTION",
+                "fallback_reason": method_qualification.get("reason") or estimate.get("reason"),
+                "qualification": dict(method_qualification),
+                "estimate_record": dict(estimate),
+                "truth_used_in_estimator": estimate.get("truth_used_in_estimator") is True,
+            })
+    return records
+
+
+def _delay_corrected_inputs_by_period(
+    case_root: Path,
+    condition: str,
+    role: str,
+    source_paths: Sequence[Path],
+    period_estimates: Sequence[Mapping[str, Any]],
+    layout: Mapping[str, Any],
+) -> tuple[list[Path], list[dict[str, Any]]]:
+    if len(source_paths) != len(period_estimates) or not source_paths:
+        raise ValueError("period-wise corrections must match the ordered production inputs")
+    output_dir = case_root / "inputs" / "r22_v4_corrections" / condition / role
+    output_dir.mkdir(parents=True, exist_ok=True)
+    corrected: list[Path] = []
+    audits: list[dict[str, Any]] = []
+    for period_id, (source, estimate) in enumerate(zip(source_paths, period_estimates)):
+        if int(estimate.get("period_id", -1)) != period_id:
+            raise ValueError("period-wise correction identity is out of order")
+        try:
+            correction_ns = float(estimate["applied_correction_ns"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"period {period_id} lacks a finite correction policy") from exc
+        if not math.isfinite(correction_ns):
+            raise ValueError(f"period {period_id} correction is not finite")
+        destination = output_dir / f"period_{period_id:04d}.bin"
+        if destination.exists():
+            raise FileExistsError(f"refusing to overwrite V4 correction input: {destination}")
+        audit = stage1.rewrite_float32_protocol_delay(
+            Path(source), destination,
+            pulse_len=int(layout["pulse_len"]),
+            channel_count=int(layout["channel_count"]),
+            fs_hz=float(layout["fs_hz"]),
+            delta_tau_sec=correction_ns * 1.0e-9,
+            channel_indices=tuple(int(value) for value in layout["correction_channel_indices"]),
+            simulator_linear_fractional_delay_inverse=True,
+        )
+        corrected.append(destination)
+        audits.append({
+            "period_id": period_id,
+            "source_path": str(Path(source).resolve()),
+            "destination_path": str(destination.resolve()),
+            "estimator_status": estimate.get("estimator_status"),
+            "estimate_ns": estimate.get("estimate_ns"),
+            "applied_correction_ns": correction_ns,
+            "fallback_status": estimate.get("fallback_status"),
+            "operator_audit": audit,
+        })
+    return corrected, audits
+
+
+def _run_causal_prefix_delay_method(
+    case_root: Path,
+    *,
+    case_id: str,
+    method_id: str,
+    period_estimates: Sequence[Mapping[str, Any]],
+    raw_roles: Mapping[str, Sequence[Path]],
+    source_xml: Path,
+    truth_root: Path,
+    layout: Mapping[str, Any],
+    production_config: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    period_count = len(period_estimates)
+    if period_count == 0 or any(len(raw_roles.get(role, ())) != period_count
+                                for role in ("ON", "OFF", "TO")):
+        raise ValueError("causal Production roles must share the estimator period count")
+    branch_records: list[dict[str, Any]] = []
+    for role in ("ON", "OFF", "TO"):
+        corrected, audits = _delay_corrected_inputs_by_period(
+            case_root, method_id, role, raw_roles[role], period_estimates, layout,
+        )
+        input_dir = case_root / "inputs" / "production" / method_id / role
+        input_dir.mkdir(parents=True, exist_ok=True)
+        for period_id, source in enumerate(corrected):
+            link = input_dir / f"period_{period_id:04d}.bin"
+            if link.exists() or link.is_symlink():
+                raise FileExistsError(f"refusing to overwrite V4 Production input link: {link}")
+            link.symlink_to(source.resolve())
+        branch_name = f"{method_id}_{role}"
+        branch = stage1.run_production_branch(
+            case_root, branch_name, input_dir, source_xml, {}, period_count,
+            "local", layout, truth_path=truth_root,
+            xml_overrides={
+                **R22_XML_OVERRIDES,
+                "csi_metrics_beam_id": int(layout["beam_id"]),
+                "new_protocol_file_first_beam": int(layout["beam_id"]),
+                "new_protocol_file_scan_beam_count": int(layout.get("scan_beam_count", 1)),
+                "shm_scan_beam_count": int(layout.get("scan_beam_count", 1)),
+                "wavepos_st": int(layout["beam_id"]),
+                "wavepos_ed": int(layout.get("last_beam_id", layout["beam_id"])),
+                "wavepos_skip": 1,
+                **calibration._production_range_overrides(production_config),
+            },
+        )
+        gate = stage1.audit_production_path_evidence(branch)
+        branch.update({
+            "condition": method_id,
+            "role": role,
+            "case_id": case_id,
+            "correction_source": "same_case_ON_raw_C1_C2_causal_prefix",
+            "applied_delay_ns": None,
+            "period_corrections": audits,
+            "period_count_expected": period_count,
+            "continuous_track_manager_run": True,
+            "estimator_method_id": method_id,
+            "estimator_input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+            "truth_used_in_estimator": False,
+            "truth_used_to_apply_correction": False,
+            "correction_operator": "estimate_channel_delay.rewrite_float32_protocol_delay",
+            "input_role": "same_seed_A1_Current_unknown_error_raw_role",
+            "production_path_gate": gate,
+        })
+        stage1._write_json(case_root / "production" / branch_name / "branch_manifest.json", branch)
+        branch_records.append(branch)
+        if gate.get("status") != "passed":
+            break
+    return branch_records
+
+
 def _run_extra_delay_method(
     case_root: Path,
     case_id: str,
@@ -595,9 +819,16 @@ def _write_tables(root: Path, tables: Mapping[str, Sequence[Mapping[str, Any]]])
         write_csv(root / "evaluation" / f"{name}.csv", rows)
 
 
-def _compact_case_artifacts(case_root: Path) -> dict[str, Any]:
+def _compact_case_artifacts(
+    case_root: Path, *, require_v4_response: bool = False,
+) -> dict[str, Any]:
     """Remove regenerable binaries and full CSI maps after scalar evidence exists."""
     case_root = Path(case_root).expanduser().resolve()
+    v4_response_audit: dict[str, Any] | None = None
+    if require_v4_response:
+        from scripts.phase_r.r22_v4_evidence import validate_target_complex_response
+
+        v4_response_audit = validate_target_complex_response(case_root)
     ledger_path = case_root / "raw_cleanup.json"
     previous = (
         json.loads(ledger_path.read_text(encoding="utf-8"))
@@ -629,13 +860,25 @@ def _compact_case_artifacts(case_root: Path) -> dict[str, Any]:
     prior_npy_count = int(previous.get("removed_numpy_diagnostic_file_count", 0)) if isinstance(previous, Mapping) else 0
     prior_npy_bytes = int(previous.get("removed_numpy_diagnostic_bytes", 0)) if isinstance(previous, Mapping) else 0
     cleanup.update({
-        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files",
+        "policy": (
+            "verify_per_cell_v4_response_then_remove_dense_csi_maps_and_generated_bin"
+            if require_v4_response else
+            "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files"
+        ),
         "removed_file_count": prior_count + int(cleanup.get("removed_file_count", 0)) + len(numpy_records),
         "removed_bytes": prior_bytes + int(cleanup.get("removed_bytes", 0)) + numpy_removed_bytes,
         "removed_numpy_diagnostic_file_count": prior_npy_count + len(numpy_records),
         "removed_numpy_diagnostic_bytes": prior_npy_bytes + numpy_removed_bytes,
         "records": prior_records + fresh_records + numpy_records,
     })
+    if v4_response_audit is not None:
+        cleanup["v4_response_verification_before_cleanup"] = v4_response_audit
+        for record in numpy_records:
+            record["reason"] = (
+                "fixed per-cell target complex response and source array hashes were verified "
+                "before dense CSI map removal"
+            )
+        cleanup["records"] = prior_records + fresh_records + numpy_records
     write_json(ledger_path, cleanup)
     case_manifest_path = case_root / "case_manifest.json"
     case_manifest = json.loads(case_manifest_path.read_text(encoding="utf-8"))
@@ -654,6 +897,7 @@ def run_case(
     calibration_modes: Sequence[str] = ("Mode-A", "Mode-B"),
     area: Mapping[str, Any] = DEFAULT_AREA,
     keep_raw: bool = False,
+    v4_output_complete: bool = False,
 ) -> dict[str, Any]:
     output_root = Path(output_root).expanduser().resolve()
     if output_root.exists() and (not output_root.is_dir() or any(output_root.iterdir())):
@@ -665,6 +909,8 @@ def run_case(
     stage2_binary = Path(stage2_binary).expanduser().resolve()
     production_binary = Path(production_binary).expanduser().resolve()
     preflight = r21._native_cuda_preflight(production_binary, output_root)
+    if v4_output_complete:
+        preflight["gpu"]["driver_identity"] = _cuda_driver_identity()
     if not stage2_binary.is_file():
         raise FileNotFoundError(f"Stage2 simulator missing: {stage2_binary}")
     stage2_identity = file_identity(stage2_binary)
@@ -724,6 +970,10 @@ def run_case(
                 "keep_generated_binary_artifacts" if keep_raw else
                 "remove_generated_bin_after_evaluation_keep_audit_files"
             ),
+            "v4_output_complete": bool(v4_output_complete),
+            "v4_causal_estimator_policy": (
+                "period_prefix_current_period_zero_fallback" if v4_output_complete else None
+            ),
         },
         "status_labels": {"IMPLEMENTED": True, "EXECUTED": False, "EVALUABLE": False,
                           "PERFORMANCE_VERIFIED": False},
@@ -768,6 +1018,7 @@ def run_case(
         estimate_record: dict[str, Any]
         zero_error_target_free_estimate: dict[str, Any] | None = None
         qualified: dict[str, Any]
+        causal_prefix_records: dict[str, list[dict[str, Any]]] = {}
         if c0_on is None or not c0_on.get("production_xml"):
             estimate_record = {"status": "NOT_AVAILABLE", "reason": "C0_B_ON_Production_XML_missing",
                                "truth_used_in_estimator": False}
@@ -787,6 +1038,15 @@ def run_case(
                     "d3_huber": {"status": "NOT_AVAILABLE", "reason": str(exc)},
                     "m1": {"status": "NOT_AVAILABLE", "reason": str(exc)},
                 }
+        if v4_output_complete and float(delay_ns) != 0.0:
+            runtime_xml = (
+                Path(str(c0_on["production_xml"]))
+                if c0_on is not None and c0_on.get("production_xml")
+                else output_root / "missing_causal_estimator_runtime.xml"
+            )
+            causal_prefix_records = _causal_prefix_estimates(
+                raw["A1_Current_unknown_error"]["ON"], runtime_xml,
+            )
         if float(delay_ns) == 0.0:
             try:
                 zero_error_target_free_estimate = calibration.estimate_blind_delay(
@@ -806,6 +1066,20 @@ def run_case(
             estimate_record=estimate_record,
             zero_error_target_free_estimate=zero_error_target_free_estimate,
         )
+        if v4_output_complete:
+            scalar_blind_ids = {"R22_D3_Huber_B_ON", "R22_M1_Physics_Matched"}
+            correction_specs = [row for row in correction_specs if row[0] not in scalar_blind_ids]
+            extra_methods = [row for row in extra_methods if row.get("method_id") not in scalar_blind_ids]
+            if float(delay_ns) == 0.0:
+                for method_id in ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"):
+                    extra_methods.append({
+                        "method_id": method_id,
+                        "mode": "not_applicable",
+                        "role": "ALL",
+                        "status": "NOT_APPLICABLE_ZERO_DELAY_REFERENCE",
+                        "reason": "no physical correction is applied to the no-error reference",
+                        "truth_used_in_estimator": False,
+                    })
         if not any(row.get("method_id") == "PK" for row in method_records):
             extra_methods.append({"method_id": "Known_error_correction_upper_bound", "mode": "not_applicable",
                                   "role": "ALL", "status": "NOT_AVAILABLE", "reason": "PK_method_not_selected"})
@@ -818,12 +1092,44 @@ def run_case(
                 raw["A1_Current_unknown_error"], source_xml, truth_root, layout, period_count,
                 method_config["production"],
             ))
+        if v4_output_complete and float(delay_ns) != 0.0:
+            for method_id in ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"):
+                extra_methods.extend(_run_causal_prefix_delay_method(
+                    pipeline_case_root,
+                    case_id=case_id,
+                    method_id=method_id,
+                    period_estimates=causal_prefix_records[method_id],
+                    raw_roles=raw["A1_Current_unknown_error"],
+                    source_xml=source_xml,
+                    truth_root=truth_root,
+                    layout=layout,
+                    production_config=method_config["production"],
+                ))
         method_records.extend(extra_methods)
         method_records = _audit_production_branches(method_records)
         pipeline_manifest["method_branches"] = method_records
         pipeline_manifest["r22_delay_estimator"] = estimate_record
         pipeline_manifest["r22_blind_method_qualification"] = qualified
         pipeline_manifest["r22_zero_error_target_free_estimate_only"] = zero_error_target_free_estimate
+        if v4_output_complete:
+            pipeline_manifest["r22_batch_m1_diagnostic"] = {
+                "status": estimate_record.get("status", "NOT_AVAILABLE"),
+                "online_ranking": False,
+                "used_to_apply_correction": False,
+                "estimate_record": estimate_record,
+            }
+            pipeline_manifest["r22_causal_prefix_estimators"] = causal_prefix_records
+        if v4_output_complete:
+            from scripts.phase_r.r22_v4_evidence import extract_target_complex_response
+
+            v4_response_manifest = extract_target_complex_response(
+                pipeline_case_root,
+                simulation=pipeline_manifest.get("simulation", {}),
+                branch_records=method_records,
+                target_count=target_count,
+                period_count=period_count,
+            )
+            pipeline_manifest["r22_v4_target_response"] = v4_response_manifest
         write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
         tables = _evaluate_branches(
             phase=phase,
@@ -888,7 +1194,9 @@ def run_case(
             pipeline_manifest["r22_status_labels"] = dict(manifest["status_labels"])
             pipeline_manifest["r22_evaluation_summary"] = dict(manifest["evaluation_summary"])
             write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
-            cleanup = _compact_case_artifacts(pipeline_case_root)
+            cleanup = _compact_case_artifacts(
+                pipeline_case_root, require_v4_response=v4_output_complete,
+            )
             manifest["raw_cleanup"] = {
                 "status": "passed",
                 "removed_file_count": cleanup["removed_file_count"],
@@ -939,6 +1247,8 @@ def main() -> int:
     parser.add_argument("--calibration-modes", default="Mode-A,Mode-B")
     parser.add_argument("--keep-raw", action="store_true",
                         help="retain regenerable .bin files after evaluation (default: compact them)")
+    parser.add_argument("--v4-output-complete", action="store_true",
+                        help="use period-causal estimators and retain V4 complex target-response evidence")
     args = parser.parse_args()
     method_ids = tuple(item.strip() for item in args.method_ids.split(",") if item.strip())
     modes = tuple(item.strip() for item in args.calibration_modes.split(",") if item.strip())
@@ -960,6 +1270,7 @@ def main() -> int:
         method_ids=method_ids,
         calibration_modes=modes,
         keep_raw=args.keep_raw,
+        v4_output_complete=args.v4_output_complete,
     )
     print(json.dumps({
         "case_id": result.get("case_id"),

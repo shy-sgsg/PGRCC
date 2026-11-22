@@ -350,10 +350,19 @@ def test_compact_matrix_archives_passed_case_and_checks_archive_before_resume(tm
     record = first["cases"][0]
     archive_path = Path(record["compact_archive"]["archive_path"])
     assert first["status"] == "COMPLETED"
+    assert first["archive_profile"] == "legacy"
     assert record["compact_archive"]["raw_case_removed"] is True
     assert not Path(record["output_root"]).exists()
     assert archive_path.is_file()
     assert record["raw_output_removed_after_archive_verification"] is True
+
+    with pytest.raises(ValueError, match="different compact-archive profile"):
+        matrix.run_matrix(
+            design, phase="engineering", output_root=output_root,
+            raw_output_root=raw_root, compact_archive_root=archive_root,
+            run_case_fn=fake_runner, resume=True,
+            archive_profile="r22_v4_output_complete",
+        )
 
     second = matrix.run_matrix(
         design, phase="engineering", output_root=output_root,

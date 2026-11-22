@@ -20,6 +20,8 @@ def _estimate(**overrides):
         "delta_tau_ns": 3.75,
         "support_count": 2364,
         "frequency_span_hz": 50.0e6,
+        "sample_rate_hz": 60.0e6,
+        "delay_bounds_samples": [-0.49, 0.49],
         "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
         "truth_used_in_estimator": False,
         "baselines": {
@@ -38,6 +40,7 @@ def test_blind_method_gate_accepts_only_declared_b_on_raw_inputs():
         "status": "AVAILABLE", "correction_ns": 3.58,
         "source_record": {"delta_tau_ns": 3.58, "support_count": 2364},
         "support_qualified": True,
+        "delay_domain_qualified": True,
     }
     assert result["m1"]["correction_ns"] == 3.75
 
@@ -54,6 +57,7 @@ def test_missing_huber_estimate_is_explicitly_not_available():
     assert result["d3_huber"] == {
         "status": "NOT_AVAILABLE", "correction_ns": None,
         "source_record": None, "support_qualified": False,
+        "delay_domain_qualified": False,
     }
     assert result["m1"]["status"] == "AVAILABLE"
 
@@ -80,6 +84,23 @@ def test_huber_support_must_match_the_estimator_input_support():
     result = qualify_blind_methods(_estimate(
         baselines={"D3_Huber_weighted_LS": {"delta_tau_ns": 3.58, "support_count": 2000}},
     ))
+    assert result["d3_huber"]["status"] == "NOT_AVAILABLE"
+
+
+def test_huber_delay_slope_must_stay_inside_the_m1_declared_delay_domain():
+    result = qualify_blind_methods(_estimate(
+        sample_rate_hz=60.0e6,
+        delay_bounds_samples=[-0.49, 0.49],
+        baselines={"D3_Huber_weighted_LS": {"delta_tau_ns": 9.0, "support_count": 2364}},
+    ))
+    assert result["d3_huber"]["status"] == "NOT_AVAILABLE"
+    assert result["d3_huber"]["delay_domain_qualified"] is False
+    assert result["m1"]["status"] == "AVAILABLE"
+
+
+def test_blind_methods_fail_closed_when_delay_domain_metadata_is_missing():
+    result = qualify_blind_methods(_estimate(sample_rate_hz=None, delay_bounds_samples=None))
+    assert result["m1"]["status"] == "NOT_AVAILABLE"
     assert result["d3_huber"]["status"] == "NOT_AVAILABLE"
 
 

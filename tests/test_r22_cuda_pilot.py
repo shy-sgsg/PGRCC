@@ -1,6 +1,7 @@
 import json
 import math
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -13,6 +14,36 @@ def test_r22_case_identifier_encodes_physical_factors_and_sample_scale():
     assert value == (
         "confirmatory__seed_222001__vr_0d5__snr_20__delay_4ns__targets_20__periods_10"
     )
+
+
+def test_v4_driver_identity_records_nvidia_smi_versions(monkeypatch):
+    observed = []
+    monkeypatch.setattr(
+        r22.subprocess,
+        "run",
+        lambda command, **_kwargs: (
+            observed.append(command)
+            or SimpleNamespace(returncode=0, stdout="570.86.16\n", stderr="")
+        ),
+    )
+
+    identity = r22._cuda_driver_identity()
+
+    assert observed == [[
+        "nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader,nounits",
+    ]]
+    assert identity["driver_versions"] == ["570.86.16"]
+
+
+def test_v4_driver_identity_fails_closed_when_nvidia_smi_has_no_version(monkeypatch):
+    monkeypatch.setattr(
+        r22.subprocess,
+        "run",
+        lambda *_args, **_kwargs: SimpleNamespace(returncode=1, stdout="", stderr="unavailable"),
+    )
+
+    with pytest.raises(RuntimeError, match="no driver version"):
+        r22._cuda_driver_identity()
 
 
 def test_r22_zero_delay_reference_does_not_schedule_physical_blind_correction():
@@ -257,6 +288,179 @@ def test_r22_extra_correction_branches_share_configured_production_range(monkeyp
     assert all(call["xml_overrides"]["rg_ed"] == 1197 for call in calls)
 
 
+def test_causal_prefix_estimators_only_receive_periods_through_current_period(
+    monkeypatch, tmp_path: Path,
+):
+    paths = []
+    for period in range(3):
+        path = tmp_path / f"period_{period:04d}.bin"
+        path.write_bytes(f"period-{period}".encode())
+        paths.append(path)
+
+    estimator_inputs = []
+
+    def fake_estimator(prefix, _xml):
+        estimator_inputs.append([Path(item).name for item in prefix])
+        prefix_bytes = sum(len(Path(item).read_bytes()) for item in prefix)
+        return {
+            "marker": len(prefix),
+            "status": "ok",
+            "delta_tau_ns": float(prefix_bytes),
+            "truth_used_in_estimator": False,
+        }
+
+    def fake_qualify(estimate):
+        correction = estimate["delta_tau_ns"]
+        return {
+            "m1": {"status": "AVAILABLE", "correction_ns": correction},
+            "d3_huber": {"status": "AVAILABLE", "correction_ns": correction + 0.25},
+        }
+
+    monkeypatch.setattr(r22.r12, "_blind_m1_from_b_on", fake_estimator)
+    monkeypatch.setattr(r22.r21, "qualify_blind_methods", fake_qualify)
+
+    records = r22._causal_prefix_estimates(paths, tmp_path / "runtime.xml")
+
+    assert estimator_inputs == [
+        ["period_0000.bin"],
+        ["period_0000.bin", "period_0001.bin"],
+        ["period_0000.bin", "period_0001.bin", "period_0002.bin"],
+    ]
+    assert all(row["estimator_elapsed_sec"] >= 0.0 for row in records["M1_CAUSAL_PREFIX"])
+    assert records["M1_CAUSAL_PREFIX"][1]["prefix_period_ids"] == [0, 1]
+    assert records["M1_CAUSAL_PREFIX"][1]["applied_correction_ns"] == 16.0
+    assert records["HUBER_D3_CAUSAL_PREFIX"][1]["applied_correction_ns"] == 16.25
+    assert records["M1_CAUSAL_PREFIX"][0]["prefix_input_identities"] == [
+        {"period_id": 0, "path": str(paths[0].resolve()), "exists": True,
+         "bytes": paths[0].stat().st_size,
+         "sha256": r22.sha256_file(paths[0])}
+    ]
+    prefix_zero_before = records["M1_CAUSAL_PREFIX"][0]
+    paths[2].write_bytes(b"changed future period")
+    future_mutated = r22._causal_prefix_estimates(paths, tmp_path / "runtime.xml")
+    prefix_zero_after = future_mutated["M1_CAUSAL_PREFIX"][0]
+    assert prefix_zero_after["estimate_ns"] == prefix_zero_before["estimate_ns"]
+    assert prefix_zero_after["prefix_input_identities"] == prefix_zero_before["prefix_input_identities"]
+
+
+def test_causal_prefix_failure_uses_zero_for_that_period_without_prior_fallback(
+    monkeypatch, tmp_path: Path,
+):
+    paths = []
+    for period in range(2):
+        path = tmp_path / f"period_{period:04d}.bin"
+        path.write_bytes(bytes([period + 1]))
+        paths.append(path)
+
+    monkeypatch.setattr(
+        r22.r12, "_blind_m1_from_b_on",
+        lambda prefix, _xml: {"period": len(prefix), "truth_used_in_estimator": False},
+    )
+
+    def qualify(estimate):
+        status = "AVAILABLE" if estimate["period"] == 2 else "NOT_AVAILABLE"
+        return {
+            "m1": {"status": status, "correction_ns": 3.25 if status == "AVAILABLE" else None},
+            "d3_huber": {"status": "NOT_AVAILABLE", "correction_ns": None},
+        }
+
+    monkeypatch.setattr(r22.r21, "qualify_blind_methods", qualify)
+    records = r22._causal_prefix_estimates(paths, tmp_path / "runtime.xml")
+
+    m1 = records["M1_CAUSAL_PREFIX"]
+    assert [row["applied_correction_ns"] for row in m1] == [0.0, 3.25]
+    assert m1[0]["fallback_status"] == "ESTIMATOR_UNAVAILABLE_ZERO_CORRECTION"
+    assert m1[1]["fallback_status"] is None
+    assert records["HUBER_D3_CAUSAL_PREFIX"][0]["applied_correction_ns"] == 0.0
+
+
+def test_periodwise_delay_correction_uses_same_period_estimate(monkeypatch, tmp_path: Path):
+    source_paths = []
+    for period in range(3):
+        path = tmp_path / f"raw_{period}.bin"
+        path.write_bytes(b"raw")
+        source_paths.append(path)
+    observed = []
+
+    def rewrite(_source, destination, **kwargs):
+        observed.append((Path(destination).name, kwargs["delta_tau_sec"]))
+        Path(destination).write_bytes(b"corrected")
+        return {"status": "written"}
+
+    monkeypatch.setattr(r22.stage1, "rewrite_float32_protocol_delay", rewrite)
+    corrections = [
+        {"period_id": period, "applied_correction_ns": value}
+        for period, value in enumerate((0.0, 1.5, 3.25))
+    ]
+
+    outputs, audits = r22._delay_corrected_inputs_by_period(
+        tmp_path, "M1_CAUSAL_PREFIX", "ON", source_paths, corrections,
+        {"pulse_len": 1, "channel_count": 4, "fs_hz": 60.0e6,
+         "correction_channel_indices": [1, 2]},
+    )
+
+    assert len(outputs) == len(source_paths)
+    assert [item[0] for item in observed] == [f"period_{period:04d}.bin" for period in range(3)]
+    assert [item[1] for item in observed] == pytest.approx([0.0, 1.5e-9, 3.25e-9])
+    assert len(audits) == 3
+
+
+def test_causal_method_runs_one_continuous_production_branch_per_role(
+    monkeypatch, tmp_path: Path,
+):
+    raw_roles = {}
+    for role in ("ON", "OFF", "TO"):
+        role_paths = []
+        for period in range(3):
+            path = tmp_path / "raw" / role / f"period_{period:04d}.bin"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(f"{role}-{period}".encode())
+            role_paths.append(path)
+        raw_roles[role] = role_paths
+
+    def fake_correct(_root, _method, role, sources, estimates, _layout):
+        paths = []
+        for period, _source in enumerate(sources):
+            path = tmp_path / "corrected" / role / f"period_{period:04d}.bin"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"corrected")
+            paths.append(path)
+        return paths, [{"period_id": i, "applied_correction_ns": row["applied_correction_ns"]}
+                       for i, row in enumerate(estimates)]
+
+    calls = []
+    monkeypatch.setattr(r22, "_delay_corrected_inputs_by_period", fake_correct)
+    monkeypatch.setattr(
+        r22.stage1, "run_production_branch",
+        lambda *args, **kwargs: (calls.append((args, kwargs)) or {
+            "status": "passed", "production_returncode": 0,
+        }),
+    )
+    monkeypatch.setattr(r22.stage1, "audit_production_path_evidence", lambda _row: {"status": "passed"})
+    monkeypatch.setattr(r22.stage1, "_write_json", lambda *args, **kwargs: None)
+    estimates = [
+        {"period_id": i, "applied_correction_ns": float(i), "fallback_status": None}
+        for i in range(3)
+    ]
+
+    branches = r22._run_causal_prefix_delay_method(
+        tmp_path / "case", case_id="case-1", method_id="M1_CAUSAL_PREFIX",
+        period_estimates=estimates, raw_roles=raw_roles,
+        source_xml=tmp_path / "source.xml", truth_root=tmp_path / "truth",
+        layout={"beam_id": 50, "pulse_len": 1, "channel_count": 4, "fs_hz": 60.0e6},
+        production_config={"processing_range_start": 666, "processing_range_end": 1197},
+    )
+
+    assert [row["role"] for row in branches] == ["ON", "OFF", "TO"]
+    assert len(calls) == 3
+    for args, kwargs in calls:
+        assert args[5] == 3
+        input_dir = Path(args[2])
+        assert len(list(input_dir.glob("period_*.bin"))) == 3
+        assert args[6] == "local"
+    assert all(row["continuous_track_manager_run"] is True for row in branches)
+
+
 def test_r22_runner_loads_and_records_an_explicit_method_configuration(tmp_path: Path):
     config_path = r22.DEFAULT_METHOD_CONFIG
     scenario_path = tmp_path / "scenario.json"
@@ -322,3 +526,13 @@ def test_r22_rejects_any_production_branch_with_failed_evidence_gate(monkeypatch
     audited = r22._audit_production_branches(branches)
 
     assert not r22._all_production_branches_passed(audited)
+
+
+def test_v4_cleanup_does_not_delete_raw_input_before_response_verification(tmp_path: Path):
+    raw_input = tmp_path / "period_0000.bin"
+    raw_input.write_bytes(b"raw input")
+
+    with pytest.raises(FileNotFoundError, match="V4 target-response manifest is missing"):
+        r22._compact_case_artifacts(tmp_path, require_v4_response=True)
+
+    assert raw_input.read_bytes() == b"raw input"

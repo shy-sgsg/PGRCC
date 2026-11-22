@@ -19,7 +19,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.phase_r import run_r22_cuda_pilot as r22
-from scripts.phase_r.r22_compact_archive import archive_case_directory
+from scripts.phase_r.r22_compact_archive import archive_case_directory, verify_case_archive
 
 
 DEFAULT_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design.json"
@@ -232,6 +232,9 @@ def _ensure_compact_archive(
     manifest: dict[str, Any],
     manifest_path: Path,
     failure_archive_root: Path | None = None,
+    archive_profile: str = "legacy",
+    require_complete_output: bool = False,
+    prior_archive_verified: bool = False,
 ) -> None:
     case_root = _case_output_path(raw_base, str(record["output_root"]))
     selected_archive_base = (
@@ -250,10 +253,16 @@ def _ensure_compact_archive(
         recorded_path = Path(str(prior.get("archive_path", ""))).expanduser().resolve()
         if recorded_path != archive_path.resolve():
             raise ValueError(f"compact archive path changed for {record['case_id']}")
-        if not recorded_path.is_file():
-            raise FileNotFoundError(f"completed case archive is missing: {recorded_path}")
-        if r22.sha256_file(recorded_path) != prior.get("archive_sha256"):
-            raise ValueError(f"completed case archive SHA-256 mismatch: {recorded_path}")
+        if prior.get("archive_profile", "legacy") != archive_profile:
+            raise ValueError(f"compact archive profile changed for {record['case_id']}")
+        if not prior_archive_verified:
+            verify_case_archive(
+                recorded_path,
+                expected_sha256=str(prior.get("archive_sha256", "")),
+                expected_manifest_sha256=str(prior.get("archive_manifest_sha256", "")),
+                archive_profile=archive_profile,
+                require_complete_output=require_complete_output,
+            )
         compact_archive = dict(prior)
     else:
         if not case_root.is_dir():
@@ -264,6 +273,8 @@ def _ensure_compact_archive(
         _write_json_atomic(manifest_path, manifest)
         compact_archive = archive_case_directory(
             case_root, archive_path, raw_root=raw_base, remove_source=False,
+            archive_profile=archive_profile,
+            require_complete_output=require_complete_output,
         )
         record["compact_archive"] = compact_archive
         record["compact_archive_status"] = "ARCHIVE_VERIFIED"
@@ -299,8 +310,11 @@ def run_matrix(
     case_evaluator_fn: Callable[[Path, Mapping[str, Any]], Mapping[str, Any]] | None = None,
     failure_archive_root: Path | None = None,
     manifest_metadata: Mapping[str, Any] | None = None,
+    archive_profile: str = "legacy",
 ) -> dict[str, Any]:
     validate_design(design)
+    if archive_profile not in {"legacy", "r22_v4_output_complete"}:
+        raise ValueError(f"unknown R22 archive profile: {archive_profile}")
     if retry_interrupted and not resume:
         raise ValueError("retry_interrupted requires resume=True")
     specs = build_case_specs(design, phase)
@@ -343,6 +357,9 @@ def run_matrix(
             if isinstance(preflight_snapshot, Mapping):
                 manifest.setdefault("preflight_snapshots", []).append(dict(preflight_snapshot))
                 _write_json_atomic(manifest_path, manifest)
+        prior_archive_profile = manifest.get("archive_profile", "legacy")
+        if prior_archive_profile != archive_profile:
+            raise ValueError("cannot resume with a different compact-archive profile")
     else:
         if any(output_root.iterdir()):
             raise FileExistsError(f"refuse to use non-empty matrix output root: {output_root}")
@@ -351,6 +368,7 @@ def run_matrix(
             "design_id": design["design_id"],
             "design_sha256": digest,
             "phase": phase,
+            "archive_profile": archive_profile,
             "status": "RUNNING",
             "planned_case_count": len(build_case_specs(design, phase)),
             "cases": [],
@@ -380,6 +398,11 @@ def run_matrix(
                     archive_base=archive_base, manifest=manifest,
                     manifest_path=manifest_path,
                     failure_archive_root=failure_archive_base,
+                    archive_profile=archive_profile,
+                    require_complete_output=(
+                        archive_profile == "r22_v4_output_complete"
+                        and pending.get("status") in passed_states
+                    ),
                 )
             except Exception as exc:
                 pending["compact_archive_status"] = "PENDING"
@@ -412,20 +435,32 @@ def run_matrix(
         if previous and previous.get("status") in passed_states:
             if archive_base is not None:
                 prior_archive = previous.get("compact_archive")
+                prior_archive_verified = False
                 if prior_archive is not None:
                     if not isinstance(prior_archive, Mapping):
                         raise ValueError(f"invalid compact archive record for {case_id}")
-                    prior_path = Path(str(prior_archive.get("archive_path", "")))
-                    if not prior_path.is_file():
-                        raise FileNotFoundError(f"completed case archive is missing: {prior_path}")
-                    if r22.sha256_file(prior_path) != prior_archive.get("archive_sha256"):
-                        raise ValueError(f"completed case archive SHA-256 mismatch: {prior_path}")
+                    if prior_archive.get("archive_profile", "legacy") != archive_profile:
+                        raise ValueError(f"compact archive profile changed for {case_id}")
+                    verify_case_archive(
+                        Path(str(prior_archive.get("archive_path", ""))),
+                        expected_sha256=str(prior_archive.get("archive_sha256", "")),
+                        expected_manifest_sha256=str(prior_archive.get("archive_manifest_sha256", "")),
+                        archive_profile=archive_profile,
+                        require_complete_output=(archive_profile == "r22_v4_output_complete"),
+                    )
+                    prior_archive_verified = True
                 try:
                     _ensure_compact_archive(
                         previous, phase=phase, raw_base=raw_base,
                         archive_base=archive_base, manifest=manifest,
                         manifest_path=manifest_path,
                         failure_archive_root=failure_archive_base,
+                        archive_profile=archive_profile,
+                        require_complete_output=(
+                            archive_profile == "r22_v4_output_complete"
+                            and previous.get("status") in passed_states
+                        ),
+                        prior_archive_verified=prior_archive_verified,
                     )
                     if manifest.get("status") == "ARCHIVE_PENDING":
                         manifest["status"] = "RUNNING"
@@ -486,24 +521,29 @@ def run_matrix(
         manifest["active_case_output_root"] = str(case_root)
         _write_json_atomic(manifest_path, manifest)
         try:
+            case_kwargs = {
+                "phase": phase,
+                "seed": spec["seed"],
+                "speed_mps": spec["speed_mps"],
+                "snr_db": spec["snr_db"],
+                "delay_ns": spec["delay_ns"],
+                "target_count": spec["target_count"],
+                "period_count": spec["period_count"],
+                "first_beam": spec["first_beam"],
+                "beam_count": spec["beam_count"],
+                "stage2_binary": Path(stage2_binary or r22.DEFAULT_STAGE2),
+                "production_binary": Path(production_binary or r22.DEFAULT_PRODUCTION),
+                "template": _relative_path(str(template) if template else spec.get("scenario_template")) or r22.DEFAULT_TEMPLATE,
+                "method_config_path": _relative_path(str(method_config) if method_config else spec.get("method_config")) or r22.DEFAULT_METHOD_CONFIG,
+                "method_ids": tuple(spec["method_ids"]),
+                "calibration_modes": tuple(spec["calibration_modes"]),
+                "area": spec["area"],
+            }
+            if archive_profile == "r22_v4_output_complete":
+                case_kwargs["v4_output_complete"] = True
             result = dict(case_runner(
                 case_root,
-                phase=phase,
-                seed=spec["seed"],
-                speed_mps=spec["speed_mps"],
-                snr_db=spec["snr_db"],
-                delay_ns=spec["delay_ns"],
-                target_count=spec["target_count"],
-                period_count=spec["period_count"],
-                first_beam=spec["first_beam"],
-                beam_count=spec["beam_count"],
-                stage2_binary=Path(stage2_binary or r22.DEFAULT_STAGE2),
-                production_binary=Path(production_binary or r22.DEFAULT_PRODUCTION),
-                template=_relative_path(str(template) if template else spec.get("scenario_template")) or r22.DEFAULT_TEMPLATE,
-                method_config_path=_relative_path(str(method_config) if method_config else spec.get("method_config")) or r22.DEFAULT_METHOD_CONFIG,
-                method_ids=tuple(spec["method_ids"]),
-                calibration_modes=tuple(spec["calibration_modes"]),
-                area=spec["area"],
+                **case_kwargs,
             ))
             if case_evaluator_fn is None:
                 state = _case_state(phase, result)
@@ -551,6 +591,11 @@ def run_matrix(
                     archive_base=archive_base, manifest=manifest,
                     manifest_path=manifest_path,
                     failure_archive_root=failure_archive_base,
+                    archive_profile=archive_profile,
+                    require_complete_output=(
+                        archive_profile == "r22_v4_output_complete"
+                        and record.get("status") in passed_states
+                    ),
                 )
             except Exception as exc:
                 record["compact_archive_status"] = "PENDING"
@@ -605,6 +650,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--max-cases", type=int)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument(
+        "--archive-profile", choices=("legacy", "r22_v4_output_complete"),
+        default="legacy",
+        help="V4 preserves all per-period Detection and TrackManager/PIPE evidence",
+    )
+    parser.add_argument(
         "--retry-interrupted", action="store_true",
         help="start a new attempt after preserving an interrupted case record",
     )
@@ -624,6 +674,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_cases=args.max_cases,
             resume=args.resume,
             retry_interrupted=args.retry_interrupted,
+            archive_profile=args.archive_profile,
         )
     except Exception as exc:
         print(f"[r22_experiment_matrix][ERROR] {type(exc).__name__}: {exc}")

@@ -258,6 +258,7 @@ def _blind_m1_from_b_on(
     estimate["beam_angle_deg_min"] = float(min(angles))
     estimate["beam_angle_deg_max"] = float(max(angles))
     estimate["reported_geometry_delay_ns"] = float(geometry_delay[0] * 1.0e9)
+    estimate["sample_rate_hz"] = fs_hz
     estimate["truth_used_in_estimator"] = False
     return estimate
 

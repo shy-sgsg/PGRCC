@@ -219,26 +219,49 @@ def qualify_blind_methods(estimate: Mapping[str, Any]) -> dict[str, Any]:
         frequency_span_hz = float(estimate.get("frequency_span_hz"))
     except (TypeError, ValueError, OverflowError):
         support_count, d3_support_count, frequency_span_hz = 0, 0, math.nan
+    try:
+        sample_rate_hz = float(estimate.get("sample_rate_hz"))
+        bounds = estimate.get("delay_bounds_samples")
+        lower, upper = float(bounds[0]), float(bounds[1])
+        if (not math.isfinite(sample_rate_hz) or sample_rate_hz <= 0.0
+                or not math.isfinite(lower) or not math.isfinite(upper) or lower >= upper):
+            raise ValueError("invalid delay-domain metadata")
+    except (TypeError, ValueError, IndexError, KeyError, OverflowError):
+        sample_rate_hz, lower, upper = math.nan, math.nan, math.nan
+
+    def in_delay_domain(value_ns: float) -> bool:
+        if not all(math.isfinite(value) for value in (value_ns, sample_rate_hz, lower, upper)):
+            return False
+        samples = value_ns * sample_rate_hz * 1.0e-9
+        return lower < samples < upper
+
     input_support_qualified = (
         support_count >= 8
         and math.isfinite(frequency_span_hz)
         and frequency_span_hz >= 3.0e6
     )
     d3_support_qualified = input_support_qualified and d3_support_count == support_count
-    m1_available = estimate.get("status") == "ok" and math.isfinite(m1_ns) and input_support_qualified
-    d3_available = math.isfinite(d3_ns) and d3_support_qualified
+    m1_domain_qualified = in_delay_domain(m1_ns)
+    d3_domain_qualified = in_delay_domain(d3_ns)
+    m1_available = (
+        estimate.get("status") == "ok" and math.isfinite(m1_ns)
+        and input_support_qualified and m1_domain_qualified
+    )
+    d3_available = math.isfinite(d3_ns) and d3_support_qualified and d3_domain_qualified
     return {
         "input_role": input_role,
         "truth_used_in_estimator": False,
         "d3_huber": {"status": "AVAILABLE" if d3_available else "NOT_AVAILABLE", "correction_ns": d3_ns if d3_available else None,
                      "source_record": d3_record if d3_available else None,
-                     "support_qualified": d3_support_qualified},
+                     "support_qualified": d3_support_qualified,
+                     "delay_domain_qualified": d3_domain_qualified},
         "m1": {"status": "AVAILABLE" if m1_available else "NOT_AVAILABLE", "correction_ns": m1_ns if m1_available else None,
                "source_record": {key: estimate.get(key) for key in (
                    "method", "status", "delta_tau_ns", "support_count", "frequency_span_hz",
                    "normalized_model_residual", "relative_response_model", "fallback_reason",
                )} if m1_available else None,
-               "support_qualified": input_support_qualified},
+               "support_qualified": input_support_qualified,
+               "delay_domain_qualified": m1_domain_qualified},
     }
 
 
