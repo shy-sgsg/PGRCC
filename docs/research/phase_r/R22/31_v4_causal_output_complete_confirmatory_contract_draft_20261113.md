@@ -3,7 +3,22 @@
 > **状态：** `DRAFT_NOT_FROZEN`。本文件只定义建议的实验契约，不代表实现完成、实验已执行或 CUDA 已获授权。<br>
 > **研究总纲：** `docs/research/RESEARCH_MASTER_PLAN.md`，本次基线 blob `e637e3769bde7814298ff012d0f42301884e2985`（正文不修改）。<br>
 > **拟稿基线：** `codex/unknown-system-error-next-stage`，authoring base `4a2f51aef8ecea2ff1eee5278d6cc93b36131560`。<br>
-> **启动门：** MDE、检测覆盖率非劣界值、同信息 Huber 前缀实现审计、输出/估计器实现审计、资源 pilot 和用户 CUDA 授权均未闭合。`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。
+> **启动门：** MDE、检测覆盖率非劣界值、独立源码审查、资源 pilot 和用户 CUDA 授权均未闭合。`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。
+
+## 2026-11-22 冻结前工程实现更新
+
+本更新只记录周期因果 runner、逐格目标响应和输出完整归档的实现状态；不修改研究总纲、实验因素、参数、门槛、MDE 或统计设计。机器状态与当前代码 SHA 见同目录配置及阶段报告。
+
+| 项目 | IMPLEMENTED | EXECUTED | EVALUABLE | PERFORMANCE_VERIFIED |
+|---|---:|---:|---:|---:|
+| M1/Huber `{0..k}` 前缀估计与当前期校正 | 是 | 否（未运行估计器/Production） | 否 | 否 |
+| 未来期隔离、周期零校正 fallback | 是（定向 CPU 测试） | 仅测试代码路径 | 否（无真实 case） | 否 |
+| 全目标、全周期、全方法/角色 CSI 后逐格复数 ROI | 是（定向合成数据测试） | 仅测试提取器 | 否（无真实 CUDA tap） | 否 |
+| 全周期 Detection、TrackManager/PIPE 与 CFAR 输出完整归档门 | 是（合成归档与损坏续跑测试） | 仅 CPU 测试 | 否（无真实 Production archive） | 否 |
+
+当前实现的 Huber D3 与 M1 共用同一前缀估计调用、频率支持选择和物理 delay-domain 边界；区别仅是估计规则。前缀无效时，各方法独立使用当前周期零校正，不沿用历史估计或互相 fallback。CSI 目标响应仅作 `CSI_AFTER` 的固定 truth-centered ROI 复数记录；不同 ON/OFF/TO 自适应处理不假设线性闭合，差值只作诊断。
+
+本次定向 CPU 测试通过不构成 Native CUDA/Production 执行证据。当前 `DRAFT_NOT_FROZEN`、`CUDA_AUTHORIZED=false`、`AI_TRAINING=false`。真实输出尺寸、耗时、磁盘峰值/续跑与实际设备证据仍须在单独授权的代表性尺寸 pilot 中取得；MDE 和检测覆盖非劣界值仍待工程需求方批准。
 
 ## 1. 目的与研究位置
 
@@ -56,7 +71,7 @@ H0 的 0 ns branch 为 A0 no-error；+4 ns branch 包括 C0、Fixed D3、Huber D
 | A0 no-error | 0 ns 目标/杂波配对参考 | 不施加非零校正 |
 | C0 Current | +4 ns 输入，不校正 | 当前失配基线 |
 | Fixed D3 | +4 ns；固定校正 `3.4099650318669545 ns` | R9 静态标定值，来自 R3 seed101 的 target-free `A1_OFF` C+N；来源为 `docs/research/phase_r/R9_static_calibration_baseline.md`，原 IQ SHA-256 为 `d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6`。原 IQ 已清理、该值不能从原始 IQ 独立重算；V4 只沿用记录的固定值，不重拟合、不按 V4 seed/检测结果调参；它不是本 case 盲估计或 `+4 ns` 真值输入。 |
-| Huber D3 Causal Prefix | +4 ns；将审计确认的几何校正、幅度加权 Huber phase-slope D3 应用于每周期当前及历史 ON raw C1/C2 前缀 | 与 M1 使用相同观测、周期前缀、几何和校正算子；不读 OFF/TO、真值或未来周期。现有代码只有 full-case batch 版本；V4 前缀 runner 尚未实现。 |
+| Huber D3 Causal Prefix | +4 ns；将审计确认的几何校正、幅度加权 Huber phase-slope D3 应用于每周期当前及历史 ON raw C1/C2 前缀 | 与 M1 使用相同观测、周期前缀、几何、支持 mask、delay-domain 和校正算子；不读 OFF/TO、真值或未来周期。当前源码已实现，尚未在实际 CUDA case 执行。 |
 | M1 Causal Prefix | +4 ns；仅使用当前及历史周期的 target-present ON 原始 C1/C2 | V4 主要待确认条件；禁止读取 OFF、TO、真值或未来周期 |
 | M1 Batch-10 diagnostic | +4 ns；使用同一 ON case 的完整十周期 | 使用未来周期的信息；只能标记为离线诊断，排除在线主排名和部署收益主张 |
 | PK Known correction | +4 ns；真值仅用于 evaluator-only 物理校正 | 已知误差校正上限，不是可部署盲估计器 |
@@ -65,14 +80,14 @@ H0 的 0 ns branch 为 A0 no-error；+4 ns branch 包括 C0、Fixed D3、Huber D
 
 ### 3.1 现有实现源码审计
 
-只读审计基线为 `1063d67c96af7dbbe7fe871b3a56be0ca453b9b2`；本次仅检查源码，没有执行估计器、Production 或 CUDA。
+只读审计基线为 `1063d67c96af7dbbe7fe871b3a56be0ca453b9b2`；以下描述记录该源码快照当时的行为，不代表 2026-11-22 当前工作树仍未实现。
 
 - `scripts/phase_r/run_r22_cuda_pilot.py:_raw_role_periods` 为每个角色取完整 `period_count` 个周期；`run_case` 随后将全部 A1/ON 路径一次性传给 `r12._blind_m1_from_b_on`。该调用没有当前周期 `k` 或截止周期参数。
 - `scripts/phase_r/run_r12_physics_matched_delay.py:_blind_m1_from_b_on` 逐个读取传入路径、把 C1/C2 pulse 矩阵拼接后只估计一次；几何相位也覆盖全部传入 packet。当前函数没有逐周期结果或前缀输入身份校验。
 - 现有同输入 Huber 候选来自 `scripts/phase_r/physics_matched_delay.py:_slope_baselines`：对 `observed_cross / geometry_cross` 的展开相位做幅度加权斜率拟合。它复用 M1 选出的同一频率 mask（有限非零的 observed/geometry cross、非零频率，且 observed-cross 幅度不低于有效频点第80百分位），因此这是**共享 M1 支持选择与几何的估计规则对照**，不是独立的端到端预处理/选频基线。`scripts/estimate_channel_delay.py:fit_weighted_line` 的 `robust=True` 使用12次迭代、`1.4826 × MAD` 尺度（下限 `1e-6`）及标准化 Huber 截点 `1.345`。R21 qualification 要求至少8个支持频点、频率跨度至少3 MHz、有限 D3 值且 D3/M1 支持数相同；但它不检查 D3 结果是否落在 M1 的 `(-0.49, 0.49)` sample delay bounds 内。V4 必须冻结该共享 mask 是否为目标对照的设计选择，以及 Huber 自己的有效范围和失败/fallback 规则。这一候选不得与固定 R9 D3 校正值混称。
 - `scripts/phase_r/run_r22_cuda_pilot.py:_run_extra_delay_method` 接收一个 case 级 `estimate_ns`，并将同一标量用于全部周期、全部 ON/OFF/TO role 的输入改写。现有 R21/R22 pilot 因此均是整 case batch 估计与整 case 标量校正，不是 V4 所定义的逐周期因果处理。
 
-**审计状态：** full-case batch M1 与上述 Huber D3 已有源码实现；V4 的 period-prefix 调度、逐周期估计、当前周期校正和未来周期隔离尚未实现或执行。V3.3 的 batch 结果不能作为 V4 因果实现或性能证据。V4 冻结前必须新增并审查：带明确 `period_id` 的有序前缀 `{0,…,k}`；M1/Huber 对同一前缀输入和共享 mask 的配对身份；冻结 Huber delay-domain/有效性/fallback 规则；每个前缀只将估计校正应用到当前周期的 ON/OFF/TO；失败时当周期显式 C0 零校正并进入全策略分母；逐周期 correction、输入和产物身份。代码必须证明 `k+1…9` 的样本未进入估计。
+**截至只读审计快照的状态：** full-case batch M1 与上述 Huber D3 已有源码实现；V4 period-prefix runner 尚未实现或执行。V3.3 的 batch 结果不能作为 V4 因果实现或性能证据。2026-11-22 的工程实现更新和剩余验证门见本文件开头；不得把 CPU 隔离测试写成 CUDA 证据。
 
 ### 3.2 M1 周期因果定义
 
@@ -101,7 +116,7 @@ M1 Batch-10 diagnostic 每个 case 只生成一次十周期估计；其可使用
 - V4 冻结前必须实现并静态/离线审查一个固定且方法间共享的目标复数响应提取 schema：记录具名处理 tap、固定 ROI 坐标/边界、逐格复数值、逐格到目标与信号注入真值的映射，以及提取源码/配置身份。应优先使用配对 TO signal-only Production 输出，并在同一 evaluator ROI 对照；CSI 后处理 ROI 摘要只能作为单独诊断。缺少上述数据时，目标保持指标为 `NOT_EVALUABLE`，不可启动确认矩阵。
 - V4 必须建立独立版本化的 compact archive allowlist，明确保留全部 10 期 Detection、Production candidates/clusters 与 lineage、CFAR geometry/valid-CUT/unique-hit 统计、生产 TrackManager 帧/事件/关联 Detection/PIPE payload 与逐字段来源、上述目标逐格复数响应、估计器逐期审计，以及复现所需身份和日志。只有归档成员清单核验确认这些内容完整后，才能清理对应的可再生 raw；不得用现有 R22 compact archive 的裁剪规则静默替代。
 
-**审计结论：** Production runner 有生成检测和 TrackManager 调试输出的路径，但默认归档器会删除 V4 所需的多期与逐帧证据；现有 target-transfer helper 也只提供 CSI ROI 汇总。V4 输出 schema/归档实现仍为 `IMPLEMENTED=false / EXECUTED=false / EVALUABLE=false`。正式尺寸 pilot 前必须先完成 V4 allowlist 与目标复数响应输出；pilot 需要覆盖各 branch kind，并实测完整保留策略下的压缩大小、临时峰值、耗时和可续跑恢复，不以 V3.2 compact archive 大小线性外推。
+**截至只读审计快照的结论：** Production runner 有生成检测和 TrackManager 调试输出的路径，但默认归档器会删除 V4 所需的多期与逐帧证据；现有 target-transfer helper 也只提供 CSI ROI 汇总。2026-11-22 当前源码已增加独立 V4 archive profile 和逐格响应提取；它们只通过 CPU 合成 schema/归档测试，仍未由真实 Production 数据评价。正式尺寸 pilot 仍需覆盖各 branch kind，并实测完整保留策略下的压缩大小、临时峰值、耗时和可续跑恢复，不以 V3.2 compact archive 大小线性外推。
 
 ## 4. 主要终点、保护门与统计单位
 
@@ -215,4 +230,4 @@ V3.2 archive 只保留部分时期 Detection，且不含逐帧 TrackManager debu
 5. 对全部 target/H0 seed 和输入身份做最终碰撞审计；
 6. 用户单独明确授权完整输出尺寸 pilot / CUDA Production；确认 pilot 结果与磁盘恢复机制后，再请求或批准完整矩阵。
 
-本文件没有修改研究总纲、算法源码、实验参数或 V3.2/V3.3 历史结果。当前裁决为：**契约草案可供独立审查；冻结与 CUDA 执行均未授权。**
+本文件及当前工作树没有修改研究总纲、信号处理算法、实验参数或 V3.2/V3.3 历史结果。本次只实现周期调度、资格门、证据提取/验证和归档续跑逻辑，未运行 Stage2、估计器、Production、Native CUDA、尺寸 pilot 或确认矩阵。当前裁决为：**工程实现可供独立源码审查；MDE/非劣界值、实际 CUDA/尺寸 pilot 和用户授权仍未闭合；契约保持草案，冻结与 CUDA 执行均未授权。**

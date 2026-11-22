@@ -7,8 +7,8 @@
   "ai_training": false,
   "router_enabled": false,
   "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
-  "updated_on": "2026-11-14",
-  "draft_revision": 3,
+  "updated_on": "2026-11-22",
+  "draft_revision": 4,
   "case_identity_semantics": "240 unique case identities are paired/nested by seed; they are not 240 statistically independent samples",
   "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
   "supersedes": null,
@@ -23,10 +23,16 @@
     "use_corex": false,
     "beam": 50,
     "period_count": 10,
-    "range_bins_inclusive": [666, 1197],
+    "range_bins_inclusive": [
+      666,
+      1197
+    ],
     "group_width_bins": 133,
     "area_clutter": {
-      "range_window_m": [84500.0, 85500.0],
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
       "mean_power": 0.02,
       "texture_sigma": 0.25,
       "temporal_correlation_rho": 0.98,
@@ -35,20 +41,41 @@
     }
   },
   "target_present": {
-    "seed_range_inclusive": [1933001, 1933030],
+    "seed_range_inclusive": [
+      1933001,
+      1933030
+    ],
     "seed_count": 30,
     "seed_audit": "reserved_by_v3_2_confirmatory_design; re-audit all manifests and archives before freeze",
-    "radial_speed_mps": [0.5, 2.5, 6.7],
+    "radial_speed_mps": [
+      0.5,
+      2.5,
+      6.7
+    ],
     "target_snr_db": 20.0,
-    "delay_error_ns": [0.0, 4.0],
+    "delay_error_ns": [
+      0.0,
+      4.0
+    ],
     "target_count": 20,
     "case_count": 180,
     "production_branch_count": 1260,
     "pairing": "same seed, speed, geometry, target state, clutter/noise realization; only channel-delay intervention changes",
-    "roles": ["ON", "TO"],
+    "roles": [
+      "ON",
+      "TO"
+    ],
     "methods": [
-      {"id": "A0", "delay_ns": 0.0, "role": "no-error reference"},
-      {"id": "C0", "delay_ns": 4.0, "role": "uncorrected current"},
+      {
+        "id": "A0",
+        "delay_ns": 0.0,
+        "role": "no-error reference"
+      },
+      {
+        "id": "C0",
+        "delay_ns": 4.0,
+        "role": "uncorrected current"
+      },
       {
         "id": "FIXED_D3",
         "delay_ns": 4.0,
@@ -73,25 +100,49 @@
         "known_gate_gap": "current R21 qualifier does not enforce the M1 delay_bounds_samples on the D3 estimate; freeze Huber-specific delay-domain validity before V4",
         "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
       },
-      {"id": "M1_CAUSAL_PREFIX", "delay_ns": 4.0, "role": "primary target-present period-causal estimator"},
-      {"id": "M1_BATCH10_DIAGNOSTIC", "delay_ns": 4.0, "role": "full-case offline diagnostic; excluded from online ranking"},
-      {"id": "PK_KNOWN", "delay_ns": 4.0, "role": "known-error correction upper bound; evaluator-only truth"}
+      {
+        "id": "M1_CAUSAL_PREFIX",
+        "delay_ns": 4.0,
+        "role": "primary target-present period-causal estimator"
+      },
+      {
+        "id": "M1_BATCH10_DIAGNOSTIC",
+        "delay_ns": 4.0,
+        "role": "full-case offline diagnostic; excluded from online ranking"
+      },
+      {
+        "id": "PK_KNOWN",
+        "delay_ns": 4.0,
+        "role": "known-error correction upper bound; evaluator-only truth"
+      }
     ]
   },
   "h0": {
-    "candidate_seed_range_inclusive": [1936001, 1936030],
+    "candidate_seed_range_inclusive": [
+      1936001,
+      1936030
+    ],
     "seed_count": 30,
     "seed_audit": "initial text, path, and zip-filename scan found no collision; full registry audit required before freeze",
     "target_count": 0,
-    "delay_error_ns": [0.0, 4.0],
+    "delay_error_ns": [
+      0.0,
+      4.0
+    ],
     "period_count": 10,
     "case_count": 60,
     "production_branch_count": 210,
     "paired_by_seed": true,
     "reuse_v3_2_h0_seeds": false,
     "methods": [
-      {"id": "A0", "delay_ns": 0.0},
-      {"id": "C0", "delay_ns": 4.0},
+      {
+        "id": "A0",
+        "delay_ns": 0.0
+      },
+      {
+        "id": "C0",
+        "delay_ns": 4.0
+      },
       {
         "id": "FIXED_D3",
         "delay_ns": 4.0,
@@ -111,9 +162,20 @@
         "algorithm_identity": "freeze exact implementation, weights, support rule, and source commit before execution",
         "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
       },
-      {"id": "M1_CAUSAL_PREFIX", "delay_ns": 4.0},
-      {"id": "M1_BATCH10_DIAGNOSTIC", "delay_ns": 4.0, "online_ranking": false},
-      {"id": "PK_KNOWN", "delay_ns": 4.0, "truth_use": "evaluator_only"}
+      {
+        "id": "M1_CAUSAL_PREFIX",
+        "delay_ns": 4.0
+      },
+      {
+        "id": "M1_BATCH10_DIAGNOSTIC",
+        "delay_ns": 4.0,
+        "online_ranking": false
+      },
+      {
+        "id": "PK_KNOWN",
+        "delay_ns": 4.0,
+        "truth_use": "evaluator_only"
+      }
     ],
     "primary_false_alarm_endpoint": "seed-clustered proportion of valid beam-50 periods with >=1 frozen postfilter Detection",
     "supporting_endpoints": [
@@ -125,7 +187,7 @@
   },
   "causal_estimator": {
     "method_id": "M1_CAUSAL_PREFIX",
-    "v4_causal_prefix_implemented": false,
+    "v4_causal_prefix_implemented": true,
     "v4_causal_prefix_executed": false,
     "allowed_inputs": [
       "same-case target-present ON raw C1/C2 pulses from periods 0 through current period k",
@@ -142,7 +204,30 @@
     "application_timing": "fit after period k input is complete and before Production processes period k",
     "causality_scope": "period-boundary causal; not pulse-by-pulse real-time proof",
     "failure_policy": "explicit zero-correction C0 for that period; log ESTIMATOR_UNAVAILABLE_ZERO_CORRECTION; count all opportunities; no previous-estimate, Fixed D3, batch, paired-reference, or Known fallback",
-    "required_diagnostics": ["prefix_period_ids", "pulse_count", "input_identity", "estimate", "fit_diagnostics", "applied_correction", "runtime", "status"]
+    "required_diagnostics": [
+      "prefix_period_ids",
+      "pulse_count",
+      "input_identity",
+      "estimate",
+      "fit_diagnostics",
+      "applied_correction",
+      "runtime",
+      "status",
+      "estimator_elapsed_sec",
+      "applied_correction_ns",
+      "fallback_status"
+    ],
+    "implementation_status": {
+      "IMPLEMENTED": true,
+      "EXECUTED": false,
+      "EVALUABLE": false,
+      "PERFORMANCE_VERIFIED": false
+    },
+    "prefix_runner": "scripts/phase_r/run_r22_cuda_pilot.py::_causal_prefix_estimates",
+    "period_correction_runner": "scripts/phase_r/run_r22_cuda_pilot.py::_run_causal_prefix_delay_method",
+    "qualification_policy": "M1 and Huber use the same prefix estimator call, support selection, support count, frequency span, and physical delay_bounds_samples; Huber is qualified against the same declared correction domain",
+    "failure_behavior": "each estimator independently applies zero correction for its unavailable current period; no previous-period, peer-estimator, Fixed D3, batch, OFF/TO, or Known fallback",
+    "cpu_future_period_test": "mutating a later-period file leaves the current-period estimate and prefix identities unchanged; mocked estimator receives exactly paths 0..k"
   },
   "existing_source_audit": {
     "source_audit_commit": "1063d67c96af7dbbe7fe871b3a56be0ca453b9b2",
@@ -151,16 +236,19 @@
     "m1_estimator_scope": "run_r12_physics_matched_delay._blind_m1_from_b_on concatenates C1/C2 samples from every passed period and estimates once; no period-k cutoff or period IDs",
     "huber_candidate_scope": "physics_matched_delay._slope_baselines computes a geometry-corrected magnitude-weighted robust phase-slope estimate from the same pooled input used by M1",
     "huber_mask_coupling": "Huber D3 reuses the M1-selected support mask: finite nonzero observed/geometry cross, nonzero frequencies, observed_cross magnitude at or above the 80th percentile of valid bins",
-    "huber_domain_gap": "R21 qualifier checks finite D3 value, support >= 8, frequency span >= 3 MHz and support parity with M1, but has no explicit D3 delay-domain bound",
-    "production_correction_scope": "run_r22_cuda_pilot._run_extra_delay_method accepts one case-level scalar estimate_ns and applies it to every period for ON/OFF/TO",
-    "v4_period_causal_runner": {"implemented": false, "executed": false, "evaluable": false, "performance_verified": false},
+    "huber_domain_gap": "Closed in the current implementation: D3 must share M1 support qualification and lie strictly inside the estimator declared delay_bounds_samples; no Huber estimate outside that physical domain is applied.",
+    "production_correction_scope": "Legacy batch runner remains available; V4 opt-in path corrects only the current period using that period’s causal-prefix estimate and processes each role as one continuous TrackManager run.",
+    "v4_period_causal_runner": {
+      "implemented": true,
+      "executed": false,
+      "evaluable": false,
+      "performance_verified": false,
+      "implementation_source": "scripts/phase_r/run_r22_cuda_pilot.py",
+      "cpu_verification": "prefix isolation, per-period correction, zero fallback and continuous-per-role invocation unit tests"
+    },
     "required_before_freeze": [
-      "ordered period_id mapping and explicit 0..k prefix input for both M1 and Huber",
-      "same prefix identity and geometry for the paired estimators",
-      "freeze whether the M1-shared frequency mask is intended for Huber and define Huber-specific delay-domain, validity, and fallback rules",
-      "per-period estimate and current-period-only correction application to paired ON/OFF/TO roles",
-      "no-future-period data access audit",
-      "explicit current-period zero-correction fallback in the policy denominator"
+      "independent source review of prefix input isolation, shared Huber information/mask/domain and current-period-only correction",
+      "authorized Native CUDA/Production pilot to evaluate actual estimator output, runtime, role triplets and fallback behavior"
     ]
   },
   "output_schema_source_audit": {
@@ -169,17 +257,33 @@
     "production_runner": "scripts/run_delay_stage1_formal.py::run_production_branch maps period inputs individually and requests track-debug-dir, track-debug-dump=on, runtime-mode=debug, and runtime-diagnostics=on; it can emit per-period detection_results_GMTI*.csv and TrackManager debug output",
     "default_compact_archive_gap": "scripts/phase_r/r22_compact_archive.py::_exclusion_reason drops all track_debug_runs and all ON detection_results_GMTI*.csv except GMTI09; this policy loses V4-required all-period Detection and TrackManager/PIPE lineage",
     "existing_target_response_helper": "scripts/phase_r/evaluate_r3_minimal_cuda_causal_pilot.py::_target_transfer reads ON/OFF/TO CSI taps, extracts truth-centered 5x5 CSI ROIs, computes an aggregate complex transfer and per-period center/power summaries, but does not retain per-cell complex values with complete ROI/injection-truth mapping; it is diagnostic and does not satisfy the V4 target-only complex-response archive contract",
-    "output_schema_ready": false,
+    "output_schema_ready": true,
     "required_before_freeze": [
-      "implement and review a fixed shared target-response tap/ROI schema storing every complex sample, ROI coordinates, target and signal-injection truth mapping, and extractor/config identity",
-      "version a V4 compact-archive allowlist retaining all ten Detection periods, candidates/clusters/lineage, CFAR geometry and valid-CUT/unique-hit summaries, TrackManager frame/event/detection/PIPE lineage, target complex responses, estimator diagnostics, and required execution identities",
-      "verify the compact archive member inventory is output-complete before deleting reconstructible raw data",
-      "measure compressed/uncompressed size, temporary peak, runtime, and resume behavior on an authorized representative pilot covering every branch kind"
+      "independently review actual Production schema assumptions and all-period Detection/TrackManager/PIPE/CFAR archive gates",
+      "authorized representative complete-output pilot must validate real branch inventory, compressed/uncompressed sizes, temporary peak, runtime, resume and cleanup ledger",
+      "do not remove any case raw outputs until archive identity, required member inventory, SHA and CRC verification pass"
+    ],
+    "implementation_status": {
+      "IMPLEMENTED": true,
+      "EXECUTED": false,
+      "EVALUABLE": false,
+      "PERFORMANCE_VERIFIED": false
+    },
+    "implementation_sources": [
+      "scripts/phase_r/r22_v4_evidence.py",
+      "scripts/phase_r/r22_compact_archive.py",
+      "scripts/phase_r/r22_experiment_matrix.py"
     ]
   },
   "primary_comparison": {
-    "condition": {"delay_error_ns": 4.0, "target_snr_db": 20.0},
-    "methods": ["M1_CAUSAL_PREFIX", "FIXED_D3"],
+    "condition": {
+      "delay_error_ns": 4.0,
+      "target_snr_db": 20.0
+    },
+    "methods": [
+      "M1_CAUSAL_PREFIX",
+      "FIXED_D3"
+    ],
     "endpoint": "paired seed-level equal-weight mean across three speed strata of position RMSE difference on frozen common correctly associated target-period opportunities",
     "contrast": "M1_CAUSAL_PREFIX minus FIXED_D3; negative favors M1",
     "inferential_unit": "independent seed",
@@ -189,7 +293,10 @@
     "threshold_status": "PENDING_ENGINEERING_REQUIREMENTS; do not freeze or run until approved"
   },
   "secondary_information_matched_comparison": {
-    "methods": ["M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"],
+    "methods": [
+      "M1_CAUSAL_PREFIX",
+      "HUBER_D3_CAUSAL_PREFIX"
+    ],
     "same_information": true,
     "endpoint": "paired seed-level position RMSE on the same common correctly associated target-period opportunities",
     "contrast": "M1_CAUSAL_PREFIX minus HUBER_D3_CAUSAL_PREFIX; negative favors M1",
@@ -198,7 +305,15 @@
   },
   "planning_only_historical_screening": {
     "source_opportunity_audit": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/evidence/parameter_opportunity_audit.csv.gz",
-    "condition_slice": {"delay_error_ns": 4.0, "target_snr_db": 20.0, "radial_speed_mps": [0.5, 2.5, 6.7]},
+    "condition_slice": {
+      "delay_error_ns": 4.0,
+      "target_snr_db": 20.0,
+      "radial_speed_mps": [
+        0.5,
+        2.5,
+        6.7
+      ]
+    },
     "screening_seed_count": 12,
     "estimators_used_full_10_period_batch": true,
     "position_delta_definition": "per-seed, per-speed pairwise-common-success RMSE difference; equal-weight mean across three speeds",
@@ -239,10 +354,19 @@
     "compact case archive, member inventory, CRC/SHA verification, evaluability state and cleanup ledger"
   ],
   "resume_policy": {
-    "case_states": ["PLANNED", "RUNNING", "ARCHIVED", "VERIFIED", "EVALUATED", "FAILED", "NOT_EVALUABLE"],
+    "case_states": [
+      "PLANNED",
+      "RUNNING",
+      "ARCHIVED",
+      "VERIFIED",
+      "EVALUATED",
+      "FAILED",
+      "NOT_EVALUABLE"
+    ],
     "resume_only_after_archive_identity_and_crc_sha_verification": true,
     "never_overwrite_attempts": true,
-    "identity_change_requires_new_design_and_output_root": true
+    "identity_change_requires_new_design_and_output_root": true,
+    "resume_verification": "recheck archive SHA-256, archive-manifest SHA-256, exact ZIP/member inventory, V4 required-member inclusion and ZIP CRC before a prior case is skipped or raw case data are removed"
   },
   "storage_policy": {
     "final_project_limit_gib": 20,
@@ -251,22 +375,28 @@
     "v3_2_archives_retained": true,
     "v4_archive_must_retain_all_period_detection_and_track_debug": true,
     "v4_full_output_size_estimate": null,
-    "required_resource_gate": "implement V4 output-complete archive allowlist, then run a user-authorized representative complete-output pilot before the confirmatory matrix",
-    "delete_raw_only_after": ["compact archive complete", "identity and CRC/SHA verified", "required evidence reconstructibility established", "cleanup ledger written"],
-    "post_review_target": "remove dispensable intermediates; retain necessary records/config/audit/high-value evidence and keep final project below 20 GiB"
+    "required_resource_gate": "after independent source review and separate user authorization, run one representative complete-output CUDA pilot covering every branch kind; measure compressed/uncompressed size, peak temporary disk, runtime, resume and cleanup before any matrix",
+    "delete_raw_only_after": [
+      "compact archive complete",
+      "identity and CRC/SHA verified",
+      "required evidence reconstructibility established",
+      "cleanup ledger written"
+    ],
+    "post_review_target": "remove dispensable intermediates; retain necessary records/config/audit/high-value evidence and keep final project below 20 GiB",
+    "last_checked_on": "2026-11-22",
+    "current_worktree_size_gib_approx": 4.8,
+    "filesystem_available_gib_approx": 11,
+    "current_cleanup": "removed only regenerable Python/pytest caches for this implementation check; historical R22/V3 evidence retained"
   },
   "freeze_blockers": [
     "engineering-approved position MDE in meters",
     "engineering-approved detection-coverage noninferiority margin",
-    "implement and audit the per-period M1/Huber prefix runner; current source is full-case batch with one case-level correction scalar",
-    "freeze Huber shared-mask policy and Huber-specific delay-domain validity/fallback; current qualifier has no D3 delay-bound check",
-    "optional track-protection limits if used for a success claim",
-    "implement and verify the per-period estimator/output schema, including future-period isolation",
-    "implement V4 compact-archive allowlist for all-period Detection and TrackManager/PIPE lineage",
-    "implement fixed shared target-only complex-response extraction with per-cell values and truth/ROI mapping",
-    "final seed collision and pairing audit",
-    "user authorization for representative CUDA/output-size pilot",
-    "resource and resume/cleanup gate derived from measured pilot"
+    "optional engineering-approved track-protection limits if required for a success claim",
+    "independent review of the implemented prefix estimator, output schema, archive and resume gates",
+    "final seed collision, pairing and input identity audit",
+    "separate user authorization for the representative Native CUDA complete-output pilot",
+    "resource and cleanup/resume gate derived from the measured pilot",
+    "actual Production/CUDA output audit and evidence evaluability"
   ],
   "stop_conditions": [
     "invalid area-clutter injection or paired background identity",
@@ -279,5 +409,24 @@
     "compact archiver drops required V4 Detection, TrackManager/PIPE, or complex-response evidence",
     "archive identity/CRC failure or unsafe resume identity change",
     "resource state cannot complete one atomic case safely"
-  ]
+  ],
+  "last_updated_on": "2026-11-22",
+  "implementation_update": {
+    "status_labels": {
+      "IMPLEMENTED": true,
+      "EXECUTED": false,
+      "EVALUABLE": false,
+      "PERFORMANCE_VERIFIED": false
+    },
+    "source_changes": [
+      "period-prefix M1 and same-input Huber qualification/correction runner",
+      "future-period input isolation and current-period zero-correction fallback",
+      "fixed shared target CSI_AFTER per-cell complex response schema",
+      "output-complete archive validation and SHA/manifest/CRC resume verification"
+    ],
+    "cpu_verification": "targeted unit/schema tests only; no actual estimator, Stage2, Production, or CUDA execution",
+    "execution_authorized": false,
+    "cuda_authorized": false,
+    "ai_training": false
+  }
 }

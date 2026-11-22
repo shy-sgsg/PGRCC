@@ -2,6 +2,15 @@
 
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
+## 2026-11-22｜R22-V4：工程实现闭合，实验与冻结门仍未通过
+
+- **决策编号与身份：** `D-2026-11-22-R22-V4-PREFREEZE-IMPLEMENTATION`。分支 `codex/unknown-system-error-next-stage`；工程源码提交 `bbb609cc31c659c5cb7963519784a2d856b701db`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
+- **问题与处理：** 将批量 M1/Huber 对照改为只使用周期 `0…k` 的因果前缀并在当前周期应用校正；增加每个 target/period/method/role 的固定 truth-centered `CSI_AFTER` 逐格复数记录；增加专用完整输出归档、续跑时的归档 SHA/manifest SHA/member inventory/ZIP CRC 校验及 CUDA driver identity 记录。
+- **验证与证据边界：** 定向回归 67/67 通过，Python 语法编译和 `git diff --check` 通过。实际 Stage2、Native CUDA、Production、目标任务或完整矩阵均未运行。测试夹具证明的是代码和门控路径；不构成物理闭合、估计性能或检测性能证据。`IMPLEMENTED=true`，测试路径 `EXECUTED=true`，真实实验 `EXECUTED=false`，实际数据 `EVALUABLE=false`，`PERFORMANCE_VERIFIED=false`。
+- **阶段裁决：** `CONTINUE` 仅限冻结前独立代码审查、统计界值决策和 seed/输入身份审计；V4 仍 `DRAFT_NOT_FROZEN`。MDE、检测覆盖率非劣界值、独立审查、seed 注册审计及授权后的代表性尺寸 pilot 未闭合。不得从本提交推断 CUDA pilot 已完成或确认实验获批。
+- **磁盘与保留：** 清理仅限测试生成的约7.7 MiB Python/pytest caches；保留所有现有 `.scratch`、实验原始数据、compact 归档、历史结果和失败证据。工作树约4.8 GiB、项目约5.3 GiB，均低于最终20 GiB上限。
+- **总纲与后续：** 不建议基于工程实现改写长期研究方向；总纲正文保持原样。当前契约、冻结前闭合报告与 ChatGPT 审查请求见[R22导航](phase_r/R22/README.md)。
+
 ## 2026-11-06｜R22 V3.1：资源/身份门控早停；完整 Screening 未完成
 
 - **决策编号与身份：** `D-2026-11-06-R22-V3.1-UNKNOWN-STOP`。分支 `codex/unknown-system-error-next-stage`；实验源码 commit `a2d8e65514847e4cc97e9e78df0c5cbafe528217`；Production binary SHA-256 `d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e`；总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
