@@ -1,0 +1,139 @@
+{
+  "archive_categories": [
+    {
+      "category": "stage2_scene_bins",
+      "pilot_compressed_bytes": 2913850661,
+      "pilot_entries": 70,
+      "pilot_uncompressed_bytes": 3444313600,
+      "role_in_freeze_model": "raw/reconstructable diagnostic volume; do not linearly retain in every final archive"
+    },
+    {
+      "category": "prepared_input_bins",
+      "pilot_compressed_bytes": 5375961853,
+      "pilot_entries": 211,
+      "pilot_uncompressed_bytes": 6396588160,
+      "role_in_freeze_model": "raw/reconstructable diagnostic volume; do not linearly retain in every final archive"
+    },
+    {
+      "category": "production_csi_or_complex",
+      "pilot_compressed_bytes": 4688368332,
+      "pilot_entries": 2880,
+      "pilot_uncompressed_bytes": 5369529525,
+      "role_in_freeze_model": "raw/reconstructable diagnostic volume; do not linearly retain in every final archive"
+    },
+    {
+      "category": "production_detection_csv",
+      "pilot_compressed_bytes": 5135872,
+      "pilot_entries": 234,
+      "pilot_uncompressed_bytes": 23810074,
+      "role_in_freeze_model": "retained in compact V4 archive"
+    },
+    {
+      "category": "production_track_debug",
+      "pilot_compressed_bytes": 6860321,
+      "pilot_entries": 126,
+      "pilot_uncompressed_bytes": 27063755,
+      "role_in_freeze_model": "retained in compact V4 archive"
+    },
+    {
+      "category": "production_other",
+      "pilot_compressed_bytes": 2041819,
+      "pilot_entries": 816,
+      "pilot_uncompressed_bytes": 12493607,
+      "role_in_freeze_model": "retained in compact V4 archive"
+    },
+    {
+      "category": "evaluation",
+      "pilot_compressed_bytes": 336263,
+      "pilot_entries": 8,
+      "pilot_uncompressed_bytes": 5432013,
+      "role_in_freeze_model": "retained in compact V4 archive"
+    },
+    {
+      "category": "other_manifests_logs_and_support",
+      "pilot_compressed_bytes": 42776943,
+      "pilot_entries": 297,
+      "pilot_uncompressed_bytes": 216507976,
+      "role_in_freeze_model": "raw/reconstructable diagnostic volume; do not linearly retain in every final archive"
+    }
+  ],
+  "case_plan": {
+    "actual_production_calls": 2520,
+    "cuda_authorized": false,
+    "execution_authorized": false,
+    "h0_cases": 60,
+    "internal_auxiliary_production_calls": 1260,
+    "offline_estimator_diagnostic_slots": 210,
+    "registered_production_slots": 1260,
+    "registered_science_slots": 1470,
+    "source": "scripts/phase_r/r22_v4_execution_plan.py and its CPU tests",
+    "stage2_calls_maximum": 1440,
+    "stage2_calls_minimum": 1200,
+    "target_present_cases": 180,
+    "total_case_identities": 240
+  },
+  "compact_archive_scenarios": {
+    "conservative_all_240_case_ids_at_full_p0_allowlist_bytes": 4097029200,
+    "conservative_all_240_case_ids_at_full_p0_allowlist_decimal_gb": 4.0970292,
+    "interpretation": "Conservative retention-size scenario: every case is charged the entire P0 422-member allowlist. Actual H0 and 0-ns archives should be smaller, but this is not a guarantee until their schemas are dry-run against representative archived data.",
+    "raw_and_full_csi_arrays_policy": "Do not include full CSI NPY arrays or duplicate prepared IQ in every final case archive. Keep hashes, manifests, source identities, evaluation outputs, full-period Detection/TrackManager lineage, CFAR geometry, and target-only fixed-ROI complex response. Remove rebuildable raw only after that case archive passes SHA/CRC/schema/lineage checks and the review retention window ends.",
+    "with_25_percent_growth_reserve_bytes": 5121286500,
+    "with_25_percent_growth_reserve_decimal_gb": 5.1212865
+  },
+  "full_archive_scenarios": {
+    "full_p0_archives_for_120_plus4_case_identities_bytes": 1564470549360,
+    "note": "The full P0 ZIP repeats raw Stage2/prepared inputs and all CSI arrays. Its direct scaling is a storage stress scenario, not the recommended retention plan. Full raw archive scaling for the zero-delay and H0 case types is not determined by this one target-present pilot.",
+    "one_full_p0_archive_for_each_of_240_case_ids_bytes": 3128941098720,
+    "one_full_p0_archive_for_each_of_240_case_ids_decimal_tb": 3.12894109872,
+    "production_call_normalized_bytes": null,
+    "stage2_call_normalized_bytes_maximum": 699324158640,
+    "stage2_call_normalized_bytes_minimum": 582770132200
+  },
+  "measured_p0": {
+    "full_complete_archive_bytes": 13037254578,
+    "full_complete_archive_decimal_gb": 13.037254578,
+    "observed_minimum_free_space_bytes": 27726299136,
+    "observed_peak_free_space_consumption_bytes": 29821104128,
+    "pilot_case_wall_seconds": 877.273319,
+    "production_branches": 18,
+    "production_seconds_total": 431.15051887700974,
+    "raw_files_remaining_after_cleanup": 0,
+    "required_422_member_compressed_bytes": 17070955,
+    "required_422_member_uncompressed_bytes": 110225502,
+    "stage2_calls": 6,
+    "stage2_seconds_total": 203.65752650600916
+  },
+  "source_design_status": "DRAFT_NOT_FROZEN",
+  "space_gate": {
+    "current_project_tree_allocated_bytes": 18106552320,
+    "current_project_tree_allocated_decimal_gb": 18.10655232,
+    "current_project_tree_bytes": 17915058223,
+    "current_project_tree_decimal_gb": 17.915058223,
+    "deletion_policy": "Retain the unique 13-GB P0 ZIP through independent review. Only after review may the full ZIP be removed if the high-value report/manifest/compact evidence is verified and the user retention window is complete. No existing user data was removed for this analysis.",
+    "minimum_free_reserve_bytes": 10737418240,
+    "minimum_start_free_bytes_using_observed_peak_plus_reserve": 40558522368,
+    "modeled_final_tree_bytes_after_review_replaces_p0_zip_with_compact_matrix_and_25pct_reserve": 9999090145,
+    "modeled_final_tree_decimal_gb_after_replacement": 9.999090145,
+    "observed_p0_peak_disk_consumption_bytes": 29821104128,
+    "project_tree_if_p0_zip_and_conservative_compact_matrix_both_retained_bytes": 23036344723,
+    "user_final_project_cap_decimal_gb": 20.0
+  },
+  "time_projection_under_p0_contention": {
+    "limitations": [
+      "The P0 GPU was concurrently occupied by an external training process; these are not benchmark timings.",
+      "M1/Huber estimator and correction time was not independently timed.",
+      "The residual case term includes input preparation, archive work, orchestration, and uninstrumented estimator time.",
+      "Queueing, failed attempts, retries, and H0/0-ns case differences are not modeled exactly."
+    ],
+    "p0_production_seconds_per_call": 23.95280660427832,
+    "p0_residual_case_linear_hours_for_240_cases": 16.164351574465407,
+    "p0_residual_case_seconds_after_stage2_and_production": 242.4652736169811,
+    "p0_stage2_seconds_per_call": 33.94292108433486,
+    "pilot_case_wall_linear_hours": 58.48488793333333,
+    "pilot_component_model_total_hours_max": 46.50848463119417,
+    "pilot_component_model_total_hours_min": 44.245623225571855,
+    "production_wall_hours_from_observed_call_mean": 16.766964622994823,
+    "stage2_wall_hours_from_observed_call_mean_max": 13.577168433733943,
+    "stage2_wall_hours_from_observed_call_mean_min": 11.314307028111621
+  }
+}

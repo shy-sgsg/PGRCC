@@ -363,3 +363,13 @@
 - **30-seed统计敏感性补充：** 使用V3.3筛选切片的12个seed-level方差作条件性t(29)规划：M1−Fixed位置MDE的名义80%功效点约2.54 m，覆盖率非劣margin约0.262 pp；候选值与功效表见[冻结准备度报告](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)。历史估计器为十周期batch、V4为因果prefix，因此不得将该计算解释为V4确认功效；工程MDE、非劣margin和航迹界值仍待用户/需求方决定，未修改设计阈值。
 - **交付后资源与测试复核：** 完整项目目录实测18.68 GB（17.39 GiB），低于20 GB上限；本pilot raw文件为0，13.04 GB完整ZIP保留作高价值审计。补充H0/授权范围回归后，R12/R21/R22指定CPU测试集193项通过；未运行GPU或确认矩阵。
 - **证据入口：** [P0预检](phase_r/R22/37_v4_p0_preflight_and_authorization_20261123.md)、[执行报告](phase_r/R22/38_v4_p0_native_cuda_execution_20261123.md)、[科研评估](phase_r/R22/39_v4_p0_preliminary_research_assessment_20261123.md)、[冻结准备度](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)及[机器证据导航](phase_r/R22/evidence/v4_native_cuda_pilot_20261123/README.md)和[ChatGPT审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_P0_PILOT_20261123.md)。
+
+## 2026-11-23｜R22-V4 P0 离线独立重分析与冻结候选
+
+- **决策编号与身份：** `D-2026-11-23-R22-V4-P0-FREEZE-READINESS`。P0 执行源码 commit `715639c8e9aad7359eb1a5058f9238c0d51f99a1`；离线分析基线 `f84a3607a5b10c4f0a79dacb9d389f60e87abd06`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未改。P0 ZIP SHA-256 `0974e1dfd1467cdd2bdced856e8c673d40c8966a53ab05261d0c5db2d99c4b02`，本次独立重算 SHA 和必要成员，复用既有完整 CRC 验证记录。
+- **本次工作边界：** 直接读取本地 P0 ZIP 和版本化历史 V3.3 机会表，重算任务指标、轨迹 lineage、CFAR 分母、目标 ROI 响应、历史 seed 敏感度和 V4 源码资源展开。未运行 Stage2、Production、CUDA 矩阵或 AI；未修改算法、实验参数和研究总纲。
+- **关键证据：** P0 面积杂波为1,300 packets/6,508,782 samples；单 seed 当前时延条件命中26/200，Known与A0均140/200，M1为140/200、Fixed/Huber为142/200。M1相对Fixed的135个共同成功机会定位RMSE低12.500m，但自身命中覆盖少1pp；这些不能外推统计显著性。18/18分支的payload→TrackManager→Detection及测量来源核验无违规，6/6 ON轨迹汇总与归档评价一致。定位速度指标无有效机会，独立H0和经验Pfa未评估。
+- **统计与资源：** V3.3旧batch结果12 seed只用于敏感度：名义80% MDE约2.539m、检测覆盖NI margin约0.262pp，不能当作V4 causal-prefix确认功效或工程阈值。源码设计展开为240 case/1,470注册槽位/2,520 Production calls；P0必要422个成员在全量ZIP内的压缩数据合计17.071MB，240份按该值估算4.097GB、加25%约5.121GB；该估算尚未实测compact ZIP开销或H0/0 ns schema。完整P0 ZIP 13.037GB保留至独立审查。用户定义20GB为最终审查清理后的上限；运行中间数据可超过，不将20GB当作运行期硬门。
+- **裁决：** 继续真实未知物理状态及其任务影响的确认性审查，但当前V4保持 `DRAFT_NOT_FROZEN`。未知误差在该单场景有明显且可由Known恢复的任务空间，盲估计跨seed效应仍未确认；低速/复杂杂波方向证据不足；`AI_ENTRY_GATE=FAIL`。
+- **下一步：** 先审查41–46号报告与冻结候选，用户/工程需求方决定定位MDE、覆盖非劣、航迹保护和H0边界，并完成seed registry/schema门。没有用户另行授权，不运行尺寸pilot或确认矩阵。ChatGPT审查后按清理台账移除仅为复现保留的13GB P0全量ZIP和可再生中间数据，保留高价值报告、配置、manifest、统计表、图及代表性审计记录。
+- **交付入口：** [R22-V4导航](phase_r/R22/README.md)、[41 P0离线重分析](phase_r/R22/41_v4_p0_independent_evidence_reanalysis_20261123.md)、[45冻结候选](phase_r/R22/45_v4_confirmatory_freeze_candidate_20261123.md)、[46方向裁决](phase_r/R22/46_v4_next_stage_research_decision_20261123.md)。
