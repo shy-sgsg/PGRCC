@@ -32,12 +32,16 @@ V4 状态：`DRAFT_NOT_FROZEN`
 ## Pilot 启动前条件
 
 1. 独立审查并冻结适用的统计 MDE 与检测覆盖率非劣界值。
-2. 完成最终 seed registry 碰撞核查；不得从已有场景重复选择种子。
+2. 已完成当前本机 R22 文档、设计、case-audit、matrix manifest、输出路径和 archive 命名范围内的 seed 碰撞核查。候选 pilot seed 为 `1937001`，不属于 V4 target confirmatory `1933001–1933030` 或 H0 `1936001–1936030`。冻结前仍须由完整项目 seed registry/外部归档完成最终复核；审计范围和限制见[V4预检审计](36_v4_preflight_audit_and_cuda_pilot_proposal_20261123.md)。
 3. 为首个 +4 ns case 提供足够的可用临时空间或经用户允许的专用输出卷。必须覆盖 raw、Production/CSI 输出、compact ZIP 并存和系统余量；仅达到8.86 GB下界不够。
 4. 先运行一个真实 Native CUDA case，实际记录每角色/方法目录增长、峰值空间、归档大小、压缩比和 raw 清理回收量；立即按逐成员验证后的 archive/ledger 清理 raw。
 5. pilot 只报告空间、归档、断点恢复和执行身份；不能用 pilot 结果替代统计确认性矩阵，不能宣称性能改善。
 
 如 pilot 中断，按已有 matrix checkpoint 恢复；只有已通过 CRC、archive manifest、members 和 SHA 校验的 compact ZIP 才能作为 raw 删除依据。pilot 结果审查完成并按 ledger 清理可再生数组后，最终项目占用维持低于20 GiB。
+
+## 后续预检裁决
+
+2026-11-23 的补充审计确认：主要比较的定位 MDE 与检测覆盖率非劣界值仍未填写，不能从 V3.3 full-case batch 结果反推；当前卷与 `/tmp` 的可用空间均低于该 pilot 单 case 的原始数据下界，且没有已验证的峰值/归档余量。故状态明确为 **`BLOCKED`**，目前不具备启动 pilot 的空间和统计设计条件。完整 case 参数、输出、停止条件和候选命令见[预检审计与 pilot 提案](36_v4_preflight_audit_and_cuda_pilot_proposal_20261123.md)。
 
 ## 本次磁盘清理
 

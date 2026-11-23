@@ -337,3 +337,11 @@
 - **Production 输出/归档源码审计：** 在同一 `1063d67` 快照中，`run_delay_stage1_formal.py::run_production_branch` 的本地路径请求十期输入、`track-debug-dump=on` 与 debug diagnostics，可生成全期 Detection 和 TrackManager 输出；但默认 `r22_compact_archive.py::_exclusion_reason` 排除全部 `track_debug_runs`，并只保留 ON `detection_results_GMTI09.csv`。现有 `evaluate_r3_minimal_cuda_causal_pilot.py::_target_transfer` 使用 CSI 后真值中心5×5 ROI，输出汇总复增益与逐期坐标/功率，没有逐格复数样本及完整 ROI/信号注入真值映射。故默认归档器与 helper 均不满足 V4 完整审计输出，输出 schema 的 `IMPLEMENTED/EXECUTED/EVALUABLE` 仍为 false；冻结前须实现 V4 专属保留清单和共享目标复数响应提取 schema。仅作静态源码检查，没有运行 Production/CUDA。
 - **磁盘复核：** 当前 worktree 约4.8 GiB、项目目录约5.3 GiB，文件系统约剩13 GiB。最大的 V3.2 compact archives、V2 唯一失败现场、V3.3 和 S1e 材料都被当前契约或历史 cleanup ledger 引用；五个旧 scratch manifest 均记录真实运行（`completed_with_gaps`），无可证安全的高占用重复物。本轮未删除数据，维持低于20 GiB最终上限。
 - **交付入口：** [V4契约草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器设计](phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)、[ChatGPT独立审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)。
+
+## 2026-11-23｜R22-V4 预检补充：尺寸 pilot `BLOCKED`
+
+- **身份与研究总纲：** 承接 `D-2026-11-23-R22-V4-CPU-INTEGRATION-CLOSURE`；当前审计基线 `7a35435d39959e9f7191df4014009072ab6308ea`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未改。
+- **seed 核查：** 本机 V3.2 `case_audit.csv` 的288个完成 case使用12个 seed（1932001–1932012）；1933001–1933030是设计保留的Confirmatory集合，未用于已完成V3.2 Screening；V3.2 H0已用1935001–1935030，与V4 H0候选1936001–1936030分离。候选pilot seed 1937001在此次新增提案之前的本机R22 case identity/manifest/path中未发现；全项目、所有Git历史及外部归档的最终registry审计仍未完成，故该seed尚未全局批准。
+- **统计门：** V4主定位MDE、检测覆盖率非劣界值仍为空；不能用V3.3 full-case batch筛选差值推导，也无法确认30-seed设计功效。`M1−Huber`仍是无独立MDE时仅作描述的次要比较。
+- **资源/行动：** 单个+4 ns case输入和校正数组未压缩下界约8.25 GiB；本次检查的项目卷可用约8.5 GiB、`/tmp`可用约7.3 GiB，均未覆盖额外Production/CSI输出、归档与raw并存或系统余量。未运行CUDA；只提出专用卷上的单case完整输出尺寸pilot配置/命令，仍需统计门、全局seed审计、源码/二进制冻结和用户另行授权。
+- **裁决与保留：** 当前 `BLOCKED`；不修改研究总纲、确认性阈值或算法，不启动矩阵/AI。没有删除仍被报告、决策或归档索引引用的历史数据；最终项目空间仍低于20 GiB。详见[R22-V4预检审计](phase_r/R22/36_v4_preflight_audit_and_cuda_pilot_proposal_20261123.md)、[seed审计](phase_r/R22/evidence/v4_integration_closure_20261123/seed_registry_audit.json)和[尺寸pilot配置](phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json)。

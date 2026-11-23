@@ -12,8 +12,10 @@
 4. `docs/research/phase_r/R22/33_v4_integration_closure_20261123.md`
 5. `docs/research/phase_r/R22/34_v4_cpu_integration_validation_20261123.md`
 6. `docs/research/phase_r/R22/35_v4_cuda_pilot_readiness_20261123.md`
-7. `docs/research/phase_r/R22/evidence/v4_integration_closure_20261123/README.md` 及该目录全部机器证据
-8. 本 commit 的相关修改源码和测试，重点关注 V4 execution plan/identity、Production runner、目标响应提取、compact archive 和 matrix resume。
+7. `docs/research/phase_r/R22/36_v4_preflight_audit_and_cuda_pilot_proposal_20261123.md`
+8. `docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json`
+9. `docs/research/phase_r/R22/evidence/v4_integration_closure_20261123/README.md` 及该目录全部机器证据
+10. 本 commit 的相关修改源码和测试，重点关注 V4 execution plan/identity、Production runner、目标响应提取、compact archive 和 matrix resume。
 
 如果总纲、状态或源码不可读取，请明确指出并将总体方向判断标为 `NOT_VERIFIED`；不能以本提示词的摘要代替实际读取。
 
@@ -38,6 +40,12 @@
 6. 2,520次 Production 调用、1,200–1,440次 Stage2 调用及 8.856 GB 单 +4 ns case 输入下界是否从设计/源码正确推导？请复核其口径是否清楚地区分静态推导与实测。
 7. 磁盘空间不足以覆盖该下界和归档峰值，选择暂缓 CUDA pilot 是否合理？清理范围是否只涉及本任务生成的临时文件？
 
+追加审查问题：
+
+8. seed 审计是否正确区分已执行 V3.2 Screening seeds `1932001–1932012` 与保留但未执行的 Confirmatory seeds `1933001–1933030`？候选 pilot seed `1937001` 的本地审计范围和“全局 registry 仍待复核”限制是否清楚？
+9. 主要定位 MDE 与检测覆盖率非劣界值仍为 null 时，V4 冻结/确认性推断是否应判 `BLOCKED`？不得从 full-case batch 筛选结果替代门槛或功效分析。
+10. 单 case pilot 提案、方法/角色、输出、测量、停止条件和命令是否与当前 matrix runner 的 V4 archive profile 行为相符？是否清楚标明命令未运行且仍需独立用户授权？
+
 ### 第二层：总体科研价值
 
 1. 本阶段的工程闭合是否实质支撑总纲的 GMTI 科研目标？其贡献边界是否准确？
@@ -50,6 +58,8 @@
 - 本阶段没有运行 Stage2、Native CUDA Production、V4 pilot 或确认性矩阵。
 - `CPU_INTEGRATION_TESTED=true` 不等于 `EVALUABLE=true` 或 `PERFORMANCE_VERIFIED=true`。
 - V4 仍为 `DRAFT_NOT_FROZEN`；不得将静态计划调用数称为真实运行数。
+- 本地 seed 范围审计不等于全项目/外部归档 registry 已闭合；`1937001` 仍需最终全局核查。
+- 单 case CUDA pilot 当前为 `BLOCKED`：统计门槛未批准，当前卷与 `/tmp` 空间均小于原始输入下界加输出余量。
 - 不要因为 CUDA pilot 尚未执行就推导算法失败或 AI 必要。
 - 研究总纲正文的任何修改建议必须先与用户讨论；用户未明确批准之前不得改写。
 
