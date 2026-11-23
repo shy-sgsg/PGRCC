@@ -4,13 +4,11 @@
 
 ## 必读材料
 
-ChatGPT 固定快照审查请求会在报告提交后追加；提交前此链接尚未生成。
-
-
 1. [预检、seed 与授权](../../37_v4_p0_preflight_and_authorization_20261123.md)
 2. [Native CUDA 执行与归档](../../38_v4_p0_native_cuda_execution_20261123.md)
 3. [科研结果与方向评估](../../39_v4_p0_preliminary_research_assessment_20261123.md)
 4. [确认性冻结准备度](../../40_v4_confirmatory_freeze_readiness_20261123.md)
+5. [固定快照 ChatGPT 独立审查请求](../../CHATGPT_REVIEW_REQUEST_V4_P0_PILOT_20261123.md)
 
 ## 可机器核查的摘要
 

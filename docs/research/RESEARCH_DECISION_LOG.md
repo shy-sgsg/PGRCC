@@ -360,4 +360,4 @@
 - **阶段裁决：** PILOT_PASS（工程运行与证据链），IMPLEMENTED/EXECUTED/EVALUABLE=true，PERFORMANCE_VERIFIED=false。长期研究方向CONTINUE，不据此宣称算法创新或AI必要性。
 - **待决与停止条件：** V4仍DRAFT_NOT_FROZEN；定位MDE、检测覆盖非劣界值及航迹保护界值未确定，240-case设计的功效与TB级归档存储方案需审查。单case授权不覆盖矩阵；不自动启动CUDA矩阵、AI、Router或其他新实验。
 - **下一项优先工作：** 将固定审查 commit 对应的总纲、动态状态、决策日志、本次报告和紧凑证据交由ChatGPT双层独立审查；之后由用户讨论工程阈值和资源方案，再决定是否冻结/另行授权。
-- **证据入口：** [P0预检](phase_r/R22/37_v4_p0_preflight_and_authorization_20261123.md)、[执行报告](phase_r/R22/38_v4_p0_native_cuda_execution_20261123.md)、[科研评估](phase_r/R22/39_v4_p0_preliminary_research_assessment_20261123.md)、[冻结准备度](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)及[机器证据导航](phase_r/R22/evidence/v4_native_cuda_pilot_20261123/README.md)。
+- **证据入口：** [P0预检](phase_r/R22/37_v4_p0_preflight_and_authorization_20261123.md)、[执行报告](phase_r/R22/38_v4_p0_native_cuda_execution_20261123.md)、[科研评估](phase_r/R22/39_v4_p0_preliminary_research_assessment_20261123.md)、[冻结准备度](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)及[机器证据导航](phase_r/R22/evidence/v4_native_cuda_pilot_20261123/README.md)和[ChatGPT审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_P0_PILOT_20261123.md)。
