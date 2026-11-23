@@ -2,6 +2,15 @@
 
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
+## 2026-11-23｜R22-V4：CPU 集成闭合；pilot 受当前临时空间下界阻止
+
+- **决策编号与身份：** `D-2026-11-23-R22-V4-CPU-INTEGRATION-CLOSURE`。分支 `codex/unknown-system-error-next-stage`；代码基线 `ce7d1a96b6902b02b94408e5b2fabf02c275955b`；本次交付 commit 见报告与审查入口；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 保持不变。
+- **问题与证据：** V4 草案需要 runner 实际方法子集与静态登记一致，并保证真值身份、完整输出归档及 raw 清理可以审计和断点续跑。本次扩展源感知执行计划、分支身份和真值映射检查、V4 完整归档与 cleanup ledger。CPU 集成回归110项通过；静态计划为240 cases、1,470注册槽位、1,260注册 Production 槽位、2,520个总 Production 调用及1,200–1,440个Stage2调用。静态计数不代表执行结果。
+- **资源与执行：** 当时卷可用空间约8.38 GiB；单个+4 ns case仅raw及校正输入的协议推导下界约8.856 GB（8.25 GiB），名义剩余约0.13 GiB，不含CSI/Production输出、归档峰值和运行余量。未运行 Stage2、Native CUDA Production、pilot或确认矩阵。只清理本次CPU测试生成的 `/tmp/pgrcc-r22-v4-*` 临时夹具，未清理历史数据、失败现场或仓库未跟踪材料。
+- **阶段裁决：** `CPU_INTEGRATION_PASSED / V4_DRAFT_NOT_FROZEN`。`IMPLEMENTED=true`、`CPU_INTEGRATION_TESTED=true`；真实实验`EXECUTED=false`、`EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`。本阶段只支撑研究评价基础的工程可靠性，不提供未知误差任务收益、Known recovery、盲估计差距或AI必要性证据。
+- **下一步与停止门：** 先独立审查本次固定交付快照；只有统计界值、seed身份审计和足够的临时磁盘空间均闭合、且用户另行授权后，才可开展单case尺寸pilot。尺寸pilot不可替代确认矩阵。无新证据支持修改总纲、训练AI或开发Router。
+- **详细证据：** [集成闭合报告](phase_r/R22/33_v4_integration_closure_20261123.md)、[CPU验证](phase_r/R22/34_v4_cpu_integration_validation_20261123.md)、[磁盘 readiness](phase_r/R22/35_v4_cuda_pilot_readiness_20261123.md)、[机器证据包](phase_r/R22/evidence/v4_integration_closure_20261123/README.md)。
+
 ## 2026-11-22｜R22-V4：工程实现闭合，实验与冻结门仍未通过
 
 - **决策编号与身份：** `D-2026-11-22-R22-V4-PREFREEZE-IMPLEMENTATION`。分支 `codex/unknown-system-error-next-stage`；工程源码提交 `bbb609cc31c659c5cb7963519784a2d856b701db`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。

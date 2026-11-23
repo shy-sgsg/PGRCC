@@ -13,6 +13,13 @@ import zipfile
 from pathlib import Path
 from typing import Any, Mapping
 
+from scripts.phase_r.r22_v4_identity import (
+    branch_group_key,
+    branch_identity,
+    branch_identity_key,
+    validate_branch_manifest_identity,
+)
+
 
 _PER_CASE_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
 _RAW_ARRAY_SUFFIXES = {".bin", ".npy", ".npz"}
@@ -82,6 +89,35 @@ def _relative_to_case(path: Path, case_root: Path) -> str:
         raise ValueError(f"V4 required artifact is outside case root: {resolved}") from exc
 
 
+def _v4_branch_group_roles(
+    records: list[Mapping[str, Any]], *, case_id: str, target_count: int,
+) -> dict[tuple[str, str, str, str], set[str]]:
+    groups: dict[tuple[str, str, str, str], set[str]] = {}
+    identities: set[tuple[str, str, str, str, str, str]] = set()
+    for record in records:
+        identity = branch_identity(record, case_id=case_id)
+        key = branch_identity_key(identity)
+        if key in identities:
+            raise ValueError(f"duplicate V4 Production branch identity: {key}")
+        identities.add(key)
+        group_key = branch_group_key(identity)
+        roles = groups.setdefault(group_key, set())
+        if identity["role"] in roles:
+            raise ValueError(f"duplicate V4 Production role for method/mode: {group_key}/{identity['role']}")
+        roles.add(str(identity["role"]))
+    if not groups:
+        raise ValueError("V4 complete archive has no Production role manifests")
+    for group_key, roles in groups.items():
+        required_roles = {"ON"} if target_count == 0 else {"ON", "TO"}
+        if group_key[3] in {"Mode-A", "Mode-B"}:
+            required_roles = {"ON", "OFF", "TO"}
+        if not required_roles <= roles:
+            raise ValueError(
+                f"V4 method/mode lacks required roles {sorted(required_roles)}: {group_key}"
+            )
+    return groups
+
+
 def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
     """Validate V4 output completeness and return members that must be retained."""
     regular_files = {item.resolve() for item in files if item.is_file()}
@@ -122,12 +158,64 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
                 or _sha256_file(record_path) != identity.get("sha256")):
             raise ValueError(f"V4 target-response file identity mismatch: {record_path}")
         required.add(_relative_to_case(record_path, case_root))
+    truth_audit_path = response_manifest_path.parent / "truth_mapping_audit.json"
+    truth_audit = json.loads(truth_audit_path.read_text(encoding="utf-8"))
+    pipeline_root = response_manifest_path.parent.parent
+    target_count = int(response_manifest.get("target_count_design", -1))
+    if target_count > 0:
+        if (truth_audit.get("status") != "passed"
+                or set(truth_audit.get("roles_compared", [])) !=
+                {"A0_ON", "A1_ON", "A0_TO", "A1_TO"}):
+            raise ValueError("V4 archive target truth mapping audit is incomplete")
+        truth_sources = truth_audit.get("sources")
+        required_truth_roles = {"A0_ON", "A1_ON", "A0_TO", "A1_TO"}
+        case_seed = truth_audit.get("case_seed")
+        seeds_by_role = truth_audit.get("seeds_by_role")
+        if (isinstance(case_seed, bool) or not isinstance(case_seed, int)
+                or not isinstance(seeds_by_role, Mapping)
+                or set(seeds_by_role) != required_truth_roles
+                or any(value != case_seed for value in seeds_by_role.values())):
+            raise ValueError("V4 archive target truth seed identity is incomplete or inconsistent")
+        scenario_sources = truth_audit.get("scenario_sources")
+        for source_key, inventory in (
+            ("sources", truth_sources), ("scenario_sources", scenario_sources),
+        ):
+            if not isinstance(inventory, Mapping) or set(inventory) != required_truth_roles:
+                raise ValueError(f"V4 archive {source_key} inventory is incomplete")
+            for role, identity in inventory.items():
+                if not isinstance(identity, Mapping) or identity.get("exists") is not True:
+                    raise ValueError(f"V4 archive truth source identity is invalid: {source_key}/{role}")
+                source_path = Path(str(identity.get("path") or ""))
+                if source_path.is_absolute() or ".." in source_path.parts:
+                    raise ValueError(f"V4 archive truth source path is unsafe: {source_key}/{role}")
+                source = (pipeline_root / source_path).resolve()
+                if (not source.is_file()
+                        or source.stat().st_size != int(identity.get("bytes", -1))
+                        or _sha256_file(source) != str(identity.get("sha256") or "")):
+                    raise ValueError(
+                        f"V4 archive truth source content identity mismatch: {source_key}/{role}"
+                    )
+                if source_key == "scenario_sources" and identity.get("seed") != case_seed:
+                    raise ValueError(f"V4 archive scenario seed identity mismatch: {role}")
+                required.add(_relative_to_case(source, case_root))
+    elif target_count != 0 or truth_audit.get("status") != "NOT_APPLICABLE_NO_TARGETS":
+        raise ValueError("V4 archive target-free truth state is invalid")
 
     run_manifests = [item for item in files if item.name == "r22_run_manifest.json"]
     if len(run_manifests) != 1:
         raise ValueError("V4 archive requires one R22 execution manifest")
     run_manifest_path = run_manifests[0]
     run_manifest = json.loads(run_manifest_path.read_text(encoding="utf-8"))
+    case_id = str(run_manifest.get("case_id") or "")
+    if not case_id:
+        raise ValueError("V4 execution manifest lacks case_id")
+    run_design = run_manifest.get("design")
+    run_seed = run_design.get("seed") if isinstance(run_design, Mapping) else None
+    if isinstance(run_seed, bool) or not isinstance(run_seed, int):
+        raise ValueError("V4 execution manifest lacks an integer case seed")
+    design = run_manifest.get("design")
+    if not isinstance(design, Mapping) or int(design.get("target_count", -1)) != target_count:
+        raise ValueError("V4 run and target-response design counts differ")
     source_identity = run_manifest.get("source_identity")
     source_files = source_identity.get("files", {}) if isinstance(source_identity, Mapping) else {}
     required_sources = (
@@ -169,25 +257,74 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
         raise ValueError("V4 R22 execution manifest lacks binary or CUDA preflight identities")
     required.add(_relative_to_case(run_manifest_path, case_root))
 
+    pipeline_case_manifests = [
+        item for item in files
+        if item.name == "case_manifest.json" and {"pipeline", "cases"} <= set(item.parts)
+    ]
+    if len(pipeline_case_manifests) != 1:
+        raise ValueError("V4 archive requires one pipeline case manifest")
+    pipeline_case_manifest_path = pipeline_case_manifests[0]
+    pipeline_case_root = pipeline_case_manifest_path.parent
+    pipeline_manifest = json.loads(pipeline_case_manifest_path.read_text(encoding="utf-8"))
+    if str(pipeline_manifest.get("case_id") or "") != case_id:
+        raise ValueError("V4 pipeline case manifest identity differs from run manifest")
+    pipeline_scene_identity = pipeline_manifest.get("scene_identity")
+    pipeline_case_identity = pipeline_manifest.get("case")
+    pipeline_seed = (
+        pipeline_scene_identity.get("seed") if isinstance(pipeline_scene_identity, Mapping) else None
+    )
+    pipeline_case_seed = (
+        pipeline_case_identity.get("seed") if isinstance(pipeline_case_identity, Mapping) else None
+    )
+    if (pipeline_seed != run_seed or pipeline_case_seed != run_seed):
+        raise ValueError("V4 pipeline, run, and scene seed identities differ")
+    expected_records = pipeline_manifest.get("method_branches")
+    if not isinstance(expected_records, list):
+        raise ValueError("V4 pipeline manifest lacks Production branch inventory")
+    expected_branch_keys: set[tuple[str, str, str, str, str, str]] = set()
+    for record in expected_records:
+        if not isinstance(record, Mapping) or str(record.get("role", "")) not in {"ON", "OFF", "TO"}:
+            continue
+        if record.get("status") != "passed" or not record.get("branch_name"):
+            raise ValueError("V4 pipeline manifest contains an incomplete Production branch")
+        expected_branch_keys.add(branch_identity_key(branch_identity(record, case_id=case_id)))
+    required.add(_relative_to_case(pipeline_case_manifest_path, case_root))
+
     branch_manifests = [
         item for item in files
         if item.name == "branch_manifest.json" and "production" in item.parts
     ]
-    branch_groups: dict[str, set[str]] = {}
+    actual_branch_keys: set[tuple[str, str, str, str, str, str]] = set()
+    actual_branch_records: list[Mapping[str, Any]] = []
     for manifest_path in branch_manifests:
         record = json.loads(manifest_path.read_text(encoding="utf-8"))
         role = str(record.get("role", ""))
         if role not in {"ON", "OFF", "TO"}:
             continue
-        branch_name = str(record.get("branch_name") or manifest_path.parent.name)
-        method_id = str(record.get("condition") or record.get("method_id") or "")
-        if not method_id:
-            raise ValueError(f"V4 branch manifest lacks method identity: {manifest_path}")
-        if role in branch_groups.setdefault(method_id, set()):
-            raise ValueError(f"duplicate V4 production role {method_id}/{role}")
-        branch_groups[method_id].add(role)
+        identity = branch_identity(record, case_id=case_id)
+        branch_key = branch_identity_key(identity)
+        if branch_key in actual_branch_keys:
+            raise ValueError(f"duplicate V4 Production branch identity: {branch_key}")
+        actual_branch_keys.add(branch_key)
+        actual_branch_records.append(record)
+        branch_name = str(identity["branch_name"])
+        method_id = str(identity["method_id"])
         required.add(_relative_to_case(manifest_path, case_root))
         branch_root = manifest_path.parent
+        identity_check = validate_branch_manifest_identity(
+            record, identity=identity, branch_root=branch_root, case_root=pipeline_case_root,
+        )
+        required.add(_relative_to_case(branch_root / "production.xml", case_root))
+        for item in (identity["source_configuration_identity"]["method_config"],
+                     identity["source_configuration_identity"]["source_xml"]):
+            identity_path = Path(str(item["path"]))
+            if identity_path.is_absolute():
+                identity_path = identity_path.resolve()
+            else:
+                identity_path = (pipeline_case_root / identity_path).resolve()
+            required.add(_relative_to_case(identity_path, case_root))
+        if identity_check["runtime_xml"]["sha256"] != record["runtime_xml_identity"]["sha256"]:
+            raise ValueError(f"V4 branch runtime XML identity is inconsistent: {branch_name}")
         for fixed_name in ("production.xml", "gmt_pipe_core.log"):
             artifact = branch_root / fixed_name
             if not artifact.is_file():
@@ -235,17 +372,57 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
             raise ValueError(f"V4 CFAR geometry diagnostics are missing: {branch_name}")
         required.update(_relative_to_case(path, case_root) for path in geometry_files)
 
-    if not branch_groups:
-        raise ValueError("V4 complete archive has no Production role manifests")
-    for method_id, roles in branch_groups.items():
-        if roles != {"ON", "OFF", "TO"}:
-            raise ValueError(f"V4 method lacks ON/OFF/TO Production outputs: {method_id}")
+    if actual_branch_keys != expected_branch_keys:
+        raise ValueError("V4 archived branch identities differ from pipeline manifest")
+    _v4_branch_group_roles(actual_branch_records, case_id=case_id, target_count=target_count)
 
     missing = sorted(path for path in required
                      if not (case_root / path).is_file() or (case_root / path).resolve() not in regular_files)
     if missing:
         raise ValueError(f"V4 required archive members are missing: {missing[:5]}")
     return sorted(required)
+
+
+def _v4_verified_dense_csi_exclusions(
+    case_root: Path, files: list[Path], *, require_complete_output: bool,
+) -> dict[str, str]:
+    """Exclude only CSI arrays whose exact hashes are bound by V4 response evidence."""
+    if not require_complete_output:
+        return {}
+    manifests = [item for item in files if item.name == "target_complex_response_manifest.json"]
+    if len(manifests) != 1:
+        raise ValueError("V4 dense CSI cleanup requires one response evidence manifest")
+    manifest_path = manifests[0]
+    response = json.loads(manifest_path.read_text(encoding="utf-8"))
+    pipeline_root = manifest_path.parent.parent
+    exclusions: dict[str, str] = {}
+    for state in response.get("period_processing_states", []):
+        if not isinstance(state, Mapping):
+            raise ValueError("V4 period processing state is invalid")
+        arrays = state.get("tap_arrays")
+        if not isinstance(arrays, Mapping):
+            raise ValueError("V4 tap array identity inventory is missing")
+        for record in arrays.values():
+            if not isinstance(record, Mapping) or record.get("exists") is not True:
+                raise ValueError("V4 tap array source identity is incomplete")
+            relative = Path(str(record.get("path") or ""))
+            if relative.is_absolute() or ".." in relative.parts:
+                raise ValueError("V4 tap array path is unsafe")
+            source = (pipeline_root / relative).resolve()
+            try:
+                source.relative_to(case_root.resolve())
+            except ValueError as exc:
+                raise ValueError(f"V4 tap array is outside case root: {source}") from exc
+            if (not source.is_file()
+                    or source.stat().st_size != int(record.get("bytes", -1))
+                    or _sha256_file(source) != str(record.get("sha256") or "")):
+                raise ValueError(f"V4 tap array identity mismatch: {source}")
+            if source.suffix.lower() not in {".npy", ".npz"} or "csi_metrics" not in source.parts:
+                continue
+            exclusions[_relative_to_case(source, case_root)] = (
+                "dense_csi_array_exact_hash_retained_in_v4_response_manifest"
+            )
+    return exclusions
 
 
 def _compact_case_manifest_extract(case_root: Path, files: list[Path]) -> bytes | None:
@@ -387,9 +564,18 @@ def archive_case_directory(
         raise ValueError("case tree contains a symlink; refusing to archive an ambiguous path")
     regular_files = [item for item in files if item.is_file()]
     raw_files = [item for item in regular_files if item.suffix.lower() in _RAW_ARRAY_SUFFIXES]
-    if raw_files:
+    if raw_files and archive_profile != "r22_v4_output_complete":
         names = ", ".join(item.relative_to(source).as_posix() for item in raw_files[:5])
         raise ValueError(f"raw array remains after runner cleanup: {names}")
+
+    required_members = (
+        _v4_required_members(source, regular_files)
+        if require_complete_output else []
+    )
+    verified_dense_exclusions = _v4_verified_dense_csi_exclusions(
+        source, regular_files,
+        require_complete_output=(archive_profile == "r22_v4_output_complete" and require_complete_output),
+    )
 
     generated_extract = _compact_case_manifest_extract(source, regular_files)
     if generated_extract is not None and (source / "case_manifest_review_extract.json").exists():
@@ -400,7 +586,7 @@ def archive_case_directory(
         relative = item.relative_to(source).as_posix()
         size = item.stat().st_size
         digest = _sha256_file(item)
-        reason = _exclusion_reason(relative, archive_profile)
+        reason = verified_dense_exclusions.get(relative) or _exclusion_reason(relative, archive_profile)
         if reason is not None:
             excluded.append({
                 "path": relative,
@@ -419,10 +605,6 @@ def archive_case_directory(
         })
         included.sort(key=lambda record: record["path"])
 
-    required_members = (
-        _v4_required_members(source, regular_files)
-        if require_complete_output else []
-    )
     included_paths = {item["path"] for item in included}
     if not set(required_members) <= included_paths:
         raise ValueError("V4 archive policy excluded required evidence members")
@@ -430,7 +612,7 @@ def archive_case_directory(
         "schema_version": 1,
         "archive_profile": archive_profile,
         "archive_policy": (
-            "all_case_files_except_reproducible_raster_plots_and_dense_maps"
+            "all_case_files_except_reproducible_rasters_and_hash-bound_dense_csi_arrays"
             if archive_profile == "r22_v4_output_complete"
             else "all_case_files_except_reproducible_raster_plots"
         ),

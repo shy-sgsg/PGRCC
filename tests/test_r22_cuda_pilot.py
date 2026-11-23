@@ -3,8 +3,13 @@ import math
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 
+from scripts.phase_r.physics_matched_delay import (
+    estimate_physics_matched_delay,
+    stage2_linear_fractional_delay,
+)
 from scripts.phase_r import run_r22_cuda_pilot as r22
 
 
@@ -51,6 +56,53 @@ def test_r22_zero_delay_reference_does_not_schedule_physical_blind_correction():
 
     assert r22._method_ids_for_delay(methods, 0.0) == ("C0", "PK", "PKR")
     assert r22._method_ids_for_delay(methods, 4.0) == methods
+
+
+def test_v4_runner_uses_only_registered_calibration_methods_for_each_delay(tmp_path: Path):
+    assert r22._v4_calibration_method_ids(0.0) == ()
+    assert r22._v4_calibration_method_ids(4.0) == ("C0", "PK")
+    with pytest.raises(ValueError, match="no registered delay condition"):
+        r22._v4_calibration_method_ids(2.0)
+
+    config_path = r22.DEFAULT_METHOD_CONFIG
+    scenario_path = tmp_path / "scenario.json"
+    _, empty_contract = r22._load_method_configuration(
+        config_path, scenario_path, (), allow_empty=True,
+    )
+    assert empty_contract == []
+    with pytest.raises(ValueError, match="at least one method"):
+        r22._load_method_configuration(config_path, scenario_path, ())
+
+
+def test_v4_runner_labels_scientific_and_internal_production_roles_separately():
+    branches = [
+        {"method_id": "A0", "role": "ON"},
+        {"method_id": "A0", "role": "OFF"},
+        {"method_id": "C0", "role": "TO"},
+        {"method_id": "C0", "role": "OFF"},
+        {"method_id": "PK", "role": "ON"},
+        {"method_id": "M1_CAUSAL_PREFIX", "role": "TO"},
+        {"method_id": "M1_BATCH10_DIAGNOSTIC", "role": "ALL"},
+    ]
+    labeled = r22._annotate_v4_branch_classes(
+        branches, phase="confirmatory", delay_ns=4.0,
+    )
+    by_identity = {(row["method_id"], row["role"]): row for row in labeled}
+    assert by_identity[("A0", "ON")]["v4_execution_class"] == "internal_auxiliary_branch"
+    assert by_identity[("C0", "TO")]["v4_registered_method_id"] == "C0"
+    assert by_identity[("C0", "OFF")]["v4_execution_class"] == "internal_auxiliary_branch"
+    assert by_identity[("PK", "ON")]["v4_registered_method_id"] == "PK_KNOWN"
+    assert by_identity[("M1_CAUSAL_PREFIX", "TO")]["v4_registered_method_id"] == "M1_CAUSAL_PREFIX"
+    assert by_identity[("M1_BATCH10_DIAGNOSTIC", "ALL")]["v4_execution_class"] == "non_branch_diagnostic"
+
+    h0_labeled = r22._annotate_v4_branch_classes(
+        [{"method_id": "M1_CAUSAL_PREFIX", "role": "TO"},
+         {"method_id": "M1_CAUSAL_PREFIX", "role": "ON"}],
+        phase="h0", delay_ns=4.0,
+    )
+    assert [row["v4_execution_class"] for row in h0_labeled] == [
+        "internal_auxiliary_branch", "registered_scientific_branch",
+    ]
 
 
 def test_r22_zero_delay_reference_records_estimates_without_applying_correction():
@@ -343,6 +395,70 @@ def test_causal_prefix_estimators_only_receive_periods_through_current_period(
     assert prefix_zero_after["prefix_input_identities"] == prefix_zero_before["prefix_input_identities"]
 
 
+def test_real_m1_huber_prefix_estimates_ignore_mutated_future_periods(tmp_path: Path, monkeypatch):
+    sample_rate_hz = 60.0e6
+    rng = np.random.default_rng(20261123)
+    paths = [tmp_path / f"period_{period:04d}.npz" for period in range(3)]
+    source_arrays = []
+    for period in range(3):
+        first = (rng.standard_normal((8, 2048)) + 1j * rng.standard_normal((8, 2048)))
+        second = stage2_linear_fractional_delay(first, 0.24)
+        source_arrays.append((first, second))
+
+    def save_periods():
+        for path, (first, second) in zip(paths, source_arrays):
+            np.savez(path, first=first, second=second)
+
+    def real_estimator(prefix_paths, _runtime_xml):
+        first_rows, second_rows = [], []
+        for path in prefix_paths:
+            with np.load(path) as data:
+                first_rows.append(data["first"])
+                second_rows.append(data["second"])
+        result = estimate_physics_matched_delay(
+            np.concatenate(first_rows, axis=0),
+            np.concatenate(second_rows, axis=0),
+            fs_hz=sample_rate_hz,
+            carrier_hz=16.0e9,
+            geometry_delay_sec=0.0,
+            carrier_phase_sign=-1,
+            relative_response_model="constant_complex_gain",
+        )
+        result.update({
+            "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+            "sample_rate_hz": sample_rate_hz,
+            "delay_bounds_samples": [-0.49, 0.49],
+            "truth_used_in_estimator": False,
+        })
+        return result
+
+    monkeypatch.setattr(r22.r12, "_blind_m1_from_b_on", real_estimator)
+    save_periods()
+    before = r22._causal_prefix_estimates(paths, tmp_path / "runtime.xml")
+    for method_id in ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"):
+        assert before[method_id][0]["estimator_status"] == "AVAILABLE"
+        assert before[method_id][1]["estimator_status"] == "AVAILABLE"
+
+    future_first, _ = source_arrays[2]
+    future_second = rng.standard_normal(future_first.shape) + 1j * rng.standard_normal(future_first.shape)
+    source_arrays[2] = (future_first, future_second)
+    save_periods()
+    after = r22._causal_prefix_estimates(paths, tmp_path / "runtime.xml")
+
+    for method_id in ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"):
+        for period_id in (0, 1):
+            prior = before[method_id][period_id]
+            changed = after[method_id][period_id]
+            assert changed["estimate_ns"] == pytest.approx(prior["estimate_ns"], abs=1.0e-12)
+            assert changed["applied_correction_ns"] == pytest.approx(
+                prior["applied_correction_ns"], abs=1.0e-12,
+            )
+            assert changed["estimator_status"] == prior["estimator_status"]
+            assert changed["qualification"] == prior["qualification"]
+            assert changed["prefix_input_identities"] == prior["prefix_input_identities"]
+            assert changed["estimate_record"]["support_count"] == prior["estimate_record"]["support_count"]
+
+
 def test_causal_prefix_failure_uses_zero_for_that_period_without_prior_fallback(
     monkeypatch, tmp_path: Path,
 ):
@@ -532,7 +648,7 @@ def test_v4_cleanup_does_not_delete_raw_input_before_response_verification(tmp_p
     raw_input = tmp_path / "period_0000.bin"
     raw_input.write_bytes(b"raw input")
 
-    with pytest.raises(FileNotFoundError, match="V4 target-response manifest is missing"):
+    with pytest.raises(RuntimeError, match="matrix after complete archive verification"):
         r22._compact_case_artifacts(tmp_path, require_v4_response=True)
 
     assert raw_input.read_bytes() == b"raw input"

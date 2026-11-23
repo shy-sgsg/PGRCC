@@ -619,3 +619,109 @@ def test_h0_case_can_be_evaluable_with_target_only_branch_gaps():
     }
 
     assert matrix._case_state("h0", result) == "H0_EVALUABLE_WITH_GAPS"
+
+
+def test_v4_keeps_case_outputs_until_complete_archive_verification(tmp_path, monkeypatch):
+    design = _v3_small_design("v4-archive-before-cleanup", condition_count=1)
+    output_root = tmp_path / "matrix"
+    raw_root = tmp_path / "raw"
+    archive_root = tmp_path / "archives"
+    seen = {}
+
+    def fake_runner(case_root, **kwargs):
+        case_root.mkdir(parents=True)
+        (case_root / "raw-input.bin").write_bytes(b"keep until archive verifies")
+        seen["runner_keep_raw"] = kwargs.get("keep_raw")
+        return {
+            "implementation_result": "passed",
+            "status_labels": {"EVALUABLE": True},
+            "all_production_branches_passed": True,
+        }
+
+    def fail_archive(case_root, archive_path, **kwargs):
+        seen["raw_present_during_archive"] = (case_root / "raw-input.bin").is_file()
+        raise OSError("synthetic archive verification failure")
+
+    monkeypatch.setattr(matrix, "archive_case_directory", fail_archive)
+    result = matrix.run_matrix(
+        design, phase="screening", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=fake_runner, archive_profile="r22_v4_output_complete",
+    )
+
+    record = result["cases"][0]
+    assert result["status"] == "ARCHIVE_PENDING"
+    assert seen["runner_keep_raw"] is True
+    assert seen["raw_present_during_archive"] is True
+    assert (Path(record["output_root"]) / "raw-input.bin").is_file()
+
+
+def test_v4_archive_publish_and_raw_cleanup_interruptions_resume_from_verified_state(
+    tmp_path, monkeypatch,
+):
+    raw_root = tmp_path / "raw"
+    archive_root = tmp_path / "archives"
+    case_root = raw_root / "confirmatory" / "case-one" / "attempt_001"
+    case_root.mkdir(parents=True)
+    (case_root / "raw-input.bin").write_bytes(b"keep until verified compact archive")
+    record = {
+        "case_id": "case-one", "attempt": 1, "status": "PASSED",
+        "output_root": str(case_root), "compact_archive_status": "PENDING",
+    }
+    manifest = {"status": "RUNNING", "cases": [record]}
+    manifest_path = tmp_path / "matrix_manifest.json"
+    real_archive = matrix.archive_case_directory
+    interruptions = {"published": 0}
+
+    def publish_then_interrupt(*args, **kwargs):
+        result = real_archive(*args, **kwargs)
+        if interruptions["published"] == 0:
+            interruptions["published"] += 1
+            raise OSError("simulated stop after ZIP publication before matrix checkpoint")
+        return result
+
+    monkeypatch.setattr(matrix, "archive_case_directory", publish_then_interrupt)
+    with pytest.raises(OSError, match="after ZIP publication"):
+        matrix._ensure_compact_archive(
+            record, phase="confirmatory", raw_base=raw_root,
+            archive_base=archive_root, manifest=manifest, manifest_path=manifest_path,
+            archive_profile="r22_v4_output_complete", require_complete_output=False,
+        )
+    assert case_root.is_dir()
+    archive_path = archive_root / "confirmatory" / "case-one__attempt_001.zip"
+    assert archive_path.is_file()
+    assert "compact_archive" not in record
+
+    real_rmtree = matrix.shutil.rmtree
+
+    def interrupt_cleanup(path, *args, **kwargs):
+        if Path(path) == case_root:
+            raise OSError("simulated stop after archive checkpoint before raw cleanup")
+        return real_rmtree(path, *args, **kwargs)
+
+    monkeypatch.setattr(matrix.shutil, "rmtree", interrupt_cleanup)
+    with pytest.raises(OSError, match="before raw cleanup"):
+        matrix._ensure_compact_archive(
+            record, phase="confirmatory", raw_base=raw_root,
+            archive_base=archive_root, manifest=manifest, manifest_path=manifest_path,
+            archive_profile="r22_v4_output_complete", require_complete_output=False,
+        )
+    assert case_root.is_dir()
+    assert record["compact_archive_status"] == "ARCHIVE_VERIFIED"
+    ledger = record["raw_cleanup_ledger"]
+    assert ledger["status"] == "PENDING"
+    assert ledger["archive_crc_verified"] is True
+    assert ledger["file_count"] == 1
+    assert ledger["bytes"] == len(b"keep until verified compact archive")
+
+    monkeypatch.setattr(matrix.shutil, "rmtree", real_rmtree)
+    matrix._ensure_compact_archive(
+        record, phase="confirmatory", raw_base=raw_root,
+        archive_base=archive_root, manifest=manifest, manifest_path=manifest_path,
+        archive_profile="r22_v4_output_complete", require_complete_output=False,
+    )
+    assert not case_root.exists()
+    assert record["compact_archive_status"] == "VERIFIED_AND_RAW_REMOVED"
+    assert record["raw_cleanup_ledger"]["status"] == "REMOVED_AFTER_ARCHIVE_VERIFICATION"
+    assert record["raw_cleanup_ledger"]["raw_case_present_after"] is False
+    assert manifest_path.is_file()

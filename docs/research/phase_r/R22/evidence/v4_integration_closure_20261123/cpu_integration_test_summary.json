@@ -1,0 +1,19 @@
+{
+  "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=. pytest -q -p no:cacheprovider --basetemp=/tmp/pgrcc-r22-v4-integration-final-04 tests/test_r22_v4_evidence.py tests/test_r22_v4_identity.py tests/test_r22_v4_execution_plan.py tests/test_r22_compact_archive.py tests/test_r22_experiment_matrix.py tests/test_r22_cuda_pilot.py tests/test_r22_v3_method_evaluability.py tests/test_r12_physics_matched_delay.py tests/test_r21_cuda_pilot.py",
+  "cuda_executed": false,
+  "date": "2026-11-23",
+  "failed": 0,
+  "passed": 110,
+  "production_executed": false,
+  "scope": [
+    "V4 response/truth extraction",
+    "source/runtime branch identities",
+    "V4 design expansion",
+    "compact archive completeness and corruption checks",
+    "matrix interruption and resume",
+    "CUDA pilot runner integration (CPU tests only)",
+    "V3/R12/R21 adjacent regressions"
+  ],
+  "stage2_executed": false,
+  "status": "passed"
+}

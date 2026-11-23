@@ -223,6 +223,16 @@ def _case_output_path(raw_base: Path, value: str) -> Path:
     return resolved
 
 
+def _raw_tree_inventory(case_root: Path) -> dict[str, int]:
+    file_count = 0
+    total_bytes = 0
+    for path in case_root.rglob("*"):
+        if path.is_file():
+            file_count += 1
+            total_bytes += path.stat().st_size
+    return {"file_count": file_count, "bytes": total_bytes}
+
+
 def _ensure_compact_archive(
     record: dict[str, Any],
     *,
@@ -280,7 +290,41 @@ def _ensure_compact_archive(
         record["compact_archive_status"] = "ARCHIVE_VERIFIED"
         _write_json_atomic(manifest_path, manifest)
 
-    if case_root.exists():
+    cleanup_ledger: dict[str, Any] | None = None
+    if archive_profile == "r22_v4_output_complete":
+        prior_cleanup = record.get("raw_cleanup_ledger")
+        if isinstance(prior_cleanup, Mapping):
+            cleanup_ledger = dict(prior_cleanup)
+            if cleanup_ledger.get("archive_sha256") != compact_archive.get("archive_sha256"):
+                raise ValueError(f"V4 cleanup ledger archive identity changed for {record['case_id']}")
+            if (cleanup_ledger.get("status") in {
+                    "REMOVED_AFTER_ARCHIVE_VERIFICATION",
+                    "RAW_ALREADY_ABSENT_AFTER_VERIFIED_ARCHIVE",
+                }
+                    and case_root.exists()):
+                raise ValueError(
+                    f"V4 raw case reappeared after recorded cleanup; refusing deletion: {case_root}"
+                )
+        else:
+            inventory = _raw_tree_inventory(case_root) if case_root.is_dir() else {
+                "file_count": 0, "bytes": 0,
+            }
+            cleanup_ledger = {
+                "status": "PENDING",
+                "case_path": str(case_root),
+                **inventory,
+                "archive_path": compact_archive.get("archive_path"),
+                "archive_sha256": compact_archive.get("archive_sha256"),
+                "archive_manifest_sha256": compact_archive.get("archive_manifest_sha256"),
+                "archive_crc_verified": True,
+                "reason": "raw case is removable only after complete V4 archive verification",
+                "started_at_utc": _utc_now(),
+            }
+        record["raw_cleanup_ledger"] = cleanup_ledger
+        _write_json_atomic(manifest_path, manifest)
+
+    raw_case_present = case_root.exists()
+    if raw_case_present:
         if not case_root.is_dir() or case_root.is_symlink():
             raise ValueError(f"case output is not a regular directory: {case_root}")
         shutil.rmtree(case_root)
@@ -289,6 +333,14 @@ def _ensure_compact_archive(
     record["compact_archive_status"] = "VERIFIED_AND_RAW_REMOVED"
     record["raw_output_removed_after_archive_verification"] = True
     record.pop("compact_archive_error", None)
+    if cleanup_ledger is not None:
+        cleanup_ledger["status"] = (
+            "REMOVED_AFTER_ARCHIVE_VERIFICATION" if raw_case_present
+            else "RAW_ALREADY_ABSENT_AFTER_VERIFIED_ARCHIVE"
+        )
+        cleanup_ledger["removed_at_utc"] = _utc_now()
+        cleanup_ledger["raw_case_present_after"] = case_root.exists()
+        record["raw_cleanup_ledger"] = cleanup_ledger
     _write_json_atomic(manifest_path, manifest)
 
 
@@ -541,6 +593,7 @@ def run_matrix(
             }
             if archive_profile == "r22_v4_output_complete":
                 case_kwargs["v4_output_complete"] = True
+                case_kwargs["keep_raw"] = True
             result = dict(case_runner(
                 case_root,
                 **case_kwargs,

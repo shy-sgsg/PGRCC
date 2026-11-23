@@ -1,5 +1,7 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
+> **2026-11-23 V4 CPU 集成闭合：** 110项受影响 CPU 回归通过；静态展开得到240个 case、1,470个注册槽位、2,520次计划 Production 调用。所在卷可用空间约8.38 GiB，单个+4 ns case输入/校正数据下界约8.25 GiB，仅余约0.13 GiB，尚未计Production/CSI输出和归档并存空间，故未启动 Stage2、CUDA、pilot或确认矩阵。V4仍`DRAFT_NOT_FROZEN`，总纲blob不变，`PERFORMANCE_VERIFIED=false`。详见[集成闭合](33_v4_integration_closure_20261123.md)、[CPU验证](34_v4_cpu_integration_validation_20261123.md)、[pilot readiness](35_v4_cuda_pilot_readiness_20261123.md)、[机器证据](evidence/v4_integration_closure_20261123/README.md)和[ChatGPT审查请求](CHATGPT_REVIEW_REQUEST_V4_INTEGRATION_CLOSURE_20261123.md)。
+
 > **2026-11-22 V4 冻结前工程闭合：** 源码提交 `bbb609cc31c659c5cb7963519784a2d856b701db` 实现周期因果前缀估计、逐目标/周期/方法/角色 `CSI_AFTER` 复数 ROI、完整输出归档及 fail-closed 续跑验证。67项定向 CPU/模拟测试通过；本阶段没有运行 Stage2、CUDA、Production 或实验矩阵，不能据此声称任务性能已验证。V4 仍 `DRAFT_NOT_FROZEN`，MDE/覆盖率非劣界值、独立代码审查、seed身份审计和单独授权的尺寸 pilot 未完成。总纲 blob 不变，未删除历史证据。详见[冻结前工程闭合报告](32_v4_pre_freeze_technical_closure_20261122.md)、[机器可读设计](config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)和[ChatGPT独立审查请求](CHATGPT_REVIEW_REQUEST_V4_PREFREEZE_IMPLEMENTATION_20261122.md)。
 
 > **2026-11-14 R22-V4 契约草案修订：** 在周期因果 M1、180个 target-present + 60个独立 H0 case identity 和完整 Detection/TrackManager/target-only complex 输出的基础上，新增同输入/同周期前缀的 Huber D3 次要对照；Fixed D3 固定值 `3.4099650318669545 ns` 与 R9/R3来源已明确。源码审计快照 `1063d67` 显示现有 M1/Huber 为 full-case batch，Production runner 对全周期应用 case 级校正标量；V4前缀估计与逐周期校正尚未实现。追加输出审计确认 Production 可生成全期 Detection/TrackManager debug，但默认 compact archive 会删除 TrackManager 目录和 GMTI09 之前的 ON Detection；现有 `_target_transfer` 只保留 CSI 5×5 ROI 汇总，缺少逐格复数值和完整 ROI/注入真值映射。冻结前须实现 V4 专用 archive allowlist 与 target-response schema，并通过完整输出 pilot 测量体量。Case identity 对应约1,470条方法×角色 Production branches，须纳入获授权后的尺寸 pilot。MDE、覆盖率非劣门、因果/输出实现、资源 pilot 与 CUDA 授权未闭合，仍为 `DRAFT_NOT_FROZEN`。项目约5.3 GiB；本轮未删数据，因为较大 R22/V3.2/V3.3 证据仍支持当前审计。见[契约草案](31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器设计](config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)和[ChatGPT独立审查请求](CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)。不改 V3.2/V3.3历史证据，不授权CUDA。
@@ -66,6 +68,8 @@
 30. [V3.3离线残差与Production输出审计报告](V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md)、[逐方法输出/关联覆盖分析](V3_3_residual_task_gap_audit/03_detection_and_opportunity_overlap.md)、[紧凑证据导航](V3_3_residual_task_gap_audit/README.md)与[ChatGPT独立审查请求](V3_3_residual_task_gap_audit/CHATGPT_REVIEW_REQUEST.md)：涵盖144个`+4 ns` compact case、全十周期位置共同成功及Production Detection/cluster输出；明确31个method-case association缺口、非目标cluster不可评价和不作系统Pfa解释。证据快照 commit 固定写在审查请求中。
 
 31. [R22-V4 周期因果、输出完整的确认性契约草案](31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)、[机器可读设计](config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json)与[ChatGPT独立审查请求](CHATGPT_REVIEW_REQUEST_V4_CONTRACT_DRAFT_20261113.md)：只定义待审查方案；MDE/检测非劣阈值、实现、资源 pilot 与用户 CUDA 授权均未闭合。
+32. [R22-V4冻结前工程实现闭合](32_v4_pre_freeze_technical_closure_20261122.md)：记录周期因果估计和完整输出的CPU/模拟集成证据。
+33. [R22-V4 CPU集成闭合裁决](33_v4_integration_closure_20261123.md)、[CPU验证](34_v4_cpu_integration_validation_20261123.md)、[pilot资源readiness](35_v4_cuda_pilot_readiness_20261123.md)与[ChatGPT独立审查请求](CHATGPT_REVIEW_REQUEST_V4_INTEGRATION_CLOSURE_20261123.md)：110项受影响回归通过；静态计划已核实；因卷空间低于单case输入下界，未运行CUDA或Stage2，V4未冻结。
 
 ## 关键证据
 

@@ -198,12 +198,60 @@ def _load_method_configuration(
     config_path: Path,
     scenario_path: Path,
     method_ids: Sequence[str],
+    *,
+    allow_empty: bool = False,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     config_path = Path(config_path).expanduser().resolve()
     method_config = calibration.load_pilot_config(config_path)
     method_config["scenario_template"] = str(Path(scenario_path).expanduser().resolve())
-    method_contract = calibration.build_method_contract(method_config, method_ids=method_ids)
+    if not method_ids and allow_empty:
+        method_contract: list[dict[str, Any]] = []
+    else:
+        method_contract = calibration.build_method_contract(method_config, method_ids=method_ids)
     return method_config, method_contract
+
+
+def _v4_calibration_method_ids(delay_ns: float) -> tuple[str, ...]:
+    """Methods the V4 draft actually sends through the shared calibration runner."""
+    if float(delay_ns) == 0.0:
+        return ()
+    if float(delay_ns) == 4.0:
+        # C0 supplies the uncorrected current baseline and runtime XML used by
+        # the causal estimators; PK is the evaluator-only known-error upper bound.
+        return ("C0", "PK")
+    raise ValueError(f"V4 draft has no registered delay condition for {delay_ns} ns")
+
+
+def _annotate_v4_branch_classes(
+    branch_records: Sequence[Mapping[str, Any]], *, phase: str, delay_ns: float,
+) -> list[dict[str, Any]]:
+    """Mark registered scientific branches separately from runner support calls."""
+    runner_to_v4 = {
+        "A0": "A0", "C0": "C0", "PK": "PK_KNOWN",
+        "R22_R9_Fixed_D3": "FIXED_D3",
+        "HUBER_D3_CAUSAL_PREFIX": "HUBER_D3_CAUSAL_PREFIX",
+        "M1_CAUSAL_PREFIX": "M1_CAUSAL_PREFIX",
+    }
+    registered_methods = (
+        {"A0"} if float(delay_ns) == 0.0 else {
+            "C0", "FIXED_D3", "HUBER_D3_CAUSAL_PREFIX", "M1_CAUSAL_PREFIX", "PK_KNOWN",
+        }
+    )
+    registered_roles = {"ON", "TO"} if phase != "h0" else {"ON"}
+    annotated: list[dict[str, Any]] = []
+    for branch in branch_records:
+        record = dict(branch)
+        role = str(record.get("role") or "")
+        canonical = runner_to_v4.get(str(record.get("method_id") or ""))
+        is_registered = canonical in registered_methods and role in registered_roles
+        record["v4_registered_method_id"] = canonical if is_registered else None
+        record["v4_execution_class"] = (
+            "registered_scientific_branch" if is_registered
+            else "internal_auxiliary_branch" if role in {"ON", "OFF", "TO"}
+            else "non_branch_diagnostic"
+        )
+        annotated.append(record)
+    return annotated
 
 
 def _make_scenario(
@@ -261,12 +309,71 @@ def _raw_role_periods(pilot_manifest: Mapping[str, Any], period_count: int) -> d
 
 def _audit_production_branches(
     branch_records: Sequence[Mapping[str, Any]],
+    *,
+    case_root: Path | None = None,
+    case_id: str | None = None,
+    method_config_identity: Mapping[str, Any] | None = None,
+    default_source_xml: Path | None = None,
 ) -> list[dict[str, Any]]:
     audited: list[dict[str, Any]] = []
     for branch in branch_records:
         record = dict(branch)
         if str(record.get("role", "")) != "ALL":
             record["production_path_gate"] = stage1.audit_production_path_evidence(record)
+        if case_root is not None and case_id is not None and str(record.get("role", "")) in {"ON", "OFF", "TO"}:
+            from scripts.phase_r.r22_v4_identity import normalize_mode
+
+            root = Path(case_root).expanduser().resolve()
+            branch_name = str(record.get("branch_name") or "")
+            if not branch_name:
+                raise ValueError("V4 Production result lacks branch_name")
+            record["case_id"] = case_id
+            record["method_id"] = str(record.get("method_id") or "").strip()
+            if not record["method_id"]:
+                raise ValueError(f"V4 Production branch lacks explicit method_id: {branch_name}")
+            # Keep method_id and condition as separate identity fields. The
+            # calibration runner has no condition column on its base branches,
+            # so those branches use the method label as their condition value.
+            record["condition"] = str(record.get("condition") or record["method_id"])
+            record["mode"] = normalize_mode(record.get("mode"))
+            branch_root = root / "production" / branch_name
+            xml_path = Path(str(record.get("production_xml") or branch_root / "production.xml")).resolve()
+            source_xml_value = record.get("source_xml") or default_source_xml
+            source_xml_path = Path(str(source_xml_value or "")).expanduser().resolve()
+            overrides = record.get("xml_overrides")
+            if not xml_path.is_file() or not source_xml_path.is_file():
+                raise FileNotFoundError(f"V4 branch XML identity input is missing: {branch_name}")
+            try:
+                source_xml_relative = source_xml_path.relative_to(root).as_posix()
+                xml_relative = xml_path.relative_to(root).as_posix()
+            except ValueError as exc:
+                raise ValueError(f"V4 branch XML identity input is outside case root: {branch_name}") from exc
+            if not isinstance(overrides, Mapping) or not overrides:
+                raise ValueError(f"V4 branch XML overrides are missing: {branch_name}")
+            if not isinstance(method_config_identity, Mapping):
+                raise ValueError("V4 method configuration identity is missing")
+            xml_identity = {
+                "path": xml_relative,
+                "bytes": xml_path.stat().st_size,
+                "sha256": sha256_file(xml_path),
+            }
+            source_configuration_identity = {
+                "method_config": dict(method_config_identity),
+                "source_xml": {
+                    "path": source_xml_relative,
+                    "bytes": source_xml_path.stat().st_size,
+                    "sha256": sha256_file(source_xml_path),
+                },
+                "branch_overrides_sha256": hashlib.sha256(json.dumps(
+                    dict(overrides), sort_keys=True, separators=(",", ":"), ensure_ascii=False,
+                ).encode("utf-8")).hexdigest(),
+            }
+            record["runtime_xml_identity"] = xml_identity
+            record["source_configuration_identity"] = source_configuration_identity
+            write_json(branch_root / "branch_manifest.json", {
+                **record, "branch_name": branch_name, "production_xml": "production.xml",
+                "xml_overrides": dict(overrides),
+            })
         audited.append(record)
     return audited
 
@@ -590,7 +697,9 @@ def _run_causal_prefix_delay_method(
         )
         gate = stage1.audit_production_path_evidence(branch)
         branch.update({
+            "method_id": method_id,
             "condition": method_id,
+            "mode": "not_applicable",
             "role": role,
             "case_id": case_id,
             "correction_source": "same_case_ON_raw_C1_C2_causal_prefix",
@@ -664,7 +773,9 @@ def _run_extra_delay_method(
         )
         gate = stage1.audit_production_path_evidence(branch)
         branch.update({
+            "method_id": condition,
             "condition": condition,
+            "mode": "not_applicable",
             "role": role,
             "case_id": case_id,
             "correction_source": correction_source,
@@ -823,6 +934,10 @@ def _compact_case_artifacts(
     case_root: Path, *, require_v4_response: bool = False,
 ) -> dict[str, Any]:
     """Remove regenerable binaries and full CSI maps after scalar evidence exists."""
+    if require_v4_response:
+        raise RuntimeError(
+            "V4 raw cleanup is owned by the matrix after complete archive verification"
+        )
     case_root = Path(case_root).expanduser().resolve()
     v4_response_audit: dict[str, Any] | None = None
     if require_v4_response:
@@ -900,6 +1015,10 @@ def run_case(
     v4_output_complete: bool = False,
 ) -> dict[str, Any]:
     output_root = Path(output_root).expanduser().resolve()
+    if v4_output_complete:
+        # Preserve the complete source tree until the outer matrix transaction
+        # has published and verified its compact archive.
+        keep_raw = True
     if output_root.exists() and (not output_root.is_dir() or any(output_root.iterdir())):
         raise ValueError(f"refusing to overwrite non-empty R22 output root: {output_root}")
     output_root.mkdir(parents=True, exist_ok=True)
@@ -920,9 +1039,13 @@ def run_case(
         first_beam=first_beam, beam_count=beam_count, area=area,
     )
     method_config_path = Path(method_config_path).expanduser().resolve()
-    execution_method_ids = _method_ids_for_delay(method_ids, delay_ns)
+    execution_method_ids = (
+        _v4_calibration_method_ids(delay_ns)
+        if v4_output_complete else _method_ids_for_delay(method_ids, delay_ns)
+    )
     method_config, method_contract = _load_method_configuration(
-        method_config_path, scenario_path, execution_method_ids
+        method_config_path, scenario_path, execution_method_ids,
+        allow_empty=v4_output_complete and not execution_method_ids,
     )
     scene_identity = {
         "seed": seed,
@@ -954,7 +1077,17 @@ def run_case(
             "seed": seed, "radial_speed_mps": speed_mps, "target_snr_db": snr_db,
             "delay_error_ns": delay_ns, "target_count": target_count,
             "period_count": period_count, "first_beam": first_beam, "beam_count": beam_count,
-            "method_ids": list(method_ids), "calibration_modes": list(calibration_modes),
+            "method_ids": (
+                ["A0", *execution_method_ids] if v4_output_complete else list(method_ids)
+            ),
+            "caller_method_ids": list(method_ids),
+            "v4_registered_methods_applicable": (
+                ["A0"] if float(delay_ns) == 0.0 else [
+                    "C0", "FIXED_D3", "HUBER_D3_CAUSAL_PREFIX",
+                    "M1_CAUSAL_PREFIX", "M1_BATCH10_DIAGNOSTIC", "PK_KNOWN",
+                ] if v4_output_complete else None
+            ),
+            "calibration_modes": list(calibration_modes),
             "execution_method_ids": list(execution_method_ids),
             "production_processing_range": calibration._production_range_overrides(
                 method_config["production"]
@@ -1007,6 +1140,24 @@ def run_case(
             calibration_modes=calibration_modes,
         )
         pipeline_case_root = Path(str(pipeline_manifest["output_root"])).resolve()
+        method_config_snapshot_identity: dict[str, Any] | None = None
+        source_xml_snapshot_path: Path | None = None
+        if v4_output_complete:
+            snapshot_path = pipeline_case_root / "method_config_snapshot.json"
+            snapshot_path.write_bytes(method_config_path.read_bytes())
+            method_config_snapshot_identity = {
+                "path": snapshot_path.name,
+                "bytes": snapshot_path.stat().st_size,
+                "sha256": sha256_file(snapshot_path),
+            }
+            source_xml_value = pipeline_manifest.get("source_xml")
+            if not source_xml_value:
+                raise ValueError("V4 pipeline manifest lacks the effective Stage2 source XML")
+            source_xml_snapshot_path = Path(str(source_xml_value)).expanduser().resolve()
+            try:
+                source_xml_snapshot_path.relative_to(pipeline_case_root)
+            except ValueError as exc:
+                raise ValueError("V4 effective Stage2 source XML is outside the pipeline case") from exc
         write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
         raw = _raw_role_periods(pipeline_manifest, period_count)
         layout = pipeline_manifest.get("protocol_layout")
@@ -1019,7 +1170,18 @@ def run_case(
         zero_error_target_free_estimate: dict[str, Any] | None = None
         qualified: dict[str, Any]
         causal_prefix_records: dict[str, list[dict[str, Any]]] = {}
-        if c0_on is None or not c0_on.get("production_xml"):
+        if v4_output_complete and float(delay_ns) == 0.0:
+            estimate_record = {
+                "status": "NOT_APPLICABLE",
+                "reason": "zero_delay_reference_has_no_registered_delay_estimator",
+                "input_role": None,
+                "truth_used_in_estimator": False,
+            }
+            qualified = {
+                "d3_huber": {"status": "NOT_APPLICABLE", "reason": estimate_record["reason"]},
+                "m1": {"status": "NOT_APPLICABLE", "reason": estimate_record["reason"]},
+            }
+        elif c0_on is None or not c0_on.get("production_xml"):
             estimate_record = {"status": "NOT_AVAILABLE", "reason": "C0_B_ON_Production_XML_missing",
                                "truth_used_in_estimator": False}
             qualified = {
@@ -1047,7 +1209,7 @@ def run_case(
             causal_prefix_records = _causal_prefix_estimates(
                 raw["A1_Current_unknown_error"]["ON"], runtime_xml,
             )
-        if float(delay_ns) == 0.0:
+        if float(delay_ns) == 0.0 and not v4_output_complete:
             try:
                 zero_error_target_free_estimate = calibration.estimate_blind_delay(
                     stage1, raw["A1_Current_unknown_error"]["OFF"], layout,
@@ -1071,16 +1233,17 @@ def run_case(
             correction_specs = [row for row in correction_specs if row[0] not in scalar_blind_ids]
             extra_methods = [row for row in extra_methods if row.get("method_id") not in scalar_blind_ids]
             if float(delay_ns) == 0.0:
-                for method_id in ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"):
-                    extra_methods.append({
-                        "method_id": method_id,
-                        "mode": "not_applicable",
-                        "role": "ALL",
-                        "status": "NOT_APPLICABLE_ZERO_DELAY_REFERENCE",
-                        "reason": "no physical correction is applied to the no-error reference",
-                        "truth_used_in_estimator": False,
-                    })
-        if not any(row.get("method_id") == "PK" for row in method_records):
+                extra_methods = []
+            else:
+                registered_extra_ids = {
+                    "R22_R9_Fixed_D3", "HUBER_D3_CAUSAL_PREFIX", "M1_CAUSAL_PREFIX",
+                }
+                extra_methods = [
+                    row for row in extra_methods
+                    if row.get("method_id") in registered_extra_ids
+                ]
+        if (not any(row.get("method_id") == "PK" for row in method_records)
+                and not (v4_output_complete and float(delay_ns) == 0.0)):
             extra_methods.append({"method_id": "Known_error_correction_upper_bound", "mode": "not_applicable",
                                   "role": "ALL", "status": "NOT_AVAILABLE", "reason": "PK_method_not_selected"})
 
@@ -1106,14 +1269,29 @@ def run_case(
                     production_config=method_config["production"],
                 ))
         method_records.extend(extra_methods)
-        method_records = _audit_production_branches(method_records)
+        if v4_output_complete:
+            method_records = _annotate_v4_branch_classes(
+                method_records, phase=phase, delay_ns=delay_ns,
+            )
+        method_records = _audit_production_branches(
+            method_records,
+            case_root=pipeline_case_root if v4_output_complete else None,
+            case_id=case_id if v4_output_complete else None,
+            method_config_identity=(
+                method_config_snapshot_identity if v4_output_complete else None
+            ),
+            default_source_xml=source_xml_snapshot_path,
+        )
         pipeline_manifest["method_branches"] = method_records
         pipeline_manifest["r22_delay_estimator"] = estimate_record
         pipeline_manifest["r22_blind_method_qualification"] = qualified
         pipeline_manifest["r22_zero_error_target_free_estimate_only"] = zero_error_target_free_estimate
         if v4_output_complete:
             pipeline_manifest["r22_batch_m1_diagnostic"] = {
-                "status": estimate_record.get("status", "NOT_AVAILABLE"),
+                "status": (
+                    "NOT_APPLICABLE_ZERO_DELAY_REFERENCE"
+                    if float(delay_ns) == 0.0 else estimate_record.get("status", "NOT_AVAILABLE")
+                ),
                 "online_ranking": False,
                 "used_to_apply_correction": False,
                 "estimate_record": estimate_record,
@@ -1128,6 +1306,7 @@ def run_case(
                 branch_records=method_records,
                 target_count=target_count,
                 period_count=period_count,
+                case_id=case_id,
             )
             pipeline_manifest["r22_v4_target_response"] = v4_response_manifest
         write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)

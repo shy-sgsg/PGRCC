@@ -97,7 +97,7 @@
         "robust_fit": "12 IRLS iterations; scale 1.4826*MAD with 1e-6 floor; standardized Huber cutoff 1.345",
         "shared_support_mask": "same M1-selected mask: finite nonzero observed/geometry cross, nonzero frequency, and observed_cross magnitude >= 80th percentile of valid bins",
         "qualification_gate": "finite D3 estimate; support_count >= 8; frequency_span_hz >= 3e6; D3 support_count equals M1 support_count",
-        "known_gate_gap": "current R21 qualifier does not enforce the M1 delay_bounds_samples on the D3 estimate; freeze Huber-specific delay-domain validity before V4",
+        "known_gate_gap": "closed in the existing R21 qualifier: the same finite sample rate and delay_bounds_samples gate is applied independently to the M1 and D3 Huber estimates; the out-of-domain D3 regression case is covered by tests/test_r21_cuda_pilot.py",
         "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
       },
       {

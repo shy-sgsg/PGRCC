@@ -4,6 +4,7 @@
 
 ## 状态身份
 
+- **2026-11-23 R22-V4 CPU 集成闭合：** V4 专属执行计划、方法/模式/角色身份、ON/OFF/TO 真值映射、完整归档与 fail-closed 续跑完成 CPU 集成；受影响回归110项通过。静态设计展开为240 case、1,470个方法/角色槽位、2,520次Production调用和1,200–1,440次Stage2调用；均非实际运行。当前卷约8.38 GiB可用，一个+4 ns case的未压缩输入与校正数组下界约8.25 GiB，仅余约0.13 GiB，未计Production/CSI输出和归档并存空间，故没有启动Stage2/CUDA/pilot/确认矩阵。`IMPLEMENTED=true`、`CPU_INTEGRATION_TESTED=true`、真实实验`EXECUTED=false`、`EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`；V4仍`DRAFT_NOT_FROZEN`。只清理本次CPU测试的临时夹具，保留历史实验和失败证据。研究总纲blob保持`e637e3769bde7814298ff012d0f42301884e2985`。详见[R22-V4集成闭合报告](phase_r/R22/33_v4_integration_closure_20261123.md)、[CPU验证](phase_r/R22/34_v4_cpu_integration_validation_20261123.md)、[pilot readiness](phase_r/R22/35_v4_cuda_pilot_readiness_20261123.md)及[审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_INTEGRATION_CLOSURE_20261123.md)。
 - **2026-11-22 R22-V4 冻结前工程实现：** 源码提交 `bbb609cc31c659c5cb7963519784a2d856b701db` 完成 M1/Huber `{0…k}` 周期前缀估计与当前周期校正、固定 truth-centered `CSI_AFTER` 逐格复数响应记录、output-complete compact archive 与续跑校验。定向 CPU/合成/模拟门控测试为 67 passed；这只证明实现路径和归档规则，不是实际实验。`IMPLEMENTED=true`；测试代码路径 `EXECUTED=true`；实际 CUDA/Stage2/Production `EXECUTED=false`；真实数据 `EVALUABLE=false`；`PERFORMANCE_VERIFIED=false`。V4 仍为 `DRAFT_NOT_FROZEN`，`CUDA_AUTHORIZED=false`、`AI_TRAINING=false`。MDE、检测覆盖率非劣界值、独立源码审查、seed/输入身份审计和另行授权的尺寸 pilot 仍未闭合。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。工作树约4.8 GiB、项目约5.3 GiB；本阶段只清理约7.7 MiB可再生 Python/pytest 缓存，保留 `.scratch`、历史输出、compact 归档和失败现场。详见[R22-V4冻结前工程闭合报告](phase_r/R22/32_v4_pre_freeze_technical_closure_20261122.md)。
 - **2026-11-14 R22-V4 周期因果源码审计：** 固定只读源码快照 `1063d67c96af7dbbe7fe871b3a56be0ca453b9b2` 显示，当前 R21/R22 的 M1 与 Huber 都以 full-case batch 输入估计；R22 Production correction runner 对所有周期使用单一 case 级校正标量。现有 Huber 候选是 M1 同一 pooled input、M1选出的第80百分位 support mask与几何模型上的幅度加权 robust phase-slope D3；R21有效性门没有D3时延范围检查。V4 的 `{0…k}` 前缀和逐周期校正尚未实现/执行/评价；已将共享mask与Huber范围/fallback决策列为冻结前事项。未运行任何实验，CUDA/AI仍未授权。
 - **2026-11-14 R22-V4 输出与归档源码审计：** 同一源码快照中，Production runner 可输出逐期 Detection 与 TrackManager debug/PIPE，但默认 `r22_compact_archive.py` 会删掉全部 `track_debug_runs` 和除 `GMTI09` 外的 ON Detection 周期；当前 R3 `_target_transfer` 只保存 CSI 真值中心5×5 ROI的汇总复增益/功率，不保存 V4 所需逐格复数输出及完整 ROI/注入真值映射。V4 输出 schema 未就绪，冻结前需实现专用 archive allowlist 和目标复数响应提取器，并逐成员验证归档。当前工作树约4.8 GiB、项目约5.3 GiB、文件系统可用约13 GiB；V2唯一失败现场及 V3.2/V3.3 审计材料仍有用途，本次没有删除。无 CUDA/Production 执行。
@@ -123,11 +124,11 @@ R17 的状态为：`IMPLEMENTED` 不适用（未改算法/软件）；`EXECUTED`
 
 ## 当前唯一优先任务与阶段门
 
-- **当前唯一优先任务：** R22-V4 output-complete 确认性契约草案已形成，等待 ChatGPT 独立审查与用户决策。
+- **当前唯一优先任务：** 对2026-11-23 R22-V4 CPU集成闭合快照完成ChatGPT独立双层审查；随后根据统计门、seed注册、卷空间余量与单case实测决定是否另行授权尺寸pilot。不得自动启动CUDA或确认矩阵。
 - **契约状态：** `DRAFT_NOT_FROZEN`。拟议范围为30个预留 seed × 3个速度 × SNR20 × 0/+4 ns（180个 target-present case），加30个全新 H0 seed × 2个时延（60个 case）。主要对比为周期因果 M1 对 Frozen Fixed D3 的全周期共同成功位置误差；Known 只作 evaluator-only 上限，batch-10 M1 排除在线排名。M1 每周期只读当前和过去 ON C1/C2，估计失败显式零校正并纳入全策略分母。
 - **冻结前置门：** 工程 MDE、检测覆盖率非劣界值、因果估计器和全周期输出实现/源码审计、最终 seed 碰撞核查、用户授权的完整输出尺寸 pilot 均未完成。对应契约见 [R22-V4 草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)。
 - **停止条件：** 不把 V3.3 screening 差值用作工程门槛；不把共同成功 RMSE 单独解释成完整任务收益；不以 CUT 分数代替 H0 beam-period false-alarm 指标；不自动启动 AI、Router、Dense 或 CUDA 矩阵；研究总纲正文仍受用户明确审批保护。
-- **后续任务授权：** 用户本次授权的是契约草案与审查材料；尚未授权实现、CUDA pilot 或完整矩阵。`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。
+- **后续任务授权：** 本次完成的CPU集成闭合不构成CUDA pilot或完整矩阵授权；设计文件仍明确`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。开始pilot前须满足统计门、seed审计和足够临时磁盘空间，并取得对应的独立执行授权。
 
 ## 总纲修订讨论
 
