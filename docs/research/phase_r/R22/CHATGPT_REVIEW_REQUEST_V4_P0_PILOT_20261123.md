@@ -6,17 +6,17 @@
 |---|---|
 | 仓库 | https://github.com/shy-sgsg/PGRCC |
 | 分支 | codex/unknown-system-error-next-stage |
-| 固定报告审查 commit | b4d5e72ef92d9dc43344fce761a0187afad2ae75 |
+| 固定报告审查 commit | d95774efe4397615d2a0a5811371d3febb9a8214 |
 | 实验执行源码 commit | 715639c8e9aad7359eb1a5058f9238c0d51f99a1 |
 | 研究总纲路径 | docs/research/RESEARCH_MASTER_PLAN.md |
 | 固定总纲 blob | e637e3769bde7814298ff012d0f42301884e2985 |
 | 机器证据导航 | docs/research/phase_r/R22/evidence/v4_native_cuda_pilot_20261123/README.md |
 
-请以固定审查 commit 为准。分支后续增加本提示词和导航链接的提交不改变本次实验报告快照。不要以当前 HEAD 或后续文件替换固定版本中的研究状态、报告或结果。
+请以固定审查 commit 为准。分支后续增加本提示词和导航链接的提交不改变本次实验报告快照。不要以当前 HEAD 或后续文件替换固定版本中的研究状态、报告或结果。该快照的冻结准备报告含历史 V3.3 seed 方差的候选 MDE/覆盖率非劣功效敏感性、分阶段处理计时和归档分类体积；这些是条件性规划数据，不是用户已批准的统计阈值。
 
 ## 首先阅读总纲
 
-请首先读取审查 commit b4d5e72ef92d9dc43344fce761a0187afad2ae75 中完整的：
+请首先读取审查 commit d95774efe4397615d2a0a5811371d3febb9a8214 中完整的：
 
 docs/research/RESEARCH_MASTER_PLAN.md
 
@@ -44,7 +44,7 @@ docs/research/RESEARCH_MASTER_PLAN.md
 
 Pilot 使用 A0、Current、Known evaluator-only、Fixed D3、M1 causal prefix 和 Huber D3 causal prefix。每个适用方法处理 OFF/ON/TO 配对角色。它测的是一个完整 case 的物理输入、Production、输出捕获、归档和恢复路径，不是预注册确认性矩阵。
 
-实验真实执行源码 commit 是 715639c8e9aad7359eb1a5058f9238c0d51f99a1。归档身份修复和回归测试是在该实验结束后形成，包含在报告快照 b4d5e72 中；该修复影响归档身份校验，不代表重新运行或更改 CUDA 计算结果。
+实验真实执行源码 commit 是 715639c8e9aad7359eb1a5058f9238c0d51f99a1。归档身份修复和回归测试是在该实验结束后形成，包含在报告快照 d95774e 中；该修复影响归档身份校验，不代表重新运行或更改 CUDA 计算结果。
 
 ## 重要可核查观察
 
