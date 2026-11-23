@@ -187,29 +187,40 @@ def test_v4_output_complete_run_case_requires_matrix_authorization(tmp_path: Pat
 
 
 def test_v4_output_complete_enables_csi_arrays_without_changing_legacy_capture():
-    config = {"production": {"csi_metrics_dump_power_maps": False}}
+    config = {"production": {
+        "csi_metrics_dump_power_maps": False,
+        "csi_metrics_dump_intermediate_maps": False,
+    }}
 
     ordinary_override = r22._r22_xml_overrides(v4_output_complete=False)
     v4_override = r22._r22_xml_overrides(v4_output_complete=True)
     audit = r22._apply_v4_output_capture(config, v4_output_complete=True)
 
     assert ordinary_override["csi_metrics_dump_power_maps"] == "false"
+    assert ordinary_override["csi_metrics_dump_intermediate_maps"] == "false"
     assert v4_override["csi_metrics_dump_power_maps"] == "true"
+    assert v4_override["csi_metrics_dump_intermediate_maps"] == "true"
     assert config["production"]["csi_metrics_dump_power_maps"] is True
+    assert config["production"]["csi_metrics_dump_intermediate_maps"] is True
     assert audit == {
         "csi_metrics_dump_power_maps": True,
+        "csi_metrics_dump_intermediate_maps": True,
         "scope": "v4_output_complete_diagnostic_capture_only",
         "algorithm_parameters_changed": False,
     }
 
 
 def test_non_v4_capture_does_not_mutate_method_config():
-    config = {"production": {"csi_metrics_dump_power_maps": False}}
+    config = {"production": {
+        "csi_metrics_dump_power_maps": False,
+        "csi_metrics_dump_intermediate_maps": False,
+    }}
 
     audit = r22._apply_v4_output_capture(config, v4_output_complete=False)
 
     assert audit == {}
     assert config["production"]["csi_metrics_dump_power_maps"] is False
+    assert config["production"]["csi_metrics_dump_intermediate_maps"] is False
 
 
 def test_r22_json_manifest_normalizes_nonfinite_values_and_paths(tmp_path: Path):

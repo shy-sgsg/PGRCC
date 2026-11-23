@@ -41,7 +41,7 @@ DEFAULT_AREA = {
     "thermal_noise_power": 0.001,
 }
 V4_SIZE_PILOT_DESIGN_ID = "R22_V4_OUTPUT_SIZE_PILOT_DRAFT_20261123"
-V4_SIZE_PILOT_APPROVED_SHA256 = "163e59d7af1fc681bf8cc2cce66949c9f77c34da725e9b463c3ca803b2d2cf13"
+V4_SIZE_PILOT_APPROVED_SHA256 = "f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954"
 R22_XML_OVERRIDES = {
     "csi_metrics_enable": "true",
     "csi_metrics_dump_power_maps": "false",
@@ -53,6 +53,7 @@ def _r22_xml_overrides(*, v4_output_complete: bool = False) -> dict[str, str]:
     overrides = dict(R22_XML_OVERRIDES)
     if v4_output_complete:
         overrides["csi_metrics_dump_power_maps"] = "true"
+        overrides["csi_metrics_dump_intermediate_maps"] = "true"
     return overrides
 
 
@@ -65,8 +66,10 @@ def _apply_v4_output_capture(
     if not isinstance(production, dict):
         raise ValueError("V4 complete-output capture requires a mutable production config")
     production["csi_metrics_dump_power_maps"] = True
+    production["csi_metrics_dump_intermediate_maps"] = True
     return {
         "csi_metrics_dump_power_maps": True,
+        "csi_metrics_dump_intermediate_maps": True,
         "scope": "v4_output_complete_diagnostic_capture_only",
         "algorithm_parameters_changed": False,
     }
@@ -1162,8 +1165,8 @@ def _require_v4_size_pilot_authorization(
         "design_id": V4_SIZE_PILOT_DESIGN_ID,
         "approved_design_sha256": V4_SIZE_PILOT_APPROVED_SHA256,
         "phase": "engineering",
-        "case_id": case_identifier("engineering", 1937002, 2.5, 20.0, 4.0, 20, 10),
-        "seed": 1937002, "speed_mps": 2.5, "snr_db": 20.0,
+        "case_id": case_identifier("engineering", 1937003, 2.5, 20.0, 4.0, 20, 10),
+        "seed": 1937003, "speed_mps": 2.5, "snr_db": 20.0,
         "delay_ns": 4.0, "target_count": 20, "period_count": 10,
         "first_beam": 50, "beam_count": 1,
         "method_ids": ["C0", "PK"],

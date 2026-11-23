@@ -99,7 +99,7 @@ def _validate_v4_size_pilot_authorization(
         raise ValueError("V4 size-pilot authorization requires exactly one planned case")
     spec = specs[0]
     expected_spec = {
-        "phase": "engineering", "seed": 1937002, "speed_mps": 2.5,
+        "phase": "engineering", "seed": 1937003, "speed_mps": 2.5,
         "snr_db": 20.0, "delay_ns": 4.0, "target_count": 20,
         "period_count": 10, "first_beam": 50, "beam_count": 1,
         "method_ids": ["C0", "PK"],
