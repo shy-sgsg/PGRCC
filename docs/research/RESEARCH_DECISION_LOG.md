@@ -345,3 +345,7 @@
 - **统计门：** V4主定位MDE、检测覆盖率非劣界值仍为空；不能用V3.3 full-case batch筛选差值推导，也无法确认30-seed设计功效。`M1−Huber`仍是无独立MDE时仅作描述的次要比较。
 - **资源/行动：** 单个+4 ns case输入和校正数组未压缩下界约8.25 GiB；本次检查的项目卷可用约8.5 GiB、`/tmp`可用约7.3 GiB，均未覆盖额外Production/CSI输出、归档与raw并存或系统余量。未运行CUDA；只提出专用卷上的单case完整输出尺寸pilot配置/命令，仍需统计门、全局seed审计、源码/二进制冻结和用户另行授权。
 - **裁决与保留：** 当前 `BLOCKED`；不修改研究总纲、确认性阈值或算法，不启动矩阵/AI。没有删除仍被报告、决策或归档索引引用的历史数据；最终项目空间仍低于20 GiB。详见[R22-V4预检审计](phase_r/R22/36_v4_preflight_audit_and_cuda_pilot_proposal_20261123.md)、[seed审计](phase_r/R22/evidence/v4_integration_closure_20261123/seed_registry_audit.json)和[尺寸pilot配置](phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json)。
+
+## 2026-11-23｜R22-V4 交付后磁盘复测
+
+- 提交/推送后的单独复测显示工作树约4.8 GiB、项目目录约5.3 GiB；项目卷可用空间约6.1 GiB，`/tmp`约7.3 GiB。预检早些时候项目卷约8.5 GiB可用；下降原因未确认，不归因于本次报告/配置文件。本次没有删除用户数据、历史结果或失败现场。空间比8.25 GiB raw-input下界更紧，pilot保持`BLOCKED`。
