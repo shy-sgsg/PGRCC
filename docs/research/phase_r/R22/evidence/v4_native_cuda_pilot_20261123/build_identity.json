@@ -1,0 +1,57 @@
+{
+  "USE_COREX": false,
+  "backend": "Native CUDA",
+  "branch": "codex/unknown-system-error-next-stage",
+  "build_options": "CMAKE_BUILD_TYPE:STRING=Release\nCMAKE_CUDA_COMPILER:FILEPATH=/usr/bin/nvcc\nUSE_COREX:BOOL=OFF",
+  "build_options_path": "outputs/r22_v4_p0_seed1937003_20261123/preflight/build_options.txt",
+  "design_path": "docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json",
+  "design_sha256": "f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954",
+  "execution_source_commit": "715639c8e9aad7359eb1a5058f9238c0d51f99a1",
+  "experiment_source_worktree_dirty_at_run": false,
+  "native_cuda_preflight": {
+    "binary": {
+      "backend": "local Native CUDA",
+      "build_cache": {
+        "bytes": 33162,
+        "exists": true,
+        "path": "build/CMakeCache.txt",
+        "sha256": "4eefad9d42f727d2c968ad9c4e338b0adce7b11a5e74035a4399d7443786581c"
+      },
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+      "repo_relative_path": "build/GMTI_pipe_core",
+      "sha256": "adef89d1d3776864a5cddf36eacdd852eff495ae33cdf989642eef7eb4d7f78e",
+      "use_corex": false
+    },
+    "disk": {
+      "free_bytes": 57546088448,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_v4_p0_seed1937003_20261123/raw/engineering/engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10/attempt_001",
+      "total_bytes": 497777065984,
+      "used_bytes": 414870069248
+    },
+    "gpu": {
+      "available": true,
+      "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+      "driver_identity": {
+        "command": [
+          "nvidia-smi",
+          "--query-gpu=driver_version",
+          "--format=csv,noheader,nounits"
+        ],
+        "driver_versions": [
+          "580.178.04"
+        ],
+        "returncode": 0,
+        "stderr": ""
+      },
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P0, 24.23, 60, 100, 1500"
+    }
+  },
+  "production_backend": "local Native CUDA",
+  "production_binary_sha256": "adef89d1d3776864a5cddf36eacdd852eff495ae33cdf989642eef7eb4d7f78e",
+  "production_use_corex": false,
+  "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "schema_version": 1,
+  "stage2_binary_sha256": "47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f"
+}

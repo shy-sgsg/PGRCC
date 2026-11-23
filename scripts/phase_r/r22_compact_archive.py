@@ -268,10 +268,23 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
     pipeline_case_manifest_path = pipeline_case_manifests[0]
     pipeline_case_root = pipeline_case_manifest_path.parent
     pipeline_manifest = json.loads(pipeline_case_manifest_path.read_text(encoding="utf-8"))
-    if str(pipeline_manifest.get("case_id") or "") != case_id:
-        raise ValueError("V4 pipeline case manifest identity differs from run manifest")
     pipeline_scene_identity = pipeline_manifest.get("scene_identity")
     pipeline_case_identity = pipeline_manifest.get("case")
+    pipeline_case_id = str(pipeline_manifest.get("case_id") or "")
+    scene_case_ids: list[str] = []
+    if isinstance(pipeline_scene_identity, Mapping) and pipeline_scene_identity.get("case_id"):
+        scene_case_ids.append(str(pipeline_scene_identity["case_id"]))
+    scene_identity_override = (
+        pipeline_case_identity.get("scene_identity_override")
+        if isinstance(pipeline_case_identity, Mapping) else None
+    )
+    if isinstance(scene_identity_override, Mapping) and scene_identity_override.get("case_id"):
+        scene_case_ids.append(str(scene_identity_override["case_id"]))
+    if scene_case_ids:
+        if any(scene_case_id != case_id for scene_case_id in scene_case_ids):
+            raise ValueError("V4 pipeline scene case identity differs from run manifest")
+    elif pipeline_case_id != case_id:
+        raise ValueError("V4 pipeline case manifest identity differs from run manifest")
     pipeline_seed = (
         pipeline_scene_identity.get("seed") if isinstance(pipeline_scene_identity, Mapping) else None
     )

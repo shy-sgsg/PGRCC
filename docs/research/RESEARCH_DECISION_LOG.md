@@ -349,3 +349,15 @@
 ## 2026-11-23｜R22-V4 交付后磁盘复测
 
 - 提交/推送后的单独复测显示工作树约4.8 GiB、项目目录约5.3 GiB；项目卷可用空间约6.1 GiB，`/tmp`约7.3 GiB。预检早些时候项目卷约8.5 GiB可用；下降原因未确认，不归因于本次报告/配置文件。本次没有删除用户数据、历史结果或失败现场。空间比8.25 GiB raw-input下界更紧，pilot保持`BLOCKED`。
+
+
+## 2026-11-23｜R22-V4 P0 Native CUDA 单 case pilot 完成；确认矩阵仍未冻结
+
+- **决策编号与身份：** D-2026-11-23-R22-V4-P0-NATIVE-CUDA-PILOT。执行源码 commit 715639c8e9aad7359eb1a5058f9238c0d51f99a1；seed1937003；设计 SHA-256 f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954；Stage2/Production binary SHA 与归档 SHA 见[执行报告](phase_r/R22/38_v4_p0_native_cuda_execution_20261123.md)及[机器证据](phase_r/R22/evidence/v4_native_cuda_pilot_20261123/README.md)。研究总纲 blob e637e3769bde7814298ff012d0f42301884e2985 未修改。
+- **用户授权边界：** 仅一个 target-present Native CUDA P0 工程 case、完整输出、archive-pending 续跑、归档核验、raw 清理及报告推送。没有授权 240-case 确认矩阵或 AI。GPU 当时被外部训练进程占用；该进程没有被终止或修改。
+- **问题与结果：** 连续面积杂波真实注入：1,300 packets、6,508,782 samples、测得平均功率0.0227655、lag-1相关0.979993。Stage2六次、Production18/18分支成功；M1/Huber周期估计均10/10可用且无fallback；90,000条CSI_AFTER目标ROI复数行全部有限。归档SHA/CRC/422个必需成员通过，随后只清理本 pilot raw。归档finalize首次因本地case label与外层run label不一致而失败；修复external scene identity比对后，同一输出根断点续跑只验证归档，未重跑CUDA。修复新增回归覆盖alias接受和冲突拒绝；全部11个R22测试文件共139项通过。
+- **关键任务观察：** 固定单 seed、+4ns、2.5m/s、20dB、20目标条件下，A0/PK/M1/Fixed/Huber命中为140/200、140/200、140/200、142/200、142/200；Current为26/200。仅为单场景工程观察，不是独立 seed 统计，PERFORMANCE_VERIFIED=false。OFF角色不是独立H0，经验Pfa不可评价。
+- **阶段裁决：** PILOT_PASS（工程运行与证据链），IMPLEMENTED/EXECUTED/EVALUABLE=true，PERFORMANCE_VERIFIED=false。长期研究方向CONTINUE，不据此宣称算法创新或AI必要性。
+- **待决与停止条件：** V4仍DRAFT_NOT_FROZEN；定位MDE、检测覆盖非劣界值及航迹保护界值未确定，240-case设计的功效与TB级归档存储方案需审查。单case授权不覆盖矩阵；不自动启动CUDA矩阵、AI、Router或其他新实验。
+- **下一项优先工作：** 将固定审查 commit 对应的总纲、动态状态、决策日志、本次报告和紧凑证据交由ChatGPT双层独立审查；之后由用户讨论工程阈值和资源方案，再决定是否冻结/另行授权。
+- **证据入口：** [P0预检](phase_r/R22/37_v4_p0_preflight_and_authorization_20261123.md)、[执行报告](phase_r/R22/38_v4_p0_native_cuda_execution_20261123.md)、[科研评估](phase_r/R22/39_v4_p0_preliminary_research_assessment_20261123.md)、[冻结准备度](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)及[机器证据导航](phase_r/R22/evidence/v4_native_cuda_pilot_20261123/README.md)。

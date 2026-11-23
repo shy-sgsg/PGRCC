@@ -489,6 +489,62 @@ def _write_v4_archive_case(
     response_manifest_path.write_text(json.dumps(response_manifest), encoding="utf-8")
 
 
+def test_v4_archive_resolves_pipeline_local_case_id_through_scene_identity(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-v4-local-label"
+    case_root.mkdir(parents=True)
+    _write_v4_archive_case(case_root)
+
+    pipeline_case_manifest_path = case_root / "pipeline" / "cases" / "run" / "case_manifest.json"
+    pipeline_manifest = json.loads(pipeline_case_manifest_path.read_text(encoding="utf-8"))
+    pipeline_manifest["case_id"] = "run"
+    pipeline_manifest["scene_identity"]["case_id"] = "v4-case"
+    pipeline_manifest["case"]["scene_identity_override"] = {"case_id": "v4-case"}
+    pipeline_case_manifest_path.write_text(json.dumps(pipeline_manifest), encoding="utf-8")
+
+    result = matrix.archive_case_directory(
+        case_root,
+        tmp_path / "archives" / "case-v4-local-label.zip",
+        raw_root=raw_root,
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=True,
+        remove_source=False,
+    )
+
+    verification = matrix.verify_case_archive(
+        result["archive_path"],
+        expected_sha256=result["archive_sha256"],
+        expected_manifest_sha256=result["archive_manifest_sha256"],
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=True,
+    )
+    assert verification["crc_verified"] is True
+    assert case_root.is_dir()
+
+
+def test_v4_archive_rejects_pipeline_scene_identity_conflicting_with_run_id(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-v4-conflicting-scene-id"
+    case_root.mkdir(parents=True)
+    _write_v4_archive_case(case_root)
+
+    pipeline_case_manifest_path = case_root / "pipeline" / "cases" / "run" / "case_manifest.json"
+    pipeline_manifest = json.loads(pipeline_case_manifest_path.read_text(encoding="utf-8"))
+    pipeline_manifest["scene_identity"]["case_id"] = "another-run"
+    pipeline_manifest["case"]["scene_identity_override"] = {"case_id": "v4-case"}
+    pipeline_case_manifest_path.write_text(json.dumps(pipeline_manifest), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="pipeline scene case identity"):
+        matrix.archive_case_directory(
+            case_root,
+            tmp_path / "archives" / "case-v4-conflicting-scene-id.zip",
+            raw_root=raw_root,
+            archive_profile="r22_v4_output_complete",
+            require_complete_output=True,
+            remove_source=False,
+        )
+
+
 def test_v4_archive_profile_keeps_all_detection_and_track_lineage(tmp_path: Path):
     raw_root = tmp_path / "raw"
     case_root = raw_root / "confirmatory" / "case-v4"

@@ -1,0 +1,47 @@
+{
+  "archive_root": "outputs/r22_v4_p0_seed1937003_20261123/archives",
+  "authorization_basis": "User-authorized one target-present P0 case and explicit GPU execution authorization in the session",
+  "capture": {
+    "csi_metrics_dump_intermediate_maps": true,
+    "csi_metrics_dump_power_maps": true
+  },
+  "case_id": "engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10",
+  "command": "PYTHONPATH=. python3 scripts/phase_r/r22_experiment_matrix.py --design docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json --phase engineering --output-root outputs/r22_v4_p0_seed1937003_20261123/matrix --raw-output-root outputs/r22_v4_p0_seed1937003_20261123/raw --compact-archive-root outputs/r22_v4_p0_seed1937003_20261123/archives --stage2-binary build/simulate_stage2_statistical --production-binary build/GMTI_pipe_core --archive-profile r22_v4_output_complete --authorize-v4-size-pilot --approved-design-sha256 f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954",
+  "design_sha256": "f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954",
+  "disk_peak_estimate": "~16-19 GB raw estimated by scaling the two prior actual partial outputs and adding ~6.5 GB for full CSI maps; archive coexistence is monitored online and not treated as established fact",
+  "disk_reserve_min_bytes": 10737418240,
+  "disk_start_free_bytes": 57547403264,
+  "disk_start_gate_gib": 35,
+  "formal_confirmatory_matrix_authorized": false,
+  "git_commit": "715639c8e9aad7359eb1a5058f9238c0d51f99a1",
+  "gpu_start": "RTX 3050 Laptop 4 GiB; 2015 MiB free; external compute processes present; no process will be terminated",
+  "matrix_root": "outputs/r22_v4_p0_seed1937003_20261123/matrix",
+  "methods": [
+    "A0",
+    "C0",
+    "PK",
+    "R22_R9_Fixed_D3",
+    "HUBER_D3_CAUSAL_PREFIX",
+    "M1_CAUSAL_PREFIX"
+  ],
+  "output_root": "outputs/r22_v4_p0_seed1937003_20261123",
+  "phase": "engineering",
+  "production_binary_sha256": "adef89d1d3776864a5cddf36eacdd852eff495ae33cdf989642eef7eb4d7f78e",
+  "production_expected_branch_count": 18,
+  "raw_root": "outputs/r22_v4_p0_seed1937003_20261123/raw",
+  "resume": false,
+  "scenario": {
+    "USE_COREX": false,
+    "backend": "Native CUDA",
+    "beam": 50,
+    "delay_ns": 4.0,
+    "period_count": 10,
+    "snr_db": 20.0,
+    "speed_mps": 2.5,
+    "target_count": 20
+  },
+  "schema_version": 1,
+  "seed": 1937003,
+  "stage2_binary_sha256": "47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f",
+  "task": "R22-V4-P0 single engineering Native CUDA full-output pilot"
+}

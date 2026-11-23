@@ -1,0 +1,546 @@
+{
+  "all_reuse_period_rows_matched": true,
+  "beam": 50,
+  "case_id": "engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10",
+  "channel_impairment": {
+    "A1_ON": {
+      "channel_amp_mismatch_db": 0,
+      "channel_fixed_phase_mismatch_deg": 0,
+      "channel_time_delay_ns": 4,
+      "enabled": true,
+      "injection_order": "after_echo_superposition_before_final_protocol_write",
+      "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/truth/channel_impairment_manifest.json",
+      "sha256": "88c639c1e76c793ffe1051086f20a24c3cf4a004354fa585ee7b131508721dd5",
+      "status": "implemented"
+    },
+    "A1_TO": {
+      "channel_amp_mismatch_db": 0,
+      "channel_fixed_phase_mismatch_deg": 0,
+      "channel_time_delay_ns": 4,
+      "enabled": true,
+      "injection_order": "after_echo_superposition_before_final_protocol_write",
+      "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/truth/channel_impairment_manifest.json",
+      "sha256": "88c639c1e76c793ffe1051086f20a24c3cf4a004354fa585ee7b131508721dd5",
+      "status": "implemented"
+    }
+  },
+  "clutter_effective": true,
+  "clutter_injection": {
+    "area_mean_power_measured": 0.0227655060237,
+    "area_rho_lag1_measured": 0.979992768765,
+    "continuous_area_packets": 1300,
+    "continuous_area_samples": 6508782
+  },
+  "clutter_source_role": "A0_ON",
+  "interpretation": "The clutter producer report is A0_ON; companion OFF/TO and A1 roles report zero newly injected packets because the saved background mapping reuses the same ten-period packet group. A1 applies the recorded +4 ns channel impairment after echo superposition and before protocol write.",
+  "paired_background_reuse": [
+    {
+      "matched_rows": 10,
+      "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/reports/background_reuse_mapping.csv",
+      "period_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "role": "A0_OFF",
+      "rows": 10,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917",
+      "unique_source_groups": [
+        0
+      ]
+    },
+    {
+      "matched_rows": 10,
+      "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/reports/background_reuse_mapping.csv",
+      "period_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "role": "A0_TO",
+      "rows": 10,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917",
+      "unique_source_groups": [
+        0
+      ]
+    },
+    {
+      "matched_rows": 10,
+      "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/reports/background_reuse_mapping.csv",
+      "period_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "role": "A1_OFF",
+      "rows": 10,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917",
+      "unique_source_groups": [
+        0
+      ]
+    },
+    {
+      "matched_rows": 10,
+      "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/reports/background_reuse_mapping.csv",
+      "period_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "role": "A1_ON",
+      "rows": 10,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917",
+      "unique_source_groups": [
+        0
+      ]
+    },
+    {
+      "matched_rows": 10,
+      "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/reports/background_reuse_mapping.csv",
+      "period_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "role": "A1_TO",
+      "rows": 10,
+      "sha256": "dea9c988e6a16a6fe6949b2ef5d89cf3a1ed7bf3ce50250170cd40a94a04c917",
+      "unique_source_groups": [
+        0
+      ]
+    }
+  ],
+  "periods": 10,
+  "pulse_count_per_period": 130,
+  "schema_version": 1,
+  "seed": 1937003,
+  "stage2_elapsed_seconds": 203.65752650600916,
+  "stage2_runs": 6,
+  "stage2_scenes": [
+    {
+      "area_mean_power_measured": null,
+      "area_model": "continuous_texture",
+      "area_rho_lag1_measured": null,
+      "continuous_area_packets": 0,
+      "continuous_area_samples": 0,
+      "report_path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/reports/stage2_simulation_report.md",
+      "report_sha256": "c91ae7781a2e9e07e1d44ad7f5833697fc0479bb871c5044f14d97546fab844f",
+      "role": "A0_OFF",
+      "seed": "1937003",
+      "stage2_period_bin_bytes": 492044800,
+      "stage2_period_bin_count": 10,
+      "stage2_period_bins": [
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "sha256": "0bddcc9d61c8722ca877546d6231b9b253f6510b979fd9af3485851c130d0638"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "sha256": "ddab87f9cb25391ceda5f87e738f300a529b00a921e90509b27b73dfe2cc4053"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "sha256": "464e58672e3580bf1abca5315bba009a802260d64a6af072a146fe6374084ef8"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0003.bin",
+          "sha256": "fa94106ee3d1168a6b5704ab021055f7f543dd802e8ffe28d30967f5721052dc"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+          "sha256": "af50912ad9aa2e7f2ad7cd6fa2b61723de2f2cb22be0f3222a66a0176125d3ff"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0005.bin",
+          "sha256": "1d736048ba95500dbf11802a45f3a21d0f485201eeb1a992b1aa956ddaf58a5d"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0006.bin",
+          "sha256": "040ea20a9902e6162fb10427f43545858ea7b29715c6a01a88aee5e61d112b8e"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0007.bin",
+          "sha256": "559f98629ee3ac3e7e4002c98227f7d552f99eb291bb55368d227889aaea2b12"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0008.bin",
+          "sha256": "18cbaac0f8291911132111f9d616a86bffd02062be9fc4099af4edcccbb98900"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0009.bin",
+          "sha256": "0320189da60b9556cee24996e390f6c846cabcfe4bb8e14adb038ee5a296ed65"
+        }
+      ]
+    },
+    {
+      "area_mean_power_measured": 0.0227655060237,
+      "area_model": "continuous_texture",
+      "area_rho_lag1_measured": 0.979992768765,
+      "continuous_area_packets": 1300,
+      "continuous_area_samples": 6508782,
+      "report_path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "report_sha256": "e32089a52c124470705f35519fa44a5d29b3ebefd5bf59bc1dfa74cddb9056e2",
+      "role": "A0_ON",
+      "seed": "1937003",
+      "stage2_period_bin_bytes": 492044800,
+      "stage2_period_bin_count": 10,
+      "stage2_period_bins": [
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "sha256": "27f8ba06804189d470f3712d1521f776cb0a676098eb55373479307d85fc5f9e"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "sha256": "e165dd3e9f0a24cd3b3f1ad1ca32e765422a3f2e8f7267e6ba856ada3a0e216e"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "sha256": "7ebb618e5dcd7b26ec11593dee607cd2babff8fae53837c531a331fd8d0c28b1"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+          "sha256": "d94d4ac4800912895839b7e524767af1abf05a55c923f4780b4e3e6cc16c5e68"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+          "sha256": "82eaf41659cbadedc12d121f72c0fd8b3f679e076849f0335adbcfa4202518e6"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+          "sha256": "8fdfccd249346914e5e22c0c884e38bfc279c1e5e52d787380139a61fa8718eb"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+          "sha256": "fbb2a8c93599317e01e88f92e4e96a3a0e9601f6598ff9d7c292b7ad3e256ccc"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+          "sha256": "8f2e94d69aa3733d5d706e5059582f3cc55b4b5ecff91f81872f95a004c2de72"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+          "sha256": "9dcaab8404bf6de788b4df551436d4f2fbee0f9c47cc10e19dcfb03ade0d857f"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+          "sha256": "72f63da4546c1cc6e439898ed723014020612b715d419193a0d6b0cb9ab86034"
+        }
+      ]
+    },
+    {
+      "area_mean_power_measured": null,
+      "area_model": "continuous_texture",
+      "area_rho_lag1_measured": null,
+      "continuous_area_packets": 0,
+      "continuous_area_samples": 0,
+      "report_path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/reports/stage2_simulation_report.md",
+      "report_sha256": "e717c67a2d41730a20c098193a812b0d36994df26435f6bbdb0ffb4b607ac2d8",
+      "role": "A0_TO",
+      "seed": "1937003",
+      "stage2_period_bin_bytes": 492044800,
+      "stage2_period_bin_count": 10,
+      "stage2_period_bins": [
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "sha256": "731a63a4e2be819225c41fe395cc4e7e3e6e1ca045c634761236df7f852bed35"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "sha256": "ecc5b7a3c442d7015c1832f83b5fd25d85007d33096f8bca2db8c05b9484b460"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "sha256": "56c9474562f381ba19ef2ad8f898fcf987f58cb4eadf7e24000653124d1342d0"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0003.bin",
+          "sha256": "234789cef27d3e8982010006d130a7a74851e22f06b71605188959fff0825851"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+          "sha256": "3d025975d2fa0d797b0ef4b1a4e46e3dd2150049d6efa8e05c771ad4c04a1555"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0005.bin",
+          "sha256": "c5317ee35451bee09012aaa3069cec1c54bc5c18ca6b56c6738774523460810d"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0006.bin",
+          "sha256": "e635d02a7d313e12678bc864b08a7692fdd5b8e26d262a86ca2af60ad0990026"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0007.bin",
+          "sha256": "983000316ce33565cc318d0a98d1468d7115e510753bb2f5f570c5d9e748e9b7"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0008.bin",
+          "sha256": "d537477ec7f168f5c64811d8d762f456d9cde549429cb4f4857398ea4ebe5298"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0009.bin",
+          "sha256": "1c4a607b649572600d7e84d5150722806512b68881f46fe92293977979635961"
+        }
+      ]
+    },
+    {
+      "area_mean_power_measured": null,
+      "area_model": "continuous_texture",
+      "area_rho_lag1_measured": null,
+      "continuous_area_packets": 0,
+      "continuous_area_samples": 0,
+      "report_path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/reports/stage2_simulation_report.md",
+      "report_sha256": "f5dd6dcefa362c3af311831ba62e8753c1501b7b36dd5d425a160467d43bb708",
+      "role": "A1_OFF",
+      "seed": "1937003",
+      "stage2_period_bin_bytes": 492044800,
+      "stage2_period_bin_count": 10,
+      "stage2_period_bins": [
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "sha256": "8ccc2085256578c17cb3aa87f506ac0be66b88bda006910cb68a2710bb12802b"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "sha256": "2d16f6d7b77938a5bbbbb0777e08c2dc7b66b68d230e855fea4fecfe99f18280"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "sha256": "bc4c67aabe5a69c7ee2968d78cd02b86b55e3fa701fe793c9470b7990d0f49ef"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0003.bin",
+          "sha256": "27caf8a27111892567c0f5b9af64ba5564a2a475bcd195b27b70c584742a960a"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+          "sha256": "cae094d164f219bd66d87712df93f1fe85a133276d308f13c23c0a8d8d34a675"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0005.bin",
+          "sha256": "29479f2e4c324565ad6076ed663b0c49448df02c2fc1faca29f9a16c499b4b30"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0006.bin",
+          "sha256": "148677e4c8f43510517c85e493c7674605126702a810dbf745d65a779e9e11a2"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0007.bin",
+          "sha256": "000ee4819bb03c809796219bd61dfc643e6354961eb44b9931e512ded27cccc9"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0008.bin",
+          "sha256": "d4628b96674afe274f0b122dae6c96e8d3dd157a812c86b9c6d7a527317e08c4"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0009.bin",
+          "sha256": "30b7427d2edbe28fd8eb6cd53502b40ca9bd555a5323fd732916eca5d98eb363"
+        }
+      ]
+    },
+    {
+      "area_mean_power_measured": null,
+      "area_model": "continuous_texture",
+      "area_rho_lag1_measured": null,
+      "continuous_area_packets": 0,
+      "continuous_area_samples": 0,
+      "report_path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/reports/stage2_simulation_report.md",
+      "report_sha256": "42f07c5360dcee409fbefc3250b020575930f2884cd14266f8b67de7e32a2d4b",
+      "role": "A1_ON",
+      "seed": "1937003",
+      "stage2_period_bin_bytes": 492044800,
+      "stage2_period_bin_count": 10,
+      "stage2_period_bins": [
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "sha256": "1f9857955e35704d235ee3c3d9176bb7b63c959cabfd526594c8d9676bb11ca7"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "sha256": "64bd9b9f0466286bc713fc47be0c47442720017585b2f85e09535fcab4111c08"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "sha256": "1150f17a85a3dc37cb6e967e12ed6c3b4f024a5e2863f9d0bfa9f0cbbfa8ede2"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+          "sha256": "17bdb5ad5eb8d2f6547a4b8e3600df62c357d1ae1c1fac3237afe28933d91c2b"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+          "sha256": "7b9e294d70548a5c44f40d7ab159de2bb597192151dbd38fc5c5eefaabaa3d3b"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+          "sha256": "0b32d1ed6c2bdf65cd7a098227e0daa82214bfbeb623855db89e3459af58482c"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+          "sha256": "5f2f75d102481999a3b0bbe2d2540a00d2827ece079d62560024e17631a82577"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+          "sha256": "61a40c32ee83ff8428b141b39d4755c57836682d1dcdabffcbd0a681a75f0906"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+          "sha256": "8cec20cb18844f919fabdf5c3ebee8e162c5e2a2fd239ffa3e01a859d5f83901"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+          "sha256": "ff88e897489e6af001c19d5e8e6b9f411db274f62ecacc048651f2ef6c0bfaeb"
+        }
+      ]
+    },
+    {
+      "area_mean_power_measured": null,
+      "area_model": "continuous_texture",
+      "area_rho_lag1_measured": null,
+      "continuous_area_packets": 0,
+      "continuous_area_samples": 0,
+      "report_path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/reports/stage2_simulation_report.md",
+      "report_sha256": "aee2c4f63011beef31e1fa0e2dae8ab3f4caba0f5156c6993e624475321acf9b",
+      "role": "A1_TO",
+      "seed": "1937003",
+      "stage2_period_bin_bytes": 492044800,
+      "stage2_period_bin_count": 10,
+      "stage2_period_bins": [
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "sha256": "ecc53136a3f3ff25aa77e89b74b1e4cc068366487251d446dee502bb54ab295d"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "sha256": "bb903e95f407ca4ddbee8cb119f3abb1430eec2d13a2e8e286467efa3554c962"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "sha256": "f792e9f72822eefcdf9c84a9340c8b1f77dfe8fb5e7d0b6d16786b1698ef6b48"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0003.bin",
+          "sha256": "abb867124159f6e928a0e49bbc6e5c00a9e0681d5bd818c226529c8a91148625"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+          "sha256": "cfb229fc404b72dd0e054061947d45958e744050415fcf360cec30a942f9c59c"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0005.bin",
+          "sha256": "71484e16631705400da4a54d37283cfa89afebe3a0686490ec310bc0ee05ff32"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0006.bin",
+          "sha256": "a51591d6ac4dfe1e8fa1b89a10b3ff66de22a9b7d68dd391aba559b1034551d0"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0007.bin",
+          "sha256": "16ba01450055040793401feb20d61db213a74788f11654eb2ea9f411cebcee3b"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0008.bin",
+          "sha256": "2f3b795e7e1f3fc05a2fcc81df38b4af316d1fca9f72761f3de554fb683cc3ae"
+        },
+        {
+          "bytes": 49204480,
+          "path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0009.bin",
+          "sha256": "009bc02f6e98036b41ca9a6b600db3d65ff1c8bdfb49f76509650890c73e0650"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "ai_training_started": false,
+  "case_id": "engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10",
+  "design_sha256": "f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954",
+  "disk": {
+    "filesystem": "/dev/nvme1n1p4",
+    "final_sampled_free_bytes": 44497952768,
+    "final_sampled_free_gib": 41.44194793701172,
+    "minimum_reserve_bytes": 10737418240,
+    "minimum_sample_timestamp_utc": "2026-11-23T11:41:51.015524+00:00",
+    "minimum_sampled_free_bytes": 27726299136,
+    "minimum_sampled_free_gib": 25.822128295898438,
+    "monitor_samples": 79,
+    "pilot_output_allocated_bytes": 13037412352,
+    "pilot_output_allocated_gib": 12.142036437988281,
+    "reserve_preserved": true,
+    "start_free_bytes": 57547403264,
+    "worktree_allocated_bytes": 18105085952,
+    "worktree_allocated_gib": 16.861675262451172
+  },
+  "execution_status": "COMPLETED",
+  "external_compute_processes_present": true,
+  "external_processes_terminated": false,
+  "formal_matrix_authorized": false,
+  "gpu_runtime_samples": [
+    {
+      "raw": "NVIDIA GeForce RTX 3050 Laptop GPU, 580.178.04, 4096 MiB, 1746 MiB, 2015 MiB, 100 %, 60, P0, 24.82 W, 1500 MHz, 6001 MHz",
+      "sample_file": "gpu_start.csv"
+    },
+    {
+      "raw": "NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB, 1746 MiB, 2015 MiB, 100 %, 61, P0, 24.06 W",
+      "sample_file": "gpu_stage2.csv"
+    },
+    {
+      "raw": "NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB, 1753 MiB, 2008 MiB, 100 %, 60, P0, 23.91 W",
+      "sample_file": "gpu_stage2_progress.csv"
+    },
+    {
+      "raw": "NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB, 1961 MiB, 1800 MiB, 100 %, 60, P0, 22.52 W",
+      "sample_file": "gpu_production.csv"
+    },
+    {
+      "raw": "NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB, 1738 MiB, 2023 MiB, 100 %, 60, P0, 24.09 W",
+      "sample_file": "gpu_causal_phase.csv"
+    },
+    {
+      "raw": "NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB, 1961 MiB, 1800 MiB, 100 %, 60, P0, 22.60 W",
+      "sample_file": "gpu_midrun.csv"
+    }
+  ],
+  "gpu_start_snapshot": "NVIDIA GeForce RTX 3050 Laptop GPU, 580.178.04, 4096 MiB, 1746 MiB, 2015 MiB, 100 %, 60, P0, 24.44 W, 1500 MHz, 6001 MHz",
+  "preflight_status": "PASSED",
+  "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "schema_version": 1,
+  "seed": 1937003,
+  "source_execution_commit": "715639c8e9aad7359eb1a5058f9238c0d51f99a1"
+}

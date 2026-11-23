@@ -4,6 +4,8 @@
 
 ## 状态身份
 
+- **2026-11-23 R22-V4 P0 Native CUDA pilot：** 用户授权的 seed1937003 单 target-present 工程 case 已完成：有效连续面积杂波、18/18 Production 分支通过、完整 CSI_AFTER/Detection/TrackManager 输出与压缩归档通过验证；归档事务断点续跑没有重跑计算，raw 已按 ledger 清理。单 seed 的 +4 ns Current 26/200 命中，Known 140/200，M1 140/200，Huber 142/200，只是工程与描述性证据，PERFORMANCE_VERIFIED=false。RTX 3050 Laptop GPU 当时被外部训练负载占用，本次没有修改该进程。确认性 V4 仍 DRAFT_NOT_FROZEN；MDE、检测非劣界值、航迹保护界值未定，240-case 矩阵未启动，AI未训练。工作树约17 GiB、低于最终20 GiB上限。研究总纲blob未改。见[R22-V4 P0执行报告](phase_r/R22/38_v4_p0_native_cuda_execution_20261123.md)、[科研评估](phase_r/R22/39_v4_p0_preliminary_research_assessment_20261123.md)、[冻结准备度](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)。
+
 - **2026-11-23 R22-V4 冻结前预检：** 补审 V4 seed、统计与尺寸 pilot 条件。本机 R22 证据确认 V3.2 Screening 的12个实际 seed 为1932001–1932012；V3.2预留 Confirmatory seed 1933001–1933030未用于该 Screening。提出的pilot候选seed1937001在新增草案之前的既有R22 case identity中未见，但全项目registry/外部归档最终复核未完成。V4主定位MDE、检测覆盖率非劣界值仍为空；项目卷审计时约8.5GiB可用、交付后复测6.1GiB，`/tmp`约7.3GiB，均不足以安全容纳8.25GiB输入下界及额外输出/归档并存。期间空间减少原因未确认，未删除任何历史数据。最终门控`BLOCKED`，无CUDA执行。详见[R22-V4预检审计与pilot提案](phase_r/R22/36_v4_preflight_audit_and_cuda_pilot_proposal_20261123.md)、[seed审计](phase_r/R22/evidence/v4_integration_closure_20261123/seed_registry_audit.json)和[尺寸pilot草案](phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json)。
 - **2026-11-23 R22-V4 CPU 集成闭合：** V4 专属执行计划、方法/模式/角色身份、ON/OFF/TO 真值映射、完整归档与 fail-closed 续跑完成 CPU 集成；受影响回归110项通过。静态设计展开为240 case、1,470个方法/角色槽位、2,520次Production调用和1,200–1,440次Stage2调用；均非实际运行。当前卷约8.38 GiB可用，一个+4 ns case的未压缩输入与校正数组下界约8.25 GiB，仅余约0.13 GiB，未计Production/CSI输出和归档并存空间，故没有启动Stage2/CUDA/pilot/确认矩阵。`IMPLEMENTED=true`、`CPU_INTEGRATION_TESTED=true`、真实实验`EXECUTED=false`、`EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`；V4仍`DRAFT_NOT_FROZEN`。只清理本次CPU测试的临时夹具，保留历史实验和失败证据。研究总纲blob保持`e637e3769bde7814298ff012d0f42301884e2985`。详见[R22-V4集成闭合报告](phase_r/R22/33_v4_integration_closure_20261123.md)、[CPU验证](phase_r/R22/34_v4_cpu_integration_validation_20261123.md)、[pilot readiness](phase_r/R22/35_v4_cuda_pilot_readiness_20261123.md)及[审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_INTEGRATION_CLOSURE_20261123.md)。
 - **2026-11-22 R22-V4 冻结前工程实现：** 源码提交 `bbb609cc31c659c5cb7963519784a2d856b701db` 完成 M1/Huber `{0…k}` 周期前缀估计与当前周期校正、固定 truth-centered `CSI_AFTER` 逐格复数响应记录、output-complete compact archive 与续跑校验。定向 CPU/合成/模拟门控测试为 67 passed；这只证明实现路径和归档规则，不是实际实验。`IMPLEMENTED=true`；测试代码路径 `EXECUTED=true`；实际 CUDA/Stage2/Production `EXECUTED=false`；真实数据 `EVALUABLE=false`；`PERFORMANCE_VERIFIED=false`。V4 仍为 `DRAFT_NOT_FROZEN`，`CUDA_AUTHORIZED=false`、`AI_TRAINING=false`。MDE、检测覆盖率非劣界值、独立源码审查、seed/输入身份审计和另行授权的尺寸 pilot 仍未闭合。研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。工作树约4.8 GiB、项目约5.3 GiB；本阶段只清理约7.7 MiB可再生 Python/pytest 缓存，保留 `.scratch`、历史输出、compact 归档和失败现场。详见[R22-V4冻结前工程闭合报告](phase_r/R22/32_v4_pre_freeze_technical_closure_20261122.md)。
@@ -125,11 +127,11 @@ R17 的状态为：`IMPLEMENTED` 不适用（未改算法/软件）；`EXECUTED`
 
 ## 当前唯一优先任务与阶段门
 
-- **当前唯一优先任务：** 对2026-11-23 R22-V4 CPU集成闭合快照完成ChatGPT独立双层审查；随后根据统计门、seed注册、卷空间余量与单case实测决定是否另行授权尺寸pilot。不得自动启动CUDA或确认矩阵。
+- **当前唯一优先任务：** 对2026-11-23 R22-V4 P0 Native CUDA 单 case pilot 完成 ChatGPT 独立双层审查；随后由用户决定是否补齐工程阈值、冻结 V4 并另行授权确认矩阵。不得自动启动矩阵或 AI。
 - **契约状态：** `DRAFT_NOT_FROZEN`。拟议范围为30个预留 seed × 3个速度 × SNR20 × 0/+4 ns（180个 target-present case），加30个全新 H0 seed × 2个时延（60个 case）。主要对比为周期因果 M1 对 Frozen Fixed D3 的全周期共同成功位置误差；Known 只作 evaluator-only 上限，batch-10 M1 排除在线排名。M1 每周期只读当前和过去 ON C1/C2，估计失败显式零校正并纳入全策略分母。
 - **冻结前置门：** 工程 MDE、检测覆盖率非劣界值、因果估计器和全周期输出实现/源码审计、最终 seed 碰撞核查、用户授权的完整输出尺寸 pilot 均未完成。对应契约见 [R22-V4 草案](phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md)。
 - **停止条件：** 不把 V3.3 screening 差值用作工程门槛；不把共同成功 RMSE 单独解释成完整任务收益；不以 CUT 分数代替 H0 beam-period false-alarm 指标；不自动启动 AI、Router、Dense 或 CUDA 矩阵；研究总纲正文仍受用户明确审批保护。
-- **后续任务授权：** 本次完成的CPU集成闭合不构成CUDA pilot或完整矩阵授权；设计文件仍明确`CUDA_AUTHORIZED=false`，`AI_TRAINING=false`。开始pilot前须满足统计门、seed审计和足够临时磁盘空间，并取得对应的独立执行授权。
+- **后续任务授权：** 单 case P0 pilot 已由用户授权并执行；该授权不覆盖 240-case 确认矩阵或 AI。设计仍未冻结，工程 MDE、检测覆盖率非劣界值和航迹保护界值待明确；当前 PERFORMANCE_VERIFIED=false。只有完成独立审查、冻结统计契约并另获用户明确授权后，才可启动确认矩阵。
 
 ## 总纲修订讨论
 
