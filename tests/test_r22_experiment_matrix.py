@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import inspect
+import hashlib
 import json
 import subprocess
 import sys
@@ -13,6 +14,18 @@ from scripts.phase_r import r22_experiment_matrix as matrix
 
 DESIGN = matrix.DEFAULT_DESIGN
 ROOT = Path(__file__).resolve().parents[1]
+V4_SIZE_PILOT_DESIGN = (
+    ROOT / "docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json"
+)
+
+
+def _v4_pilot_authorization_args():
+    digest = hashlib.sha256(V4_SIZE_PILOT_DESIGN.read_bytes()).hexdigest()
+    return {
+        "design_source_path": V4_SIZE_PILOT_DESIGN,
+        "authorize_v4_size_pilot": True,
+        "approved_design_sha256": digest,
+    }
 
 
 def test_matrix_script_supports_direct_cli_invocation():
@@ -25,6 +38,8 @@ def test_matrix_script_supports_direct_cli_invocation():
 
     assert result.returncode == 0, result.stderr
     assert "--phase" in result.stdout
+    assert "--authorize-v4-size-pilot" in result.stdout
+    assert "--approved-design-sha256" in result.stdout
 
 
 def test_frozen_r22_design_expands_exact_case_counts_and_h0_is_target_free():
@@ -356,7 +371,7 @@ def test_compact_matrix_archives_passed_case_and_checks_archive_before_resume(tm
     assert archive_path.is_file()
     assert record["raw_output_removed_after_archive_verification"] is True
 
-    with pytest.raises(ValueError, match="different compact-archive profile"):
+    with pytest.raises(ValueError, match="explicit authorization flag"):
         matrix.run_matrix(
             design, phase="engineering", output_root=output_root,
             raw_output_root=raw_root, compact_archive_root=archive_root,
@@ -464,6 +479,94 @@ def _v3_small_design(design_id: str, condition_count: int = 2):
                               for index in range(condition_count)]},
         },
     }
+
+
+def test_v4_size_pilot_requires_exact_design_hash_and_explicit_scope():
+    design = matrix.load_design(V4_SIZE_PILOT_DESIGN)
+    auth_args = _v4_pilot_authorization_args()
+
+    with pytest.raises(ValueError, match="explicit authorization flag"):
+        matrix._validate_v4_size_pilot_authorization(
+            design, phase="engineering", archive_profile="r22_v4_output_complete",
+            design_source_path=V4_SIZE_PILOT_DESIGN,
+            authorize_v4_size_pilot=False,
+            approved_design_sha256=auth_args["approved_design_sha256"], max_cases=None,
+        )
+
+    authorization = matrix._validate_v4_size_pilot_authorization(
+        design, phase="engineering", archive_profile="r22_v4_output_complete",
+        max_cases=None, **auth_args,
+    )
+    assert authorization["status"] == "AUTHORIZED_SINGLE_ENGINEERING_CASE"
+    assert authorization["approved_design_sha256"] == auth_args["approved_design_sha256"]
+    assert authorization["case_id"].startswith("engineering__seed_1937001__")
+    assert authorization["archive_profile"] == "r22_v4_output_complete"
+
+    with pytest.raises(ValueError, match="approved design SHA-256"):
+        matrix._validate_v4_size_pilot_authorization(
+            design, phase="engineering", archive_profile="r22_v4_output_complete",
+            design_source_path=V4_SIZE_PILOT_DESIGN,
+            authorize_v4_size_pilot=True, approved_design_sha256="0" * 64,
+            max_cases=None,
+        )
+
+    with pytest.raises(ValueError, match="exactly one case"):
+        matrix._validate_v4_size_pilot_authorization(
+            design, phase="engineering", archive_profile="r22_v4_output_complete",
+            max_cases=2, **auth_args,
+        )
+
+    changed = json.loads(V4_SIZE_PILOT_DESIGN.read_text(encoding="utf-8"))
+    changed["common"]["first_beam"] = 51
+    with pytest.raises(ValueError, match="frozen size-pilot design identity"):
+        matrix._validate_v4_size_pilot_authorization(
+            changed, phase="engineering", archive_profile="r22_v4_output_complete",
+            max_cases=None, **auth_args,
+        )
+
+
+def test_v4_archive_profile_refuses_unapproved_matrix_before_writing(tmp_path):
+    design = _v3_small_design("ordinary-design", condition_count=1)
+    output = tmp_path / "matrix"
+    with pytest.raises(ValueError, match="explicit authorization flag"):
+        matrix.run_matrix(
+            design, phase="screening", output_root=output,
+            archive_profile="r22_v4_output_complete",
+        )
+    assert not output.exists()
+
+
+def test_v4_size_pilot_design_cannot_run_under_legacy_profile(tmp_path):
+    design = matrix.load_design(V4_SIZE_PILOT_DESIGN)
+    with pytest.raises(ValueError, match="requires archive_profile=r22_v4_output_complete"):
+        matrix.run_matrix(
+            design, phase="engineering", output_root=tmp_path / "matrix",
+        )
+    assert not (tmp_path / "matrix").exists()
+
+
+def test_v4_resume_refuses_a_changed_authorization_record(tmp_path):
+    design = matrix.load_design(V4_SIZE_PILOT_DESIGN)
+    output_root = tmp_path / "matrix"
+    output_root.mkdir()
+    (output_root / "matrix_manifest.json").write_text(json.dumps({
+        "schema_version": 1,
+        "design_id": design["design_id"],
+        "design_sha256": matrix._design_digest(design),
+        "phase": "engineering",
+        "archive_profile": "r22_v4_output_complete",
+        "v4_size_pilot_authorization": None,
+        "status": "RUNNING",
+        "planned_case_count": 1,
+        "cases": [],
+    }), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="different V4 size-pilot authorization identity"):
+        matrix.run_matrix(
+            design, phase="engineering", output_root=output_root, resume=True,
+            archive_profile="r22_v4_output_complete",
+            **_v4_pilot_authorization_args(),
+        )
 
 
 def test_v3_archives_method_gap_and_continues_to_next_case(tmp_path):
@@ -622,7 +725,7 @@ def test_h0_case_can_be_evaluable_with_target_only_branch_gaps():
 
 
 def test_v4_keeps_case_outputs_until_complete_archive_verification(tmp_path, monkeypatch):
-    design = _v3_small_design("v4-archive-before-cleanup", condition_count=1)
+    design = matrix.load_design(V4_SIZE_PILOT_DESIGN)
     output_root = tmp_path / "matrix"
     raw_root = tmp_path / "raw"
     archive_root = tmp_path / "archives"
@@ -632,6 +735,7 @@ def test_v4_keeps_case_outputs_until_complete_archive_verification(tmp_path, mon
         case_root.mkdir(parents=True)
         (case_root / "raw-input.bin").write_bytes(b"keep until archive verifies")
         seen["runner_keep_raw"] = kwargs.get("keep_raw")
+        seen["authorization"] = kwargs.get("v4_size_pilot_authorization")
         return {
             "implementation_result": "passed",
             "status_labels": {"EVALUABLE": True},
@@ -644,14 +748,17 @@ def test_v4_keeps_case_outputs_until_complete_archive_verification(tmp_path, mon
 
     monkeypatch.setattr(matrix, "archive_case_directory", fail_archive)
     result = matrix.run_matrix(
-        design, phase="screening", output_root=output_root,
+        design, phase="engineering", output_root=output_root,
         raw_output_root=raw_root, compact_archive_root=archive_root,
         run_case_fn=fake_runner, archive_profile="r22_v4_output_complete",
+        **_v4_pilot_authorization_args(),
     )
 
     record = result["cases"][0]
     assert result["status"] == "ARCHIVE_PENDING"
     assert seen["runner_keep_raw"] is True
+    assert seen["authorization"]["status"] == "AUTHORIZED_SINGLE_ENGINEERING_CASE"
+    assert seen["authorization"]["case_id"].startswith("engineering__seed_1937001__")
     assert seen["raw_present_during_archive"] is True
     assert (Path(record["output_root"]) / "raw-input.bin").is_file()
 

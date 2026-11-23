@@ -23,6 +23,10 @@ from scripts.phase_r.r22_compact_archive import archive_case_directory, verify_c
 
 
 DEFAULT_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experiment_design.json"
+DEFAULT_V4_SIZE_PILOT_DESIGN = (
+    ROOT / "docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json"
+)
+V4_SIZE_PILOT_APPROVED_SHA256 = r22.V4_SIZE_PILOT_APPROVED_SHA256
 
 
 def _utc_now() -> str:
@@ -42,6 +46,109 @@ def _write_json_atomic(path: Path, value: Mapping[str, Any]) -> None:
 def _design_digest(design: Mapping[str, Any]) -> str:
     payload = json.dumps(design, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with Path(path).expanduser().open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _validate_v4_size_pilot_authorization(
+    design: Mapping[str, Any],
+    *, phase: str, archive_profile: str,
+    design_source_path: Path | None,
+    authorize_v4_size_pilot: bool,
+    approved_design_sha256: str | None,
+    max_cases: int | None,
+) -> dict[str, Any]:
+    if not authorize_v4_size_pilot:
+        raise ValueError("V4 output-complete execution requires explicit authorization flag")
+    if archive_profile != "r22_v4_output_complete":
+        raise ValueError("V4 size pilot requires archive_profile=r22_v4_output_complete")
+    if phase != "engineering":
+        raise ValueError("V4 size-pilot authorization is limited to phase=engineering")
+    if max_cases not in (None, 1):
+        raise ValueError("V4 size-pilot authorization allows exactly one case")
+    if design_source_path is None or not Path(design_source_path).expanduser().is_file():
+        raise ValueError("V4 size-pilot authorization requires the frozen design source file")
+
+    source_path = Path(design_source_path).expanduser().resolve()
+    source_sha256 = _file_sha256(source_path)
+    supplied_sha256 = str(approved_design_sha256 or "").lower()
+    if (len(supplied_sha256) != 64 or supplied_sha256 != source_sha256
+            or source_sha256 != V4_SIZE_PILOT_APPROVED_SHA256):
+        raise ValueError("approved design SHA-256 does not match the frozen V4 size-pilot design")
+
+    frozen_design = json.loads(DEFAULT_V4_SIZE_PILOT_DESIGN.read_text(encoding="utf-8"))
+    source_design = json.loads(source_path.read_text(encoding="utf-8"))
+    if (_design_digest(design) != _design_digest(source_design)
+            or _design_digest(design) != _design_digest(frozen_design)):
+        raise ValueError("V4 size pilot does not match the frozen size-pilot design identity")
+    if (design.get("design_id") != r22.V4_SIZE_PILOT_DESIGN_ID
+            or design.get("state") != "DRAFT_NOT_FROZEN"
+            or design.get("execution_authorized") is not False
+            or design.get("cuda_authorized") is not False
+            or design.get("ai_training") is not False):
+        raise ValueError("V4 size-pilot draft authorization flags or identity changed")
+
+    specs = build_case_specs(design, phase)
+    if len(specs) != 1:
+        raise ValueError("V4 size-pilot authorization requires exactly one planned case")
+    spec = specs[0]
+    expected_spec = {
+        "phase": "engineering", "seed": 1937001, "speed_mps": 2.5,
+        "snr_db": 20.0, "delay_ns": 4.0, "target_count": 20,
+        "period_count": 10, "first_beam": 50, "beam_count": 1,
+        "method_ids": ["C0", "PK"],
+        "calibration_modes": ["Mode-A", "Mode-B"],
+        "area": r22.DEFAULT_AREA,
+        "scenario_template": "simulator/scenarios/beam50_one_targets_continuous.run.json",
+        "method_config": "docs/research/phase_r/R22/config/r22_method_config_v2_range_roi.json",
+    }
+    for key, expected in expected_spec.items():
+        if spec.get(key) != expected:
+            raise ValueError(f"V4 size-pilot case differs from frozen identity: {key}")
+    common = design.get("common", {})
+    if common.get("production_backend") != "Native CUDA" or common.get("use_corex") is not False:
+        raise ValueError("V4 size pilot requires Native CUDA with USE_COREX=false")
+
+    def resolve_design_path(value: str) -> str:
+        path = Path(value).expanduser()
+        return str(path.resolve() if path.is_absolute() else (ROOT / path).resolve())
+
+    case_id = r22.case_identifier(
+        phase=phase, seed=spec["seed"], speed_mps=spec["speed_mps"],
+        snr_db=spec["snr_db"], delay_ns=spec["delay_ns"],
+        target_count=spec["target_count"], period_count=spec["period_count"],
+    )
+    return {
+        "status": "AUTHORIZED_SINGLE_ENGINEERING_CASE",
+        "design_id": str(design["design_id"]),
+        "design_sha256": _design_digest(design),
+        "approved_design_sha256": source_sha256,
+        "design_source_path": str(source_path),
+        "phase": phase,
+        "case_id": case_id,
+        "condition_id": spec["condition_id"],
+        "seed": spec["seed"], "speed_mps": spec["speed_mps"],
+        "snr_db": spec["snr_db"], "delay_ns": spec["delay_ns"],
+        "target_count": spec["target_count"], "period_count": spec["period_count"],
+        "first_beam": spec["first_beam"], "beam_count": spec["beam_count"],
+        "method_ids": list(spec["method_ids"]),
+        "calibration_modes": list(spec["calibration_modes"]),
+        "area": dict(spec["area"]),
+        "production_backend": "Native CUDA", "use_corex": False,
+        "archive_profile": archive_profile,
+        "scenario_template": resolve_design_path(spec["scenario_template"]),
+        "method_config": resolve_design_path(spec["method_config"]),
+        "scope_note": (
+            "user-authorized single R22-V4-P0 output-size feasibility case; "
+            "no confirmatory inference or performance claim"
+        ),
+    }
 
 
 def load_design(path: Path) -> dict[str, Any]:
@@ -363,10 +470,27 @@ def run_matrix(
     failure_archive_root: Path | None = None,
     manifest_metadata: Mapping[str, Any] | None = None,
     archive_profile: str = "legacy",
+    design_source_path: Path | None = None,
+    authorize_v4_size_pilot: bool = False,
+    approved_design_sha256: str | None = None,
 ) -> dict[str, Any]:
     validate_design(design)
     if archive_profile not in {"legacy", "r22_v4_output_complete"}:
         raise ValueError(f"unknown R22 archive profile: {archive_profile}")
+    is_size_pilot_design = design.get("design_id") == r22.V4_SIZE_PILOT_DESIGN_ID
+    v4_size_pilot_authorization = None
+    if archive_profile == "r22_v4_output_complete" or authorize_v4_size_pilot:
+        v4_size_pilot_authorization = _validate_v4_size_pilot_authorization(
+            design,
+            phase=phase,
+            archive_profile=archive_profile,
+            design_source_path=design_source_path,
+            authorize_v4_size_pilot=authorize_v4_size_pilot,
+            approved_design_sha256=approved_design_sha256,
+            max_cases=max_cases,
+        )
+    elif is_size_pilot_design:
+        raise ValueError("V4 size-pilot design requires archive_profile=r22_v4_output_complete")
     if retry_interrupted and not resume:
         raise ValueError("retry_interrupted requires resume=True")
     specs = build_case_specs(design, phase)
@@ -412,6 +536,8 @@ def run_matrix(
         prior_archive_profile = manifest.get("archive_profile", "legacy")
         if prior_archive_profile != archive_profile:
             raise ValueError("cannot resume with a different compact-archive profile")
+        if manifest.get("v4_size_pilot_authorization") != v4_size_pilot_authorization:
+            raise ValueError("cannot resume with a different V4 size-pilot authorization identity")
     else:
         if any(output_root.iterdir()):
             raise FileExistsError(f"refuse to use non-empty matrix output root: {output_root}")
@@ -421,6 +547,7 @@ def run_matrix(
             "design_sha256": digest,
             "phase": phase,
             "archive_profile": archive_profile,
+            "v4_size_pilot_authorization": v4_size_pilot_authorization,
             "status": "RUNNING",
             "planned_case_count": len(build_case_specs(design, phase)),
             "cases": [],
@@ -594,6 +721,7 @@ def run_matrix(
             if archive_profile == "r22_v4_output_complete":
                 case_kwargs["v4_output_complete"] = True
                 case_kwargs["keep_raw"] = True
+                case_kwargs["v4_size_pilot_authorization"] = v4_size_pilot_authorization
             result = dict(case_runner(
                 case_root,
                 **case_kwargs,
@@ -711,6 +839,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--retry-interrupted", action="store_true",
         help="start a new attempt after preserving an interrupted case record",
     )
+    parser.add_argument(
+        "--authorize-v4-size-pilot", action="store_true",
+        help="authorize only the frozen one-case R22-V4-P0 engineering size pilot",
+    )
+    parser.add_argument(
+        "--approved-design-sha256",
+        help="must equal the approved SHA-256 of the frozen single-case V4 size-pilot JSON",
+    )
     args = parser.parse_args(argv)
     try:
         design = load_design(args.design)
@@ -728,6 +864,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             resume=args.resume,
             retry_interrupted=args.retry_interrupted,
             archive_profile=args.archive_profile,
+            design_source_path=args.design,
+            authorize_v4_size_pilot=args.authorize_v4_size_pilot,
+            approved_design_sha256=args.approved_design_sha256,
         )
     except Exception as exc:
         print(f"[r22_experiment_matrix][ERROR] {type(exc).__name__}: {exc}")

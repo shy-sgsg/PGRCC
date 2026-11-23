@@ -198,6 +198,7 @@ def load_detections(branch_dir: Path) -> dict[str, Any]:
     rows: list[dict[str, str]] = []
     result_period_map: dict[int, int] = {}
     per_result_rows: dict[int, list[dict[str, str]]] = {}
+    empty_result_numbers: list[int] = []
     for path in result_files:
         match = re.search(r"GMTI(\d+)", path.name)
         if not match:
@@ -205,6 +206,10 @@ def load_detections(branch_dir: Path) -> dict[str, Any]:
         result_number = int(match.group(1))
         current = read_csv(path)
         periods = {int(float(row["period_id"])) for row in current if row.get("period_id") not in (None, "")}
+        if not periods and not current:
+            per_result_rows[result_number] = []
+            empty_result_numbers.append(result_number)
+            continue
         if len(periods) != 1:
             raise ValueError(f"expected one Production period in {path}, found {sorted(periods)}")
         result_period_map[result_number] = next(iter(periods))
@@ -219,6 +224,7 @@ def load_detections(branch_dir: Path) -> dict[str, Any]:
         "file_sha256": {str(path): sha256_file(path) for path in result_files},
         "result_period_map": result_period_map,
         "per_result_rows": per_result_rows,
+        "empty_result_numbers": empty_result_numbers,
         "source_status": "PER_RESULT_PRODUCTION_CSV" if result_files else "AGGREGATE_OR_MISSING",
     }
 

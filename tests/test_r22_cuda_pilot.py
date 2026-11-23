@@ -174,6 +174,18 @@ def test_run_case_refuses_to_overwrite_existing_output(tmp_path: Path):
     assert (root / "keep.txt").read_text(encoding="utf-8") == "existing"
 
 
+def test_v4_output_complete_run_case_requires_matrix_authorization(tmp_path: Path):
+    with pytest.raises(ValueError, match="matrix size-pilot authorization"):
+        r22.run_case(
+            tmp_path / "case", phase="engineering", seed=1937001,
+            speed_mps=2.5, snr_db=20.0, delay_ns=4.0,
+            target_count=20, period_count=10, first_beam=50, beam_count=1,
+            stage2_binary=tmp_path / "missing_stage2",
+            production_binary=tmp_path / "missing_production",
+            v4_output_complete=True,
+        )
+
+
 def test_r22_json_manifest_normalizes_nonfinite_values_and_paths(tmp_path: Path):
     destination = tmp_path / "manifest.json"
 
@@ -200,14 +212,14 @@ def test_r22_h0_false_alarm_rows_are_scoped_to_independent_target_free_seeds(mon
     )
     bundle = {"seed": 910001}
 
-    independent = r22._h0_false_alarm_rows(bundle, phase="h0", role="OFF")
+    independent = r22._h0_false_alarm_rows(bundle, phase="h0", role="ON")
     paired = r22._h0_false_alarm_rows(bundle, phase="screening", role="OFF")
-    ignored_role = r22._h0_false_alarm_rows(bundle, phase="h0", role="ON")
+    internal_off = r22._h0_false_alarm_rows(bundle, phase="h0", role="OFF")
 
     assert independent[0]["h0_scope"] == "independent_target_free_seed"
     assert independent[0]["empirical_pfa_status"] == "SEED_CLUSTER_AGGREGATION_REQUIRED"
     assert paired[0]["h0_scope"] == "paired_OFF_role_not_an_independent_H0_seed"
-    assert ignored_role == []
+    assert internal_off[0]["h0_scope"] == "internal_auxiliary_OFF_not_registered_h0"
 
 
 def test_r22_h0_false_alarm_rows_keep_method_and_mode_identity(monkeypatch, tmp_path: Path):
@@ -216,6 +228,14 @@ def test_r22_h0_false_alarm_rows_keep_method_and_mode_identity(monkeypatch, tmp_
         lambda *args: {"truths": [], "branch_dir": str(tmp_path / "branch")},
     )
     monkeypatch.setattr(r22.r21_eval, "_range_axis_audit", lambda bundle: {"status": "evaluable"})
+    monkeypatch.setattr(
+        r22, "_h0_task_metric_row",
+        lambda bundle, expected_period_count: {
+            "status": "EVALUABLE_DESCRIPTIVE_H0_SEED",
+            "h0_event_count": 1, "valid_period_count": expected_period_count,
+            "h0_event_rate": 0.1, "false_confirmed_track_count": 0,
+        },
+    )
     monkeypatch.setattr(
         r22.r20, "_off_h0_rows",
         lambda bundle: [{
@@ -227,10 +247,10 @@ def test_r22_h0_false_alarm_rows_keep_method_and_mode_identity(monkeypatch, tmp_
 
     tables = r22._evaluate_branches(
         phase="h0", case_id="h0_seed1", seed=1, case_root=tmp_path,
-        pipeline_manifest={}, binary_identity={},
+        pipeline_manifest={}, binary_identity={}, period_count=10,
         branch_records=[{
-            "branch_name": "A0_off", "method_id": "A0", "mode": "not_applicable",
-            "role": "OFF", "status": "passed",
+            "branch_name": "A0_on", "method_id": "A0", "mode": "not_applicable",
+            "role": "ON", "status": "passed",
         }],
     )
 
@@ -238,7 +258,138 @@ def test_r22_h0_false_alarm_rows_keep_method_and_mode_identity(monkeypatch, tmp_
     assert row["method_id"] == "A0"
     assert row["mode"] == "not_applicable"
     assert row["condition"] == "A0_not_applicable"
+    assert row["role"] == "ON"
     assert row["h0_scope"] == "independent_target_free_seed"
+    assert tables["h0_task_metrics"][0]["status"] == "EVALUABLE_DESCRIPTIVE_H0_SEED"
+    assert tables["h0_task_metrics"][0]["role"] == "ON"
+
+
+def test_r22_h0_task_metrics_use_valid_periods_and_final_detections(tmp_path: Path):
+    branch = tmp_path / "branch"
+    debug = branch / "result" / "debug"
+    debug.mkdir(parents=True)
+    (debug / "cfar_geometry_diagnostics.csv").write_text(
+        "period_id,beam_id,branch,valid_cut_count,hit_cut_count\n"
+        "0,50,union_full_band,100,1\n"
+        "1,50,union_full_band,100,0\n",
+        encoding="utf-8",
+    )
+    (debug / "cluster_detection_lineage.csv").write_text(
+        "record_type,period_id,beam_id,cluster_index,cluster_row,cluster_col,selected,raw_detection,postfilter_cluster_count,selected_candidate_count,raw_detection_count\n"
+        "beam_summary,0,50,,,,,,0,0,0\n"
+        "beam_summary,1,50,,,,,,1,1,1\n"
+        "cluster,1,50,0,10,20,1,1,,,,\n",
+        encoding="utf-8",
+    )
+    detections = [{
+        "period_id": 1, "beam_id": 50, "det_id": "d1", "row": 10, "col": 20,
+    }]
+    bundle = {
+        "branch_dir": branch,
+        "case_id": "h0_case", "seed": 1937001, "condition": "C0_not_applicable",
+        "role": "ON",
+        "detections": {
+            "rows": detections, "files": [Path("GMTI01.csv"), Path("GMTI02.csv")],
+            "result_period_map": {1: 0, 2: 1},
+            "source_status": "PER_RESULT_PRODUCTION_CSV",
+        },
+        "track": {
+            "status": "evaluable",
+            "observations": [{
+                "period_id": 1, "beam_id": 50, "track_id": "t1", "state": "confirmed",
+                "matched_this_frame": True, "det_id": "d1", "output_payload": True,
+            }],
+            "payload_duplicate_key_count": 0,
+        },
+    }
+
+    row = r22._h0_task_metric_row(bundle, expected_period_count=2)
+
+    assert row["status"] == "EVALUABLE_DESCRIPTIVE_H0_SEED"
+    assert row["valid_period_count"] == 2
+    assert row["detection_count"] == 1
+    assert row["cluster_count"] == 1
+    assert row["false_confirmed_track_count"] == 1
+    assert row["h0_event_count"] == 1
+    assert row["h0_event_rate"] == 0.5
+    assert row["valid_cut_count"] == 200
+    assert row["empirical_pfa_status"] == "NOT_EVALUABLE_NO_INDEPENDENT_H0_SEED_AGGREGATION"
+
+
+def test_r22_h0_task_metrics_fail_closed_when_period_geometry_is_incomplete(tmp_path: Path):
+    branch = tmp_path / "branch"
+    debug = branch / "result" / "debug"
+    debug.mkdir(parents=True)
+    (debug / "cfar_geometry_diagnostics.csv").write_text(
+        "period_id,beam_id,branch,valid_cut_count,hit_cut_count\n"
+        "0,50,union_full_band,100,0\n",
+        encoding="utf-8",
+    )
+    row = r22._h0_task_metric_row({"branch_dir": branch, "role": "ON",
+                                  "detections": {}, "track": {}},
+                                  expected_period_count=2)
+    assert row["status"] == "NOT_EVALUABLE"
+    assert "period_geometry_incomplete" in row["reason"]
+
+
+def test_r22_h0_zero_detections_are_evaluable_when_all_output_audits_are_present(tmp_path: Path):
+    branch = tmp_path / "branch"
+    debug = branch / "result" / "debug"
+    track_run = branch / "track_debug_runs" / "run1"
+    debug.mkdir(parents=True)
+    track_run.mkdir(parents=True)
+    (debug / "cfar_geometry_diagnostics.csv").write_text(
+        "period_id,beam_id,branch,valid_cut_count,hit_cut_count\n"
+        "0,50,union_full_band,100,0\n"
+        "1,50,union_full_band,100,0\n",
+        encoding="utf-8",
+    )
+    (debug / "cluster_detection_lineage.csv").write_text(
+        "record_type,period_id,beam_id,cluster_index,cluster_row,cluster_col,selected,raw_detection,postfilter_cluster_count,selected_candidate_count,raw_detection_count\n"
+        "beam_summary,0,50,,,,,,0,0,0\n"
+        "beam_summary,1,50,,,,,,0,0,0\n",
+        encoding="utf-8",
+    )
+    (track_run / "track_states.csv").write_text("track_id\n", encoding="utf-8")
+    (track_run / "track_events.csv").write_text("event_id\n", encoding="utf-8")
+    (track_run / "track_output_payloads.csv").write_text("track_id\n", encoding="utf-8")
+    bundle = {
+        "branch_dir": branch, "case_id": "h0_empty", "seed": 1,
+        "condition": "C0_not_applicable", "role": "ON",
+        "detections": {
+            "rows": [], "files": [Path("GMTI01.csv"), Path("GMTI02.csv")],
+            "result_period_map": {}, "empty_result_numbers": [1, 2],
+            "source_status": "PER_RESULT_PRODUCTION_CSV",
+        },
+        "track": {"status": "NOT_EVALUABLE", "reason": "no track observations"},
+    }
+
+    row = r22._h0_task_metric_row(bundle, expected_period_count=2)
+
+    assert row["status"] == "EVALUABLE_DESCRIPTIVE_H0_SEED"
+    assert row["detection_count"] == 0
+    assert row["cluster_count"] == 0
+    assert row["false_confirmed_track_count"] == 0
+    assert row["h0_event_count"] == 0
+    assert row["h0_event_rate"] == 0.0
+
+
+def test_r22_detection_loader_retains_header_only_per_period_outputs(tmp_path: Path):
+    result = tmp_path / "result"
+    result.mkdir()
+    header = "case_id,seed,result_id,period_id,beam_id,det_id,row,col\n"
+    (result / "detection_results_GMTI01.csv").write_text(header, encoding="utf-8")
+    (result / "detection_results_GMTI02.csv").write_text(
+        header + "case,1,GMTI02,1,50,d1,10,20\n", encoding="utf-8",
+    )
+
+    bundle = r22.r20.load_detections(tmp_path)
+
+    assert bundle["source_status"] == "PER_RESULT_PRODUCTION_CSV"
+    assert bundle["empty_result_numbers"] == [1]
+    assert bundle["result_period_map"] == {2: 1}
+    assert bundle["per_result_rows"][1] == []
+    assert len(bundle["rows"]) == 1
 
 
 def test_r22_case_compaction_removes_only_regenerable_binary_files(tmp_path: Path):

@@ -40,6 +40,8 @@ DEFAULT_AREA = {
     "temporal_correlation_rho": 0.98,
     "thermal_noise_power": 0.001,
 }
+V4_SIZE_PILOT_DESIGN_ID = "R22_V4_OUTPUT_SIZE_PILOT_DRAFT_20261123"
+V4_SIZE_PILOT_APPROVED_SHA256 = "779e0d258eee041712a18174669d97c54e8f83104c48c939e327a07f067e9250"
 R22_XML_OVERRIDES = {
     "csi_metrics_enable": "true",
     "csi_metrics_dump_power_maps": "false",
@@ -798,6 +800,7 @@ def _run_extra_delay_method(
 def _evaluate_branches(
     *, phase: str, case_id: str, seed: int, case_root: Path, pipeline_manifest: Mapping[str, Any],
     binary_identity: Mapping[str, Any], branch_records: Sequence[Mapping[str, Any]],
+    period_count: int | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     eval_case = {
         "dataset": "R22",
@@ -810,6 +813,7 @@ def _evaluate_branches(
     tables: dict[str, list[dict[str, Any]]] = {
         "task_metrics": [], "target_level_metrics": [], "track_level_metrics": [],
         "parameter_metrics": [], "h0_false_alarm_metrics": [],
+        "h0_task_metrics": [],
         "doppler_opportunity_audit": [], "target_associations": [],
     }
     for record in branch_records:
@@ -823,7 +827,7 @@ def _evaluate_branches(
         if not branch_name or record.get("status") != "passed":
             tables["task_metrics"].append({**row_base, "status": record.get("status", "NOT_AVAILABLE"),
                                            "reason": record.get("reason", "production_branch_not_passed")})
-            if phase == "h0" and role == "OFF":
+            if phase == "h0" and role == "ON":
                 tables["h0_false_alarm_metrics"].append({
                     **row_base,
                     "cut_band_mode": None,
@@ -834,6 +838,12 @@ def _evaluate_branches(
                     "empirical_pfa_status": "NOT_EVALUABLE",
                     "h0_scope": "independent_target_free_seed",
                     "reason": record.get("reason", "production_branch_not_passed"),
+                })
+                tables["h0_task_metrics"].append({
+                    **row_base,
+                    "status": "NOT_EVALUABLE",
+                    "reason": record.get("reason", "production_branch_not_passed"),
+                    "empirical_pfa_status": "NOT_EVALUABLE",
                 })
             continue
         branch_dir = case_root / "production" / branch_name
@@ -854,6 +864,11 @@ def _evaluate_branches(
                 {**item, **row_base}
                 for item in _h0_false_alarm_rows(bundle, phase=phase, role=role)
             )
+            if role == "ON":
+                tables["h0_task_metrics"].append({
+                    **row_base,
+                    **_h0_task_metric_row(bundle, expected_period_count=period_count),
+                })
         elif role == "OFF":
             evaluated: dict[str, Any] = {
                 "status": "NOT_APPLICABLE_H0_ROLE", "target_result": None,
@@ -897,8 +912,16 @@ def _evaluate_branches(
 def _h0_false_alarm_rows(
     bundle: Mapping[str, Any], *, phase: str, role: str,
 ) -> list[dict[str, Any]]:
-    """Preserve paired OFF diagnostics while identifying independent H0 seeds."""
-    if role != "OFF":
+    """Use registered H0 ON as the independent seed; retain paired OFF as diagnostic."""
+    if role not in {"ON", "OFF"}:
+        return []
+    if phase == "h0" and role == "OFF":
+        return [{
+            **item,
+            "h0_scope": "internal_auxiliary_OFF_not_registered_h0",
+            "empirical_pfa_status": "NOT_EVALUABLE_INTERNAL_AUXILIARY_BRANCH",
+        } for item in r20._off_h0_rows(bundle)]
+    if role != "OFF" and phase != "h0":
         return []
     rows = r20._off_h0_rows(bundle)
     if phase != "h0":
@@ -925,9 +948,224 @@ def _h0_false_alarm_rows(
     return output
 
 
+def _h0_task_metric_row(
+    bundle: Mapping[str, Any], *, expected_period_count: int | None,
+) -> dict[str, Any]:
+    """Evaluate one target-free Production ON branch from its saved outputs."""
+    base = {
+        "case_id": bundle.get("case_id"), "seed": bundle.get("seed"),
+        "condition": bundle.get("canonical_condition", bundle.get("condition")),
+        "role": bundle.get("role"),
+        "h0_scope": "independent_target_free_seed",
+        "empirical_pfa_status": "NOT_EVALUABLE_NO_INDEPENDENT_H0_SEED_AGGREGATION",
+    }
+
+    def not_evaluable(reason: str) -> dict[str, Any]:
+        return {
+            **base, "status": "NOT_EVALUABLE", "reason": reason,
+            "valid_period_count": None, "detection_count": None,
+            "cluster_count": None, "false_confirmed_track_count": None,
+            "h0_event_count": None, "h0_event_rate": None,
+            "valid_cut_count": None, "observed_cut_hit_count": None,
+            "observed_cut_hit_fraction": None,
+        }
+
+    if bundle.get("role") != "ON":
+        return not_evaluable("registered_h0_role_must_be_ON")
+    if expected_period_count is None or expected_period_count <= 0:
+        return not_evaluable("expected_period_count_missing_or_invalid")
+
+    branch_dir = Path(str(bundle.get("branch_dir", "")))
+    cfar_path = branch_dir / "result/debug/cfar_geometry_diagnostics.csv"
+    if not cfar_path.is_file():
+        return not_evaluable("missing_cfar_geometry_diagnostics")
+    cfar_rows = r20.read_csv(cfar_path)
+    full_band_rows = [row for row in cfar_rows if row.get("branch") == "union_full_band"]
+    period_geometry: dict[tuple[int, int], tuple[int, int]] = {}
+    for row in full_band_rows:
+        period, beam = r20._int(row.get("period_id")), r20._int(row.get("beam_id"))
+        valid, hits = r20._int(row.get("valid_cut_count")), r20._int(row.get("hit_cut_count"))
+        if None in (period, beam, valid, hits) or valid <= 0 or hits < 0 or hits > valid:
+            return not_evaluable("invalid_cfar_geometry_counter")
+        key = (period, beam)
+        if key in period_geometry:
+            return not_evaluable("duplicate_cfar_period_beam_geometry")
+        period_geometry[key] = (valid, hits)
+    expected_periods = set(range(expected_period_count))
+    observed_periods = {period for period, _ in period_geometry}
+    if observed_periods != expected_periods:
+        return not_evaluable("period_geometry_incomplete")
+
+    detection_bundle = bundle.get("detections")
+    if not isinstance(detection_bundle, Mapping):
+        return not_evaluable("final_detection_bundle_missing")
+    if detection_bundle.get("source_status") != "PER_RESULT_PRODUCTION_CSV":
+        return not_evaluable("final_per_period_detection_csv_missing")
+    result_period_map = detection_bundle.get("result_period_map")
+    detection_files = detection_bundle.get("files")
+    empty_result_numbers = detection_bundle.get("empty_result_numbers", [])
+    if not isinstance(result_period_map, Mapping) or not isinstance(empty_result_numbers, Sequence):
+        return not_evaluable("final_detection_period_mapping_incomplete")
+    mapped_periods = [r20._int(value) for value in result_period_map.values()]
+    mapped_result_numbers = {r20._int(value) for value in result_period_map.keys()}
+    empty_numbers = [r20._int(value) for value in empty_result_numbers]
+    if (any(value is None for value in mapped_periods + list(mapped_result_numbers) + empty_numbers)
+            or len(mapped_periods) != len(set(mapped_periods))
+            or set(mapped_periods) - expected_periods
+            or len(empty_numbers) != len(set(empty_numbers))
+            or set(mapped_result_numbers) & set(empty_numbers)
+            or len(result_period_map) + len(empty_numbers) != expected_period_count
+            or not isinstance(detection_files, Sequence)
+            or len(detection_files) != expected_period_count):
+        return not_evaluable("final_detection_period_mapping_incomplete")
+    detections = detection_bundle.get("rows")
+    if not isinstance(detections, Sequence):
+        return not_evaluable("final_detection_rows_missing")
+    detection_keys: set[tuple[int, int, str]] = set()
+    detection_periods: set[int] = set()
+    for detection in detections:
+        period = r20._int(detection.get("period_id"))
+        beam = r20._int(detection.get("beam_id"))
+        det_id = str(detection.get("det_id", "")).strip()
+        if period not in expected_periods or beam is None or not det_id:
+            return not_evaluable("invalid_final_detection_identity")
+        key = (period, beam, det_id)
+        if key in detection_keys:
+            return not_evaluable("duplicate_final_detection_identity")
+        detection_keys.add(key)
+        detection_periods.add(period)
+
+    lineage_path = next((candidate for candidate in (
+        branch_dir / "result/debug/cluster_detection_lineage.csv",
+        branch_dir / "result/cluster_detection_lineage.csv",
+    ) if candidate.is_file()), None)
+    if lineage_path is None:
+        return not_evaluable("cluster_detection_lineage_missing")
+    lineage_rows = r20.read_csv(lineage_path)
+    from scripts.phase_r import evaluate_r7_task_metrics as r7_metrics
+
+    cluster_summary = r7_metrics._cluster_summary(lineage_rows, cfar_rows, detections)
+    if (cluster_summary.get("status") != "complete"
+            or cluster_summary.get("final_detections_joined") != len(detections)):
+        return not_evaluable("cluster_final_detection_join_incomplete")
+
+    track = bundle.get("track")
+    if not isinstance(track, Mapping):
+        return not_evaluable("track_manager_debug_not_evaluable")
+    if track.get("status") == "evaluable":
+        track_summary = r21_eval.summarize_track_lineage_v3(
+            observations=track.get("observations", []),
+            target_matched_detection_keys=set(),
+            visible_truth_periods=[],
+            payload_duplicate_key_count=int(track.get("payload_duplicate_key_count", 0)),
+        )
+        if track_summary.get("status") != "EVALUABLE":
+            return not_evaluable("track_manager_lineage_not_evaluable")
+        false_tracks = int(track_summary.get("false_confirmed_track_count", 0))
+        track_source = "TrackManager debug confirmed matched outputs"
+    else:
+        # Empty, header-valid TrackManager outputs are a real zero event. Missing files,
+        # blank files, or non-empty data that the adapter cannot map remain not evaluable.
+        track_root = branch_dir / "track_debug_runs"
+        run_dirs = sorted(path for path in track_root.iterdir() if path.is_dir()) if track_root.is_dir() else []
+        if len(run_dirs) != 1:
+            return not_evaluable("track_manager_debug_not_evaluable")
+        empty_output_files = [run_dirs[0] / name for name in (
+            "track_states.csv", "track_events.csv", "track_output_payloads.csv",
+        )]
+        if any(not path.is_file() or path.stat().st_size == 0 for path in empty_output_files):
+            return not_evaluable("track_manager_empty_output_evidence_missing")
+        try:
+            for path in empty_output_files:
+                with path.open("r", newline="", encoding="utf-8-sig") as stream:
+                    header = next(csv.reader(stream), None)
+                if not header or any(not field.strip() for field in header):
+                    return not_evaluable("track_manager_empty_output_header_invalid")
+            track_rows = [r20.read_csv(path) for path in empty_output_files]
+        except (OSError, ValueError, csv.Error):
+            return not_evaluable("track_manager_empty_output_evidence_invalid")
+        if any(track_rows):
+            return not_evaluable("track_manager_lineage_not_evaluable")
+        false_tracks = 0
+        track_source = "header-valid empty TrackManager output files"
+
+    valid_cut_count = sum(value[0] for value in period_geometry.values())
+    observed_cut_hit_count = sum(value[1] for value in period_geometry.values())
+    event_count = len(detection_periods)
+    detection_count = len(detections)
+    cluster_count = int(cluster_summary.get("postfilter_clusters", 0))
+    return {
+        **base,
+        "status": "EVALUABLE_DESCRIPTIVE_H0_SEED",
+        "reason": None,
+        "valid_period_count": len(expected_periods),
+        "detection_count": detection_count,
+        "false_detection_count": detection_count,
+        "cluster_count": cluster_count,
+        "false_cluster_count": cluster_count,
+        "false_confirmed_track_count": false_tracks,
+        "h0_event_count": event_count,
+        "h0_event_rate": event_count / len(expected_periods),
+        "valid_cut_count": valid_cut_count,
+        "observed_cut_hit_count": observed_cut_hit_count,
+        "observed_cut_hit_fraction": (
+            observed_cut_hit_count / valid_cut_count if valid_cut_count > 0 else None
+        ),
+        "event_definition": "at least one final postfilter Detection in a valid Production period",
+        "event_denominator_source": "complete per-period CFAR geometry and Detection mapping",
+        "cut_fraction_interpretation": "descriptive only; spatially correlated CUTs are not independent Pfa trials",
+        "track_source": track_source,
+    }
+
+
 def _write_tables(root: Path, tables: Mapping[str, Sequence[Mapping[str, Any]]]) -> None:
     for name, rows in tables.items():
         write_csv(root / "evaluation" / f"{name}.csv", rows)
+
+
+def _require_v4_size_pilot_authorization(
+    authorization: Mapping[str, Any] | None,
+    *, phase: str, case_id: str, seed: int, speed_mps: float, snr_db: float,
+    delay_ns: float, target_count: int, period_count: int, first_beam: int,
+    beam_count: int, method_ids: Sequence[str], calibration_modes: Sequence[str],
+    area: Mapping[str, Any], template: Path, method_config_path: Path,
+) -> dict[str, Any]:
+    if not isinstance(authorization, Mapping):
+        raise ValueError("V4 output-complete execution requires matrix size-pilot authorization")
+    expected = {
+        "status": "AUTHORIZED_SINGLE_ENGINEERING_CASE",
+        "design_id": V4_SIZE_PILOT_DESIGN_ID,
+        "approved_design_sha256": V4_SIZE_PILOT_APPROVED_SHA256,
+        "phase": "engineering",
+        "case_id": case_identifier("engineering", 1937001, 2.5, 20.0, 4.0, 20, 10),
+        "seed": 1937001, "speed_mps": 2.5, "snr_db": 20.0,
+        "delay_ns": 4.0, "target_count": 20, "period_count": 10,
+        "first_beam": 50, "beam_count": 1,
+        "method_ids": ["C0", "PK"],
+        "calibration_modes": ["Mode-A", "Mode-B"],
+        "area": DEFAULT_AREA,
+        "production_backend": "Native CUDA", "use_corex": False,
+        "archive_profile": "r22_v4_output_complete",
+        "scenario_template": str(DEFAULT_TEMPLATE.resolve()),
+        "method_config": str((ROOT / "docs/research/phase_r/R22/config/r22_method_config_v2_range_roi.json").resolve()),
+    }
+    supplied = dict(authorization)
+    for key, value in expected.items():
+        if supplied.get(key) != value:
+            raise ValueError(f"V4 size-pilot authorization does not match frozen identity: {key}")
+    actual = {
+        "phase": phase, "case_id": case_id, "seed": seed, "speed_mps": float(speed_mps),
+        "snr_db": float(snr_db), "delay_ns": float(delay_ns),
+        "target_count": target_count, "period_count": period_count,
+        "first_beam": first_beam, "beam_count": beam_count,
+        "method_ids": list(method_ids), "calibration_modes": list(calibration_modes),
+        "area": dict(area), "scenario_template": str(Path(template).expanduser().resolve()),
+        "method_config": str(Path(method_config_path).expanduser().resolve()),
+    }
+    for key, value in actual.items():
+        if supplied.get(key) != value:
+            raise ValueError(f"V4 size-pilot request differs from authorized identity: {key}")
+    return supplied
 
 
 def _compact_case_artifacts(
@@ -1013,7 +1251,19 @@ def run_case(
     area: Mapping[str, Any] = DEFAULT_AREA,
     keep_raw: bool = False,
     v4_output_complete: bool = False,
+    v4_size_pilot_authorization: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    case_id = case_identifier(phase, seed, speed_mps, snr_db, delay_ns, target_count, period_count)
+    authorization_record = None
+    if v4_output_complete:
+        authorization_record = _require_v4_size_pilot_authorization(
+            v4_size_pilot_authorization,
+            phase=phase, case_id=case_id, seed=seed, speed_mps=speed_mps,
+            snr_db=snr_db, delay_ns=delay_ns, target_count=target_count,
+            period_count=period_count, first_beam=first_beam, beam_count=beam_count,
+            method_ids=method_ids, calibration_modes=calibration_modes, area=area,
+            template=template, method_config_path=method_config_path,
+        )
     output_root = Path(output_root).expanduser().resolve()
     if v4_output_complete:
         # Preserve the complete source tree until the outer matrix transaction
@@ -1023,7 +1273,6 @@ def run_case(
         raise ValueError(f"refusing to overwrite non-empty R22 output root: {output_root}")
     output_root.mkdir(parents=True, exist_ok=True)
     validate_case_scale(phase=phase, target_count=target_count, period_count=period_count)
-    case_id = case_identifier(phase, seed, speed_mps, snr_db, delay_ns, target_count, period_count)
     source_snapshot = _source_identity()
     stage2_binary = Path(stage2_binary).expanduser().resolve()
     production_binary = Path(production_binary).expanduser().resolve()
@@ -1117,6 +1366,7 @@ def run_case(
         "generator_manifest": generator_manifest,
         "scenario_template": file_identity(scenario_path),
         "method_config": file_identity(method_config_path),
+        "v4_size_pilot_authorization": authorization_record,
         "output_root": str(output_root),
         "implementation_result": None,
     }
@@ -1318,6 +1568,7 @@ def run_case(
             pipeline_manifest=pipeline_manifest,
             binary_identity=preflight["binary"],
             branch_records=method_records,
+            period_count=period_count,
         )
         _write_tables(output_root, tables)
         stage2_runs = pipeline_manifest.get("simulation", {})
@@ -1325,11 +1576,13 @@ def run_case(
                               for row in method_records if row.get("production_elapsed_sec") is not None]
         on_task_rows = [row for row in tables["task_metrics"] if row.get("role") == "ON"]
         evaluated_on = [row for row in on_task_rows if row.get("status") == "EVALUABLE"]
-        evaluable_h0_rows = [
-            row for row in tables["h0_false_alarm_metrics"]
+        evaluable_h0_task_rows = [
+            row for row in tables["h0_task_metrics"]
             if row.get("h0_scope") == "independent_target_free_seed"
+            and row.get("role") == "ON"
             and row.get("status") == "EVALUABLE_DESCRIPTIVE_H0_SEED"
         ]
+        evaluable_h0_seed_count = len({row.get("seed") for row in evaluable_h0_task_rows})
         invalid_truth = sum(int(row.get("invalid_truth_opportunities") or 0) for row in evaluated_on)
         all_branches_passed = _all_production_branches_passed(method_records)
         manifest.update({
@@ -1337,7 +1590,7 @@ def run_case(
                 "IMPLEMENTED": True,
                 "EXECUTED": any(row.get("production_returncode") == 0 for row in method_records),
                 "EVALUABLE": (
-                    bool(evaluable_h0_rows) if phase == "h0" else
+                    bool(evaluable_h0_task_rows) if phase == "h0" else
                     bool(evaluated_on) and len(evaluated_on) == len(on_task_rows) and invalid_truth == 0
                 ),
                 "PERFORMANCE_VERIFIED": False,
@@ -1357,7 +1610,9 @@ def run_case(
                 "task_rows": len(tables["task_metrics"]),
                 "evaluated_on_rows": len(evaluated_on),
                 "target_opportunity_rows": len(tables["target_level_metrics"]),
-                "independent_h0_seed_rows": len(evaluable_h0_rows),
+                "independent_h0_seed_rows": evaluable_h0_seed_count,
+                "evaluable_h0_method_rows": len(evaluable_h0_task_rows),
+                "h0_task_rows": len(tables["h0_task_metrics"]),
                 "invalid_truth_opportunities": invalid_truth,
                 "target_period_opportunities_are_not_independent_seeds": True,
             },
