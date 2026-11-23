@@ -360,4 +360,6 @@
 - **阶段裁决：** PILOT_PASS（工程运行与证据链），IMPLEMENTED/EXECUTED/EVALUABLE=true，PERFORMANCE_VERIFIED=false。长期研究方向CONTINUE，不据此宣称算法创新或AI必要性。
 - **待决与停止条件：** V4仍DRAFT_NOT_FROZEN；定位MDE、检测覆盖非劣界值及航迹保护界值未确定，240-case设计的功效与TB级归档存储方案需审查。单case授权不覆盖矩阵；不自动启动CUDA矩阵、AI、Router或其他新实验。
 - **下一项优先工作：** 将固定审查 commit 对应的总纲、动态状态、决策日志、本次报告和紧凑证据交由ChatGPT双层独立审查；之后由用户讨论工程阈值和资源方案，再决定是否冻结/另行授权。
+- **30-seed统计敏感性补充：** 使用V3.3筛选切片的12个seed-level方差作条件性t(29)规划：M1−Fixed位置MDE的名义80%功效点约2.54 m，覆盖率非劣margin约0.262 pp；候选值与功效表见[冻结准备度报告](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)。历史估计器为十周期batch、V4为因果prefix，因此不得将该计算解释为V4确认功效；工程MDE、非劣margin和航迹界值仍待用户/需求方决定，未修改设计阈值。
+- **交付后资源与测试复核：** 完整项目目录实测18.68 GB（17.39 GiB），低于20 GB上限；本pilot raw文件为0，13.04 GB完整ZIP保留作高价值审计。补充H0/授权范围回归后，R12/R21/R22指定CPU测试集193项通过；未运行GPU或确认矩阵。
 - **证据入口：** [P0预检](phase_r/R22/37_v4_p0_preflight_and_authorization_20261123.md)、[执行报告](phase_r/R22/38_v4_p0_native_cuda_execution_20261123.md)、[科研评估](phase_r/R22/39_v4_p0_preliminary_research_assessment_20261123.md)、[冻结准备度](phase_r/R22/40_v4_confirmatory_freeze_readiness_20261123.md)及[机器证据导航](phase_r/R22/evidence/v4_native_cuda_pilot_20261123/README.md)和[ChatGPT审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_P0_PILOT_20261123.md)。

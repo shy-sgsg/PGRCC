@@ -525,6 +525,16 @@ def test_v4_size_pilot_requires_exact_design_hash_and_explicit_scope():
         )
 
 
+@pytest.mark.parametrize("forbidden_phase", ["confirmatory", "h0"])
+def test_v4_size_pilot_authorization_rejects_confirmatory_and_h0(forbidden_phase):
+    design = matrix.load_design(V4_SIZE_PILOT_DESIGN)
+    with pytest.raises(ValueError, match="phase=engineering"):
+        matrix._validate_v4_size_pilot_authorization(
+            design, phase=forbidden_phase, archive_profile="r22_v4_output_complete",
+            max_cases=None, **_v4_pilot_authorization_args(),
+        )
+
+
 def test_v4_archive_profile_refuses_unapproved_matrix_before_writing(tmp_path):
     design = _v3_small_design("ordinary-design", condition_count=1)
     output = tmp_path / "matrix"

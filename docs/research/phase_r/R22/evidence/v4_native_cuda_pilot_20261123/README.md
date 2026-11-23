@@ -21,7 +21,7 @@
 - detection_track_audit.json：target-period 命中、参数估计、航迹摘要、CUT 分母及虚警可评价状态。
 - target_response_audit.json：CSI_AFTER 目标 ROI 复数行完整性和 target-only 功率比描述统计。
 - archive_validation.json、cleanup_ledger.json：ZIP 验证、断点恢复和仅清理本 pilot raw 的记录。
-- resource_usage.json、final_pilot_verdict.json：运行耗时、磁盘峰值/结余和阶段标签。
+- resource_usage.json、final_pilot_verdict.json：Stage2/Production 分阶段耗时、可用的周期处理范围、未单独埋点的估计器/校正耗时、ZIP 分类体积、磁盘峰值/结余和阶段标签。
 
 ## 本机完整归档（不会随 Git 推送）
 
@@ -31,7 +31,7 @@ outputs/r22_v4_p0_seed1937003_20261123/archives/engineering/engineering__seed_19
 - 大小：13,037,254,578 bytes（约 12.14 GiB）
 - SHA-256：0974e1dfd1467cdd2bdced856e8c673d40c8966a53ab05261d0c5db2d99c4b02
 - archive manifest SHA-256：4f96e4f1fb1cf7db1ebe2d1d07c79a8537b47fccac1efa3f4fbd7c7a0e4036a0
-- 4,461 个成员、CRC 校验通过、422 个 V4 必需成员齐全。
+- manifest 记录4,461个纳入文件和180个symlink条目；ZIP共4,642个条目，CRC校验通过，422个V4必需成员齐全。
 
 ChatGPT 不能仅凭 GitHub commit 访问此本机 ZIP。独立审查应以固定 commit 中的报告和本目录摘要为可访问证据；涉及 ZIP 内未发布原始成员的判断须标记 NOT_VERIFIED，不能假称已检查归档。
 
@@ -48,4 +48,4 @@ ChatGPT 不能仅凭 GitHub commit 访问此本机 ZIP。独立审查应以固�
 
 ## 保留与清理
 
-归档已通过 SHA、manifest、ZIP CRC 和必需成员检查后，清理 ledger 对应 raw case 已清除。保留此单 case compact ZIP 作为高价值完整运行审计，保留上述小型摘要和两份既有 failure/incomplete capture 证据。没有删除历史阶段结果或其他用户数据。本机最终项目占用需低于 20 GiB；报告生成后会再次实测。
+归档已通过 SHA、manifest、ZIP CRC 和必需成员检查后，清理 ledger 对应 raw case 已清除，当前该 raw 路径文件数为0。保留此单 case compact ZIP 作为高价值完整运行审计，保留上述小型摘要和两份既有 failure/incomplete capture 证据。没有删除历史阶段结果或其他用户数据。交付更新前项目目录 `du` 为18,675,015,680 bytes（18.68 GB，17.39 GiB），低于20 GB上限；同一卷当时可用45,971,972,096 bytes。ZIP保留后仍满足项目最终空间上限，无需再删除支持当前审查的材料。

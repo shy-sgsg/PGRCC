@@ -260,45 +260,100 @@ def test_r22_h0_false_alarm_rows_are_scoped_to_independent_target_free_seeds(mon
 
 
 def test_r22_h0_false_alarm_rows_keep_method_and_mode_identity(monkeypatch, tmp_path: Path):
+    on_branch = tmp_path / "case" / "production" / "A0_on"
+    off_branch = tmp_path / "case" / "production" / "A0_off"
+    for branch, valid, hits in ((on_branch, 100, 0), (off_branch, 1000, 37)):
+        debug = branch / "result" / "debug"
+        debug.mkdir(parents=True)
+        (debug / "cfar_geometry_diagnostics.csv").write_text(
+            "period_id,beam_id,branch,valid_cut_count,hit_cut_count\n"
+            f"0,50,union_full_band,{valid},{hits}\n",
+            encoding="utf-8",
+        )
+
+    on_debug = on_branch / "result" / "debug"
+    (on_debug / "cluster_detection_lineage.csv").write_text(
+        "record_type,period_id,beam_id,cluster_index,cluster_row,cluster_col,selected,raw_detection,postfilter_cluster_count,selected_candidate_count,raw_detection_count\n"
+        "beam_summary,0,50,,,,,,0,0,0\n",
+        encoding="utf-8",
+    )
+    detection_path = on_branch / "result" / "detection_results_GMTI01.csv"
+    detection_path.parent.mkdir(parents=True, exist_ok=True)
+    detection_path.write_text(
+        "case_id,seed,result_id,period_id,beam_id,det_id,row,col\n",
+        encoding="utf-8",
+    )
+    track_run = on_branch / "track_debug_runs" / "run1"
+    track_run.mkdir(parents=True)
+    for name, header in (
+        ("track_states.csv", "track_id\n"),
+        ("track_events.csv", "event_id\n"),
+        ("track_output_payloads.csv", "track_id\n"),
+    ):
+        (track_run / name).write_text(header, encoding="utf-8")
+
     monkeypatch.setattr(
         r22.r20, "_condition_role_bundle",
-        lambda *args: {"truths": [], "branch_dir": str(tmp_path / "branch")},
-    )
-    monkeypatch.setattr(r22.r21_eval, "_range_axis_audit", lambda bundle: {"status": "evaluable"})
-    monkeypatch.setattr(
-        r22, "_h0_task_metric_row",
-        lambda bundle, expected_period_count: {
-            "status": "EVALUABLE_DESCRIPTIVE_H0_SEED",
-            "h0_event_count": 1, "valid_period_count": expected_period_count,
-            "h0_event_rate": 0.1, "false_confirmed_track_count": 0,
+        lambda _case, condition, role, branch_dir: {
+            "truths": [], "branch_dir": branch_dir, "condition": condition,
+            "canonical_condition": condition, "role": role, "case_id": "h0_seed1",
+            "seed": 1,
+            "detections": {
+                "rows": [], "files": [detection_path], "result_period_map": {},
+                "empty_result_numbers": [1], "source_status": "PER_RESULT_PRODUCTION_CSV",
+            },
+            "track": {"status": "NOT_EVALUABLE"},
         },
     )
-    monkeypatch.setattr(
-        r22.r20, "_off_h0_rows",
-        lambda bundle: [{
-            "condition": "A0_not_applicable", "role": "OFF", "cut_band_mode": "union_full_band",
-            "status": "DESCRIPTIVE_ONLY_NOT_STATISTICAL_PFA", "valid_cut_count": 100,
-            "observed_cut_hit_count": 2, "observed_cut_hit_fraction": 0.02,
-        }],
-    )
+    monkeypatch.setattr(r22.r21_eval, "_range_axis_audit", lambda bundle: {"status": "evaluable"})
 
     tables = r22._evaluate_branches(
-        phase="h0", case_id="h0_seed1", seed=1, case_root=tmp_path,
-        pipeline_manifest={}, binary_identity={}, period_count=10,
+        phase="h0", case_id="h0_seed1", seed=1, case_root=tmp_path / "case",
+        pipeline_manifest={}, binary_identity={}, period_count=1,
         branch_records=[{
             "branch_name": "A0_on", "method_id": "A0", "mode": "not_applicable",
             "role": "ON", "status": "passed",
+        }, {
+            "branch_name": "A0_off", "method_id": "A0", "mode": "not_applicable",
+            "role": "OFF", "status": "passed",
         }],
     )
 
-    row = tables["h0_false_alarm_metrics"][0]
-    assert row["method_id"] == "A0"
-    assert row["mode"] == "not_applicable"
-    assert row["condition"] == "A0_not_applicable"
-    assert row["role"] == "ON"
-    assert row["h0_scope"] == "independent_target_free_seed"
+    rows = {row["role"]: row for row in tables["h0_false_alarm_metrics"]}
+    assert rows["ON"]["method_id"] == "A0"
+    assert rows["ON"]["mode"] == "not_applicable"
+    assert rows["ON"]["condition"] == "A0_not_applicable"
+    assert rows["ON"]["h0_scope"] == "independent_target_free_seed"
+    assert rows["ON"]["valid_cut_count"] == 100
+    assert rows["ON"]["observed_cut_hit_count"] == 0
+    assert rows["OFF"]["h0_scope"] == "internal_auxiliary_OFF_not_registered_h0"
+    assert rows["OFF"]["valid_cut_count"] == 1000
+    assert rows["OFF"]["observed_cut_hit_count"] == 37
+    assert rows["OFF"]["empirical_pfa_status"] == "NOT_EVALUABLE_INTERNAL_AUXILIARY_BRANCH"
+    assert len(tables["h0_task_metrics"]) == 1
     assert tables["h0_task_metrics"][0]["status"] == "EVALUABLE_DESCRIPTIVE_H0_SEED"
     assert tables["h0_task_metrics"][0]["role"] == "ON"
+    assert tables["h0_task_metrics"][0]["valid_cut_count"] == 100
+
+
+def test_r22_registered_h0_on_production_failure_stays_not_evaluable(tmp_path: Path):
+    tables = r22._evaluate_branches(
+        phase="h0", case_id="h0_failed", seed=91, case_root=tmp_path,
+        pipeline_manifest={}, binary_identity={}, period_count=1,
+        branch_records=[{
+            "branch_name": "A0_on", "method_id": "A0", "mode": "not_applicable",
+            "role": "ON", "status": "failed", "reason": "production_exit_7",
+        }],
+    )
+
+    assert tables["h0_task_metrics"] == [{
+        "case_id": "h0_failed", "seed": 91, "condition": "A0_not_applicable",
+        "method_id": "A0", "mode": "not_applicable", "role": "ON",
+        "status": "NOT_EVALUABLE", "reason": "production_exit_7",
+        "empirical_pfa_status": "NOT_EVALUABLE",
+    }]
+    assert tables["h0_false_alarm_metrics"][0]["status"] == "NOT_EVALUABLE_PRODUCTION_BRANCH"
+    assert tables["h0_false_alarm_metrics"][0]["valid_cut_count"] is None
 
 
 def test_r22_h0_task_metrics_use_valid_periods_and_final_detections(tmp_path: Path):

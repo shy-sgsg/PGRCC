@@ -1,15 +1,100 @@
 {
   "archive_bytes": 13037254578,
   "archive_gib": 12.141889499500394,
+  "archive_inventory": {
+    "archive_manifest_sha256": "4f96e4f1fb1cf7db1ebe2d1d07c79a8537b47fccac1efa3f4fbd7c7a0e4036a0",
+    "archive_payload_compressed_bytes": 13035332064,
+    "archive_payload_uncompressed_bytes": 15495738710,
+    "archive_entry_count": 4642,
+    "manifest_included_file_count": 4461,
+    "manifest_included_bytes": 15493785235,
+    "manifest_excluded_file_count": 1116,
+    "manifest_excluded_bytes": 1181033400,
+    "manifest_symlink_entry_count": 180,
+    "required_v4_member_count": 422,
+    "member_categories": {
+      "stage2_scene_bins": {
+        "entries": 70,
+        "uncompressed_bytes": 3444313600,
+        "compressed_bytes": 2913850661
+      },
+      "prepared_input_bins": {
+        "entries": 211,
+        "uncompressed_bytes": 6396588160,
+        "compressed_bytes": 5375961853
+      },
+      "production_csi_or_complex": {
+        "entries": 2880,
+        "uncompressed_bytes": 5369529525,
+        "compressed_bytes": 4688368332
+      },
+      "production_detection_csv": {
+        "entries": 234,
+        "uncompressed_bytes": 23810074,
+        "compressed_bytes": 5135872
+      },
+      "production_track_debug": {
+        "entries": 126,
+        "uncompressed_bytes": 27063755,
+        "compressed_bytes": 6860321
+      },
+      "production_other": {
+        "entries": 816,
+        "uncompressed_bytes": 12493607,
+        "compressed_bytes": 2041819
+      },
+      "evaluation": {
+        "entries": 8,
+        "uncompressed_bytes": 5432013,
+        "compressed_bytes": 336263
+      },
+      "other_manifests_logs_and_support": {
+        "entries": 297,
+        "uncompressed_bytes": 216507976,
+        "compressed_bytes": 42776943
+      }
+    },
+    "inventory_source": "ZIP central-directory metadata plus the embedded ARCHIVE_MANIFEST.json; no member payloads were extracted during this size breakdown"
+  },
   "case_finished_at_utc": "2026-11-23T11:22:11.730142+00:00",
   "case_started_at_utc": "2026-11-23T11:07:34.456823+00:00",
   "case_wall_seconds": 877.273319,
+  "production_scope_timings": {
+    "branch_manifest_elapsed_sum_seconds": 431.15051887700974,
+    "timing_metrics_branch_count": 18,
+    "timing_metrics_period_rows": 180,
+    "end_to_end_total_seconds": 418.801,
+    "main_total_seconds": 418.457,
+    "gmti_processing_seconds": 331.541,
+    "detection_seconds": 284.08,
+    "detection_result_csv_write_seconds": 47.499,
+    "channel_cancellation_seconds": 19.934,
+    "csi_metrics_seconds": 10.055,
+    "dbs_processing_seconds": 12.825,
+    "pulse_compression_seconds": 5.89,
+    "data_read_seconds": 3.536,
+    "tracking_seconds": 6.031,
+    "scope_note": "Period scopes are nested; they must not be added together. The branch-manifest sum also includes time outside period timing scopes."
+  },
+  "estimator_and_correction_timing": {
+    "m1_causal_estimates_available": 10,
+    "huber_causal_estimates_available": 10,
+    "estimator_elapsed_seconds": null,
+    "estimator_timing_note": "M1 and Huber estimation elapsed time was not separately instrumented in this pilot.",
+    "channel_cancellation_scope_seconds": 19.934,
+    "correction_only_elapsed_seconds": null,
+    "correction_timing_note": "Correction application is included in aggregate channel_cancellation timing; correction-only time was not separated by method."
+  },
   "disk_final_available_bytes": 44497952768,
   "disk_final_available_gib": 41.44194793701172,
   "disk_minimum_available_bytes": 27726299136,
   "disk_minimum_available_gib": 25.822128295898438,
   "disk_reserve_bytes": 10737418240,
   "disk_start_free_bytes": 57547403264,
+  "project_directory_post_cleanup_bytes": 18675015680,
+  "project_directory_post_cleanup_decimal_gb": 18.67501568,
+  "user_final_project_cap_decimal_gb": 20.0,
+  "raw_files_remaining_after_archive_cleanup": 0,
   "gpu_observation": "RTX 3050 Laptop 4 GiB; external process maintained 100% utilization; sampled free VRAM ranged from 1800 to 2023 MiB in supplied snapshots. This is mixed-device state, not attributed GPU memory or performance benchmark.",
   "logical_bytes_note": "Ledger byte count is reported by the runner and includes linked/referenced case data; do not interpret as exact blocks reclaimed.",
   "minimum_reserve_preserved": true,
