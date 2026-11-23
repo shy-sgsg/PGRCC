@@ -49,6 +49,29 @@ R22_XML_OVERRIDES = {
 }
 
 
+def _r22_xml_overrides(*, v4_output_complete: bool = False) -> dict[str, str]:
+    overrides = dict(R22_XML_OVERRIDES)
+    if v4_output_complete:
+        overrides["csi_metrics_dump_power_maps"] = "true"
+    return overrides
+
+
+def _apply_v4_output_capture(
+    method_config: Mapping[str, Any], *, v4_output_complete: bool,
+) -> dict[str, Any]:
+    if not v4_output_complete:
+        return {}
+    production = method_config.get("production")
+    if not isinstance(production, dict):
+        raise ValueError("V4 complete-output capture requires a mutable production config")
+    production["csi_metrics_dump_power_maps"] = True
+    return {
+        "csi_metrics_dump_power_maps": True,
+        "scope": "v4_output_complete_diagnostic_capture_only",
+        "algorithm_parameters_changed": False,
+    }
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with Path(path).open("rb") as stream:
@@ -664,6 +687,7 @@ def _run_causal_prefix_delay_method(
     truth_root: Path,
     layout: Mapping[str, Any],
     production_config: Mapping[str, Any],
+    v4_output_complete: bool = False,
 ) -> list[dict[str, Any]]:
     period_count = len(period_estimates)
     if period_count == 0 or any(len(raw_roles.get(role, ())) != period_count
@@ -686,7 +710,7 @@ def _run_causal_prefix_delay_method(
             case_root, branch_name, input_dir, source_xml, {}, period_count,
             "local", layout, truth_path=truth_root,
             xml_overrides={
-                **R22_XML_OVERRIDES,
+                **_r22_xml_overrides(v4_output_complete=v4_output_complete),
                 "csi_metrics_beam_id": int(layout["beam_id"]),
                 "new_protocol_file_first_beam": int(layout["beam_id"]),
                 "new_protocol_file_scan_beam_count": int(layout.get("scan_beam_count", 1)),
@@ -737,6 +761,7 @@ def _run_extra_delay_method(
     layout: Mapping[str, Any],
     period_count: int,
     production_config: Mapping[str, Any] | None = None,
+    v4_output_complete: bool = False,
 ) -> list[dict[str, Any]]:
     branch_records: list[dict[str, Any]] = []
     for role in ("ON", "OFF", "TO"):
@@ -762,7 +787,7 @@ def _run_extra_delay_method(
             layout,
             truth_path=truth_root,
             xml_overrides={
-                **R22_XML_OVERRIDES,
+                **_r22_xml_overrides(v4_output_complete=v4_output_complete),
                 "csi_metrics_beam_id": int(layout["beam_id"]),
                 "new_protocol_file_first_beam": int(layout["beam_id"]),
                 "new_protocol_file_scan_beam_count": int(layout.get("scan_beam_count", 1)),
@@ -1296,6 +1321,9 @@ def run_case(
         method_config_path, scenario_path, execution_method_ids,
         allow_empty=v4_output_complete and not execution_method_ids,
     )
+    v4_output_capture = _apply_v4_output_capture(
+        method_config, v4_output_complete=v4_output_complete,
+    )
     scene_identity = {
         "seed": seed,
         "period_count": period_count,
@@ -1366,6 +1394,7 @@ def run_case(
         "generator_manifest": generator_manifest,
         "scenario_template": file_identity(scenario_path),
         "method_config": file_identity(method_config_path),
+        "v4_output_capture_overrides": v4_output_capture,
         "v4_size_pilot_authorization": authorization_record,
         "output_root": str(output_root),
         "implementation_result": None,
@@ -1391,6 +1420,7 @@ def run_case(
         )
         pipeline_case_root = Path(str(pipeline_manifest["output_root"])).resolve()
         method_config_snapshot_identity: dict[str, Any] | None = None
+        method_config_effective_snapshot_identity: dict[str, Any] | None = None
         source_xml_snapshot_path: Path | None = None
         if v4_output_complete:
             snapshot_path = pipeline_case_root / "method_config_snapshot.json"
@@ -1400,6 +1430,12 @@ def run_case(
                 "bytes": snapshot_path.stat().st_size,
                 "sha256": sha256_file(snapshot_path),
             }
+            effective_config_snapshot = pipeline_case_root / "method_config_effective_snapshot.json"
+            write_json(effective_config_snapshot, method_config)
+            method_config_effective_snapshot_identity = file_identity(effective_config_snapshot)
+            pipeline_manifest["v4_output_capture_overrides"] = v4_output_capture
+            pipeline_manifest["method_config_source_snapshot"] = method_config_snapshot_identity
+            pipeline_manifest["method_config_effective_snapshot"] = method_config_effective_snapshot_identity
             source_xml_value = pipeline_manifest.get("source_xml")
             if not source_xml_value:
                 raise ValueError("V4 pipeline manifest lacks the effective Stage2 source XML")
@@ -1504,6 +1540,7 @@ def run_case(
                 pipeline_case_root, case_id, condition, correction_ns, source, estimate,
                 raw["A1_Current_unknown_error"], source_xml, truth_root, layout, period_count,
                 method_config["production"],
+                v4_output_complete=v4_output_complete,
             ))
         if v4_output_complete and float(delay_ns) != 0.0:
             for method_id in ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"):
@@ -1517,6 +1554,7 @@ def run_case(
                     truth_root=truth_root,
                     layout=layout,
                     production_config=method_config["production"],
+                    v4_output_complete=v4_output_complete,
                 ))
         method_records.extend(extra_methods)
         if v4_output_complete:
@@ -1528,7 +1566,7 @@ def run_case(
             case_root=pipeline_case_root if v4_output_complete else None,
             case_id=case_id if v4_output_complete else None,
             method_config_identity=(
-                method_config_snapshot_identity if v4_output_complete else None
+                method_config_effective_snapshot_identity if v4_output_complete else None
             ),
             default_source_xml=source_xml_snapshot_path,
         )

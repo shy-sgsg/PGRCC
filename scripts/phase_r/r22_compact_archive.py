@@ -6,8 +6,10 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import posixpath
 import re
 import shutil
+import stat
 import tempfile
 import zipfile
 from pathlib import Path
@@ -453,6 +455,84 @@ def _sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def _archive_symlink_record(
+    path: Path,
+    case_root: Path,
+    target_identity_cache: dict[str, tuple[int, str]],
+) -> dict[str, Any]:
+    relative = path.relative_to(case_root).as_posix()
+    if path.is_dir():
+        raise ValueError(f"case archive refuses directory symlink: {relative}")
+    try:
+        target = path.resolve(strict=True)
+        target_relative = target.relative_to(case_root).as_posix()
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError(f"case archive symlink target is missing or outside the case root: {relative}") from exc
+    if not target.is_file() or target == path:
+        raise ValueError(f"case archive symlink target is not a regular case file: {relative}")
+    link_target = posixpath.relpath(target_relative, posixpath.dirname(relative) or ".")
+    target_key = os.fspath(target)
+    identity = target_identity_cache.get(target_key)
+    if identity is None:
+        identity = (target.stat().st_size, _sha256_file(target))
+        target_identity_cache[target_key] = identity
+    return {
+        "path": relative,
+        "target_case_path": target_relative,
+        "archive_link_target": link_target,
+        "bytes": identity[0],
+        "sha256": identity[1],
+    }
+
+
+def _verify_archive_symlinks(
+    archive: zipfile.ZipFile,
+    symlink_entries: Any,
+    included_files: Any,
+) -> list[str]:
+    if not isinstance(symlink_entries, list) or not isinstance(included_files, list):
+        raise ValueError("case archive symlink/member manifest is invalid")
+    included_by_path = {
+        str(record.get("path")): record
+        for record in included_files if isinstance(record, Mapping)
+    }
+    seen: set[str] = set()
+    paths: list[str] = []
+    for record in symlink_entries:
+        if not isinstance(record, Mapping):
+            raise ValueError("case archive symlink identity is invalid")
+        member = str(record.get("path") or "")
+        target_case_path = str(record.get("target_case_path") or "")
+        link_target = str(record.get("archive_link_target") or "")
+        member_path, target_path = Path(member), Path(target_case_path)
+        if (not member or member_path.is_absolute() or ".." in member_path.parts
+                or not target_case_path or target_path.is_absolute() or ".." in target_path.parts
+                or member in seen or member in included_by_path):
+            raise ValueError(f"case archive symlink path is unsafe or duplicated: {member}")
+        seen.add(member)
+        paths.append(member)
+        resolved_link_target = posixpath.normpath(
+            posixpath.join(posixpath.dirname(member), link_target)
+        )
+        if (not link_target or link_target.startswith("/")
+                or resolved_link_target != target_case_path
+                or target_case_path not in included_by_path):
+            raise ValueError(f"case archive symlink target is unsafe or absent: {member}")
+        target_record = included_by_path[target_case_path]
+        if (int(record.get("bytes", -1)) != int(target_record.get("bytes", -2))
+                or str(record.get("sha256") or "") != str(target_record.get("sha256") or "")):
+            raise ValueError(f"case archive symlink target identity differs: {member}")
+        try:
+            info = archive.getinfo(member)
+        except KeyError as exc:
+            raise ValueError(f"case archive symlink member is missing: {member}") from exc
+        if not stat.S_ISLNK(info.external_attr >> 16):
+            raise ValueError(f"case archive link is not encoded as a symlink: {member}")
+        if archive.read(member) != link_target.encode("utf-8"):
+            raise ValueError(f"case archive symlink target text differs: {member}")
+    return paths
+
+
 def verify_case_archive(
     archive_path: Path,
     *,
@@ -500,7 +580,11 @@ def verify_case_archive(
             included_names.append(record["path"])
         if len(included_names) != len(set(included_names)):
             raise ValueError(f"case archive manifest contains duplicate paths: {path}")
-        expected_names = set(included_names) | {"ARCHIVE_MANIFEST.json"}
+        symlink_entries = manifest.get("symlink_entries", [])
+        symlink_names = _verify_archive_symlinks(archive, symlink_entries, included)
+        if set(included_names) & set(symlink_names):
+            raise ValueError(f"case archive duplicates regular and symlink member paths: {path}")
+        expected_names = set(included_names) | set(symlink_names) | {"ARCHIVE_MANIFEST.json"}
         if set(names) != expected_names:
             raise ValueError(f"case archive member list differs from its manifest: {path}")
         required_v4 = manifest.get("required_v4_members", [])
@@ -560,9 +644,15 @@ def archive_case_directory(
     else:
         raise ValueError("archive path must be outside the case root")
     files = sorted(source.rglob("*"), key=lambda item: item.relative_to(source).as_posix())
-    if any(item.is_symlink() for item in files):
+    symlink_paths = [item for item in files if item.is_symlink()]
+    if symlink_paths and archive_profile != "r22_v4_output_complete":
         raise ValueError("case tree contains a symlink; refusing to archive an ambiguous path")
     regular_files = [item for item in files if item.is_file()]
+    symlink_target_identity_cache: dict[str, tuple[int, str]] = {}
+    symlink_entries = [
+        _archive_symlink_record(item, source, symlink_target_identity_cache)
+        for item in symlink_paths
+    ]
     raw_files = [item for item in regular_files if item.suffix.lower() in _RAW_ARRAY_SUFFIXES]
     if raw_files and archive_profile != "r22_v4_output_complete":
         names = ", ".join(item.relative_to(source).as_posix() for item in raw_files[:5])
@@ -583,6 +673,8 @@ def archive_case_directory(
     included: list[dict[str, Any]] = []
     excluded: list[dict[str, Any]] = []
     for item in regular_files:
+        if item.is_symlink():
+            continue
         relative = item.relative_to(source).as_posix()
         size = item.stat().st_size
         digest = _sha256_file(item)
@@ -606,8 +698,14 @@ def archive_case_directory(
         included.sort(key=lambda record: record["path"])
 
     included_paths = {item["path"] for item in included}
-    if not set(required_members) <= included_paths:
+    symlink_paths_in_archive = {item["path"] for item in symlink_entries}
+    if not set(required_members) <= included_paths | symlink_paths_in_archive:
         raise ValueError("V4 archive policy excluded required evidence members")
+    for link in symlink_entries:
+        if link["target_case_path"] not in included_paths:
+            raise ValueError(
+                f"V4 archive symlink target is not retained as a regular member: {link['path']}"
+            )
     manifest = {
         "schema_version": 1,
         "archive_profile": archive_profile,
@@ -619,8 +717,10 @@ def archive_case_directory(
         "required_v4_members": required_members,
         "included_files": included,
         "excluded_files": excluded,
+        "symlink_entries": symlink_entries,
         "included_bytes": sum(item["bytes"] for item in included),
         "excluded_bytes": sum(item["bytes"] for item in excluded),
+        "symlink_target_bytes": sum(item["bytes"] for item in symlink_entries),
     }
     manifest_bytes = (json.dumps(
         manifest, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False,
@@ -643,13 +743,24 @@ def archive_case_directory(
                 else:
                     item = source / record["path"]
                     archive.write(item, arcname=record["path"])
+            for record in symlink_entries:
+                info = zipfile.ZipInfo(record["path"])
+                info.create_system = 3
+                info.external_attr = (stat.S_IFLNK | 0o777) << 16
+                info.compress_type = zipfile.ZIP_STORED
+                archive.writestr(info, record["archive_link_target"].encode("utf-8"))
             archive.writestr("ARCHIVE_MANIFEST.json", manifest_bytes)
 
         with zipfile.ZipFile(temporary, mode="r") as archive:
             if archive.testzip() is not None:
                 raise OSError("case archive failed ZIP CRC verification")
             archived_names = set(archive.namelist())
-            expected_names = {item["path"] for item in included} | {"ARCHIVE_MANIFEST.json"}
+            _verify_archive_symlinks(archive, symlink_entries, included)
+            expected_names = (
+                {item["path"] for item in included}
+                | {item["path"] for item in symlink_entries}
+                | {"ARCHIVE_MANIFEST.json"}
+            )
             if archived_names != expected_names:
                 raise OSError("case archive file list differs from its manifest")
             if archive.read("ARCHIVE_MANIFEST.json") != manifest_bytes:
@@ -671,7 +782,12 @@ def archive_case_directory(
                 if archive.testzip() is not None:
                     raise OSError("existing case archive failed ZIP CRC verification")
                 archived_names = set(archive.namelist())
-                expected_names = {item["path"] for item in included} | {"ARCHIVE_MANIFEST.json"}
+                _verify_archive_symlinks(archive, symlink_entries, included)
+                expected_names = (
+                    {item["path"] for item in included}
+                    | {item["path"] for item in symlink_entries}
+                    | {"ARCHIVE_MANIFEST.json"}
+                )
                 if archived_names != expected_names:
                     raise OSError("existing case archive file list differs from its manifest")
                 if archive.read("ARCHIVE_MANIFEST.json") != manifest_bytes:
@@ -697,6 +813,8 @@ def archive_case_directory(
         "included_bytes": manifest["included_bytes"],
         "excluded_file_count": len(excluded),
         "excluded_bytes": manifest["excluded_bytes"],
+        "symlink_count": len(symlink_entries),
+        "symlink_target_bytes": manifest["symlink_target_bytes"],
         "archive_manifest_sha256": _sha256_bytes(manifest_bytes),
         "raw_case_removed": remove_source,
         "reused_existing_archive": reused_existing_archive,

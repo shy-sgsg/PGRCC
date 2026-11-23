@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import hashlib
+import posixpath
 import zipfile
+import stat
 from pathlib import Path
 
 import pytest
@@ -567,3 +569,94 @@ def test_v4_archive_accepts_h0_without_truth_or_to_and_keeps_unproven_arrays(tmp
         assert "pipeline/cases/run/inputs/period.bin" not in excluded
         assert "pipeline/cases/run/production/C0_ON/result/csi.npy" not in excluded
     assert result["raw_case_removed"] is False
+
+
+def test_v4_archive_preserves_internal_input_symlinks_without_copying_payloads(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-v4-links"
+    source = case_root / "inputs" / "r22_v4_corrections" / "M1" / "period_0000.bin"
+    alias = case_root / "inputs" / "production" / "M1" / "ON" / "period_0000.bin"
+    source.parent.mkdir(parents=True)
+    alias.parent.mkdir(parents=True)
+    source.write_bytes(b"corrected production input bytes")
+    alias.symlink_to(source.resolve())
+    archive_path = tmp_path / "archives" / "case-v4-links.zip"
+
+    result = matrix.archive_case_directory(
+        case_root, archive_path, raw_root=raw_root, remove_source=False,
+        archive_profile="r22_v4_output_complete", require_complete_output=False,
+    )
+
+    source_relative = source.relative_to(case_root).as_posix()
+    alias_relative = alias.relative_to(case_root).as_posix()
+    expected_link_text = posixpath.relpath(source_relative, posixpath.dirname(alias_relative))
+    with zipfile.ZipFile(archive_path) as archive:
+        link_info = archive.getinfo(alias_relative)
+        assert stat.S_ISLNK(link_info.external_attr >> 16)
+        assert archive.read(alias_relative).decode("utf-8") == expected_link_text
+        manifest = json.loads(archive.read("ARCHIVE_MANIFEST.json"))
+        link_record = next(row for row in manifest["symlink_entries"] if row["path"] == alias_relative)
+        assert link_record["target_case_path"] == source_relative
+        assert link_record["bytes"] == source.stat().st_size
+        assert link_record["sha256"] == hashlib.sha256(source.read_bytes()).hexdigest()
+        assert alias_relative not in {row["path"] for row in manifest["included_files"]}
+    verification = matrix.verify_case_archive(
+        archive_path,
+        expected_sha256=result["archive_sha256"],
+        expected_manifest_sha256=result["archive_manifest_sha256"],
+        archive_profile="r22_v4_output_complete",
+    )
+    assert verification["crc_verified"] is True
+    assert verification["member_manifest_verified"] is True
+
+
+def test_v4_archive_hashes_shared_symlink_target_once_for_link_identity(tmp_path: Path, monkeypatch):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-shared-link-target"
+    source = case_root / "inputs" / "source.bin"
+    source.parent.mkdir(parents=True)
+    source.write_bytes(b"same large production input")
+    aliases = [case_root / "production" / f"branch_{index}" / "input.bin" for index in range(3)]
+    for alias in aliases:
+        alias.parent.mkdir(parents=True)
+        alias.symlink_to(source.resolve())
+
+    original_hash = compact._sha256_file
+    hashed_paths: list[Path] = []
+
+    def capture_hash(path: Path) -> str:
+        hashed_paths.append(Path(path).resolve())
+        return original_hash(path)
+
+    monkeypatch.setattr(compact, "_sha256_file", capture_hash)
+    compact.archive_case_directory(
+        case_root,
+        tmp_path / "archives" / "case-shared-link-target.zip",
+        raw_root=raw_root,
+        remove_source=False,
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=False,
+    )
+
+    assert hashed_paths.count(source.resolve()) == 2  # file member plus one cached link identity
+
+
+def test_legacy_archive_rejects_symlinks_and_v4_archive_rejects_external_targets(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-links"
+    case_root.mkdir(parents=True)
+    external = tmp_path / "outside.bin"
+    external.write_bytes(b"outside")
+    (case_root / "outside-link.bin").symlink_to(external)
+
+    with pytest.raises(ValueError, match="symlink"):
+        matrix.archive_case_directory(
+            case_root, tmp_path / "legacy.zip", raw_root=raw_root,
+            archive_profile="legacy", remove_source=False,
+        )
+    with pytest.raises(ValueError, match="outside the case root"):
+        matrix.archive_case_directory(
+            case_root, tmp_path / "v4.zip", raw_root=raw_root,
+            archive_profile="r22_v4_output_complete", require_complete_output=False,
+            remove_source=False,
+        )
