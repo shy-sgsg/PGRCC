@@ -1,0 +1,61 @@
+{
+  "audit_time_utc": "2026-11-23T10:28:38.477636+00:00",
+  "candidate_cohort": "single engineering output-completeness pilot only; never confirmatory",
+  "candidate_seed": 1937002,
+  "candidate_seed_ranges_checked": {
+    "v3_2_independent_h0": [
+      1935001,
+      1935030
+    ],
+    "v3_2_screening": [
+      1932001,
+      1932012
+    ],
+    "v4_confirmatory_reserved": [
+      1933001,
+      1933030
+    ],
+    "v4_h0_candidate": [
+      1936001,
+      1936030
+    ]
+  },
+  "collision_hits": [],
+  "limitations": [
+    "No connected external archive service was available; audit covers this checkout, local text identities, local ZIP member names and embedded identity manifests, and Git history reachable from local refs.",
+    "Generic numeric occurrences in signal/truth payloads are not seed identities unless the field/path explicitly identifies them as a seed."
+  ],
+  "prior_seed_disposition": {
+    "reason": "first attempt failed closed because CSI tap arrays were not captured; seed is consumed for this engineering pilot and will not be executed again.",
+    "run_status": "GATE_FAILED",
+    "seed": 1937001,
+    "status": "ACTUAL_EXECUTION_IDENTITY_EXISTS"
+  },
+  "purpose": "Reselect the one engineering-pilot seed after seed 1937001 acquired a real but instrumentation-incomplete Native CUDA run identity; do not rerun seed 1937001.",
+  "reselected_design": {
+    "authorized_sha256_constant": "scripts/phase_r/run_r22_cuda_pilot.py::V4_SIZE_PILOT_APPROVED_SHA256",
+    "path": "docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json",
+    "raw_sha256": "163e59d7af1fc681bf8cc2cce66949c9f77c34da725e9b463c3ca803b2d2cf13",
+    "scope": "same single engineering case and frozen physical/method parameters; seed substitution only under the task’s collision rule",
+    "seed": 1937002
+  },
+  "scan_scope": {
+    "archive_identity_manifests_scanned": 825,
+    "csv_files_with_explicit_seed_column_scanned": 5973,
+    "git_history_commits_with_matching_seed_identity": 0,
+    "roots": [
+      "docs",
+      "outputs",
+      "scripts",
+      "simulator",
+      "tests"
+    ],
+    "text_files_scanned": 44114,
+    "zip_archives_found": 415,
+    "zip_archives_scanned": 415
+  },
+  "schema_version": 1,
+  "status_note": "Seed 1937001 is disqualified from rerun after attempt_001 acquired an actual execution identity. Seed 1937002 passed the recorded local identity scan and is now the sole seed in the one-case pilot design.",
+  "unreadable_or_skipped_records": [],
+  "verdict": "LOCAL_PROJECT_SCOPE_PASS"
+}

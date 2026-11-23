@@ -41,7 +41,7 @@ DEFAULT_AREA = {
     "thermal_noise_power": 0.001,
 }
 V4_SIZE_PILOT_DESIGN_ID = "R22_V4_OUTPUT_SIZE_PILOT_DRAFT_20261123"
-V4_SIZE_PILOT_APPROVED_SHA256 = "779e0d258eee041712a18174669d97c54e8f83104c48c939e327a07f067e9250"
+V4_SIZE_PILOT_APPROVED_SHA256 = "163e59d7af1fc681bf8cc2cce66949c9f77c34da725e9b463c3ca803b2d2cf13"
 R22_XML_OVERRIDES = {
     "csi_metrics_enable": "true",
     "csi_metrics_dump_power_maps": "false",
@@ -1162,8 +1162,8 @@ def _require_v4_size_pilot_authorization(
         "design_id": V4_SIZE_PILOT_DESIGN_ID,
         "approved_design_sha256": V4_SIZE_PILOT_APPROVED_SHA256,
         "phase": "engineering",
-        "case_id": case_identifier("engineering", 1937001, 2.5, 20.0, 4.0, 20, 10),
-        "seed": 1937001, "speed_mps": 2.5, "snr_db": 20.0,
+        "case_id": case_identifier("engineering", 1937002, 2.5, 20.0, 4.0, 20, 10),
+        "seed": 1937002, "speed_mps": 2.5, "snr_db": 20.0,
         "delay_ns": 4.0, "target_count": 20, "period_count": 10,
         "first_beam": 50, "beam_count": 1,
         "method_ids": ["C0", "PK"],

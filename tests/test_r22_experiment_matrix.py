@@ -499,7 +499,7 @@ def test_v4_size_pilot_requires_exact_design_hash_and_explicit_scope():
     )
     assert authorization["status"] == "AUTHORIZED_SINGLE_ENGINEERING_CASE"
     assert authorization["approved_design_sha256"] == auth_args["approved_design_sha256"]
-    assert authorization["case_id"].startswith("engineering__seed_1937001__")
+    assert authorization["case_id"].startswith("engineering__seed_1937002__")
     assert authorization["archive_profile"] == "r22_v4_output_complete"
 
     with pytest.raises(ValueError, match="approved design SHA-256"):
@@ -758,7 +758,7 @@ def test_v4_keeps_case_outputs_until_complete_archive_verification(tmp_path, mon
     assert result["status"] == "ARCHIVE_PENDING"
     assert seen["runner_keep_raw"] is True
     assert seen["authorization"]["status"] == "AUTHORIZED_SINGLE_ENGINEERING_CASE"
-    assert seen["authorization"]["case_id"].startswith("engineering__seed_1937001__")
+    assert seen["authorization"]["case_id"].startswith("engineering__seed_1937002__")
     assert seen["raw_present_during_archive"] is True
     assert (Path(record["output_root"]) / "raw-input.bin").is_file()
 
