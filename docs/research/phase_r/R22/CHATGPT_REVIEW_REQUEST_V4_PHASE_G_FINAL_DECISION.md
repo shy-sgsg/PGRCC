@@ -10,7 +10,7 @@
 |---|---|
 | 仓库 | `https://github.com/shy-sgsg/PGRCC` |
 | 分支 | `codex/unknown-system-error-next-stage` |
-| Phase G 审查快照 commit | `SNAPSHOT_COMMIT_TO_FILL_AFTER_COMMIT_1` |
+| Phase G 审查快照 commit | `2355118855fc4dfc61aa290c1f7f707d51216981` |
 | Phase F 基线 commit | `ddbf057d8d944c54f94af54e239cc00644988f1a` |
 | 研究总纲 blob | `e637e3769bde7814298ff012d0f42301884e2985` |
 | V4 设计 | `docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json`，状态 `DRAFT_NOT_FROZEN` |

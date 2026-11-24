@@ -4,7 +4,7 @@
 
 ## 2026-11-24｜R22-V4 Phase G：统计契约闭合，冻结决策待用户
 
-- **决策编号与审查身份：** `D-2026-11-24-R22-V4-PHASE-G-STATISTICAL-CLOSURE`。Phase F 基线 commit `ddbf057d8d944c54f94af54e239cc00644988f1a`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。Phase G 最终固定审查 commit 将由本阶段提交身份补入 ChatGPT 请求；未补入前不得将此工作区草稿称作已发布审查快照。
+- **决策编号与审查身份：** `D-2026-11-24-R22-V4-PHASE-G-STATISTICAL-CLOSURE`。Phase F 基线 commit `ddbf057d8d944c54f94af54e239cc00644988f1a`；Phase G 固定审查快照 commit `2355118855fc4dfc61aa290c1f7f707d51216981`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。后续仅把该完整身份写入审查入口，不改变快照内容。
 - **发现与修订：** bootstrap-t 区间反演公式原实现正确，但说明将95%双侧区间上端点误写为使用97.5%学生化统计量分位数；现纠正为 `U=mean−q_0.025(T*)×SE` 并增加公式测试。全相同 seed、零标准误重抽样和非有限统计量改为 `NOT_EVALUABLE`，不报告退化零宽区间。位置共同成功支持下限变成显式冻结字段；未批准时仅保留描述量并排除正式推断。H0增加 false-confirmed-track-event 的 seed级事件率和 exact 单侧上界，并保留唯一track count/seed辅助统计。
 - **支持下限审计：** V3.3历史 SNR20/+4 ns、12个seed×3个速度、M1 batch与Fixed D3配对中，每个seed-speed计划200个机会，共同成功数117–161；候选下限1/5/10均36/36通过。该历史batch数据无法区分下限，且不是V4因果前缀结果，故没有选定门槛。
 - **远端与资源：** 只读 GitHub 查询得到目标分支`ddbf057d8d944c54f94af54e239cc00644988f1a`、master `39d4165df96eea6c2c090d7d9bf054c637c7b6a1`，与本地origin refs一致。复用既有 project-scope扫描125个身份manifest、418个ZIP、421个嵌入manifest，未见候选 seed 冲突；外部离线registry、GitHub artifacts/LFS 未验证。项目根实测18,707,902,464 bytes allocated，低于20,000,000,000-byte最终上限；唯一13,037,254,578-byte P0 ZIP及17,603,158-byte compact留在本机。四类schema尺寸只测得 target-present +4 ns，峰值临时空间未知。本阶段未移动、删除、上传P0或使用Google Drive。
