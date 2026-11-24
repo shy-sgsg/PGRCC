@@ -2,6 +2,16 @@
 
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
+## 2026-11-24｜R22-V4 Phase F：冻结决策准备完成，矩阵保持未授权
+
+- **决策编号与身份：** `D-2026-11-24-R22-V4-FINAL-FREEZE-READINESS`。分支 `codex/unknown-system-error-next-stage`；实施基线 HEAD `a81bdce906037d6a68c5e15cfe2d1578c8baedf4`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。
+- **统计修正：** 将“改善大于0、点估计达到MDE”（方案A）和“统计证明改善超过MDE”（方案B）分开。正式候选是两侧95% seed-cluster studentized bootstrap-t；使用5,000个合成seed数据集/场景及1,000次内层重抽样校验代表性边界。方案A真实改善恰3 m、MDE 3 m、覆盖差0且NI margin 0.5 pp时位置/覆盖联合通过约50.64%；方案B真实改善6 m对MDE 3 m时联合通过约91.00%。这些为基于历史V3.3方差的统计模型模拟，不是V4实测性能。27,000行参数网格使用t-reference规划，非精确bootstrap功效。
+- **机会与H0：** 共同成功为空的seed位置主终点标为不可评价并使总体定位主张inconclusive，不删除seed、不替换、不把miss填零；算法miss/fallback仍留在检测覆盖分母。H0区分seed-any-event、seed内period-event fraction及按唯一confirmed track ID计的错误航迹。30个H0 seed零事件的单侧95%上界仍为9.503%，只支持beam50/十周期任务口径，不代表全机系统Pfa。
+- **compact与空间：** 本机生成17,603,158-byte compact（SHA-256 `71b50b6110e04403b2152f8e292bb3e7df9ae4201fd2790d9d97595e7b12ae5a`），430/430成员SHA及ZIP CRC通过，11张核心表独立复算逐字节一致，重分析未读取完整P0 ZIP。原始13,037,254,578-byte P0 ZIP（SHA-256 `0974e1dfd1467cdd2bdced856e8c673d40c8966a53ab05261d0c5db2d99c4b02`）保留且未修改。移除两份确认重复的旧compact，净释放35,206,116 bytes。项目根目录实测18,379,873,713 bytes，低于20,000,000,000-byte最终限额；未来矩阵输出预测会超限，需要在结果汇总/审查后按授权清理。
+- **执行器与测试：** CPU dry-run为240 cases/120 batches、1,470科学槽位、2,520 Production调用、1,200–1,440 Stage2调用；状态`NOT_AUTHORIZED`，Stage2/Production/CUDA/AI均未启动。21个R12/R21/R22测试文件254 passed、0 failed。四类case schema只由synthetic CPU fixture验证；125份本地身份manifest和418个本地ZIP中421份身份manifest未见候选seed已执行冲突，但外部/远端归档未审计；四schema真实完整输出资源测量也缺失。
+- **阶段裁决与方向：** `READY_FOR_USER_FREEZE_DECISION`（供用户选择阈值和统计主张），正式设计仍`DRAFT_NOT_FROZEN`、矩阵执行门`BLOCKED`。长期研究方向`CONTINUE`，限总纲既定GMTI物理与任务研究；低速/复杂杂波未因此升级主线；`AI_ENTRY_GATE=FAIL`。定位MDE、检测覆盖非劣margin、航迹界值、H0接受边界、seed数量均未获批。没有修改研究总纲、算法或实验参数。
+- **后续唯一事项：** 用户/工程需求方先选方案A/B及工程界值；随后完成远端/外部seed registry复核，必要尺寸pilot另行申请授权，正式矩阵仍需单独授权。报告和机器证据见[R22-V4 Phase F导航](phase_r/R22/README.md)、[统计修正](phase_r/R22/47_v4_statistical_hypothesis_and_power_correction.md)、[compact验证](phase_r/R22/48_v4_compact_archive_validation.md)、[执行器闭合](phase_r/R22/49_v4_confirmatory_execution_runner_closure.md)、[冻结选项](phase_r/R22/50_v4_confirmatory_final_freeze_options.md)、[科研裁决](phase_r/R22/51_v4_scientific_direction_and_next_stage_decision.md)及[固定快照ChatGPT审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_FINAL_FREEZE_READINESS.md)。
+
 ## 2026-11-23｜R22-V4：CPU 集成闭合；pilot 受当前临时空间下界阻止
 
 - **决策编号与身份：** `D-2026-11-23-R22-V4-CPU-INTEGRATION-CLOSURE`。分支 `codex/unknown-system-error-next-stage`；代码基线 `ce7d1a96b6902b02b94408e5b2fabf02c275955b`；本次交付 commit 见报告与审查入口；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 保持不变。

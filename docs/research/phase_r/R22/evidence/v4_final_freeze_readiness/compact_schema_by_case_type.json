@@ -1,0 +1,358 @@
+{
+  "status": "CPU_SYNTHETIC_SCHEMA_FIXTURES_PASS",
+  "execution_scope": "No CUDA, Stage2, Production, or real-case archive was run. This verifies validator contracts only.",
+  "schemas": [
+    {
+      "schema_name": "target_present_0ns",
+      "status": "PASS",
+      "case_fixture": "CPU synthetic member inventory generated from test fixture; no real 0ns/H0 archive consumed",
+      "target_count": 20,
+      "delay_error_ns": 0.0,
+      "member_count": 78,
+      "required_member_count": 11,
+      "required_members": [
+        "evaluation/parameter_metrics.csv",
+        "evaluation/target_associations.csv",
+        "evaluation/task_metrics.csv",
+        "evaluation/track_level_metrics.csv",
+        "pipeline/cases/case-x/case_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/adaptive_role_difference_diagnostic.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_roi_manifest.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/truth_mapping_audit.json",
+        "r22_run_manifest.json"
+      ],
+      "optional_role_names": [
+        "OFF"
+      ],
+      "optional_member_count": 22,
+      "forbidden_member_patterns": [],
+      "production_branch_count": 3,
+      "branch_roles": [
+        {
+          "method_id": "A0",
+          "role": "OFF"
+        },
+        {
+          "method_id": "A0",
+          "role": "ON"
+        },
+        {
+          "method_id": "A0",
+          "role": "TO"
+        }
+      ],
+      "expected_method_ids": [
+        "A0"
+      ],
+      "target_response_status": "EVALUABLE",
+      "target_response_row_count": 400,
+      "target_roi_row_count": 200,
+      "truth_mapping_status": "passed",
+      "missing_required_member_count": 0,
+      "forbidden_member_count": 0
+    },
+    {
+      "schema_name": "target_present_4ns",
+      "status": "PASS",
+      "case_fixture": "CPU synthetic member inventory generated from test fixture; no real 0ns/H0 archive consumed",
+      "target_count": 20,
+      "delay_error_ns": 4.0,
+      "member_count": 408,
+      "required_member_count": 11,
+      "required_members": [
+        "evaluation/parameter_metrics.csv",
+        "evaluation/target_associations.csv",
+        "evaluation/task_metrics.csv",
+        "evaluation/track_level_metrics.csv",
+        "pipeline/cases/case-x/case_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/adaptive_role_difference_diagnostic.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_roi_manifest.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/truth_mapping_audit.json",
+        "r22_run_manifest.json"
+      ],
+      "optional_role_names": [
+        "OFF"
+      ],
+      "optional_member_count": 132,
+      "forbidden_member_patterns": [],
+      "production_branch_count": 18,
+      "branch_roles": [
+        {
+          "method_id": "A0",
+          "role": "OFF"
+        },
+        {
+          "method_id": "A0",
+          "role": "ON"
+        },
+        {
+          "method_id": "A0",
+          "role": "TO"
+        },
+        {
+          "method_id": "C0",
+          "role": "OFF"
+        },
+        {
+          "method_id": "C0",
+          "role": "ON"
+        },
+        {
+          "method_id": "C0",
+          "role": "TO"
+        },
+        {
+          "method_id": "HUBER_D3_CAUSAL_PREFIX",
+          "role": "OFF"
+        },
+        {
+          "method_id": "HUBER_D3_CAUSAL_PREFIX",
+          "role": "ON"
+        },
+        {
+          "method_id": "HUBER_D3_CAUSAL_PREFIX",
+          "role": "TO"
+        },
+        {
+          "method_id": "M1_CAUSAL_PREFIX",
+          "role": "OFF"
+        },
+        {
+          "method_id": "M1_CAUSAL_PREFIX",
+          "role": "ON"
+        },
+        {
+          "method_id": "M1_CAUSAL_PREFIX",
+          "role": "TO"
+        },
+        {
+          "method_id": "PK",
+          "role": "OFF"
+        },
+        {
+          "method_id": "PK",
+          "role": "ON"
+        },
+        {
+          "method_id": "PK",
+          "role": "TO"
+        },
+        {
+          "method_id": "R22_R9_Fixed_D3",
+          "role": "OFF"
+        },
+        {
+          "method_id": "R22_R9_Fixed_D3",
+          "role": "ON"
+        },
+        {
+          "method_id": "R22_R9_Fixed_D3",
+          "role": "TO"
+        }
+      ],
+      "expected_method_ids": [
+        "A0",
+        "C0",
+        "HUBER_D3_CAUSAL_PREFIX",
+        "M1_CAUSAL_PREFIX",
+        "PK",
+        "R22_R9_Fixed_D3"
+      ],
+      "target_response_status": "EVALUABLE",
+      "target_response_row_count": 400,
+      "target_roi_row_count": 200,
+      "truth_mapping_status": "passed",
+      "missing_required_member_count": 0,
+      "forbidden_member_count": 0
+    },
+    {
+      "schema_name": "h0_0ns",
+      "status": "PASS",
+      "case_fixture": "CPU synthetic member inventory generated from test fixture; no real 0ns/H0 archive consumed",
+      "target_count": 0,
+      "delay_error_ns": 0.0,
+      "member_count": 79,
+      "required_member_count": 13,
+      "required_members": [
+        "evaluation/h0_false_alarm_metrics.csv",
+        "evaluation/h0_task_metrics.csv",
+        "evaluation/parameter_metrics.csv",
+        "evaluation/target_associations.csv",
+        "evaluation/task_metrics.csv",
+        "evaluation/track_level_metrics.csv",
+        "pipeline/cases/case-x/case_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/adaptive_role_difference_diagnostic.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_roi_manifest.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/truth_mapping_audit.json",
+        "r22_run_manifest.json"
+      ],
+      "optional_role_names": [
+        "OFF",
+        "TO"
+      ],
+      "optional_member_count": 44,
+      "forbidden_member_patterns": [
+        "pipeline/cases/case-x/*/truth/truth_targets_by_beam.csv",
+        "pipeline/cases/case-x/*/truth/moving_target_truth.csv",
+        "pipeline/cases/case-x/*/truth/target_injection_amplitudes.csv"
+      ],
+      "production_branch_count": 3,
+      "branch_roles": [
+        {
+          "method_id": "A0",
+          "role": "OFF"
+        },
+        {
+          "method_id": "A0",
+          "role": "ON"
+        },
+        {
+          "method_id": "A0",
+          "role": "TO"
+        }
+      ],
+      "expected_method_ids": [
+        "A0"
+      ],
+      "target_response_status": "NOT_APPLICABLE_NO_TARGETS",
+      "target_response_row_count": 0,
+      "target_roi_row_count": 0,
+      "truth_mapping_status": "NOT_APPLICABLE_NO_TARGETS",
+      "missing_required_member_count": 0,
+      "forbidden_member_count": 0
+    },
+    {
+      "schema_name": "h0_4ns",
+      "status": "PASS",
+      "case_fixture": "CPU synthetic member inventory generated from test fixture; no real 0ns/H0 archive consumed",
+      "target_count": 0,
+      "delay_error_ns": 4.0,
+      "member_count": 409,
+      "required_member_count": 13,
+      "required_members": [
+        "evaluation/h0_false_alarm_metrics.csv",
+        "evaluation/h0_task_metrics.csv",
+        "evaluation/parameter_metrics.csv",
+        "evaluation/target_associations.csv",
+        "evaluation/task_metrics.csv",
+        "evaluation/track_level_metrics.csv",
+        "pipeline/cases/case-x/case_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/adaptive_role_difference_diagnostic.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_complex_response_manifest.json",
+        "pipeline/cases/case-x/r22_v4_output_evidence/target_roi_manifest.csv",
+        "pipeline/cases/case-x/r22_v4_output_evidence/truth_mapping_audit.json",
+        "r22_run_manifest.json"
+      ],
+      "optional_role_names": [
+        "OFF",
+        "TO"
+      ],
+      "optional_member_count": 264,
+      "forbidden_member_patterns": [
+        "pipeline/cases/case-x/*/truth/truth_targets_by_beam.csv",
+        "pipeline/cases/case-x/*/truth/moving_target_truth.csv",
+        "pipeline/cases/case-x/*/truth/target_injection_amplitudes.csv"
+      ],
+      "production_branch_count": 18,
+      "branch_roles": [
+        {
+          "method_id": "A0",
+          "role": "OFF"
+        },
+        {
+          "method_id": "A0",
+          "role": "ON"
+        },
+        {
+          "method_id": "A0",
+          "role": "TO"
+        },
+        {
+          "method_id": "C0",
+          "role": "OFF"
+        },
+        {
+          "method_id": "C0",
+          "role": "ON"
+        },
+        {
+          "method_id": "C0",
+          "role": "TO"
+        },
+        {
+          "method_id": "HUBER_D3_CAUSAL_PREFIX",
+          "role": "OFF"
+        },
+        {
+          "method_id": "HUBER_D3_CAUSAL_PREFIX",
+          "role": "ON"
+        },
+        {
+          "method_id": "HUBER_D3_CAUSAL_PREFIX",
+          "role": "TO"
+        },
+        {
+          "method_id": "M1_CAUSAL_PREFIX",
+          "role": "OFF"
+        },
+        {
+          "method_id": "M1_CAUSAL_PREFIX",
+          "role": "ON"
+        },
+        {
+          "method_id": "M1_CAUSAL_PREFIX",
+          "role": "TO"
+        },
+        {
+          "method_id": "PK",
+          "role": "OFF"
+        },
+        {
+          "method_id": "PK",
+          "role": "ON"
+        },
+        {
+          "method_id": "PK",
+          "role": "TO"
+        },
+        {
+          "method_id": "R22_R9_Fixed_D3",
+          "role": "OFF"
+        },
+        {
+          "method_id": "R22_R9_Fixed_D3",
+          "role": "ON"
+        },
+        {
+          "method_id": "R22_R9_Fixed_D3",
+          "role": "TO"
+        }
+      ],
+      "expected_method_ids": [
+        "A0",
+        "C0",
+        "HUBER_D3_CAUSAL_PREFIX",
+        "M1_CAUSAL_PREFIX",
+        "PK",
+        "R22_R9_Fixed_D3"
+      ],
+      "target_response_status": "NOT_APPLICABLE_NO_TARGETS",
+      "target_response_row_count": 0,
+      "target_roi_row_count": 0,
+      "truth_mapping_status": "NOT_APPLICABLE_NO_TARGETS",
+      "missing_required_member_count": 0,
+      "forbidden_member_count": 0
+    }
+  ],
+  "source_sha256": {
+    "scripts/phase_r/r22_v4_case_schema.py": "928ad01824ea1b66335b0ee4c93d7f4bb10d34516a1bf7872a554d3495af2a27",
+    "tests/test_r22_v4_case_schema.py": "eae26955bd33292c6867f9b7083477d13bac4f74b013af9b5ca4b30c1b41f97f"
+  }
+}

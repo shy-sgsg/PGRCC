@@ -1280,18 +1280,53 @@ def run_case(
     keep_raw: bool = False,
     v4_output_complete: bool = False,
     v4_size_pilot_authorization: Mapping[str, Any] | None = None,
+    v4_confirmatory_authorization: Mapping[str, Any] | None = None,
+    v4_confirmatory_registry: Mapping[str, Any] | None = None,
+    v4_confirmatory_batch_id: str | None = None,
 ) -> dict[str, Any]:
     case_id = case_identifier(phase, seed, speed_mps, snr_db, delay_ns, target_count, period_count)
     authorization_record = None
     if v4_output_complete:
-        authorization_record = _require_v4_size_pilot_authorization(
-            v4_size_pilot_authorization,
-            phase=phase, case_id=case_id, seed=seed, speed_mps=speed_mps,
-            snr_db=snr_db, delay_ns=delay_ns, target_count=target_count,
-            period_count=period_count, first_beam=first_beam, beam_count=beam_count,
-            method_ids=method_ids, calibration_modes=calibration_modes, area=area,
-            template=template, method_config_path=method_config_path,
-        )
+        if v4_confirmatory_authorization is not None:
+            if v4_size_pilot_authorization is not None:
+                raise ValueError("V4 pilot and confirmatory authorization cannot be combined")
+            from scripts.phase_r.r22_v4_confirmatory_executor import (
+                validate_case_authorization,
+            )
+
+            authorization_record = validate_case_authorization(
+                v4_confirmatory_authorization,
+                v4_confirmatory_registry,
+                batch_id=v4_confirmatory_batch_id,
+                output_root=output_root,
+                phase=phase,
+                seed=seed,
+                speed_mps=speed_mps,
+                snr_db=snr_db,
+                delay_ns=delay_ns,
+                target_count=target_count,
+                period_count=period_count,
+                first_beam=first_beam,
+                beam_count=beam_count,
+                template=template,
+                method_config=method_config_path,
+                stage2_binary=stage2_binary,
+                production_binary=production_binary,
+            )
+        else:
+            authorization_record = _require_v4_size_pilot_authorization(
+                v4_size_pilot_authorization,
+                phase=phase, case_id=case_id, seed=seed, speed_mps=speed_mps,
+                snr_db=snr_db, delay_ns=delay_ns, target_count=target_count,
+                period_count=period_count, first_beam=first_beam, beam_count=beam_count,
+                method_ids=method_ids, calibration_modes=calibration_modes, area=area,
+                template=template, method_config_path=method_config_path,
+            )
+    elif (v4_size_pilot_authorization is not None
+            or v4_confirmatory_authorization is not None
+            or v4_confirmatory_registry is not None
+            or v4_confirmatory_batch_id is not None):
+        raise ValueError("V4 authorization records require v4_output_complete=True")
     output_root = Path(output_root).expanduser().resolve()
     if v4_output_complete:
         # Preserve the complete source tree until the outer matrix transaction
@@ -1399,6 +1434,12 @@ def run_case(
         "method_config": file_identity(method_config_path),
         "v4_output_capture_overrides": v4_output_capture,
         "v4_size_pilot_authorization": authorization_record,
+        "v4_confirmatory_authorization": (
+            authorization_record
+            if isinstance(authorization_record, Mapping)
+            and authorization_record.get("status") == "AUTHORIZED_FOR_SELECTED_BATCHES"
+            else None
+        ),
         "output_root": str(output_root),
         "implementation_result": None,
     }

@@ -1,0 +1,65 @@
+{
+  "algorithm_task_failure": {
+    "coverage_rule": "retain every planned target-period opportunity in method-specific coverage denominator",
+    "examples": [
+      "no correct detection",
+      "estimator failure",
+      "zero-correction fallback"
+    ],
+    "fallback_rule": "zero-correction fallback remains in denominator and is counted by speed-period",
+    "position_rule": "only common correct matches enter each conditional position RMSE; record status and counts"
+  },
+  "alternative_policies_compared": [
+    {
+      "decision": "reject as primary; can induce outcome-dependent selection",
+      "policy": "drop missing seed/speed"
+    },
+    {
+      "decision": "reject without an independently approved finite loss scale; changes estimand",
+      "policy": "impute miss as fixed large position error"
+    },
+    {
+      "decision": "prohibited; breaks registered seed identity",
+      "policy": "replace seed"
+    },
+    {
+      "decision": "recommended conservative rule",
+      "policy": "retain misses in coverage and make missing primary endpoint inconclusive"
+    }
+  ],
+  "data_or_engineering_failure": {
+    "analysis_status": "not evaluable until a same-identity technical repair completes; full matrix cannot pass with unresolved technical loss",
+    "examples": [
+      "Production crash",
+      "corrupt output",
+      "truth map identity failure"
+    ],
+    "rule": "retain the registered seed/case identity; only a technical repair may retry the same seed/config; never replace or draw a favorable seed"
+  },
+  "freeze_state": "USER_DECISION_REQUIRED_FOR_LOW_COMMON_SUPPORT_THRESHOLD",
+  "one_common_success_in_speed_stratum": {
+    "candidate_sensitivity_counts_per_speed": [
+      1,
+      5,
+      10
+    ],
+    "freeze_blocker": "minimum acceptable common support is an engineering/user decision; do not infer it from P0",
+    "rule": "compute the mathematically defined RMSE contrast and flag LOW_COMMON_SUPPORT"
+  },
+  "opportunity_identity_contract": {
+    "algorithm_miss": "retain the explicit planned row with matched=false in the method-specific coverage denominator",
+    "missing_record": "NOT_EVALUABLE_MISSING_OPPORTUNITY_RECORDS; do not infer it was a miss or drop it",
+    "planned_registry": "exact (speed_mps,target_id,period) identities from frozen truth mapping",
+    "unexpected_identity": "hard error; do not add a post-hoc target-period opportunity"
+  },
+  "primary_estimand": {
+    "inferential_unit": "independent seed; resample a complete seed cluster",
+    "per_seed": "equal-weight mean across 0.5, 2.5, 6.7 m/s strata",
+    "per_speed": "RMSE_M1_minus_RMSE_Fixed_D3 on the same correctly associated target-period opportunities"
+  },
+  "zero_common_success_in_speed_stratum": {
+    "confirmatory_consequence": "overall position claim is INCONCLUSIVE if any planned seed lacks a required speed contrast; do not silently complete-case drop",
+    "rule": "primary seed contrast is NOT_EVALUABLE_NO_COMMON_SUCCESS; preserve all opportunity and coverage records",
+    "sensitivity": "report observed common-support subset descriptively; it cannot replace the registered primary result"
+  }
+}

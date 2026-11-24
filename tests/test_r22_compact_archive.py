@@ -716,3 +716,29 @@ def test_legacy_archive_rejects_symlinks_and_v4_archive_rejects_external_targets
             archive_profile="r22_v4_output_complete", require_complete_output=False,
             remove_source=False,
         )
+
+
+def test_v4_confirmatory_resume_requires_a_passing_case_type_schema(tmp_path: Path):
+    archive_path = tmp_path / "confirmatory.zip"
+    manifest = {
+        "archive_profile": "r22_v4_output_complete",
+        "case_phase": "confirmatory",
+        "required_v4_members": [],
+        "included_files": [],
+        "excluded_files": [],
+        "symlink_entries": [],
+    }
+    manifest_bytes = json.dumps(manifest, sort_keys=True).encode()
+    with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+        archive.writestr("ARCHIVE_MANIFEST.json", manifest_bytes)
+    archive_sha = hashlib.sha256(archive_path.read_bytes()).hexdigest()
+    manifest_sha = hashlib.sha256(manifest_bytes).hexdigest()
+
+    with pytest.raises(ValueError, match="case-type schema"):
+        compact.verify_case_archive(
+            archive_path,
+            expected_sha256=archive_sha,
+            expected_manifest_sha256=manifest_sha,
+            archive_profile="r22_v4_output_complete",
+            require_complete_output=True,
+        )

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import hashlib
+import csv
 import json
 import os
 import posixpath
@@ -440,6 +441,85 @@ def _v4_verified_dense_csi_exclusions(
     return exclusions
 
 
+def _csv_inventory(path: Path, *, unique_field: str | None = None) -> tuple[int, int | None]:
+    with Path(path).open("r", encoding="utf-8-sig", newline="") as stream:
+        reader = csv.DictReader(stream)
+        if not reader.fieldnames:
+            raise ValueError(f"V4 schema CSV is missing a header: {path}")
+        if unique_field is not None and unique_field not in reader.fieldnames:
+            raise ValueError(f"V4 schema CSV lacks {unique_field!r}: {path}")
+        rows = 0
+        unique: set[str] = set()
+        for row in reader:
+            rows += 1
+            if unique_field is not None:
+                value = str(row.get(unique_field, "")).strip()
+                if value:
+                    unique.add(value)
+    return rows, len(unique) if unique_field is not None else None
+
+
+def _confirmatory_case_schema(
+    case_root: Path,
+    member_names: list[str],
+    case_identity: Mapping[str, Any],
+) -> dict[str, Any]:
+    """Bind the 0/+4 ns × target/H0 schema to the actual archived payloads."""
+    from scripts.phase_r.r22_v4_case_schema import validate_v4_case_schema
+
+    run_path = case_root / "r22_run_manifest.json"
+    run = json.loads(run_path.read_text(encoding="utf-8"))
+    design = run.get("design")
+    if not isinstance(design, Mapping):
+        raise ValueError("confirmatory archive run manifest lacks its design identity")
+    try:
+        target_count = int(case_identity["target_count"])
+        delay_ns = float(case_identity["delay_error_ns"])
+        run_target_count = int(design["target_count"])
+        run_delay_ns = float(design["delay_error_ns"])
+    except (KeyError, TypeError, ValueError) as exc:
+        raise ValueError("confirmatory case identity lacks target count or delay") from exc
+    if target_count != run_target_count or delay_ns != run_delay_ns:
+        raise ValueError("confirmatory registry case differs from executed run design")
+    expected_phase = "h0" if target_count == 0 else "target_present"
+    phase = str(case_identity.get("phase") or "").strip().lower()
+    if phase != expected_phase or (expected_phase == "target_present" and run.get("phase") != "confirmatory"):
+        raise ValueError("confirmatory archive phase and target-count identity disagree")
+    if expected_phase == "h0" and run.get("phase") != "h0":
+        raise ValueError("H0 archive run manifest phase is not h0")
+
+    response_manifests = [
+        name for name in member_names
+        if name.endswith("/r22_v4_output_evidence/target_complex_response_manifest.json")
+    ]
+    if len(response_manifests) != 1:
+        raise ValueError("confirmatory archive requires one target-response manifest")
+    response_path = case_root / response_manifests[0]
+    response = json.loads(response_path.read_text(encoding="utf-8"))
+    response_dir = response_path.parent
+    roi_path = response_dir / "target_roi_manifest.csv"
+    complex_path = response_dir / "target_complex_response.csv"
+    truth_path = response_dir / "truth_mapping_audit.json"
+    association_path = case_root / "evaluation/target_associations.csv"
+    roi_rows, roi_targets = _csv_inventory(roi_path, unique_field="target_id")
+    complex_rows, _ = _csv_inventory(complex_path)
+    _, associated_targets = _csv_inventory(association_path, unique_field="target_id")
+    truth = json.loads(truth_path.read_text(encoding="utf-8"))
+    payload = {
+        "target_truth_association_count": int(associated_targets or 0),
+        "target_response_target_count": int(roi_targets or 0),
+        "target_response_status": response.get("status"),
+        "target_response_row_count": complex_rows,
+        "target_roi_row_count": roi_rows,
+        "truth_mapping_status": truth.get("status"),
+    }
+    return validate_v4_case_schema(
+        case_identity,
+        member_names,
+        payload_metadata=payload,
+    )
+
+
 def _compact_case_manifest_extract(case_root: Path, files: list[Path]) -> bytes | None:
     candidates = [
         item for item in files
@@ -553,6 +633,7 @@ def verify_case_archive(
     expected_manifest_sha256: str,
     archive_profile: str,
     require_complete_output: bool = False,
+    require_case_schema: bool = False,
 ) -> dict[str, Any]:
     """Verify a previously published archive before resume can skip its case.
 
@@ -606,6 +687,25 @@ def verify_case_archive(
                 raise ValueError(f"case archive has no verified V4 completeness record: {path}")
             if not set(required_v4) <= set(included_names):
                 raise ValueError(f"case archive omits a required V4 member: {path}")
+        case_phase = manifest.get("case_phase")
+        if require_case_schema or case_phase in {"confirmatory", "h0"}:
+            schema = manifest.get("case_schema")
+            identity = manifest.get("case_schema_identity")
+            if (not isinstance(schema, Mapping) or schema.get("status") != "PASS"
+                    or not isinstance(identity, Mapping)):
+                raise ValueError(f"case archive lacks a passing case-type schema: {path}")
+            identity_bytes = json.dumps(
+                identity, ensure_ascii=False, sort_keys=True,
+                separators=(",", ":"), allow_nan=False,
+            ).encode("utf-8")
+            if hashlib.sha256(identity_bytes).hexdigest() != manifest.get("case_schema_identity_sha256"):
+                raise ValueError(f"case archive schema identity digest is invalid: {path}")
+            schema_required = schema.get("required_members")
+            if (not isinstance(schema_required, list)
+                    or not set(schema_required) <= set(included_names)):
+                raise ValueError(f"case archive omits a required case-schema member: {path}")
+            if identity.get("phase") != schema.get("phase_family"):
+                raise ValueError(f"case archive schema phase differs from its identity: {path}")
         corrupt = archive.testzip()
         if corrupt is not None:
             raise ValueError(f"case archive CRC check failed at {corrupt}: {path}")
@@ -628,6 +728,7 @@ def archive_case_directory(
     remove_source: bool = True,
     archive_profile: str = "legacy",
     require_complete_output: bool = False,
+    case_schema_identity: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Create and verify a compact archive before deleting a case directory.
 
@@ -710,6 +811,32 @@ def archive_case_directory(
         })
         included.sort(key=lambda record: record["path"])
 
+    run_manifest_path = source / "r22_run_manifest.json"
+    run_manifest = (
+        json.loads(run_manifest_path.read_text(encoding="utf-8"))
+        if run_manifest_path.is_file() else {}
+    )
+    case_phase = run_manifest.get("phase")
+    formal_confirmatory = case_phase in {"confirmatory", "h0"}
+    if require_complete_output and formal_confirmatory and case_schema_identity is None:
+        raise ValueError("confirmatory complete-output archive requires its registered case schema identity")
+    if case_schema_identity is not None and not require_complete_output:
+        raise ValueError("case-type schema validation requires a complete-output archive")
+    schema_identity: dict[str, Any] | None = None
+    case_schema: dict[str, Any] | None = None
+    if case_schema_identity is not None:
+        schema_identity = {
+            key: case_schema_identity[key]
+            for key in ("case_id", "phase", "target_count", "delay_error_ns")
+            if key in case_schema_identity
+        }
+        case_schema = _confirmatory_case_schema(
+            source,
+            [record["path"] for record in included],
+            schema_identity,
+        )
+        required_members = sorted(set(required_members) | set(case_schema["required_members"]))
+
     included_paths = {item["path"] for item in included}
     symlink_paths_in_archive = {item["path"] for item in symlink_entries}
     if not set(required_members) <= included_paths | symlink_paths_in_archive:
@@ -722,6 +849,16 @@ def archive_case_directory(
     manifest = {
         "schema_version": 1,
         "archive_profile": archive_profile,
+        "case_phase": case_phase,
+        "case_schema_identity": schema_identity,
+        "case_schema_identity_sha256": (
+            hashlib.sha256(json.dumps(
+                schema_identity, ensure_ascii=False, sort_keys=True,
+                separators=(",", ":"), allow_nan=False,
+            ).encode("utf-8")).hexdigest()
+            if schema_identity is not None else None
+        ),
+        "case_schema": case_schema,
         "archive_policy": (
             "all_case_files_except_reproducible_rasters_and_hash-bound_dense_csi_arrays"
             if archive_profile == "r22_v4_output_complete"

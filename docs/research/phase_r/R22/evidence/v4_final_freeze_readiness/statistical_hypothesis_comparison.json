@@ -1,0 +1,53 @@
+{
+  "historical_input_sha256": "ed99ec0a1ee2c6b63a6244f8fe4305a60d146e5ed4721c20b26a7e68358cc636",
+  "historical_v33_seed_summary": {
+    "coverage_delta_M1_minus_Fixed_mean_pp": 0.08333333333333336,
+    "coverage_delta_M1_minus_Fixed_sd_pp": 0.4949237263957902,
+    "coverage_delta_M1_minus_Huber_sd_pp": 0.3333333333333333,
+    "independent_seed_count": 12,
+    "position_coverage_correlation_fisher_z_95pct_sensitivity_interval": [
+      -0.5081692810148654,
+      0.6329867731430481
+    ],
+    "position_coverage_seed_level_correlation": 0.09279499007637936,
+    "position_delta_M1_minus_Fixed_mean_m": -11.146172818015659,
+    "position_delta_M1_minus_Fixed_sd_m": 4.7967835646439765,
+    "position_delta_M1_minus_Huber_sd_m": 0.9854697467048248,
+    "source": "V3.3 historical batch-screening seed-level sensitivity input",
+    "transport_limit": "V3.3 batch SD/correlation are planning sensitivities, not V4 causal-prefix variance estimates"
+  },
+  "interval_and_test_alignment": {
+    "bootstrap_calibration": "the primary studentized bootstrap-t rule is checked by separate synthetic seed-level Monte Carlo recorded in bootstrap_coverage_audit.json; percentile and BCa are sensitivity comparisons",
+    "bootstrap_replicates": 10000,
+    "bootstrap_resampling_unit": "seed; keep each seed's three speed strata and all nested opportunities together",
+    "critical_value_warning": "a one-sided 95% upper bound and the upper end of a two-sided 95% CI do not use the same quantile",
+    "one_sided_95pct_upper_endpoint_quantile": 0.95,
+    "planning_power": "parametric noncentral-t planning reference under normal independent seed-level deltas; not exact power for the studentized bootstrap-t procedure",
+    "primary_interval": "95% two-sided seed-cluster studentized bootstrap-t interval of independent seeds",
+    "rng": "NumPy PCG64 seed 22029",
+    "upper_endpoint_quantile": 0.975
+  },
+  "primary_contrast": "Delta_s = RMSE_M1_CAUSAL_PREFIX,s − RMSE_Fixed_D3,s; negative favors M1",
+  "research_scope": "V3.3 historical batch sensitivity; does not estimate V4 causal-prefix variance",
+  "scheme_a": {
+    "alternative": "H1: mean(Delta) < 0",
+    "boundary_alpha": 0.025,
+    "combined_success": "statistical improvement AND point estimate reaches MDE AND coverage noninferiority passes",
+    "engineering_mde": "point estimate must reach the user-approved MDE; this is not proof that the true effect exceeds MDE",
+    "null": "H0: mean(Delta) >= 0",
+    "statistical_success": "upper endpoint of two-sided 95% seed-cluster studentized bootstrap-t CI < 0"
+  },
+  "scheme_b": {
+    "alternative": "H1: mean(Delta) < −MDE",
+    "boundary_alpha": 0.025,
+    "combined_success": "strict position superiority AND coverage noninferiority passes",
+    "null": "H0: mean(Delta) >= −MDE",
+    "statistical_success": "upper endpoint of two-sided 95% seed-cluster studentized bootstrap-t CI < −MDE"
+  },
+  "user_thresholds_not_approved": {
+    "detection_coverage_ni_margin_pp": true,
+    "h0_event_limits": true,
+    "position_mde_m": true,
+    "track_safety_limits": true
+  }
+}
