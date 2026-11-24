@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import math
 
+import numpy as np
 import pytest
 
 from scripts.phase_r.r22_v4_confirmatory_statistics import (
+    _bootstrap_interval,
     aggregate_seed_level_primary,
     aggregate_h0_seed_results,
+    bootstrap_monte_carlo_audit,
     bootstrap_mean_interval,
     joint_bootstrap_monte_carlo_audit,
     h0_seed_statistics,
@@ -35,6 +38,9 @@ def test_position_schemes_match_distinct_confirmatory_claims():
 
     assert scheme_a["null_boundary_delta_m"] == 0.0
     assert scheme_b["null_boundary_delta_m"] == -3.0
+    assert scheme_a["upper_endpoint_confidence"] == pytest.approx(0.975)
+    assert scheme_a["upper_endpoint_studentized_statistic_quantile"] == pytest.approx(0.025)
+    assert scheme_a["upper_endpoint_formula"] == "mean - q_0.025(T*) * observed_se"
     assert scheme_a["success_rule"] == "two_sided_95pct_studentized_bootstrap_t_upper_below_zero"
     assert scheme_b["success_rule"] == "two_sided_95pct_studentized_bootstrap_t_upper_below_minus_mde"
 
@@ -59,6 +65,31 @@ def test_position_schemes_match_distinct_confirmatory_claims():
         scheme="A", mde_m=3.0,
     )
     assert 0.45 < scheme_a["mde_point_estimate_pass_probability"] < 0.55
+
+
+def test_bootstrap_t_upper_endpoint_uses_inverted_lower_tail_quantile():
+    values = np.asarray([-1.0, 0.0, 2.0, 4.0, 7.0])
+    studentized = np.asarray([-3.0, -1.0, -0.2, 0.0, 0.3, 1.0, 4.0])
+    lower, upper = _bootstrap_interval(
+        values, studentized, confidence=0.95, method="bootstrap_t",
+    )
+    observed_se = values.std(ddof=1) / math.sqrt(values.size)
+    q025, q975 = np.quantile(studentized, [0.025, 0.975], method="linear")
+
+    assert lower == pytest.approx(values.mean() - q975 * observed_se)
+    assert upper == pytest.approx(values.mean() - q025 * observed_se)
+
+
+def test_bootstrap_monte_carlo_does_not_score_degenerate_t_datasets():
+    result = bootstrap_monte_carlo_audit(
+        n=2, seed_sd=1.0, true_delta=0.0, null_boundary=0.0,
+        datasets=4, bootstrap_replicates=20, seed=22029,
+    )
+
+    assert result["status"] == "INCONCLUSIVE_INVALID_BOOTSTRAP_DATASET"
+    assert result["invalid_dataset_count"] > 0
+    assert result["coverage_probability"] is None
+    assert result["rejection_probability"] is None
 
 
 def test_position_power_distinguishes_one_sided_and_two_sided_upper_bounds():
@@ -166,14 +197,14 @@ def test_paired_bootstrap_monte_carlo_uses_seed_clusters_and_checks_joint_covera
 
 
 def test_seed_bootstrap_is_deterministic_and_uses_seed_level_values():
-    values = [-4.0, -3.0, -2.0, -1.0]
+    values = [float(value) for value in range(-15, 15)]
     first = bootstrap_mean_interval(values, replicates=4_000, seed=22029)
     second = bootstrap_mean_interval(values, replicates=4_000, seed=22029)
 
     assert first == second
     assert first["independent_unit"] == "seed"
-    assert first["n"] == 4
-    assert first["mean"] == -2.5
+    assert first["n"] == 30
+    assert first["mean"] == -0.5
     assert first["lower"] < first["mean"] < first["upper"]
     bca = bootstrap_mean_interval(values, replicates=4_000, seed=22029, method="bca")
     assert bca["method"] == "seed-cluster BCa bootstrap"
@@ -183,6 +214,31 @@ def test_seed_bootstrap_is_deterministic_and_uses_seed_level_values():
     )
     assert studentized["method"] == "seed-cluster studentized bootstrap-t"
     assert studentized["lower"] < studentized["mean"] < studentized["upper"]
+
+
+def test_studentized_bootstrap_marks_zero_observed_variance_inconclusive():
+    result = bootstrap_mean_interval(
+        [4.0, 4.0, 4.0, 4.0], replicates=1_000, seed=22029,
+        method="bootstrap_t",
+    )
+
+    assert result["status"] == "NOT_EVALUABLE_ZERO_OBSERVED_VARIANCE"
+    assert result["mean"] == 4.0
+    assert result["lower"] is None
+    assert result["upper"] is None
+
+
+def test_studentized_bootstrap_reports_zero_se_resamples_without_a_ci():
+    result = bootstrap_mean_interval(
+        [0.0, 0.0, 0.0, 1.0], replicates=1_000, seed=22029,
+        method="bootstrap_t",
+    )
+
+    assert result["status"] == "NOT_EVALUABLE_DEGENERATE_BOOTSTRAP_VARIANCE"
+    assert result["degenerate_bootstrap_replicate_count"] > 0
+    assert result["nonfinite_bootstrap_statistic_count"] > 0
+    assert result["lower"] is None
+    assert result["upper"] is None
 
 
 def test_primary_endpoint_equal_weights_speeds_and_retains_missing_opportunities():
@@ -212,13 +268,34 @@ def test_primary_endpoint_equal_weights_speeds_and_retains_missing_opportunities
     )
     seed = result["seed_results"][0]
 
-    assert seed["status"] == "EVALUABLE_LOW_COMMON_SUPPORT"
+    assert seed["status"] == "NOT_EVALUABLE_MINIMUM_COMMON_SUPPORT_UNAPPROVED"
     assert seed["speed_strata_count"] == 3
-    assert seed["primary_delta_m"] == pytest.approx(-1.0)
+    assert seed["primary_delta_m"] is None
+    assert seed["descriptive_primary_delta_m"] == pytest.approx(-1.0)
     assert seed["total_opportunity_count"] == 9
     assert seed["common_success_count"] == 6
     assert seed["m1_coverage"] < 1.0
     assert result["independent_unit"] == "seed"
+    assert result["seed_count_evaluable"] == 0
+
+    threshold_results = {
+        threshold: aggregate_seed_level_primary(
+            rows,
+            planned_opportunity_keys=_planned_keys(rows),
+            minimum_common_support_per_speed=threshold,
+        )["seed_results"][0]
+        for threshold in (1, 5, 10)
+    }
+    assert threshold_results[1]["status"] == "EVALUABLE"
+    assert threshold_results[1]["primary_delta_m"] == pytest.approx(-1.0)
+    assert threshold_results[5]["status"] == "NOT_EVALUABLE_BELOW_MINIMUM_COMMON_SUPPORT"
+    assert threshold_results[10]["status"] == "NOT_EVALUABLE_BELOW_MINIMUM_COMMON_SUPPORT"
+
+    with pytest.raises(ValueError, match="minimum_common_support_per_speed"):
+        aggregate_seed_level_primary(
+            rows, planned_opportunity_keys=_planned_keys(rows),
+            minimum_common_support_per_speed=0,
+        )
 
 
 def test_primary_endpoint_zero_common_success_and_technical_failure_are_not_dropped():
@@ -346,8 +423,34 @@ def test_h0_aggregation_keeps_seed_as_unit_and_reports_candidate_zero_event_n():
     assert result["status"] == "EVALUABLE_COMPLETE_H0_SEED_SET"
     assert result["seed_any_event"]["event_seed_count"] == 0
     assert result["seed_any_event"]["one_sided_95pct_zero_event_upper_bound"] is not None
+    assert result["seed_any_event"]["one_sided_95pct_upper_bound"] == pytest.approx(
+        zero_event_upper_bound(3, confidence=0.95),
+    )
+    track_event = result["false_confirmed_track_event_rate"]
+    assert track_event["event_seed_count"] == 0
+    assert track_event["one_sided_95pct_upper_bound"] == pytest.approx(
+        zero_event_upper_bound(3, confidence=0.95),
+    )
     assert result["period_event_fraction"]["periods_treated_as_independent"] is False
     assert h0_zero_event_sample_size(probability_upper_limit=0.05) == 59
+
+
+def test_h0_false_confirmed_track_event_uses_seed_as_unit():
+    rows = [
+        h0_seed_statistics(
+            period_events=[False, False], valid_periods=[True, True],
+            false_confirmed_track_ids=track_ids,
+        ) | {"seed": seed}
+        for seed, track_ids in ((1, []), (2, ["track-a", "track-a"]), (3, ["track-b"]))
+    ]
+    result = aggregate_h0_seed_results(rows, planned_seeds=(1, 2, 3))
+    event = result["false_confirmed_track_event_rate"]
+
+    assert event["event_seed_count"] == 2
+    assert event["evaluable_seed_count"] == 3
+    assert event["rate"] == pytest.approx(2.0 / 3.0)
+    assert event["one_sided_95pct_upper_bound"] is not None
+    assert result["false_confirmed_unique_tracks_per_seed"]["seed_mean"] == pytest.approx(2.0 / 3.0)
 
 
 def test_h0_incomplete_seed_set_cannot_pass_or_report_zero_event_bound():
@@ -361,3 +464,4 @@ def test_h0_incomplete_seed_set_cannot_pass_or_report_zero_event_bound():
     assert result["status"] == "INCOMPLETE_H0_SEED_SET"
     assert result["missing_or_invalid_seeds"] == [2]
     assert result["seed_any_event"]["one_sided_95pct_zero_event_upper_bound"] is None
+    assert result["false_confirmed_track_event_rate"]["one_sided_95pct_upper_bound"] is None

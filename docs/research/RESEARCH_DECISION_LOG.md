@@ -2,6 +2,17 @@
 
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
+## 2026-11-24｜R22-V4 Phase G：统计契约闭合，冻结决策待用户
+
+- **决策编号与审查身份：** `D-2026-11-24-R22-V4-PHASE-G-STATISTICAL-CLOSURE`。Phase F 基线 commit `ddbf057d8d944c54f94af54e239cc00644988f1a`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。Phase G 最终固定审查 commit 将由本阶段提交身份补入 ChatGPT 请求；未补入前不得将此工作区草稿称作已发布审查快照。
+- **发现与修订：** bootstrap-t 区间反演公式原实现正确，但说明将95%双侧区间上端点误写为使用97.5%学生化统计量分位数；现纠正为 `U=mean−q_0.025(T*)×SE` 并增加公式测试。全相同 seed、零标准误重抽样和非有限统计量改为 `NOT_EVALUABLE`，不报告退化零宽区间。位置共同成功支持下限变成显式冻结字段；未批准时仅保留描述量并排除正式推断。H0增加 false-confirmed-track-event 的 seed级事件率和 exact 单侧上界，并保留唯一track count/seed辅助统计。
+- **支持下限审计：** V3.3历史 SNR20/+4 ns、12个seed×3个速度、M1 batch与Fixed D3配对中，每个seed-speed计划200个机会，共同成功数117–161；候选下限1/5/10均36/36通过。该历史batch数据无法区分下限，且不是V4因果前缀结果，故没有选定门槛。
+- **远端与资源：** 只读 GitHub 查询得到目标分支`ddbf057d8d944c54f94af54e239cc00644988f1a`、master `39d4165df96eea6c2c090d7d9bf054c637c7b6a1`，与本地origin refs一致。复用既有 project-scope扫描125个身份manifest、418个ZIP、421个嵌入manifest，未见候选 seed 冲突；外部离线registry、GitHub artifacts/LFS 未验证。项目根实测18,707,902,464 bytes allocated，低于20,000,000,000-byte最终上限；唯一13,037,254,578-byte P0 ZIP及17,603,158-byte compact留在本机。四类schema尺寸只测得 target-present +4 ns，峰值临时空间未知。本阶段未移动、删除、上传P0或使用Google Drive。
+- **阶段证据状态：** 定向统计测试34 passed、执行器测试15 passed；真实 Stage2、Native CUDA、Production、确认矩阵和AI均未执行。`IMPLEMENTED=true`、`CPU_TESTED=true`、`NEW_GMTI_EXPERIMENT_EXECUTED=false`、`EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`。设计 `DRAFT_NOT_FROZEN`、确认矩阵 `NOT_AUTHORIZED`、`AI_ENTRY_GATE=FAIL`。
+- **方向决定：** 长期研究方向 `CONTINUE` 于总纲规定的 GMTI 研究和基于任务的传统方法能力边界；Phase G 本身只完成确认性统计准备，不证明未知误差估计器有性能优势。没有证据转向低速目标、复杂杂波或AI。
+- **待用户决定与下一步：** 位置方案A/B、工程MDE、每速度共同支持下限、检测覆盖非劣margin、航迹保护是否为硬门、两项H0上界和seed数仍为空。另需四种schema和峰值临时空间测量，以及用户提供的外部seed registry（如存在）。先完成固定快照 ChatGPT 双层审查；其后再由用户决定是否授权size pilot及确认性CUDA矩阵。不得把此前单case P0授权解释为矩阵授权。
+- **记录与证据：** [统计闭合报告](phase_r/R22/52_v4_phase_g_statistical_contract_closure_20261124.md)、[方向/决策报告](phase_r/R22/53_v4_phase_g_research_direction_and_final_decision_20261124.md)、[机器证据](phase_r/R22/evidence/v4_phase_g/README.md)、[固定快照ChatGPT审查请求](phase_r/R22/CHATGPT_REVIEW_REQUEST_V4_PHASE_G_FINAL_DECISION.md)。
+
 ## 2026-11-24｜R22-V4 Phase F：冻结决策准备完成，矩阵保持未授权
 
 - **决策编号与身份：** `D-2026-11-24-R22-V4-FINAL-FREEZE-READINESS`。分支 `codex/unknown-system-error-next-stage`；实施基线 HEAD `a81bdce906037d6a68c5e15cfe2d1578c8baedf4`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。

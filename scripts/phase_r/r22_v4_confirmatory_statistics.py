@@ -141,9 +141,10 @@ def position_test_contract(
     """Describe one of the two non-equivalent position success claims.
 
     ``interval_confidence=.95`` means a two-sided interval. With the default
-    studentized bootstrap-t rule, its upper endpoint uses the 97.5th percentile
-    of seed-cluster studentized statistics. The boundary type-I error is .025,
-    not .05.
+    studentized bootstrap-t rule, interval inversion gives the upper endpoint
+    as ``estimate - q_0.025(T*) * observed_se``. The lower-tail 2.5th
+    percentile is used because inversion reverses the quantile order. The
+    boundary type-I error is .025, not .05.
     """
     margin = _finite(mde_m)
     if margin is None or margin < 0:
@@ -167,6 +168,8 @@ def position_test_contract(
         "interval": f"two_sided_seed_cluster_{interval_method}",
         "interval_confidence": confidence,
         "upper_endpoint_confidence": upper_confidence,
+        "upper_endpoint_studentized_statistic_quantile": alpha / 2.0,
+        "upper_endpoint_formula": f"mean - q_{alpha / 2.0:g}(T*) * observed_se",
         "alpha_at_boundary": 1.0 - upper_confidence,
         "success_rule": (
             "two_sided_95pct_studentized_bootstrap_t_upper_below_zero" if scheme == "A"
@@ -254,6 +257,29 @@ def bootstrap_mean_interval(
         raise ValueError("confidence must be between 0.5 and 1")
     if method not in {"percentile", "bca", "bootstrap_t"}:
         raise ValueError("method must be 'percentile', 'bca', or 'bootstrap_t'")
+    mean = float(data.mean())
+    observed_sd = float(data.std(ddof=1))
+    result: dict[str, Any] = {
+        "n": int(data.size),
+        "mean": mean,
+        "lower": None,
+        "upper": None,
+        "confidence": float(confidence),
+        "method": (
+            "seed-cluster studentized bootstrap-t" if method == "bootstrap_t" else
+            f"seed-cluster {'BCa' if method == 'bca' else 'percentile'} bootstrap"
+        ),
+        "interval_algorithm": method,
+        "replicates": replicates,
+        "rng": f"NumPy PCG64 seed {seed}",
+        "independent_unit": "seed",
+        "degenerate_bootstrap_replicate_count": 0,
+        "nonfinite_bootstrap_statistic_count": 0,
+    }
+    if observed_sd == 0.0:
+        result["status"] = "NOT_EVALUABLE_ZERO_OBSERVED_VARIANCE"
+        result["reason"] = "zero observed seed-level variance cannot establish zero uncertainty"
+        return result
     rng = np.random.Generator(np.random.PCG64(seed))
     means = np.empty(replicates, dtype=np.float64)
     # Bound temporary memory for larger seed registries/replicate counts.
@@ -264,29 +290,39 @@ def bootstrap_mean_interval(
         indices = rng.integers(0, data.size, size=(count, data.size))
         samples = data[indices]
         sampled_means = samples.mean(axis=1)
-        means[offset:offset + count] = (
-            _studentized_bootstrap_statistics(data, samples)
-            if method == "bootstrap_t" else sampled_means
-        )
+        if method == "bootstrap_t":
+            standard_errors = samples.std(axis=1, ddof=1) / math.sqrt(data.size)
+            result["degenerate_bootstrap_replicate_count"] += int(
+                np.count_nonzero(standard_errors == 0.0)
+            )
+            statistics_chunk = _studentized_bootstrap_statistics(data, samples)
+            result["nonfinite_bootstrap_statistic_count"] += int(
+                np.count_nonzero(~np.isfinite(statistics_chunk))
+            )
+            means[offset:offset + count] = statistics_chunk
+        else:
+            means[offset:offset + count] = sampled_means
         offset += count
+    if result["degenerate_bootstrap_replicate_count"]:
+        result["status"] = "NOT_EVALUABLE_DEGENERATE_BOOTSTRAP_VARIANCE"
+        result["reason"] = (
+            "at least one seed bootstrap replicate has zero standard error; "
+            "the studentized reference distribution is not accepted"
+        )
+        return result
+    if not np.isfinite(means).all():
+        result["status"] = "NOT_EVALUABLE_NONFINITE_BOOTSTRAP_STATISTICS"
+        result["reason"] = "bootstrap statistics contain non-finite values"
+        return result
     lower, upper = _bootstrap_interval(
         data, means, confidence=confidence, method=method,
     )
-    return {
-        "n": int(data.size),
-        "mean": float(data.mean()),
-        "lower": float(lower),
-        "upper": float(upper),
-        "confidence": float(confidence),
-        "method": (
-            "seed-cluster studentized bootstrap-t" if method == "bootstrap_t" else
-            f"seed-cluster {'BCa' if method == 'bca' else 'percentile'} bootstrap"
-        ),
-        "interval_algorithm": method,
-        "replicates": replicates,
-        "rng": f"NumPy PCG64 seed {seed}",
-        "independent_unit": "seed",
-    }
+    if not (math.isfinite(float(lower)) and math.isfinite(float(upper))):
+        result["status"] = "NOT_EVALUABLE_NONFINITE_INTERVAL"
+        result["reason"] = "bootstrap interval endpoints are non-finite"
+        return result
+    result.update({"status": "EVALUABLE", "lower": float(lower), "upper": float(upper)})
+    return result
 
 
 def bootstrap_monte_carlo_audit(
@@ -318,6 +354,7 @@ def bootstrap_monte_carlo_audit(
     critical = float(t.ppf(1.0 - (1.0 - confidence) / 2.0, n - 1))
     covered = 0
     rejected = 0
+    invalid_datasets = 0
     # Keep peak allocation bounded; every sample remains clustered by seed.
     batch_size = max(1, min(64, 2_000_000 // (n * bootstrap_replicates)))
     done = 0
@@ -329,23 +366,43 @@ def bootstrap_monte_carlo_audit(
         lower = np.empty(batch, dtype=np.float64)
         upper = np.empty(batch, dtype=np.float64)
         for i in range(batch):
+            if sample_sds[i] == 0.0:
+                invalid_datasets += 1
+                lower[i] = upper[i] = math.nan
+                continue
             indices = rng.integers(0, n, size=(bootstrap_replicates, n))
             samples = observed[i, indices]
+            if interval_method == "bootstrap_t":
+                standard_errors = samples.std(axis=1, ddof=1) / math.sqrt(n)
+                if np.any(standard_errors == 0.0):
+                    invalid_datasets += 1
+                    lower[i] = upper[i] = math.nan
+                    continue
             means = (
                 _studentized_bootstrap_statistics(observed[i], samples)
                 if interval_method == "bootstrap_t" else samples.mean(axis=1)
             )
+            if not np.isfinite(means).all():
+                invalid_datasets += 1
+                lower[i] = upper[i] = math.nan
+                continue
             lower[i], upper[i] = _bootstrap_interval(
                 observed[i], means, confidence=confidence, method=interval_method,
             )
-        covered += int(np.count_nonzero((lower <= delta) & (delta <= upper)))
-        # Use the selected two-sided interval's upper endpoint rule.
-        rejected += int(np.count_nonzero(upper < boundary))
+            if not (math.isfinite(float(lower[i])) and math.isfinite(float(upper[i]))):
+                invalid_datasets += 1
+                lower[i] = upper[i] = math.nan
+        if invalid_datasets == 0:
+            covered += int(np.count_nonzero((lower <= delta) & (delta <= upper)))
+            # Use the selected two-sided interval's upper endpoint rule.
+            rejected += int(np.count_nonzero(upper < boundary))
         done += batch
 
-    coverage_rate = covered / datasets
-    rejection_rate = rejected / datasets
+    complete = invalid_datasets == 0
+    coverage_rate = covered / datasets if complete else None
+    rejection_rate = rejected / datasets if complete else None
     return {
+        "status": "EVALUABLE" if complete else "INCONCLUSIVE_INVALID_BOOTSTRAP_DATASET",
         "n": n,
         "seed_sd": sd,
         "true_delta": delta,
@@ -355,10 +412,16 @@ def bootstrap_monte_carlo_audit(
         "confidence": confidence,
         "bootstrap_interval": f"two-sided {interval_method}; upper endpoint follows the selected seed bootstrap rule",
         "interval_algorithm": interval_method,
+        "evaluable_dataset_count": datasets if complete else None,
+        "invalid_dataset_count": invalid_datasets,
         "coverage_probability": coverage_rate,
-        "coverage_monte_carlo_se": math.sqrt(coverage_rate * (1.0 - coverage_rate) / datasets),
+        "coverage_monte_carlo_se": (
+            math.sqrt(coverage_rate * (1.0 - coverage_rate) / datasets) if complete else None
+        ),
         "rejection_probability": rejection_rate,
-        "rejection_monte_carlo_se": math.sqrt(rejection_rate * (1.0 - rejection_rate) / datasets),
+        "rejection_monte_carlo_se": (
+            math.sqrt(rejection_rate * (1.0 - rejection_rate) / datasets) if complete else None
+        ),
         "independent_unit": "synthetic seed",
         "simulation_kind": "CPU synthetic seed-level Monte Carlo; not a GMTI experiment",
         "critical_t_reference_only": critical,
@@ -633,13 +696,23 @@ def joint_bootstrap_monte_carlo_audit(
     position_covered = coverage_covered = 0
     position_pass_count = position_stat_pass_count = position_point_pass_count = 0
     coverage_pass_count = joint_pass_count = 0
+    invalid_datasets = 0
     for _ in range(datasets):
         x = rng.normal(mu_p, sig_p, size=n)
         z = rng.normal(0.0, 1.0, size=n)
         y = mu_c + sig_c * (rho * ((x - mu_p) / sig_p) + math.sqrt(max(0.0, 1.0 - rho * rho)) * z)
+        if float(x.std(ddof=1)) == 0.0 or float(y.std(ddof=1)) == 0.0:
+            invalid_datasets += 1
+            continue
         indices = rng.integers(0, n, size=(bootstrap_replicates, n))
         samples_x = x[indices]
         samples_y = y[indices]
+        if interval_method == "bootstrap_t" and (
+            np.any(samples_x.std(axis=1, ddof=1) == 0.0)
+            or np.any(samples_y.std(axis=1, ddof=1) == 0.0)
+        ):
+            invalid_datasets += 1
+            continue
         boot_x = (
             _studentized_bootstrap_statistics(x, samples_x)
             if interval_method == "bootstrap_t" else samples_x.mean(axis=1)
@@ -654,6 +727,9 @@ def joint_bootstrap_monte_carlo_audit(
         c_lower, c_upper = _bootstrap_interval(
             y, boot_y, confidence=confidence, method=interval_method,
         )
+        if not all(math.isfinite(float(value)) for value in (p_lower, p_upper, c_lower, c_upper)):
+            invalid_datasets += 1
+            continue
         p_stat_pass = bool(p_upper < boundary)
         p_point_pass = bool(x.mean() <= -mde)
         p_pass = p_stat_pass and p_point_pass if position_scheme == "A" else p_stat_pass
@@ -666,7 +742,11 @@ def joint_bootstrap_monte_carlo_audit(
         coverage_pass_count += int(c_pass)
         joint_pass_count += int(p_pass and c_pass)
 
-    def rate(count: int) -> tuple[float, float]:
+    complete = invalid_datasets == 0
+
+    def rate(count: int) -> tuple[float | None, float | None]:
+        if not complete:
+            return None, None
         p = count / datasets
         return p, math.sqrt(p * (1.0 - p) / datasets)
 
@@ -678,8 +758,11 @@ def joint_bootstrap_monte_carlo_audit(
     c_pass, c_pass_se = rate(coverage_pass_count)
     joint, joint_se = rate(joint_pass_count)
     return {
+        "status": "EVALUABLE" if complete else "INCONCLUSIVE_INVALID_BOOTSTRAP_DATASET",
         "n": n,
         "datasets": datasets,
+        "evaluable_dataset_count": datasets if complete else None,
+        "invalid_dataset_count": invalid_datasets,
         "bootstrap_replicates_per_dataset": bootstrap_replicates,
         "position_seed_sd_m": sig_p,
         "coverage_seed_sd_pp": sig_c,
@@ -718,17 +801,22 @@ def aggregate_seed_level_primary(
     expected_speeds: Sequence[float] = DEFAULT_SPEEDS_MPS,
     planned_seeds: Sequence[int] | None = None,
     planned_opportunity_keys: Sequence[tuple[float, str, int]] | None = None,
+    minimum_common_support_per_speed: int | None = None,
 ) -> dict[str, Any]:
     """Build the equal-speed-weighted M1−Fixed D3 endpoint without silent drops.
 
     Input has exactly one row per seed/speed/target/period opportunity. Misses
     remain in the coverage denominator. Position RMSE is conditional on the
     common correctly matched opportunities; a speed stratum with zero common
-    successes makes that seed's primary contrast non-evaluable.
+    successes makes that seed's primary contrast non-evaluable. A positive
+    per-speed support floor is an explicit design input; an unset floor keeps
+    the descriptive estimate but excludes it from confirmatory inference.
     """
     speeds = tuple(float(value) for value in expected_speeds)
     if not speeds or len(set(speeds)) != len(speeds):
         raise ValueError("expected_speeds must be non-empty and unique")
+    if minimum_common_support_per_speed is not None:
+        _positive_int("minimum_common_support_per_speed", minimum_common_support_per_speed)
     expected_by_speed: dict[float, set[tuple[str, int]]] | None = None
     if planned_opportunity_keys is not None:
         expected_by_speed = {speed: set() for speed in speeds}
@@ -811,6 +899,8 @@ def aggregate_seed_level_primary(
             "seed": seed,
             "status": "EVALUABLE",
             "primary_delta_m": None,
+            "descriptive_primary_delta_m": None,
+            "minimum_common_support_per_speed": minimum_common_support_per_speed,
             "speed_strata_count": 0,
             "total_opportunity_count": sum(len(values) for values in strata.values()),
             "common_success_count": 0,
@@ -919,7 +1009,12 @@ def aggregate_seed_level_primary(
                     math.sqrt(statistics.fmean(value * value for value in fixed_values)) if count else None
                 ),
                 "position_delta_m": speed_delta,
-                "support_flag": "LOW_COMMON_SUPPORT" if count == 1 else "OK" if count > 1 else "NO_COMMON_SUCCESS",
+                "support_flag": (
+                    "NO_COMMON_SUCCESS" if count == 0 else
+                    "MINIMUM_SUPPORT_UNAPPROVED" if minimum_common_support_per_speed is None else
+                    "BELOW_MINIMUM_COMMON_SUPPORT"
+                    if count < minimum_common_support_per_speed else "OK"
+                ),
             })
         base.update({
             "total_opportunity_count": total_count,
@@ -934,9 +1029,15 @@ def aggregate_seed_level_primary(
         if len(speed_deltas) != len(speeds):
             base["status"] = "NOT_EVALUABLE_NO_COMMON_SUCCESS"
         else:
-            base["primary_delta_m"] = statistics.fmean(speed_deltas)
-            if any(result["support_flag"] == "LOW_COMMON_SUPPORT" for result in speed_results):
-                base["status"] = "EVALUABLE_LOW_COMMON_SUPPORT"
+            descriptive_delta = statistics.fmean(speed_deltas)
+            base["descriptive_primary_delta_m"] = descriptive_delta
+            if minimum_common_support_per_speed is None:
+                base["status"] = "NOT_EVALUABLE_MINIMUM_COMMON_SUPPORT_UNAPPROVED"
+            elif any(result["support_flag"] == "BELOW_MINIMUM_COMMON_SUPPORT" for result in speed_results):
+                base["status"] = "NOT_EVALUABLE_BELOW_MINIMUM_COMMON_SUPPORT"
+            else:
+                base["primary_delta_m"] = descriptive_delta
+                base["status"] = "EVALUABLE"
         seed_results.append(base)
 
     evaluable = [row for row in seed_results if row["primary_delta_m"] is not None]
@@ -946,9 +1047,11 @@ def aggregate_seed_level_primary(
         "speed_weights": {str(speed): 1.0 / len(speeds) for speed in speeds},
         "position_estimand": "equal-speed mean of common-success RMSE differences within seed",
         "coverage_estimand": "all planned target-period opportunities; misses retained",
+        "minimum_common_support_per_speed": minimum_common_support_per_speed,
         "position_common_success_policy": (
-            "zero common successes in any speed makes seed position contrast not evaluable; "
-            "one common success is computed and flagged LOW_COMMON_SUPPORT"
+            "zero common successes makes the seed position contrast not evaluable; "
+            "a null per-speed support floor is unapproved and excludes descriptive contrasts "
+            "from inference; otherwise every speed stratum must meet the explicit floor"
         ),
         "planned_opportunity_registry_verified": expected_by_speed is not None,
         "planned_opportunity_counts_by_speed": (
@@ -981,6 +1084,18 @@ def binomial_clopper_pearson_interval(
     lower = 0.0 if events == 0 else float(beta.ppf(tail, events, n - events + 1))
     upper = 1.0 if events == n else float(beta.ppf(1.0 - tail, events + 1, n - events))
     return lower, upper
+
+
+def binomial_clopper_pearson_upper_bound(
+    events: int, n: int, *, confidence: float = 0.95,
+) -> float:
+    """Exact one-sided binomial upper confidence bound for an event probability."""
+    _positive_int("n", n)
+    if isinstance(events, bool) or not isinstance(events, int) or not 0 <= events <= n:
+        raise ValueError("events must be an integer between 0 and n")
+    if not 0.0 < confidence < 1.0:
+        raise ValueError("confidence must be between 0 and 1")
+    return 1.0 if events == n else float(beta.ppf(confidence, events + 1, n - events))
 
 
 def h0_seed_statistics(
@@ -1091,6 +1206,12 @@ def aggregate_h0_seed_results(
     event_ci = binomial_clopper_pearson_interval(events, n, confidence=confidence) if n else None
     period_fractions = [float(row["period_event_fraction"]) for row in completed]
     track_counts = [float(row["false_confirmed_unique_track_count"]) for row in completed]
+    false_track_event_seeds = sum(count > 0.0 for count in track_counts)
+    false_track_event_rate = false_track_event_seeds / n if n else None
+    false_track_event_ci = (
+        binomial_clopper_pearson_interval(false_track_event_seeds, n, confidence=confidence)
+        if n else None
+    )
     complete_seed_set = not missing_seeds and len(completed) == len(seed_ids)
     return {
         "status": "EVALUABLE_COMPLETE_H0_SEED_SET" if complete_seed_set else "INCOMPLETE_H0_SEED_SET",
@@ -1104,6 +1225,10 @@ def aggregate_h0_seed_results(
             "evaluable_seed_count": n,
             "rate": event_rate,
             "two_sided_exact_binomial_ci": list(event_ci) if event_ci else None,
+            "one_sided_95pct_upper_bound": (
+                binomial_clopper_pearson_upper_bound(events, n, confidence=0.95)
+                if n and complete_seed_set else None
+            ),
             "one_sided_95pct_zero_event_upper_bound": (
                 zero_event_upper_bound(n, confidence=0.95)
                 if n and events == 0 and complete_seed_set else None
@@ -1111,6 +1236,21 @@ def aggregate_h0_seed_results(
             "zero_event_bound_interpretation": (
                 "seed-any-event probability; no extrapolation to full-system Pfa"
             ),
+        },
+        "false_confirmed_track_event_rate": {
+            "event_seed_count": false_track_event_seeds,
+            "evaluable_seed_count": n,
+            "rate": false_track_event_rate,
+            "two_sided_exact_binomial_ci": (
+                list(false_track_event_ci) if false_track_event_ci else None
+            ),
+            "one_sided_95pct_upper_bound": (
+                binomial_clopper_pearson_upper_bound(
+                    false_track_event_seeds, n, confidence=0.95,
+                ) if n and complete_seed_set else None
+            ),
+            "event_definition": "at least one unique false confirmed TrackManager track ID in the seed",
+            "counting_unit": "independent seed",
         },
         "period_event_fraction": {
             "seed_mean": statistics.fmean(period_fractions) if n else None,

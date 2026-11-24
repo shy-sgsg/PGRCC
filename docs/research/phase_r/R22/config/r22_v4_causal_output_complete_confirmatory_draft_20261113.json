@@ -7,8 +7,8 @@
   "ai_training": false,
   "router_enabled": false,
   "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
-  "updated_on": "2026-11-22",
-  "draft_revision": 4,
+  "updated_on": "2026-11-24",
+  "draft_revision": 5,
   "case_identity_semantics": "240 unique case identities are paired/nested by seed; they are not 240 statistically independent samples",
   "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
   "supersedes": null,
@@ -178,12 +178,16 @@
       }
     ],
     "primary_false_alarm_endpoint": "seed-clustered proportion of valid beam-50 periods with >=1 frozen postfilter Detection",
+    "false_confirmed_track_event_endpoint": "proportion of independent H0 seeds with at least one unique false confirmed TrackManager track ID",
     "supporting_endpoints": [
       "false_unique_cfar_cut_count / valid_cut_count per seed",
       "false_cluster_count per seed",
       "false_confirmed_track_count per seed"
     ],
-    "scope_limit": "beam-50, ten-period H0 endpoint; not full multi-beam system Pfa"
+    "scope_limit": "beam-50, ten-period H0 endpoint; not full multi-beam system Pfa",
+    "interval_confidence": 0.95,
+    "seed_event_rate_upper_limit": null,
+    "false_confirmed_track_rate_upper_limit": null
   },
   "causal_estimator": {
     "method_id": "M1_CAUSAL_PREFIX",
@@ -288,9 +292,13 @@
     "contrast": "M1_CAUSAL_PREFIX minus FIXED_D3; negative favors M1",
     "inferential_unit": "independent seed",
     "seed_count": 30,
+    "position_scheme": null,
     "position_mde_m": null,
+    "minimum_common_support_per_speed": null,
     "detection_coverage_noninferiority_margin_pp": null,
-    "threshold_status": "PENDING_ENGINEERING_REQUIREMENTS; do not freeze or run until approved"
+    "track_protection_policy": null,
+    "track_coverage_noninferiority_margin_pp": null,
+    "threshold_status": "PENDING_USER_AND_ENGINEERING_APPROVAL; do not freeze or run until approved"
   },
   "secondary_information_matched_comparison": {
     "methods": [
@@ -338,8 +346,24 @@
   },
   "statistics": {
     "primary_interval": "seed-cluster bootstrap 95% interval; resample seed with its full speed/target/period cluster",
+    "position_interval_method": "bootstrap_t",
+    "position_interval_confidence": 0.95,
     "bootstrap_replicates": 10000,
-    "bootstrap_rng": "NumPy PCG64 seed 22029",
+    "bootstrap_rng_algorithm": "PCG64",
+    "bootstrap_seed": 22029,
+    "position_success_rule": "Scheme A: two-sided bootstrap-t interval upper endpoint < 0 and seed-level point estimate <= -MDE; Scheme B: two-sided bootstrap-t interval upper endpoint < -MDE",
+    "studentized_zero_variance_policy": "zero observed seed variance or any zero-SE bootstrap replicate makes the interval NOT_EVALUABLE; report point estimate and counts, return null interval endpoints, never claim zero uncertainty",
+    "missing_seed_policy": "retain planned seed registry; missing or invalid seed makes the confirmatory endpoint incomplete; do not replace seeds or silently reduce the denominator",
+    "missing_opportunity_policy": "retain all planned target-period opportunities in detection coverage; a missing required opportunity record makes that seed position endpoint NOT_EVALUABLE",
+    "common_success_policy": "position RMSE uses only the frozen common correctly-associated opportunity set; every speed must meet the separately approved minimum support; report coverage alongside conditional position error",
+    "tie_policy": "strict superiority uses upper endpoint < boundary; detection noninferiority uses lower endpoint > -margin; equality does not pass",
+    "detection_coverage_noninferiority_rule": "two-sided seed-cluster 95% interval lower endpoint for M1-minus-FixedD3 percentage-point coverage difference must be strictly greater than the negative approved margin",
+    "joint_success_rule": "approved position rule AND detection-coverage noninferiority; add a track-coverage gate only if explicitly selected and its margin is approved",
+    "method_failure_policy": "M1 or Huber prefix estimate failure uses current-period zero correction; every planned opportunity remains in coverage denominators; never substitute another method or reference",
+    "h0_rate_interval_rule": "seed-any-event rate uses a two-sided exact Clopper-Pearson interval; when zero events occur also report the one-sided exact upper bound; do not infer full-system Pfa",
+    "h0_gate_rule": "the seed-any-event and false-confirmed-track-event one-sided exact 95% upper bounds must each be strictly below their separately approved limits; require the complete planned H0 seed set",
+    "h0_incomplete_policy": "all planned H0 seeds and all ten valid beam-50 periods are required for the confirmatory H0 gate; incomplete seeds do not count as zero-event seeds",
+    "h0_false_track_unit": "unique false confirmed TrackManager track ID per independent seed",
     "secondary_speed_tests": "Holm correction across three speeds if inferential p-values are reported",
     "power_status": "not validated until engineering MDE and detection margin are specified"
   },

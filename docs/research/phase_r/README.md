@@ -1,6 +1,8 @@
 # PGRCC Phase R：研究审查与证据导航
 
-更新日期：2026-11-23。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
+更新日期：2026-11-24。本目录是 Phase R 的证据导航，不是独立的长期研究计划。总体主题、阶段安排与当前优先任务以[研究总纲](../RESEARCH_MASTER_PLAN.md)为准；方向变化记录于[研究决策日志](../RESEARCH_DECISION_LOG.md)。请区分理论推导、外部文献、软件测试、历史仿真和真实 CUDA Production 结果；它们不可互相替代。
+
+- **R22-V4 Phase G（2026-11-24，统计契约闭合与决策准备）：** bootstrap-t端点说明与零方差规则已修正；共同支持下限未批准时fail-closed；H0假检出与false-confirmed-track事件均按seed统计。定向CPU回归49项通过。没有运行新的Stage2/CUDA/Production或AI。V4仍`DRAFT_NOT_FROZEN`、确认矩阵`NOT_AUTHORIZED`，研究方向`CONTINUE`只表示继续受控决策准备，不是性能验证。门槛、外部registry和四类资源测量待闭合。入口：[52统计闭合](R22/52_v4_phase_g_statistical_contract_closure_20261124.md)、[53方向裁决](R22/53_v4_phase_g_research_direction_and_final_decision_20261124.md)、[机器证据](R22/evidence/v4_phase_g/README.md)、[ChatGPT审查请求](R22/CHATGPT_REVIEW_REQUEST_V4_PHASE_G_FINAL_DECISION.md)。
 
 - **R22 V4 CPU集成闭合（2026-11-23）：** 110项受影响CPU回归通过；240 case、1,470注册方法/角色槽位、2,520计划Production调用为静态源码派生计数。当前卷空间不足以安全执行一个+4 ns case与归档峰值，本次未运行 Stage2/CUDA/pilot/确认矩阵。V4仍`DRAFT_NOT_FROZEN`，不构成性能验证。入口：[集成闭合](R22/33_v4_integration_closure_20261123.md)、[CPU验证](R22/34_v4_cpu_integration_validation_20261123.md)、[磁盘 readiness](R22/35_v4_cuda_pilot_readiness_20261123.md)和[ChatGPT审查请求](R22/CHATGPT_REVIEW_REQUEST_V4_INTEGRATION_CLOSURE_20261123.md)。
 

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-11-24",
+  "final_project_cap_bytes": 20000000000,
+  "measurement": {
+    "project_root": "/home/shy/AIR/SAR+AI/project/PGRCC",
+    "project_allocated_bytes_before_phase_g_docs": 18707902464,
+    "project_apparent_bytes_before_phase_g_docs": 18380488349,
+    "active_worktree_allocated_bytes_before_phase_g_docs": 18137415680,
+    "active_worktree_apparent_bytes_before_phase_g_docs": 17945770846,
+    "filesystem_available_bytes_at_measurement": 38264741888,
+    "filesystem_use_percent": 92,
+    "cap_headroom_allocated_bytes_before_phase_g_docs": 1292097536,
+    "final_project_allocated_bytes_after_phase_g_docs": 18707988480,
+    "final_project_apparent_bytes_after_phase_g_docs": 18380535496,
+    "filesystem_available_bytes_after_phase_g_docs": 35054022656,
+    "filesystem_use_percent_after_phase_g_docs": 93,
+    "final_cap_headroom_allocated_bytes": 1292011520
+  },
+  "preserved_local_p0": {
+    "full_archive_path": "outputs/r22_v4_p0_seed1937003_20261123/archives/engineering/engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10__attempt_001.zip",
+    "full_archive_bytes": 13037254578,
+    "full_archive_sha256_from_existing_manifest": "0974e1dfd1467cdd2bdced856e8c673d40c8966a53ab05261d0c5db2d99c4b02",
+    "compact_archive_path": "outputs/r22_v4_p0_seed1937003_20261123/archives_compact_candidate/p0_target_present_plus4ns_compact_schema_v2.zip",
+    "compact_archive_bytes": 17603158,
+    "compact_archive_sha256_from_existing_manifest": "71b50b6110e04403b2152f8e292bb3e7df9ae4201fd2790d9d97595e7b12ae5a",
+    "deletion_or_move_performed": false
+  },
+  "confirmatory_matrix_resource_evidence": {
+    "required_case_schemas": [
+      "target_present_0ns",
+      "target_present_4ns",
+      "h0_0ns",
+      "h0_4ns"
+    ],
+    "full_output_size_measured_schemas": ["target_present_4ns"],
+    "four_schema_size_pilot_complete": false,
+    "measured_peak_temporary_bytes": null,
+    "historical_projection_archive_gb": {
+      "optimistic_branch_only": 2.464,
+      "uniform_p0_compact_proxy": 4.225,
+      "uniform_proxy_plus_25pct": 5.281
+    },
+    "projection_source": "docs/research/phase_r/R22/50_v4_confirmatory_final_freeze_options.md",
+    "interpretation": "the three archive totals are planning proxies, not measurements of all four case schemas or temporary peak storage"
+  },
+  "storage_policy": {
+    "intermediate_runs_may_exceed_final_cap": true,
+    "final_cleaned_project_must_remain_below_cap": true,
+    "current_project_below_cap_at_measurement": true,
+    "cleanup_or_external_move_performed": false,
+    "google_drive_used": false,
+    "remaining_gate": "measure all four schema archives and peak temporary usage before confirmatory execution; preserve and audit the unique P0 archive"
+  }
+}

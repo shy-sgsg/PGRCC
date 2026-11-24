@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
 import shutil
 import subprocess
@@ -52,6 +53,60 @@ REQUIRED_THRESHOLD_KEYS = (
     "h0_seed_event_rate_upper_limit",
     "h0_false_confirmed_track_rate_upper_limit",
 )
+_STATISTICAL_POLICY_FIELDS = {
+    "position_success_rule": (
+        "Scheme A: two-sided bootstrap-t interval upper endpoint < 0 and seed-level point estimate "
+        "<= -MDE; Scheme B: two-sided bootstrap-t interval upper endpoint < -MDE"
+    ),
+    "studentized_zero_variance_policy": (
+        "zero observed seed variance or any zero-SE bootstrap replicate makes the interval "
+        "NOT_EVALUABLE; report point estimate and counts, return null interval endpoints, "
+        "never claim zero uncertainty"
+    ),
+    "missing_seed_policy": (
+        "retain planned seed registry; missing or invalid seed makes the confirmatory endpoint "
+        "incomplete; do not replace seeds or silently reduce the denominator"
+    ),
+    "missing_opportunity_policy": (
+        "retain all planned target-period opportunities in detection coverage; a missing required "
+        "opportunity record makes that seed position endpoint NOT_EVALUABLE"
+    ),
+    "common_success_policy": (
+        "position RMSE uses only the frozen common correctly-associated opportunity set; every "
+        "speed must meet the separately approved minimum support; report coverage alongside "
+        "conditional position error"
+    ),
+    "tie_policy": (
+        "strict superiority uses upper endpoint < boundary; detection noninferiority uses lower "
+        "endpoint > -margin; equality does not pass"
+    ),
+    "detection_coverage_noninferiority_rule": (
+        "two-sided seed-cluster 95% interval lower endpoint for M1-minus-FixedD3 percentage-point "
+        "coverage difference must be strictly greater than the negative approved margin"
+    ),
+    "joint_success_rule": (
+        "approved position rule AND detection-coverage noninferiority; add a track-coverage gate "
+        "only if explicitly selected and its margin is approved"
+    ),
+    "method_failure_policy": (
+        "M1 or Huber prefix estimate failure uses current-period zero correction; every planned "
+        "opportunity remains in coverage denominators; never substitute another method or reference"
+    ),
+    "h0_rate_interval_rule": (
+        "seed-any-event rate uses a two-sided exact Clopper-Pearson interval; when zero events "
+        "occur also report the one-sided exact upper bound; do not infer full-system Pfa"
+    ),
+    "h0_gate_rule": (
+        "the seed-any-event and false-confirmed-track-event one-sided exact 95% upper bounds must "
+        "each be strictly below their separately approved limits; require the complete planned H0 "
+        "seed set"
+    ),
+    "h0_incomplete_policy": (
+        "all planned H0 seeds and all ten valid beam-50 periods are required for the confirmatory "
+        "H0 gate; incomplete seeds do not count as zero-event seeds"
+    ),
+    "h0_false_track_unit": "unique false confirmed TrackManager track ID per independent seed",
+}
 RUNTIME_SOURCE_PATHS = (
     "scripts/phase_r/r22_v4_confirmatory_executor.py",
     "scripts/phase_r/run_r22_cuda_pilot.py",
@@ -108,6 +163,7 @@ def _resolve_path(value: Path, *, base: Path = ROOT) -> Path:
 
 def _frozen_thresholds(design: Mapping[str, Any]) -> dict[str, Any]:
     primary = design.get("primary_comparison", {})
+    statistics = design.get("statistics", {})
     h0 = design.get("h0", {})
     return {
         "position_mde_m": primary.get("position_mde_m"),
@@ -118,6 +174,31 @@ def _frozen_thresholds(design: Mapping[str, Any]) -> dict[str, Any]:
         "h0_false_confirmed_track_rate_upper_limit": h0.get(
             "false_confirmed_track_rate_upper_limit"
         ),
+        "confirmatory_statistical_contract": {
+            "position_scheme": primary.get("position_scheme"),
+            "minimum_common_support_per_speed": primary.get(
+                "minimum_common_support_per_speed"
+            ),
+            "position_interval_method": statistics.get("position_interval_method"),
+            "position_interval_confidence": statistics.get("position_interval_confidence"),
+            "bootstrap_replicates": statistics.get("bootstrap_replicates"),
+            "bootstrap_rng_algorithm": statistics.get("bootstrap_rng_algorithm"),
+            "bootstrap_seed": statistics.get("bootstrap_seed"),
+            "track_protection_policy": primary.get("track_protection_policy"),
+            "track_coverage_noninferiority_margin_pp": primary.get(
+                "track_coverage_noninferiority_margin_pp"
+            ),
+            "h0_primary_endpoint": h0.get("primary_false_alarm_endpoint"),
+            "h0_false_track_event_endpoint": h0.get("false_confirmed_track_event_endpoint"),
+            "h0_supporting_endpoints": h0.get("supporting_endpoints"),
+            "h0_interval_confidence": h0.get("interval_confidence"),
+            "h0_seed_event_rate_upper_limit": h0.get("seed_event_rate_upper_limit"),
+            "h0_false_confirmed_track_rate_upper_limit": h0.get(
+                "false_confirmed_track_rate_upper_limit"
+            ),
+            "secondary_speed_tests": statistics.get("secondary_speed_tests"),
+            **{key: statistics.get(key) for key in _STATISTICAL_POLICY_FIELDS},
+        },
     }
 
 
@@ -304,10 +385,10 @@ def _parse_utc(value: Any, *, field: str) -> datetime:
     return parsed.astimezone(timezone.utc)
 
 
-def _validate_thresholds(value: Any) -> dict[str, float]:
+def _validate_thresholds(value: Any) -> dict[str, Any]:
     if not isinstance(value, Mapping):
         raise ValueError("frozen threshold record is missing")
-    result: dict[str, float] = {}
+    result: dict[str, Any] = {}
     for key in REQUIRED_THRESHOLD_KEYS:
         item = value.get(key)
         if isinstance(item, bool):
@@ -321,6 +402,68 @@ def _validate_thresholds(value: Any) -> dict[str, float]:
         if key.endswith("upper_limit") and number > 1.0:
             raise ValueError(f"frozen threshold {key} must be in [0,1]")
         result[key] = number
+    contract = value.get("confirmatory_statistical_contract")
+    if not isinstance(contract, Mapping):
+        raise ValueError("confirmatory statistical contract is missing")
+    if contract.get("position_scheme") not in {"A", "B"}:
+        raise ValueError("confirmatory statistical contract position scheme must be A or B")
+    support = contract.get("minimum_common_support_per_speed")
+    if isinstance(support, bool) or not isinstance(support, int) or support < 1:
+        raise ValueError("confirmatory statistical contract minimum common support must be positive")
+    if contract.get("position_interval_method") != "bootstrap_t":
+        raise ValueError("confirmatory statistical contract interval method must be bootstrap_t")
+    try:
+        confidence = float(contract.get("position_interval_confidence"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("confirmatory statistical contract interval confidence is missing") from exc
+    if isinstance(contract.get("position_interval_confidence"), bool) or not 0.5 < confidence < 1.0:
+        raise ValueError("confirmatory statistical contract interval confidence is invalid")
+    replicates = contract.get("bootstrap_replicates")
+    bootstrap_seed = contract.get("bootstrap_seed")
+    if (isinstance(replicates, bool) or not isinstance(replicates, int) or replicates < 1
+            or isinstance(bootstrap_seed, bool) or not isinstance(bootstrap_seed, int)
+            or bootstrap_seed < 0 or contract.get("bootstrap_rng_algorithm") != "PCG64"):
+        raise ValueError("confirmatory statistical contract bootstrap identity is invalid")
+    if contract.get("track_protection_policy") not in {"DESCRIPTIVE_ONLY", "NONINFERIORITY_GATE"}:
+        raise ValueError("confirmatory statistical contract track protection policy is unresolved")
+    track_margin = contract.get("track_coverage_noninferiority_margin_pp")
+    if contract["track_protection_policy"] == "NONINFERIORITY_GATE":
+        try:
+            track_margin = float(track_margin)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("confirmatory statistical contract track margin is missing") from exc
+        if (isinstance(contract.get("track_coverage_noninferiority_margin_pp"), bool)
+                or not math.isfinite(track_margin) or track_margin < 0):
+            raise ValueError("confirmatory statistical contract track margin is invalid")
+    elif track_margin is not None:
+        raise ValueError("confirmatory statistical contract has an unused track margin")
+    try:
+        h0_confidence = float(contract.get("h0_interval_confidence"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("confirmatory statistical contract H0 confidence is missing") from exc
+    if (contract.get("h0_primary_endpoint") !=
+            "seed-clustered proportion of valid beam-50 periods with >=1 frozen postfilter Detection"
+            or not 0.5 < h0_confidence < 1.0):
+        raise ValueError("confirmatory statistical contract H0 endpoint or confidence is invalid")
+    if contract.get("h0_false_track_event_endpoint") != (
+        "proportion of independent H0 seeds with at least one unique false confirmed TrackManager track ID"
+    ):
+        raise ValueError("confirmatory statistical contract false-track event unit is invalid")
+    if contract.get("h0_supporting_endpoints") != [
+        "false_unique_cfar_cut_count / valid_cut_count per seed",
+        "false_cluster_count per seed",
+        "false_confirmed_track_count per seed",
+    ]:
+        raise ValueError("confirmatory statistical contract H0 supporting metrics differ")
+    if contract.get("secondary_speed_tests") != "Holm correction across three speeds if inferential p-values are reported":
+        raise ValueError("confirmatory statistical contract speed-test multiplicity rule differs")
+    for key, expected in _STATISTICAL_POLICY_FIELDS.items():
+        if contract.get(key) != expected:
+            raise ValueError(f"confirmatory statistical contract policy differs: {key}")
+    for key in ("h0_seed_event_rate_upper_limit", "h0_false_confirmed_track_rate_upper_limit"):
+        if contract.get(key) != result[key]:
+            raise ValueError(f"confirmatory statistical contract threshold differs: {key}")
+    result["confirmatory_statistical_contract"] = dict(contract)
     return result
 
 

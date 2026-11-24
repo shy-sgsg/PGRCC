@@ -40,6 +40,12 @@ def test_draft_registry_is_exact_paired_and_default_denied(tmp_path):
     assert registry["execution_authorized"] is False
     assert registry["cuda_authorized"] is False
     assert registry["registry_sha256"] == executor.registry_digest(registry)
+    contract = registry["frozen_thresholds"]["confirmatory_statistical_contract"]
+    assert contract["position_scheme"] is None
+    assert contract["minimum_common_support_per_speed"] is None
+    assert contract["track_protection_policy"] is None
+    assert contract["position_interval_method"] == "bootstrap_t"
+    assert contract["position_interval_confidence"] == 0.95
     assert all(len(batch["case_ids"]) == 2 for batch in registry["batches"])
     assert all(batch["delay_error_ns"] == [0.0, 4.0] for batch in registry["batches"])
     assert {case["phase"] for case in registry["cases"]} == {"target_present", "h0"}
@@ -63,6 +69,9 @@ def _authorized_registry_and_record(tmp_path: Path):
     design["execution_authorized"] = True
     design["cuda_authorized"] = True
     design["primary_comparison"]["position_mde_m"] = 3.0
+    design["primary_comparison"]["position_scheme"] = "A"
+    design["primary_comparison"]["minimum_common_support_per_speed"] = 1
+    design["primary_comparison"]["track_protection_policy"] = "DESCRIPTIVE_ONLY"
     design["primary_comparison"]["detection_coverage_noninferiority_margin_pp"] = 2.0
     design["h0"]["seed_event_rate_upper_limit"] = 0.1
     design["h0"]["false_confirmed_track_rate_upper_limit"] = 0.1
@@ -139,6 +148,7 @@ def test_authorization_is_bound_to_exact_registry_batch_and_runtime(tmp_path):
     )
     assert accepted["status"] == "AUTHORIZED_FOR_SELECTED_BATCHES"
     assert accepted["case_count"] == 2
+    assert accepted["frozen_thresholds"]["confirmatory_statistical_contract"]["position_scheme"] == "A"
 
     with pytest.raises(ValueError, match="batch"):
         executor.validate_confirmatory_authorization(
@@ -207,6 +217,21 @@ def test_authorization_expiry_digest_and_frozen_thresholds_are_enforced(tmp_path
     record["frozen_thresholds"]["position_mde_m"] = None
     record["authorization_sha256"] = executor.authorization_digest(record)
     with pytest.raises(ValueError, match="threshold"):
+        executor.validate_confirmatory_authorization(
+            record, registry, requested_batch_ids=selected,
+            output_root=registry["output_root"], now=datetime.now(timezone.utc),
+        )
+
+
+def test_authorization_binds_unapproved_or_changed_statistical_contract(tmp_path):
+    registry, record, selected = _authorized_registry_and_record(tmp_path)
+    registry["frozen_thresholds"]["confirmatory_statistical_contract"]["position_scheme"] = None
+    registry["registry_sha256"] = executor.registry_digest(registry)
+    record["registry_sha256"] = registry["registry_sha256"]
+    record["frozen_thresholds"] = copy.deepcopy(registry["frozen_thresholds"])
+    record["authorization_sha256"] = executor.authorization_digest(record)
+
+    with pytest.raises(ValueError, match="statistical contract"):
         executor.validate_confirmatory_authorization(
             record, registry, requested_batch_ids=selected,
             output_root=registry["output_root"], now=datetime.now(timezone.utc),
