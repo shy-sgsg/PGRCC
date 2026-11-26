@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-11-26",
+  "task": "R22-V4 Phase H Task 3.1: compare the existing P0 compact with the formal V4 output-complete archive policy",
+  "execution_scope": {
+    "zip_central_directory_and_embedded_manifests_read": true,
+    "full_archive_extracted": false,
+    "source_archive_rehashed_during_this_audit": false,
+    "source_archive_or_compact_modified": false,
+    "cuda_or_production_run": false
+  },
+  "source_archive": {
+    "path": "outputs/r22_v4_p0_seed1937003_20261123/archives/engineering/engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10__attempt_001.zip",
+    "size_bytes": 13037254578,
+    "sha256": "0974e1dfd1467cdd2bdced856e8c673d40c8966a53ab05261d0c5db2d99c4b02",
+    "sha256_provenance": "Recorded in the existing P0 archive validation report; not recomputed for this inventory comparison.",
+    "embedded_archive_manifest_sha256": "4f96e4f1fb1cf7db1ebe2d1d07c79a8537b47fccac1efa3f4fbd7c7a0e4036a0",
+    "archive_profile": "r22_v4_output_complete",
+    "archive_policy": "all_case_files_except_reproducible_rasters_and_hash-bound_dense_csi_arrays",
+    "case_identity": {
+      "phase": "engineering",
+      "seed": 1937003,
+      "radial_speed_mps": 2.5,
+      "target_snr_db": 20.0,
+      "delay_error_ns": 4.0,
+      "target_count": 20,
+      "period_count": 10,
+      "identity_source": "Existing compact manifest and P0 validation report; source ARCHIVE_MANIFEST does not include a case_schema_identity field."
+    },
+    "zip_entry_count": 4642,
+    "included_regular_file_count": 4461,
+    "included_uncompressed_bytes": 15493785235,
+    "excluded_source_file_count": 1116,
+    "excluded_source_file_bytes": 1181033400,
+    "excluded_source_file_reasons": {
+      "reproducible_per_case_plot; retain aggregate plots": 180,
+      "dense_csi_array_exact_hash_retained_in_v4_response_manifest": 900,
+      "regenerable_dense_map; retain geometry and tap summaries": 36
+    },
+    "symlink_entry_count": 180,
+    "required_v4_member_count": 422
+  },
+  "independent_compact": {
+    "path": "outputs/r22_v4_p0_seed1937003_20261123/archives_compact_candidate/p0_target_present_plus4ns_compact_schema_v2.zip",
+    "size_bytes": 17603158,
+    "sha256": "71b50b6110e04403b2152f8e292bb3e7df9ae4201fd2790d9d97595e7b12ae5a",
+    "archive_profile": "r22_v4_p0_independent_compact",
+    "listed_data_member_count": 430,
+    "required_v4_member_count": 422,
+    "additional_evaluator_member_count": 8,
+    "uncompressed_data_member_bytes": 115657515,
+    "policy": "V4 required members plus evaluator tables needed for offline P0 reanalysis; excludes raw IQ, full CSI maps, source ZIP manifest, and symlinks."
+  },
+  "set_comparison": {
+    "normalized_required_v4_member_sets_equal": true,
+    "all_compact_data_members_are_in_full_archive_included_files": true,
+    "full_archive_included_files_absent_from_compact": 4031,
+    "full_archive_only_uncompressed_bytes": 15378127720,
+    "full_archive_only_compressed_member_bytes": 13017642772,
+    "compact_data_members_absent_from_full_archive": 0,
+    "full_archive_only_top_level_groups": {
+      "inputs": {
+        "count": 121,
+        "uncompressed_bytes": 6396582400,
+        "compressed_member_bytes": 5375956093
+      },
+      "production": {
+        "count": 3660,
+        "uncompressed_bytes": 5377711383,
+        "compressed_member_bytes": 4690257021
+      },
+      "scenes": {
+        "count": 237,
+        "uncompressed_bytes": 3599348486,
+        "compressed_member_bytes": 2951200349
+      }
+    }
+  },
+  "resource_conclusion": {
+    "compact_is_valid_full_profile_size_proxy": false,
+    "observed_target_present_plus4ns_full_profile_archive_bytes": 13037254578,
+    "target_present_0ns_size": "NOT_MEASURED",
+    "h0_plus4ns_size": "NOT_MEASURED",
+    "h0_0ns_size": "NOT_MEASURED",
+    "size_pilot": "NOT_AUTHORIZED_PENDING_USER_DECISION",
+    "source_archive_migration": "NOT_AUTHORIZED_PENDING_USER_DESTINATION",
+    "formal_matrix": "NOT_AUTHORIZED"
+  }
+}

@@ -404,3 +404,9 @@
 - **裁决：** 继续真实未知物理状态及其任务影响的确认性审查，但当前V4保持 `DRAFT_NOT_FROZEN`。未知误差在该单场景有明显且可由Known恢复的任务空间，盲估计跨seed效应仍未确认；低速/复杂杂波方向证据不足；`AI_ENTRY_GATE=FAIL`。
 - **下一步：** 先审查41–46号报告与冻结候选，用户/工程需求方决定定位MDE、覆盖非劣、航迹保护和H0边界，并完成seed registry/schema门。没有用户另行授权，不运行尺寸pilot或确认矩阵。ChatGPT审查后按清理台账移除仅为复现保留的13GB P0全量ZIP和可再生中间数据，保留高价值报告、配置、manifest、统计表、图及代表性审计记录。
 - **交付入口：** [R22-V4导航](phase_r/R22/README.md)、[41 P0离线重分析](phase_r/R22/41_v4_p0_independent_evidence_reanalysis_20261123.md)、[45冻结候选](phase_r/R22/45_v4_confirmatory_freeze_candidate_20261123.md)、[46方向裁决](phase_r/R22/46_v4_next_stage_research_decision_20261123.md)。
+
+## 2026-11-26｜R22-V4 Phase H Task 3.1：compact 不能代表完整归档容量
+
+- **记录编号与身份：** `D-2026-11-26-R22-V4-PHASE-H-ARCHIVE-PROFILE-AUDIT`；分支 `codex/unknown-system-error-next-stage`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未改。直接读取本机 seed1937003、2.5 m/s、20 dB、+4 ns、20目标、10周期 P0 ZIP 的 central directory 与内嵌 manifest；未展开完整数据，未重算13 GB ZIP外层SHA。
+- **关键证据：** 完整 ZIP 为13,037,254,578 bytes，profile `r22_v4_output_complete`，manifest 记录4,461个保留普通文件、1,116条排除路径和180条symlink；独立compact为17,603,158 bytes，430个数据成员。两者422个V4必需成员集合完全相同，但完整profile另有4,031个普通文件（15,378,127,720 bytes未压缩）和180条symlink。compact是离线复算子集，不能作为完整profile预算。机器证据见[profile对照](phase_r/R22/evidence/v4_phase_h/archive_profile_comparison.json)及[资源报告55](phase_r/R22/55_v4_phase_h_resource_and_execution_report.md)。
+- **决策与边界：** 当前13.037 GB只实测target-present +4 ns工程P0；0 ns、H0 +4 ns、H0 0 ns完整归档均`NOT_MEASURED`。不以17.6 MB外推矩阵容量；缺失schema pilot待用户授权，唯一原ZIP迁移待用户给出精确路径。未运行CUDA/Stage2/Production，未删除或移动数据；正式矩阵仍`NOT_AUTHORIZED`。此条只更新资源证据，不批准统计阈值、不改变研究方向，也不修改研究总纲。
