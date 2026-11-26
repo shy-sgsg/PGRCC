@@ -46,6 +46,9 @@ def test_draft_registry_is_exact_paired_and_default_denied(tmp_path):
     assert contract["track_protection_policy"] is None
     assert contract["position_interval_method"] == "bootstrap_t"
     assert contract["position_interval_confidence"] == 0.95
+    assert contract["coverage_interval_method"] == "paired_t"
+    assert contract["coverage_interval_method_selection_status"].startswith("PROVISIONAL_")
+    assert contract["h0_primary_endpoint"] == executor.H0_PRIMARY_ENDPOINT
     assert all(len(batch["case_ids"]) == 2 for batch in registry["batches"])
     assert all(batch["delay_error_ns"] == [0.0, 4.0] for batch in registry["batches"])
     assert {case["phase"] for case in registry["cases"]} == {"target_present", "h0"}
@@ -54,6 +57,9 @@ def test_draft_registry_is_exact_paired_and_default_denied(tmp_path):
     assert checkpoint["execution_status"] == "NOT_AUTHORIZED"
     assert set(case["status"] for case in checkpoint["cases"].values()) == {"PLANNED"}
     default_deny = executor.authorization_template(registry)
+    assert default_deny["frozen_thresholds"]["confirmatory_statistical_contract"][
+        "h0_primary_endpoint"
+    ] == executor.H0_PRIMARY_ENDPOINT
     default_deny["authorization_type"] = executor.AUTHORIZATION_TYPE
     default_deny["authorization_sha256"] = executor.authorization_digest(default_deny)
     with pytest.raises(ValueError, match="approval"):
@@ -75,6 +81,7 @@ def _authorized_registry_and_record(tmp_path: Path):
     design["primary_comparison"]["detection_coverage_noninferiority_margin_pp"] = 2.0
     design["h0"]["seed_event_rate_upper_limit"] = 0.1
     design["h0"]["false_confirmed_track_rate_upper_limit"] = 0.1
+    design["statistics"]["coverage_interval_method_selection_status"] = "USER_APPROVED_AND_FROZEN"
     frozen_design_path = tmp_path / "synthetic_frozen_design.json"
     frozen_design_path.write_text(json.dumps(design), encoding="utf-8")
     registry = executor.build_confirmatory_registry(
@@ -166,6 +173,21 @@ def test_authorization_is_bound_to_exact_registry_batch_and_runtime(tmp_path):
             record, registry, requested_batch_ids=selected,
             output_root=tmp_path / "different-output", now=datetime.now(timezone.utc),
         )
+
+
+def test_frozen_h0_primary_endpoint_is_seed_any_event_not_period_fraction(tmp_path):
+    registry, _, _ = _authorized_registry_and_record(tmp_path)
+    contract = registry["frozen_thresholds"]["confirmatory_statistical_contract"]
+
+    assert contract["h0_primary_endpoint"] == executor.H0_PRIMARY_ENDPOINT
+    executor._validate_thresholds(registry["frozen_thresholds"])
+
+    changed = copy.deepcopy(registry["frozen_thresholds"])
+    changed["confirmatory_statistical_contract"]["h0_primary_endpoint"] = (
+        "seed-clustered proportion of valid beam-50 periods with >=1 frozen postfilter Detection"
+    )
+    with pytest.raises(ValueError, match="H0 endpoint"):
+        executor._validate_thresholds(changed)
 
 
 @pytest.mark.parametrize("mutation, message", [

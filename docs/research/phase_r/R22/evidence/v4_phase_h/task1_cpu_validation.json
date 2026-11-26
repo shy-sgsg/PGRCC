@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "phase": "R22-V4 Phase H",
+  "task": "Task 1 statistical contract and CPU analysis closure",
+  "task_status": "COMPLETE_PENDING_USER_DECISIONS",
+  "baseline_commit": "9dc00d55808bbaac655de4a74344d0c8c1582e83",
+  "research_master_plan_blob_sha1": "e637e3769bde7814298ff012d0f42301884e2985",
+  "design_status": "DRAFT_NOT_FROZEN",
+  "confirmatory_execution_authorized": false,
+  "stage2_executed": false,
+  "production_executed": false,
+  "cuda_executed": false,
+  "ai_training": false,
+  "performance_verified": false,
+  "h0_contract": {
+    "primary_endpoint": "proportion of independent H0 seeds with at least one frozen postfilter false Detection in ten valid beam-50 periods",
+    "inferential_unit": "independent seed",
+    "period_event_fraction_role": "supporting seed-level description",
+    "missing_track_output": "NOT_EVALUABLE; never infer zero false confirmed tracks",
+    "incomplete_periods": "seed primary endpoint not evaluable; never infer zero events",
+    "false_cut_fraction": "descriptive only; not statistical full-system Pfa"
+  },
+  "coverage_interval_suitability": {
+    "status": "CPU_METHOD_SUITABILITY_ONLY",
+    "result_path": "docs/research/phase_r/R22/evidence/v4_confirmatory_contract/coverage_interval_suitability.json",
+    "datasets_per_scenario": 1500,
+    "scenario_count": 6,
+    "candidate_method_count": 3,
+    "seed_count_per_dataset": 30,
+    "bootstrap_replicates": 1000,
+    "outer_rng": "NumPy PCG64 seed 22029",
+    "provisional_method": "paired_t",
+    "selection_status": "PENDING_USER_AND_STATISTICAL_ENGINEERING_APPROVAL",
+    "all_identical_policy": "NOT_EVALUABLE"
+  },
+  "matrix_analysis": {
+    "entrypoint": "scripts/phase_r/analyze_r22_v4_confirmatory_matrix.py",
+    "analysis_of_real_confirmatory_matrix": "NOT_RUN_DESIGN_NOT_FROZEN_OR_AUTHORIZED",
+    "synthetic_complete_archive_fixture": "EVALUABLE_ARCHIVE_SET",
+    "synthetic_missing_opportunity_and_track_fixture": "INCONCLUSIVE_REQUIRED_EVALUATION_DATA",
+    "synthetic_missing_truth_status": "DATA_OR_TRUTH_FAILURE",
+    "synthetic_wrong_seed_identity": "INCONCLUSIVE_MISSING_OR_UNVERIFIED_CASE_DATA (case ARCHIVE_NOT_EVALUABLE)",
+    "synthetic_invalid_match_boolean": "REJECTED_WITH_VALUE_ERROR"
+  },
+  "verification": {
+    "pytest_command": "PYTHONPATH=. pytest -q -o cache_dir=.scratch/r22_v4_task1_final_suite_cache tests/test_r22_v4_confirmatory_statistics.py tests/test_r22_v4_confirmatory_executor.py tests/test_r22_cuda_pilot.py tests/test_r22_v4_confirmatory_analysis.py",
+    "pytest_result": "93 passed",
+    "python_compile": "PASSED for changed Python sources and focused tests",
+    "direct_cli_help": "PASSED for matrix analyzer and interval suitability script",
+    "git_diff_check": "PASSED"
+  },
+  "disk_snapshot": {
+    "project_root_allocated_bytes": 18708881408,
+    "project_root_final_cap_bytes": 20000000000,
+    "remaining_project_cap_bytes_at_measurement": 1291118592,
+    "filesystem_available_bytes_at_measurement": 17423712256,
+    "p0_original_archive_moved_or_deleted": false,
+    "historical_results_deleted": false
+  },
+  "pending_user_decisions": [
+    "approve or revise the proposed confirmatory parameter bundle",
+    "provide any external seed registry, or confirm none is to be added",
+    "authorize or decline the missing-schema resource size pilot",
+    "authorize P0 archive migration and provide the exact destination path, or decline"
+  ]
+}

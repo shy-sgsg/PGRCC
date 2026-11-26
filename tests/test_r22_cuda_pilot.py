@@ -466,6 +466,39 @@ def test_r22_h0_zero_detections_are_evaluable_when_all_output_audits_are_present
     assert row["h0_event_rate"] == 0.0
 
 
+def test_r22_h0_primary_event_stays_evaluable_when_track_output_is_missing(tmp_path: Path):
+    branch = tmp_path / "branch"
+    debug = branch / "result" / "debug"
+    debug.mkdir(parents=True)
+    (debug / "cfar_geometry_diagnostics.csv").write_text(
+        "period_id,beam_id,branch,valid_cut_count,hit_cut_count\n"
+        "0,50,union_full_band,100,0\n",
+        encoding="utf-8",
+    )
+    (debug / "cluster_detection_lineage.csv").write_text(
+        "record_type,period_id,beam_id,cluster_index,cluster_row,cluster_col,selected,raw_detection,postfilter_cluster_count,selected_candidate_count,raw_detection_count\n"
+        "beam_summary,0,50,,,,,,0,0,0\n",
+        encoding="utf-8",
+    )
+    bundle = {
+        "branch_dir": branch, "case_id": "h0_missing_tracks", "seed": 2,
+        "condition": "M1_not_applicable", "role": "ON",
+        "detections": {
+            "rows": [], "files": [Path("GMTI01.csv")],
+            "result_period_map": {}, "empty_result_numbers": [1],
+            "source_status": "PER_RESULT_PRODUCTION_CSV",
+        },
+        "track": {"status": "NOT_EVALUABLE", "reason": "missing_track_outputs"},
+    }
+
+    row = r22._h0_task_metric_row(bundle, expected_period_count=1)
+
+    assert row["status"] == "EVALUABLE_DESCRIPTIVE_H0_SEED"
+    assert row["h0_event_count"] == 0
+    assert row["track_status"] == "NOT_EVALUABLE_MISSING_OUTPUT"
+    assert row["false_confirmed_track_count"] is None
+
+
 def test_r22_detection_loader_retains_header_only_per_period_outputs(tmp_path: Path):
     result = tmp_path / "result"
     result.mkdir()

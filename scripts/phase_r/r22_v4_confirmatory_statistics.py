@@ -19,6 +19,10 @@ from scipy.stats import beta, nct, norm, t
 DEFAULT_SPEEDS_MPS = (0.5, 2.5, 6.7)
 SUCCESS_PRODUCTION_STATES = {"PASSED", "OK", "SUCCEEDED", "SUCCESS"}
 SUCCESS_TRUTH_STATES = {"VALID", "PASSED", "OK", "TRUE"}
+H0_PRIMARY_ENDPOINT = (
+    "proportion of independent H0 seeds with at least one frozen postfilter false Detection "
+    "in ten valid beam-50 periods"
+)
 
 
 def _finite(value: Any) -> float | None:
@@ -322,6 +326,67 @@ def bootstrap_mean_interval(
         result["reason"] = "bootstrap interval endpoints are non-finite"
         return result
     result.update({"status": "EVALUABLE", "lower": float(lower), "upper": float(upper)})
+    return result
+
+
+def coverage_mean_interval(
+    values: Sequence[float], *, method: str, confidence: float = 0.95,
+    replicates: int = 10_000, seed: int = 22_029,
+) -> dict[str, Any]:
+    """Interval for paired seed-level detection/track coverage differences.
+
+    Values are already paired by seed and expressed in percentage points.
+    This endpoint has a separate method contract from conditional position RMSE.
+    """
+    data = np.asarray([_finite(value) for value in values], dtype=np.float64)
+    if data.ndim != 1 or data.size < 2 or not np.isfinite(data).all():
+        raise ValueError("coverage differences require at least two finite seed-level values")
+    if not 0.5 < confidence < 1.0:
+        raise ValueError("confidence must be between 0.5 and 1")
+    result: dict[str, Any] = {
+        "n": int(data.size),
+        "mean": float(np.mean(data)),
+        "lower": None,
+        "upper": None,
+        "confidence": float(confidence),
+        "independent_unit": "seed",
+        "endpoint": "paired_seed_level_coverage_difference_percentage_points",
+    }
+    observed_sd = float(data.std(ddof=1))
+    if observed_sd == 0.0:
+        result.update({
+            "status": "NOT_EVALUABLE_ZERO_OBSERVED_VARIANCE",
+            "method": method,
+            "reason": "zero observed seed-level variance cannot establish zero uncertainty",
+        })
+        return result
+    if method == "paired_t":
+        half_width = float(t.ppf(1.0 - (1.0 - confidence) / 2.0, data.size - 1))
+        half_width *= observed_sd / math.sqrt(data.size)
+        result.update({
+            "status": "EVALUABLE",
+            "method": "paired seed-level t interval",
+            "interval_algorithm": "paired_t",
+            "lower": float(np.mean(data) - half_width),
+            "upper": float(np.mean(data) + half_width),
+        })
+        return result
+    bootstrap_method = {
+        "bootstrap_percentile": "percentile",
+        "bootstrap_bca": "bca",
+    }.get(method)
+    if bootstrap_method is None:
+        raise ValueError("coverage method must be paired_t, bootstrap_percentile, or bootstrap_bca")
+    boot = bootstrap_mean_interval(
+        data.tolist(), replicates=replicates, seed=seed,
+        confidence=confidence, method=bootstrap_method,
+    )
+    result.update(boot)
+    result["endpoint"] = "paired_seed_level_coverage_difference_percentage_points"
+    result["method"] = {
+        "percentile": "paired seed-cluster percentile bootstrap",
+        "bca": "paired seed-cluster BCa bootstrap",
+    }[bootstrap_method]
     return result
 
 
@@ -1100,9 +1165,16 @@ def binomial_clopper_pearson_upper_bound(
 
 def h0_seed_statistics(
     *, period_events: Sequence[bool | None], valid_periods: Sequence[bool],
-    false_confirmed_track_ids: Sequence[str], expected_period_count: int | None = None,
+    false_confirmed_track_ids: Sequence[str] | None = None,
+    false_confirmed_track_count: int | None = None,
+    track_output_complete: bool | None = None,
+    expected_period_count: int | None = None,
 ) -> dict[str, Any]:
-    """Summarize one independent H0 seed, preserving period and track units."""
+    """Summarize H0 detection and TrackManager endpoints independently per seed.
+
+    ``None`` means track output is unavailable; an empty ID sequence is an
+    observed zero only when the output was actually evaluated.
+    """
     if len(period_events) != len(valid_periods):
         raise ValueError("period_events and valid_periods lengths differ")
     expected = len(period_events) if expected_period_count is None else expected_period_count
@@ -1113,37 +1185,60 @@ def h0_seed_statistics(
         normalized_events.append(
             None if value is None else _as_bool(value, field="period_event")
         )
-    complete = (
+    periods_complete = (
         len(period_events) == expected
         and all(normalized_valid)
         and all(value is not None for value in normalized_events)
     )
-    unique_tracks = {str(value).strip() for value in false_confirmed_track_ids if str(value).strip()}
-    if not complete:
-        return {
-            "status": "NOT_EVALUABLE_INCOMPLETE_PERIODS",
-            "seed_any_event": None,
-            "period_event_count": None,
-            "period_event_fraction": None,
-            "valid_period_count": sum(bool(value) for value in valid_periods),
-            "expected_period_count": expected,
-            "false_confirmed_unique_track_count": len(unique_tracks),
-            "false_confirmed_unique_track_ids": sorted(unique_tracks),
-            "independent_unit": "seed",
-        }
-    event_count = sum(bool(value) for value in normalized_events)
+    track_complete = (
+        track_output_complete if track_output_complete is not None
+        else false_confirmed_track_ids is not None or false_confirmed_track_count is not None
+    )
+    if not isinstance(track_complete, bool):
+        raise ValueError("track_output_complete must be an explicit boolean")
+    unique_tracks = (
+        {str(value).strip() for value in false_confirmed_track_ids if str(value).strip()}
+        if false_confirmed_track_ids is not None else None
+    )
+    if track_complete:
+        if unique_tracks is None and false_confirmed_track_count is None:
+            raise ValueError("complete track output requires IDs or an evaluated unique-track count")
+        if false_confirmed_track_count is not None and (
+            isinstance(false_confirmed_track_count, bool)
+            or not isinstance(false_confirmed_track_count, int)
+            or false_confirmed_track_count < 0
+        ):
+            raise ValueError("false_confirmed_track_count must be a non-negative integer")
+        if (unique_tracks is not None and false_confirmed_track_count is not None
+                and len(unique_tracks) != false_confirmed_track_count):
+            raise ValueError("track ID set and evaluated unique-track count disagree")
+        track_count = (
+            len(unique_tracks) if unique_tracks is not None else false_confirmed_track_count
+        )
+        track_ids: list[str] | None = sorted(unique_tracks) if unique_tracks is not None else None
+        track_status = "EVALUABLE"
+    else:
+        if false_confirmed_track_ids is not None or false_confirmed_track_count is not None:
+            raise ValueError("incomplete track output cannot carry a zero or nonzero count")
+        track_count = None
+        track_ids = None
+        track_status = "NOT_EVALUABLE_MISSING_OUTPUT"
+
+    event_count = sum(bool(value) for value in normalized_events) if periods_complete else None
     return {
-        "status": "EVALUABLE_H0_SEED",
-        "seed_any_event": int(event_count > 0),
+        "status": "EVALUABLE_H0_SEED" if periods_complete else "NOT_EVALUABLE_INCOMPLETE_PERIODS",
+        "seed_any_event": int(event_count > 0) if periods_complete else None,
         "period_event_count": event_count,
-        "period_event_fraction": event_count / expected,
-        "valid_period_count": expected,
+        "period_event_fraction": event_count / expected if periods_complete else None,
+        "valid_period_count": sum(normalized_valid),
         "expected_period_count": expected,
-        "false_confirmed_unique_track_count": len(unique_tracks),
-        "false_confirmed_unique_track_ids": sorted(unique_tracks),
+        "false_confirmed_track_status": track_status,
+        "false_confirmed_unique_track_count": track_count,
+        "false_confirmed_unique_track_ids": track_ids,
         "event_definition": "at least one frozen postfilter false Detection in a valid period",
+        "primary_endpoint": H0_PRIMARY_ENDPOINT,
         "period_unit_note": "periods are nested within seed; seed is the inferential unit",
-        "track_count_note": "unique false confirmed track IDs within this seed",
+        "track_count_note": "unique false confirmed TrackManager IDs within this seed when output is evaluable",
         "independent_unit": "seed",
     }
 
@@ -1193,11 +1288,8 @@ def aggregate_h0_seed_results(
         if row.get("seed_any_event") not in (0, 1):
             raise ValueError(f"H0 seed event must be 0/1: {seed}")
         fraction = _finite(row.get("period_event_fraction"))
-        track_count = row.get("false_confirmed_unique_track_count")
         if fraction is None or not 0.0 <= fraction <= 1.0:
             raise ValueError(f"H0 period event fraction is invalid: {seed}")
-        if isinstance(track_count, bool) or not isinstance(track_count, int) or track_count < 0:
-            raise ValueError(f"H0 unique false-track count is invalid: {seed}")
         completed.append(row)
 
     n = len(completed)
@@ -1205,16 +1297,39 @@ def aggregate_h0_seed_results(
     event_rate = events / n if n else None
     event_ci = binomial_clopper_pearson_interval(events, n, confidence=confidence) if n else None
     period_fractions = [float(row["period_event_fraction"]) for row in completed]
-    track_counts = [float(row["false_confirmed_unique_track_count"]) for row in completed]
+    track_completed: list[Mapping[str, Any]] = []
+    track_missing_seeds: list[int] = []
+    for row in completed:
+        seed = int(row["seed"])
+        track_count = row.get("false_confirmed_unique_track_count")
+        track_status = row.get("false_confirmed_track_status")
+        if track_status is None and isinstance(track_count, int) and not isinstance(track_count, bool):
+            # Older evaluable rows carry an explicit count but no endpoint label.
+            track_status = "EVALUABLE"
+        if track_status != "EVALUABLE":
+            track_missing_seeds.append(seed)
+            continue
+        if isinstance(track_count, bool) or not isinstance(track_count, int) or track_count < 0:
+            raise ValueError(f"H0 unique false-track count is invalid: {seed}")
+        track_completed.append(row)
+    track_counts = [float(row["false_confirmed_unique_track_count"]) for row in track_completed]
     false_track_event_seeds = sum(count > 0.0 for count in track_counts)
-    false_track_event_rate = false_track_event_seeds / n if n else None
+    track_n = len(track_completed)
+    false_track_event_rate = false_track_event_seeds / track_n if track_n else None
     false_track_event_ci = (
-        binomial_clopper_pearson_interval(false_track_event_seeds, n, confidence=confidence)
-        if n else None
+        binomial_clopper_pearson_interval(false_track_event_seeds, track_n, confidence=confidence)
+        if track_n else None
     )
     complete_seed_set = not missing_seeds and len(completed) == len(seed_ids)
+    complete_track_set = complete_seed_set and not track_missing_seeds and track_n == len(seed_ids)
     return {
-        "status": "EVALUABLE_COMPLETE_H0_SEED_SET" if complete_seed_set else "INCOMPLETE_H0_SEED_SET",
+        "status": (
+            "EVALUABLE_COMPLETE_H0_SEED_SET" if complete_track_set else
+            "EVALUABLE_PRIMARY_H0_INCOMPLETE_TRACK_ENDPOINT" if complete_seed_set else
+            "INCOMPLETE_H0_SEED_SET"
+        ),
+        "primary_endpoint_status": "EVALUABLE_COMPLETE" if complete_seed_set else "INCOMPLETE",
+        "track_endpoint_status": "EVALUABLE_COMPLETE" if complete_track_set else "INCOMPLETE",
         "independent_unit": "seed",
         "planned_seed_count": len(seed_ids),
         "evaluable_seed_count": n,
@@ -1239,15 +1354,17 @@ def aggregate_h0_seed_results(
         },
         "false_confirmed_track_event_rate": {
             "event_seed_count": false_track_event_seeds,
-            "evaluable_seed_count": n,
+            "evaluable_seed_count": track_n,
+            "planned_seed_count": len(seed_ids),
+            "missing_or_invalid_seeds": sorted(track_missing_seeds + missing_seeds),
             "rate": false_track_event_rate,
             "two_sided_exact_binomial_ci": (
                 list(false_track_event_ci) if false_track_event_ci else None
             ),
             "one_sided_95pct_upper_bound": (
                 binomial_clopper_pearson_upper_bound(
-                    false_track_event_seeds, n, confidence=0.95,
-                ) if n and complete_seed_set else None
+                    false_track_event_seeds, track_n, confidence=0.95,
+                ) if track_n and complete_track_set else None
             ),
             "event_definition": "at least one unique false confirmed TrackManager track ID in the seed",
             "counting_unit": "independent seed",
@@ -1263,13 +1380,16 @@ def aggregate_h0_seed_results(
             "periods_treated_as_independent": False,
         },
         "false_confirmed_unique_tracks_per_seed": {
-            "seed_mean": statistics.fmean(track_counts) if n else None,
+            "seed_mean": statistics.fmean(track_counts) if track_n else None,
             "seed_cluster_bootstrap_t_ci": (
                 bootstrap_mean_interval(
                     track_counts, replicates=bootstrap_replicates,
                     seed=bootstrap_seed + 1, confidence=confidence,
-                ) if n >= 2 else None
+                ) if track_n >= 2 else None
             ),
+            "evaluable_seed_count": track_n,
+            "planned_seed_count": len(seed_ids),
+            "missing_or_invalid_seeds": sorted(track_missing_seeds + missing_seeds),
             "counting_unit": "unique confirmed track ID within seed",
             "track_observations_treated_as_independent": False,
         },

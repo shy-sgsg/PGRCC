@@ -26,6 +26,7 @@ if str(ROOT) not in sys.path:
 
 from scripts.phase_r import r22_v4_execution_plan as execution_plan
 from scripts.phase_r import run_r22_cuda_pilot as runner
+from scripts.phase_r.r22_v4_confirmatory_statistics import H0_PRIMARY_ENDPOINT
 from scripts.phase_r.r22_compact_archive import (
     archive_case_directory,
     verify_case_archive,
@@ -62,6 +63,10 @@ _STATISTICAL_POLICY_FIELDS = {
         "zero observed seed variance or any zero-SE bootstrap replicate makes the interval "
         "NOT_EVALUABLE; report point estimate and counts, return null interval endpoints, "
         "never claim zero uncertainty"
+    ),
+    "coverage_interval_zero_variance_policy": (
+        "zero observed seed-level coverage-difference variance makes the interval NOT_EVALUABLE; "
+        "report point estimate and counts, return null interval endpoints, never claim zero uncertainty"
     ),
     "missing_seed_policy": (
         "retain planned seed registry; missing or invalid seed makes the confirmatory endpoint "
@@ -181,6 +186,13 @@ def _frozen_thresholds(design: Mapping[str, Any]) -> dict[str, Any]:
             ),
             "position_interval_method": statistics.get("position_interval_method"),
             "position_interval_confidence": statistics.get("position_interval_confidence"),
+            "coverage_interval_method": statistics.get("coverage_interval_method"),
+            "coverage_interval_confidence": statistics.get("coverage_interval_confidence"),
+            "track_coverage_interval_method": statistics.get("track_coverage_interval_method"),
+            "track_coverage_interval_confidence": statistics.get("track_coverage_interval_confidence"),
+            "coverage_interval_method_selection_status": statistics.get(
+                "coverage_interval_method_selection_status"
+            ),
             "bootstrap_replicates": statistics.get("bootstrap_replicates"),
             "bootstrap_rng_algorithm": statistics.get("bootstrap_rng_algorithm"),
             "bootstrap_seed": statistics.get("bootstrap_seed"),
@@ -314,6 +326,10 @@ def build_confirmatory_registry(
         "runtime_source_identity_sha256": canonical_sha256(source_identity),
         "runtime_profile": runtime_profile,
         "runtime_profile_sha256": canonical_sha256(runtime_profile),
+        "method_inventory": {
+            "target_present": [dict(row) for row in design.get("target_present", {}).get("methods", [])],
+            "h0": [dict(row) for row in design.get("h0", {}).get("methods", [])],
+        },
         "output_root": str(output_path),
         "archive_profile": ARCHIVE_PROFILE,
         "production_backend": "Native CUDA",
@@ -418,6 +434,21 @@ def _validate_thresholds(value: Any) -> dict[str, Any]:
         raise ValueError("confirmatory statistical contract interval confidence is missing") from exc
     if isinstance(contract.get("position_interval_confidence"), bool) or not 0.5 < confidence < 1.0:
         raise ValueError("confirmatory statistical contract interval confidence is invalid")
+    coverage_method = contract.get("coverage_interval_method")
+    track_coverage_method = contract.get("track_coverage_interval_method")
+    if coverage_method not in {"paired_t", "bootstrap_percentile", "bootstrap_bca"}:
+        raise ValueError("confirmatory statistical contract coverage interval method is unresolved")
+    if track_coverage_method not in {"paired_t", "bootstrap_percentile", "bootstrap_bca"}:
+        raise ValueError("confirmatory statistical contract track-coverage interval method is unresolved")
+    for field in ("coverage_interval_confidence", "track_coverage_interval_confidence"):
+        try:
+            interval_confidence = float(contract.get(field))
+        except (TypeError, ValueError) as exc:
+            raise ValueError(f"confirmatory statistical contract {field} is missing") from exc
+        if isinstance(contract.get(field), bool) or not 0.5 < interval_confidence < 1.0:
+            raise ValueError(f"confirmatory statistical contract {field} is invalid")
+    if contract.get("coverage_interval_method_selection_status") != "USER_APPROVED_AND_FROZEN":
+        raise ValueError("confirmatory statistical contract coverage interval method lacks user approval")
     replicates = contract.get("bootstrap_replicates")
     bootstrap_seed = contract.get("bootstrap_seed")
     if (isinstance(replicates, bool) or not isinstance(replicates, int) or replicates < 1
@@ -441,8 +472,7 @@ def _validate_thresholds(value: Any) -> dict[str, Any]:
         h0_confidence = float(contract.get("h0_interval_confidence"))
     except (TypeError, ValueError) as exc:
         raise ValueError("confirmatory statistical contract H0 confidence is missing") from exc
-    if (contract.get("h0_primary_endpoint") !=
-            "seed-clustered proportion of valid beam-50 periods with >=1 frozen postfilter Detection"
+    if (contract.get("h0_primary_endpoint") != H0_PRIMARY_ENDPOINT
             or not 0.5 < h0_confidence < 1.0):
         raise ValueError("confirmatory statistical contract H0 endpoint or confidence is invalid")
     if contract.get("h0_false_track_event_endpoint") != (

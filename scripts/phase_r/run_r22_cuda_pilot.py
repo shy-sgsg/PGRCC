@@ -991,8 +991,11 @@ def _h0_task_metric_row(
     def not_evaluable(reason: str) -> dict[str, Any]:
         return {
             **base, "status": "NOT_EVALUABLE", "reason": reason,
+            "track_status": "NOT_EVALUABLE_PRIMARY_ENDPOINT",
+            "track_reason": reason,
             "valid_period_count": None, "detection_count": None,
             "cluster_count": None, "false_confirmed_track_count": None,
+            "track_output_complete": False,
             "h0_event_count": None, "h0_event_rate": None,
             "valid_cut_count": None, "observed_cut_hit_count": None,
             "observed_cut_hit_fraction": None,
@@ -1078,9 +1081,11 @@ def _h0_task_metric_row(
         return not_evaluable("cluster_final_detection_join_incomplete")
 
     track = bundle.get("track")
-    if not isinstance(track, Mapping):
-        return not_evaluable("track_manager_debug_not_evaluable")
-    if track.get("status") == "evaluable":
+    track_status = "EVALUABLE"
+    track_reason: str | None = None
+    false_tracks: int | None = None
+    track_source: str | None = None
+    if isinstance(track, Mapping) and track.get("status") == "evaluable":
         track_summary = r21_eval.summarize_track_lineage_v3(
             observations=track.get("observations", []),
             target_matched_detection_keys=set(),
@@ -1088,34 +1093,46 @@ def _h0_task_metric_row(
             payload_duplicate_key_count=int(track.get("payload_duplicate_key_count", 0)),
         )
         if track_summary.get("status") != "EVALUABLE":
-            return not_evaluable("track_manager_lineage_not_evaluable")
-        false_tracks = int(track_summary.get("false_confirmed_track_count", 0))
-        track_source = "TrackManager debug confirmed matched outputs"
+            track_status = "NOT_EVALUABLE_INVALID_OUTPUT"
+            track_reason = "track_manager_lineage_not_evaluable"
+        else:
+            false_tracks = int(track_summary.get("false_confirmed_track_count", 0))
+            track_source = "TrackManager debug confirmed matched outputs"
     else:
         # Empty, header-valid TrackManager outputs are a real zero event. Missing files,
         # blank files, or non-empty data that the adapter cannot map remain not evaluable.
         track_root = branch_dir / "track_debug_runs"
         run_dirs = sorted(path for path in track_root.iterdir() if path.is_dir()) if track_root.is_dir() else []
         if len(run_dirs) != 1:
-            return not_evaluable("track_manager_debug_not_evaluable")
-        empty_output_files = [run_dirs[0] / name for name in (
-            "track_states.csv", "track_events.csv", "track_output_payloads.csv",
-        )]
-        if any(not path.is_file() or path.stat().st_size == 0 for path in empty_output_files):
-            return not_evaluable("track_manager_empty_output_evidence_missing")
-        try:
-            for path in empty_output_files:
-                with path.open("r", newline="", encoding="utf-8-sig") as stream:
-                    header = next(csv.reader(stream), None)
-                if not header or any(not field.strip() for field in header):
-                    return not_evaluable("track_manager_empty_output_header_invalid")
-            track_rows = [r20.read_csv(path) for path in empty_output_files]
-        except (OSError, ValueError, csv.Error):
-            return not_evaluable("track_manager_empty_output_evidence_invalid")
-        if any(track_rows):
-            return not_evaluable("track_manager_lineage_not_evaluable")
-        false_tracks = 0
-        track_source = "header-valid empty TrackManager output files"
+            track_status = "NOT_EVALUABLE_MISSING_OUTPUT"
+            track_reason = "track_manager_debug_not_evaluable"
+        else:
+            empty_output_files = [run_dirs[0] / name for name in (
+                "track_states.csv", "track_events.csv", "track_output_payloads.csv",
+            )]
+            if any(not path.is_file() or path.stat().st_size == 0 for path in empty_output_files):
+                track_status = "NOT_EVALUABLE_MISSING_OUTPUT"
+                track_reason = "track_manager_empty_output_evidence_missing"
+            else:
+                try:
+                    headers_valid = True
+                    for path in empty_output_files:
+                        with path.open("r", newline="", encoding="utf-8-sig") as stream:
+                            header = next(csv.reader(stream), None)
+                        headers_valid &= bool(header) and all(field.strip() for field in header)
+                    track_rows = [r20.read_csv(path) for path in empty_output_files]
+                except (OSError, ValueError, csv.Error):
+                    headers_valid = False
+                    track_rows = []
+                if not headers_valid:
+                    track_status = "NOT_EVALUABLE_INVALID_OUTPUT"
+                    track_reason = "track_manager_empty_output_evidence_invalid"
+                elif any(track_rows):
+                    track_status = "NOT_EVALUABLE_INVALID_OUTPUT"
+                    track_reason = "track_manager_lineage_not_evaluable"
+                else:
+                    false_tracks = 0
+                    track_source = "header-valid empty TrackManager output files"
 
     valid_cut_count = sum(value[0] for value in period_geometry.values())
     observed_cut_hit_count = sum(value[1] for value in period_geometry.values())
@@ -1132,6 +1149,9 @@ def _h0_task_metric_row(
         "cluster_count": cluster_count,
         "false_cluster_count": cluster_count,
         "false_confirmed_track_count": false_tracks,
+        "track_status": track_status,
+        "track_reason": track_reason,
+        "track_output_complete": track_status == "EVALUABLE",
         "h0_event_count": event_count,
         "h0_event_rate": event_count / len(expected_periods),
         "valid_cut_count": valid_cut_count,

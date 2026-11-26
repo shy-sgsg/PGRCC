@@ -11,6 +11,7 @@ from scripts.phase_r.r22_v4_confirmatory_statistics import (
     aggregate_h0_seed_results,
     bootstrap_monte_carlo_audit,
     bootstrap_mean_interval,
+    coverage_mean_interval,
     joint_bootstrap_monte_carlo_audit,
     h0_seed_statistics,
     h0_zero_event_sample_size,
@@ -465,3 +466,35 @@ def test_h0_incomplete_seed_set_cannot_pass_or_report_zero_event_bound():
     assert result["missing_or_invalid_seeds"] == [2]
     assert result["seed_any_event"]["one_sided_95pct_zero_event_upper_bound"] is None
     assert result["false_confirmed_track_event_rate"]["one_sided_95pct_upper_bound"] is None
+
+
+def test_h0_missing_track_output_does_not_become_a_zero_track_seed():
+    row = h0_seed_statistics(
+        period_events=[False, True], valid_periods=[True, True],
+        false_confirmed_track_ids=None,
+    ) | {"seed": 1}
+    result = aggregate_h0_seed_results(
+        [row], planned_seeds=(1,), bootstrap_replicates=200,
+    )
+
+    assert row["status"] == "EVALUABLE_H0_SEED"
+    assert row["seed_any_event"] == 1
+    assert row["false_confirmed_track_status"] == "NOT_EVALUABLE_MISSING_OUTPUT"
+    assert row["false_confirmed_unique_track_count"] is None
+    assert result["seed_any_event"]["event_seed_count"] == 1
+    assert result["seed_any_event"]["one_sided_95pct_upper_bound"] is not None
+    assert result["false_confirmed_track_event_rate"]["evaluable_seed_count"] == 0
+    assert result["false_confirmed_track_event_rate"]["one_sided_95pct_upper_bound"] is None
+
+
+def test_discrete_coverage_t_interval_accepts_ties_but_not_zero_observed_variance():
+    tied = [0.0] * 24 + [-0.5] * 6
+    result = coverage_mean_interval(tied, method="paired_t")
+    assert result["status"] == "EVALUABLE"
+    assert result["lower"] < result["upper"]
+    assert result["method"] == "paired seed-level t interval"
+
+    degenerate = coverage_mean_interval([0.0] * 30, method="paired_t")
+    assert degenerate["status"] == "NOT_EVALUABLE_ZERO_OBSERVED_VARIANCE"
+    assert degenerate["lower"] is None
+    assert degenerate["upper"] is None

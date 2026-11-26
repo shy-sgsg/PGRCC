@@ -2,6 +2,16 @@
 
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
+## 2026-11-26｜R22-V4 Phase H Task 1：统计契约修正，方向与执行仍待用户
+
+- **记录编号与基线：** `D-2026-11-26-R22-V4-PHASE-H-TASK-1`；工作分支 `codex/unknown-system-error-next-stage`；起始快照 `9dc00d55808bbaac655de4a74344d0c8c1582e83`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 保持不变。
+- **统计修正：** H0 主端点从周期比例统一为“独立 seed 的十个有效 beam-50 周期中至少一次 false Detection”；周期事件比例、unique track/seed、false CUT fraction分别为辅助或描述统计。缺失 TrackManager 数据不再视为零航迹；不完整周期不记零事件。执行器校验、默认拒绝授权模板和分析输出均通过同一端点常量绑定。
+- **覆盖区间适用性：** 六个 synthetic 场景、三个候选方法、每场景1,500个数据集的 CPU 模拟没有 GMTI 含义。paired t 的边界错误非劣通过率点估计2.93%（MCSE 0.44 pp），percentile为3.20%（0.45 pp），两者差异小于模拟误差；BCa为4.40%（0.53 pp）。paired t 仅作为待批准候选，全相同 seed 差值保持不可评估。
+- **分析链路：** 新增冻结 registry/已验证归档的 CPU 离线分析入口。完整synthetic fixture的归档分析链路完成；缺失机会、真值状态、错配seed及非法matched字段均保持不可评价或被拒绝。真实确认性 registry/归档不存在于已授权执行中，因此未作真实矩阵分析或性能结论。
+- **阶段状态：** Task 1 代码与 CPU 验证完成；统计方向准备`READY_FOR_USER_DECISION`，但 V4 仍`DRAFT_NOT_FROZEN`、`CONFIRMATORY_EXECUTION=NOT_AUTHORIZED`、`PERFORMANCE_VERIFIED=false`、`AI_ENTRY_GATE=FAIL`。没有运行 Stage2/CUDA/Production/AI，没有删除或迁移历史数据。
+- **待用户决定：** Scheme A、MDE 3 m、两类各30个独立 seed、每速度共同支持10、检测覆盖非劣1.0 pp、航迹覆盖描述性、两项 H0 上界各严格低于10%、位置 bootstrap-t 10,000次 PCG64 seed22029，以及 paired-t 覆盖区间候选；另询问外部seed registry、必要 size pilot授权及唯一 P0 ZIP 的独立迁移路径。上述均未批准。
+- **记录入口：** [Phase H Task 1 报告](phase_r/R22/54_v4_phase_h_final_contract_and_freeze.md)、[区间适用性机器结果](phase_r/R22/evidence/v4_confirmatory_contract/coverage_interval_suitability.json)和[CPU链路验证摘要](phase_r/R22/evidence/v4_phase_h/task1_cpu_validation.json)。
+
 ## 2026-11-24｜R22-V4 Phase G：统计契约闭合，冻结决策待用户
 
 - **决策编号与审查身份：** `D-2026-11-24-R22-V4-PHASE-G-STATISTICAL-CLOSURE`。Phase F 基线 commit `ddbf057d8d944c54f94af54e239cc00644988f1a`；Phase G 固定审查快照 commit `2355118855fc4dfc61aa290c1f7f707d51216981`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未修改。后续仅把该完整身份写入审查入口，不改变快照内容。
