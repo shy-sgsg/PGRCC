@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "design_id": "R22_V4_THREE_SCHEMA_SIZE_PILOT_20261126",
+  "state": "DRAFT_NOT_FROZEN",
+  "execution_authorized": false,
+  "cuda_authorized": false,
+  "ai_training": false,
+  "created_from_commit": "5328fa3a51efc44f311d8fd7d28ddbcf2ade0b7e",
+  "created_on": "2026-11-26",
+  "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "user_pilot_authorization": {
+    "status": "APPROVED_BY_USER",
+    "date": "2026-11-26",
+    "decision_record": "docs/research/phase_r/R22/evidence/v4_phase_h/user_parameter_approval_20261126.json",
+    "scope": [
+      "target_present_0ns",
+      "h0_0ns",
+      "h0_4ns"
+    ],
+    "formal_confirmatory_matrix_authorized": false
+  },
+  "seed_registry": {
+    "path": "docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json",
+    "sha256": "ec73bb776882a25cde4250d0092fec24157b7d38aaea6961729a909f1826abfd",
+    "pilot_target_present_seed": 1937004,
+    "pilot_h0_seed": 1937005
+  },
+  "seed_sets": {
+    "engineering": [
+      1937004
+    ],
+    "screening": [
+      1932001
+    ],
+    "confirmatory": [
+      1933001
+    ],
+    "h0": [
+      1937005
+    ]
+  },
+  "common": {
+    "first_beam": 50,
+    "beam_count": 1,
+    "scenario_template": "simulator/scenarios/beam50_one_targets_continuous.run.json",
+    "method_config": "docs/research/phase_r/R22/config/r22_method_config_v2_range_roi.json",
+    "area": {
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "mean_power": 0.02,
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98,
+      "thermal_noise_power": 0.001
+    },
+    "method_ids": [
+      "C0",
+      "PK"
+    ],
+    "calibration_modes": [
+      "Mode-A",
+      "Mode-B"
+    ],
+    "production_backend": "Native CUDA",
+    "use_corex": false,
+    "archive_profile": "r22_v4_output_complete"
+  },
+  "phases": {
+    "engineering": {
+      "seed_set": "engineering",
+      "target_count": 20,
+      "period_count": 10,
+      "conditions": [
+        {
+          "condition_id": "v2d5_snr20_d0_target_present_size_pilot",
+          "radial_speed_mps": 2.5,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 0.0
+        }
+      ]
+    },
+    "h0": {
+      "seed_set": "h0",
+      "target_count": 0,
+      "period_count": 10,
+      "conditions": [
+        {
+          "condition_id": "h0_snr20_d0_size_pilot",
+          "radial_speed_mps": 0.0,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 0.0
+        },
+        {
+          "condition_id": "h0_snr20_d4_size_pilot",
+          "radial_speed_mps": 0.0,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 4.0
+        }
+      ]
+    }
+  },
+  "purpose": "Measure actual Native CUDA output-complete compressed/uncompressed archive size, temporary-space peak, runtime, checkpoint/resume and cleanup for the three missing V4 schemas. This is resource engineering evidence, not confirmatory performance evidence.",
+  "required_gates_before_each_case": [
+    "verify live free bytes on every filesystem used by scenario inputs, raw outputs and archive output, with explicit reserve before any case starts",
+    "use only the user-approved pilot seed set and a fresh output root bound to this design hash",
+    "record current source and Native CUDA binary identity, runtime XML, device state, actual peak storage and elapsed time",
+    "archive only under r22_v4_output_complete; verify required-member inventory, SHA-256, manifest SHA-256 and ZIP CRC before raw cleanup",
+    "resume only after exact design/case/archive identity and CRC/SHA checks; never overwrite an attempt",
+    "keep all pilot outputs outside the formal confirmatory registry and report no performance claim"
+  ],
+  "pilot_case_count": 3,
+  "phase_invocations": {
+    "engineering": 1,
+    "h0": 2
+  },
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": false,
+    "EVALUABLE": false,
+    "PERFORMANCE_VERIFIED": false
+  }
+}

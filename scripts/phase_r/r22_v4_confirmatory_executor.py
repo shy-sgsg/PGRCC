@@ -86,7 +86,7 @@ _STATISTICAL_POLICY_FIELDS = {
         "endpoint > -margin; equality does not pass"
     ),
     "detection_coverage_noninferiority_rule": (
-        "two-sided seed-cluster 95% interval lower endpoint for M1-minus-FixedD3 percentage-point "
+        "two-sided paired seed-level t 95% interval lower endpoint for M1-minus-FixedD3 percentage-point "
         "coverage difference must be strictly greater than the negative approved margin"
     ),
     "joint_success_rule": (
@@ -98,8 +98,9 @@ _STATISTICAL_POLICY_FIELDS = {
         "opportunity remains in coverage denominators; never substitute another method or reference"
     ),
     "h0_rate_interval_rule": (
-        "seed-any-event rate uses a two-sided exact Clopper-Pearson interval; when zero events "
-        "occur also report the one-sided exact upper bound; do not infer full-system Pfa"
+        "seed-any-event and false-confirmed-track-event rates use two-sided exact Clopper-Pearson "
+        "intervals and one-sided exact 95% upper bounds for the complete planned seed set; "
+        "also report the closed-form zero-event upper bound when applicable; do not infer full-system Pfa"
     ),
     "h0_gate_rule": (
         "the seed-any-event and false-confirmed-track-event one-sided exact 95% upper bounds must "

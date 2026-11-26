@@ -1,0 +1,149 @@
+{
+  "schema_version": 1,
+  "registry_id": "R22_V4_PHASE_H_SEED_REGISTRY_20261126",
+  "fixed_on": "2026-11-26",
+  "source_commit": "5328fa3a51efc44f311d8fd7d28ddbcf2ade0b7e",
+  "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "cohorts": {
+    "target_present_confirmatory": {
+      "seeds": [
+        1933001,
+        1933002,
+        1933003,
+        1933004,
+        1933005,
+        1933006,
+        1933007,
+        1933008,
+        1933009,
+        1933010,
+        1933011,
+        1933012,
+        1933013,
+        1933014,
+        1933015,
+        1933016,
+        1933017,
+        1933018,
+        1933019,
+        1933020,
+        1933021,
+        1933022,
+        1933023,
+        1933024,
+        1933025,
+        1933026,
+        1933027,
+        1933028,
+        1933029,
+        1933030
+      ],
+      "count": 30,
+      "pairing": "within seed across 0 ns and +4 ns, speed and target-present condition per frozen design",
+      "local_execution_collision": "none found in prior 125 direct / 421 archived identity records; no new experiment executions occurred after that audited snapshot"
+    },
+    "h0_confirmatory": {
+      "seeds": [
+        1936001,
+        1936002,
+        1936003,
+        1936004,
+        1936005,
+        1936006,
+        1936007,
+        1936008,
+        1936009,
+        1936010,
+        1936011,
+        1936012,
+        1936013,
+        1936014,
+        1936015,
+        1936016,
+        1936017,
+        1936018,
+        1936019,
+        1936020,
+        1936021,
+        1936022,
+        1936023,
+        1936024,
+        1936025,
+        1936026,
+        1936027,
+        1936028,
+        1936029,
+        1936030
+      ],
+      "count": 30,
+      "pairing": "within seed across 0 ns and +4 ns H0 conditions",
+      "local_execution_collision": "none found in prior 125 direct / 421 archived identity records; no new experiment executions occurred after that audited snapshot"
+    },
+    "authorized_size_pilot": {
+      "cases": [
+        {
+          "schema": "target_present_0ns",
+          "seed": 1937004,
+          "speed_mps": 2.5,
+          "snr_db": 20.0,
+          "delay_ns": 0.0,
+          "target_count": 20,
+          "period_count": 10
+        },
+        {
+          "schema": "h0_0ns",
+          "seed": 1937005,
+          "speed_mps": 0.0,
+          "snr_db": 20.0,
+          "delay_ns": 0.0,
+          "target_count": 0,
+          "period_count": 10
+        },
+        {
+          "schema": "h0_4ns",
+          "seed": 1937005,
+          "speed_mps": 0.0,
+          "snr_db": 20.0,
+          "delay_ns": 4.0,
+          "target_count": 0,
+          "period_count": 10
+        }
+      ],
+      "purpose": "resource sizing and execution/resume/archive behavior only; not confirmatory evidence or a performance claim",
+      "local_identity_audit": "no path, member-name, or embedded identity-manifest hit in the 418 local ZIPs / 3697 candidate metadata entries inspected on 2026-11-26; no direct identity-manifest hit"
+    }
+  },
+  "excluded_prior_size_pilot_seeds": {
+    "1937001": "GATE_FAILED; do not rerun",
+    "1937002": "INTERRUPTED_NOT_RESUMABLE; do not rerun",
+    "1937003": "EXECUTED_ONCE_AND_ARCHIVED in the 2026-11-23 P0 +4 ns target-present pilot; do not reuse"
+  },
+  "audit_scope": {
+    "local_roots": [
+      "docs",
+      "scripts",
+      "configs",
+      "experiments",
+      "simulator",
+      "outputs",
+      ".scratch"
+    ],
+    "local_regular_file_count": 48698,
+    "local_zip_count": 418,
+    "candidate_zip_identity_metadata_members_scanned": 3697,
+    "invalid_or_unreadable_zip_count": 0,
+    "prior_confirmatory_identity_audit": {
+      "path": "docs/research/phase_r/R22/evidence/v4_final_freeze_readiness/seed_registry_local_audit.json",
+      "direct_identity_manifest_count": 125,
+      "archive_identity_manifest_count": 421,
+      "candidate_collision_count": 0
+    },
+    "git_review_since_prior_candidate_audit": "commits through 5328fa3 were inspected; intervening changes contain documentation, statistical-contract code/tests, and storage audit/cleanup records, no new experiment execution"
+  },
+  "limitations": [
+    "No external or offline seed registry was provided or reachable; global uniqueness is not claimed.",
+    "GitHub Actions artifacts, Releases, LFS objects, unrelated research repositories, and external storage were not scanned.",
+    "Pilot seeds 1937004 and 1937005 are fixed for this isolated pilot only and are excluded from both confirmatory cohorts."
+  ],
+  "registry_sha256": "ec73bb776882a25cde4250d0092fec24157b7d38aaea6961729a909f1826abfd"
+}

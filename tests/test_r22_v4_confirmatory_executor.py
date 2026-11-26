@@ -40,14 +40,28 @@ def test_draft_registry_is_exact_paired_and_default_denied(tmp_path):
     assert registry["execution_authorized"] is False
     assert registry["cuda_authorized"] is False
     assert registry["registry_sha256"] == executor.registry_digest(registry)
+    thresholds = registry["frozen_thresholds"]
+    assert thresholds["position_mde_m"] == 3.0
+    assert thresholds["detection_coverage_noninferiority_margin_pp"] == 1.0
+    assert thresholds["h0_seed_event_rate_upper_limit"] == 0.1
+    assert thresholds["h0_false_confirmed_track_rate_upper_limit"] == 0.1
     contract = registry["frozen_thresholds"]["confirmatory_statistical_contract"]
-    assert contract["position_scheme"] is None
-    assert contract["minimum_common_support_per_speed"] is None
-    assert contract["track_protection_policy"] is None
+    assert contract["position_scheme"] == "A"
+    assert contract["minimum_common_support_per_speed"] == 10
+    assert contract["track_protection_policy"] == "DESCRIPTIVE_ONLY"
     assert contract["position_interval_method"] == "bootstrap_t"
     assert contract["position_interval_confidence"] == 0.95
     assert contract["coverage_interval_method"] == "paired_t"
-    assert contract["coverage_interval_method_selection_status"].startswith("PROVISIONAL_")
+    assert contract["track_coverage_interval_method"] == "paired_t"
+    assert contract["detection_coverage_noninferiority_rule"] == (
+        "two-sided paired seed-level t 95% interval lower endpoint for M1-minus-FixedD3 "
+        "percentage-point coverage difference must be strictly greater than the negative "
+        "approved margin"
+    )
+    assert contract["coverage_interval_method_selection_status"] == "USER_APPROVED_AND_FROZEN"
+    assert contract["bootstrap_replicates"] == 10_000
+    assert contract["bootstrap_rng_algorithm"] == "PCG64"
+    assert contract["bootstrap_seed"] == 22_029
     assert contract["h0_primary_endpoint"] == executor.H0_PRIMARY_ENDPOINT
     assert all(len(batch["case_ids"]) == 2 for batch in registry["batches"])
     assert all(batch["delay_error_ns"] == [0.0, 4.0] for batch in registry["batches"])

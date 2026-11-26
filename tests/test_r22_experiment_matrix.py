@@ -10,6 +10,7 @@ from pathlib import Path
 import pytest
 
 from scripts.phase_r import r22_experiment_matrix as matrix
+from scripts.phase_r import run_r22_cuda_pilot as runner
 
 
 DESIGN = matrix.DEFAULT_DESIGN
@@ -17,12 +18,25 @@ ROOT = Path(__file__).resolve().parents[1]
 V4_SIZE_PILOT_DESIGN = (
     ROOT / "docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json"
 )
+V4_THREE_SCHEMA_SIZE_PILOT_DESIGN = (
+    ROOT / "docs/research/phase_r/R22/config/"
+    "r22_v4_three_schema_size_pilot_draft_20261126.json"
+)
 
 
 def _v4_pilot_authorization_args():
     digest = hashlib.sha256(V4_SIZE_PILOT_DESIGN.read_bytes()).hexdigest()
     return {
         "design_source_path": V4_SIZE_PILOT_DESIGN,
+        "authorize_v4_size_pilot": True,
+        "approved_design_sha256": digest,
+    }
+
+
+def _v4_three_schema_pilot_authorization_args():
+    digest = hashlib.sha256(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN.read_bytes()).hexdigest()
+    return {
+        "design_source_path": V4_THREE_SCHEMA_SIZE_PILOT_DESIGN,
         "authorize_v4_size_pilot": True,
         "approved_design_sha256": digest,
     }
@@ -533,6 +547,205 @@ def test_v4_size_pilot_authorization_rejects_confirmatory_and_h0(forbidden_phase
             design, phase=forbidden_phase, archive_profile="r22_v4_output_complete",
             max_cases=None, **_v4_pilot_authorization_args(),
         )
+
+
+def test_v4_three_schema_size_pilot_authorizes_only_the_approved_missing_schemas():
+    design = matrix.load_design(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN)
+    engineering_cases = matrix.build_case_specs(design, "engineering")
+    h0_cases = matrix.build_case_specs(design, "h0")
+    assert len(engineering_cases) == 1
+    assert len(h0_cases) == 2
+    assert {(case["target_count"], case["delay_ns"]) for case in engineering_cases + h0_cases} == {
+        (20, 0.0), (0, 0.0), (0, 4.0),
+    }
+
+    auth_args = _v4_three_schema_pilot_authorization_args()
+    engineering_auth = matrix._validate_v4_three_schema_size_pilot_authorization(
+        design, phase="engineering", archive_profile="r22_v4_output_complete",
+        max_cases=None, **auth_args,
+    )
+    h0_auth = matrix._validate_v4_three_schema_size_pilot_authorization(
+        design, phase="h0", archive_profile="r22_v4_output_complete",
+        max_cases=2, **auth_args,
+    )
+    assert engineering_auth["status"] == "AUTHORIZED_THREE_SCHEMA_SIZE_PILOT"
+    assert len(engineering_auth["cases_by_case_id"]) == 3
+    assert len(engineering_auth["phase_case_ids"]) == 1
+    assert len(h0_auth["phase_case_ids"]) == 2
+
+    with pytest.raises(ValueError, match="partial phase execution"):
+        matrix._validate_v4_three_schema_size_pilot_authorization(
+            design, phase="h0", archive_profile="r22_v4_output_complete",
+            max_cases=1, **auth_args,
+        )
+    with pytest.raises(ValueError, match="explicit authorization flag"):
+        matrix._validate_v4_three_schema_size_pilot_authorization(
+            design, phase="engineering", archive_profile="r22_v4_output_complete",
+            design_source_path=V4_THREE_SCHEMA_SIZE_PILOT_DESIGN,
+            authorize_v4_size_pilot=False,
+            approved_design_sha256=auth_args["approved_design_sha256"],
+            max_cases=None,
+        )
+
+
+def test_v4_three_schema_size_pilot_runner_receives_case_bound_authorization(
+    tmp_path, monkeypatch,
+):
+    design = matrix.load_design(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN)
+    auth_args = _v4_three_schema_pilot_authorization_args()
+    calls = []
+
+    class AmpleDiskUsage:
+        total = 100_000_000_000
+        used = 1_000_000_000
+        free = 99_000_000_000
+
+    monkeypatch.setattr(matrix.shutil, "disk_usage", lambda _path: AmpleDiskUsage())
+
+    def fake_runner(case_root, **kwargs):
+        calls.append(kwargs["v4_size_pilot_authorization"])
+        return {
+            "implementation_result": "passed",
+            "all_production_branches_passed": True,
+            "status_labels": {"EVALUABLE": True},
+        }
+
+    matrix.run_matrix(
+        design, phase="engineering", output_root=tmp_path / "engineering",
+        compact_archive_root=tmp_path / "engineering_archives",
+        run_case_fn=fake_runner, archive_profile="r22_v4_output_complete",
+        **auth_args,
+    )
+    assert len(calls) == 1
+    assert calls[0]["schema"] == "target_present_0ns"
+    assert calls[0]["seed"] == 1937004
+    assert calls[0]["case_id"].startswith("engineering__seed_1937004__")
+
+    spec = matrix.build_case_specs(design, "engineering")[0]
+    validated = matrix._validate_v4_three_schema_size_pilot_authorization(
+        design, phase="engineering", archive_profile="r22_v4_output_complete",
+        max_cases=None, **auth_args,
+    )
+    case_authorization = validated["cases_by_case_id"][calls[0]["case_id"]]
+    checked = runner._require_v4_size_pilot_authorization(
+        case_authorization,
+        phase="engineering", case_id=calls[0]["case_id"],
+        seed=spec["seed"], speed_mps=spec["speed_mps"], snr_db=spec["snr_db"],
+        delay_ns=spec["delay_ns"], target_count=spec["target_count"],
+        period_count=spec["period_count"], first_beam=spec["first_beam"],
+        beam_count=spec["beam_count"], method_ids=spec["method_ids"],
+        calibration_modes=spec["calibration_modes"], area=spec["area"],
+        template=ROOT / spec["scenario_template"],
+        method_config_path=ROOT / spec["method_config"],
+    )
+    assert checked["schema"] == "target_present_0ns"
+    with pytest.raises(ValueError, match="case identity differs: seed"):
+        runner._require_v4_size_pilot_authorization(
+            case_authorization,
+            phase="engineering", case_id=calls[0]["case_id"],
+            seed=spec["seed"] + 1, speed_mps=spec["speed_mps"], snr_db=spec["snr_db"],
+            delay_ns=spec["delay_ns"], target_count=spec["target_count"],
+            period_count=spec["period_count"], first_beam=spec["first_beam"],
+            beam_count=spec["beam_count"], method_ids=spec["method_ids"],
+            calibration_modes=spec["calibration_modes"], area=spec["area"],
+            template=ROOT / spec["scenario_template"],
+            method_config_path=ROOT / spec["method_config"],
+        )
+
+
+def test_v4_three_schema_size_pilot_pauses_before_case_when_storage_is_below_measured_peak(
+    tmp_path, monkeypatch,
+):
+    design = matrix.load_design(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN)
+    auth_args = _v4_three_schema_pilot_authorization_args()
+    runner_calls = []
+
+    class DiskUsage:
+        total = 100_000_000_000
+
+        def __init__(self, free):
+            self.free = free
+            self.used = self.total - free
+
+    capacity = {"free": 40_000_000_000}
+    monkeypatch.setattr(
+        matrix.shutil, "disk_usage",
+        lambda _path: DiskUsage(capacity["free"]),
+    )
+
+    output_root = tmp_path / "matrix"
+    raw_root = tmp_path / "raw"
+    archive_root = tmp_path / "archives"
+    result = matrix.run_matrix(
+        design,
+        phase="engineering",
+        output_root=output_root,
+        raw_output_root=raw_root,
+        compact_archive_root=archive_root,
+        run_case_fn=lambda *args, **kwargs: runner_calls.append((args, kwargs)),
+        archive_profile="r22_v4_output_complete",
+        **auth_args,
+    )
+
+    assert result["status"] == "PAUSED_RESOURCE_GATE"
+    assert runner_calls == []
+    assert result["resource_gate"]["status"] == "PAUSED_RESOURCE_GATE"
+    assert result["resource_gate"]["basis"]["required_free_bytes_per_output_filesystem"] == 40_558_522_368
+    assert result["resource_gate"]["filesystems"][0]["free_bytes"] == 40_000_000_000
+    assert result["cases"] == []
+    assert not list(raw_root.rglob("attempt_*"))
+
+    capacity["free"] = 50_000_000_000
+    resumed = matrix.run_matrix(
+        design,
+        phase="engineering",
+        output_root=output_root,
+        raw_output_root=raw_root,
+        compact_archive_root=archive_root,
+        run_case_fn=lambda *args, **kwargs: {"implementation_result": "failed"},
+        archive_profile="r22_v4_output_complete",
+        resume=True,
+        **auth_args,
+    )
+    assert resumed["status"] == "GATE_FAILED"
+    assert len(resumed["resource_gate_history"]) == 2
+    assert resumed["resource_gate_history"][1]["status"] == "READY"
+
+
+def test_v4_three_schema_size_pilot_pauses_before_case_when_archive_root_is_not_writable(
+    tmp_path, monkeypatch,
+):
+    design = matrix.load_design(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN)
+    auth_args = _v4_three_schema_pilot_authorization_args()
+    runner_calls = []
+    archive_root = tmp_path / "archives"
+    archive_root.write_text("not a directory")
+
+    class AmpleDiskUsage:
+        total = 100_000_000_000
+        used = 1_000_000_000
+        free = 99_000_000_000
+
+    monkeypatch.setattr(matrix.shutil, "disk_usage", lambda _path: AmpleDiskUsage())
+    result = matrix.run_matrix(
+        design,
+        phase="engineering",
+        output_root=tmp_path / "matrix",
+        raw_output_root=tmp_path / "raw",
+        compact_archive_root=archive_root,
+        run_case_fn=lambda *args, **kwargs: runner_calls.append((args, kwargs)),
+        archive_profile="r22_v4_output_complete",
+        **auth_args,
+    )
+
+    assert result["status"] == "PAUSED_RESOURCE_GATE"
+    assert runner_calls == []
+    assert result["cases"] == []
+    assert any(
+        item["label"] == "complete_archive" and not item["writable"]
+        for fs in result["resource_gate"]["filesystems"]
+        for item in fs["paths"]
+    )
 
 
 def test_v4_archive_profile_refuses_unapproved_matrix_before_writing(tmp_path):

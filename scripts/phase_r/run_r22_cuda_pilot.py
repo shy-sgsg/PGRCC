@@ -42,6 +42,8 @@ DEFAULT_AREA = {
 }
 V4_SIZE_PILOT_DESIGN_ID = "R22_V4_OUTPUT_SIZE_PILOT_DRAFT_20261123"
 V4_SIZE_PILOT_APPROVED_SHA256 = "f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954"
+V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID = "R22_V4_THREE_SCHEMA_SIZE_PILOT_20261126"
+V4_THREE_SCHEMA_SIZE_PILOT_APPROVED_SHA256 = "5fba267143196125f6fe7e4281b95a070611d283d9b0d5313127777bbe5c243a"
 R22_XML_OVERRIDES = {
     "csi_metrics_enable": "true",
     "csi_metrics_dump_power_maps": "false",
@@ -1180,6 +1182,44 @@ def _require_v4_size_pilot_authorization(
 ) -> dict[str, Any]:
     if not isinstance(authorization, Mapping):
         raise ValueError("V4 output-complete execution requires matrix size-pilot authorization")
+    if authorization.get("design_id") == V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID:
+        supplied = dict(authorization)
+        actual_schema = (
+            "target_present_0ns" if target_count > 0 else f"h0_{int(delay_ns)}ns"
+        )
+        expected = {
+            "status": "AUTHORIZED_USER_SIZE_PILOT_CASE",
+            "design_id": V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID,
+            "approved_design_sha256": V4_THREE_SCHEMA_SIZE_PILOT_APPROVED_SHA256,
+            "phase": phase,
+            "case_id": case_id,
+            "schema": actual_schema,
+            "production_backend": "Native CUDA",
+            "use_corex": False,
+            "archive_profile": "r22_v4_output_complete",
+            "scope_note": (
+                "user-authorized three-schema resource pilot only; "
+                "no confirmatory inference or performance claim"
+            ),
+        }
+        for key, value in expected.items():
+            if supplied.get(key) != value:
+                raise ValueError(f"V4 three-schema size-pilot authorization differs: {key}")
+        actual = {
+            "phase": phase, "case_id": case_id, "seed": seed,
+            "speed_mps": float(speed_mps), "snr_db": float(snr_db),
+            "delay_ns": float(delay_ns), "target_count": target_count,
+            "period_count": period_count, "first_beam": first_beam,
+            "beam_count": beam_count, "method_ids": list(method_ids),
+            "calibration_modes": list(calibration_modes), "area": dict(area),
+            "scenario_template": str(Path(template).expanduser().resolve()),
+            "method_config": str(Path(method_config_path).expanduser().resolve()),
+        }
+        for key, value in actual.items():
+            if supplied.get(key) != value:
+                raise ValueError(f"V4 three-schema size-pilot case identity differs: {key}")
+        return supplied
+
     expected = {
         "status": "AUTHORIZED_SINGLE_ENGINEERING_CASE",
         "design_id": V4_SIZE_PILOT_DESIGN_ID,

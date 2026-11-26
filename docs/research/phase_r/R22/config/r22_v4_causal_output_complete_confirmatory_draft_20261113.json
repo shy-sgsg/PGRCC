@@ -7,8 +7,8 @@
   "ai_training": false,
   "router_enabled": false,
   "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
-  "updated_on": "2026-11-24",
-  "draft_revision": 5,
+  "updated_on": "2026-11-26",
+  "draft_revision": 6,
   "case_identity_semantics": "240 unique case identities are paired/nested by seed; they are not 240 statistically independent samples",
   "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
   "supersedes": null,
@@ -16,7 +16,9 @@
     "prior_design": "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json",
     "prior_design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
     "v3_3_review": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md",
-    "contract": "docs/research/phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md"
+    "contract": "docs/research/phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md",
+    "seed_registry": "docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json",
+    "seed_registry_sha256": "ec73bb776882a25cde4250d0092fec24157b7d38aaea6961729a909f1826abfd"
   },
   "production": {
     "backend": "Native CUDA",
@@ -46,7 +48,7 @@
       1933030
     ],
     "seed_count": 30,
-    "seed_audit": "reserved_by_v3_2_confirmatory_design; re-audit all manifests and archives before freeze",
+    "seed_audit": "fixed in docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json; local execution identities clear; external/offline registry remains unavailable",
     "radial_speed_mps": [
       0.5,
       2.5,
@@ -123,7 +125,7 @@
       1936030
     ],
     "seed_count": 30,
-    "seed_audit": "initial text, path, and zip-filename scan found no collision; full registry audit required before freeze",
+    "seed_audit": "fixed in docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json; local execution identities clear; external/offline registry remains unavailable",
     "target_count": 0,
     "delay_error_ns": [
       0.0,
@@ -186,8 +188,8 @@
     ],
     "scope_limit": "beam-50, ten-period H0 endpoint; not full multi-beam system Pfa",
     "interval_confidence": 0.95,
-    "seed_event_rate_upper_limit": null,
-    "false_confirmed_track_rate_upper_limit": null
+    "seed_event_rate_upper_limit": 0.1,
+    "false_confirmed_track_rate_upper_limit": 0.1
   },
   "causal_estimator": {
     "method_id": "M1_CAUSAL_PREFIX",
@@ -292,13 +294,13 @@
     "contrast": "M1_CAUSAL_PREFIX minus FIXED_D3; negative favors M1",
     "inferential_unit": "independent seed",
     "seed_count": 30,
-    "position_scheme": null,
-    "position_mde_m": null,
-    "minimum_common_support_per_speed": null,
-    "detection_coverage_noninferiority_margin_pp": null,
-    "track_protection_policy": null,
+    "position_scheme": "A",
+    "position_mde_m": 3.0,
+    "minimum_common_support_per_speed": 10,
+    "detection_coverage_noninferiority_margin_pp": 1.0,
+    "track_protection_policy": "DESCRIPTIVE_ONLY",
     "track_coverage_noninferiority_margin_pp": null,
-    "threshold_status": "PENDING_USER_AND_ENGINEERING_APPROVAL; do not freeze or run until approved"
+    "threshold_status": "USER_APPROVED_2026_11_26; design remains DRAFT_NOT_FROZEN pending registry, resource, implementation review, and execution-readiness gates"
   },
   "secondary_information_matched_comparison": {
     "methods": [
@@ -345,14 +347,14 @@
     "interpretation_limit": "descriptive screening precision only; not power, not evidence of a causal-prefix effect, and not a source for MDE/noninferiority thresholds"
   },
   "statistics": {
-    "primary_interval": "seed-cluster bootstrap 95% interval; resample seed with its full speed/target/period cluster",
+    "primary_interval": "seed-cluster studentized bootstrap-t 95% interval; resample each independent seed with its complete speed/target/period cluster",
     "position_interval_method": "bootstrap_t",
     "position_interval_confidence": 0.95,
     "coverage_interval_method": "paired_t",
     "coverage_interval_confidence": 0.95,
     "track_coverage_interval_method": "paired_t",
     "track_coverage_interval_confidence": 0.95,
-    "coverage_interval_method_selection_status": "PROVISIONAL_RECOMMENDATION_PENDING_USER_AND_ENGINEERING_APPROVAL",
+    "coverage_interval_method_selection_status": "USER_APPROVED_AND_FROZEN",
     "coverage_interval_suitability_audit": "docs/research/phase_r/R22/evidence/v4_confirmatory_contract/coverage_interval_suitability.md",
     "bootstrap_replicates": 10000,
     "bootstrap_rng_algorithm": "PCG64",
@@ -364,15 +366,15 @@
     "missing_opportunity_policy": "retain all planned target-period opportunities in detection coverage; a missing required opportunity record makes that seed position endpoint NOT_EVALUABLE",
     "common_success_policy": "position RMSE uses only the frozen common correctly-associated opportunity set; every speed must meet the separately approved minimum support; report coverage alongside conditional position error",
     "tie_policy": "strict superiority uses upper endpoint < boundary; detection noninferiority uses lower endpoint > -margin; equality does not pass",
-    "detection_coverage_noninferiority_rule": "two-sided seed-cluster 95% interval lower endpoint for M1-minus-FixedD3 percentage-point coverage difference must be strictly greater than the negative approved margin",
+    "detection_coverage_noninferiority_rule": "two-sided paired seed-level t 95% interval lower endpoint for M1-minus-FixedD3 percentage-point coverage difference must be strictly greater than the negative approved margin",
     "joint_success_rule": "approved position rule AND detection-coverage noninferiority; add a track-coverage gate only if explicitly selected and its margin is approved",
     "method_failure_policy": "M1 or Huber prefix estimate failure uses current-period zero correction; every planned opportunity remains in coverage denominators; never substitute another method or reference",
-    "h0_rate_interval_rule": "seed-any-event rate uses a two-sided exact Clopper-Pearson interval; when zero events occur also report the one-sided exact upper bound; do not infer full-system Pfa",
+    "h0_rate_interval_rule": "seed-any-event and false-confirmed-track-event rates use two-sided exact Clopper-Pearson intervals and one-sided exact 95% upper bounds for the complete planned seed set; also report the closed-form zero-event upper bound when applicable; do not infer full-system Pfa",
     "h0_gate_rule": "the seed-any-event and false-confirmed-track-event one-sided exact 95% upper bounds must each be strictly below their separately approved limits; require the complete planned H0 seed set",
     "h0_incomplete_policy": "all planned H0 seeds and all ten valid beam-50 periods are required for the confirmatory H0 gate; incomplete seeds do not count as zero-event seeds",
     "h0_false_track_unit": "unique false confirmed TrackManager track ID per independent seed",
     "secondary_speed_tests": "Holm correction across three speeds if inferential p-values are reported",
-    "power_status": "not validated until engineering MDE and detection margin are specified"
+    "power_status": "screening thresholds are user-approved; realized power is not guaranteed and must not be inferred from this approval"
   },
   "required_outputs": [
     "all ten per-period Detection CSVs and one-to-one target truth association, retained in the verified compact archive",
@@ -400,34 +402,38 @@
     "resume_verification": "recheck archive SHA-256, archive-manifest SHA-256, exact ZIP/member inventory, V4 required-member inclusion and ZIP CRC before a prior case is skipped or raw case data are removed"
   },
   "storage_policy": {
-    "final_project_limit_gib": 20,
     "intermediate_peak_may_exceed_final_limit": true,
-    "current_project_size_gib_approx": 5.3,
     "v3_2_archives_retained": true,
     "v4_archive_must_retain_all_period_detection_and_track_debug": true,
     "v4_full_output_size_estimate": null,
-    "required_resource_gate": "after independent source review and separate user authorization, run one representative complete-output CUDA pilot covering every branch kind; measure compressed/uncompressed size, peak temporary disk, runtime, resume and cleanup before any matrix",
+    "required_resource_gate": "before each authorized schema case, prove adequate space for the measured full output-complete archive, expanded inputs/production outputs, coexistence peak, and reserve on the actual writable target filesystems; do not substitute compact archive size",
     "delete_raw_only_after": [
       "compact archive complete",
       "identity and CRC/SHA verified",
       "required evidence reconstructibility established",
       "cleanup ledger written"
     ],
-    "post_review_target": "remove dispensable intermediates; retain necessary records/config/audit/high-value evidence and keep final project below 20 GiB",
-    "last_checked_on": "2026-11-22",
-    "current_worktree_size_gib_approx": 4.8,
-    "filesystem_available_gib_approx": 11,
-    "current_cleanup": "removed only regenerable Python/pytest caches for this implementation check; historical R22/V3 evidence retained"
+    "post_review_target": "remove dispensable intermediates; retain necessary records/config/audit/high-value evidence and keep final project below 20000000000 bytes",
+    "last_checked_on": "2026-11-26",
+    "current_cleanup": "2026-11-26: only manifest-classified reproducible V2 per-case plots were removed; no pilot or historical high-value outputs were deleted",
+    "final_project_limit_bytes": 20000000000,
+    "current_project_allocated_bytes": 18631958528,
+    "current_root_filesystem_available_bytes": 12116500480,
+    "current_tmp_available_bytes": 7991930880,
+    "p0_target_present_plus4ns_archive_bytes_measured": 13037254578,
+    "p0_observed_peak_consumption_bytes": 29821104128,
+    "p0_preserved_free_space_reserve_bytes": 10737418240,
+    "size_pilot_required_free_bytes_per_output_filesystem_proxy": 40558522368,
+    "three_schema_size_pilot_status": "USER_AUTHORIZED; PAUSED_RESOURCE_GATE_BEFORE_ANY_CASE; no pilot case started",
+    "resource_preflight_evidence": "docs/research/phase_r/R22/evidence/v4_phase_h/resource_preflight_20261126.json",
+    "other_mounts_checked": "project ext4 and /tmp tmpfs are writable but each is below the measured full-output P0 peak-plus-reserve proxy; external volume has 90,118,549,504 bytes free but is read-only; /dev/shm and /run are read-only"
   },
   "freeze_blockers": [
-    "engineering-approved position MDE in meters",
-    "engineering-approved detection-coverage noninferiority margin",
-    "optional engineering-approved track-protection limits if required for a success claim",
     "independent review of the implemented prefix estimator, output schema, archive and resume gates",
-    "final seed collision, pairing and input identity audit",
-    "separate user authorization for the representative Native CUDA complete-output pilot",
-    "resource and cleanup/resume gate derived from the measured pilot",
-    "actual Production/CUDA output audit and evidence evaluability"
+    "execute and verify the three authorized missing-schema Native CUDA size pilots",
+    "derive final per-schema and three-case resource budgets from the authorized complete-output size pilots",
+    "actual Production/CUDA output audit and evidence evaluability",
+    "separate user authorization for the formal confirmatory matrix"
   ],
   "stop_conditions": [
     "invalid area-clutter injection or paired background identity",
@@ -441,7 +447,7 @@
     "archive identity/CRC failure or unsafe resume identity change",
     "resource state cannot complete one atomic case safely"
   ],
-  "last_updated_on": "2026-11-22",
+  "last_updated_on": "2026-11-26",
   "implementation_update": {
     "status_labels": {
       "IMPLEMENTED": true,
@@ -459,5 +465,11 @@
     "execution_authorized": false,
     "cuda_authorized": false,
     "ai_training": false
+  },
+  "parameter_decision": {
+    "status": "USER_APPROVED_PARAMETERS_FIXED_DESIGN_NOT_FROZEN",
+    "approved_on": "2026-11-26",
+    "record_path": "docs/research/phase_r/R22/evidence/v4_phase_h/user_parameter_approval_20261126.json",
+    "scope": "Phase H report 54 research-direction screening parameter package; not product acceptance criteria and not authorization for the formal confirmatory matrix"
   }
 }

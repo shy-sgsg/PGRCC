@@ -10,6 +10,7 @@ import json
 import os
 import shutil
 import sys
+import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
@@ -26,7 +27,16 @@ DEFAULT_DESIGN = ROOT / "docs/research/phase_r/R22/config/r22_extension_experime
 DEFAULT_V4_SIZE_PILOT_DESIGN = (
     ROOT / "docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json"
 )
+DEFAULT_V4_THREE_SCHEMA_SIZE_PILOT_DESIGN = (
+    ROOT / "docs/research/phase_r/R22/config/"
+    "r22_v4_three_schema_size_pilot_draft_20261126.json"
+)
+V4_SIZE_PILOT_RESOURCE_EVIDENCE = (
+    ROOT / "docs/research/phase_r/R22/evidence/"
+    "v4_native_cuda_pilot_20261123/resource_usage.json"
+)
 V4_SIZE_PILOT_APPROVED_SHA256 = r22.V4_SIZE_PILOT_APPROVED_SHA256
+V4_THREE_SCHEMA_SIZE_PILOT_APPROVED_SHA256 = r22.V4_THREE_SCHEMA_SIZE_PILOT_APPROVED_SHA256
 
 
 def _utc_now() -> str:
@@ -148,6 +158,230 @@ def _validate_v4_size_pilot_authorization(
             "user-authorized single R22-V4-P0 output-size feasibility case; "
             "no confirmatory inference or performance claim"
         ),
+    }
+
+
+def _validate_v4_three_schema_size_pilot_authorization(
+    design: Mapping[str, Any],
+    *, phase: str, archive_profile: str,
+    design_source_path: Path | None,
+    authorize_v4_size_pilot: bool,
+    approved_design_sha256: str | None,
+    max_cases: int | None,
+) -> dict[str, Any]:
+    if not authorize_v4_size_pilot:
+        raise ValueError("V4 output-complete execution requires explicit authorization flag")
+    if archive_profile != "r22_v4_output_complete":
+        raise ValueError("V4 size pilot requires archive_profile=r22_v4_output_complete")
+    if phase not in {"engineering", "h0"}:
+        raise ValueError("three-schema size pilot is limited to engineering and h0 phases")
+    if design_source_path is None or not Path(design_source_path).expanduser().is_file():
+        raise ValueError("three-schema size pilot requires the frozen design source file")
+
+    source_path = Path(design_source_path).expanduser().resolve()
+    source_sha256 = _file_sha256(source_path)
+    supplied_sha256 = str(approved_design_sha256 or "").lower()
+    if (len(supplied_sha256) != 64 or supplied_sha256 != source_sha256
+            or source_sha256 != V4_THREE_SCHEMA_SIZE_PILOT_APPROVED_SHA256):
+        raise ValueError("approved design SHA-256 does not match the frozen three-schema size-pilot design")
+
+    frozen_design = json.loads(
+        DEFAULT_V4_THREE_SCHEMA_SIZE_PILOT_DESIGN.read_text(encoding="utf-8")
+    )
+    source_design = json.loads(source_path.read_text(encoding="utf-8"))
+    if (_design_digest(design) != _design_digest(source_design)
+            or _design_digest(design) != _design_digest(frozen_design)):
+        raise ValueError("three-schema size pilot does not match the frozen design identity")
+    if (design.get("design_id") != r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID
+            or design.get("state") != "DRAFT_NOT_FROZEN"
+            or design.get("execution_authorized") is not False
+            or design.get("cuda_authorized") is not False
+            or design.get("ai_training") is not False):
+        raise ValueError("three-schema size-pilot identity or execution flags changed")
+    user_auth = design.get("user_pilot_authorization", {})
+    if (user_auth.get("status") != "APPROVED_BY_USER"
+            or user_auth.get("date") != "2026-11-26"
+            or user_auth.get("formal_confirmatory_matrix_authorized") is not False
+            or set(user_auth.get("scope", [])) != {
+                "target_present_0ns", "h0_0ns", "h0_4ns",
+            }):
+        raise ValueError("three-schema pilot exceeds or lacks the user's approved scope")
+
+    all_specs: dict[str, dict[str, Any]] = {}
+    for pilot_phase in ("engineering", "h0"):
+        for spec in build_case_specs(design, pilot_phase):
+            key = r22.case_identifier(
+                phase=pilot_phase, seed=spec["seed"], speed_mps=spec["speed_mps"],
+                snr_db=spec["snr_db"], delay_ns=spec["delay_ns"],
+                target_count=spec["target_count"], period_count=spec["period_count"],
+            )
+            all_specs[key] = spec
+    if len(all_specs) != 3:
+        raise ValueError("three-schema pilot must contain exactly three unique cases")
+    schemas = {
+        ("target_present" if spec["target_count"] > 0 else "h0", spec["delay_ns"])
+        for spec in all_specs.values()
+    }
+    if schemas != {("target_present", 0.0), ("h0", 0.0), ("h0", 4.0)}:
+        raise ValueError("three-schema pilot must cover target-present 0 ns and H0 0/+4 ns only")
+    phase_specs = build_case_specs(design, phase)
+    if max_cases not in (None, len(phase_specs)):
+        raise ValueError("three-schema size-pilot authorization does not allow partial phase execution")
+
+    common = design.get("common", {})
+    expected_common = {
+        "first_beam": 50,
+        "beam_count": 1,
+        "scenario_template": "simulator/scenarios/beam50_one_targets_continuous.run.json",
+        "method_config": "docs/research/phase_r/R22/config/r22_method_config_v2_range_roi.json",
+        "area": r22.DEFAULT_AREA,
+        "method_ids": ["C0", "PK"],
+        "calibration_modes": ["Mode-A", "Mode-B"],
+        "production_backend": "Native CUDA",
+        "use_corex": False,
+        "archive_profile": "r22_v4_output_complete",
+    }
+    for key, expected in expected_common.items():
+        if common.get(key) != expected:
+            raise ValueError(f"three-schema size-pilot common configuration changed: {key}")
+
+    def resolve_design_path(value: str) -> str:
+        path = Path(value).expanduser()
+        return str(path.resolve() if path.is_absolute() else (ROOT / path).resolve())
+
+    case_authorizations: dict[str, dict[str, Any]] = {}
+    for case_id, spec in all_specs.items():
+        schema = "target_present_0ns" if spec["target_count"] else f"h0_{int(spec['delay_ns'])}ns"
+        case_authorizations[case_id] = {
+            "status": "AUTHORIZED_USER_SIZE_PILOT_CASE",
+            "design_id": str(design["design_id"]),
+            "approved_design_sha256": source_sha256,
+            "phase": spec["phase"],
+            "case_id": case_id,
+            "schema": schema,
+            "seed": spec["seed"],
+            "speed_mps": spec["speed_mps"],
+            "snr_db": spec["snr_db"],
+            "delay_ns": spec["delay_ns"],
+            "target_count": spec["target_count"],
+            "period_count": spec["period_count"],
+            "first_beam": spec["first_beam"],
+            "beam_count": spec["beam_count"],
+            "method_ids": list(spec["method_ids"]),
+            "calibration_modes": list(spec["calibration_modes"]),
+            "area": dict(spec["area"]),
+            "production_backend": "Native CUDA",
+            "use_corex": False,
+            "archive_profile": archive_profile,
+            "scenario_template": resolve_design_path(spec["scenario_template"]),
+            "method_config": resolve_design_path(spec["method_config"]),
+            "scope_note": "user-authorized three-schema resource pilot only; no confirmatory inference or performance claim",
+        }
+    return {
+        "status": "AUTHORIZED_THREE_SCHEMA_SIZE_PILOT",
+        "design_id": str(design["design_id"]),
+        "design_sha256": _design_digest(design),
+        "approved_design_sha256": source_sha256,
+        "design_source_path": str(source_path),
+        "phase": phase,
+        "phase_case_ids": [
+            r22.case_identifier(
+                phase=phase, seed=spec["seed"], speed_mps=spec["speed_mps"],
+                snr_db=spec["snr_db"], delay_ns=spec["delay_ns"],
+                target_count=spec["target_count"], period_count=spec["period_count"],
+            ) for spec in phase_specs
+        ],
+        "case_count_total": len(case_authorizations),
+        "cases_by_case_id": case_authorizations,
+        "production_backend": "Native CUDA",
+        "use_corex": False,
+        "archive_profile": archive_profile,
+        "scenario_template": resolve_design_path(common["scenario_template"]),
+        "method_config": resolve_design_path(common["method_config"]),
+        "scope_note": "user-approved three missing-schema resource pilot only; formal confirmatory matrix remains unauthorized",
+    }
+
+
+def _v4_three_schema_size_pilot_resource_gate(
+    paths: Mapping[str, Path],
+) -> dict[str, Any]:
+    prior = json.loads(V4_SIZE_PILOT_RESOURCE_EVIDENCE.read_text(encoding="utf-8"))
+    start_free = prior.get("disk_start_free_bytes")
+    minimum_free = prior.get("disk_minimum_available_bytes")
+    reserve = prior.get("disk_reserve_bytes")
+    values = (start_free, minimum_free, reserve)
+    if any(isinstance(value, bool) or not isinstance(value, int) for value in values):
+        raise ValueError("prior output-complete P0 resource evidence is incomplete")
+    peak_bytes = start_free - minimum_free
+    required_free = peak_bytes + reserve
+    if peak_bytes <= 0 or reserve <= 0:
+        raise ValueError("prior output-complete P0 resource evidence is invalid")
+
+    filesystems: dict[int, dict[str, Any]] = {}
+    for label, supplied_path in paths.items():
+        path = Path(supplied_path).expanduser().resolve()
+        write_probe_error = None
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            with tempfile.NamedTemporaryFile(
+                prefix=".pgrcc-size-pilot-write-probe-", dir=path,
+            ) as probe_file:
+                probe_file.write(b"pgrcc size-pilot storage preflight\n")
+                probe_file.flush()
+        except OSError as exc:
+            write_probe_error = f"{type(exc).__name__}: {exc}"
+        probe = path
+        while not probe.exists() and probe != probe.parent:
+            probe = probe.parent
+        if not probe.exists():
+            raise FileNotFoundError(f"cannot resolve storage path for pilot preflight: {path}")
+        device_id = probe.stat().st_dev
+        record = filesystems.get(device_id)
+        if record is None:
+            usage = shutil.disk_usage(probe)
+            free_bytes = int(usage.free)
+            record = {
+                "device_id": device_id,
+                "probe_path": str(probe),
+                "free_bytes": free_bytes,
+                "required_free_bytes": required_free,
+                "status": "READY" if free_bytes >= required_free else "PAUSED_RESOURCE_GATE",
+                "paths": [],
+            }
+            filesystems[device_id] = record
+        path_record = {
+            "label": label,
+            "path": str(path),
+            "writable": write_probe_error is None,
+        }
+        if write_probe_error is not None:
+            path_record["write_probe_error"] = write_probe_error
+            record["status"] = "PAUSED_RESOURCE_GATE"
+        record["paths"].append(path_record)
+
+    blocked = [record for record in filesystems.values() if record["status"] != "READY"]
+    return {
+        "status": "PAUSED_RESOURCE_GATE" if blocked else "READY",
+        "basis": {
+            "resource_evidence_path": str(V4_SIZE_PILOT_RESOURCE_EVIDENCE.relative_to(ROOT)),
+            "prior_p0_archive_bytes": int(prior["archive_bytes"]),
+            "prior_p0_peak_consumption_bytes": peak_bytes,
+            "preserved_reserve_bytes": reserve,
+            "required_free_bytes_per_output_filesystem": required_free,
+            "note": (
+                "Conservative capacity proxy from the measured full-output P0 case; "
+                "not a claim that the three unmeasured schemas have this exact size."
+            ),
+        },
+        "filesystems": list(filesystems.values()),
+        "reasons": [
+            f"{record['probe_path']}: free {record['free_bytes']} < required {required_free} bytes"
+            for record in blocked
+        ] + [
+            f"{path['path']}: output write probe failed: {path['write_probe_error']}"
+            for record in filesystems.values() for path in record["paths"]
+            if not path["writable"]
+        ],
     }
 
 
@@ -477,10 +711,19 @@ def run_matrix(
     validate_design(design)
     if archive_profile not in {"legacy", "r22_v4_output_complete"}:
         raise ValueError(f"unknown R22 archive profile: {archive_profile}")
-    is_size_pilot_design = design.get("design_id") == r22.V4_SIZE_PILOT_DESIGN_ID
+    size_pilot_design_id = design.get("design_id")
+    is_size_pilot_design = size_pilot_design_id in {
+        r22.V4_SIZE_PILOT_DESIGN_ID,
+        r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID,
+    }
     v4_size_pilot_authorization = None
     if archive_profile == "r22_v4_output_complete" or authorize_v4_size_pilot:
-        v4_size_pilot_authorization = _validate_v4_size_pilot_authorization(
+        validator = (
+            _validate_v4_three_schema_size_pilot_authorization
+            if size_pilot_design_id == r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID
+            else _validate_v4_size_pilot_authorization
+        )
+        v4_size_pilot_authorization = validator(
             design,
             phase=phase,
             archive_profile=archive_profile,
@@ -506,6 +749,9 @@ def run_matrix(
         Path(compact_archive_root).expanduser().resolve()
         if compact_archive_root is not None else None
     )
+    if (size_pilot_design_id == r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID
+            and archive_base is None):
+        raise ValueError("three-schema size pilot requires a complete archive output root")
     failure_archive_base = (
         Path(failure_archive_root).expanduser().resolve()
         if failure_archive_root is not None else None
@@ -671,6 +917,24 @@ def run_matrix(
             manifest["status"] = "GATE_FAILED"
             _write_json_atomic(manifest_path, manifest)
             break
+        if size_pilot_design_id == r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID:
+            storage_paths = {
+                "matrix_manifest": output_root,
+                "raw_case_outputs": raw_base,
+                "complete_archive": archive_base,
+            }
+            if failure_archive_base is not None:
+                storage_paths["failure_archive"] = failure_archive_base
+            resource_gate = _v4_three_schema_size_pilot_resource_gate(storage_paths)
+            manifest.setdefault("resource_gate_history", []).append(resource_gate)
+            manifest["resource_gate"] = resource_gate
+            if resource_gate["status"] != "READY":
+                manifest["status"] = "PAUSED_RESOURCE_GATE"
+                manifest["paused_case_id"] = case_id
+                manifest["finished_at_utc"] = _utc_now()
+                _write_json_atomic(manifest_path, manifest)
+                break
+            manifest.pop("paused_case_id", None)
         attempts_root = raw_base / phase / case_id
         attempts_root.mkdir(parents=True, exist_ok=True)
         prior_attempts = [
@@ -721,7 +985,15 @@ def run_matrix(
             if archive_profile == "r22_v4_output_complete":
                 case_kwargs["v4_output_complete"] = True
                 case_kwargs["keep_raw"] = True
-                case_kwargs["v4_size_pilot_authorization"] = v4_size_pilot_authorization
+                case_authorization = v4_size_pilot_authorization
+                if (isinstance(v4_size_pilot_authorization, Mapping)
+                        and v4_size_pilot_authorization.get("status") == "AUTHORIZED_THREE_SCHEMA_SIZE_PILOT"):
+                    case_authorization = v4_size_pilot_authorization.get(
+                        "cases_by_case_id", {},
+                    ).get(case_id)
+                    if not isinstance(case_authorization, Mapping):
+                        raise ValueError(f"size-pilot authorization missing case identity: {case_id}")
+                case_kwargs["v4_size_pilot_authorization"] = case_authorization
             result = dict(case_runner(
                 case_root,
                 **case_kwargs,
@@ -798,6 +1070,7 @@ def run_matrix(
     }
     if manifest.get("status") not in {
         "GATE_FAILED", "UNKNOWN_STOP", "ARCHIVE_PENDING", "INTERRUPTED_REVIEW_REQUIRED",
+        "PAUSED_RESOURCE_GATE",
     }:
         full_case_count = len(build_case_specs(design, phase))
         manifest["status"] = "COMPLETED" if len(terminal_ids) == full_case_count else "PARTIAL_BOUNDED_RUN"
@@ -841,11 +1114,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument(
         "--authorize-v4-size-pilot", action="store_true",
-        help="authorize only the frozen one-case R22-V4-P0 engineering size pilot",
+        help="authorize only a hash-bound user-approved R22-V4 size-pilot design",
     )
     parser.add_argument(
         "--approved-design-sha256",
-        help="must equal the approved SHA-256 of the frozen single-case V4 size-pilot JSON",
+        help="must equal the approved SHA-256 of the selected V4 size-pilot JSON",
     )
     args = parser.parse_args(argv)
     try:

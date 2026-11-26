@@ -1,5 +1,7 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
+> **2026-11-26 当前状态｜Phase H 持续执行：** 统计参数包已按用户批准固定，seed registry 已完成本地可达范围核验并哈希；确认性设计 240-case/120-batch CPU dry-run为`NOT_AUTHORIZED`。三类 Native CUDA size pilot已获批准，逐 case磁盘门已补入执行器；当前所有可写输出卷均未达到历史完整输出 P0 峰值加保留余量，故**在首个 case 前暂停，未启动 GPU/Stage2/Production**。有足够本地可写空间后可按原 manifest 续跑。参见[报告56](56_v4_phase_h_continuous_execution_20261126.md)、[机器资源预检](evidence/v4_phase_h/resource_preflight_20261126.json)和[240-case dry-run](evidence/v4_phase_h/executor_dry_run_20261126.json)。
+
 > **2026-11-26 Phase H Task 3.1/Task 4 空间预检：** 已比对本机 P0 `r22_v4_output_complete` ZIP 与17.6 MB独立compact；完整ZIP为13,037,254,578 bytes，compact不能作完整矩阵预算。仅清理旧 V2 failure case 中520张manifest标记可再生的per-case PNG，释放77,737,984 allocated bytes；失败ZIP、unique truth-lineage和完整case manifest保留。项目根现为18,631,753,728 bytes；外部94.1 GB卷只读。其他三类schema未测，size pilot等待授权和可写工作位置，原始ZIP迁移等待用户指定可写目标。见[报告55](55_v4_phase_h_resource_and_execution_report.md)、[机器证据](evidence/v4_phase_h/archive_profile_comparison.json)和[清理台账](evidence/cleanup_ledger.md)。
 
 > **2026-11-26 R22-V4 Phase H Task 1 完成（CPU/统计契约范围）：** H0 主端点已统一为独立 seed 十周期 any-event，缺失航迹输出不记零；离散覆盖区间完成六场景 synthetic 审查，`paired_t` 仅是待批准候选；新增基于 SHA/CRC 已验证归档的 CPU 矩阵分析入口和完整/缺失数据夹具。V4仍`DRAFT_NOT_FROZEN`，没有运行真实矩阵、Stage2、CUDA、Production、size pilot或AI。当前等待用户一次性决定研究参数、外部seed registry（如存在）、size pilot授权及P0原始归档迁移路径。详见[54号Task 1报告](54_v4_phase_h_final_contract_and_freeze.md)与[Phase H机器验证摘要](evidence/v4_phase_h/task1_cpu_validation.json)。研究总纲blob保持不变。

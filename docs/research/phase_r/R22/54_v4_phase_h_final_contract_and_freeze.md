@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-Task 1 的统计定义、CPU 方法审查和离线分析链路已完成实现与验证。V4 设计仍为 `DRAFT_NOT_FROZEN`；用户研究参数、seed 注册信息和资源 pilot 尚待集中决定。没有运行 Stage2、Production、CUDA 确认矩阵或 AI。
+Task 1 的统计定义、CPU 方法审查和离线分析链路已完成实现与验证。用户于 2026-11-26 批准本报告提出的研究方向筛选参数包；seed 注册和真实完整归档资源门仍在执行。V4 设计保持 `DRAFT_NOT_FROZEN`，正式确认矩阵仍未授权。本报告没有运行 Stage2、Production、CUDA 确认矩阵或 AI。
 
 ## H0 统计定义修正
 
@@ -38,7 +38,7 @@ H0 主事件统一为：**独立 H0 seed 的十个有效 beam-50 周期中，至
 
 在非劣效边界（真实差恰为 −1 pp，margin 为 1 pp）处，错误通过率为：paired t **2.93%（Monte Carlo SE 0.44 pp）**、percentile **3.20%（SE 0.45 pp）**、BCa **4.40%（SE 0.53 pp）**。paired t 与 percentile 的差小于模拟误差，不能据此称 paired t 显著更优。单 seed +10 pp 扰动使区间端点最大移动中位数约 0.53–0.55 pp，中位区间宽度增加约 18%。
 
-**暂定建议：** 检测覆盖差及航迹覆盖差候选采用 `paired_t`，因为本组非退化离散场景的覆盖接近名义 95%，且定义直接作用于 seed 级配对差值。此为有限合成分布下的方法建议，未证明普遍覆盖率；须经用户与统计/工程审查批准后，才能写成冻结规则。全相同数据仍不可评价。位置主终点继续使用 seed-cluster studentized bootstrap-t，不与覆盖率区间混用。
+**用户决定：** 检测覆盖差和航迹覆盖差采用 `paired_t`。这是对预先指定筛选方法的批准，不声称该区间在所有分布下都具有名义覆盖率；全相同数据仍不可评价。正确确认航迹覆盖为 `DESCRIPTIVE_ONLY`，不作为成功门。位置主终点继续使用 seed-cluster studentized bootstrap-t，不与覆盖率区间混用。
 
 完整机器结果见 [区间适用性 JSON](evidence/v4_confirmatory_contract/coverage_interval_suitability.json)、[CSV](evidence/v4_confirmatory_contract/coverage_interval_suitability.csv) 和 [审计报告](evidence/v4_confirmatory_contract/coverage_interval_suitability.md)；生成代码为 [audit_r22_v4_coverage_interval_suitability.py](../../../../scripts/phase_r/audit_r22_v4_coverage_interval_suitability.py)。以上全部是 CPU 统计方法证据，不是 GMTI 性能证据。
 
@@ -68,26 +68,26 @@ python3 scripts/phase_r/analyze_r22_v4_confirmatory_matrix.py \
   [--archive-root <archive_root>]
 ```
 
-## 建议提交用户确认的研究参数
+## 已批准的研究方向筛选参数
 
-以下均为 Phase H 方向筛选标准建议，**尚未批准，也不是产品验收要求**：
+以下参数由用户于 2026-11-26 明确批准，作为 Phase H 研究方向筛选标准；**不是产品验收要求**。结构化记录见 [用户参数批准记录](evidence/v4_phase_h/user_parameter_approval_20261126.json)。
 
 | 参数 | 建议值 |
 |---|---|
 | 主比较及假设 | M1 causal-prefix vs Fixed D3；Scheme A：95% 双侧 bootstrap-t 上端点 `< 0`，且 seed-level 点估计 `≤ −3 m` |
-| 定位 MDE | 3 m（研究筛选候选） |
+| 定位 MDE | 3 m |
 | Target-present / 独立 H0 | 各 30 个 seed |
 | 每速度最低共同成功数 | 10 |
 | 检测覆盖率非劣界值 | 1.0 个百分点 |
 | 正确确认航迹覆盖 | `DESCRIPTIVE_ONLY`，必须报告 |
 | H0 两项门 | seed-any-event 与 false-confirmed-track-event 单侧 95% exact 上界均严格 `< 10%` |
 | 位置区间 | 10,000 次 seed-cluster studentized bootstrap-t；PCG64 seed 22029 |
-| 覆盖率区间 | paired t 暂定候选；用户与统计/工程审查批准前不冻结 |
+| 覆盖率区间 | 检测与航迹覆盖差均用 paired t |
 | AI | 不训练 |
 
-30 个 H0 seed 零事件时，单侧 95% 上界约为 9.503%；因此建议的 `<10%` 门在该样本量下实际上要求零事件。3 m、1 pp、共同支持数 10 及两个 10% 上界都需要用户批准；如批准，也只代表该冻结场景与 beam-50/十周期口径，不代表系统级产品指标。
+在 30 个完整 H0 seed 中，单侧 95% exact 上界为：0 个事件时 9.503%，1 个事件时 14.860%。因此，严格 `<10%` 的两个 H0 门各自都要求零事件。该结论只适用于冻结的 beam-50、十周期 H0 端点，不代表系统级产品指标。
 
-尚待一次性确认：是否批准上述参数包；是否有应纳入的外部 seed registry；是否授权缺失 schema 的真实 size pilot；是否允许迁移唯一完整 P0 ZIP，并提供独立存储路径。正式 240-case CUDA 矩阵仍需之后单独授权。
+外部 seed registry 尚未提供；本阶段会固定并哈希当前本地可验证 registry，同时明确外部/离线身份未覆盖。用户已批准三个缺失 schema 的真实 size pilot；当前任务继续核验它们的物理存储可行性，不要求迁移唯一完整 P0 ZIP。正式 240-case CUDA 矩阵仍需之后单独授权。
 
 ## 磁盘与保留状态
 

@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "decision_id": "R22_V4_PHASE_H_PARAMETER_PACKAGE_20261126",
+  "decision_date": "2026-11-26",
+  "decision_basis": "The user explicitly approved the parameter package proposed in Phase H report 54 in the conversation on 2026-11-26.",
+  "scope": "Research-direction screening criteria only; not product acceptance criteria and not authorization for the formal confirmatory matrix.",
+  "target_present": {
+    "independent_seed_count": 30,
+    "seed_range_inclusive": [1933001, 1933030],
+    "position_primary_comparison": "M1_CAUSAL_PREFIX minus FIXED_D3",
+    "position_scheme": "A",
+    "position_mde_m": 3.0,
+    "minimum_common_success_support_per_speed": 10,
+    "detection_coverage_noninferiority_margin_percentage_points": 1.0,
+    "correct_confirmed_track_coverage": "DESCRIPTIVE_ONLY"
+  },
+  "h0": {
+    "independent_seed_count": 30,
+    "seed_range_inclusive": [1936001, 1936030],
+    "primary_events": [
+      "at least one frozen postfilter false Detection in ten valid beam-50 periods per seed",
+      "at least one unique false confirmed TrackManager track ID per seed"
+    ],
+    "one_sided_exact_confidence": 0.95,
+    "each_upper_bound_strictly_below": 0.1,
+    "zero_event_upper_bound_for_30_seeds": 0.09503385285530411,
+    "one_event_upper_bound_for_30_seeds": 0.14859606865911312,
+    "interpretation": "Under the approved strict gate, each endpoint needs zero event seeds among the complete 30-seed cohort to pass."
+  },
+  "intervals": {
+    "position": {
+      "method": "seed-cluster studentized bootstrap-t",
+      "confidence": 0.95,
+      "resamples": 10000,
+      "rng": "PCG64",
+      "seed": 22029
+    },
+    "detection_and_track_coverage_difference": {
+      "method": "paired seed-level t interval",
+      "confidence": 0.95
+    }
+  },
+  "preserved_rules": [
+    "retain the planned seed registry; do not replace seeds or silently reduce denominators",
+    "missing or invalid required opportunities remain missing and fail closed",
+    "incomplete H0 seeds do not count as zero-event seeds",
+    "H0 endpoints require all planned seeds and all ten valid beam-50 periods",
+    "zero variance or invalid studentization remains NOT_EVALUABLE",
+    "correct confirmed-track coverage is descriptive only and is fully reported"
+  ],
+  "execution_authorization": {
+    "three_missing_schema_size_pilot": "approved by separate user instruction on 2026-11-26; no pilot execution is represented by this record",
+    "formal_confirmatory_matrix": "NOT_AUTHORIZED",
+    "ai_training": "NOT_AUTHORIZED",
+    "research_master_plan_modification": "NOT_AUTHORIZED"
+  },
+  "design_status_after_decision": "DRAFT_NOT_FROZEN_PENDING_LOCAL_SEED_REGISTRY_HASH_SIZE_PILOT_RESOURCE_EVIDENCE_AND_FINAL_PREFLIGHT"
+}
