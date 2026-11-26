@@ -51,6 +51,12 @@ compact 的 430 个数据成员是完整归档成员的子集；对齐 case 前�
 
 本次没有运行 Stage2、CUDA 或 Production，没有修改、迁移或删除 ZIP，也没有把本地归档加入 Git。
 
+## 单独清理的可再生旧图
+
+同日对 V2 的已审查 `GATE_FAILED` case 做了精确清理：只删除该 case archive manifest 明确标为 `reproducible_per_case_plot; retain aggregate plots` 的520张 PNG。逐文件大小和 SHA-256 均与该 manifest 一致；完整失败 ZIP 的 SHA-256 为 `be76237104d6c6f11f1681de556e49ecad5e694658e8d5c94ce3e7c05850890b`，ZIP CRC 通过。释放文件 allocated bytes **77,737,984**（逻辑大小76,940,478 bytes）。
+
+保留了6.73 MB失败审查 ZIP、全部 unique truth-lineage、完整 case manifest、日志和其余3,847个展开文件；没有删除整个失败现场。其余唯一真值和机会记录不在 compact 中，仍由本地展开目录保留。清理台账见[cleanup ledger](evidence/cleanup_ledger.md) 对应 2026-11-26 条目。
+
 ## 资源门状态
 
 | Schema / 工作 | 状态 |
@@ -65,7 +71,7 @@ compact 的 430 个数据成员是完整归档成员的子集；对齐 case 前�
 
 ## 当前磁盘与迁移目标检查
 
-2026-11-26 实测 PGRCC 项目根目录 allocated bytes 为 **18,709,356,544**，距20,000,000,000-byte最终保留上限余 **1,290,643,456 bytes**。项目所在 `/dev/nvme1n1p4` 文件系统可用 **17,404,518,400 bytes**，使用率97%；`/tmp` 可用 **7,989,223,424 bytes**。
+2026-11-26 实测 PGRCC 项目根目录 allocated bytes 在上述清理前为 **18,709,356,544**；清理后为 **18,631,753,728**，距20,000,000,000-byte最终保留上限余 **1,368,246,272 bytes**。清理后复测，项目所在 `/dev/nvme1n1p4` 文件系统可用 **17,478,057,984 bytes**，使用率97%；`/tmp` 可用 **7,989,223,424 bytes**。
 
 发现外部卷 `/dev/sda1`，挂载在 `/run/media/shy/C61C9A341C9A200B`，可用 **94,103,289,856 bytes**；但当前以 `ro` 挂载，当前用户没有写权限。它目前不能作为归档迁移目标。本次没有尝试重挂载或更改权限，也没有创建文件。
 

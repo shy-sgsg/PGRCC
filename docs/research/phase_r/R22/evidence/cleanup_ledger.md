@@ -128,3 +128,10 @@
 **保留给后续 V3/审计的数据：** `outputs/r22_full_v2_compact/`（约100 MB）保留18个终态case ZIP、失败case ZIP、矩阵与中断记录，是本次离线dry-run和拟议V3状态审计的直接输入。另保留 `outputs/r22_full_v2_raw_relocated/`（547,024,896 allocated bytes）：它只含V2失败case的展开审计输出，不含 `.bin/.npy` Stage2 IQ；其中完整 case manifest（约34.6 MB）和真值CSV未完全收入紧凑失败ZIP，可能用于V3后续 truth-lineage/任务机会核验。删除它会丢失这些唯一记录，故暂不清理。`.scratch/` 中约137 MB的pilot/检查目录仍被R3历史审计文档直接引用，保留作审计证据，不当作可再生缓存处理。
 
 **清理后空间复测：** 当前 worktree `du -s -B1 .` 为 **3,206,619,136 bytes（约3.21 GB十进制 / 2.99 GiB）**，其中 `outputs/` 为 **1,900,531,712 bytes**、`.scratch/` 为 **143,302,656 bytes**。worktree 占用低于20 GB最终上限。该数字是目录当前分配空间，不代表文件系统释放量；旧运行树实际释放量按上表逐目录记录。
+
+## 2026-11-26｜V2 GATE_FAILED case reproducible per-case plot 清理
+
+- **路径：** `outputs/r22_full_v2_raw_relocated/screening/screening__seed_1932001__vr_2d5__snr_30__delay_4ns__targets_20__periods_10/attempt_001/`。
+- **清理内容：** 仅删除 compact archive manifest 标为 `reproducible_per_case_plot; retain aggregate plots` 的520个 PNG；逻辑大小76,940,478 bytes，文件 allocated bytes 合计77,737,984。逐文件路径、大小、SHA-256 在删除前与归档 manifest 完全一致。
+- **保留证据：** 失败审查 ZIP `outputs/r22_full_v2_compact/failures/screening/screening__seed_1932001__vr_2d5__snr_30__delay_4ns__targets_20__periods_10__GATE_FAILED_attempt_001.zip`，SHA-256 `be76237104d6c6f11f1681de556e49ecad5e694658e8d5c94ce3e7c05850890b`，manifest SHA-256 `cc21231237d14b6dd8e1115e0ea891f6ad2361d2105dee95f21f4032cd12916a`；归档CRC复核通过。完整 case manifest、唯一 truth-lineage、日志和其余3,847个原始文件保留；未删除整个失败case目录。
+- **清理后复测：** PGRCC根目录 allocated bytes 从18,709,356,544降至18,631,753,728（观测净降77,602,816 bytes，目录计量与文件块计量有小幅差异）；低于20,000,000,000-byte上限，余1,368,246,272 bytes。原始 P0 ZIP和compact均未修改或迁移。
