@@ -1,6 +1,6 @@
 # R22 导航：多目标 Production pilot 与科研方向审查
 
-> **2026-11-26 Phase H Task 3.1 归档核验：** 已逐项比对本机 P0 `r22_v4_output_complete` ZIP 与17.6 MB独立compact。完整ZIP为13,037,254,578 bytes、含4,461个保留普通成员；compact仅是422个required V4成员加8张复算表，不能用作完整归档的矩阵容量预算。其他三类schema尚未实测，size pilot等待用户授权，原始ZIP迁移等待目标路径。见[报告55](55_v4_phase_h_resource_and_execution_report.md)和[机器证据](evidence/v4_phase_h/archive_profile_comparison.json)。
+> **2026-11-26 Phase H Task 3.1/Task 4 空间预检：** 已逐项比对本机 P0 `r22_v4_output_complete` ZIP 与17.6 MB独立compact。完整ZIP为13,037,254,578 bytes、含4,461个保留普通成员；compact仅是422个required V4成员加8张复算表，不能用作完整归档的矩阵容量预算。项目根18,709,356,544 bytes，项目卷可用17,404,518,400 bytes；外部卷虽可用94.1 GB但当前只读。其他三类schema尚未实测，size pilot等待用户授权和可写工作位置，原始ZIP迁移等待用户指定可写目标。见[报告55](55_v4_phase_h_resource_and_execution_report.md)和[机器证据](evidence/v4_phase_h/archive_profile_comparison.json)。
 
 > **2026-11-26 R22-V4 Phase H Task 1 完成（CPU/统计契约范围）：** H0 主端点已统一为独立 seed 十周期 any-event，缺失航迹输出不记零；离散覆盖区间完成六场景 synthetic 审查，`paired_t` 仅是待批准候选；新增基于 SHA/CRC 已验证归档的 CPU 矩阵分析入口和完整/缺失数据夹具。V4仍`DRAFT_NOT_FROZEN`，没有运行真实矩阵、Stage2、CUDA、Production、size pilot或AI。当前等待用户一次性决定研究参数、外部seed registry（如存在）、size pilot授权及P0原始归档迁移路径。详见[54号Task 1报告](54_v4_phase_h_final_contract_and_freeze.md)与[Phase H机器验证摘要](evidence/v4_phase_h/task1_cpu_validation.json)。研究总纲blob保持不变。
 

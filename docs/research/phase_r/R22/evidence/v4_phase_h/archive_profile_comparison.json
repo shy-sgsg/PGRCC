@@ -85,5 +85,35 @@
     "size_pilot": "NOT_AUTHORIZED_PENDING_USER_DECISION",
     "source_archive_migration": "NOT_AUTHORIZED_PENDING_USER_DESTINATION",
     "formal_matrix": "NOT_AUTHORIZED"
+  },
+  "disk_snapshot": {
+    "measurement_date": "2026-11-26",
+    "project_root": {
+      "allocated_bytes": 18709356544,
+      "final_retained_cap_bytes": 20000000000,
+      "headroom_bytes": 1290643456
+    },
+    "project_filesystem": {
+      "device": "/dev/nvme1n1p4",
+      "total_bytes": 497777065984,
+      "available_bytes": 17404518400,
+      "use_percent": 97
+    },
+    "tmp_filesystem": {
+      "total_bytes": 8034988032,
+      "available_bytes": 7989223424
+    },
+    "external_volume_candidate": {
+      "mount_path": "/run/media/shy/C61C9A341C9A200B",
+      "device": "/dev/sda1",
+      "filesystem": "fuseblk",
+      "total_bytes": 1000169533440,
+      "available_bytes": 94103289856,
+      "mount_options_include_read_only": true,
+      "writable_by_current_user": false,
+      "status": "UNUSABLE_AS_MIGRATION_TARGET_WHILE_READ_ONLY"
+    },
+    "migration_destination": "NOT_PROVIDED_BY_USER",
+    "mount_or_permission_changes_attempted": false
   }
 }

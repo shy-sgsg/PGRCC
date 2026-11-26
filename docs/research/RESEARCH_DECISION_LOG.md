@@ -405,6 +405,12 @@
 - **下一步：** 先审查41–46号报告与冻结候选，用户/工程需求方决定定位MDE、覆盖非劣、航迹保护和H0边界，并完成seed registry/schema门。没有用户另行授权，不运行尺寸pilot或确认矩阵。ChatGPT审查后按清理台账移除仅为复现保留的13GB P0全量ZIP和可再生中间数据，保留高价值报告、配置、manifest、统计表、图及代表性审计记录。
 - **交付入口：** [R22-V4导航](phase_r/R22/README.md)、[41 P0离线重分析](phase_r/R22/41_v4_p0_independent_evidence_reanalysis_20261123.md)、[45冻结候选](phase_r/R22/45_v4_confirmatory_freeze_candidate_20261123.md)、[46方向裁决](phase_r/R22/46_v4_next_stage_research_decision_20261123.md)。
 
+## 2026-11-26｜R22-V4 Phase H Task 4：最终空间与外部卷写入性预检
+
+- **记录编号与身份：** `D-2026-11-26-R22-V4-PHASE-H-STORAGE-PREFLIGHT`；总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未改。
+- **实际测量：** 项目根 allocated bytes 为18,709,356,544，距20,000,000,000上限余1,290,643,456；项目卷可用17,404,518,400 bytes，`/tmp`可用7,989,223,424 bytes。另一卷 `/dev/sda1` 可用94,103,289,856 bytes，但挂载为`ro`，当前用户无写权限。
+- **资源裁决：** 该外部卷不能用于迁移或 pilot 写出，未尝试改挂载。只有用户指定的独立可写目标可供后续容量核验；完整 P0 ZIP不得在未获批准前移动或删除。缺失schema的 size pilot需用户单独批准并先解决可写工作空间。详见[资源报告55](phase_r/R22/55_v4_phase_h_resource_and_execution_report.md)和[机器资源对照](phase_r/R22/evidence/v4_phase_h/archive_profile_comparison.json)。
+
 ## 2026-11-26｜R22-V4 Phase H Task 3.1：compact 不能代表完整归档容量
 
 - **记录编号与身份：** `D-2026-11-26-R22-V4-PHASE-H-ARCHIVE-PROFILE-AUDIT`；分支 `codex/unknown-system-error-next-stage`；研究总纲 blob `e637e3769bde7814298ff012d0f42301884e2985` 未改。直接读取本机 seed1937003、2.5 m/s、20 dB、+4 ns、20目标、10周期 P0 ZIP 的 central directory 与内嵌 manifest；未展开完整数据，未重算13 GB ZIP外层SHA。
