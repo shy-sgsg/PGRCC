@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-11-26",
+  "source_commit": "d0e8848530c38af84ed1d6692ec71383133e5511",
+  "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "scope_roots": [
+    "outputs/",
+    "docs/research/phase_r/R22/"
+  ],
+  "zip_inventory": {
+    "zip_file_count": 397,
+    "root_archive_manifest_count": 387,
+    "root_archive_manifest_missing_count": 10,
+    "manifest_scan_errors": 0,
+    "full_zip_crc_or_member_sha_reverification_performed": false,
+    "embedded_archive_profile_counts": {
+      "unspecified_legacy": 386,
+      "r22_v4_output_complete": 1
+    }
+  },
+  "only_v4_output_complete_archive": {
+    "path": "outputs/r22_v4_p0_seed1937003_20261123/archives/engineering/engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10__attempt_001.zip",
+    "size_bytes": 13037254578,
+    "phase": "engineering",
+    "seed": 1937003,
+    "target_count": 20,
+    "delay_ns": 4.0,
+    "required_v4_member_count": 422
+  },
+  "historical_candidates_for_missing_schemas": {
+    "target_present_0ns_v3_2": {
+      "zip_name_candidates": 160,
+      "readable_root_manifest_archives": 145,
+      "archive_profile": "unspecified_legacy",
+      "required_v4_member_count": 0,
+      "conclusion": "Historical 0 ns target-present archives do not implement the V4 output-complete profile and cannot serve as its size measurement."
+    },
+    "h0_seed1935_engineering": {
+      "readable_root_manifest_archives": 62,
+      "delay_0ns_archive_count": 30,
+      "delay_4ns_archive_count_including_interrupted_attempts": 32,
+      "archive_profile": "unspecified_legacy",
+      "required_v4_member_count": 0,
+      "sample_0ns": {
+        "archive_bytes": 2444928,
+        "included_file_count": 1292,
+        "excluded_file_count": 929,
+        "track_debug_file_count": 0,
+        "detection_result_file_count": 12
+      },
+      "sample_4ns": {
+        "archive_bytes": 3605556,
+        "included_file_count": 1902,
+        "excluded_file_count": 1385,
+        "track_debug_file_count": 0,
+        "detection_result_file_count": 18
+      },
+      "conclusion": "Legacy H0 archives omit V4-required TrackManager lineage and do not verify full-period outputs; their ZIP sizes cannot replace the H0 V4 size pilots."
+    }
+  },
+  "p0_compact_reuse_assessment": {
+    "compact_path": "outputs/r22_v4_p0_seed1937003_20261123/archives_compact_candidate/p0_target_present_plus4ns_compact_schema_v2.zip",
+    "compact_bytes": 17603158,
+    "compact_required_v4_member_set_matches_full_p0": true,
+    "additional_evaluator_member_count": 8,
+    "drop_in_for_missing_schema_pilots": false,
+    "reason": "The existing writer is P0-specific: it requires the target-present response and exactly 18 Production branches. Its profile is not accepted as the generic V4 case archive profile. The matching member set is evidence for a possible generic compact policy, not a size proxy for the three missing schemas."
+  },
+  "current_resource_gate": {
+    "last_rechecked_at_utc": "2026-11-26T09:26:17Z",
+    "project_allocated_bytes": 18632269824,
+    "project_cap_bytes": 20000000000,
+    "project_cap_remaining_bytes": 1367730176,
+    "project_filesystem_free_bytes": 17161711616,
+    "tmp_filesystem_free_bytes": 7971377152,
+    "external_volume_free_bytes": 90118549504,
+    "external_volume_writable": false,
+    "required_free_bytes_per_output_filesystem_proxy": 40558522368,
+    "pilot_status": "PAUSED_RESOURCE_GATE_BEFORE_FIRST_CASE"
+  },
+  "actions": {
+    "stage2_started": false,
+    "production_started": false,
+    "cuda_started": false,
+    "archives_modified_or_deleted": false,
+    "p0_archive_moved": false
+  }
+}

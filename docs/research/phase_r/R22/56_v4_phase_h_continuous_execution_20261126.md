@@ -3,6 +3,7 @@
 **日期：** 2026-11-26
 **执行基线：** `5328fa3a51efc44f311d8fd7d28ddbcf2ade0b7e`
 **研究总纲 blob：** `e637e3769bde7814298ff012d0f42301884e2985`（保持不变）
+**文件性质：** 持续执行与资源审计状态，不是确认性矩阵结果报告。
 **本阶段状态：** `PARTIALLY_BLOCKED`；只有依赖额外可写空间的 size pilot 暂停，其他任务已推进。
 
 ## 结论
@@ -77,6 +78,18 @@ PGRCC 项目目录在该次预检时为18,631,958,528 bytes，低于20,000,000,0
 资源门的 CPU 回归先在无实现时失败（runner错误地进入case并得到 `GATE_FAILED`），补入后验证了“暂停不调用 case runner”以及“容量恢复后从同一 manifest 续跑”。该用例使用受控磁盘余量，不是文件系统或 CUDA 性能证据。
 
 随后使用当前真实 `/tmp` 余量对授权的 `engineering` pilot runner 做了一次 live preflight：结果为 `PAUSED_RESOURCE_GATE`，三个输出目录的临时写入探针均成功，`cases=[]`、没有 attempt 目录、runner未调用；临时 manifest读出判定后随临时目录删除。该动作只验证执行器会在当前容量不足时停在首个 case 之前。
+
+### 历史归档能否替代缺失 schema pilot
+
+对本地 `outputs/` 与 `docs/research/phase_r/R22/` 下397个 ZIP 做了只读归档清单扫描：387个包含可读根级 `ARCHIVE_MANIFEST.json`，其中仅1个为 `r22_v4_output_complete`，即已测的 target-present +4 ns P0；其余386个没有 V4 完整归档 profile。145个历史 V3.2 target-present 0 ns 归档和62个 seed1935 H0工程归档均为旧 profile，不能替代缺失 schema 的 V4 完整输出尺寸。抽查 H0 0 ns/+4 ns 样本分别没有 `track_debug_runs`，且仅有12/18个 Detection 结果文件。
+
+已有17.6 MB P0 compact 与该 P0 完整归档的422个 V4 必需成员集合相同，并多保留8张 evaluator 表；但当前 compact writer 专用于含目标响应的 P0、要求18个 Production branches，不能直接处理三个缺失 schema。其成员集合可作为后续通用紧凑归档策略的复用依据，**不能**当成缺失 schema 的 full-profile 尺寸测量。审计机器记录见[历史归档兼容性检查](evidence/v4_phase_h/historical_archive_compatibility_20261126.json)。
+
+### 当前资源复测与归档写入路径评估
+
+2026-11-26T09:26:17Z复测的项目根目录 allocated size 为18,632,269,824 bytes，低于20,000,000,000-byte最终上限，剩余1,367,730,176 bytes；所在 ext4 可用17,161,711,616 bytes，`/tmp`可用7,971,377,152 bytes。两处都低于40,558,522,368-byte单文件系统保守启动代理；外接卷仍为只读。资源明细和397个ZIP的只读扫描结果保存在上述机器审计 JSON。本轮没有迁移P0、删除归档或启动pilot，也没有使用Google Drive。
+
+我检查了当前归档实现：V4 full-profile ZIP先完整写入同目录临时文件，再完成CRC、成员清单和成员SHA验证，随后执行清理；size-pilot调用保留raw源文件直到归档通过。当前把raw与归档拆到不同可写文件系统不能满足逐文件系统资源门，`/tmp`也装不下已测P0 full ZIP。边生成归档边删源文件需要逐成员持久检查点、身份验证和中断恢复协议；现有执行链没有该协议，因此不能作为安全的即时配置替代。当前可行的下一步仍是取得足够的本地可写空间，或另行实现并验证可恢复的流式归档事务；pilot保持在首个case前暂停。
 
 本轮对 M1/Huber prefix输入范围、估计失败的当期零校正、同一估计对 ON/OFF/TO 的应用、CSI_AFTER证据结构及完整归档验证路径做了定向只读源码检查。它没有替代独立 ChatGPT 源码审查，也没有验证实际 Native CUDA 运行行为；这两项仍属冻结前证据缺口。
 

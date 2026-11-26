@@ -426,3 +426,11 @@
 - **资源裁决：** 唯一已测完整输出P0归档13,037,254,578 bytes，历史case峰值消耗29,821,104,128 bytes，保留余量10,737,418,240 bytes；逐case保守预检需每个输出文件系统至少40,558,522,368 bytes可用。最终复测时项目ext4可用12,116,500,480 bytes，`/tmp`可用7,991,930,880 bytes；两者独立，不能当成单一文件系统预算。外接卷可用90,118,549,504 bytes但只读。PGRCC根目录当时已用18,631,958,528 bytes，仍低于20,000,000,000-byte最终上限。资源详情见[机器预检](phase_r/R22/evidence/v4_phase_h/resource_preflight_20261126.json)。
 - **阶段状态：** 三类size pilot虽已获批准，因实际容量预检不足而在首case前暂停，`EXECUTED=false`、`EVALUABLE=false`、`PERFORMANCE_VERIFIED=false`；无新Stage2、Production、CUDA结果。正式确认矩阵仍未获授权，设计保持`DRAFT_NOT_FROZEN`。只暂停依赖工作空间的pilot，其他统计、seed、执行器和文档任务继续；整体状态`PARTIALLY_BLOCKED`。参见[Phase H报告56](phase_r/R22/56_v4_phase_h_continuous_execution_20261126.md)。
 - **后续：** 真实schema大小、全三case资源预算及Native CUDA输出核验仍待pilot。按本次P0峰值代理，若三份完整归档在同一位置保留直至整组验收，约需66.63 GB峰值可用空间；提供≥70,000,000,000 bytes的本地可写目录可留出余量。此为容量规划代理，不是三个缺失schema的实测。无需迁移P0原ZIP，不对外接只读卷改挂载，不启动确认矩阵或AI。
+
+## 2026-11-26｜R22-V4 Phase H Task 3.2：历史归档兼容性与本地流式存储复核
+
+- **记录编号与身份：** `D-2026-11-26-R22-V4-PHASE-H-ARCHIVE-COMPATIBILITY`；扫描源提交`d0e8848530c38af84ed1d6692ec71383133e5511`；研究总纲blob `e637e3769bde7814298ff012d0f42301884e2985`未变。
+- **历史归档审计：** 对本地outputs与R22记录下397个ZIP作只读清单/profile检查；387个有可读根manifest、10个没有、无manifest读取错误。只有已测target-present +4 ns P0属于V4完整输出profile；145个旧V3.2 target-present 0 ns候选和62个seed1935 H0工程归档均缺少V4要求的完整输出成员，不能替代三个schema size pilot。未重验397个ZIP的CRC/成员SHA，也未展开完整数据；结论仅限profile与可用成员。
+- **资源复测：** 项目根allocated 18,632,269,824 bytes，低于20,000,000,000-byte上限；ext4剩余17,161,711,616 bytes，`/tmp`剩余7,971,377,152 bytes，均低于40,558,522,368-byte单文件系统保守门。P0原ZIP保留，未移动或删除；没有使用Google Drive。
+- **归档实现评估：** 当前V4 archiver先将full-profile ZIP写为完整临时文件，校验CRC、成员集合和内容SHA后才允许清理源目录。把源文件边归档边删除需要新的可恢复逐成员事务与身份校验；当前代码没有该恢复协议。本轮未更改实现，因此pilot继续停在首case前，等待安全可写容量方案。
+- **状态：** `PARTIALLY_BLOCKED`仅适用于size pilot及依赖实测尺寸的冻结步骤；其他设计和审计工作继续。机器记录见[归档兼容性JSON](phase_r/R22/evidence/v4_phase_h/historical_archive_compatibility_20261126.json)和[持续执行报告56](phase_r/R22/56_v4_phase_h_continuous_execution_20261126.md)。
