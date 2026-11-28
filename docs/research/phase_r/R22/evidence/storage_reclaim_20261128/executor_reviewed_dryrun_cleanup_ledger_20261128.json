@@ -1,0 +1,47 @@
+{
+  "actual_allocated_bytes_released": 2330624,
+  "created_on": "2026-11-28",
+  "deleted_on": "2026-11-28",
+  "files": [
+    {
+      "allocated_bytes": 12288,
+      "bytes": 8391,
+      "name": "confirmatory_authorization_template.json",
+      "sha256": "3dd0fb030bece12ae2ffcee87261d8cfdf234d8d030ed6362d499a3f66adf9d8"
+    },
+    {
+      "allocated_bytes": 319488,
+      "bytes": 317063,
+      "name": "confirmatory_case_registry.json",
+      "sha256": "576330e2bb8f4e85b2039fa715c7cd5654f3185a626b76274825c07f8bb35342"
+    },
+    {
+      "allocated_bytes": 81920,
+      "bytes": 81790,
+      "name": "confirmatory_checkpoint.json",
+      "sha256": "d282acd77ec022ffa0c2bd3e1ce34af7cc6e81df74d8718fa38a333da545b6d1"
+    },
+    {
+      "allocated_bytes": 4096,
+      "bytes": 481,
+      "name": "confirmatory_dry_run.json",
+      "sha256": "7665141f8cdae5d0ddd160c52449c5eaffb94a15dd3c7d73bb5cf973ffe80245"
+    },
+    {
+      "allocated_bytes": 1912832,
+      "bytes": 1911676,
+      "name": "confirmatory_execution_plan.json",
+      "sha256": "3c8d65075f3c27e9299e71ccb7a9676bacb4ad5e7cda3e51a7066ae92ca71935"
+    }
+  ],
+  "old_registry_sha256": "7992b90f6751c3d2651210a143863af00ef2dcb9a82b21fc93d496b0a650817e",
+  "reason": "Superseded CPU-only dry-run preview generated before executor review fixes. It contains only regenerable registry/plan/authorization preview/checkpoint data and no CUDA or scientific result data; the replacement has the same frozen design, seed registry, 240 cases, 120 batches, and has a separate non-execution checkpoint filename.",
+  "released_allocated_bytes_upper_bound": 2330624,
+  "replacement_directory": "docs/research/phase_r/R22/evidence/v4_phase_h/preflight_20261128_executor_reviewed",
+  "replacement_registry_sha256": "1546ed2c90836c6cf163547080352f1bd16b93c18c1e28f0ff6011f7347cd57c",
+  "replacement_status": "NOT_AUTHORIZED",
+  "schema_version": 1,
+  "status": "COMPLETED",
+  "target_directory": "docs/research/phase_r/R22/evidence/v4_phase_h/preflight_20261128_frozen_final",
+  "verified_deleted_file_count": 5
+}

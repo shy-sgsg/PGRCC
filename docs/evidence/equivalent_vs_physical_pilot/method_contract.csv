@@ -1,0 +1,10 @@
+method_id,description,family,research_calibration_enable,research_calibration_method,input_correction,known_error,known_error_use,truth_used_in_estimator
+C0,Production Current,current,False,production_current,none,False,none,False
+C1,Ordinary complex subtraction,equivalent,True,ordinary_subtraction,none,False,none,False
+C2,SCC,equivalent,True,scc,none,False,none,False
+C3,Robust DDC,equivalent,True,robust_ddc,none,False,none,False
+C4,Robust DDC-RB,equivalent,True,robust_ddc_rb,none,False,none,False
+P1,Blind physical delay correction then Current,physical,False,production_current,raw_channel_2_fractional_delay,False,none,False
+P2,Blind physical delay correction then Robust DDC-RB,hierarchical,True,robust_ddc_rb,raw_channel_2_fractional_delay,False,none,False
+PK,Known physical evaluator upper bound then Current,known_physical_upper_bound,False,production_current,raw_channel_2_fractional_delay,True,evaluator_only,False
+PKR,Known physical evaluator upper bound then Robust DDC-RB,known_hierarchical_upper_bound,True,robust_ddc_rb,raw_channel_2_fractional_delay,True,evaluator_only,False

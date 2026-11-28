@@ -1,0 +1,45 @@
+{
+  "audit_date": "2026-11-23",
+  "scope": "Pre-existing local R22 design/status/research documents, V3.2 completed case_audit and matrix manifest, R22 output case paths, text manifests, and compact archive filenames. The new seed_registry_audit.json and r22_v4_size_pilot_draft_20261123.json proposal files are excluded from the historical-collision scan because they intentionally record the proposed seed. This is not a claim that every external archive, remote artifact, Git object, or non-R22 project seed registry was exhaustively examined.",
+  "candidate_sets": {
+    "v4_target_confirmatory": {
+      "first": 1933001,
+      "last": 1933030,
+      "design_source": "docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json",
+      "prior_reservation": "V3.2 design reserves this range for confirmatory work.",
+      "completed_v3_2_screening_observation": "The local V3.2 case_audit contains 288 completed cases and 12 unique seeds, 1932001-1932012; no completed V3.2 case uses this confirmatory range.",
+      "pilot_eligibility": "Do not use for a size pilot; preserve the range for the confirmatory design."
+    },
+    "v4_h0_candidate": {
+      "first": 1936001,
+      "last": 1936030,
+      "design_source": "docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json",
+      "prior_independent_h0_range": "V3.2 used 1935001-1935030 for its completed independent H0 matrix; the V4 candidate range is disjoint.",
+      "local_execution_collision_found": false
+    },
+    "size_pilot_candidate": {
+      "seed": 1937001,
+      "local_r22_seed_identity_match_found_in_pre_existing_artifacts": false,
+      "selection_rule": "Use one seed outside the V4 target confirmatory and H0 ranges, outside the completed V3.2 screening/H0 cohorts, and absent from local R22 case IDs/manifests. Re-run the full project seed registry check before freeze.",
+      "status": "PROPOSED_NOT_RESERVED_OR_EXECUTED"
+    }
+  },
+  "verified_local_facts": {
+    "v3_2_case_audit": "outputs/r22_v3_2_screening_20261106/analysis/case_audit.csv",
+    "v3_2_unique_executed_seed_count": 12,
+    "v3_2_unique_executed_seed_range": [1932001, 1932012],
+    "v3_2_analysis_manifest": "outputs/r22_v3_2_screening_20261106/analysis/analysis_manifest.json",
+    "v3_2_matrix_status": "COMPLETED",
+    "v3_2_completed_case_count": 288,
+    "v3_2_confirmatory_range": [1933001, 1933030],
+    "v3_2_independent_h0_range": [1935001, 1935030],
+    "v4_h0_candidate_range": [1936001, 1936030]
+  },
+  "limitations": [
+    "The candidate pilot seed is clear within the audited local R22 scope, not globally certified across every non-R22 dataset or external archive.",
+    "The proposed seed is now intentionally recorded in this audit and the draft pilot configuration; those proposal records are not evidence of a prior execution.",
+    "Seed equality is checked through case identity/path and manifest fields; arbitrary CSV numeric payloads are not treated as seed identities.",
+    "No candidate seed was executed or added to a confirmatory cohort by this audit."
+  ],
+  "verdict": "SCOPED_LOCAL_AUDIT_PASS_GLOBAL_REGISTRY_PENDING"
+}

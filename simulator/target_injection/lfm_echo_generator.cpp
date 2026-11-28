@@ -355,7 +355,10 @@ void fillZeroPacketHeader(std::vector<uint8_t> &packet,
     constexpr double kInsUpdateHz = 25.0;
     const double ins_utc = std::floor(utc * kInsUpdateHz + 1.0e-9) /
                            kInsUpdateHz;
-    const PlatformState platform = evaluatePlatformState(global, ins_utc);
+    // The echo generator evaluates physical geometry with the true platform
+    // state.  The protocol header is the reported INS solution, so its
+    // position/velocity fields use the explicitly separate reported state.
+    const PlatformState platform = evaluateReportedPlatformState(global, ins_utc);
     const gmti::sim_geometry::PosSample pos =
         gmti::sim_geometry::makeProtocolPosSample(toLocalPoint(platform.position),
                                                   toLocalVelocity(platform.velocity),
@@ -366,7 +369,8 @@ void fillZeroPacketHeader(std::vector<uint8_t> &packet,
     storeF32LE(&packet[gmti::new_protocol::kOffVnMps], static_cast<float>(pos.vn_mps));
     storeF32LE(&packet[gmti::new_protocol::kOffVeMps], static_cast<float>(pos.ve_mps));
     storeF32LE(&packet[gmti::new_protocol::kOffVdMps], static_cast<float>(pos.vd_mps));
-    storeF32LE(&packet[gmti::new_protocol::kOffSpeedMps], static_cast<float>(global.platform_speed_mps));
+    storeF32LE(&packet[gmti::new_protocol::kOffSpeedMps], static_cast<float>(
+        effectivePlatformVelocityReportedMps(global)));
     packet[gmti::new_protocol::kOffPrtLowByte] = static_cast<uint8_t>(prt_counter & 0xffU);
     storeI16LE(packet, gmti::new_protocol::kOffThetaDegX100,
                gmti::new_protocol::satI16FromDouble(theta_deg * 100.0));

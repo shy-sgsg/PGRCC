@@ -1,0 +1,67 @@
+{
+  "audit_time_utc": "2026-11-23T10:51:18.884537+00:00",
+  "candidate_seed": 1937003,
+  "candidate_seed_ranges_checked": {
+    "v3_2_independent_h0": [
+      1935001,
+      1935030
+    ],
+    "v3_2_screening": [
+      1932001,
+      1932012
+    ],
+    "v4_confirmatory_reserved": [
+      1933001,
+      1933030
+    ],
+    "v4_h0_candidate": [
+      1936001,
+      1936030
+    ]
+  },
+  "collision_hits": [],
+  "limitations": [
+    "Connected external archive services are not available; local project files, local ZIP names and identity manifests, and Git history reachable from local refs were scanned.",
+    "Numbers in payload columns without a seed identity field are not treated as seed collisions."
+  ],
+  "prior_seed_dispositions": [
+    {
+      "reason": "CSI artifact arrays absent in the first complete Stage2/Production attempt; do not rerun.",
+      "seed": 1937001,
+      "status": "GATE_FAILED"
+    },
+    {
+      "reason": "150 CSI tap rows lacked complex/before-power files because intermediate-map capture was disabled; do not resume or rerun.",
+      "seed": 1937002,
+      "status": "INTERRUPTED_NOT_RESUMABLE"
+    }
+  ],
+  "purpose": "single engineering V4 output-completeness pilot only; not confirmatory",
+  "reason": "Seeds 1937001 and 1937002 now have real Native CUDA execution identities and are disqualified from rerun; 1937003 is selected after the required reselection scan.",
+  "reselected_design": {
+    "authorization_constant": "scripts/phase_r/run_r22_cuda_pilot.py::V4_SIZE_PILOT_APPROVED_SHA256",
+    "path": "docs/research/phase_r/R22/config/r22_v4_size_pilot_draft_20261123.json",
+    "raw_sha256": "f9de67eab44c10e7f076e3852f76a216991fba29dbb7a9e1113f1021e4559954",
+    "scope": "single engineering case only; all physical/method settings retained; seed changed under the task reselection rule",
+    "seed": 1937003
+  },
+  "scan_scope": {
+    "csv_files_with_seed_identity_column_scanned": 5973,
+    "embedded_archive_identity_manifests_scanned": 828,
+    "git_history_matching_identity_commits": 0,
+    "roots": [
+      "docs",
+      "outputs",
+      "scripts",
+      "simulator",
+      "tests"
+    ],
+    "text_files_scanned": 44132,
+    "zip_archives_found": 416,
+    "zip_archives_scanned": 416
+  },
+  "schema_version": 1,
+  "status_note": "1937003 passed the local project scan before execution. 1937001 and 1937002 are excluded from rerun due to actual execution identities; neither enters the V4 confirmatory cohort.",
+  "unreadable_or_skipped": [],
+  "verdict": "LOCAL_PROJECT_SCOPE_PASS"
+}

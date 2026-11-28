@@ -1,0 +1,45 @@
+{
+  "association_evidence": [],
+  "association_gate": {
+    "assignment": "maximum-cardinality then minimum-sum normalized Euclidean residual",
+    "doppler_axis_source": "period/beam Production axis metadata, else detection center/PRF",
+    "doppler_distance": "circular",
+    "doppler_tolerance_bins": 2,
+    "normalized_residual": "hypot(range_delta/2, circular_doppler_delta/2)",
+    "range_tolerance_bins": 2,
+    "same_beam": true,
+    "same_period": true
+  },
+  "candidate_pair_evidence": [],
+  "lineage": {
+    "cluster_count_source": null,
+    "final_detections_joined": null,
+    "postfilter_clusters": null,
+    "raw_detections": null,
+    "raw_removed_before_final": null,
+    "rejected_before_selection": null,
+    "selected_candidates": null,
+    "selected_without_raw_detection": null,
+    "status": "NOT_AVAILABLE",
+    "unjoined_final_detections": null
+  },
+  "lineage_evidence": [],
+  "metrics": {
+    "cfar_branch_hit_cells": 41947,
+    "cfar_status": "evaluable",
+    "cluster_status": "NOT_EVALUABLE_LEGACY_PRE_CLUSTER_SUMMARY",
+    "false_clusters": null,
+    "false_confirmed_tracks": 152,
+    "false_detections": 369,
+    "final_detections": 369,
+    "lineage_status": "NOT_AVAILABLE",
+    "postfilter_clusters": null,
+    "track_status": "evaluable",
+    "tracks": 518,
+    "unique_union_hit_cells": {
+      "count": null,
+      "status": "NOT_EVALUABLE"
+    }
+  },
+  "mode": "OFF"
+}

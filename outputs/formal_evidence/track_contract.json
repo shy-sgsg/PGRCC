@@ -1,0 +1,119 @@
+{
+  "schema": "track_manager_pipe_contract_v1",
+  "source_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/track_manager_e2e_formal_compact_20260915/manifest.json",
+  "source_status": "completed",
+  "input_mode": "shm",
+  "period_count": 3,
+  "seeds": [
+    101,
+    202,
+    303
+  ],
+  "input_rate_bytes_per_sec": 1000000,
+  "branch_contract": {
+    "branches": [
+      "Current",
+      "blind_calibrated",
+      "known_error_calibrated"
+    ],
+    "shared_rules": {
+      "same_simulated_echo": true,
+      "same_production_pipe": true,
+      "same_cfar": true,
+      "same_track_manager": true,
+      "same_confirmation_rule": true,
+      "same_protocol_eligibility_gate": true
+    },
+    "ai_training": false,
+    "router_enabled": false,
+    "blind_calibrated_status": "fallback_to_current",
+    "known_error_calibrated_status": "evaluation_only",
+    "blind_correction_applied": false,
+    "known_correction_applied": false
+  },
+  "ai_training": false,
+  "router_enabled": false,
+  "runs": [
+    {
+      "seed": 101,
+      "branch": "Current",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 101,
+      "branch": "blind_calibrated",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 101,
+      "branch": "known_error_calibrated",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 202,
+      "branch": "Current",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 202,
+      "branch": "blind_calibrated",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 202,
+      "branch": "known_error_calibrated",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 303,
+      "branch": "Current",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 303,
+      "branch": "blind_calibrated",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    },
+    {
+      "seed": 303,
+      "branch": "known_error_calibrated",
+      "production_status": "passed",
+      "target_status": "positive_track_output_observed",
+      "audit_status": "pass",
+      "audit_total_violations": 0,
+      "pipe_runtime_status": "passed"
+    }
+  ]
+}

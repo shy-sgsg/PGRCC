@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "stage": "R18 independent seed909 reference secondary",
+  "status": "NOT_EVALUABLE",
+  "implementation_status": "IMPLEMENTED",
+  "execution_status": "PARTIALLY_EXECUTED",
+  "evaluation_status": "NOT_EVALUABLE",
+  "reference_seed": 909,
+  "evaluation_seed": 606,
+  "evaluation_velocity_mps": 6.7,
+  "evaluation_snr_db": 30.0,
+  "selected_methods": [
+    "C2",
+    "C3"
+  ],
+  "roles": [
+    "OFF",
+    "ON",
+    "TO"
+  ],
+  "truth_used_in_estimator": false,
+  "algorithmic_results_claimed": false,
+  "performance_verified": false,
+  "statistical_significance_claimed": false,
+  "primary_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/manifest.json",
+  "config": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/phase_r18_native_cuda.json",
+  "scratch_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2",
+  "evidence_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/independent_seed909_secondary_attempt2",
+  "gates": {
+    "physics_configuration_match": {
+      "status": "passed",
+      "source_signature": {
+        "platform": {
+          "speed_mps": 60.0,
+          "height_m": 6000.0,
+          "origin_lat_deg": 40.4512107203,
+          "origin_lon_deg": 116.985931582,
+          "origin_alt_m": 6000.0,
+          "projection_ref_lon_deg": 117.0,
+          "squint_side": 1
+        },
+        "waveform": {
+          "fc_ghz": 16.0,
+          "bandwidth_mhz": 50.0,
+          "fs_mhz": 60.0,
+          "tr_us": 130.0,
+          "prf_hz": 1300.0,
+          "pulse_len": 11820,
+          "pulse_num": 130,
+          "d_chan_m": 0.17,
+          "iq_data_type": "float32",
+          "new_protocol_channel_count": 4,
+          "new_protocol_read_channel_1": 1,
+          "new_protocol_read_channel_2": 2
+        },
+        "scene": {
+          "range_min_m": 84500.0,
+          "range_max_m": 85500.0,
+          "azimuth_min_deg": -60.0,
+          "azimuth_max_deg": 60.0,
+          "ground_z_m": 0.0,
+          "clutter_amplitude_scale": 1.0,
+          "area_clutter": {
+            "enabled": true,
+            "model": "continuous_texture",
+            "scatterer_count": 0,
+            "mean_power": 0.02,
+            "texture_sigma": 0.25,
+            "spatial_cell_m": 30.0,
+            "temporal_correlation_rho": 0.98
+          },
+          "thermal_noise": {
+            "enabled": true,
+            "noise_power": 0.001
+          }
+        },
+        "period_start": 0,
+        "period_count": 3,
+        "beam_start": 50,
+        "beam_count": 1,
+        "protocol_layout": {
+          "header_bytes": 256,
+          "pulse_len": 11820,
+          "pulse_count": 130,
+          "channel_count": 4,
+          "iq_data_type": "float32",
+          "fs_hz": 60000000.0,
+          "packet_bytes": 378496,
+          "beam_id": 50,
+          "beam_index_base": 1,
+          "expected_theta_deg": 38.0,
+          "scan_min_deg": -60.0,
+          "scan_step_deg": 2.0,
+          "read_channel_1": 1,
+          "read_channel_2": 2,
+          "correction_channel_indices": [
+            1
+          ],
+          "fusion_pairs": [
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "enable_four_channel_fusion": true,
+          "four_channel_phase_compensation_enable": true,
+          "fusion_channel_3": 3,
+          "fusion_channel_4": 4
+        }
+      },
+      "reference_signature": {
+        "platform": {
+          "speed_mps": 60.0,
+          "height_m": 6000.0,
+          "origin_lat_deg": 40.4512107203,
+          "origin_lon_deg": 116.985931582,
+          "origin_alt_m": 6000.0,
+          "projection_ref_lon_deg": 117.0,
+          "squint_side": 1
+        },
+        "waveform": {
+          "fc_ghz": 16.0,
+          "bandwidth_mhz": 50.0,
+          "fs_mhz": 60.0,
+          "tr_us": 130.0,
+          "prf_hz": 1300.0,
+          "pulse_len": 11820,
+          "pulse_num": 130,
+          "d_chan_m": 0.17,
+          "iq_data_type": "float32",
+          "new_protocol_channel_count": 4,
+          "new_protocol_read_channel_1": 1,
+          "new_protocol_read_channel_2": 2
+        },
+        "scene": {
+          "range_min_m": 84500.0,
+          "range_max_m": 85500.0,
+          "azimuth_min_deg": -60.0,
+          "azimuth_max_deg": 60.0,
+          "ground_z_m": 0.0,
+          "clutter_amplitude_scale": 1.0,
+          "area_clutter": {
+            "enabled": true,
+            "model": "continuous_texture",
+            "scatterer_count": 0,
+            "mean_power": 0.02,
+            "texture_sigma": 0.25,
+            "spatial_cell_m": 30.0,
+            "temporal_correlation_rho": 0.98
+          },
+          "thermal_noise": {
+            "enabled": true,
+            "noise_power": 0.001
+          }
+        },
+        "period_start": 0,
+        "period_count": 3,
+        "beam_start": 50,
+        "beam_count": 1,
+        "protocol_layout": {
+          "header_bytes": 256,
+          "pulse_len": 11820,
+          "pulse_count": 130,
+          "channel_count": 4,
+          "iq_data_type": "float32",
+          "fs_hz": 60000000.0,
+          "packet_bytes": 378496,
+          "beam_id": 50,
+          "beam_index_base": 1,
+          "expected_theta_deg": 38.0,
+          "scan_min_deg": -60.0,
+          "scan_step_deg": 2.0,
+          "read_channel_1": 1,
+          "read_channel_2": 2,
+          "correction_channel_indices": [
+            1
+          ],
+          "fusion_pairs": [
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              4
+            ]
+          ],
+          "enable_four_channel_fusion": true,
+          "four_channel_phase_compensation_enable": true,
+          "fusion_channel_3": 3,
+          "fusion_channel_4": 4
+        }
+      }
+    },
+    "primary_area": {
+      "status": "NOT_EVALUABLE",
+      "reasons": [
+        "area_mean_power_measured_invalid",
+        "continuous_area_packets_not_positive",
+        "continuous_area_samples_not_positive"
+      ],
+      "area_enabled": true,
+      "area_model": "continuous_texture",
+      "platform_height_m": 6000.0,
+      "ground_height_m": 0.0,
+      "minimum_slant_range_m": 6000.0,
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ],
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_max_m": 85289.213854977,
+      "continuous_area_packets": 0,
+      "continuous_area_samples": 0,
+      "area_mean_power_measured": null,
+      "report_values": {
+        "area_rho_lag1_measured": "null",
+        "area_rho_at_CTDR_lag": "null",
+        "area_ctdr_lag_pulses": "1",
+        "area_power_cv_measured": "null",
+        "mean_noise_power_per_complex_sample": "0"
+      }
+    },
+    "reference_area": {
+      "status": "passed",
+      "reasons": [],
+      "area_enabled": true,
+      "area_model": "continuous_texture",
+      "platform_height_m": 6000.0,
+      "ground_height_m": 0.0,
+      "minimum_slant_range_m": 6000.0,
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ],
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_max_m": 85289.213854977,
+      "continuous_area_packets": 390,
+      "continuous_area_samples": 1952655,
+      "area_mean_power_measured": 0.0225120348144,
+      "report_values": {
+        "area_rho_lag1_measured": "0.979961727697",
+        "area_rho_at_CTDR_lag": "0.960319890341",
+        "area_ctdr_lag_pulses": "2",
+        "area_power_cv_measured": "2.00230993779",
+        "mean_noise_power_per_complex_sample": "0.00100039870805"
+      },
+      "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2/reference_scene/reports/stage2_simulation_report.md",
+      "report_sha256": "b9c7da405d85fb3a7f4c539ec8aef90868946a57574c9d13df470df2dc53d350",
+      "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2/reference_scene.json",
+      "scenario_sha256": "43f305f5245aaa1a48e6acb9c09f6aa1af3e82ed3895979373cf6e0dbd520559"
+    }
+  },
+  "reference_methods": {},
+  "evaluation_branches": {},
+  "comparisons": [],
+  "primary_manifest_sha256": "b89722ead4e7b7625c6ee2586849154d6ec4f506afc1699aea661ff3a71bf52f",
+  "config_sha256": "3af60966332877095e5447247ab08cb39a54ef7a15681f37adf33cc251082ae1",
+  "source_identity": {
+    "git_commit": "014352ace1c4ad0bade0d759a099a47fe9ecfaa9",
+    "git_revision_status": "passed",
+    "runner_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_r18_independent_reference_secondary.py",
+    "runner_sha256": "227c5d637f81ecfd233841fd866edf8b46e6673bc217786a239e4abdbc049be9",
+    "worktree_status_for_runner": "?? scripts/run_r18_independent_reference_secondary.py"
+  },
+  "space_guard": {
+    "project_root": "/home/shy/AIR/SAR+AI/project/PGRCC",
+    "used_bytes_before_run": 9155129344,
+    "budget_bytes": 13958643712,
+    "status": "passed"
+  },
+  "primary_case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/case_manifest.json",
+  "primary_case_manifest_sha256": "1f8c83acafae28f6b80ac3cc5537b60de2a8d8d5f3b909ed9cf0627b33bfa339",
+  "source_scenario": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/scenarios/A0_OFF.json",
+    "sha256": "f4e7ce4da9ed9200502650a6777efc1720f7ea66c5a8a89908b85e02c11ebbc4"
+  },
+  "source_xml": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_ON/config/temp_config_stage2_period_0000.xml",
+    "sha256": "62bbe7b07b23cdc8f35f62f961fd7c31daad950a1379924a23b323dd2e4dc8ee"
+  },
+  "binaries": {
+    "simulate_stage2_statistical": {
+      "path": "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "bytes": 645944,
+      "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+    },
+    "GMTI_pipe_core": {
+      "path": "/tmp/pgrcc-r18-native-release/GMTI_pipe_core",
+      "bytes": 6174864,
+      "sha256": "3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0"
+    }
+  },
+  "gpu_probe": {
+    "command": [
+      "nvidia-smi",
+      "--query-gpu=name,driver_version,pstate,temperature.gpu,power.draw,utilization.gpu,clocks.gr,clocks.mem",
+      "--format=csv"
+    ],
+    "returncode": 0,
+    "output": "name, driver_version, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], clocks.current.graphics [MHz], clocks.current.memory [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, 580.178.04, P8, 42, 6.36 W, 49 %, 225 MHz, 405 MHz",
+    "status": "passed"
+  },
+  "reference_scenario": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2/reference_scene.json",
+    "sha256": "43f305f5245aaa1a48e6acb9c09f6aa1af3e82ed3895979373cf6e0dbd520559",
+    "output_dir": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2/reference_scene",
+    "scene_mode": "area_clutter_only",
+    "truth_output": false,
+    "targets_enabled": false,
+    "random_seed": 909
+  },
+  "stage2_reference": {
+    "command": [
+      "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "--config",
+      "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2/reference_scene.json"
+    ],
+    "returncode": 0,
+    "log": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2/stage2_reference.log",
+    "log_sha256": "e8c1fb0b5489d941db9ee325c0d6a8048488181638c28dae0ff2f409137d34ee",
+    "status": "passed"
+  },
+  "error": "RuntimeError: effective Stage2 area-clutter gate failed",
+  "scratch_snapshot": {
+    "schema_version": 1,
+    "source_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_independent_reference_seed909_20261025_attempt2",
+    "snapshot_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/independent_seed909_secondary_attempt2/experiment_snapshot",
+    "copied_file_count": 19,
+    "copied_bytes": 81999,
+    "omitted_reproducible_arrays": {
+      ".bin": 3
+    },
+    "omitted_array_bytes": {
+      ".bin": 147613440
+    },
+    "skipped_symlink_count": 0,
+    "files": [
+      {
+        "relative_path": "experiment_manifest.json",
+        "bytes": 10073,
+        "sha256": "9e322fb33aecc966e009e06f13eba1ab0eacb2b62e93327010443e2a48112b1e"
+      },
+      {
+        "relative_path": "reference_scene/config/temp_config_stage2_newsystem.xml",
+        "bytes": 13284,
+        "sha256": "bcce2f1e0520d33b054f3ecd4fb3c5dc909faf1b785a3def87d589bf21d63e00"
+      },
+      {
+        "relative_path": "reference_scene/config/temp_config_stage2_period_0000.xml",
+        "bytes": 13284,
+        "sha256": "bcce2f1e0520d33b054f3ecd4fb3c5dc909faf1b785a3def87d589bf21d63e00"
+      },
+      {
+        "relative_path": "reference_scene/config/temp_config_stage2_period_0001.xml",
+        "bytes": 13284,
+        "sha256": "e6d5b81f15a2cf18984d9ef62a719ac37bde92944711e28e86803e61d7103d7b"
+      },
+      {
+        "relative_path": "reference_scene/config/temp_config_stage2_period_0002.xml",
+        "bytes": 13284,
+        "sha256": "3012434c7d9bfd6b1dd30b929b7d4d1a82703a8eb139f57d9fbcc04d459415a4"
+      },
+      {
+        "relative_path": "reference_scene/data/period_files.csv",
+        "bytes": 1399,
+        "sha256": "bb5dff108446efeb75492aac857e2a5f64780210d890f587180a400ec6fe2045"
+      },
+      {
+        "relative_path": "reference_scene/logs/simulate_stage2.log",
+        "bytes": 1355,
+        "sha256": "9af058af2a3985fa39d72b89526c0e0931813072a580d63d29c9ea88d957cbf4"
+      },
+      {
+        "relative_path": "reference_scene/reports/detection_eval.csv",
+        "bytes": 109,
+        "sha256": "b1e613c880d2cb4a075ef3116b0bd07b9a582f7c6ef9b401bd79ac7eb22adfc2"
+      },
+      {
+        "relative_path": "reference_scene/reports/period_raw_generation_stats.csv",
+        "bytes": 883,
+        "sha256": "b8ea7e64cd0f38fe5a6e56fa96e5f037061bc3b3be7f123d3ed35665711775c4"
+      },
+      {
+        "relative_path": "reference_scene/reports/stage2_simulation_report.md",
+        "bytes": 1941,
+        "sha256": "b9c7da405d85fb3a7f4c539ec8aef90868946a57574c9d13df470df2dc53d350"
+      },
+      {
+        "relative_path": "reference_scene/reports/temporal_clutter_diagnostics.json",
+        "bytes": 359,
+        "sha256": "9ecead243fd8a748b9660f14e58a02e5826a3180aac10bbc8d96ac7bd2d6c56b"
+      },
+      {
+        "relative_path": "reference_scene/reports/tracking_eval.csv",
+        "bytes": 114,
+        "sha256": "11c9ea72f441968fae2e88b7b06520738b316c8c3a68a7b10cb360e7e957e8b7"
+      },
+      {
+        "relative_path": "reference_scene/scenario_resolved.json",
+        "bytes": 4706,
+        "sha256": "5348a89489f5203e9bae71be83f26d49e74f0fa7edebead99977e4e1392c8673"
+      },
+      {
+        "relative_path": "reference_scene/truth/area_clutter_scatterers.csv",
+        "bytes": 630,
+        "sha256": "d309e99080e154f13620de7fc1fb8eef64ca561f25e81d2bce6ac3a675e4f0d7"
+      },
+      {
+        "relative_path": "reference_scene/truth/line_scatterers.csv",
+        "bytes": 630,
+        "sha256": "d309e99080e154f13620de7fc1fb8eef64ca561f25e81d2bce6ac3a675e4f0d7"
+      },
+      {
+        "relative_path": "reference_scene/truth/scene_truth.csv",
+        "bytes": 630,
+        "sha256": "d309e99080e154f13620de7fc1fb8eef64ca561f25e81d2bce6ac3a675e4f0d7"
+      },
+      {
+        "relative_path": "reference_scene/truth/strong_scatterers.csv",
+        "bytes": 630,
+        "sha256": "d309e99080e154f13620de7fc1fb8eef64ca561f25e81d2bce6ac3a675e4f0d7"
+      },
+      {
+        "relative_path": "reference_scene.json",
+        "bytes": 3663,
+        "sha256": "43f305f5245aaa1a48e6acb9c09f6aa1af3e82ed3895979373cf6e0dbd520559"
+      },
+      {
+        "relative_path": "stage2_reference.log",
+        "bytes": 1741,
+        "sha256": "e8c1fb0b5489d941db9ee325c0d6a8048488181638c28dae0ff2f409137d34ee"
+      }
+    ]
+  },
+  "snapshot_index_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R18/evidence/independent_seed909_secondary_attempt2/experiment_snapshot/snapshot_index.json",
+  "scratch_cleanup_status": "archived_and_removed",
+  "diagnostic_review": {
+    "finding": "seed909 本身的 Stage2 报告通过面积杂波 gate（390 packets、1,952,655 samples、实测均功率 0.0225120348144）。本次 combined gate 失败的原因是 runner 错读了 seed606 的 A0_OFF 报告；该角色复用已生成背景，因此其本地注入数为 0，不能代表 seed606 面积杂波注入源。",
+    "correction": "seed606 case_manifest.area_clutter_gate 指向实际注入 owner A0_ON，记录为 390 packets、1,952,655 samples、实测均功率 0.0227469995924。下一次执行将按该 gate 指向的 scenario/report 路径和 SHA 重算审计。本次记录保持 NOT_EVALUABLE，不将其改判为通过；Production 方法分支未启动。",
+    "seed606_recorded_area_owner_gate": {
+      "status": "passed",
+      "reasons": [],
+      "area_enabled": true,
+      "area_model": "continuous_texture",
+      "platform_height_m": 6000.0,
+      "ground_height_m": 0.0,
+      "minimum_slant_range_m": 6000.0,
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ],
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_max_m": 85289.213854977,
+      "continuous_area_packets": 390,
+      "continuous_area_samples": 1952655,
+      "area_mean_power_measured": 0.0227469995924,
+      "report_values": {
+        "area_rho_lag1_measured": "0.979977053458",
+        "area_rho_at_CTDR_lag": "0.960345053969",
+        "area_ctdr_lag_pulses": "2",
+        "area_power_cv_measured": "1.97777211621",
+        "mean_noise_power_per_complex_sample": "0.000999776808015"
+      },
+      "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+      "report_sha256": "2120b2e6b4f6c86ea566a182e74aaf0838b48d61478e5c0e7d7501da0cdbda23",
+      "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_formal_seed606_v6p7_snr30/cases/r18_frozen__seed_606__v_6d7__snr_30__delay_0ns/scenes/scenarios/A0_ON.json",
+      "scenario_sha256": "24bed4722cb55e1946c8afb5fcdeafaf2e0c93b4d2ed6c7457a84cf4ff6cbdfa"
+    },
+    "production_started": false
+  }
+}

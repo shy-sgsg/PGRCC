@@ -1,0 +1,1124 @@
+{
+  "schema_version": 1,
+  "study": "PGRCC R22 extension engineering gate",
+  "case_id": "engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10",
+  "matrix_state": "GATE_FAILED",
+  "matrix_planned_cases": 12,
+  "matrix_cases_executed": 1,
+  "case_status": "GATE_FAILED_PRE_PRODUCTION",
+  "created_at_utc": "2026-10-27T17:00:50.625266+00:00",
+  "finished_at_utc": "2026-10-27T17:04:34.414583+00:00",
+  "source": {
+    "branch": "codex/unknown-system-error-next-stage",
+    "commit": "5c66bb0de3704a3e93f750847cf5b55059da9a9e",
+    "tracked_dirty_status": [],
+    "stage2_binary_sha256": "ca8aa9eb8b7d97e5743a27e67c312e66a4efecbf2c76880db581192afd08ce8e",
+    "production_binary_sha256": "3c4c6bef08291e7d02cefa1b23387d442dfb00cf0fbed0604e9a0fbecaa86760",
+    "production_binary_executed": false,
+    "method_config_sha256": "348da3b932c2b9fbc6f3a6599ba888dcbb35f4d4039162a3e0f6e60cfbc69c7e",
+    "scenario_sha256": {
+      "A0_ON": "6da93d384d0b160ed9cf6172526aa250f58f2c84441256fb2e30c71e6ca32917",
+      "A0_OFF": "d43d9ef374e7d69661ad92634d4dc8b92ca3c7ec4309bf4625f48f6bcc697bef",
+      "A0_TO": "e355d47fb5fce8fc814d03be94f813ad75a704b8df3f56e49c047c32a05a8d97",
+      "A1_ON": "802dedae8fc5dc026902a6a176e089ee792ad6618d7d7ad998e9ecc7fc2d5962",
+      "A1_OFF": "ebfc224212d75e329249c08c8a86f8336960c06ce2a9498c8d1d1a98d0be8e54",
+      "A1_TO": "2332a7ca15f09157251a3c9b504a16af8a3cfe8d23c919808b5d1c97800b856d"
+    },
+    "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985"
+  },
+  "design": {
+    "ai_training": false,
+    "beam_count": 1,
+    "calibration_modes": [
+      "Mode-A",
+      "Mode-B"
+    ],
+    "delay_error_ns": 0.0,
+    "first_beam": 50,
+    "known_error_use": "physical correction upper bound only; blind estimator does not receive it",
+    "method_ids": [
+      "C0",
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "P1",
+      "P2",
+      "PK",
+      "PKR"
+    ],
+    "period_count": 10,
+    "radial_speed_mps": 2.5,
+    "raw_artifact_policy": "remove_generated_bin_after_evaluation_keep_audit_files",
+    "router_enabled": false,
+    "seed": 1930101,
+    "target_count": 20,
+    "target_snr_db": 20.0,
+    "target_truth_nested_across_density": true
+  },
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": false,
+    "EVALUABLE": false,
+    "PERFORMANCE_VERIFIED": false,
+    "execution_scope": {
+      "stage2_simulation": true,
+      "cuda_production": false
+    },
+    "evaluable_scope": {
+      "stage2_clutter_and_pairing": true,
+      "blind_estimator_and_boundary_diagnostic": true,
+      "production_task_metrics": false
+    }
+  },
+  "native_cuda_preflight": {
+    "binary": {
+      "backend": "local Native CUDA",
+      "build_cache": {
+        "bytes": 33162,
+        "exists": true,
+        "path": "build/CMakeCache.txt",
+        "sha256": "4eefad9d42f727d2c968ad9c4e338b0adce7b11a5e74035a4399d7443786581c"
+      },
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+      "repo_relative_path": "build/GMTI_pipe_core",
+      "sha256": "3c4c6bef08291e7d02cefa1b23387d442dfb00cf0fbed0604e9a0fbecaa86760",
+      "use_corex": false
+    },
+    "disk": {
+      "free_bytes": 53868167168,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001",
+      "total_bytes": 497777065984,
+      "used_bytes": 418547990528
+    },
+    "gpu": {
+      "available": true,
+      "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P8, 6.58, 41, 9, 232"
+    }
+  },
+  "stage2": {
+    "invoked_roles": [
+      "A0_ON",
+      "A0_OFF",
+      "A0_TO",
+      "A1_ON"
+    ],
+    "reused_roles": {
+      "A1_OFF": "A0_OFF",
+      "A1_TO": "A0_TO"
+    },
+    "period_count": 10,
+    "packets_per_role": 1300,
+    "packet_bytes": 378496,
+    "area_clutter_from_A0_ON_report": {
+      "continuous_area_packets": 1300,
+      "continuous_area_samples": 6508782,
+      "area_mean_power_measured": 0.0225128995081,
+      "area_power_cv_measured": 1.9925009136,
+      "area_rho_lag1_measured": 0.979999807132,
+      "area_rho_at_CTDR_lag": 0.960397551126,
+      "area_ctdr_lag_pulses": 2,
+      "mean_noise_power_per_complex_sample": 0.00100014187201
+    },
+    "period_file_hashes": {
+      "A0_OFF": [
+        {
+          "period": 0,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87"
+        },
+        {
+          "period": 1,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320"
+        },
+        {
+          "period": 2,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c"
+        },
+        {
+          "period": 3,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc"
+        },
+        {
+          "period": 4,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6"
+        },
+        {
+          "period": 5,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487"
+        },
+        {
+          "period": 6,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0"
+        },
+        {
+          "period": 7,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1"
+        },
+        {
+          "period": 8,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245"
+        },
+        {
+          "period": 9,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3"
+        }
+      ],
+      "A0_background": [
+        {
+          "period": 0,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87"
+        },
+        {
+          "period": 1,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320"
+        },
+        {
+          "period": 2,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c"
+        },
+        {
+          "period": 3,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc"
+        },
+        {
+          "period": 4,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6"
+        },
+        {
+          "period": 5,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487"
+        },
+        {
+          "period": 6,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0"
+        },
+        {
+          "period": 7,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1"
+        },
+        {
+          "period": 8,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245"
+        },
+        {
+          "period": 9,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3"
+        }
+      ],
+      "A0_ON": [
+        {
+          "period": 0,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140"
+        },
+        {
+          "period": 1,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41"
+        },
+        {
+          "period": 2,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d"
+        },
+        {
+          "period": 3,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759"
+        },
+        {
+          "period": 4,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04"
+        },
+        {
+          "period": 5,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7"
+        },
+        {
+          "period": 6,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0"
+        },
+        {
+          "period": 7,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef"
+        },
+        {
+          "period": 8,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686"
+        },
+        {
+          "period": 9,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf"
+        }
+      ],
+      "A1_ON": [
+        {
+          "period": 0,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140"
+        },
+        {
+          "period": 1,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41"
+        },
+        {
+          "period": 2,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d"
+        },
+        {
+          "period": 3,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759"
+        },
+        {
+          "period": 4,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04"
+        },
+        {
+          "period": 5,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7"
+        },
+        {
+          "period": 6,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0"
+        },
+        {
+          "period": 7,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef"
+        },
+        {
+          "period": 8,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686"
+        },
+        {
+          "period": 9,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf"
+        }
+      ],
+      "A0_TO": [
+        {
+          "period": 0,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "b63df00f54819f38664e37297513f3234e2eb4d435622b2f06deb3c1390428ef"
+        },
+        {
+          "period": 1,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "f01e9ece130b37d97fa51e5581af681aa8f39d848a93ca0fbf2af9d8bf06a85c"
+        },
+        {
+          "period": 2,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "2d7aaf11cf0d2e6539c97dcd22f67d5f51623d26a5c115d6551cea675a9fc3d8"
+        },
+        {
+          "period": 3,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "937701c9cde2bf325bad43d4868b9b5ae2e871ef231d0f35b082263932b20815"
+        },
+        {
+          "period": 4,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "8ac5f36b87571d4df6cd87c3fbd01c30bca561b01aaa90b7dd8f806b39baffe2"
+        },
+        {
+          "period": 5,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "030b2c5c3fd1bdcfd9f71a4f62cedaddc5d38119c5b58c0d886a081e7acabf8d"
+        },
+        {
+          "period": 6,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "c81bd59b2a4775a6d5b864d1f06219ce3fb424a5a7294daa688c393c3f7deb95"
+        },
+        {
+          "period": 7,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "aad0a635c4419bbced253a6ddb8b22e32a87b4cc545be45fdd0d962439294804"
+        },
+        {
+          "period": 8,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "d95e0b5d848f70fdb526073997af5700b69766d8a2274620720d9ff1b1477e49"
+        },
+        {
+          "period": 9,
+          "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "89b931a08efbb82c9551719deb91e58860f411e6c6f3f373d97736c4ad0941fb"
+        }
+      ]
+    },
+    "pair_checks": [
+      {
+        "left": "A0_OFF",
+        "right": "A0_background",
+        "period_count": 10,
+        "all_periods_byte_identical": true,
+        "period_hashes": [
+          {
+            "period": 0,
+            "left_sha256": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87",
+            "right_sha256": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87",
+            "identical": true
+          },
+          {
+            "period": 1,
+            "left_sha256": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320",
+            "right_sha256": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320",
+            "identical": true
+          },
+          {
+            "period": 2,
+            "left_sha256": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c",
+            "right_sha256": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c",
+            "identical": true
+          },
+          {
+            "period": 3,
+            "left_sha256": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc",
+            "right_sha256": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc",
+            "identical": true
+          },
+          {
+            "period": 4,
+            "left_sha256": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6",
+            "right_sha256": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6",
+            "identical": true
+          },
+          {
+            "period": 5,
+            "left_sha256": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487",
+            "right_sha256": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487",
+            "identical": true
+          },
+          {
+            "period": 6,
+            "left_sha256": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0",
+            "right_sha256": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0",
+            "identical": true
+          },
+          {
+            "period": 7,
+            "left_sha256": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1",
+            "right_sha256": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1",
+            "identical": true
+          },
+          {
+            "period": 8,
+            "left_sha256": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245",
+            "right_sha256": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245",
+            "identical": true
+          },
+          {
+            "period": 9,
+            "left_sha256": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3",
+            "right_sha256": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3",
+            "identical": true
+          }
+        ]
+      },
+      {
+        "left": "A0_ON",
+        "right": "A1_ON",
+        "period_count": 10,
+        "all_periods_byte_identical": true,
+        "period_hashes": [
+          {
+            "period": 0,
+            "left_sha256": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140",
+            "right_sha256": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140",
+            "identical": true
+          },
+          {
+            "period": 1,
+            "left_sha256": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41",
+            "right_sha256": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41",
+            "identical": true
+          },
+          {
+            "period": 2,
+            "left_sha256": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d",
+            "right_sha256": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d",
+            "identical": true
+          },
+          {
+            "period": 3,
+            "left_sha256": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759",
+            "right_sha256": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759",
+            "identical": true
+          },
+          {
+            "period": 4,
+            "left_sha256": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04",
+            "right_sha256": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04",
+            "identical": true
+          },
+          {
+            "period": 5,
+            "left_sha256": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7",
+            "right_sha256": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7",
+            "identical": true
+          },
+          {
+            "period": 6,
+            "left_sha256": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0",
+            "right_sha256": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0",
+            "identical": true
+          },
+          {
+            "period": 7,
+            "left_sha256": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef",
+            "right_sha256": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef",
+            "identical": true
+          },
+          {
+            "period": 8,
+            "left_sha256": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686",
+            "right_sha256": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686",
+            "identical": true
+          },
+          {
+            "period": 9,
+            "left_sha256": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf",
+            "right_sha256": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf",
+            "identical": true
+          }
+        ]
+      }
+    ],
+    "clutter_pairing_conclusion": "A0_ON writes A0_background; A0_OFF and A0_TO reuse that background; A1_ON reuses the same background. All 10 A0_OFF/A0_background period files are byte-identical; all 10 A0_ON/A1_ON files are byte-identical."
+  },
+  "blind_estimator": {
+    "input_role": "A1_OFF target-free paired C+N, zero injected delay; A1_OFF aliases A0_OFF",
+    "input_path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/inputs/target_free_OFF_C_plus_N.bin",
+    "input_bytes": 492044800,
+    "input_sha256": "110fac37aecb730fd3e355e0381112afd0797102c29277e126fcde4ac2738462",
+    "truth_used_in_estimator": false,
+    "selected_method": "D3_Huber_weighted_LS",
+    "selected_delay_ns": 0.1887625544316421,
+    "selected_delay_samples_at_60MHz": 0.011325753265898526,
+    "method_rows": [
+      {
+        "method": "D1_ordinary_LS",
+        "delay_ns": 0.160424583130733,
+        "r2": 0.007499222141747364
+      },
+      {
+        "method": "D2_weighted_LS",
+        "delay_ns": 0.1726142994396735,
+        "r2": 0.008749426171836272
+      },
+      {
+        "method": "D3_Huber_weighted_LS",
+        "delay_ns": 0.1887625544316421,
+        "r2": 0.012462216806405135
+      },
+      {
+        "method": "D4_generalized_phase_slope_ML",
+        "delay_ns": 0.06355880785299885
+      },
+      {
+        "method": "cross_correlation",
+        "delay_ns": -0.008068055212973614
+      },
+      {
+        "method": "gcc_phat",
+        "delay_ns": -0.010050501488860412
+      },
+      {
+        "method": "oversampled_cross_correlation",
+        "delay_ns": -0.009856640183397363
+      }
+    ]
+  },
+  "correction_precondition": {
+    "model": "inverse_stage2_zero_extended_linear_interpolator",
+    "channel_index_zero_based": 1,
+    "packet_zero_first_sample": {
+      "real": 0.006142768077552319,
+      "imag": -0.00773364445194602,
+      "magnitude": 0.009876378696856012
+    },
+    "packet_zero_channel_rms": 5.2060519699852374,
+    "required_first_sample_tolerance": 5.206051969985237e-07,
+    "compatible": false,
+    "failure": {
+      "message": "packet 0 first sample is not zero-extended-delay compatible",
+      "type": "ValueError"
+    },
+    "interpretation": "The estimate is positive on a zero-injected-delay case, while the observed packet boundary does not satisfy the strict zero-extended inverse precondition. The guard correctly rejects the correction. Whether the estimator output reflects nuisance phase slope, a physical residual or weakly identified noise/clutter needs independent review."
+  },
+  "raw_cleanup": {
+    "schema_version": 1,
+    "case_root": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns",
+    "status": "deleted_after_compact_evidence_capture",
+    "file_count": 52,
+    "total_bytes": 2952268800,
+    "reason": "The case failed before Production. Raw Stage2 IQ and the merged calibration input are regenerable from the preserved scenario configs, seed, source and binary identities. Compact diagnostic evidence and all per-file SHA-256 values are retained.",
+    "files": [
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/inputs/blind/OFF/prepared_inputs/A3_Blind_target_free_estimated_correction/period_0000.bin",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "category": "partial_failed_correction_output",
+        "cleanup_reason": "zero-byte destination created before the strict packet-0 boundary check rejected the blind inverse",
+        "deleted": true,
+        "verified_sha256_before_delete": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/inputs/target_free_OFF_C_plus_N.bin",
+        "bytes": 492044800,
+        "sha256": "110fac37aecb730fd3e355e0381112afd0797102c29277e126fcde4ac2738462",
+        "category": "assembled_estimator_input",
+        "cleanup_reason": "case stopped before Production; generator scenarios, runtime configs, reports, logs, manifests, hashes and diagnostic values are preserved",
+        "deleted": true,
+        "verified_sha256_before_delete": "110fac37aecb730fd3e355e0381112afd0797102c29277e126fcde4ac2738462"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0003.bin",
+        "bytes": 49204480,
+        "sha256": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+        "bytes": 49204480,
+        "sha256": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0005.bin",
+        "bytes": 49204480,
+        "sha256": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0006.bin",
+        "bytes": 49204480,
+        "sha256": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0007.bin",
+        "bytes": 49204480,
+        "sha256": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0008.bin",
+        "bytes": 49204480,
+        "sha256": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_OFF/data/stage2_statistical_newprotocol_period_0009.bin",
+        "bytes": 49204480,
+        "sha256": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+        "bytes": 49204480,
+        "sha256": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+        "bytes": 49204480,
+        "sha256": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+        "bytes": 49204480,
+        "sha256": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+        "bytes": 49204480,
+        "sha256": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+        "bytes": 49204480,
+        "sha256": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+        "bytes": 49204480,
+        "sha256": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+        "bytes": 49204480,
+        "sha256": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "b63df00f54819f38664e37297513f3234e2eb4d435622b2f06deb3c1390428ef",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "b63df00f54819f38664e37297513f3234e2eb4d435622b2f06deb3c1390428ef"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "f01e9ece130b37d97fa51e5581af681aa8f39d848a93ca0fbf2af9d8bf06a85c",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "f01e9ece130b37d97fa51e5581af681aa8f39d848a93ca0fbf2af9d8bf06a85c"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "2d7aaf11cf0d2e6539c97dcd22f67d5f51623d26a5c115d6551cea675a9fc3d8",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "2d7aaf11cf0d2e6539c97dcd22f67d5f51623d26a5c115d6551cea675a9fc3d8"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0003.bin",
+        "bytes": 49204480,
+        "sha256": "937701c9cde2bf325bad43d4868b9b5ae2e871ef231d0f35b082263932b20815",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "937701c9cde2bf325bad43d4868b9b5ae2e871ef231d0f35b082263932b20815"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+        "bytes": 49204480,
+        "sha256": "8ac5f36b87571d4df6cd87c3fbd01c30bca561b01aaa90b7dd8f806b39baffe2",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "8ac5f36b87571d4df6cd87c3fbd01c30bca561b01aaa90b7dd8f806b39baffe2"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0005.bin",
+        "bytes": 49204480,
+        "sha256": "030b2c5c3fd1bdcfd9f71a4f62cedaddc5d38119c5b58c0d886a081e7acabf8d",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "030b2c5c3fd1bdcfd9f71a4f62cedaddc5d38119c5b58c0d886a081e7acabf8d"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0006.bin",
+        "bytes": 49204480,
+        "sha256": "c81bd59b2a4775a6d5b864d1f06219ce3fb424a5a7294daa688c393c3f7deb95",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "c81bd59b2a4775a6d5b864d1f06219ce3fb424a5a7294daa688c393c3f7deb95"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0007.bin",
+        "bytes": 49204480,
+        "sha256": "aad0a635c4419bbced253a6ddb8b22e32a87b4cc545be45fdd0d962439294804",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "aad0a635c4419bbced253a6ddb8b22e32a87b4cc545be45fdd0d962439294804"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0008.bin",
+        "bytes": 49204480,
+        "sha256": "d95e0b5d848f70fdb526073997af5700b69766d8a2274620720d9ff1b1477e49",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "d95e0b5d848f70fdb526073997af5700b69766d8a2274620720d9ff1b1477e49"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_TO/data/stage2_statistical_newprotocol_period_0009.bin",
+        "bytes": 49204480,
+        "sha256": "89b931a08efbb82c9551719deb91e58860f411e6c6f3f373d97736c4ad0941fb",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "89b931a08efbb82c9551719deb91e58860f411e6c6f3f373d97736c4ad0941fb"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "c4c3bce2a58d2557ff4056bfe996f19fe08f52c92bc2b9de97c158b3ed3bcb87"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "4877a6ebf336f4a4ca12c6d9be657564a00a217889954499d2f92accbf809320"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "0cc86f4c43ff76d2bf31092560b852b6262eaa44fc6cd3eb38b8760b6ab8af2c"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0003.bin",
+        "bytes": 49204480,
+        "sha256": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "4e6cc85a5ff1b5e791ec3abffef11d7782de5080ec42ca4b19ae20dbfdd15ecc"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0004.bin",
+        "bytes": 49204480,
+        "sha256": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "6ed20a37a6b8866ec25ba5618beda0e49bf4fdb4637f99315a5978f913e378c6"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0005.bin",
+        "bytes": 49204480,
+        "sha256": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "572380ea72ad329d7cdb13be0a5e2486fb2ddd2156366cbbfd7fba0ee496b487"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0006.bin",
+        "bytes": 49204480,
+        "sha256": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "4d7984d775d3c95d660b02ae3345fa90abd36efe0088e16990d8512b524bead0"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0007.bin",
+        "bytes": 49204480,
+        "sha256": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "a1d915932c189034129177790d4c2b7548674fd28aca56c20f051210f55133c1"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0008.bin",
+        "bytes": 49204480,
+        "sha256": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "2c8470cdaa506f8d2556b42020d48204a336aeed94cf1230662326a439d3b245"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_background/data/stage2_statistical_newprotocol_period_0009.bin",
+        "bytes": 49204480,
+        "sha256": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "f4e5e765d2a7980692db8c8bbb5c3b3f4e4a01d35e3b7640478e79bf0797b6d3"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "bytes": 49204480,
+        "sha256": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "86a313f081205f03fb08f9dec2a92f5f8746dd02d6ad988964492bba2b435140"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "bytes": 49204480,
+        "sha256": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "3c700cc48b9522599cffd0cf0c380cd594579126652ac32be347c8bb97a0ed41"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+        "bytes": 49204480,
+        "sha256": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "fe0ca46020bb33eb184744a2d9ede7342511984becfc8e4aa636a0cb4f89be5d"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+        "bytes": 49204480,
+        "sha256": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "482b180881e4104ae6a0592ca3bc7617d0bdb5e36afd7884927026f60a313759"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+        "bytes": 49204480,
+        "sha256": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "23f516d02c035802a3a85b7e26778d6f4f6198de343b7ceb1a19973f9280ff04"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+        "bytes": 49204480,
+        "sha256": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "a497e25cc45d12e1a017d001c2cf415ae070a1e6a72eb5f4be4ae0addc2093e7"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+        "bytes": 49204480,
+        "sha256": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "6d23e363d8ce0cee264d19df20e8cd571b326fd7f9b19d78d688c11f300b19c0"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+        "bytes": 49204480,
+        "sha256": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "3ab0741015b33eae73a2efc18bdcd4e9174701f0083bb5d0960cfa60032721ef"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+        "bytes": 49204480,
+        "sha256": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "a04114768f3bbad70d7236655f95451497e5b65d55a5563a08038e1c03349686"
+      },
+      {
+        "path": "outputs/r22_extension_20261028/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+        "bytes": 49204480,
+        "sha256": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf",
+        "category": "regenerable_stage2_raw_iq",
+        "cleanup_reason": "regenerable Stage2 raw IQ; compact scenario, runtime config, report, log and per-file SHA evidence retained",
+        "deleted": true,
+        "verified_sha256_before_delete": "17026b101c4d88d62e0f8be56040d0851a81d7f5f6868489a31b324a413137cf"
+      }
+    ],
+    "deleted_at_utc": "2026-10-27T17:41:13.819599+00:00"
+  },
+  "scientific_limits": [
+    "No Production branch executed; no CSI tap, Production runtime XML, CFAR geometry or detector/track evaluation was produced in this case.",
+    "No Pd/Pfa, target-parameter or task-performance comparison is evaluable.",
+    "The paired OFF stream is not an independent H0 seed and cannot support empirical Pfa.",
+    "The R22 extension matrix stopped after one of 12 planned engineering cases; no screening or confirmatory case was started.",
+    "No AI was trained and no algorithm performance claim is made."
+  ]
+}

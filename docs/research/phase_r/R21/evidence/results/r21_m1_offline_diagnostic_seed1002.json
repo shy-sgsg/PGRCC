@@ -1,0 +1,2158 @@
+{
+  "analysis_sources": [
+    {
+      "path": "scripts/phase_r/r21_offline_m1_diagnostic.py",
+      "sha256": "445c14f64dd59d8e98287c270d33dbdae5afd30cfd23878902350cbf9b0bbd79"
+    },
+    {
+      "path": "scripts/phase_r/run_r12_physics_matched_delay.py",
+      "sha256": "418f181889bd2c29b8f8608b1bbef377df8d28cc39df5c34997511feb20f2100"
+    },
+    {
+      "path": "scripts/phase_r/physics_matched_delay.py",
+      "sha256": "e7e191f791dd63b62eabf70dd4b965be7e2d9b19acfce4e5156e1afd26abf6b9"
+    },
+    {
+      "path": "scripts/estimate_channel_delay.py",
+      "sha256": "c62fc2b54c5980ded2d4aaa9e2b4f884613b697dc2093fbf6040fa73bfcf77d7"
+    },
+    {
+      "path": "scripts/run_delay_stage1_formal.py",
+      "sha256": "aa31e59d5cfbe687302d311155cfc99213cac08ca3947cf103e17ae86f2ba68d"
+    }
+  ],
+  "created_utc": "2026-10-27T05:17:32.796913+00:00",
+  "experiment_manifest": "docs/research/phase_r/R21/evidence/results/r21_experiment_manifest.json",
+  "experiment_manifest_sha256": "2e20156f02f438f4253602159b3ed4136c7420baf2282265b9a35caeff87d56a",
+  "result": {
+    "case_root": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns",
+    "channel_pair": "C1/C2",
+    "compute_environment": {
+      "backend": "CPU offline analysis; no CUDA invoked",
+      "logical_cpu_count": 12,
+      "numpy": "2.1.3",
+      "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+      "python": "3.13.5"
+    },
+    "compute_time_scope": "one complete CPU M1 estimate including raw input read, protocol decode, geometry, FFT and delay fit; excludes Python startup and SHA audit",
+    "estimate": {
+      "delay_bounds_samples": [
+        -0.49,
+        0.49
+      ],
+      "delay_samples": 0.2181246348745396,
+      "delta_tau_ns": 3.6354105812423265,
+      "fallback_reason": null,
+      "frequency_span_hz": 24091370.558375634,
+      "normalized_model_residual": 0.044530477978808,
+      "phase_rmse_rad": 0.04128286999531772,
+      "relative_response_model": "constant_complex_gain",
+      "status": "ok",
+      "support_count": 2364
+    },
+    "f2_complex_frequency_residual_audit": [
+      {
+        "candidate_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/input_merged.bin",
+          "sha256": "39476cbabfbcbc26367301ae4355b4d0dddeb14810a9eeb3cb788626fe60ab7a",
+          "size_bytes": 147613440
+        },
+        "channel2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.1602966809325431e-18,
+            "estimated_relative_delay_ns_evaluator_audit_only": -7.841642371893818e-19,
+            "frequency_span_hz": 12431472.081218274,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1050
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.2252157841644205e-18,
+            "estimated_relative_delay_ns_evaluator_audit_only": -2.5883486735568858e-18,
+            "frequency_span_hz": 13812182.741116751,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1313
+          }
+        },
+        "channel2_relative_rms": 0.0,
+        "channel4_bitwise_unchanged": true,
+        "channel4_relative_rms": 0.0,
+        "condition": "A0_Ideal",
+        "expected_residual_delay_ns_evaluator_only": 0.0,
+        "f1_relative_rms": 0.0,
+        "f2_closure_crosscheck_abs_difference": null,
+        "f2_closure_crosscheck_status": "SELF_REFERENCE_ZERO",
+        "f2_error_power_decomposition": {
+          "channel2_channel4_cross_term_over_f2_reference": 0.0,
+          "channel2_quarter_error_power_over_f2_reference": 0.0,
+          "channel4_quarter_error_power_over_f2_reference": 0.0,
+          "direct_f2_error_power_over_reference": 0.0,
+          "identity_abs_error": 0.0
+        },
+        "f2_relative_rms": 0.0,
+        "frequency_support_percentile": 80.0,
+        "fused_f2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.1612140503144332e-18,
+            "estimated_relative_delay_ns_evaluator_audit_only": -1.4213466110812864e-18,
+            "frequency_span_hz": 12431472.081218274,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1048
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.1655556994852527e-18,
+            "estimated_relative_delay_ns_evaluator_audit_only": 2.5710341952180674e-18,
+            "frequency_span_hz": 13812182.741116751,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1315
+          }
+        },
+        "method": "A0",
+        "reference": "paired A0 fused F1/F2 and protocol channel 2/channel 4 inputs",
+        "reference_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/input_merged.bin",
+          "sha256": "39476cbabfbcbc26367301ae4355b4d0dddeb14810a9eeb3cb788626fe60ab7a",
+          "size_bytes": 147613440
+        },
+        "saved_f2_relative_rms": 0.0,
+        "seed": 1002,
+        "truth_used_for_estimation": false,
+        "truth_used_only_for_expected_residual_label": true
+      },
+      {
+        "candidate_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A1_Current_unknown_error_ON/input_merged.bin",
+          "sha256": "df37a2afdd15782b2f1bdedbcec01dad9265e5559f0a2c75842d3a32a9b660fb",
+          "size_bytes": 147613440
+        },
+        "channel2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.0018285668792611483,
+            "estimated_relative_delay_ns_evaluator_audit_only": 3.774349028037119,
+            "frequency_span_hz": 11710659.898477158,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1079
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.003263816858132468,
+            "estimated_relative_delay_ns_evaluator_audit_only": 3.685290520579588,
+            "frequency_span_hz": 12340101.522842638,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1284
+          }
+        },
+        "channel2_relative_rms": 0.27568235944565234,
+        "channel4_bitwise_unchanged": true,
+        "channel4_relative_rms": 0.0,
+        "condition": "A1_Current_unknown_error",
+        "expected_residual_delay_ns_evaluator_only": 4.0,
+        "f1_relative_rms": 0.0,
+        "f2_closure_crosscheck_abs_difference": 0.0,
+        "f2_closure_crosscheck_status": "PASSED_MATCHED_SAVED_RESULT",
+        "f2_error_power_decomposition": {
+          "channel2_channel4_cross_term_over_f2_reference": 0.0,
+          "channel2_quarter_error_power_over_f2_reference": 0.10806675486455904,
+          "channel4_quarter_error_power_over_f2_reference": 0.0,
+          "direct_f2_error_power_over_reference": 0.10806675486455904,
+          "identity_abs_error": 0.0
+        },
+        "f2_relative_rms": 0.3287350831057723,
+        "frequency_support_percentile": 80.0,
+        "fused_f2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.0025238889464809272,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.9471182032422618,
+            "frequency_span_hz": 4629441.6243654825,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 303
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.006054971785943622,
+            "estimated_relative_delay_ns_evaluator_audit_only": 3.4915992925310433,
+            "frequency_span_hz": 16395939.086294416,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 2060
+          }
+        },
+        "method": "B",
+        "reference": "paired A0 fused F1/F2 and protocol channel 2/channel 4 inputs",
+        "reference_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/input_merged.bin",
+          "sha256": "39476cbabfbcbc26367301ae4355b4d0dddeb14810a9eeb3cb788626fe60ab7a",
+          "size_bytes": 147613440
+        },
+        "saved_f2_relative_rms": 0.3287350831057723,
+        "seed": 1002,
+        "truth_used_for_estimation": false,
+        "truth_used_only_for_expected_residual_label": true
+      },
+      {
+        "candidate_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A2_Known_error_correction_upper_bound_ON/input_merged.bin",
+          "sha256": "29b12efbf282db71de17cc9a5c54485a73f030715d0f4b0fcf5d918153b4c5d4",
+          "size_bytes": 147613440
+        },
+        "channel2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.53892863532788e-06,
+            "estimated_relative_delay_ns_evaluator_audit_only": -4.99754336709509e-07,
+            "frequency_span_hz": 12431472.081218274,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1050
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.7447951551234867e-06,
+            "estimated_relative_delay_ns_evaluator_audit_only": 7.403480929718075e-07,
+            "frequency_span_hz": 13812182.741116751,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1313
+          }
+        },
+        "channel2_relative_rms": 7.394794874540952e-05,
+        "channel4_bitwise_unchanged": true,
+        "channel4_relative_rms": 0.0,
+        "condition": "A2_Known_error_correction_upper_bound",
+        "expected_residual_delay_ns_evaluator_only": 0.0,
+        "f1_relative_rms": 0.0,
+        "f2_closure_crosscheck_abs_difference": 0.0,
+        "f2_closure_crosscheck_status": "PASSED_MATCHED_SAVED_RESULT",
+        "f2_error_power_decomposition": {
+          "channel2_channel4_cross_term_over_f2_reference": 0.0,
+          "channel2_quarter_error_power_over_f2_reference": 7.775465866247844e-09,
+          "channel4_quarter_error_power_over_f2_reference": 0.0,
+          "direct_f2_error_power_over_reference": 7.775465866247844e-09,
+          "identity_abs_error": 0.0
+        },
+        "f2_relative_rms": 8.817860208830624e-05,
+        "frequency_support_percentile": 80.0,
+        "fused_f2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.8136076228124914e-06,
+            "estimated_relative_delay_ns_evaluator_audit_only": -9.25077579340626e-07,
+            "frequency_span_hz": 12431472.081218274,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1048
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 2.0713438920391303e-06,
+            "estimated_relative_delay_ns_evaluator_audit_only": 4.322245741809639e-07,
+            "frequency_span_hz": 13812182.741116751,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1315
+          }
+        },
+        "method": "Known",
+        "reference": "paired A0 fused F1/F2 and protocol channel 2/channel 4 inputs",
+        "reference_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/input_merged.bin",
+          "sha256": "39476cbabfbcbc26367301ae4355b4d0dddeb14810a9eeb3cb788626fe60ab7a",
+          "size_bytes": 147613440
+        },
+        "saved_f2_relative_rms": 8.817860208830624e-05,
+        "seed": 1002,
+        "truth_used_for_estimation": false,
+        "truth_used_only_for_expected_residual_label": true
+      },
+      {
+        "candidate_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/R21_D3_R9_Fixed_ON/input_merged.bin",
+          "sha256": "83c5c6b31e7d4f0c213f3019e62d5b99ab73244eb407eb6734f653c1cf6f8784",
+          "size_bytes": 147613440
+        },
+        "channel2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 4.800857717636963e-05,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.5895115771805374,
+            "frequency_span_hz": 12431472.081218274,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1055
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 7.434891861172698e-05,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.5883534309209298,
+            "frequency_span_hz": 13786802.030456852,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1308
+          }
+        },
+        "channel2_relative_rms": 0.0534183097397139,
+        "channel4_bitwise_unchanged": true,
+        "channel4_relative_rms": 0.0,
+        "condition": "R21_D3_R9_Fixed",
+        "expected_residual_delay_ns_evaluator_only": 0.5900349681330455,
+        "f1_relative_rms": 0.0,
+        "f2_closure_crosscheck_abs_difference": 0.0,
+        "f2_closure_crosscheck_status": "PASSED_MATCHED_SAVED_RESULT",
+        "f2_error_power_decomposition": {
+          "channel2_channel4_cross_term_over_f2_reference": 0.0,
+          "channel2_quarter_error_power_over_f2_reference": 0.004057461803038603,
+          "channel4_quarter_error_power_over_f2_reference": 0.0,
+          "direct_f2_error_power_over_reference": 0.004057461803038603,
+          "identity_abs_error": 0.0
+        },
+        "f2_relative_rms": 0.06369820878987574,
+        "frequency_support_percentile": 80.0,
+        "fused_f2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.0011360347975401073,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.09366675088510704,
+            "frequency_span_hz": 11720812.182741117,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 907
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.0018045864026419876,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.5511453792636373,
+            "frequency_span_hz": 13994923.85786802,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1456
+          }
+        },
+        "method": "D3_R9_fixed",
+        "reference": "paired A0 fused F1/F2 and protocol channel 2/channel 4 inputs",
+        "reference_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/input_merged.bin",
+          "sha256": "39476cbabfbcbc26367301ae4355b4d0dddeb14810a9eeb3cb788626fe60ab7a",
+          "size_bytes": 147613440
+        },
+        "saved_f2_relative_rms": 0.06369820878987574,
+        "seed": 1002,
+        "truth_used_for_estimation": false,
+        "truth_used_only_for_expected_residual_label": true
+      },
+      {
+        "candidate_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/R21_D3_Huber_B_ON_ON/input_merged.bin",
+          "sha256": "7b77b9814df47cfee8fda08f1dad528b189e3058ede2619e0b8b4b82cc100c09",
+          "size_bytes": 147613440
+        },
+        "channel2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 4.0890510301325254e-05,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.5507672037494907,
+            "frequency_span_hz": 12431472.081218274,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1055
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 6.429494037355878e-05,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.5497823833781295,
+            "frequency_span_hz": 13786802.030456852,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1308
+          }
+        },
+        "channel2_relative_rms": 0.050044886421654874,
+        "channel4_bitwise_unchanged": true,
+        "channel4_relative_rms": 0.0,
+        "condition": "R21_D3_Huber_B_ON",
+        "expected_residual_delay_ns_evaluator_only": 0.5507975092780795,
+        "f1_relative_rms": 0.0,
+        "f2_closure_crosscheck_abs_difference": 0.0,
+        "f2_closure_crosscheck_status": "PASSED_MATCHED_SAVED_RESULT",
+        "f2_error_power_decomposition": {
+          "channel2_channel4_cross_term_over_f2_reference": 0.0,
+          "channel2_quarter_error_power_over_f2_reference": 0.0035611771000722274,
+          "channel4_quarter_error_power_over_f2_reference": 0.0,
+          "direct_f2_error_power_over_reference": 0.003561177100072228,
+          "identity_abs_error": 4.336808689942018e-19
+        },
+        "f2_relative_rms": 0.059675598866473285,
+        "frequency_support_percentile": 80.0,
+        "fused_f2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.0011055820822017455,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.08480739892990834,
+            "frequency_span_hz": 11741116.751269035,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 914
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.0016966791809372862,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.5149987707248981,
+            "frequency_span_hz": 13994923.85786802,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1449
+          }
+        },
+        "method": "D3_Huber",
+        "reference": "paired A0 fused F1/F2 and protocol channel 2/channel 4 inputs",
+        "reference_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/input_merged.bin",
+          "sha256": "39476cbabfbcbc26367301ae4355b4d0dddeb14810a9eeb3cb788626fe60ab7a",
+          "size_bytes": 147613440
+        },
+        "saved_f2_relative_rms": 0.059675598866473285,
+        "seed": 1002,
+        "truth_used_for_estimation": false,
+        "truth_used_only_for_expected_residual_label": true
+      },
+      {
+        "candidate_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/R21_M1_Physics_Matched_ON/input_merged.bin",
+          "sha256": "1c0cd04ac22e62c0b1f46d9ba15e7be598bb42e13141f368624e6acf38c1de9b",
+          "size_bytes": 147613440
+        },
+        "channel2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 1.671400574023357e-05,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.3660580548451823,
+            "frequency_span_hz": 12431472.081218274,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1055
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 2.80731425444286e-05,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.3656921015533691,
+            "frequency_span_hz": 13786802.030456852,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1308
+          }
+        },
+        "channel2_relative_rms": 0.03369908354440384,
+        "channel4_bitwise_unchanged": true,
+        "channel4_relative_rms": 0.0,
+        "condition": "R21_M1_Physics_Matched",
+        "expected_residual_delay_ns_evaluator_only": 0.3645894187576735,
+        "f1_relative_rms": 0.0,
+        "f2_closure_crosscheck_abs_difference": 0.0,
+        "f2_closure_crosscheck_status": "PASSED_MATCHED_SAVED_RESULT",
+        "f2_error_power_decomposition": {
+          "channel2_channel4_cross_term_over_f2_reference": 0.0,
+          "channel2_quarter_error_power_over_f2_reference": 0.0016147687522048316,
+          "channel4_quarter_error_power_over_f2_reference": 0.0,
+          "direct_f2_error_power_over_reference": 0.0016147687522048316,
+          "identity_abs_error": 0.0
+        },
+        "f2_relative_rms": 0.04018418534952316,
+        "frequency_support_percentile": 80.0,
+        "fused_f2_phase_by_frequency_sign": {
+          "negative": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.0007697275063934577,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.054677154938990814,
+            "frequency_span_hz": 12406091.370558375,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 954
+          },
+          "positive": {
+            "cross_spectral_phase_rmse_rad_after_linear_fit": 0.001131791134293103,
+            "estimated_relative_delay_ns_evaluator_audit_only": 0.3400820356918703,
+            "frequency_span_hz": 13994923.85786802,
+            "status": "EVALUABLE_DESCRIPTIVE",
+            "support_bins": 1409
+          }
+        },
+        "method": "M1",
+        "reference": "paired A0 fused F1/F2 and protocol channel 2/channel 4 inputs",
+        "reference_input": {
+          "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A0_Ideal_ON/input_merged.bin",
+          "sha256": "39476cbabfbcbc26367301ae4355b4d0dddeb14810a9eeb3cb788626fe60ab7a",
+          "size_bytes": 147613440
+        },
+        "saved_f2_relative_rms": 0.04018418534952316,
+        "seed": 1002,
+        "truth_used_for_estimation": false,
+        "truth_used_only_for_expected_residual_label": true
+      }
+    ],
+    "failure_behavior": "run_r21_cuda_pilot rejects unavailable M1 and aborts corrected branches; no silent fallback",
+    "input_pulse_count": 390,
+    "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+    "input_sample_count_per_pulse": 11820,
+    "input_size_bytes_total": 147613440,
+    "inputs": [
+      {
+        "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+        "sha256": "babcbe44c606d067b5b770f7a555e13068d439f8d52c26aeed5474d77371fb51",
+        "size_bytes": 49204480
+      },
+      {
+        "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+        "sha256": "9b52425df5562e94a93b5a0acb6e5cf5e7aca692a0e82a4c37e7359ff6972b17",
+        "size_bytes": 49204480
+      },
+      {
+        "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+        "sha256": "4053fce136f8c00484ec612a390ed9e13a444d2dfd2683ce5c33e580cb034153",
+        "size_bytes": 49204480
+      }
+    ],
+    "measured_compute_time_max_seconds": 2.1970520290196873,
+    "measured_compute_time_median_seconds": 2.192222682002466,
+    "measured_compute_time_min_seconds": 2.1239646089961752,
+    "measured_compute_time_seconds": [
+      2.192222682002466,
+      2.1239646089961752,
+      2.1970520290196873
+    ],
+    "measured_repeat_count": 3,
+    "measurement_limit": "single offline invocation; host-sensitive and not a production throughput benchmark",
+    "method": "M1_Physics_Matched_Delay",
+    "optimizer_and_residual_audit": {
+      "coarse_global_best_samples": 0.21804999999999997,
+      "coarse_global_best_score": 0.001982964901323685,
+      "coarse_grid_points": 401,
+      "coarse_grid_step_samples": 0.0024500000000000077,
+      "coarse_interior_local_minima": 1,
+      "coarse_profile": [
+        {
+          "delay_samples": -0.49,
+          "normalized_residual_squared": 0.11560674135550301
+        },
+        {
+          "delay_samples": -0.48755,
+          "normalized_residual_squared": 0.11481524161879246
+        },
+        {
+          "delay_samples": -0.4851,
+          "normalized_residual_squared": 0.1140262576197051
+        },
+        {
+          "delay_samples": -0.48264999999999997,
+          "normalized_residual_squared": 0.1132397969075714
+        },
+        {
+          "delay_samples": -0.4802,
+          "normalized_residual_squared": 0.11245586698196391
+        },
+        {
+          "delay_samples": -0.47775,
+          "normalized_residual_squared": 0.11167447529245912
+        },
+        {
+          "delay_samples": -0.4753,
+          "normalized_residual_squared": 0.11089562923840186
+        },
+        {
+          "delay_samples": -0.47285,
+          "normalized_residual_squared": 0.11011933616867177
+        },
+        {
+          "delay_samples": -0.4704,
+          "normalized_residual_squared": 0.10934560338145285
+        },
+        {
+          "delay_samples": -0.46795,
+          "normalized_residual_squared": 0.10857443812400507
+        },
+        {
+          "delay_samples": -0.46549999999999997,
+          "normalized_residual_squared": 0.10780584759243866
+        },
+        {
+          "delay_samples": -0.46305,
+          "normalized_residual_squared": 0.10703983893149098
+        },
+        {
+          "delay_samples": -0.4606,
+          "normalized_residual_squared": 0.10627641923430586
+        },
+        {
+          "delay_samples": -0.45815,
+          "normalized_residual_squared": 0.1055155955422157
+        },
+        {
+          "delay_samples": -0.4557,
+          "normalized_residual_squared": 0.1047573748445259
+        },
+        {
+          "delay_samples": -0.45325,
+          "normalized_residual_squared": 0.10400176407830196
+        },
+        {
+          "delay_samples": -0.4508,
+          "normalized_residual_squared": 0.10324877012815949
+        },
+        {
+          "delay_samples": -0.44834999999999997,
+          "normalized_residual_squared": 0.10249839982605635
+        },
+        {
+          "delay_samples": -0.44589999999999996,
+          "normalized_residual_squared": 0.10175065995108788
+        },
+        {
+          "delay_samples": -0.44345,
+          "normalized_residual_squared": 0.10100555722928432
+        },
+        {
+          "delay_samples": -0.441,
+          "normalized_residual_squared": 0.10026309833341156
+        },
+        {
+          "delay_samples": -0.43855,
+          "normalized_residual_squared": 0.09952328988277372
+        },
+        {
+          "delay_samples": -0.4361,
+          "normalized_residual_squared": 0.09878613844301931
+        },
+        {
+          "delay_samples": -0.43365,
+          "normalized_residual_squared": 0.09805165052594934
+        },
+        {
+          "delay_samples": -0.43119999999999997,
+          "normalized_residual_squared": 0.09731983258932865
+        },
+        {
+          "delay_samples": -0.42874999999999996,
+          "normalized_residual_squared": 0.09659069103669951
+        },
+        {
+          "delay_samples": -0.4263,
+          "normalized_residual_squared": 0.09586423221719867
+        },
+        {
+          "delay_samples": -0.42385,
+          "normalized_residual_squared": 0.09514046242537608
+        },
+        {
+          "delay_samples": -0.4214,
+          "normalized_residual_squared": 0.09441938790101753
+        },
+        {
+          "delay_samples": -0.41895,
+          "normalized_residual_squared": 0.09370101482896939
+        },
+        {
+          "delay_samples": -0.4165,
+          "normalized_residual_squared": 0.09298534933896606
+        },
+        {
+          "delay_samples": -0.41405,
+          "normalized_residual_squared": 0.09227239750546057
+        },
+        {
+          "delay_samples": -0.41159999999999997,
+          "normalized_residual_squared": 0.09156216534745772
+        },
+        {
+          "delay_samples": -0.40915,
+          "normalized_residual_squared": 0.0908546588283502
+        },
+        {
+          "delay_samples": -0.4067,
+          "normalized_residual_squared": 0.09014988385575731
+        },
+        {
+          "delay_samples": -0.40425,
+          "normalized_residual_squared": 0.0894478462813669
+        },
+        {
+          "delay_samples": -0.4018,
+          "normalized_residual_squared": 0.08874855190077946
+        },
+        {
+          "delay_samples": -0.39935,
+          "normalized_residual_squared": 0.08805200645335583
+        },
+        {
+          "delay_samples": -0.3969,
+          "normalized_residual_squared": 0.08735821562206722
+        },
+        {
+          "delay_samples": -0.39444999999999997,
+          "normalized_residual_squared": 0.08666718503334826
+        },
+        {
+          "delay_samples": -0.392,
+          "normalized_residual_squared": 0.08597892025695285
+        },
+        {
+          "delay_samples": -0.38955,
+          "normalized_residual_squared": 0.08529342680581317
+        },
+        {
+          "delay_samples": -0.3871,
+          "normalized_residual_squared": 0.08461071013590102
+        },
+        {
+          "delay_samples": -0.38465,
+          "normalized_residual_squared": 0.08393077564609266
+        },
+        {
+          "delay_samples": -0.3822,
+          "normalized_residual_squared": 0.08325362867803603
+        },
+        {
+          "delay_samples": -0.37975,
+          "normalized_residual_squared": 0.08257927451602107
+        },
+        {
+          "delay_samples": -0.37729999999999997,
+          "normalized_residual_squared": 0.08190771838685304
+        },
+        {
+          "delay_samples": -0.37485,
+          "normalized_residual_squared": 0.08123896545972867
+        },
+        {
+          "delay_samples": -0.3724,
+          "normalized_residual_squared": 0.08057302084611513
+        },
+        {
+          "delay_samples": -0.36995,
+          "normalized_residual_squared": 0.07990988959963188
+        },
+        {
+          "delay_samples": -0.3675,
+          "normalized_residual_squared": 0.07924957671593584
+        },
+        {
+          "delay_samples": -0.36505,
+          "normalized_residual_squared": 0.078592087132609
+        },
+        {
+          "delay_samples": -0.36260000000000003,
+          "normalized_residual_squared": 0.07793742572904909
+        },
+        {
+          "delay_samples": -0.36014999999999997,
+          "normalized_residual_squared": 0.07728559732636339
+        },
+        {
+          "delay_samples": -0.3577,
+          "normalized_residual_squared": 0.07663660668726538
+        },
+        {
+          "delay_samples": -0.35524999999999995,
+          "normalized_residual_squared": 0.07599045851597404
+        },
+        {
+          "delay_samples": -0.3528,
+          "normalized_residual_squared": 0.07534715745811665
+        },
+        {
+          "delay_samples": -0.35035,
+          "normalized_residual_squared": 0.07470670810063401
+        },
+        {
+          "delay_samples": -0.3479,
+          "normalized_residual_squared": 0.0740691149716889
+        },
+        {
+          "delay_samples": -0.34545000000000003,
+          "normalized_residual_squared": 0.07343438254057749
+        },
+        {
+          "delay_samples": -0.34299999999999997,
+          "normalized_residual_squared": 0.07280251521764347
+        },
+        {
+          "delay_samples": -0.34055,
+          "normalized_residual_squared": 0.0721735173541954
+        },
+        {
+          "delay_samples": -0.33809999999999996,
+          "normalized_residual_squared": 0.07154739324242695
+        },
+        {
+          "delay_samples": -0.33565,
+          "normalized_residual_squared": 0.07092414711534005
+        },
+        {
+          "delay_samples": -0.3332,
+          "normalized_residual_squared": 0.07030378314667088
+        },
+        {
+          "delay_samples": -0.33075,
+          "normalized_residual_squared": 0.06968630545081912
+        },
+        {
+          "delay_samples": -0.32830000000000004,
+          "normalized_residual_squared": 0.06907171808277993
+        },
+        {
+          "delay_samples": -0.32585,
+          "normalized_residual_squared": 0.06846002503807885
+        },
+        {
+          "delay_samples": -0.3234,
+          "normalized_residual_squared": 0.06785123025270992
+        },
+        {
+          "delay_samples": -0.32094999999999996,
+          "normalized_residual_squared": 0.06724533760307651
+        },
+        {
+          "delay_samples": -0.3185,
+          "normalized_residual_squared": 0.06664235090593525
+        },
+        {
+          "delay_samples": -0.31605,
+          "normalized_residual_squared": 0.0660422739183427
+        },
+        {
+          "delay_samples": -0.3136,
+          "normalized_residual_squared": 0.0654451103376054
+        },
+        {
+          "delay_samples": -0.31115000000000004,
+          "normalized_residual_squared": 0.06485086380123238
+        },
+        {
+          "delay_samples": -0.3087,
+          "normalized_residual_squared": 0.06425953788689104
+        },
+        {
+          "delay_samples": -0.30625,
+          "normalized_residual_squared": 0.06367113611236563
+        },
+        {
+          "delay_samples": -0.30379999999999996,
+          "normalized_residual_squared": 0.06308566193551893
+        },
+        {
+          "delay_samples": -0.30135,
+          "normalized_residual_squared": 0.0625031187542569
+        },
+        {
+          "delay_samples": -0.2989,
+          "normalized_residual_squared": 0.061923509906495894
+        },
+        {
+          "delay_samples": -0.29645,
+          "normalized_residual_squared": 0.06134683867013336
+        },
+        {
+          "delay_samples": -0.294,
+          "normalized_residual_squared": 0.060773108263021076
+        },
+        {
+          "delay_samples": -0.29155,
+          "normalized_residual_squared": 0.06020232184294138
+        },
+        {
+          "delay_samples": -0.2891,
+          "normalized_residual_squared": 0.05963448250758658
+        },
+        {
+          "delay_samples": -0.28664999999999996,
+          "normalized_residual_squared": 0.05906959329454087
+        },
+        {
+          "delay_samples": -0.2842,
+          "normalized_residual_squared": 0.05850765718126564
+        },
+        {
+          "delay_samples": -0.28175,
+          "normalized_residual_squared": 0.05794867708508729
+        },
+        {
+          "delay_samples": -0.2793,
+          "normalized_residual_squared": 0.05739265586318819
+        },
+        {
+          "delay_samples": -0.27685,
+          "normalized_residual_squared": 0.05683959631260048
+        },
+        {
+          "delay_samples": -0.2744,
+          "normalized_residual_squared": 0.05628950117020276
+        },
+        {
+          "delay_samples": -0.27195,
+          "normalized_residual_squared": 0.05574237311271978
+        },
+        {
+          "delay_samples": -0.26949999999999996,
+          "normalized_residual_squared": 0.05519821475672471
+        },
+        {
+          "delay_samples": -0.26705,
+          "normalized_residual_squared": 0.054657028658644816
+        },
+        {
+          "delay_samples": -0.2646,
+          "normalized_residual_squared": 0.054118817314769425
+        },
+        {
+          "delay_samples": -0.26215,
+          "normalized_residual_squared": 0.05358358316126127
+        },
+        {
+          "delay_samples": -0.2597,
+          "normalized_residual_squared": 0.053051328574170324
+        },
+        {
+          "delay_samples": -0.25725,
+          "normalized_residual_squared": 0.05252205586945069
+        },
+        {
+          "delay_samples": -0.2548,
+          "normalized_residual_squared": 0.051995767302980334
+        },
+        {
+          "delay_samples": -0.25234999999999996,
+          "normalized_residual_squared": 0.05147246507058353
+        },
+        {
+          "delay_samples": -0.2499,
+          "normalized_residual_squared": 0.050952151308056304
+        },
+        {
+          "delay_samples": -0.24745,
+          "normalized_residual_squared": 0.05043482809119457
+        },
+        {
+          "delay_samples": -0.245,
+          "normalized_residual_squared": 0.04992049743582522
+        },
+        {
+          "delay_samples": -0.24255,
+          "normalized_residual_squared": 0.04940916129783982
+        },
+        {
+          "delay_samples": -0.2401,
+          "normalized_residual_squared": 0.04890082157323135
+        },
+        {
+          "delay_samples": -0.23764999999999997,
+          "normalized_residual_squared": 0.04839548009813351
+        },
+        {
+          "delay_samples": -0.23520000000000002,
+          "normalized_residual_squared": 0.047893138648863035
+        },
+        {
+          "delay_samples": -0.23275,
+          "normalized_residual_squared": 0.04739379894196448
+        },
+        {
+          "delay_samples": -0.2303,
+          "normalized_residual_squared": 0.046897462634258175
+        },
+        {
+          "delay_samples": -0.22785,
+          "normalized_residual_squared": 0.046404131322890535
+        },
+        {
+          "delay_samples": -0.2254,
+          "normalized_residual_squared": 0.045913806545387376
+        },
+        {
+          "delay_samples": -0.22294999999999998,
+          "normalized_residual_squared": 0.04542648977970979
+        },
+        {
+          "delay_samples": -0.22049999999999997,
+          "normalized_residual_squared": 0.044942182444312945
+        },
+        {
+          "delay_samples": -0.21805000000000002,
+          "normalized_residual_squared": 0.044460885898207375
+        },
+        {
+          "delay_samples": -0.2156,
+          "normalized_residual_squared": 0.04398260144102318
+        },
+        {
+          "delay_samples": -0.21315,
+          "normalized_residual_squared": 0.043507330313076645
+        },
+        {
+          "delay_samples": -0.2107,
+          "normalized_residual_squared": 0.04303507369543992
+        },
+        {
+          "delay_samples": -0.20825,
+          "normalized_residual_squared": 0.04256583271001302
+        },
+        {
+          "delay_samples": -0.20579999999999998,
+          "normalized_residual_squared": 0.042099608419598596
+        },
+        {
+          "delay_samples": -0.20334999999999998,
+          "normalized_residual_squared": 0.04163640182797951
+        },
+        {
+          "delay_samples": -0.20090000000000002,
+          "normalized_residual_squared": 0.0411762138799987
+        },
+        {
+          "delay_samples": -0.19845000000000002,
+          "normalized_residual_squared": 0.040719045461642
+        },
+        {
+          "delay_samples": -0.196,
+          "normalized_residual_squared": 0.04026489740012345
+        },
+        {
+          "delay_samples": -0.19355,
+          "normalized_residual_squared": 0.03981377046397307
+        },
+        {
+          "delay_samples": -0.1911,
+          "normalized_residual_squared": 0.039365665363127404
+        },
+        {
+          "delay_samples": -0.18864999999999998,
+          "normalized_residual_squared": 0.03892058274902256
+        },
+        {
+          "delay_samples": -0.18619999999999998,
+          "normalized_residual_squared": 0.03847852321468971
+        },
+        {
+          "delay_samples": -0.18375000000000002,
+          "normalized_residual_squared": 0.03803948729485339
+        },
+        {
+          "delay_samples": -0.18130000000000002,
+          "normalized_residual_squared": 0.03760347546603197
+        },
+        {
+          "delay_samples": -0.17885,
+          "normalized_residual_squared": 0.037170488146640916
+        },
+        {
+          "delay_samples": -0.1764,
+          "normalized_residual_squared": 0.03674052569709852
+        },
+        {
+          "delay_samples": -0.17395,
+          "normalized_residual_squared": 0.03631358841993392
+        },
+        {
+          "delay_samples": -0.17149999999999999,
+          "normalized_residual_squared": 0.03588967655989788
+        },
+        {
+          "delay_samples": -0.16904999999999998,
+          "normalized_residual_squared": 0.03546879030407577
+        },
+        {
+          "delay_samples": -0.16660000000000003,
+          "normalized_residual_squared": 0.035050929782003123
+        },
+        {
+          "delay_samples": -0.16415000000000002,
+          "normalized_residual_squared": 0.034636095065783586
+        },
+        {
+          "delay_samples": -0.1617,
+          "normalized_residual_squared": 0.03422428617020936
+        },
+        {
+          "delay_samples": -0.15925,
+          "normalized_residual_squared": 0.033815503052883854
+        },
+        {
+          "delay_samples": -0.1568,
+          "normalized_residual_squared": 0.03340974561434692
+        },
+        {
+          "delay_samples": -0.15435,
+          "normalized_residual_squared": 0.03300701369820233
+        },
+        {
+          "delay_samples": -0.15189999999999998,
+          "normalized_residual_squared": 0.03260730709124767
+        },
+        {
+          "delay_samples": -0.14945000000000003,
+          "normalized_residual_squared": 0.03221062552360648
+        },
+        {
+          "delay_samples": -0.14700000000000002,
+          "normalized_residual_squared": 0.031816968668862855
+        },
+        {
+          "delay_samples": -0.14455,
+          "normalized_residual_squared": 0.03142633614419823
+        },
+        {
+          "delay_samples": -0.1421,
+          "normalized_residual_squared": 0.031038727510530443
+        },
+        {
+          "delay_samples": -0.13965,
+          "normalized_residual_squared": 0.030654142272655227
+        },
+        {
+          "delay_samples": -0.1372,
+          "normalized_residual_squared": 0.030272579879389777
+        },
+        {
+          "delay_samples": -0.13474999999999998,
+          "normalized_residual_squared": 0.029894039723718572
+        },
+        {
+          "delay_samples": -0.13230000000000003,
+          "normalized_residual_squared": 0.029518521142941602
+        },
+        {
+          "delay_samples": -0.12985000000000002,
+          "normalized_residual_squared": 0.02914602341882451
+        },
+        {
+          "delay_samples": -0.1274,
+          "normalized_residual_squared": 0.028776545777751194
+        },
+        {
+          "delay_samples": -0.12495,
+          "normalized_residual_squared": 0.028410087390878424
+        },
+        {
+          "delay_samples": -0.1225,
+          "normalized_residual_squared": 0.02804664737429262
+        },
+        {
+          "delay_samples": -0.12004999999999999,
+          "normalized_residual_squared": 0.0276862247891688
+        },
+        {
+          "delay_samples": -0.11759999999999998,
+          "normalized_residual_squared": 0.027328818641931672
+        },
+        {
+          "delay_samples": -0.11515000000000003,
+          "normalized_residual_squared": 0.026974427884418777
+        },
+        {
+          "delay_samples": -0.11270000000000002,
+          "normalized_residual_squared": 0.026623051414045622
+        },
+        {
+          "delay_samples": -0.11025000000000001,
+          "normalized_residual_squared": 0.02627468807397319
+        },
+        {
+          "delay_samples": -0.1078,
+          "normalized_residual_squared": 0.02592933665327709
+        },
+        {
+          "delay_samples": -0.10535,
+          "normalized_residual_squared": 0.025586995887119025
+        },
+        {
+          "delay_samples": -0.10289999999999999,
+          "normalized_residual_squared": 0.025247664456920185
+        },
+        {
+          "delay_samples": -0.10044999999999998,
+          "normalized_residual_squared": 0.024911340990536556
+        },
+        {
+          "delay_samples": -0.09799999999999998,
+          "normalized_residual_squared": 0.02457802406243633
+        },
+        {
+          "delay_samples": -0.09555000000000002,
+          "normalized_residual_squared": 0.02424771219387918
+        },
+        {
+          "delay_samples": -0.09310000000000002,
+          "normalized_residual_squared": 0.0239204038530975
+        },
+        {
+          "delay_samples": -0.09065000000000001,
+          "normalized_residual_squared": 0.023596097455479536
+        },
+        {
+          "delay_samples": -0.0882,
+          "normalized_residual_squared": 0.023274791363754488
+        },
+        {
+          "delay_samples": -0.08574999999999999,
+          "normalized_residual_squared": 0.022956483888179387
+        },
+        {
+          "delay_samples": -0.08329999999999999,
+          "normalized_residual_squared": 0.02264117328672794
+        },
+        {
+          "delay_samples": -0.08084999999999998,
+          "normalized_residual_squared": 0.022328857765281124
+        },
+        {
+          "delay_samples": -0.07840000000000003,
+          "normalized_residual_squared": 0.02201953547781962
+        },
+        {
+          "delay_samples": -0.07595000000000002,
+          "normalized_residual_squared": 0.021713204526618114
+        },
+        {
+          "delay_samples": -0.07350000000000001,
+          "normalized_residual_squared": 0.02140986296244133
+        },
+        {
+          "delay_samples": -0.07105,
+          "normalized_residual_squared": 0.021109508784741816
+        },
+        {
+          "delay_samples": -0.0686,
+          "normalized_residual_squared": 0.020812139941859497
+        },
+        {
+          "delay_samples": -0.06614999999999999,
+          "normalized_residual_squared": 0.020517754331222972
+        },
+        {
+          "delay_samples": -0.06369999999999998,
+          "normalized_residual_squared": 0.020226349799552436
+        },
+        {
+          "delay_samples": -0.06125000000000003,
+          "normalized_residual_squared": 0.01993792414306442
+        },
+        {
+          "delay_samples": -0.05880000000000002,
+          "normalized_residual_squared": 0.019652475107678057
+        },
+        {
+          "delay_samples": -0.05635000000000001,
+          "normalized_residual_squared": 0.01937000038922311
+        },
+        {
+          "delay_samples": -0.0539,
+          "normalized_residual_squared": 0.01909049763364954
+        },
+        {
+          "delay_samples": -0.051449999999999996,
+          "normalized_residual_squared": 0.018813964437238737
+        },
+        {
+          "delay_samples": -0.04899999999999999,
+          "normalized_residual_squared": 0.018540398346816315
+        },
+        {
+          "delay_samples": -0.04654999999999998,
+          "normalized_residual_squared": 0.018269796859966478
+        },
+        {
+          "delay_samples": -0.04410000000000003,
+          "normalized_residual_squared": 0.018002157425247932
+        },
+        {
+          "delay_samples": -0.04165000000000002,
+          "normalized_residual_squared": 0.017737477442411293
+        },
+        {
+          "delay_samples": -0.03920000000000001,
+          "normalized_residual_squared": 0.017475754262618128
+        },
+        {
+          "delay_samples": -0.036750000000000005,
+          "normalized_residual_squared": 0.017216985188661247
+        },
+        {
+          "delay_samples": -0.0343,
+          "normalized_residual_squared": 0.016961167475186743
+        },
+        {
+          "delay_samples": -0.03184999999999999,
+          "normalized_residual_squared": 0.016708298328917237
+        },
+        {
+          "delay_samples": -0.02939999999999998,
+          "normalized_residual_squared": 0.016458374908876697
+        },
+        {
+          "delay_samples": -0.02695000000000003,
+          "normalized_residual_squared": 0.016211394326616602
+        },
+        {
+          "delay_samples": -0.024500000000000022,
+          "normalized_residual_squared": 0.015967353646443527
+        },
+        {
+          "delay_samples": -0.022050000000000014,
+          "normalized_residual_squared": 0.015726249885648025
+        },
+        {
+          "delay_samples": -0.019600000000000006,
+          "normalized_residual_squared": 0.015488080014734952
+        },
+        {
+          "delay_samples": -0.01715,
+          "normalized_residual_squared": 0.015252840957655054
+        },
+        {
+          "delay_samples": -0.01469999999999999,
+          "normalized_residual_squared": 0.015020529592037838
+        },
+        {
+          "delay_samples": -0.012249999999999983,
+          "normalized_residual_squared": 0.014791142749425789
+        },
+        {
+          "delay_samples": -0.009800000000000031,
+          "normalized_residual_squared": 0.01456467721550983
+        },
+        {
+          "delay_samples": -0.007350000000000023,
+          "normalized_residual_squared": 0.01434112973036598
+        },
+        {
+          "delay_samples": -0.0049000000000000155,
+          "normalized_residual_squared": 0.014120496988693295
+        },
+        {
+          "delay_samples": -0.0024500000000000077,
+          "normalized_residual_squared": 0.013902775640052989
+        },
+        {
+          "delay_samples": 0.0,
+          "normalized_residual_squared": 0.013687962967224748
+        },
+        {
+          "delay_samples": 0.0024500000000000077,
+          "normalized_residual_squared": 0.013433586565896851
+        },
+        {
+          "delay_samples": 0.0049000000000000155,
+          "normalized_residual_squared": 0.013181818003583614
+        },
+        {
+          "delay_samples": 0.007349999999999968,
+          "normalized_residual_squared": 0.012932664100618444
+        },
+        {
+          "delay_samples": 0.009799999999999975,
+          "normalized_residual_squared": 0.012686131957828702
+        },
+        {
+          "delay_samples": 0.012249999999999983,
+          "normalized_residual_squared": 0.012442228645471563
+        },
+        {
+          "delay_samples": 0.014700000000000046,
+          "normalized_residual_squared": 0.012200961202924526
+        },
+        {
+          "delay_samples": 0.01715,
+          "normalized_residual_squared": 0.01196233663837622
+        },
+        {
+          "delay_samples": 0.01959999999999995,
+          "normalized_residual_squared": 0.011726361928517545
+        },
+        {
+          "delay_samples": 0.022050000000000014,
+          "normalized_residual_squared": 0.011493044018233084
+        },
+        {
+          "delay_samples": 0.024499999999999966,
+          "normalized_residual_squared": 0.011262389820292967
+        },
+        {
+          "delay_samples": 0.02695000000000003,
+          "normalized_residual_squared": 0.011034406215044907
+        },
+        {
+          "delay_samples": 0.02939999999999998,
+          "normalized_residual_squared": 0.01080910005010686
+        },
+        {
+          "delay_samples": 0.031850000000000045,
+          "normalized_residual_squared": 0.010586478140059875
+        },
+        {
+          "delay_samples": 0.0343,
+          "normalized_residual_squared": 0.010366547266141534
+        },
+        {
+          "delay_samples": 0.03674999999999995,
+          "normalized_residual_squared": 0.010149314175939733
+        },
+        {
+          "delay_samples": 0.03920000000000001,
+          "normalized_residual_squared": 0.009934785583086997
+        },
+        {
+          "delay_samples": 0.041649999999999965,
+          "normalized_residual_squared": 0.009722968166955294
+        },
+        {
+          "delay_samples": 0.04410000000000003,
+          "normalized_residual_squared": 0.009513868572351284
+        },
+        {
+          "delay_samples": 0.04654999999999998,
+          "normalized_residual_squared": 0.009307493409212237
+        },
+        {
+          "delay_samples": 0.049000000000000044,
+          "normalized_residual_squared": 0.00910384925230236
+        },
+        {
+          "delay_samples": 0.051449999999999996,
+          "normalized_residual_squared": 0.008902942640909855
+        },
+        {
+          "delay_samples": 0.05389999999999995,
+          "normalized_residual_squared": 0.008704780078544439
+        },
+        {
+          "delay_samples": 0.05635000000000001,
+          "normalized_residual_squared": 0.00850936803263559
+        },
+        {
+          "delay_samples": 0.05879999999999996,
+          "normalized_residual_squared": 0.008316712934231424
+        },
+        {
+          "delay_samples": 0.06125000000000003,
+          "normalized_residual_squared": 0.008126821177698166
+        },
+        {
+          "delay_samples": 0.06369999999999998,
+          "normalized_residual_squared": 0.007939699120420437
+        },
+        {
+          "delay_samples": 0.06615000000000004,
+          "normalized_residual_squared": 0.0077553530825021175
+        },
+        {
+          "delay_samples": 0.0686,
+          "normalized_residual_squared": 0.007573789346468088
+        },
+        {
+          "delay_samples": 0.07104999999999995,
+          "normalized_residual_squared": 0.00739501415696658
+        },
+        {
+          "delay_samples": 0.07350000000000001,
+          "normalized_residual_squared": 0.007219033720472426
+        },
+        {
+          "delay_samples": 0.07594999999999996,
+          "normalized_residual_squared": 0.007045854204991076
+        },
+        {
+          "delay_samples": 0.07840000000000003,
+          "normalized_residual_squared": 0.006875481739763381
+        },
+        {
+          "delay_samples": 0.08084999999999998,
+          "normalized_residual_squared": 0.006707922414971329
+        },
+        {
+          "delay_samples": 0.08330000000000004,
+          "normalized_residual_squared": 0.00654318228144454
+        },
+        {
+          "delay_samples": 0.08574999999999999,
+          "normalized_residual_squared": 0.006381267350367757
+        },
+        {
+          "delay_samples": 0.08819999999999995,
+          "normalized_residual_squared": 0.006222183592989151
+        },
+        {
+          "delay_samples": 0.09065000000000001,
+          "normalized_residual_squared": 0.006065936940329635
+        },
+        {
+          "delay_samples": 0.09309999999999996,
+          "normalized_residual_squared": 0.005912533282893129
+        },
+        {
+          "delay_samples": 0.09555000000000002,
+          "normalized_residual_squared": 0.005761978470377747
+        },
+        {
+          "delay_samples": 0.09799999999999998,
+          "normalized_residual_squared": 0.005614278311388083
+        },
+        {
+          "delay_samples": 0.10045000000000004,
+          "normalized_residual_squared": 0.00546943857314842
+        },
+        {
+          "delay_samples": 0.10289999999999999,
+          "normalized_residual_squared": 0.005327464981217085
+        },
+        {
+          "delay_samples": 0.10534999999999994,
+          "normalized_residual_squared": 0.00518836321920179
+        },
+        {
+          "delay_samples": 0.1078,
+          "normalized_residual_squared": 0.005052138928476122
+        },
+        {
+          "delay_samples": 0.11024999999999996,
+          "normalized_residual_squared": 0.004918797707897155
+        },
+        {
+          "delay_samples": 0.11270000000000002,
+          "normalized_residual_squared": 0.004788345113524131
+        },
+        {
+          "delay_samples": 0.11514999999999997,
+          "normalized_residual_squared": 0.004660786658338396
+        },
+        {
+          "delay_samples": 0.11760000000000004,
+          "normalized_residual_squared": 0.0045361278119644315
+        },
+        {
+          "delay_samples": 0.12004999999999999,
+          "normalized_residual_squared": 0.0044143740003921746
+        },
+        {
+          "delay_samples": 0.12249999999999994,
+          "normalized_residual_squared": 0.004295530605700485
+        },
+        {
+          "delay_samples": 0.12495,
+          "normalized_residual_squared": 0.004179602965781918
+        },
+        {
+          "delay_samples": 0.12739999999999996,
+          "normalized_residual_squared": 0.004066596374068775
+        },
+        {
+          "delay_samples": 0.12985000000000002,
+          "normalized_residual_squared": 0.003956516079260386
+        },
+        {
+          "delay_samples": 0.13229999999999997,
+          "normalized_residual_squared": 0.0038493672850517992
+        },
+        {
+          "delay_samples": 0.13475000000000004,
+          "normalized_residual_squared": 0.0037451551498637195
+        },
+        {
+          "delay_samples": 0.1372,
+          "normalized_residual_squared": 0.00364388478657389
+        },
+        {
+          "delay_samples": 0.13964999999999994,
+          "normalized_residual_squared": 0.0035455612622497935
+        },
+        {
+          "delay_samples": 0.1421,
+          "normalized_residual_squared": 0.003450189597882801
+        },
+        {
+          "delay_samples": 0.14454999999999996,
+          "normalized_residual_squared": 0.003357774768123742
+        },
+        {
+          "delay_samples": 0.14700000000000002,
+          "normalized_residual_squared": 0.0032683217010198947
+        },
+        {
+          "delay_samples": 0.14944999999999997,
+          "normalized_residual_squared": 0.0031818352777535086
+        },
+        {
+          "delay_samples": 0.15190000000000003,
+          "normalized_residual_squared": 0.003098320332381746
+        },
+        {
+          "delay_samples": 0.15435,
+          "normalized_residual_squared": 0.00301778165157822
+        },
+        {
+          "delay_samples": 0.15679999999999994,
+          "normalized_residual_squared": 0.0029402239743759983
+        },
+        {
+          "delay_samples": 0.15925,
+          "normalized_residual_squared": 0.0028656519919122167
+        },
+        {
+          "delay_samples": 0.16169999999999995,
+          "normalized_residual_squared": 0.002794070347174266
+        },
+        {
+          "delay_samples": 0.16415000000000002,
+          "normalized_residual_squared": 0.002725483634747552
+        },
+        {
+          "delay_samples": 0.16659999999999997,
+          "normalized_residual_squared": 0.002659896400564926
+        },
+        {
+          "delay_samples": 0.16905000000000003,
+          "normalized_residual_squared": 0.0025973131416577254
+        },
+        {
+          "delay_samples": 0.17149999999999999,
+          "normalized_residual_squared": 0.0025377383059085093
+        },
+        {
+          "delay_samples": 0.17394999999999994,
+          "normalized_residual_squared": 0.0024811762918054625
+        },
+        {
+          "delay_samples": 0.1764,
+          "normalized_residual_squared": 0.0024276314481985212
+        },
+        {
+          "delay_samples": 0.17884999999999995,
+          "normalized_residual_squared": 0.0023771080740572423
+        },
+        {
+          "delay_samples": 0.18130000000000002,
+          "normalized_residual_squared": 0.0023296104182303984
+        },
+        {
+          "delay_samples": 0.18374999999999997,
+          "normalized_residual_squared": 0.00228514267920738
+        },
+        {
+          "delay_samples": 0.18620000000000003,
+          "normalized_residual_squared": 0.0022437090048813596
+        },
+        {
+          "delay_samples": 0.18864999999999998,
+          "normalized_residual_squared": 0.0022053134923143104
+        },
+        {
+          "delay_samples": 0.19109999999999994,
+          "normalized_residual_squared": 0.002169960187503826
+        },
+        {
+          "delay_samples": 0.19355,
+          "normalized_residual_squared": 0.002137653085151823
+        },
+        {
+          "delay_samples": 0.19599999999999995,
+          "normalized_residual_squared": 0.0021083961284351165
+        },
+        {
+          "delay_samples": 0.19845000000000002,
+          "normalized_residual_squared": 0.002082193208777888
+        },
+        {
+          "delay_samples": 0.20089999999999997,
+          "normalized_residual_squared": 0.0020590481656260866
+        },
+        {
+          "delay_samples": 0.20335000000000003,
+          "normalized_residual_squared": 0.002038964786223751
+        },
+        {
+          "delay_samples": 0.20579999999999998,
+          "normalized_residual_squared": 0.002021946805391318
+        },
+        {
+          "delay_samples": 0.20824999999999994,
+          "normalized_residual_squared": 0.002007997905305887
+        },
+        {
+          "delay_samples": 0.2107,
+          "normalized_residual_squared": 0.0019971217152834992
+        },
+        {
+          "delay_samples": 0.21314999999999995,
+          "normalized_residual_squared": 0.001989321811563437
+        },
+        {
+          "delay_samples": 0.2156,
+          "normalized_residual_squared": 0.001984601717094556
+        },
+        {
+          "delay_samples": 0.21804999999999997,
+          "normalized_residual_squared": 0.001982964901323685
+        },
+        {
+          "delay_samples": 0.22050000000000003,
+          "normalized_residual_squared": 0.001984414779986102
+        },
+        {
+          "delay_samples": 0.22294999999999998,
+          "normalized_residual_squared": 0.0019889547148981075
+        },
+        {
+          "delay_samples": 0.22539999999999993,
+          "normalized_residual_squared": 0.001996588013751723
+        },
+        {
+          "delay_samples": 0.22785,
+          "normalized_residual_squared": 0.002007317929911516
+        },
+        {
+          "delay_samples": 0.23029999999999995,
+          "normalized_residual_squared": 0.002021147662213591
+        },
+        {
+          "delay_samples": 0.23275,
+          "normalized_residual_squared": 0.0020380803547667514
+        },
+        {
+          "delay_samples": 0.23519999999999996,
+          "normalized_residual_squared": 0.002058119096755855
+        },
+        {
+          "delay_samples": 0.23765000000000003,
+          "normalized_residual_squared": 0.0020812669222473852
+        },
+        {
+          "delay_samples": 0.24009999999999998,
+          "normalized_residual_squared": 0.0021075268099972466
+        },
+        {
+          "delay_samples": 0.24254999999999993,
+          "normalized_residual_squared": 0.0021369016832608187
+        },
+        {
+          "delay_samples": 0.245,
+          "normalized_residual_squared": 0.0021693944096052736
+        },
+        {
+          "delay_samples": 0.24744999999999995,
+          "normalized_residual_squared": 0.00220500780072417
+        },
+        {
+          "delay_samples": 0.2499,
+          "normalized_residual_squared": 0.0022437446122543668
+        },
+        {
+          "delay_samples": 0.25234999999999996,
+          "normalized_residual_squared": 0.0022856075435952437
+        },
+        {
+          "delay_samples": 0.2548,
+          "normalized_residual_squared": 0.0023305992377302704
+        },
+        {
+          "delay_samples": 0.25725,
+          "normalized_residual_squared": 0.0023787222810509193
+        },
+        {
+          "delay_samples": 0.25969999999999993,
+          "normalized_residual_squared": 0.002429979203182967
+        },
+        {
+          "delay_samples": 0.26215,
+          "normalized_residual_squared": 0.0024843724768151745
+        },
+        {
+          "delay_samples": 0.26459999999999995,
+          "normalized_residual_squared": 0.0025419045175303673
+        },
+        {
+          "delay_samples": 0.26705,
+          "normalized_residual_squared": 0.0026025776836389675
+        },
+        {
+          "delay_samples": 0.26949999999999996,
+          "normalized_residual_squared": 0.002666394276014924
+        },
+        {
+          "delay_samples": 0.27195,
+          "normalized_residual_squared": 0.002733356537934146
+        },
+        {
+          "delay_samples": 0.2744,
+          "normalized_residual_squared": 0.002803466654915357
+        },
+        {
+          "delay_samples": 0.27684999999999993,
+          "normalized_residual_squared": 0.002876726754563494
+        },
+        {
+          "delay_samples": 0.2793,
+          "normalized_residual_squared": 0.0029531389064155608
+        },
+        {
+          "delay_samples": 0.28174999999999994,
+          "normalized_residual_squared": 0.00303270512178902
+        },
+        {
+          "delay_samples": 0.2842,
+          "normalized_residual_squared": 0.003115427353632746
+        },
+        {
+          "delay_samples": 0.28664999999999996,
+          "normalized_residual_squared": 0.0032013074963804667
+        },
+        {
+          "delay_samples": 0.2891,
+          "normalized_residual_squared": 0.0032903473858068464
+        },
+        {
+          "delay_samples": 0.29155,
+          "normalized_residual_squared": 0.0033825487988860758
+        },
+        {
+          "delay_samples": 0.29400000000000004,
+          "normalized_residual_squared": 0.003477913453653123
+        },
+        {
+          "delay_samples": 0.29645,
+          "normalized_residual_squared": 0.0035764430090675214
+        },
+        {
+          "delay_samples": 0.29889999999999994,
+          "normalized_residual_squared": 0.0036781390648798658
+        },
+        {
+          "delay_samples": 0.30135,
+          "normalized_residual_squared": 0.003783003161500876
+        },
+        {
+          "delay_samples": 0.30379999999999996,
+          "normalized_residual_squared": 0.0038910367798731227
+        },
+        {
+          "delay_samples": 0.30625,
+          "normalized_residual_squared": 0.004002241341345474
+        },
+        {
+          "delay_samples": 0.3087,
+          "normalized_residual_squared": 0.004116618207550125
+        },
+        {
+          "delay_samples": 0.31115000000000004,
+          "normalized_residual_squared": 0.004234168680282425
+        },
+        {
+          "delay_samples": 0.3136,
+          "normalized_residual_squared": 0.004354894001383305
+        },
+        {
+          "delay_samples": 0.31604999999999994,
+          "normalized_residual_squared": 0.004478795352624511
+        },
+        {
+          "delay_samples": 0.3185,
+          "normalized_residual_squared": 0.004605873855596516
+        },
+        {
+          "delay_samples": 0.32094999999999996,
+          "normalized_residual_squared": 0.004736130571599163
+        },
+        {
+          "delay_samples": 0.3234,
+          "normalized_residual_squared": 0.004869566501535128
+        },
+        {
+          "delay_samples": 0.32585,
+          "normalized_residual_squared": 0.005006182585806054
+        },
+        {
+          "delay_samples": 0.32830000000000004,
+          "normalized_residual_squared": 0.005145979704211572
+        },
+        {
+          "delay_samples": 0.33075,
+          "normalized_residual_squared": 0.005288958675850983
+        },
+        {
+          "delay_samples": 0.33319999999999994,
+          "normalized_residual_squared": 0.005435120259027873
+        },
+        {
+          "delay_samples": 0.33565,
+          "normalized_residual_squared": 0.005584465151157443
+        },
+        {
+          "delay_samples": 0.33809999999999996,
+          "normalized_residual_squared": 0.005736993988676673
+        },
+        {
+          "delay_samples": 0.34055,
+          "normalized_residual_squared": 0.005892707346957393
+        },
+        {
+          "delay_samples": 0.34299999999999997,
+          "normalized_residual_squared": 0.006051605740222064
+        },
+        {
+          "delay_samples": 0.34545000000000003,
+          "normalized_residual_squared": 0.006213689621462562
+        },
+        {
+          "delay_samples": 0.3479,
+          "normalized_residual_squared": 0.006378959382361686
+        },
+        {
+          "delay_samples": 0.35034999999999994,
+          "normalized_residual_squared": 0.006547415353217642
+        },
+        {
+          "delay_samples": 0.3528,
+          "normalized_residual_squared": 0.006719057802871347
+        },
+        {
+          "delay_samples": 0.35524999999999995,
+          "normalized_residual_squared": 0.0068938869386366295
+        },
+        {
+          "delay_samples": 0.3577,
+          "normalized_residual_squared": 0.007071902906233369
+        },
+        {
+          "delay_samples": 0.36014999999999997,
+          "normalized_residual_squared": 0.007253105789723471
+        },
+        {
+          "delay_samples": 0.36260000000000003,
+          "normalized_residual_squared": 0.007437495611449847
+        },
+        {
+          "delay_samples": 0.36505,
+          "normalized_residual_squared": 0.0076250723319782185
+        },
+        {
+          "delay_samples": 0.36749999999999994,
+          "normalized_residual_squared": 0.007815835850041938
+        },
+        {
+          "delay_samples": 0.36995,
+          "normalized_residual_squared": 0.008009786002489716
+        },
+        {
+          "delay_samples": 0.37239999999999995,
+          "normalized_residual_squared": 0.008206922564236238
+        },
+        {
+          "delay_samples": 0.37485,
+          "normalized_residual_squared": 0.008407245248215855
+        },
+        {
+          "delay_samples": 0.37729999999999997,
+          "normalized_residual_squared": 0.008610753705339107
+        },
+        {
+          "delay_samples": 0.37975000000000003,
+          "normalized_residual_squared": 0.008817447524452312
+        },
+        {
+          "delay_samples": 0.3822,
+          "normalized_residual_squared": 0.009027326232300044
+        },
+        {
+          "delay_samples": 0.38464999999999994,
+          "normalized_residual_squared": 0.009240389293490666
+        },
+        {
+          "delay_samples": 0.3871,
+          "normalized_residual_squared": 0.009456636110464793
+        },
+        {
+          "delay_samples": 0.38954999999999995,
+          "normalized_residual_squared": 0.009676066023466741
+        },
+        {
+          "delay_samples": 0.392,
+          "normalized_residual_squared": 0.009898678310519037
+        },
+        {
+          "delay_samples": 0.39444999999999997,
+          "normalized_residual_squared": 0.010124472187399819
+        },
+        {
+          "delay_samples": 0.39690000000000003,
+          "normalized_residual_squared": 0.01035344680762337
+        },
+        {
+          "delay_samples": 0.39935,
+          "normalized_residual_squared": 0.01058560126242352
+        },
+        {
+          "delay_samples": 0.40179999999999993,
+          "normalized_residual_squared": 0.010820934580740196
+        },
+        {
+          "delay_samples": 0.40425,
+          "normalized_residual_squared": 0.011059445729208894
+        },
+        {
+          "delay_samples": 0.40669999999999995,
+          "normalized_residual_squared": 0.011301133612153165
+        },
+        {
+          "delay_samples": 0.40915,
+          "normalized_residual_squared": 0.011545997071580244
+        },
+        {
+          "delay_samples": 0.41159999999999997,
+          "normalized_residual_squared": 0.011794034887179521
+        },
+        {
+          "delay_samples": 0.41405000000000003,
+          "normalized_residual_squared": 0.012045245776324237
+        },
+        {
+          "delay_samples": 0.4165,
+          "normalized_residual_squared": 0.012299628394076006
+        },
+        {
+          "delay_samples": 0.41894999999999993,
+          "normalized_residual_squared": 0.012557181333192589
+        },
+        {
+          "delay_samples": 0.4214,
+          "normalized_residual_squared": 0.012817903124138516
+        },
+        {
+          "delay_samples": 0.42384999999999995,
+          "normalized_residual_squared": 0.013081792235098824
+        },
+        {
+          "delay_samples": 0.4263,
+          "normalized_residual_squared": 0.01334884707199589
+        },
+        {
+          "delay_samples": 0.42874999999999996,
+          "normalized_residual_squared": 0.013619065978509148
+        },
+        {
+          "delay_samples": 0.4312,
+          "normalized_residual_squared": 0.01389244723609805
+        },
+        {
+          "delay_samples": 0.43365,
+          "normalized_residual_squared": 0.01416898906402784
+        },
+        {
+          "delay_samples": 0.43609999999999993,
+          "normalized_residual_squared": 0.014448689619398599
+        },
+        {
+          "delay_samples": 0.43855,
+          "normalized_residual_squared": 0.014731546997177167
+        },
+        {
+          "delay_samples": 0.44099999999999995,
+          "normalized_residual_squared": 0.015017559230232132
+        },
+        {
+          "delay_samples": 0.44345,
+          "normalized_residual_squared": 0.015306724289371946
+        },
+        {
+          "delay_samples": 0.44589999999999996,
+          "normalized_residual_squared": 0.015599040083385954
+        },
+        {
+          "delay_samples": 0.44835,
+          "normalized_residual_squared": 0.015894504459088615
+        },
+        {
+          "delay_samples": 0.4508,
+          "normalized_residual_squared": 0.01619311520136656
+        },
+        {
+          "delay_samples": 0.45324999999999993,
+          "normalized_residual_squared": 0.016494870033228894
+        },
+        {
+          "delay_samples": 0.4557,
+          "normalized_residual_squared": 0.01679976661586041
+        },
+        {
+          "delay_samples": 0.45814999999999995,
+          "normalized_residual_squared": 0.01710780254867779
+        },
+        {
+          "delay_samples": 0.4606,
+          "normalized_residual_squared": 0.01741897536938903
+        },
+        {
+          "delay_samples": 0.46304999999999996,
+          "normalized_residual_squared": 0.017733282554055603
+        },
+        {
+          "delay_samples": 0.4655,
+          "normalized_residual_squared": 0.018050721517157985
+        },
+        {
+          "delay_samples": 0.46795,
+          "normalized_residual_squared": 0.018371289611663875
+        },
+        {
+          "delay_samples": 0.47039999999999993,
+          "normalized_residual_squared": 0.018694984129099642
+        },
+        {
+          "delay_samples": 0.47285,
+          "normalized_residual_squared": 0.01902180229962474
+        },
+        {
+          "delay_samples": 0.47529999999999994,
+          "normalized_residual_squared": 0.01935174129210902
+        },
+        {
+          "delay_samples": 0.47775,
+          "normalized_residual_squared": 0.019684798214213255
+        },
+        {
+          "delay_samples": 0.48019999999999996,
+          "normalized_residual_squared": 0.020020970112472423
+        },
+        {
+          "delay_samples": 0.48265,
+          "normalized_residual_squared": 0.020360253972382232
+        },
+        {
+          "delay_samples": 0.4851,
+          "normalized_residual_squared": 0.020702646718488357
+        },
+        {
+          "delay_samples": 0.48754999999999993,
+          "normalized_residual_squared": 0.02104814521447895
+        },
+        {
+          "delay_samples": 0.49,
+          "normalized_residual_squared": 0.02139674626327992
+        }
+      ],
+      "dense_optimizer_check": {
+        "bracket_samples": [
+          0.2156,
+          0.22050000000000003
+        ],
+        "dense_best_samples": 0.21812350000000003,
+        "dense_best_score": 0.001982963469352738,
+        "dense_grid_points": 1001,
+        "evaluator_only_true_delay_ns": 4.0,
+        "evaluator_only_true_delay_samples": 0.24000000000000002,
+        "evaluator_only_true_delay_score": 0.0021063940211193516,
+        "golden_minus_dense_samples": 1.1348745395656223e-06,
+        "original_golden_samples": 0.2181246348745396,
+        "true_score_minus_best_score": 0.00012343055176661363,
+        "truth_used_for_estimation": false
+      },
+      "diagnostic_estimate_ns": 3.6354105812423265,
+      "diagnostic_normalized_model_residual": 0.044530477978808,
+      "frequency_mapping_verified": true,
+      "profile_status": "EVALUABLE_DESCRIPTIVE",
+      "residual_phase_by_frequency_sign": {
+        "negative": {
+          "descriptive_linear_residual_delay_ns": 0.6757632442649227,
+          "support_bins": 1076,
+          "weighted_phase_rmse_rad": 0.04011397138515514
+        },
+        "positive": {
+          "descriptive_linear_residual_delay_ns": 0.10939111534375087,
+          "support_bins": 1288,
+          "weighted_phase_rmse_rad": 0.042242983645594985
+        },
+        "status": "EVALUABLE_DESCRIPTIVE"
+      }
+    },
+    "process_peak_rss_kib_after_diagnostic": 1238928,
+    "process_peak_rss_kib_after_estimate": 1216320,
+    "runtime_xml": {
+      "path": "docs/research/phase_r/R21/evidence/cuda_pilot/seed1002_0957f49/cases/base__seed_1002__v_p6d7__snr_p30__delay_p4ns/production/A1_Current_unknown_error_ON/production.xml",
+      "sha256": "19cade864584de6904d90b61e744782d39df67c179857e70149695066e3451f3"
+    },
+    "same_input_huber_fit_incremental_median_seconds": 0.0015106169739738107,
+    "same_input_huber_fit_incremental_seconds": [
+      0.001501118007581681,
+      0.0015106169739738107,
+      0.0018286780104972422
+    ],
+    "same_input_huber_fit_support_bins": 2364,
+    "same_input_huber_timing_scope": "robust weighted phase-slope regression only; shared raw loading, geometry and FFT preprocessing excluded",
+    "seed": 1002,
+    "truth_used_in_estimator": false,
+    "warmup_compute_time_seconds": 2.2159152280073613,
+    "warmup_huber_fit_incremental_seconds": 0.005312476016115397
+  },
+  "retained_binary_manifest": "docs/research/phase_r/R21/evidence/inputs/r21_retained_binary_manifest.json",
+  "retained_binary_manifest_sha256": "f4daf0cf8eae28ba1cf246553072a4c0875f58d066f926cd50ccb0b657430505",
+  "schema_version": "r21-m1-offline-diagnostic-v1"
+}

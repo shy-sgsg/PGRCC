@@ -1,0 +1,111 @@
+{
+  "status": "READY_FOR_USER_FREEZE_DECISION",
+  "design_status": "DRAFT_NOT_FROZEN",
+  "execution_status": "BLOCKED_PENDING_USER_THRESHOLDS_RESOURCE_EVIDENCE_AND_SEED_REGISTRY_REVIEW",
+  "execution_authorized": false,
+  "cuda_authorized": false,
+  "ai_training": false,
+  "source_baseline_commit": "a81bdce906037d6a68c5e15cfe2d1578c8baedf4",
+  "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "research_master_plan_modified": false,
+  "science_scope": {
+    "overall_direction": "CONTINUE",
+    "ai_entry_gate": "FAIL",
+    "performance_verified": false,
+    "new_gmti_experiment_executed": false
+  },
+  "statistics": {
+    "primary_interval": "95% two-sided seed-cluster studentized bootstrap-t interval of independent seeds",
+    "primary_replicates": 10000,
+    "bootstrap_t_calibration_datasets_per_scenario": 5000,
+    "inner_bootstrap_replicates": 1000,
+    "broad_joint_grid_rows": 27000,
+    "broad_grid_is_exact_bootstrap_power": false,
+    "scheme_a_and_b_are_distinct": true,
+    "user_thresholds_approved": false
+  },
+  "compact_archive": {
+    "status": "PASS",
+    "core_reanalysis_parity": "PASS",
+    "core_tables": 11,
+    "full_source_zip_opened_by_reanalysis": false,
+    "compact_zip_committed": false,
+    "original_p0_deleted": false
+  },
+  "case_schemas": {
+    "cpu_fixture_status": "CPU_SYNTHETIC_SCHEMA_FIXTURES_PASS",
+    "schemas": [
+      "target_present_0ns",
+      "target_present_4ns",
+      "h0_0ns",
+      "h0_4ns"
+    ],
+    "real_complete_cuda_size_measured_for_all_four": false
+  },
+  "seed_registry": {
+    "local_audit_status": "NO_CANDIDATE_COLLISIONS_FOUND_IN_LOCAL_EXECUTION_IDENTITIES",
+    "local_collision_count": 0,
+    "global_external_registry_audit_complete": false
+  },
+  "confirmatory_plan": {
+    "case_count": 240,
+    "batch_count": 120,
+    "case_counts": {
+      "h0": 60,
+      "target_present": 180
+    },
+    "science_slots": 1470,
+    "production_calls": 2520,
+    "stage2_calls_min": 1200,
+    "stage2_calls_max": 1440,
+    "registry_sha256": "4847beb276ba2c0621f9de8f17fc37e72edace6632974726d9c2c0e0383a8a2d",
+    "dry_run_status": "NOT_AUTHORIZED",
+    "stage2_executed": false,
+    "production_executed": false,
+    "cuda_executed": false
+  },
+  "cpu_regression": {
+    "test_file_count": 21,
+    "passed": 254,
+    "failed": 0,
+    "skipped": 0,
+    "elapsed_seconds": 3.804
+  },
+  "storage": {
+    "project_root_bytes": 18379873713,
+    "limit_bytes": 20000000000,
+    "under_limit": true,
+    "headroom_bytes": 1620126287,
+    "filesystem_free_bytes": 49853292544,
+    "matrix_archive_projection_bytes": {
+      "optimistic_branch_scaled_proxy": 2464442120,
+      "uniform_p0_case_proxy": 4224757920,
+      "uniform_plus_25pct_proxy": 5280947400
+    },
+    "all_matrix_projections_plus_current_root_exceed_limit": true,
+    "runtime_may_temporarily_exceed_final_limit": true,
+    "post_review_cleanup_required": true,
+    "original_p0_retained": true,
+    "duplicate_compact_bytes_removed": 35206116
+  },
+  "remaining_user_decisions": [
+    "position hypothesis scheme A or B",
+    "position MDE in metres",
+    "detection coverage noninferiority margin in percentage points",
+    "whether to hard-gate track protection and its bounds",
+    "H0 seed-any-event and false-confirmed-track acceptance bounds",
+    "confirmatory seed count"
+  ],
+  "remaining_pre_execution_gates": [
+    "complete remote/external seed registry audit",
+    "if separately authorized, measure full output archive and peak temporary size for all four case schemas",
+    "regenerate plan/registry for a dedicated approved output root after the design is frozen",
+    "separate explicit CUDA matrix authorization"
+  ],
+  "not_run": [
+    "Stage2",
+    "Native CUDA Production",
+    "240-case confirmatory matrix",
+    "AI training"
+  ]
+}

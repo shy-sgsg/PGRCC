@@ -1,0 +1,35 @@
+{
+  "false_track_counting_unit": "unique confirmed track ID within seed; do not count repeated frames as independent events",
+  "note": "30 seeds with zero events only bounds seed-any-event probability to about 9.5%; it does not establish extremely low system Pfa",
+  "period_is_independent_unit": false,
+  "primary_candidate": "seed-any-event probability with an exact one-sided seed-level binomial upper bound",
+  "scope": "beam-50, ten-period task-level H0; not full 61-beam or system Pfa",
+  "success_threshold_status": "UNAPPROVED_USER_DECISION_REQUIRED",
+  "supporting_endpoints": [
+    "per-seed fraction of valid periods with at least one false Detection; seed-cluster bootstrap",
+    "unique false-confirmed track IDs per seed; TrackManager lineage retained"
+  ],
+  "thirty_seed_zero_event_upper_bound_one_sided_95pct": 0.09503385285530408,
+  "zero_event_threshold_sample_size_candidates": [
+    {
+      "confidence": 0.95,
+      "independent_seeds_required_if_zero_events": 29,
+      "seed_any_event_probability_upper_limit": 0.1
+    },
+    {
+      "confidence": 0.95,
+      "independent_seeds_required_if_zero_events": 59,
+      "seed_any_event_probability_upper_limit": 0.05
+    },
+    {
+      "confidence": 0.95,
+      "independent_seeds_required_if_zero_events": 299,
+      "seed_any_event_probability_upper_limit": 0.01
+    },
+    {
+      "confidence": 0.95,
+      "independent_seeds_required_if_zero_events": 2995,
+      "seed_any_event_probability_upper_limit": 0.001
+    }
+  ]
+}

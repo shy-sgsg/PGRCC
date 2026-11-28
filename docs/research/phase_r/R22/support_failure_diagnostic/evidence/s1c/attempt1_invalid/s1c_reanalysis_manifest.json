@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "task": "R22-S1c selected group shared OFF phase reanalysis",
+  "production_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1c_shared_off_phase_20261029/s1c_manifest.json",
+  "production_manifest_sha256": "66a19e81c3e6702cef061d7675803c78c82462bdbebd194467eb844c18c2da0a",
+  "production_run_status": "both_production_branches_passed",
+  "production_binary_sha256": "16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998",
+  "production_commit": "0189933420d73bb04c3a466e633bd664a23871c0",
+  "group": {
+    "period_id": 5,
+    "beam_id": 50,
+    "azimuth_row": 52,
+    "range_start": 1065,
+    "range_end": 1197,
+    "range_bins": 133
+  },
+  "phase_threshold_rad": 0.35,
+  "truth_used_in_estimator": false,
+  "phase_vectors": {
+    "20": {
+      "own_on_vector_sha256": "018517a973b889287bb870e9fc7c0384cf640cd081ce3b6cc0b0297643f742b2",
+      "shared_off_vector_sha256": "1df58e30d32decddfbfca733eee8cf702b5b4caa8190ef615e8d303531c38b0e",
+      "roi_bin_count": 133,
+      "roi_mean_abs_wrapped_delta_rad": 0.5601503248501541,
+      "roi_max_abs_wrapped_delta_rad": 0.8393397331237792
+    },
+    "30": {
+      "own_on_vector_sha256": "242b90e727b5478a74c36cdacb0b2c5c08de972e6ecfb08038d1e64155c6ff1f",
+      "shared_off_vector_sha256": "1df58e30d32decddfbfca733eee8cf702b5b4caa8190ef615e8d303531c38b0e",
+      "roi_bin_count": 133,
+      "roi_mean_abs_wrapped_delta_rad": 1.931382855085334,
+      "roi_max_abs_wrapped_delta_rad": 2.8272878527641296
+    }
+  },
+  "all_group_status_counts_after_counterfactual": {
+    "20": {
+      "OK": 1560
+    },
+    "30": {
+      "OK": 1560
+    }
+  },
+  "interpretation_scope": "single selected group mechanism only; no task-level performance claim"
+}

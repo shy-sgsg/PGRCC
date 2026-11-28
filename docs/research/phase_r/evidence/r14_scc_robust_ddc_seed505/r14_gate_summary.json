@@ -1,0 +1,129 @@
+{
+  "stage": "R14 SCC vs Robust DDC independent-seed review",
+  "execution": "EXECUTED",
+  "native_cuda": {
+    "skip_cuda": false,
+    "gpu_available": true,
+    "gpu_probe": "Sun Oct 25 13:09:58 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    Off |   00000000:01:00.0  On |                  N/A |\n| N/A   39C    P8              6W /   40W |     731MiB /   4096MiB |     15%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            4369      G   /usr/bin/gnome-shell                    151MiB |\n|    0   N/A  N/A            4848      G   /usr/bin/Xwayland                         6MiB |\n|    0   N/A  N/A            6954    C+G   /usr/bin/nautilus                        53MiB |\n|    0   N/A  N/A            6966      G   .../9036/usr/lib/firefox/firefox        225MiB |\n|    0   N/A  N/A            8162    C+G   /usr/bin/resources                       29MiB |\n+-----------------------------------------------------------------------------------------+\n",
+    "USE_COREX": "OFF",
+    "new_protocol_gpu_preprocess": "enabled",
+    "dbs_mosaic_use_gpu": false,
+    "dbs_mosaic_scope": "final display mosaic only; signal-processing CUDA path unaffected"
+  },
+  "selection": {
+    "mode": "pilot",
+    "selection_mode": "targeted",
+    "cartesian_full_matrix": false,
+    "delay_errors_ns": [
+      0.0
+    ],
+    "seeds": [
+      505
+    ],
+    "target_velocities_mps": [
+      6.7
+    ],
+    "target_snr_db": [
+      30.0
+    ],
+    "working_points": [
+      "base"
+    ],
+    "period_count": 3,
+    "cases": [
+      {
+        "group": "r14_seed505_normal",
+        "delay_error_ns": 0.0,
+        "seed": 505,
+        "target_velocity_mps": 6.7,
+        "target_snr_db": 30.0,
+        "working_point": "base",
+        "scene_parameters": {},
+        "period_count": 3
+      }
+    ],
+    "case_count": 1,
+    "configured_cartesian_case_count": 1,
+    "overrides": {
+      "delay_errors_ns": [
+        0.0
+      ],
+      "seeds": [
+        505
+      ],
+      "target_velocities_mps": [
+        6.7
+      ],
+      "target_snr_db": [
+        30.0
+      ]
+    },
+    "truncated_by_max_cases": true
+  },
+  "case_status": "completed_with_gaps",
+  "runner_status": "completed_with_gaps",
+  "runner_decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+  "runner_gap": "residual_branch_missing_or_ambiguous:PK",
+  "area_clutter_gate": {
+    "status": "passed",
+    "reasons": [],
+    "area_enabled": true,
+    "area_model": "continuous_texture",
+    "platform_height_m": 6000.0,
+    "ground_height_m": 0.0,
+    "minimum_slant_range_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_max_m": 85289.213854977,
+    "continuous_area_packets": 390,
+    "continuous_area_samples": 1952655,
+    "area_mean_power_measured": 0.023496702684,
+    "report_values": {
+      "area_rho_lag1_measured": "0.980018339329",
+      "area_rho_at_CTDR_lag": "0.960432413203",
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "2.05217139807",
+      "mean_noise_power_per_complex_sample": "0.00099985370087"
+    },
+    "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r14_scc_robust_ddc_seed505_20261025/cases/base__seed_505__v_6d7__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "136b3915306f254b041c797c284c676f67967c6077e883738d94c31abc3cab52",
+    "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r14_scc_robust_ddc_seed505_20261025/cases/base__seed_505__v_6d7__snr_30__delay_0ns/scenes/scenarios/A0_ON.json",
+    "scenario_sha256": "3245931fc3a410b2d00f4ce5d99a3501662ab633909981ba211aa7ef2281c670"
+  },
+  "production_branches": {
+    "expected": 12,
+    "observed": 12,
+    "all_passed": true,
+    "all_track_audit_violations_zero": true
+  },
+  "cfar_map_audit": {
+    "period_branch_rows": 36,
+    "all_verified": true,
+    "valid_cuts_per_period": 527280,
+    "valid_cuts_per_three_period_branch": 1581840
+  },
+  "paired_inputs": {
+    "periods": 3,
+    "all_OFF_matches_background_and_ON_matches_writer": true
+  },
+  "F1_F2": {
+    "role_period_groups": 9,
+    "all_identical_across_methods": true
+  },
+  "R14_evaluator": {
+    "status": "evaluated",
+    "branches": 12,
+    "empirical_Pfa": "NOT_EVALUABLE",
+    "performance_verified": false,
+    "algorithmic_results_claimed": false
+  },
+  "target_candidate_cell_audit_rows": 9,
+  "scope_note": "Zero-delay seed505 scene; single-seed feasibility only. H0 is reference-in-sample for Mode-A; observed hit fraction is not Pfa."
+}

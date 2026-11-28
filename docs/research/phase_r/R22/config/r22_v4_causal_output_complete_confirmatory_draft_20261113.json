@@ -1,0 +1,494 @@
+{
+  "schema_version": 1,
+  "design_id": "R22_EXTENSION_20261113_V4_CAUSAL_OUTPUT_COMPLETE_CONFIRMATORY_FROZEN",
+  "status": "FROZEN",
+  "execution_authorized": false,
+  "cuda_authorized": false,
+  "ai_training": false,
+  "router_enabled": false,
+  "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
+  "updated_on": "2026-11-28",
+  "draft_revision": 7,
+  "case_identity_semantics": "240 unique case identities are paired/nested by seed; they are not 240 statistically independent samples",
+  "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "supersedes": null,
+  "references": {
+    "prior_design": "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json",
+    "prior_design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
+    "v3_3_review": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md",
+    "contract": "docs/research/phase_r/R22/54_v4_phase_h_final_contract_and_freeze.md",
+    "seed_registry": "docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json",
+    "seed_registry_sha256": "ec73bb776882a25cde4250d0092fec24157b7d38aaea6961729a909f1826abfd"
+  },
+  "production": {
+    "backend": "Native CUDA",
+    "use_corex": false,
+    "beam": 50,
+    "period_count": 10,
+    "range_bins_inclusive": [
+      666,
+      1197
+    ],
+    "group_width_bins": 133,
+    "area_clutter": {
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "mean_power": 0.02,
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98,
+      "thermal_noise_power": 0.001,
+      "runtime_gate": "measured_packets_and_samples_positive; power_and_correlation_pass_frozen_stage2_gate"
+    }
+  },
+  "target_present": {
+    "seed_range_inclusive": [
+      1933001,
+      1933030
+    ],
+    "seed_count": 30,
+    "seed_audit": "fixed in docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json; local execution identities clear; external/offline registry remains unavailable",
+    "radial_speed_mps": [
+      0.5,
+      2.5,
+      6.7
+    ],
+    "target_snr_db": 20.0,
+    "delay_error_ns": [
+      0.0,
+      4.0
+    ],
+    "target_count": 20,
+    "case_count": 180,
+    "production_branch_count": 1260,
+    "pairing": "same seed, speed, geometry, target state, clutter/noise realization; only channel-delay intervention changes",
+    "roles": [
+      "ON",
+      "TO"
+    ],
+    "methods": [
+      {
+        "id": "A0",
+        "delay_ns": 0.0,
+        "role": "no-error reference"
+      },
+      {
+        "id": "C0",
+        "delay_ns": 4.0,
+        "role": "uncorrected current"
+      },
+      {
+        "id": "FIXED_D3",
+        "delay_ns": 4.0,
+        "role": "frozen deterministic calibration",
+        "fixed_correction_ns": 3.4099650318669545,
+        "provenance": "R9 static calibration from R3 seed101 target-free A1_OFF C+N; docs/research/phase_r/R9_static_calibration_baseline.md",
+        "calibration_iq_sha256": "d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6",
+        "calibration_iq_available": false,
+        "value_rederived_from_raw_iq": false,
+        "refit_on_v4_seed": false,
+        "uses_v4_delay_truth": false
+      },
+      {
+        "id": "HUBER_D3_CAUSAL_PREFIX",
+        "delay_ns": 4.0,
+        "role": "same-information deterministic prefix baseline",
+        "allowed_input": "same-case ON raw C1/C2 periods 0..k; same geometry and correction operator as M1",
+        "algorithm_identity": "For each period k, scripts/phase_r/run_r22_cuda_pilot.py::_causal_prefix_estimates passes only the same-case allowed ON raw C1/C2 period inputs 0..k to scripts/phase_r/run_r12_physics_matched_delay.py::_blind_m1_from_b_on; D3_Huber_weighted_LS is computed inside scripts/phase_r/physics_matched_delay.py::_slope_baselines from geometry-corrected observed_cross/geometry_cross, frequency-sorted unwrapped phase, and observed-cross-magnitude weights using fit_weighted_line(robust=True), then independently qualified by scripts/phase_r/run_r21_cuda_pilot.py::qualify_blind_methods. The frozen shared M1 support mask, Huber IRLS settings and qualification gates below apply; unavailable estimates receive zero correction for that period.",
+        "robust_fit": "12 IRLS iterations; scale 1.4826*MAD with 1e-6 floor; standardized Huber cutoff 1.345",
+        "shared_support_mask": "same M1-selected mask: finite nonzero observed/geometry cross, nonzero frequency, and observed_cross magnitude >= 80th percentile of valid bins",
+        "qualification_gate": "finite D3 estimate; support_count >= 8; frequency_span_hz >= 3e6; D3 support_count equals M1 support_count",
+        "known_gate_gap": "closed in the existing R21 qualifier: the same finite sample rate and delay_bounds_samples gate is applied independently to the M1 and D3 Huber estimates; the out-of-domain D3 regression case is covered by tests/test_r21_cuda_pilot.py",
+        "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
+      },
+      {
+        "id": "M1_CAUSAL_PREFIX",
+        "delay_ns": 4.0,
+        "role": "primary target-present period-causal estimator"
+      },
+      {
+        "id": "M1_BATCH10_DIAGNOSTIC",
+        "delay_ns": 4.0,
+        "role": "full-case offline diagnostic; excluded from online ranking"
+      },
+      {
+        "id": "PK_KNOWN",
+        "delay_ns": 4.0,
+        "role": "known-error correction upper bound; evaluator-only truth"
+      }
+    ]
+  },
+  "h0": {
+    "candidate_seed_range_inclusive": [
+      1936001,
+      1936030
+    ],
+    "seed_count": 30,
+    "seed_audit": "fixed in docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json; local execution identities clear; external/offline registry remains unavailable",
+    "target_count": 0,
+    "delay_error_ns": [
+      0.0,
+      4.0
+    ],
+    "period_count": 10,
+    "case_count": 60,
+    "production_branch_count": 210,
+    "paired_by_seed": true,
+    "reuse_v3_2_h0_seeds": false,
+    "methods": [
+      {
+        "id": "A0",
+        "delay_ns": 0.0
+      },
+      {
+        "id": "C0",
+        "delay_ns": 4.0
+      },
+      {
+        "id": "FIXED_D3",
+        "delay_ns": 4.0,
+        "fixed_correction_ns": 3.4099650318669545,
+        "provenance": "R9 static calibration from R3 seed101 target-free A1_OFF C+N",
+        "calibration_iq_sha256": "d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6",
+        "calibration_iq_available": false,
+        "value_rederived_from_raw_iq": false,
+        "refit_on_v4_seed": false,
+        "uses_v4_delay_truth": false
+      },
+      {
+        "id": "HUBER_D3_CAUSAL_PREFIX",
+        "delay_ns": 4.0,
+        "role": "same-information deterministic prefix baseline",
+        "allowed_input": "same-case target-free C1/C2 periods 0..k; same geometry and correction operator as M1",
+        "algorithm_identity": "For each period k, scripts/phase_r/run_r22_cuda_pilot.py::_causal_prefix_estimates passes only the same-case allowed target-free ON raw C1/C2 period inputs 0..k to scripts/phase_r/run_r12_physics_matched_delay.py::_blind_m1_from_b_on; D3_Huber_weighted_LS is computed inside scripts/phase_r/physics_matched_delay.py::_slope_baselines from geometry-corrected observed_cross/geometry_cross, frequency-sorted unwrapped phase, and observed-cross-magnitude weights using fit_weighted_line(robust=True), then independently qualified by scripts/phase_r/run_r21_cuda_pilot.py::qualify_blind_methods. The frozen shared M1 support mask, Huber IRLS settings and qualification gates below apply; unavailable estimates receive zero correction for that period.",
+        "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator",
+        "robust_fit": "12 IRLS iterations; scale 1.4826*MAD with 1e-6 floor; standardized Huber cutoff 1.345",
+        "shared_support_mask": "same M1-selected mask: finite nonzero observed/geometry cross, nonzero frequency, and observed_cross magnitude >= 80th percentile of valid bins",
+        "qualification_gate": "finite D3 estimate; support_count >= 8; frequency_span_hz >= 3e6; D3 support_count equals M1 support_count; declared physical delay_bounds_samples gate",
+        "known_gate_gap": "closed in the current R21 qualifier: the same finite sample rate and delay_bounds_samples gate is applied independently to the M1 and D3 Huber estimates; the out-of-domain D3 regression case is covered by tests/test_r21_cuda_pilot.py"
+      },
+      {
+        "id": "M1_CAUSAL_PREFIX",
+        "delay_ns": 4.0
+      },
+      {
+        "id": "M1_BATCH10_DIAGNOSTIC",
+        "delay_ns": 4.0,
+        "online_ranking": false
+      },
+      {
+        "id": "PK_KNOWN",
+        "delay_ns": 4.0,
+        "truth_use": "evaluator_only"
+      }
+    ],
+    "primary_false_alarm_endpoint": "proportion of independent H0 seeds with at least one frozen postfilter false Detection in ten valid beam-50 periods",
+    "false_confirmed_track_event_endpoint": "proportion of independent H0 seeds with at least one unique false confirmed TrackManager track ID",
+    "supporting_endpoints": [
+      "false_unique_cfar_cut_count / valid_cut_count per seed",
+      "false_cluster_count per seed",
+      "false_confirmed_track_count per seed"
+    ],
+    "scope_limit": "beam-50, ten-period H0 endpoint; not full multi-beam system Pfa",
+    "interval_confidence": 0.95,
+    "seed_event_rate_upper_limit": 0.1,
+    "false_confirmed_track_rate_upper_limit": 0.1
+  },
+  "causal_estimator": {
+    "method_id": "M1_CAUSAL_PREFIX",
+    "v4_causal_prefix_implemented": true,
+    "v4_causal_prefix_executed": false,
+    "allowed_inputs": [
+      "same-case target-present ON raw C1/C2 pulses from periods 0 through current period k",
+      "pre-known sample rate and frequency axis",
+      "channel geometry and nominal electronic-scan delay configuration"
+    ],
+    "forbidden_inputs": [
+      "periods later than k",
+      "paired 0 ns reference",
+      "OFF or TO role data",
+      "target truth, injected delay truth, target SNR truth, or evaluator associations",
+      "Known correction values or estimates from another seed"
+    ],
+    "application_timing": "fit after period k input is complete and before Production processes period k",
+    "causality_scope": "period-boundary causal; not pulse-by-pulse real-time proof",
+    "failure_policy": "explicit zero-correction C0 for that period; log ESTIMATOR_UNAVAILABLE_ZERO_CORRECTION; count all opportunities; no previous-estimate, Fixed D3, batch, paired-reference, or Known fallback",
+    "required_diagnostics": [
+      "prefix_period_ids",
+      "pulse_count",
+      "input_identity",
+      "estimate",
+      "fit_diagnostics",
+      "applied_correction",
+      "runtime",
+      "status",
+      "estimator_elapsed_sec",
+      "applied_correction_ns",
+      "fallback_status"
+    ],
+    "implementation_status": {
+      "IMPLEMENTED": true,
+      "EXECUTED": false,
+      "EVALUABLE": false,
+      "PERFORMANCE_VERIFIED": false
+    },
+    "prefix_runner": "scripts/phase_r/run_r22_cuda_pilot.py::_causal_prefix_estimates",
+    "period_correction_runner": "scripts/phase_r/run_r22_cuda_pilot.py::_run_causal_prefix_delay_method",
+    "qualification_policy": "M1 and Huber use the same prefix estimator call, support selection, support count, frequency span, and physical delay_bounds_samples; Huber is qualified against the same declared correction domain",
+    "failure_behavior": "each estimator independently applies zero correction for its unavailable current period; no previous-period, peer-estimator, Fixed D3, batch, OFF/TO, or Known fallback",
+    "cpu_future_period_test": "mutating a later-period file leaves the current-period estimate and prefix identities unchanged; mocked estimator receives exactly paths 0..k"
+  },
+  "existing_source_audit": {
+    "source_audit_commit": "1063d67c96af7dbbe7fe871b3a56be0ca453b9b2",
+    "audit_type": "read-only source inspection; no estimator, Production, or CUDA execution",
+    "r22_input_scope": "run_r22_cuda_pilot._raw_role_periods obtains all period_count paths; run_case passes the complete A1/ON path list to _blind_m1_from_b_on once",
+    "m1_estimator_scope": "run_r12_physics_matched_delay._blind_m1_from_b_on concatenates C1/C2 samples from every passed period and estimates once; no period-k cutoff or period IDs",
+    "huber_candidate_scope": "physics_matched_delay._slope_baselines computes a geometry-corrected magnitude-weighted robust phase-slope estimate from the same pooled input used by M1",
+    "huber_mask_coupling": "Huber D3 reuses the M1-selected support mask: finite nonzero observed/geometry cross, nonzero frequencies, observed_cross magnitude at or above the 80th percentile of valid bins",
+    "huber_domain_gap": "Closed in the current implementation: D3 must share M1 support qualification and lie strictly inside the estimator declared delay_bounds_samples; no Huber estimate outside that physical domain is applied.",
+    "production_correction_scope": "Legacy batch runner remains available; V4 opt-in path corrects only the current period using that period’s causal-prefix estimate and processes each role as one continuous TrackManager run.",
+    "v4_period_causal_runner": {
+      "implemented": true,
+      "executed": false,
+      "evaluable": false,
+      "performance_verified": false,
+      "implementation_source": "scripts/phase_r/run_r22_cuda_pilot.py",
+      "cpu_verification": "prefix isolation, per-period correction, zero fallback and continuous-per-role invocation unit tests"
+    },
+    "required_before_freeze": [
+      "independent source review of prefix input isolation, shared Huber information/mask/domain and current-period-only correction",
+      "authorized Native CUDA/Production pilot to evaluate actual estimator output, runtime, role triplets and fallback behavior"
+    ]
+  },
+  "output_schema_source_audit": {
+    "source_audit_commit": "1063d67c96af7dbbe7fe871b3a56be0ca453b9b2",
+    "audit_type": "read-only source inspection; no estimator, Production, or CUDA execution",
+    "production_runner": "scripts/run_delay_stage1_formal.py::run_production_branch maps period inputs individually and requests track-debug-dir, track-debug-dump=on, runtime-mode=debug, and runtime-diagnostics=on; it can emit per-period detection_results_GMTI*.csv and TrackManager debug output",
+    "default_compact_archive_gap": "scripts/phase_r/r22_compact_archive.py::_exclusion_reason drops all track_debug_runs and all ON detection_results_GMTI*.csv except GMTI09; this policy loses V4-required all-period Detection and TrackManager/PIPE lineage",
+    "existing_target_response_helper": "scripts/phase_r/evaluate_r3_minimal_cuda_causal_pilot.py::_target_transfer reads ON/OFF/TO CSI taps, extracts truth-centered 5x5 CSI ROIs, computes an aggregate complex transfer and per-period center/power summaries, but does not retain per-cell complex values with complete ROI/injection-truth mapping; it is diagnostic and does not satisfy the V4 target-only complex-response archive contract",
+    "output_schema_ready": true,
+    "required_before_freeze": [
+      "independently review actual Production schema assumptions and all-period Detection/TrackManager/PIPE/CFAR archive gates",
+      "authorized representative complete-output pilot must validate real branch inventory, compressed/uncompressed sizes, temporary peak, runtime, resume and cleanup ledger",
+      "do not remove any case raw outputs until archive identity, required member inventory, SHA and CRC verification pass"
+    ],
+    "implementation_status": {
+      "IMPLEMENTED": true,
+      "EXECUTED": false,
+      "EVALUABLE": false,
+      "PERFORMANCE_VERIFIED": false
+    },
+    "implementation_sources": [
+      "scripts/phase_r/r22_v4_evidence.py",
+      "scripts/phase_r/r22_compact_archive.py",
+      "scripts/phase_r/r22_experiment_matrix.py"
+    ]
+  },
+  "primary_comparison": {
+    "condition": {
+      "delay_error_ns": 4.0,
+      "target_snr_db": 20.0
+    },
+    "methods": [
+      "M1_CAUSAL_PREFIX",
+      "FIXED_D3"
+    ],
+    "endpoint": "paired seed-level equal-weight mean across three speed strata of position RMSE difference on frozen common correctly associated target-period opportunities",
+    "contrast": "M1_CAUSAL_PREFIX minus FIXED_D3; negative favors M1",
+    "inferential_unit": "independent seed",
+    "seed_count": 30,
+    "position_scheme": "A",
+    "position_mde_m": 3.0,
+    "minimum_common_support_per_speed": 10,
+    "detection_coverage_noninferiority_margin_pp": 1.0,
+    "track_protection_policy": "DESCRIPTIVE_ONLY",
+    "track_coverage_noninferiority_margin_pp": null,
+    "threshold_status": "USER_APPROVED_AND_FROZEN_2026_11_28; execution and CUDA remain unauthorized until a separate user authorization is bound to this frozen design."
+  },
+  "secondary_information_matched_comparison": {
+    "methods": [
+      "M1_CAUSAL_PREFIX",
+      "HUBER_D3_CAUSAL_PREFIX"
+    ],
+    "same_information": true,
+    "endpoint": "paired seed-level position RMSE on the same common correctly associated target-period opportunities",
+    "contrast": "M1_CAUSAL_PREFIX minus HUBER_D3_CAUSAL_PREFIX; negative favors M1",
+    "status": "PRESPECIFIED_SECONDARY; descriptive confidence interval only unless a separate engineering MDE is approved",
+    "position_mde_m": null
+  },
+  "planning_only_historical_screening": {
+    "source_opportunity_audit": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/evidence/parameter_opportunity_audit.csv.gz",
+    "condition_slice": {
+      "delay_error_ns": 4.0,
+      "target_snr_db": 20.0,
+      "radial_speed_mps": [
+        0.5,
+        2.5,
+        6.7
+      ]
+    },
+    "screening_seed_count": 12,
+    "estimators_used_full_10_period_batch": true,
+    "position_delta_definition": "per-seed, per-speed pairwise-common-success RMSE difference; equal-weight mean across three speeds",
+    "position_delta_m1_minus_fixed_d3_mean_m": -11.146172818015659,
+    "position_delta_m1_minus_fixed_d3_seed_sd_m": 4.7967835646439765,
+    "position_delta_m1_minus_fixed_d3_directional_seeds": "12/12",
+    "position_delta_m1_minus_huber_mean_m": -5.6033961503441985,
+    "position_delta_m1_minus_huber_seed_sd_m": 0.9854697467048248,
+    "position_delta_m1_minus_huber_directional_seeds": "12/12",
+    "own_detection_coverage_delta_m1_minus_fixed_d3_mean_pp": 0.08333333333333341,
+    "own_detection_coverage_delta_m1_minus_fixed_d3_seed_sd_pp": 0.4949237263957897,
+    "own_detection_coverage_delta_m1_minus_huber_mean_pp": 0.0,
+    "own_detection_coverage_delta_m1_minus_huber_seed_sd_pp": 0.3333333333333314,
+    "coverage_counts_crosscheck": "matched opportunity counts agree with local V3.2 parameter_metrics_by_case.csv on 108 seed-speed-method rows",
+    "naive_30_seed_t29_mean_interval_halfwidth_if_seed_sd_transfers": {
+      "position_m1_minus_fixed_d3_m": 1.7911487331474871,
+      "position_m1_minus_huber_m": 0.36798051539699433,
+      "coverage_m1_minus_fixed_d3_pp": 0.1848075890003697,
+      "coverage_m1_minus_huber_pp": 0.1244687340318094
+    },
+    "interpretation_limit": "descriptive screening precision only; not power, not evidence of a causal-prefix effect, and not a source for MDE/noninferiority thresholds"
+  },
+  "statistics": {
+    "primary_interval": "seed-cluster studentized bootstrap-t 95% interval; resample each independent seed with its complete speed/target/period cluster",
+    "position_interval_method": "bootstrap_t",
+    "position_interval_confidence": 0.95,
+    "coverage_interval_method": "paired_t",
+    "coverage_interval_confidence": 0.95,
+    "track_coverage_interval_method": "paired_t",
+    "track_coverage_interval_confidence": 0.95,
+    "coverage_interval_method_selection_status": "USER_APPROVED_AND_FROZEN",
+    "coverage_interval_suitability_audit": "docs/research/phase_r/R22/evidence/v4_confirmatory_contract/coverage_interval_suitability.md",
+    "bootstrap_replicates": 10000,
+    "bootstrap_rng_algorithm": "PCG64",
+    "bootstrap_seed": 22029,
+    "position_success_rule": "Scheme A: two-sided bootstrap-t interval upper endpoint < 0 and seed-level point estimate <= -MDE; Scheme B: two-sided bootstrap-t interval upper endpoint < -MDE",
+    "studentized_zero_variance_policy": "zero observed seed variance or any zero-SE bootstrap replicate makes the interval NOT_EVALUABLE; report point estimate and counts, return null interval endpoints, never claim zero uncertainty",
+    "coverage_interval_zero_variance_policy": "zero observed seed-level coverage-difference variance makes the interval NOT_EVALUABLE; report point estimate and counts, return null interval endpoints, never claim zero uncertainty",
+    "missing_seed_policy": "retain planned seed registry; missing or invalid seed makes the confirmatory endpoint incomplete; do not replace seeds or silently reduce the denominator",
+    "missing_opportunity_policy": "retain all planned target-period opportunities in detection coverage; a missing required opportunity record makes that seed position endpoint NOT_EVALUABLE",
+    "common_success_policy": "position RMSE uses only the frozen common correctly-associated opportunity set; every speed must meet the separately approved minimum support; report coverage alongside conditional position error",
+    "tie_policy": "strict superiority uses upper endpoint < boundary; detection noninferiority uses lower endpoint > -margin; equality does not pass",
+    "detection_coverage_noninferiority_rule": "two-sided paired seed-level t 95% interval lower endpoint for M1-minus-FixedD3 percentage-point coverage difference must be strictly greater than the negative approved margin",
+    "joint_success_rule": "approved position rule AND detection-coverage noninferiority; add a track-coverage gate only if explicitly selected and its margin is approved",
+    "method_failure_policy": "M1 or Huber prefix estimate failure uses current-period zero correction; every planned opportunity remains in coverage denominators; never substitute another method or reference",
+    "h0_rate_interval_rule": "seed-any-event and false-confirmed-track-event rates use two-sided exact Clopper-Pearson intervals and one-sided exact 95% upper bounds for the complete planned seed set; also report the closed-form zero-event upper bound when applicable; do not infer full-system Pfa",
+    "h0_gate_rule": "the seed-any-event and false-confirmed-track-event one-sided exact 95% upper bounds must each be strictly below their separately approved limits; require the complete planned H0 seed set",
+    "h0_incomplete_policy": "all planned H0 seeds and all ten valid beam-50 periods are required for the confirmatory H0 gate; incomplete seeds do not count as zero-event seeds",
+    "h0_false_track_unit": "unique false confirmed TrackManager track ID per independent seed",
+    "secondary_speed_tests": "Holm correction across three speeds if inferential p-values are reported",
+    "power_status": "screening thresholds are user-approved; realized power is not guaranteed and must not be inferred from this approval"
+  },
+  "required_outputs": [
+    "all ten per-period Detection CSVs and one-to-one target truth association, retained in the verified compact archive",
+    "candidates, clusters, cluster/detection lineage, CFAR geometry, valid CUT denominator and unique-hit summary",
+    "actual TrackManager per-frame state, associated detection and PIPE payload audit with field sources",
+    "truth-aligned target-only per-cell complex response, fixed common ROI coordinates, named processing tap, and signal-injection/truth mapping; aggregate CSI ROI summaries are supplementary only",
+    "per-period causal estimator prefix inputs, estimate, correction, runtime, status and explicit fallback",
+    "per-period Huber D3 causal-prefix inputs, estimate, correction, runtime, status and explicit fallback",
+    "runtime XML, Stage2 reports, input hashes, background reuse mapping, source/binary identities, device snapshot, commands, logs and exit codes",
+    "compact case archive, member inventory, CRC/SHA verification, evaluability state and cleanup ledger"
+  ],
+  "resume_policy": {
+    "case_states": [
+      "PLANNED",
+      "RUNNING",
+      "ARCHIVED",
+      "VERIFIED",
+      "EVALUATED",
+      "FAILED",
+      "NOT_EVALUABLE"
+    ],
+    "resume_only_after_archive_identity_and_crc_sha_verification": true,
+    "never_overwrite_attempts": true,
+    "identity_change_requires_new_design_and_output_root": true,
+    "resume_verification": "recheck archive SHA-256, archive-manifest SHA-256, exact ZIP/member inventory, V4 required-member inclusion and ZIP CRC before a prior case is skipped or raw case data are removed"
+  },
+  "storage_policy": {
+    "intermediate_peak_may_exceed_final_limit": true,
+    "v3_2_archives_retained": true,
+    "v4_archive_must_retain_all_period_detection_and_track_debug": true,
+    "v4_full_output_size_estimate": 13037254578,
+    "required_resource_gate": "Before each case, require actual filesystem free bytes >= remaining retained compact-plus-gzip-receipt projection with 25% margin + measured full-case P0 temporary peak 29,821,104,128 bytes + 10 GiB reserve. Independently require actual project allocated bytes excluding the active raw case + the remaining retained-archive projection with 25% margin <= 20,000,000,000 bytes. The target-present +4 ns receipt component uses a conservative model from the actual P0 full-output manifest and is explicitly identified as modeled.",
+    "delete_raw_only_after": [
+      "full-output sharded archive verified by member manifest, per-shard SHA and ZIP CRC",
+      "compact archive complete and verified",
+      "gzip-9 full archive-set receipt published and read-back verified",
+      "case/schema identity tied to the frozen registry",
+      "cleanup ledger and checkpoint written"
+    ],
+    "post_review_target": "Keep necessary records, configs, audit receipts, and high-value results; after each case retain only verified compact plus compressed full-output receipt and keep final project allocated bytes below 20,000,000,000.",
+    "last_checked_on": "2026-11-28",
+    "current_cleanup": "2026-11-28: three old CPU-only dry-runs were replaced after final-registry verification and removed with a per-file SHA cleanup ledger; three audit inventories were gzip-9 compressed only after byte-for-byte decompression checks. Unique P0, pilot data, truth, failure evidence, and manifests remain protected.",
+    "final_project_limit_bytes": 20000000000,
+    "current_project_allocated_bytes": 17372479488,
+    "current_root_filesystem_available_bytes": 58379059200,
+    "current_tmp_available_bytes": 7721476096,
+    "p0_target_present_plus4ns_archive_bytes_measured": 13037254578,
+    "p0_observed_peak_consumption_bytes": 29821104128,
+    "p0_preserved_free_space_reserve_bytes": 10737418240,
+    "size_pilot_required_free_bytes_per_output_filesystem_proxy": 40558522368,
+    "three_schema_size_pilot_status": "COMPLETED; three CUDA pilots executed; H0 0 ns required attempt 003 after preserved interrupted and gate-failed attempts; all raw case directories removed only after archive verification.",
+    "resource_preflight_evidence": "docs/research/phase_r/R22/evidence/v4_phase_h/resource_budget_20261128.json",
+    "other_mounts_checked": "Project ext4 currently has 58,386,644,992 bytes free; /tmp has 7,732,916,224 bytes free and is below the 43,162,945,556-byte full-matrix free-space model; the previously inspected external volume remains read-only and was not modified.",
+    "retained_archive_profile": "r22_v4_size_pilot_compact plus gzip-9 full-output archive-set receipt",
+    "retained_case_bytes_by_schema": {
+      "target_present_0ns": 3852669,
+      "target_present_4ns": 18403158,
+      "h0_0ns": 428428,
+      "h0_4ns": 2255376
+    },
+    "retained_case_bytes_matrix_total": 2083538550,
+    "retained_case_bytes_matrix_with_25pct_margin": 2604423188,
+    "full_matrix_minimum_free_bytes": 43162945556,
+    "full_matrix_free_space_margin_at_measurement_bytes": 15216113644,
+    "full_matrix_projected_allocated_bytes_with_25pct_margin": 19976902676,
+    "full_matrix_projected_cap_margin_bytes": 23097324
+  },
+  "freeze_blockers": [
+    "refresh the Native CUDA GPU and binary identities immediately before authorization",
+    "separate explicit user authorization for the formal confirmatory matrix"
+  ],
+  "stop_conditions": [
+    "invalid area-clutter injection or paired background identity",
+    "A0/C0/Known physical closure failure",
+    "Native CUDA production, valid-CUT, scan-beam, or TrackManager lineage failure",
+    "future-period or oracle information reaches M1 causal estimator",
+    "Huber and M1 prefix input identities or period bounds differ",
+    "estimator failure hidden or excluded from the full policy denominator",
+    "missing all-period Detection, per-cell target response, or independent H0 lineage",
+    "compact archiver drops required V4 Detection, TrackManager/PIPE, or complex-response evidence",
+    "archive identity/CRC failure or unsafe resume identity change",
+    "resource state cannot complete one atomic case safely"
+  ],
+  "last_updated_on": "2026-11-28",
+  "implementation_update": {
+    "status_labels": {
+      "IMPLEMENTED": true,
+      "EXECUTED": false,
+      "EVALUABLE": false,
+      "PERFORMANCE_VERIFIED": false
+    },
+    "source_changes": [
+      "period-prefix M1 and same-input Huber qualification/correction runner",
+      "future-period input isolation and current-period zero-correction fallback",
+      "fixed shared target CSI_AFTER per-cell complex response schema",
+      "V4 complete-output sharded archive bound to registered case/schema identity",
+      "gzip-9 retained archive-set receipt plus compact archive verification and interruption-safe resume",
+      "per-case project-cap and filesystem-space gates; raw cleanup only after receipt and compact verification"
+    ],
+    "cpu_verification": "Focused V4 CPU regression: 172 passed; py_compile passed for changed Python modules; final diff check pending. No confirmatory matrix execution.",
+    "execution_authorized": false,
+    "cuda_authorized": false,
+    "ai_training": false
+  },
+  "parameter_decision": {
+    "status": "USER_APPROVED_AND_FROZEN_2026_11_28; execution remains separately unauthorized",
+    "approved_on": "2026-11-26",
+    "record_path": "docs/research/phase_r/R22/evidence/v4_phase_h/user_parameter_approval_20261126.json",
+    "scope": "Phase H report 54 research-direction screening parameter package; not product acceptance criteria and not authorization for the formal confirmatory matrix"
+  },
+  "frozen_on": "2026-11-28",
+  "freeze_note": "Statistical thresholds and case identities are frozen from the user-approved Phase H contract. This freeze does not authorize execution or CUDA; a separate explicit authorization must bind the frozen design, registry, selected batches, runtime binaries, GPU and resources."
+}

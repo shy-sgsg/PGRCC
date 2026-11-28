@@ -219,6 +219,7 @@ set(COMMON_CORE_SRC
   src/dbs/DbsFusion.cpp
   src/dbs/NewProtocolReader.cpp
   src/processOnePeriod.cpp
+  src/production_calibration_adapter.cpp
   src/processPeriodsParallel.cpp
   src/pulseCompression.cpp
   src/rg_correct.cpp
@@ -462,6 +463,39 @@ add_executable(velocity_ambiguity_selftest
 add_executable(channel_calibration_selftest
   tests/channel_calibration_selftest.cpp
 )
+
+add_executable(production_calibration_adapter_selftest
+  tests/production_calibration_adapter_selftest.cpp
+  src/production_calibration_adapter.cpp
+)
+
+add_executable(production_calibration_config_selftest
+  tests/production_calibration_config_selftest.cpp
+  src/loadXML.cpp
+  src/runtime_diagnostics.cpp
+  src/xml/tinystr.cpp
+  src/xml/tinyxml.cpp
+  src/xml/tinyxmlerror.cpp
+  src/xml/tinyxmlparser.cpp
+)
+
+add_executable(cfar_geometry_selftest
+  tests/cfar_geometry_selftest.cpp
+)
+
+if(NOT USE_COREX)
+  add_executable(cfar_cuda_numerical_selftest
+    tests/go_cfar_cuda_numerical_selftest.cu
+  )
+  target_include_directories(cfar_cuda_numerical_selftest PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+  )
+  target_link_libraries(cfar_cuda_numerical_selftest PRIVATE CUDA::cudart)
+  set_target_properties(cfar_cuda_numerical_selftest PROPERTIES
+    CUDA_STANDARD 11
+    CUDA_STANDARD_REQUIRED ON
+  )
+endif()
 
 add_executable(channel_impairments_selftest
   tests/channel_impairments_selftest.cpp
@@ -824,6 +858,10 @@ configure_non_cuda_tool(track_assignment_selftest)
 configure_non_cuda_tool(low_radial_velocity_filter_selftest)
 configure_non_cuda_tool(track_detection_eval)
 configure_non_cuda_tool(channel_calibration_selftest)
+configure_non_cuda_tool(production_calibration_adapter_selftest)
+configure_non_cuda_tool(production_calibration_config_selftest)
+target_link_libraries(production_calibration_config_selftest PRIVATE CUDA::cudart)
+configure_non_cuda_tool(cfar_geometry_selftest)
 configure_non_cuda_tool(channel_geometry_selftest)
 configure_non_cuda_tool(range_compression_window_selftest)
 configure_non_cuda_tool(motion_comp_ctdr_selftest)
@@ -886,6 +924,29 @@ if(BUILD_TESTING)
   add_test(NAME motion_comp_ctdr_selftest COMMAND motion_comp_ctdr_selftest)
   add_test(NAME velocity_ambiguity_selftest COMMAND velocity_ambiguity_selftest)
   add_test(NAME channel_calibration_selftest COMMAND channel_calibration_selftest)
+  add_test(NAME production_calibration_adapter_selftest COMMAND production_calibration_adapter_selftest)
+  add_test(NAME production_calibration_config_selftest
+           COMMAND production_calibration_config_selftest ${CMAKE_SOURCE_DIR}/gmti.xml)
+  add_test(NAME cfar_geometry_selftest COMMAND cfar_geometry_selftest)
+  if(NOT USE_COREX)
+    add_test(NAME cfar_cuda_numerical_selftest
+      COMMAND cfar_cuda_numerical_selftest
+        ${CMAKE_SOURCE_DIR}/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_power.f32
+        ${CMAKE_SOURCE_DIR}/docs/research/phase_r/evidence/r7_cfar_correctness_20261022/fixtures/r6_seed101_a0_on_dynamic_geometry.csv
+    )
+    set_tests_properties(cfar_cuda_numerical_selftest PROPERTIES
+      SKIP_RETURN_CODE 77
+      PASS_REGULAR_EXPRESSION
+        "CFAR-SELFTEST-NEAR.*case=strict_cut_greater_than_threshold.*row=0 col=3.*reference_hit=0 actual_hit=0 hit_flip=0"
+    )
+    add_test(NAME cfar_cuda_numerical_selftest_rejects_missing_fixture
+      COMMAND cfar_cuda_numerical_selftest
+        ${CMAKE_CURRENT_BINARY_DIR}/r7_fixture_must_not_exist.f32
+        ${CMAKE_CURRENT_BINARY_DIR}/r7_fixture_must_not_exist.csv
+    )
+    set_tests_properties(cfar_cuda_numerical_selftest_rejects_missing_fixture
+      PROPERTIES WILL_FAIL TRUE)
+  endif()
   add_test(NAME channel_impairments_selftest COMMAND channel_impairments_selftest)
   add_test(NAME channel_geometry_selftest COMMAND channel_geometry_selftest)
   add_test(NAME p38_phase_fit_selftest COMMAND p38_phase_fit_selftest)

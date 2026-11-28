@@ -1,0 +1,112 @@
+{
+  "command": {
+    "argv": [
+      "$REPO_ROOT/build_r7/GMTI_pipe_core",
+      "--config",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/production.xml",
+      "--result-dir",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/result",
+      "--track-debug-dir",
+      "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/track_debug_runs",
+      "--track-debug-dump",
+      "on",
+      "--runtime-mode=debug",
+      "--runtime-diagnostics=on",
+      "--local-test",
+      "2@1=$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/input/period_0001_corrected.bin"
+    ],
+    "environment": {
+      "GMTI_RUNTIME_MODE": "debug",
+      "USE_COREX": "OFF"
+    },
+    "shell": "$REPO_ROOT/build_r7/GMTI_pipe_core --config $REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/production.xml --result-dir $REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/result --track-debug-dir $REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/track_debug_runs --track-debug-dump on --runtime-mode=debug --runtime-diagnostics=on --local-test 2@1=$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/input/period_0001_corrected.bin"
+  },
+  "condition": "delay_3.009965ns",
+  "configure_log": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/production.configure.log",
+  "configure_returncode": 0,
+  "correction_ns": 3.009965,
+  "input": {
+    "bytes": 49204480,
+    "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/input/period_0001_corrected.bin",
+    "sha256": "371698042f1c48ace6ccddfe2c5553cc96f811242d0d3cfcc769a5b3159c4d36"
+  },
+  "production_binary": {
+    "path": "$REPO_ROOT/build_r7/GMTI_pipe_core",
+    "sha256": "de3026ed4f1263be4143dcbcd10ccbb5e53b4be357e21906e1bf19ea0ec29d00"
+  },
+  "production_elapsed_sec": 0.6654149489986594,
+  "production_gate": {
+    "cfar_geometry_path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/result/debug/cfar_geometry_diagnostics.csv",
+    "cfar_numerical_diagnostics_exists": false,
+    "cluster_detection_lineage_exists": false,
+    "csi_summary_paths": [],
+    "csi_summary_row_count": 0,
+    "period1_cfar_geometry_rows": [],
+    "period1_csi_row_count": 0,
+    "production_log": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/gmt_pipe_core.log",
+    "production_log_sha256": "8ee199372783b234016777a3f818c295557d105eca32ae002b6f69c6e89c43ad",
+    "production_returncode": 1,
+    "reasons": [
+      "production_exit_code_nonzero",
+      "production_log_missing_csi_cancellation",
+      "production_log_missing_cfar_summary",
+      "period1_csi_summary_missing",
+      "period1_valid_cfar_cut_branch_missing",
+      "track_debug_missing_track_frames.csv",
+      "track_debug_missing_track_detections.csv",
+      "track_debug_missing_track_output_payloads.csv"
+    ],
+    "runtime_config_dump_exists": true,
+    "runtime_log_stage_counts": {
+      "cfar_summary": 0,
+      "csi_cancellation": 0,
+      "cuda_preprocess": 1,
+      "timing_scope": 1
+    },
+    "runtime_xml_exists": true,
+    "status": "NOT_EVALUABLE",
+    "track_debug_files": [],
+    "valid_cut_count_by_branch": {},
+    "valid_period1_cfar_branches": []
+  },
+  "production_log": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/gmt_pipe_core.log",
+  "runtime_xml": {
+    "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/production.xml",
+    "semantic_sha256": "8d70e5e5f6dead449c2b9ab7d9924376e26d80578ac2247a6caf2909753d81fc",
+    "sha256": "ff81b061588bdd39131dfcfd77bac5b49298e30c2f47c843975b31f66ff36f5d"
+  },
+  "runtime_xml_audit": {
+    "errors": [],
+    "expected": {
+      "enable_four_channel_fusion": true,
+      "four_channel_fusion_channel_3": 3,
+      "four_channel_fusion_channel_4": 4,
+      "four_channel_phase_compensation_enable": true,
+      "fs_hz": 60000000.0,
+      "iq_data_type": "float32",
+      "new_protocol_channel_count": 4,
+      "new_protocol_read_channel_1": 1,
+      "new_protocol_read_channel_2": 2,
+      "pulse_len": 11820
+    },
+    "path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.009965ns/production.xml",
+    "status": "passed",
+    "values": {
+      "enable_four_channel_fusion": "true",
+      "four_channel_fusion_channel_3": "3",
+      "four_channel_fusion_channel_4": "4",
+      "four_channel_phase_compensation_enable": "true",
+      "fs_hz": 60000000.0,
+      "iq_data_type": "float32",
+      "new_protocol_channel_count": "4",
+      "new_protocol_read_channel_1": "1",
+      "new_protocol_read_channel_2": "2",
+      "pulse_len": "11820"
+    }
+  },
+  "source_xml": {
+    "path": "$REPO_ROOT/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/config/temp_config_stage2_period_0000.xml",
+    "sha256": "2de6fcfa3c448f76099026dcb0ec8291d99f5fc55cb2ac077cd98b58acde8c58"
+  },
+  "status": "NOT_EVALUABLE"
+}

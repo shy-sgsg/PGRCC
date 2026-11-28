@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "stage": "Production Hierarchical Calibration Pilot",
+  "created_at_utc": "2026-10-25T10:05:48.950259+00:00",
+  "status": "not_started",
+  "mode": "pilot",
+  "skip_cuda": false,
+  "algorithmic_results_claimed": false,
+  "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+  "method_contract": [
+    {
+      "method_id": "C0",
+      "description": "Production Current",
+      "family": "current",
+      "research_calibration_enable": false,
+      "research_calibration_method": "production_current",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": [
+        "OFF"
+      ],
+      "apply_input_roles": [
+        "ON"
+      ],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "C1",
+      "description": "Ordinary complex subtraction",
+      "family": "equivalent",
+      "research_calibration_enable": true,
+      "research_calibration_method": "ordinary_subtraction",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": [
+        "OFF",
+        "ON"
+      ],
+      "apply_input_roles": [
+        "ON"
+      ],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "C2",
+      "description": "SCC",
+      "family": "equivalent",
+      "research_calibration_enable": true,
+      "research_calibration_method": "scc",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": [
+        "OFF",
+        "ON"
+      ],
+      "apply_input_roles": [
+        "ON"
+      ],
+      "truth_used_in_estimator": false
+    },
+    {
+      "method_id": "C3",
+      "description": "Robust DDC",
+      "family": "equivalent",
+      "research_calibration_enable": true,
+      "research_calibration_method": "robust_ddc",
+      "input_correction": "none",
+      "known_error": false,
+      "known_error_use": "none",
+      "estimator_input_roles": [
+        "OFF",
+        "ON"
+      ],
+      "apply_input_roles": [
+        "ON"
+      ],
+      "truth_used_in_estimator": false
+    }
+  ],
+  "input_contract": {
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S"
+    },
+    "shared_identity_fields": [
+      "seed",
+      "background_id",
+      "target_id",
+      "delay_error_ns",
+      "production_identity"
+    ],
+    "identity_rule": "same seed/background/target/production settings",
+    "causal_target_rule": "ON-OFF with TO=S as the independent target control",
+    "modes": {
+      "Mode-A": {
+        "estimator_input_roles": [
+          "OFF"
+        ],
+        "apply_input_roles": [
+          "ON",
+          "TO"
+        ],
+        "description": "estimate from target-free OFF=C+N and apply the fixed reference to ON=S+C+N and TO=S",
+        "truth_used_in_estimator": false,
+        "target_position_allowed": false,
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false
+      },
+      "Mode-B": {
+        "estimator_input_roles": [
+          "ON"
+        ],
+        "apply_input_roles": [
+          "ON",
+          "OFF",
+          "TO"
+        ],
+        "description": "blind online ON=S+C+N estimate; apply its fixed reference to ON/OFF/TO without target truth or error labels",
+        "truth_used_in_estimator": false,
+        "target_position_allowed": false,
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false
+      }
+    }
+  },
+  "downstream_compact_contract": {
+    "ON_minus_OFF": {
+      "definition": "target causal transfer; compare ON against paired OFF",
+      "required": true
+    },
+    "TO": {
+      "definition": "target-only evaluator; never an estimator input",
+      "required": true
+    },
+    "CFAR": {
+      "definition": "GO-CFAR valid_cut_count/hit_cut_count geometry",
+      "required": true
+    },
+    "cluster": {
+      "definition": "production cluster count/association layer",
+      "required": true
+    },
+    "protocol_detection": {
+      "definition": "production detection CSV and protocol eligibility",
+      "required": true
+    },
+    "track": {
+      "definition": "production TrackManager confirmed/matched output",
+      "required": true
+    },
+    "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
+    "track_evidence": [
+      "track_association_audit_v2",
+      "track_states",
+      "track_output_payloads",
+      "id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    ],
+    "counterfactual_processing_rule": "Mode-A uses the OFF-estimated reference for ON/TO; Mode-B uses the ON-estimated reference for OFF/TO; ON-minus-OFF requires the shared fixed-reference provenance"
+  },
+  "production_contract": {
+    "input_mode": "local",
+    "period_count": 5,
+    "min_support": 8,
+    "range_band_bins": 6,
+    "robust_phase_threshold_rad": 0.35,
+    "theoretical_cell_pfa": 1e-06,
+    "downstream_contract": {
+      "cfar_type": "GO",
+      "clustering": "production",
+      "localization": "production",
+      "track_manager": "production",
+      "pipe": "production",
+      "track_debug": true
+    }
+  },
+  "selection": {
+    "mode": "pilot",
+    "selection_mode": "targeted",
+    "cartesian_full_matrix": false,
+    "delay_errors_ns": [
+      0.0
+    ],
+    "seeds": [
+      101
+    ],
+    "target_velocities_mps": [
+      6.7
+    ],
+    "target_snr_db": [
+      30.0
+    ],
+    "working_points": [
+      "r18_frozen"
+    ],
+    "period_count": 3,
+    "cases": [
+      {
+        "group": "r18_execution_gate_only",
+        "delay_error_ns": 0.0,
+        "seed": 101,
+        "target_velocity_mps": 6.7,
+        "target_snr_db": 30.0,
+        "working_point": "r18_frozen",
+        "scene_parameters": {
+          "beam_id": 50,
+          "expected_bin": 2048,
+          "range_m": 85000.0,
+          "texture_sigma": 0.25,
+          "clutter_rho": 0.98,
+          "area_mean_power": 0.02,
+          "noise_power": 0.001
+        },
+        "period_count": 3
+      }
+    ],
+    "case_count": 1,
+    "configured_cartesian_case_count": 1,
+    "overrides": {}
+  },
+  "ai_training": false,
+  "router_enabled": false,
+  "native_4ch_stap": false,
+  "source": {
+    "commit": "4c6d4d303621324f5e174db0ba1811c5691df2e2",
+    "dirty": false,
+    "dirty_tracked": false,
+    "tracked_status": "",
+    "scope": "tracked_source_only; existing untracked output roots are not scanned"
+  },
+  "config": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/phase_r18_native_cuda.json",
+    "sha256": "3af60966332877095e5447247ab08cb39a54ef7a15681f37adf33cc251082ae1"
+  },
+  "runner": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+    "sha256": "8e6b2da832de7cc8c0346ccf341c3feb28b6b8fe06ed89d2f9673576eda5261b"
+  },
+  "analyzer": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/analyze_production_hierarchical_calibration_pilot.py",
+    "sha256": "514f291ee3b4f55c01498557f151093ba11d51903555ad28bc4b13e97071162b"
+  },
+  "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+  "python": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 16:09:02) [GCC 11.2.0]",
+  "gpu_probe": {
+    "command": "nvidia-smi",
+    "returncode": 0,
+    "available": true,
+    "stdout": "Sun Oct 25 18:05:48 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    Off |   00000000:01:00.0  On |                  N/A |\n| N/A   41C    P8              6W /   80W |     730MiB /   4096MiB |     40%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            4369      G   /usr/bin/gnome-shell                    142MiB |\n|    0   N/A  N/A            4848      G   /usr/bin/Xwayland                         7MiB |\n|    0   N/A  N/A            6954    C+G   /usr/bin/nautilus                        85MiB |\n|    0   N/A  N/A            6966      G   .../9036/usr/lib/firefox/firefox        222MiB |\n|    0   N/A  N/A            8162    C+G   /usr/bin/resources                       29MiB |\n+-----------------------------------------------------------------------------------------+\n",
+    "stderr": ""
+  },
+  "disk": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch",
+    "total_bytes": 497777065984,
+    "used_bytes": 445391773696,
+    "free_bytes": 27024384000
+  },
+  "build": {
+    "simulate_stage2_statistical": {
+      "path": "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "exists": true,
+      "bytes": 645944,
+      "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+    },
+    "GMTI_pipe_core": {
+      "path": "/tmp/pgrcc-r18-native-release/GMTI_pipe_core",
+      "exists": true,
+      "bytes": 6174864,
+      "sha256": "3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0"
+    }
+  },
+  "command": [
+    "--config",
+    "configs/research/phase_r18_native_cuda.json",
+    "--mode",
+    "pilot",
+    "--output-root",
+    ".scratch/r18_gate_pilot_seed101_20261025",
+    "--evidence-root",
+    "docs/research/phase_r/R18/evidence/pilot_seed101",
+    "--method-ids",
+    "C0,C1,C2,C3",
+    "--calibration-modes",
+    "Mode-A,Mode-B"
+  ],
+  "output_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/r18_gate_pilot_seed101_20261025",
+  "external_commands": [],
+  "cases": [],
+  "build_identity_pinned": {
+    "simulate_stage2_statistical": {
+      "path": "/tmp/pgrcc-r18-native-release/simulate_stage2_statistical",
+      "exists": true,
+      "bytes": 645944,
+      "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+    },
+    "GMTI_pipe_core": {
+      "path": "/tmp/pgrcc-r18-native-release/GMTI_pipe_core",
+      "exists": true,
+      "bytes": 6174864,
+      "sha256": "3328d7c61bc36b6d3b906692e355c46c328150c0399fa457e6f871bcb79abaf0"
+    }
+  },
+  "input_mode": "local",
+  "selected_methods": [
+    "C0",
+    "C1",
+    "C2",
+    "C3"
+  ],
+  "selected_calibration_modes": [
+    "Mode-A",
+    "Mode-B"
+  ],
+  "method_mode_selection": {
+    "C0": [
+      "not_applicable"
+    ],
+    "C1": [
+      "not_applicable"
+    ],
+    "C2": [
+      "Mode-A",
+      "Mode-B"
+    ],
+    "C3": [
+      "Mode-A",
+      "Mode-B"
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "purpose": "verify Production CFAR diagnostic metadata serialization after R7 matrix",
+  "status": "EXECUTED",
+  "evaluable_claim": "runtime cfar_type, configured Pfa, alpha, and precision label match the geometry diagnostic row",
+  "not_claimed": [
+    "not part of the nine-run R7 numerical matrix",
+    "not a performance measurement",
+    "not a task-level Pd/Pfa result"
+  ],
+  "source_revision": "f50ce8a",
+  "worktree_was_dirty": true,
+  "binary_sha256": "8bd9a4a1ec98992a082c70b1bf81d5a6c007cfaf367c0f01e332121250239e6b",
+  "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "gpu_utilization_before_run_percent": 97,
+  "gpu_memory_before_run_mib": "1813/4096",
+  "condition": "A0_ON, seed 101, period 0",
+  "runtime_config": "../runtime_configs/A0_ON.xml",
+  "runtime_config_sha256": "352a69c22edc3f073d1686ad2684a1da3a5c18dbac3af3d22c23219479fef558",
+  "input_path": "outputs/phase_r6_stagewise_divergence_20261022/reconstruction/stages/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+  "input_sha256": "ac124e51df49292a7dcd1b00b43f8d7e701a2a50c461ab10ddf7bf6223d609fc",
+  "command": "GMTI_CFAR_DUMP_BEAM=50 build_r7/GMTI_pipe_core --config <A0_ON runtime.xml> --result-dir <fresh temporary dir>/result --track-debug-dir <fresh temporary dir>/track_debug --track-debug-dump=on --runtime-mode=debug --runtime-diagnostics=on --local-test <period_0000.bin>",
+  "exit_code": 0,
+  "normal_exit": true,
+  "metadata": {
+    "cfar_type": "GO",
+    "cfar_pfa_configured": 9.9999999747524271e-07,
+    "cfar_alpha": 13.447822570800781,
+    "threshold_precision": "float64_accumulation_float32_output"
+  },
+  "geometry_csv_row": {
+    "branch": "union_dynamic_in_band",
+    "valid_cut_count": 527280,
+    "hit_cut_count": 266,
+    "cfar_type": "GO",
+    "alpha": 13.447822570800781
+  },
+  "artifacts": [
+    "dynamic_in_band_meta.txt",
+    "cfar_geometry_diagnostics.csv"
+  ]
+}

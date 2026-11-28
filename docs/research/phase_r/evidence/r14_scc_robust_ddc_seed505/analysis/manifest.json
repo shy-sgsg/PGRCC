@@ -1,0 +1,1303 @@
+{
+  "control_id": "A0",
+  "evaluator": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py",
+    "sha256": "a454611d18f9860071b67aa3697d9d5324864fe7b2d20915fe4b52b8f3faab45"
+  },
+  "evaluator_status": "evaluated",
+  "f1f2_input_audit_rows": 9,
+  "f1f2_input_audit_status": "verified_identical_across_A0_C0_C2_C3",
+  "method_ids": [
+    "C0",
+    "C2",
+    "C3"
+  ],
+  "method_results": [
+    {
+      "cfar_audit_verified": true,
+      "method_role": "A0/OFF",
+      "production_elapsed_sec_single_run": 3.6221572610083967,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 140,
+      "task_metrics": {
+        "cfar_branch_hit_cells": 102561,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 54437,
+          "union_full_band": 48124
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "cluster_status": "NOT_EVALUABLE_LEGACY_PRE_CLUSTER_SUMMARY",
+        "false_clusters": null,
+        "false_confirmed_tracks": 140,
+        "false_detections": 358,
+        "final_detections": 358,
+        "lineage_status": "NOT_AVAILABLE",
+        "postfilter_clusters": null,
+        "track_status": "evaluable",
+        "tracks": 536,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 88671,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.056055606129570626,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 28899,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 29109,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 30663,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "A0/ON",
+      "production_elapsed_sec_single_run": 4.224035762978019,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 195,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 539,
+        "cfar_branch_hit_cells": 85376,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 42605,
+          "union_full_band": 42771
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 195,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 536,
+        "false_track_associations": 193,
+        "final_detections": 539,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.028057258784552813,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 9.066850278375732,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 0.3078246192837853,
+          "position_2d_rmse_m": 43.06230462330682,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 695,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 72245,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.045671496485105954,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 26419,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 24683,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 21143,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "A0/TO",
+      "production_elapsed_sec_single_run": 4.725484642985975,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 229,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 592,
+        "cfar_branch_hit_cells": 364128,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 205572,
+          "union_full_band": 158556
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 229,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 589,
+        "false_track_associations": 227,
+        "final_detections": 592,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.018422405525185395,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 3.9671401466795215,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 1.0673582991563115,
+          "position_2d_rmse_m": 28.41960257977348,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 981,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 224119,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.14168247104637638,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 100946,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 50065,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 73108,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C0/OFF",
+      "production_elapsed_sec_single_run": 3.471946169011062,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 140,
+      "task_metrics": {
+        "cfar_branch_hit_cells": 102561,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 54437,
+          "union_full_band": 48124
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "cluster_status": "NOT_EVALUABLE_LEGACY_PRE_CLUSTER_SUMMARY",
+        "false_clusters": null,
+        "false_confirmed_tracks": 140,
+        "false_detections": 358,
+        "final_detections": 358,
+        "lineage_status": "NOT_AVAILABLE",
+        "postfilter_clusters": null,
+        "track_status": "evaluable",
+        "tracks": 536,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 88671,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.056055606129570626,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 28899,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 29109,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 30663,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C0/ON",
+      "production_elapsed_sec_single_run": 4.323773556010565,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 195,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 539,
+        "cfar_branch_hit_cells": 85376,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 42605,
+          "union_full_band": 42771
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 195,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 536,
+        "false_track_associations": 193,
+        "final_detections": 539,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.028057258784552813,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 9.066850278375732,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 0.3078246192837853,
+          "position_2d_rmse_m": 43.06230462330682,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 695,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 72245,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.045671496485105954,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 26419,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 24683,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 21143,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C0/TO",
+      "production_elapsed_sec_single_run": 4.625739904004149,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 229,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 592,
+        "cfar_branch_hit_cells": 364128,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 205572,
+          "union_full_band": 158556
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 229,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 589,
+        "false_track_associations": 227,
+        "final_detections": 592,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.018422405525185395,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 3.9671401466795215,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 1.0673582991563115,
+          "position_2d_rmse_m": 28.41960257977348,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 981,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 224119,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.14168247104637638,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 100946,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 50065,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 73108,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C2/OFF",
+      "production_elapsed_sec_single_run": 3.5228100010135677,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 155,
+      "task_metrics": {
+        "cfar_branch_hit_cells": 91627,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 47165,
+          "union_full_band": 44462
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "cluster_status": "NOT_EVALUABLE_LEGACY_PRE_CLUSTER_SUMMARY",
+        "false_clusters": null,
+        "false_confirmed_tracks": 155,
+        "false_detections": 376,
+        "final_detections": 376,
+        "lineage_status": "NOT_AVAILABLE",
+        "postfilter_clusters": null,
+        "track_status": "evaluable",
+        "tracks": 553,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 79319,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.05014350376776412,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 24245,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 27667,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 27407,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C2/ON",
+      "production_elapsed_sec_single_run": 6.629279054002836,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 462,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 990,
+        "cfar_branch_hit_cells": 121534,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 60029,
+          "union_full_band": 61505
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 462,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 987,
+        "false_track_associations": 460,
+        "final_detections": 990,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.018365010399773143,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 3.9671401466795215,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 1.0859833286948857,
+          "position_2d_rmse_m": 28.33112887906325,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 1226,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 97155,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.061418980427856165,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 35563,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 31984,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 29608,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C2/TO",
+      "production_elapsed_sec_single_run": 5.176154326996766,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 264,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 692,
+        "cfar_branch_hit_cells": 389412,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 212487,
+          "union_full_band": 176925
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 264,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 689,
+        "false_track_associations": 262,
+        "final_detections": 692,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.018422405525185395,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 3.9671401466795215,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 3.99071944934493,
+          "position_2d_rmse_m": 28.41960257977348,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 931,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 228594,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.1445114550144136,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 99619,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 69057,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 59918,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C3/OFF",
+      "production_elapsed_sec_single_run": 3.4220079270016868,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 140,
+      "task_metrics": {
+        "cfar_branch_hit_cells": 76090,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 41339,
+          "union_full_band": 34751
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "cluster_status": "NOT_EVALUABLE_LEGACY_PRE_CLUSTER_SUMMARY",
+        "false_clusters": null,
+        "false_confirmed_tracks": 140,
+        "false_detections": 327,
+        "final_detections": 327,
+        "lineage_status": "NOT_AVAILABLE",
+        "postfilter_clusters": null,
+        "track_status": "evaluable",
+        "tracks": 476,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 66503,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.042041546553380875,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 20524,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 22198,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 23781,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C3/ON",
+      "production_elapsed_sec_single_run": 5.176458919973811,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 285,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 701,
+        "cfar_branch_hit_cells": 199875,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 99828,
+          "union_full_band": 100047
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 285,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 698,
+        "false_track_associations": 283,
+        "final_detections": 701,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.018365010399773143,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 3.9671401466795215,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 9.258643934027846,
+          "position_2d_rmse_m": 28.33112887906325,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 921,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 151087,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.0955134526880089,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 45009,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 44217,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 61861,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    },
+    {
+      "cfar_audit_verified": true,
+      "method_role": "C3/TO",
+      "production_elapsed_sec_single_run": 4.975543034001021,
+      "production_returncode": 0,
+      "production_status": "passed",
+      "scene": "normal_seed505_v6p7",
+      "strict_track_association_count": 237,
+      "task_metrics": {
+        "association_status": "evaluable",
+        "candidate_final_detections": 654,
+        "cfar_branch_hit_cells": 461884,
+        "cfar_branch_hit_cells_by_branch": {
+          "union_dynamic_in_band": 245914,
+          "union_full_band": 215970
+        },
+        "cfar_branch_hit_status": "evaluable",
+        "cfar_status": "evaluable",
+        "confirmed_tracks": 237,
+        "correct_track_associations": 2,
+        "detection_rate": 1.0,
+        "false_associations": 651,
+        "false_track_associations": 235,
+        "final_detections": 654,
+        "misses": 0,
+        "parameter_errors": {
+          "angle_error_count": 3,
+          "angle_rmse_deg": 0.018422405525185395,
+          "folded_doppler_frequency_error_count": 3,
+          "folded_doppler_frequency_rmse_hz": 3.9671401466795215,
+          "ground_speed_error_count": 2,
+          "ground_speed_rmse_mps": 0.9027258769895912,
+          "position_2d_rmse_m": 28.41960257977348,
+          "position_error_count": 3,
+          "radial_velocity": {
+            "count": 0,
+            "rmse_mps": null,
+            "status": "NOT_EVALUABLE",
+            "unresolved_count": 3
+          }
+        },
+        "postfilter_clusters": null,
+        "raw_detections": null,
+        "selected_candidates": null,
+        "track_association_status": "evaluable",
+        "track_status": "evaluable",
+        "tracks": 922,
+        "truth_opportunities": 3,
+        "unique_correct_detections": 3,
+        "unique_union_hit_cells": {
+          "conflicting_period_beam_keys": [],
+          "count": 268300,
+          "duplicate_period_beam_keys": [],
+          "expected_period_beam_keys": [
+            {
+              "beam_id": 50,
+              "period_id": 0
+            },
+            {
+              "beam_id": 50,
+              "period_id": 1
+            },
+            {
+              "beam_id": 50,
+              "period_id": 2
+            }
+          ],
+          "missing_period_beam_keys": [],
+          "observed_hit_fraction": 0.16961260304455572,
+          "period_beam_rows": [
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 112695,
+              "period_id": 0,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 83817,
+              "period_id": 1,
+              "valid_cut_count": 527280
+            },
+            {
+              "audit_verified": true,
+              "beam_id": 50,
+              "hit_count": 71788,
+              "period_id": 2,
+              "valid_cut_count": 527280
+            }
+          ],
+          "status": "evaluable",
+          "unexpected_period_beam_keys": [],
+          "unverified_period_beam_keys": [],
+          "valid_cut_count": 1581840
+        }
+      }
+    }
+  ],
+  "paired_area_input_audit_rows": 3,
+  "paired_area_input_audit_status": "verified_off_matches_area_background_and_on_matches_writer",
+  "performance_verified": false,
+  "pfa_status": "NOT_EVALUABLE; H0 observed hit fraction is descriptive and is not empirical Pfa",
+  "scenes": [
+    {
+      "area_clutter_gate": {
+        "area_enabled": true,
+        "area_mean_power_measured": 0.023496702684,
+        "area_model": "continuous_texture",
+        "continuous_area_packets": 390,
+        "continuous_area_samples": 1952655,
+        "ground_height_m": 0.0,
+        "ground_range_max_m": 85289.213854977,
+        "ground_range_min_m": 84286.71306914276,
+        "ground_range_window_m": [
+          84286.71306914276,
+          85289.213854977
+        ],
+        "minimum_slant_range_m": 6000.0,
+        "platform_height_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ],
+        "reasons": [],
+        "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r14_scc_robust_ddc_seed505_20261025/cases/base__seed_505__v_6d7__snr_30__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+        "report_sha256": "136b3915306f254b041c797c284c676f67967c6077e883738d94c31abc3cab52",
+        "report_values": {
+          "area_ctdr_lag_pulses": "2",
+          "area_power_cv_measured": "2.05217139807",
+          "area_rho_at_CTDR_lag": "0.960432413203",
+          "area_rho_lag1_measured": "0.980018339329",
+          "mean_noise_power_per_complex_sample": "0.00099985370087"
+        },
+        "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r14_scc_robust_ddc_seed505_20261025/cases/base__seed_505__v_6d7__snr_30__delay_0ns/scenes/scenarios/A0_ON.json",
+        "scenario_sha256": "3245931fc3a410b2d00f4ce5d99a3501662ab633909981ba211aa7ef2281c670",
+        "status": "passed"
+      },
+      "case_id": "base__seed_505__v_6.7__snr_30.0__delay_0.0ns",
+      "case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r14_scc_robust_ddc_seed505_20261025/cases/base__seed_505__v_6d7__snr_30__delay_0ns/case_manifest.json",
+      "case_parameters": {
+        "delay_error_ns": 0.0,
+        "group": "r14_seed505_normal",
+        "period_count": 3,
+        "scene_parameters": {},
+        "seed": 505,
+        "target_snr_db": 30.0,
+        "target_velocity_mps": 6.7,
+        "working_point": "base"
+      },
+      "causal_triplets": {
+        "ideal": {
+          "max_abs_error": 1.3486991523486091e-06,
+          "reason": "on_minus_off_minus_target_within_tolerance",
+          "rms_error": 1.5030056151974443e-07,
+          "sample_count": 18439200,
+          "status": "passed",
+          "tolerance": 5e-05
+        },
+        "none": {
+          "max_abs_error": 1.3486991523486091e-06,
+          "reason": "on_minus_off_minus_target_within_tolerance",
+          "rms_error": 1.5030056151974443e-07,
+          "sample_count": 18439200,
+          "status": "passed",
+          "tolerance": 5e-05
+        }
+      },
+      "config_sha256": "cffc1bdbae654f2edf85ef7a711b0c90d2da26ad132571a3306c5437292b6dba",
+      "execution_provenance": {
+        "build": {
+          "GMTI_pipe_core": {
+            "bytes": 6278056,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+            "sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962"
+          },
+          "simulate_stage2_statistical": {
+            "bytes": 645944,
+            "exists": true,
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+            "sha256": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+          }
+        },
+        "command": [
+          "--config",
+          "docs/research/phase_r/evidence/r14_scc_robust_ddc_seed505/inputs/r14_runner_config.json",
+          "--mode",
+          "pilot",
+          "--output-root",
+          "outputs/phase_r14_scc_robust_ddc_seed505_20261025",
+          "--input-mode",
+          "local",
+          "--delay-errors-ns",
+          "0",
+          "--seeds",
+          "505",
+          "--target-velocities-mps",
+          "6.7",
+          "--target-snr-db",
+          "30",
+          "--method-ids",
+          "C0,C2,C3",
+          "--calibration-modes",
+          "Mode-A",
+          "--max-cases",
+          "1"
+        ],
+        "created_at_utc": "2026-10-25T05:09:58.738472+00:00",
+        "execution_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r14_scc_robust_ddc_seed505_20261025/manifest.json",
+        "gpu_probe": {
+          "available": true,
+          "command": "nvidia-smi",
+          "returncode": 0,
+          "stderr": "",
+          "stdout": "Sun Oct 25 13:09:58 2026       \n+-----------------------------------------------------------------------------------------+\n| NVIDIA-SMI 580.178.04             Driver Version: 580.178.04     CUDA Version: 13.0     |\n+-----------------------------------------+------------------------+----------------------+\n| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |\n| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |\n|                                         |                        |               MIG M. |\n|=========================================+========================+======================|\n|   0  NVIDIA GeForce RTX 3050 ...    Off |   00000000:01:00.0  On |                  N/A |\n| N/A   39C    P8              6W /   40W |     731MiB /   4096MiB |     15%      Default |\n|                                         |                        |                  N/A |\n+-----------------------------------------+------------------------+----------------------+\n\n+-----------------------------------------------------------------------------------------+\n| Processes:                                                                              |\n|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |\n|        ID   ID                                                               Usage      |\n|=========================================================================================|\n|    0   N/A  N/A            4369      G   /usr/bin/gnome-shell                    151MiB |\n|    0   N/A  N/A            4848      G   /usr/bin/Xwayland                         6MiB |\n|    0   N/A  N/A            6954    C+G   /usr/bin/nautilus                        53MiB |\n|    0   N/A  N/A            6966      G   .../9036/usr/lib/firefox/firefox        225MiB |\n|    0   N/A  N/A            8162    C+G   /usr/bin/resources                       29MiB |\n+-----------------------------------------------------------------------------------------+\n"
+        },
+        "input_mode": "local",
+        "mode": "pilot",
+        "platform": "Linux-7.0.0-38-generic-x86_64-with-glibc2.43",
+        "python": "3.13.5 | packaged by Anaconda, Inc. | (main, Jun 12 2025, 16:09:02) [GCC 11.2.0]",
+        "source": {
+          "commit": "095221bbfa458fd5f65bc1d095401cd04445aa9f",
+          "dirty": true,
+          "dirty_tracked": true,
+          "scope": "tracked_source_only; existing untracked output roots are not scanned",
+          "tracked_status": "M scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py"
+        }
+      },
+      "input_contract": {
+        "causal_target_rule": "ON-OFF with TO=S as the independent target control",
+        "identity_rule": "same seed/background/target/production settings",
+        "modes": {
+          "Mode-A": {
+            "apply_input_roles": [
+              "ON",
+              "TO"
+            ],
+            "description": "estimate from target-free OFF=C+N and apply the fixed reference to ON=S+C+N and TO=S",
+            "estimator_input_roles": [
+              "OFF"
+            ],
+            "injected_error_label_allowed": false,
+            "known_error_allowed": false,
+            "target_position_allowed": false,
+            "truth_used_in_estimator": false
+          },
+          "Mode-B": {
+            "apply_input_roles": [
+              "ON",
+              "OFF",
+              "TO"
+            ],
+            "description": "blind online ON=S+C+N estimate; apply its fixed reference to ON/OFF/TO without target truth or error labels",
+            "estimator_input_roles": [
+              "ON"
+            ],
+            "injected_error_label_allowed": false,
+            "known_error_allowed": false,
+            "target_position_allowed": false,
+            "truth_used_in_estimator": false
+          }
+        },
+        "roles": {
+          "OFF": "C+N",
+          "ON": "S+C+N",
+          "TO": "S"
+        },
+        "shared_identity_fields": [
+          "seed",
+          "background_id",
+          "target_id",
+          "delay_error_ns",
+          "production_identity"
+        ]
+      },
+      "runner_sha256": "0429528d22164f5a1a4a1c0a29b60f4b5c374aea2efabaaf6f52499ed995e2d9",
+      "scene": "normal_seed505_v6p7",
+      "selected_calibration_modes": [
+        "Mode-A"
+      ],
+      "selected_methods": [
+        "C0",
+        "C2",
+        "C3"
+      ],
+      "source_commit": "095221bbfa458fd5f65bc1d095401cd04445aa9f",
+      "source_dirty_at_execution": true
+    }
+  ],
+  "schema_version": 1,
+  "single_seed_limit": "3 periods are within one seed and are not independent repetitions",
+  "stage": "PGRCC Phase R13 minimal Native CUDA baseline comparison"
+}

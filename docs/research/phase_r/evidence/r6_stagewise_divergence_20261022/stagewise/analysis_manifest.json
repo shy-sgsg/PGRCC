@@ -1,0 +1,30 @@
+{
+  "analysis": "R6 full-map CSI stagewise divergence and A0/A0 controls",
+  "root": "outputs/phase_r6_stagewise_divergence_20261022",
+  "map_shape_expected": "130x4096",
+  "period_ids": [
+    0,
+    1,
+    2
+  ],
+  "tap_order": [
+    "channel1",
+    "channel2",
+    "ctdr_channel1",
+    "ctdr_channel2",
+    "csi_after",
+    "after"
+  ],
+  "relative_complex_rms_definition": "RMS(candidate-reference)/RMS(reference)",
+  "phase_definition": "angle(candidate * conjugate(reference)); zero-magnitude cells excluded",
+  "power_relative_rms_definition": "RMS(|candidate|^2-|reference|^2)/RMS(|reference|^2)",
+  "executable_sha256": "f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962",
+  "processOnePeriod_source_sha256": "07d875c9ba7cd727b6f33dc69eda234a6ea2d49924bea509aea90d170bb62957",
+  "stagewise_rows": 54,
+  "control_rows": 36,
+  "checks": {
+    "stagewise_full_map_count": true,
+    "a0_repeat_full_map_count": true,
+    "all_maps_finite_and_shape_matched": true
+  }
+}

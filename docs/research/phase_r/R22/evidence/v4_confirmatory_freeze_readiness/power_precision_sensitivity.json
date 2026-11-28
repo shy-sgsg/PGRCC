@@ -1,0 +1,25 @@
+{
+  "coverage_m1_minus_fixed": {
+    "80pct_one_sided_alpha_0_025_noninferiority_margin_pp_when_true_difference_zero": 0.2619315744081542,
+    "historical_seed_sd_pp": 0.49492372639579013,
+    "standard_error_pp": 0.09036029639716309,
+    "two_sided_95pct_t_interval_half_width_pp": 0.18480755666337484
+  },
+  "independent_unit": "seed",
+  "limitations": [
+    "V3.3 estimates used full-case batch estimators; V4 uses causal prefixes.",
+    "Only 12 historical seeds estimate each SD; variance transport is uncertain.",
+    "The MDE and noninferiority margin remain engineering/user decisions.",
+    "No targets, periods, CUTs, branches, or detections are treated as independent seeds."
+  ],
+  "method": "paired t noncentral-t sensitivity; not a power guarantee",
+  "primary_m1_minus_fixed": {
+    "80pct_power_mde_m": 2.538628700398059,
+    "historical_seed_sd_m": 4.7967835646439765,
+    "power_if_true_improvement_3m": 0.9115128241511722,
+    "standard_error_m": 0.8757688539418487,
+    "two_sided_95pct_t_interval_half_width_m": 1.7911484197384544
+  },
+  "seed_count": 30,
+  "zero_events_across_30_independent_seeds_one_sided_95pct_upper_bound_on_seed_any_event_probability": 0.09503385285530419
+}

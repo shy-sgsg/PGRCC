@@ -1,0 +1,69 @@
+{
+  "status": "PROJECTION_ONLY_NO_CONFIRMATORY_OUTPUT_PILOT",
+  "project_root": "/home/shy/AIR/SAR+AI/project/PGRCC",
+  "measured_project_root_bytes": 18379873713,
+  "final_retention_limit_bytes": 20000000000,
+  "current_headroom_bytes": 1620126287,
+  "current_filesystem_free_bytes": 49853292544,
+  "confirmatory_matrix": {
+    "target_present_cases": 180,
+    "h0_cases": 60,
+    "total_cases": 240,
+    "zero_delay_cases": 120,
+    "plus_four_ns_cases": 120,
+    "production_calls": 2520,
+    "stage2_calls_min": 1200,
+    "stage2_calls_max": 1440
+  },
+  "single_case_reference": {
+    "archive_schema": "target-present +4 ns",
+    "actual_compact_bytes": 17603158,
+    "production_branches": 18,
+    "stage2_calls": 6,
+    "schema_measured_on_cuda": false
+  },
+  "projections": [
+    {
+      "label": "lower_branch_scaled_proxy",
+      "retained_archive_bytes": 2464442120,
+      "formula": "(120 plus-4ns cases * 18/18 + 120 zero-delay cases * 3/18) * measured P0 compact bytes",
+      "limitations": "optimistic production-branch-only scaling; excludes case-level and Stage2/input overhead; not a physical lower bound"
+    },
+    {
+      "label": "neutral_uniform_p0_case_proxy",
+      "retained_archive_bytes": 4224757920,
+      "formula": "240 * measured target-present +4ns compact bytes",
+      "limitations": "uniformly applies one target-present +4ns case to all four schemas; schema sizes are not measured"
+    },
+    {
+      "label": "conservative_25pct_proxy",
+      "retained_archive_bytes": 5280947400,
+      "formula": "neutral proxy * 1.25",
+      "limitations": "planning reserve only; not a guarantee, H0/0ns output-complete size pilot absent"
+    }
+  ],
+  "run_time_proxy": {
+    "p0_case_wall_seconds": 877.27,
+    "uniform_240_case_wall_hours": 58.48466666666666,
+    "status": "linear planning proxy only; P0 GPU was under external training load and is not a performance benchmark"
+  },
+  "runtime_disk": {
+    "p0_peak_temporary_footprint_bytes": 29821104128,
+    "p0_minimum_free_bytes": 27726299136,
+    "current_free_bytes": 49947385856,
+    "must_recheck_before_each_atomic_case": true,
+    "authorization_resource_gate_status": "BLOCKED_NO_MEASURED_OUTPUT_COMPLETE_RESOURCE_EVIDENCE_FOR_ALL_FOUR_CASE_SCHEMAS"
+  },
+  "final_size_projection_if_added_to_current_project": {
+    "lower_branch_scaled_proxy_bytes": 20844274873,
+    "neutral_uniform_proxy_bytes": 22604590673,
+    "conservative_25pct_proxy_bytes": 23660780153,
+    "all_scenarios_exceed_20gb": true
+  },
+  "cleanup_policy": {
+    "preserve_original_p0_until_user_approves_removal_or_transfer": true,
+    "do_not_delete_existing_history_or_unique_evidence": true,
+    "run_can_temporarily_exceed_20gb": true,
+    "after_review_remove_only_reproducible_raw_and_approved_redundant_results": true
+  }
+}

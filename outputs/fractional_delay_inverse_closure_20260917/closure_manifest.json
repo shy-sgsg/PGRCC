@@ -1,0 +1,38 @@
+{
+  "ai_training": false,
+  "boundary_classes": [
+    "interior",
+    "pulse_boundary",
+    "packet_boundary"
+  ],
+  "c4": {
+    "level": "C4",
+    "reason": "production_input_not_supplied",
+    "status": "NOT_EVALUABLE"
+  },
+  "correction_definition": "inject=exp(-j*2*pi*f*tau); exact correction=exp(+j*2*pi*f*tau)",
+  "delays_ns": [
+    0.0,
+    1.0,
+    -1.0,
+    2.0,
+    -2.0,
+    4.0,
+    -4.0,
+    8.0,
+    -8.0
+  ],
+  "fs_hz": 60000000.0,
+  "levels": [
+    "C0",
+    "C1",
+    "C2",
+    "C3",
+    "C4"
+  ],
+  "rows": 54,
+  "router_enabled": false,
+  "schema_version": 1,
+  "seed": 20260917,
+  "native_four_channel_stap": false
+}

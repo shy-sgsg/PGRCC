@@ -1,0 +1,1130 @@
+{
+  "created_at_utc": "2026-10-23T08:56:14.628782+00:00",
+  "selection_rule": [
+    "D3_Huber_weighted_LS",
+    "D2_weighted_LS",
+    "D1_ordinary_LS"
+  ],
+  "online_input_policy": "A1_Current_unknown_error/ON only; no A0, OFF, TO, truth, or paired reference is passed to the estimator",
+  "fixed_calibration": {
+    "status": "PREVIOUSLY_EXECUTED",
+    "delay_ns": 3.4099650318669545,
+    "method": "D3_Huber_weighted_LS",
+    "source_role": "A1_OFF_target_free_C_plus_N_only",
+    "source_scientific_input": "F1=(C1+C3)/2, F2=(C2+C4)/2",
+    "truth_used_in_estimator": false,
+    "input_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r_minimal_cuda_causal_pilot_20261021/cases/base__seed_101__v_p6d7__snr_p30__delay_p4ns/inputs/A1_OFF_target_free_calibration.bin",
+    "input_sha256": "d8bd8673c30605f3817e25e54e5b5659f2d7617f9bba1f27b769449a7e458bd6",
+    "source_case_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/evidence/r3_minimal_cuda_causal_pilot_20261021/manifests/seed101_case_manifest.json",
+    "current_production_qualification": "PENDING_R9_R7_REPLAY",
+    "online_deployable": false
+  },
+  "seeds": {
+    "202": {
+      "online_estimation": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "b38329fad982d387dd8667d0da1c95382f3a740ab78ede7d86be67390c33dff4"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "039c7fdfc23211a18f12423cba1c4b9795e3de6b80c09291df720c47ca910ce0"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "a81e6b44abb0f8dc0dd8570757cbe15ede3d9b650e07f3fab24e81b1f4f80daa"
+          }
+        ],
+        "input_role": "A1_Current_unknown_error_ON_target_present",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.3272190380545794,
+            "finite": true,
+            "residual_phase_rms_rad": 0.044581949107568936,
+            "runtime_sec": 0.00020673499966505915,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 2.090553377367273e-08,
+            "r2": 0.727133773226124,
+            "confidence": 0.727133773226124,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.321667102474191,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04461901603881134,
+            "runtime_sec": 0.000154563007527031,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 2.0870649933607628e-08,
+            "r2": 0.7231362931443795,
+            "confidence": 0.7231362931443795,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.3212301410878045,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04326999282236591,
+            "runtime_sec": 0.004905829002382234,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 2.0867904424244877e-08,
+            "r2": 0.737980220527098,
+            "confidence": 0.737980220527098,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "b38329fad982d387dd8667d0da1c95382f3a740ab78ede7d86be67390c33dff4"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.864068261271154,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07208463372739432,
+                "runtime_sec": 0.00016629499441478401,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.4278656925157884e-08,
+                "r2": 0.6624595880397561,
+                "confidence": 0.6624595880397561,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.869454203859837,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07138573036996967,
+                "runtime_sec": 0.00015532999532297254,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.4312497800496414e-08,
+                "r2": 0.6622494248747933,
+                "confidence": 0.6622494248747933,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.8387005537829277,
+                "finite": true,
+                "residual_phase_rms_rad": 0.0674420541586476,
+                "runtime_sec": 0.0013874269934603944,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.4119266918191035e-08,
+                "r2": 0.6855377976852687,
+                "confidence": 0.6855377976852687,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "039c7fdfc23211a18f12423cba1c4b9795e3de6b80c09291df720c47ca910ce0"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.139539937310602,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07850645806447434,
+                "runtime_sec": 0.00019660800171550363,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9726311205413494e-08,
+                "r2": 0.5116758579659775,
+                "confidence": 0.5116758579659775,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.085592812288063,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07869649470616685,
+                "runtime_sec": 0.00016978800704237074,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9387351422107298e-08,
+                "r2": 0.4920159262233009,
+                "confidence": 0.4920159262233009,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.113563545891023,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07312851933582232,
+                "runtime_sec": 0.0013576039928011596,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.956309672451245e-08,
+                "r2": 0.5348177483803114,
+                "confidence": 0.5348177483803114,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "a81e6b44abb0f8dc0dd8570757cbe15ede3d9b650e07f3fab24e81b1f4f80daa"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.158612080109586,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07985710994970248,
+                "runtime_sec": 0.0001660859998082742,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.98461450128245e-08,
+                "r2": 0.4524322890455571,
+                "confidence": 0.4524322890455571,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.1571147653320635,
+                "finite": true,
+                "residual_phase_rms_rad": 0.08014851546243942,
+                "runtime_sec": 0.000148974999319762,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9836737106614148e-08,
+                "r2": 0.4425135865248768,
+                "confidence": 0.4425135865248768,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.188823841361519,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07396186849184955,
+                "runtime_sec": 0.001418437997926958,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0035971107226664e-08,
+                "r2": 0.4857471655869211,
+                "confidence": 0.4857471655869211,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false,
+        "selection_rule": [
+          "D3_Huber_weighted_LS",
+          "D2_weighted_LS",
+          "D1_ordinary_LS"
+        ],
+        "selected_delay_ns": 3.3212301410878045,
+        "selected_method": "D3_Huber_weighted_LS",
+        "selection_is_finite": true,
+        "status": "ESTIMATED"
+      },
+      "zero_injection_diagnostic": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "553e01abf13c47180289e3eafd14adb0bf86fb20396ac6f97a1774e79b0109bd"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "558aec81dc17e00abd561c6ce333906e2340b3fbafdba1cb5656205f12720638"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "19d25b0dd0f233b8d2fa403abdf9ee0fd42f934e2c8142103980f2cfd24889ac"
+          }
+        ],
+        "input_role": "A0_Ideal_ON_zero_injection_bias_diagnostic",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.07647186349326072,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04392513970599993,
+            "runtime_sec": 0.00020275400311220437,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -4.804868891134988e-10,
+            "r2": 0.0012074539270121587,
+            "confidence": 0.0012074539270121587,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.08145151949894865,
+            "finite": true,
+            "residual_phase_rms_rad": 0.043756171004858416,
+            "runtime_sec": 0.0001329810038441792,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -5.117749905632457e-10,
+            "r2": 0.0013513928522561613,
+            "confidence": 0.0013513928522561613,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.09109014803407767,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04211090549603297,
+            "runtime_sec": 0.0013092040026094764,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -5.723362797565303e-10,
+            "r2": 0.0018472146718720994,
+            "confidence": 0.0018472146718720994,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "553e01abf13c47180289e3eafd14adb0bf86fb20396ac6f97a1774e79b0109bd"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 0.5427716283339765,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07035049518018473,
+                "runtime_sec": 0.00016552700253669173,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 3.410334720301981e-09,
+                "r2": 0.03248904241329231,
+                "confidence": 0.03248904241329231,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 0.5338745833029399,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06940136710067563,
+                "runtime_sec": 0.0001246699976036325,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 3.3544329376856564e-09,
+                "r2": 0.031143055127121344,
+                "confidence": 0.031143055127121344,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 0.5233820830159974,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06538384505881636,
+                "runtime_sec": 0.0011710539984051138,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 3.2885066140471617e-09,
+                "r2": 0.03379946572819925,
+                "confidence": 0.03379946572819925,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "558aec81dc17e00abd561c6ce333906e2340b3fbafdba1cb5656205f12720638"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.4245209998945626,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07852402762774985,
+                "runtime_sec": 0.00017279101302847266,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.6673441091267023e-09,
+                "r2": 0.016422077847982774,
+                "confidence": 0.016422077847982774,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.4673145158844465,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07825214460939042,
+                "runtime_sec": 0.00013528500858228654,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.9362237000368955e-09,
+                "r2": 0.019326976853935807,
+                "confidence": 0.019326976853935807,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.3897937257734708,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07201970687701474,
+                "runtime_sec": 0.0012899959983769804,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.4491462106106605e-09,
+                "r2": 0.015981200614634816,
+                "confidence": 0.015981200614634816,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed202/cases/base__seed_202__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "19d25b0dd0f233b8d2fa403abdf9ee0fd42f934e2c8142103980f2cfd24889ac"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.43496367235076877,
+                "finite": true,
+                "residual_phase_rms_rad": 0.0785681117447036,
+                "runtime_sec": 0.00020219499128870666,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.732957355271226e-09,
+                "r2": 0.014295450066686533,
+                "confidence": 0.014295450066686533,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.4170740926381029,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07984101588552904,
+                "runtime_sec": 0.00014813599409535527,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.6205538108689857e-09,
+                "r2": 0.012382040601992328,
+                "confidence": 0.012382040601992328,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.46393269750787125,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07305307777935038,
+                "runtime_sec": 0.0013105300022289157,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -2.914975108501648e-09,
+                "r2": 0.018373344417980997,
+                "confidence": 0.018373344417980997,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false
+      }
+    },
+    "303": {
+      "online_estimation": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "922621f8ff1d2cfffd4c847b535b5ae633c0311139036da6ff0f92e16fb12297"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "f7506d535f54e77da8f74843b7cf2e7506e656f45d2430ab81ee6bfb6c236a0f"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "8106c3b626b9661617d0895dc9a3705f877fc06e0e5a31056c65ee45fcabb90c"
+          }
+        ],
+        "input_role": "A1_Current_unknown_error_ON_target_present",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.010953075321258,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04776879837888379,
+            "runtime_sec": 0.00016601600509602576,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 1.8918376123465718e-08,
+            "r2": 0.6473060552508776,
+            "confidence": 0.6473060552508776,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 3.0021973021659485,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04762383298755453,
+            "runtime_sec": 0.00012927901116199791,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 1.886336197822328e-08,
+            "r2": 0.644688629440664,
+            "confidence": 0.644688629440664,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": 2.9879938215503463,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04462073169567404,
+            "runtime_sec": 0.0013152800092939287,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": 1.877411887750852e-08,
+            "r2": 0.6733028005314845,
+            "confidence": 0.6733028005314845,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "922621f8ff1d2cfffd4c847b535b5ae633c0311139036da6ff0f92e16fb12297"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 2.8916868892596845,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07685294468674009,
+                "runtime_sec": 0.00018689900753088295,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.8169004575560294e-08,
+                "r2": 0.41495626006173136,
+                "confidence": 0.41495626006173136,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 2.822565572561141,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07680165702095268,
+                "runtime_sec": 0.00012858099944423884,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.77347025340671e-08,
+                "r2": 0.39810176287266374,
+                "confidence": 0.39810176287266374,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 2.853084799585804,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06910574450106449,
+                "runtime_sec": 0.0013146510027581826,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.792646049289494e-08,
+                "r2": 0.45692631537317907,
+                "confidence": 0.45692631537317907,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "f7506d535f54e77da8f74843b7cf2e7506e656f45d2430ab81ee6bfb6c236a0f"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.2281253480602583,
+                "finite": true,
+                "residual_phase_rms_rad": 0.0786490462361634,
+                "runtime_sec": 0.00016629499441478401,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0282909756666203e-08,
+                "r2": 0.4970374321777815,
+                "confidence": 0.4970374321777815,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.213008992698453,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07818506747703001,
+                "runtime_sec": 0.00013989499711897224,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0187930894758803e-08,
+                "r2": 0.4946125493206208,
+                "confidence": 0.4946125493206208,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.174342099305607,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07430838300760347,
+                "runtime_sec": 0.00119619800534565,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.9944979638318594e-08,
+                "r2": 0.5127460854925698,
+                "confidence": 0.5127460854925698,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "8106c3b626b9661617d0895dc9a3705f877fc06e0e5a31056c65ee45fcabb90c"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.2786754697166978,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07858303025755113,
+                "runtime_sec": 0.00017754000145941973,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.0600525538334084e-08,
+                "r2": 0.5376437448671452,
+                "confidence": 0.5376437448671452,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.2011921714075307,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07807194888355853,
+                "runtime_sec": 0.00015316499047912657,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 2.011368361684611e-08,
+                "r2": 0.5256743134854298,
+                "confidence": 0.5256743134854298,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": 3.163584473483015,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07004725761180496,
+                "runtime_sec": 0.0013046640087850392,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": 1.987738748180995e-08,
+                "r2": 0.5717391719141593,
+                "confidence": 0.5717391719141593,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false,
+        "selection_rule": [
+          "D3_Huber_weighted_LS",
+          "D2_weighted_LS",
+          "D1_ordinary_LS"
+        ],
+        "selected_delay_ns": 2.9879938215503463,
+        "selected_method": "D3_Huber_weighted_LS",
+        "selection_is_finite": true,
+        "status": "ESTIMATED"
+      },
+      "zero_injection_diagnostic": {
+        "inputs": [
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "3be74c05161046fe775c42c26854b8a702353c226ce9a1afacaea4e9188fad66"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "8f2e089f89ad29080146837cd93d964e29ed1daf6e39b17a2e472a2f42905b81"
+          },
+          {
+            "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+            "exists": true,
+            "bytes": 49204480,
+            "sha256": "921806a03ba63d0ec3aef8f01d95900aed5444b3089250d5511c535455e512e1"
+          }
+        ],
+        "input_role": "A0_Ideal_ON_zero_injection_bias_diagnostic",
+        "pulse_count": 390,
+        "sample_count": 11820,
+        "methods": {
+          "D1_ordinary_LS": {
+            "method": "D1_ordinary_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.24514283611359827,
+            "finite": true,
+            "residual_phase_rms_rad": 0.050314583693618777,
+            "runtime_sec": 0.00019786400662269443,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -1.5402778660292938e-09,
+            "r2": 0.008837004833675333,
+            "confidence": 0.008837004833675333,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D2_weighted_LS": {
+            "method": "D2_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.22527011912058376,
+            "finite": true,
+            "residual_phase_rms_rad": 0.050284315107593194,
+            "runtime_sec": 0.00015637799515388906,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -1.4154139026050471e-09,
+            "r2": 0.007366480134318953,
+            "confidence": 0.007366480134318953,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          },
+          "D3_Huber_weighted_LS": {
+            "method": "D3_Huber_weighted_LS",
+            "status": "ok",
+            "delta_tau_ns": -0.2881988492164989,
+            "finite": true,
+            "residual_phase_rms_rad": 0.04588942733344308,
+            "runtime_sec": 0.0012916729901917279,
+            "support_count": 1182,
+            "fallback_reason": null,
+            "input_finite_count": 4609800,
+            "pulse_count": 390,
+            "sample_count": 11820,
+            "phase_slope_rad_per_hz": -1.810806774943171e-09,
+            "r2": 0.014522983245672694,
+            "confidence": 0.014522983245672694,
+            "cross_spectrum_definition": "X1*conj(X2)"
+          }
+        },
+        "per_period": [
+          {
+            "period_id": 0,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "3be74c05161046fe775c42c26854b8a702353c226ce9a1afacaea4e9188fad66"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.5149115478223393,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07830627564623725,
+                "runtime_sec": 0.00018878599803429097,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -3.2352846717744215e-09,
+                "r2": 0.015840178363687674,
+                "confidence": 0.015840178363687674,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.5769577441863684,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07842073914807851,
+                "runtime_sec": 0.00013074598973616958,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -3.625132421135268e-09,
+                "r2": 0.01939969875662284,
+                "confidence": 0.01939969875662284,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.5168472490401186,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07029015479592683,
+                "runtime_sec": 0.0012922320020152256,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -3.247447041225062e-09,
+                "r2": 0.01961653652103834,
+                "confidence": 0.01961653652103834,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 1,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "8f2e089f89ad29080146837cd93d964e29ed1daf6e39b17a2e472a2f42905b81"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.1728551450677843,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07973348937132584,
+                "runtime_sec": 0.00018389600154478103,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -1.0860809077602982e-09,
+                "r2": 0.0025264512843629072,
+                "confidence": 0.0025264512843629072,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.13998271209920563,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07966008559197524,
+                "runtime_sec": 0.0001602889969944954,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -8.795373199208788e-10,
+                "r2": 0.0016430170736598804,
+                "confidence": 0.0016430170736598804,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.1523351400950213,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07679431748883238,
+                "runtime_sec": 0.0014111740019870922,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -9.571499140121818e-10,
+                "r2": 0.0020939621523459184,
+                "confidence": 0.0020939621523459184,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          },
+          {
+            "period_id": 2,
+            "input": {
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A0_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+              "exists": true,
+              "bytes": 49204480,
+              "sha256": "921806a03ba63d0ec3aef8f01d95900aed5444b3089250d5511c535455e512e1"
+            },
+            "pulse_count": 130,
+            "methods": {
+              "D1_ordinary_LS": {
+                "method": "D1_ordinary_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.1399396964156171,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07905378050968531,
+                "runtime_sec": 0.00016552800661884248,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -8.792670444097771e-10,
+                "r2": 0.002038288631633356,
+                "confidence": 0.002038288631633356,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D2_weighted_LS": {
+                "method": "D2_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.22068806208054573,
+                "finite": true,
+                "residual_phase_rms_rad": 0.07861062717908347,
+                "runtime_sec": 0.0001266250037588179,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -1.3866239891344214e-09,
+                "r2": 0.005001774677213855,
+                "confidence": 0.005001774677213855,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              },
+              "D3_Huber_weighted_LS": {
+                "method": "D3_Huber_weighted_LS",
+                "status": "ok",
+                "delta_tau_ns": -0.2554206363428012,
+                "finite": true,
+                "residual_phase_rms_rad": 0.06991993487004346,
+                "runtime_sec": 0.0011790160060627386,
+                "support_count": 1182,
+                "fallback_reason": null,
+                "input_finite_count": 1536600,
+                "pulse_count": 130,
+                "sample_count": 11820,
+                "phase_slope_rad_per_hz": -1.6048551894195486e-09,
+                "r2": 0.00846067781163351,
+                "confidence": 0.00846067781163351,
+                "cross_spectrum_definition": "X1*conj(X2)"
+              }
+            }
+          }
+        ],
+        "cross_spectrum_definition": "sum_pulses(FFT(F1)*conj(FFT(F2)))",
+        "truth_used_in_estimator": false
+      }
+    }
+  }
+}

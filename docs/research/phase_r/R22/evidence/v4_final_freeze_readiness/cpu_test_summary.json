@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "scope": "R12/R21/R22 CPU regression; no CUDA or experiment execution",
+  "test_file_count": 21,
+  "test_files": [
+    "tests/test_r12_physics_matched_delay.py",
+    "tests/test_r21_cuda_pilot.py",
+    "tests/test_r21_finalize_evidence.py",
+    "tests/test_r21_historical_task_review.py",
+    "tests/test_r21_task_evaluator.py",
+    "tests/test_r22_compact_archive.py",
+    "tests/test_r22_cuda_pilot.py",
+    "tests/test_r22_experiment_matrix.py",
+    "tests/test_r22_h0_seed_clusters.py",
+    "tests/test_r22_scenario_factory.py",
+    "tests/test_r22_v3_2_screening_summary.py",
+    "tests/test_r22_v3_3_residual_task_gap.py",
+    "tests/test_r22_v3_method_evaluability.py",
+    "tests/test_r22_v4_case_schema.py",
+    "tests/test_r22_v4_confirmatory_executor.py",
+    "tests/test_r22_v4_confirmatory_statistics.py",
+    "tests/test_r22_v4_evidence.py",
+    "tests/test_r22_v4_execution_plan.py",
+    "tests/test_r22_v4_identity.py",
+    "tests/test_r22_v4_p0_compact_archive.py",
+    "tests/test_r22_v4_p0_offline_reanalysis.py"
+  ],
+  "tests": 254,
+  "passed": 254,
+  "failed": 0,
+  "skipped": 0,
+  "pytest_elapsed_seconds": 3.804,
+  "command": "python3 -m pytest -q --junitxml=/tmp/pgrcc_r22_v4_final_freeze_cpu_tests.xml <21 discovered tests/test_r12|r21|r22 files>",
+  "worktree_head_during_run": "a81bdce906037d6a68c5e15cfe2d1578c8baedf4",
+  "not_run": [
+    "Stage2",
+    "Native CUDA Production",
+    "240-case matrix",
+    "AI training"
+  ],
+  "pytest_timestamp": "2026-11-24T13:56:53.585239+08:00"
+}

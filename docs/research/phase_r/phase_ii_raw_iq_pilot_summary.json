@@ -1,0 +1,116 @@
+{
+  "schema": "pgrcc_phase_ii_raw_iq_pilot_geometry_audit_v1",
+  "audit_date": "2026-10-19",
+  "pilot": {
+    "path": "outputs/unknown_system_error_pilot_20260913_v5",
+    "status": "raw_iq_pilot_completed",
+    "execution_scope": "CPU Stage2 raw-IQ simulation; not CUDA or production processing",
+    "stage2_inputs": [
+      "ideal_off",
+      "unknown_off",
+      "ideal_on",
+      "current_unknown"
+    ],
+    "correction_conditions_are_post_stage2_derivatives": [
+      "known_correction",
+      "estimated_correction"
+    ],
+    "repetition": "One deterministic period, seven beams, eight pulses per beam; 56 packets per reported condition."
+  },
+  "scene_configuration": {
+    "platform_height_m": 6000.0,
+    "ground_z_m": 0.0,
+    "slant_range_window_m": [
+      2500.0,
+      5000.0
+    ],
+    "area_enabled": true,
+    "area_model": "continuous_texture",
+    "thermal_noise_enabled": true,
+    "thermal_noise_power": 0.001,
+    "target_enabled_in_on_inputs": true
+  },
+  "geometry_and_injection": {
+    "stage2_range_definition": "range_m = norm(target_position - platform_position)",
+    "minimum_ground_slant_range_m": 6000.0,
+    "range_gate": "Ground cells with range_m >= scene.range_max_m are rejected.",
+    "conclusion": "The configured ground slant-range interval [2500,5000) m is unreachable from a 6000 m platform over ground at 0 m.",
+    "stage2_report_counts": {
+      "ideal_off": {
+        "continuous_area_packets": 0,
+        "continuous_area_samples": 0,
+        "continuous_area_raw_lfm_packets": 0
+      },
+      "unknown_off": {
+        "continuous_area_packets": 0,
+        "continuous_area_samples": 0,
+        "continuous_area_raw_lfm_packets": 0
+      },
+      "ideal_on": {
+        "continuous_area_packets": 0,
+        "continuous_area_samples": 0,
+        "continuous_area_raw_lfm_packets": 0
+      },
+      "current_unknown": {
+        "continuous_area_packets": 0,
+        "continuous_area_samples": 0,
+        "continuous_area_raw_lfm_packets": 0
+      }
+    }
+  },
+  "phase_residual_results": {
+    "metric": "phase_residual_to_ideal_rad",
+    "direction": "lower is better",
+    "conditions": {
+      "Ideal/No-error": 0.0,
+      "Current+unknown-error": 0.2004197259272836,
+      "Known-error correction upper bound": 9.87159533444741e-9,
+      "Estimated-error correction": 1.0053458540610316e-8
+    },
+    "direction_normalized_recovery_ratio": 0.9999999990925883,
+    "recovery_definition": {
+      "metric_direction": "lower_is_better",
+      "raw_signed_known_minus_current_rad": -0.20041971605568826,
+      "raw_signed_estimated_minus_current_rad": -0.20041971587382507,
+      "positive_recoverable_improvement_current_minus_known_rad": 0.20041971605568826,
+      "positive_actual_improvement_current_minus_estimated_rad": 0.20041971587382507,
+      "ratio_formula": "(Current - Estimated) / (Current - Known)"
+    },
+    "estimated_baseline_error_truth_m": 0.01,
+    "estimated_baseline_error_m": 0.009999999925366381,
+    "estimator_reference": "Paired no-error calibration reference with a six-pair horizontal phase fit; not an operational blind estimator.",
+    "mean_pair_coherence": "Approximately 0.01417115049 in all four reported conditions; pure phase rotation leaves magnitude-based pair coherence effectively unchanged."
+  },
+  "interpretation": {
+    "supported": [
+      "A deterministic baseline-phase correction agrees with the paired-reference result in this narrow Stage2 setup.",
+      "The configured continuous ground-area clutter was not injected in any of the four raw Stage2 inputs."
+    ],
+    "not_supported": [
+      "Clutter cancellation or recovery of multichannel clutter coherence under clutter-present conditions.",
+      "Operational blind estimation, production CUDA performance, Pd/Pfa, tracking benefit, or a need for AI."
+    ],
+    "clean_labeled_repeat": "outputs/unknown_system_error_pilot_20260914_clean repeats the same geometry mismatch and zero area-injection counts; it is not a corrected clutter-valid rerun.",
+    "reachable_range_control": {
+      "path": "outputs/unknown_system_error_servo_pilot_20260914_v3/cases/case_001_zero_seed_101/on",
+      "platform_height_m": 6000,
+      "ground_z_m": 0,
+      "slant_range_window_m": [
+        5000,
+        12000
+      ],
+      "continuous_area_packets": 650,
+      "continuous_area_samples": 5640524,
+      "scope_note": "A separate control showing injection under a reachable range window; not an equivalent rerun of the four-condition baseline pilot."
+    }
+  },
+  "source_refs": [
+    "outputs/unknown_system_error_pilot_20260913_v5/manifest.json",
+    "outputs/unknown_system_error_pilot_20260913_v5/configs/{ideal_off,unknown_off,ideal_on,current_unknown}.run.json",
+    "outputs/unknown_system_error_pilot_20260913_v5/raw/{ideal_off,unknown_off,ideal_on,current_unknown}/reports/stage2_simulation_report.md",
+    "outputs/unknown_system_error_pilot_20260914_clean/raw/{ideal_off,unknown_off,ideal_on,current_unknown}/reports/stage2_simulation_report.md",
+    "simulator/stage2_statistical_sim/stage2_lfm_forward.cpp:97-124,800-816",
+    "outputs/unknown_system_error_servo_pilot_20260914_v3/cases/case_001_zero_seed_101/on/{scenario_resolved.json,reports/stage2_simulation_report.md}"
+  ],
+  "raw_iq_included": false
+}

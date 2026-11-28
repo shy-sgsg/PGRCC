@@ -1,0 +1,82 @@
+{
+  "all_rows_finite": true,
+  "case_id": "engineering__seed_1937003__vr_2d5__snr_20__delay_4ns__targets_20__periods_10",
+  "complex_response_rows_expected": 90000,
+  "complex_response_rows_read": 90000,
+  "finite_complex_power_rows": 90000,
+  "fixed_roi_power_ratio_descriptive_summary": [
+    {
+      "definition": "Per ROI sum of 25 CSI_AFTER cell powers divided by A0_TO sum on same truth ROI; descriptive response audit only.",
+      "mean_power_ratio_vs_A0_TO": 1.0,
+      "median_power_ratio_vs_A0_TO": 1.0,
+      "method_id": "A0_not_applicable",
+      "p10_power_ratio_vs_A0_TO": 1.0,
+      "p90_power_ratio_vs_A0_TO": 1.0,
+      "paired_roi_count": 200,
+      "role": "TO"
+    },
+    {
+      "definition": "Per ROI sum of 25 CSI_AFTER cell powers divided by A0_TO sum on same truth ROI; descriptive response audit only.",
+      "mean_power_ratio_vs_A0_TO": 1.8063099594155725,
+      "median_power_ratio_vs_A0_TO": 1.0,
+      "method_id": "C0_not_applicable",
+      "p10_power_ratio_vs_A0_TO": 0.9191122864240925,
+      "p90_power_ratio_vs_A0_TO": 3.299101216094323,
+      "paired_roi_count": 200,
+      "role": "TO"
+    },
+    {
+      "definition": "Per ROI sum of 25 CSI_AFTER cell powers divided by A0_TO sum on same truth ROI; descriptive response audit only.",
+      "mean_power_ratio_vs_A0_TO": 1.056503573143297,
+      "median_power_ratio_vs_A0_TO": 1.0,
+      "method_id": "HUBER_D3_CAUSAL_PREFIX",
+      "p10_power_ratio_vs_A0_TO": 0.978870734688116,
+      "p90_power_ratio_vs_A0_TO": 1.2403758560189801,
+      "paired_roi_count": 200,
+      "role": "TO"
+    },
+    {
+      "definition": "Per ROI sum of 25 CSI_AFTER cell powers divided by A0_TO sum on same truth ROI; descriptive response audit only.",
+      "mean_power_ratio_vs_A0_TO": 1.0422227830140287,
+      "median_power_ratio_vs_A0_TO": 1.0,
+      "method_id": "M1_CAUSAL_PREFIX",
+      "p10_power_ratio_vs_A0_TO": 0.9826988516915843,
+      "p90_power_ratio_vs_A0_TO": 1.1852416137556594,
+      "paired_roi_count": 200,
+      "role": "TO"
+    },
+    {
+      "definition": "Per ROI sum of 25 CSI_AFTER cell powers divided by A0_TO sum on same truth ROI; descriptive response audit only.",
+      "mean_power_ratio_vs_A0_TO": 1.000000273525646,
+      "median_power_ratio_vs_A0_TO": 1.0,
+      "method_id": "PK_not_applicable",
+      "p10_power_ratio_vs_A0_TO": 0.9999993277688217,
+      "p90_power_ratio_vs_A0_TO": 1.0000017275196809,
+      "paired_roi_count": 200,
+      "role": "TO"
+    },
+    {
+      "definition": "Per ROI sum of 25 CSI_AFTER cell powers divided by A0_TO sum on same truth ROI; descriptive response audit only.",
+      "mean_power_ratio_vs_A0_TO": 1.0673450717136,
+      "median_power_ratio_vs_A0_TO": 1.0,
+      "method_id": "R22_R9_Fixed_D3",
+      "p10_power_ratio_vs_A0_TO": 0.9752035827817013,
+      "p90_power_ratio_vs_A0_TO": 1.2738867124701048,
+      "paired_roi_count": 200,
+      "role": "TO"
+    }
+  ],
+  "interpretation": "Same truth-defined 5x5 ROI for all methods. TO is target-only auxiliary role; ratios measure output-power retention relative to A0_TO in this case and are not task-performance or statistical claims.",
+  "manifest_path": "pipeline/cases/r22_multi_target__seed_1937003__v_2d5__snr_20__delay_4ns/r22_v4_output_evidence/target_complex_response_manifest.json",
+  "manifest_sha256": "cea23207171a0ffd4ab2495342a4d500a6cac55ee9d66dc57401eb13beffa791",
+  "manifest_status": "EVALUABLE",
+  "period_count": 10,
+  "processing_tap": "CSI_AFTER",
+  "response_branch_count": 18,
+  "roi_cells_per_target_period_branch": 25,
+  "schema_version": 1,
+  "target_count": 20,
+  "target_period_roi_count": 200,
+  "truth_identity_rows": 200,
+  "truth_mapping_audit_status": "passed"
+}

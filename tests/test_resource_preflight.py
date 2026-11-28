@@ -19,8 +19,9 @@ class ResourcePreflightTests(unittest.TestCase):
 
     def test_parse_nvidia_query_preserves_metrics_and_converts_memory(self) -> None:
         rows = parse_nvidia_query(
-            "0, NVIDIA Test, 8192, 16384, 12, P2, 55, 80.5, 1500\n")
+            "0, NVIDIA Test, 8192, 8192, 16384, 12, P2, 55, 80.5, 1500\n")
         self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]["memory.used"], 8192 * 1024 ** 2)
         self.assertEqual(rows[0]["memory.free"], 8192 * 1024 ** 2)
         self.assertEqual(rows[0]["pstate"], "P2")
         self.assertEqual(rows[0]["temperature.gpu"], 55.0)

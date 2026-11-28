@@ -1,0 +1,763 @@
+{
+  "case_id": "r22_preflight_20t_20beam_seed900101",
+  "output_dir": "/tmp/r22_preflight_20t_20beam_seed900101/stage2",
+  "scene_mode": "full",
+  "truth_output": true,
+  "waveform": {
+    "fc_ghz": 16.0,
+    "bandwidth_mhz": 50.0,
+    "fs_mhz": 60.0,
+    "tr_us": 130.0,
+    "prf_hz": 1300.0,
+    "pulse_len": 11820,
+    "pulse_num": 130,
+    "d_chan_m": 0.17,
+    "iq_data_type": "float32",
+    "new_protocol_channel_count": 4,
+    "new_protocol_read_channel_1": 1,
+    "new_protocol_read_channel_2": 2
+  },
+  "range_processing": {
+    "range_fft_len": 12288,
+    "range_crop_start": 3864,
+    "range_crop_len": 4096,
+    "sample_delay_us": 488.0
+  },
+  "scan": {
+    "scan_min_deg": -60.0,
+    "scan_step_deg": 2.0,
+    "beam_count": 61,
+    "beam_width_deg": 2.28,
+    "beam_index_base": 1
+  },
+  "platform": {
+    "speed_mps": 60.0,
+    "height_m": 6000.0,
+    "origin_lat_deg": 40.4512107203,
+    "origin_lon_deg": 116.985931582,
+    "origin_alt_m": 6000.0,
+    "projection_ref_lon_deg": 117.0,
+    "squint_side": 1
+  },
+  "random": {
+    "period_start": 0,
+    "period_count": 1,
+    "beam_start": 21,
+    "beam_count": 20,
+    "random_seed": 900101
+  },
+  "scene": {
+    "mode": "full",
+    "range_min_m": 84500.0,
+    "range_max_m": 85500.0,
+    "azimuth_min_deg": -60.0,
+    "azimuth_max_deg": 60.0,
+    "ground_z_m": 0.0,
+    "clutter_amplitude_scale": 1.0,
+    "single_point": {
+      "range_m": 85000.0,
+      "beam_id": -1,
+      "expected_bin": -1,
+      "azimuth_deg": 0.0,
+      "amplitude": 1.0
+    },
+    "area_clutter": {
+      "enabled": true,
+      "model": "continuous_texture",
+      "scatterer_count": 0,
+      "mean_power": 0.02,
+      "texture_sigma": 0.25,
+      "spatial_cell_m": 30.0,
+      "temporal_correlation_rho": 0.98
+    },
+    "strong_scatterers": {
+      "enabled": false,
+      "count": 0,
+      "rcs_db_min": 10.0,
+      "rcs_db_max": 30.0
+    },
+    "line_scatterers": {
+      "enabled": false,
+      "line_count": 1,
+      "points_per_line": 50,
+      "rcs_db": 12.0
+    },
+    "thermal_noise": {
+      "enabled": true,
+      "noise_power": 0.001
+    },
+    "output_signal_domain": "raw_lfm"
+  },
+  "targets": [
+    {
+      "target_id": "R22_T001",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 21,
+        "expected_bin": 689,
+        "azimuth_offset_deg": -0.34650454232897
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.3674215780404101,
+        "vn_mps": 0.4472372268237443
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T002",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 22,
+        "expected_bin": 700,
+        "azimuth_offset_deg": -0.4329420518061283
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.6030839098695644,
+        "vn_mps": -0.2281579949652103
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T003",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 23,
+        "expected_bin": 728,
+        "azimuth_offset_deg": 0.06743493551467361
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.4175410161602586,
+        "vn_mps": 0.3588216984091231
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T004",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 24,
+        "expected_bin": 750,
+        "azimuth_offset_deg": -0.0478635162252844
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.3941899970924564,
+        "vn_mps": 0.4844797860532931
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T005",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 25,
+        "expected_bin": 772,
+        "azimuth_offset_deg": 0.43590349803879314
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.4545681012971731,
+        "vn_mps": 0.27266310601159816
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T006",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 26,
+        "expected_bin": 789,
+        "azimuth_offset_deg": -0.48161941821262233
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.5254310206749379,
+        "vn_mps": -0.09159692524281264
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T007",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 27,
+        "expected_bin": 806,
+        "azimuth_offset_deg": 0.12339895683923763
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.5105624344717978,
+        "vn_mps": -0.04192599334562169
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T008",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 28,
+        "expected_bin": 821,
+        "azimuth_offset_deg": -0.06436434942510683
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.47091371120619074,
+        "vn_mps": 0.30026420041700536
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T009",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 29,
+        "expected_bin": 859,
+        "azimuth_offset_deg": -0.03786501617636562
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.5044903712508941,
+        "vn_mps": -0.045985346828713074
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T010",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 30,
+        "expected_bin": 873,
+        "azimuth_offset_deg": 0.1500869846209325
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.49603879146408747,
+        "vn_mps": 0.13071697125417436
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T011",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 31,
+        "expected_bin": 895,
+        "azimuth_offset_deg": 0.2921156431570774
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.501658393217754,
+        "vn_mps": 0.3240010630975722
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T012",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 32,
+        "expected_bin": 902,
+        "azimuth_offset_deg": 0.29841124684440357
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.5133031990187433,
+        "vn_mps": 0.3214198798901422
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T013",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 33,
+        "expected_bin": 928,
+        "azimuth_offset_deg": -0.39645867916819
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.49742608894157125,
+        "vn_mps": -0.056599434151349645
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T014",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 34,
+        "expected_bin": 943,
+        "azimuth_offset_deg": 0.30116219695652857
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.5210300528943851,
+        "vn_mps": 0.16293066605059697
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T015",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 35,
+        "expected_bin": 974,
+        "azimuth_offset_deg": -0.3657901596158101
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.4971214055611012,
+        "vn_mps": -0.054836133273620885
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T016",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 36,
+        "expected_bin": 991,
+        "azimuth_offset_deg": 0.12541680790632903
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.5611335399807107,
+        "vn_mps": 0.29802628997220804
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T017",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 37,
+        "expected_bin": 1018,
+        "azimuth_offset_deg": -0.06400924331226665
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.5196644218557498,
+        "vn_mps": 0.040754970973768734
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T018",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 38,
+        "expected_bin": 1023,
+        "azimuth_offset_deg": -0.34823897918503033
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.4122843722558853,
+        "vn_mps": -0.42099557871813686
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T019",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 39,
+        "expected_bin": 1055,
+        "azimuth_offset_deg": 0.3369252638793603
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.46484683689833434,
+        "vn_mps": -0.19169767102766305
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    },
+    {
+      "target_id": "R22_T020",
+      "enabled": true,
+      "init": {
+        "type": "beam_bin_azimuth_offset",
+        "beam_id": 40,
+        "expected_bin": 1069,
+        "azimuth_offset_deg": 0.15032661611947673
+      },
+      "motion": {
+        "type": "enu_velocity",
+        "ve_mps": -0.45790989309854696,
+        "vn_mps": -0.2082575735730951
+      },
+      "amplitude": {
+        "type": "snr_db",
+        "snr_db": 20.0
+      },
+      "visibility": {
+        "type": "gaussian"
+      }
+    }
+  ],
+  "channel_geometry": {
+    "mode": "reported_channel_positions",
+    "channel_1": {
+      "name": "left_upper",
+      "x_m": -0.085,
+      "y_m": 0.0,
+      "z_m": 0.085
+    },
+    "channel_2": {
+      "name": "right_upper",
+      "x_m": 0.085,
+      "y_m": 0.0,
+      "z_m": 0.085
+    },
+    "channel_3": {
+      "name": "left_lower",
+      "x_m": -0.085,
+      "y_m": 0.0,
+      "z_m": -0.085
+    },
+    "channel_4": {
+      "name": "right_lower",
+      "x_m": 0.085,
+      "y_m": 0.0,
+      "z_m": -0.085
+    }
+  },
+  "r22_target_state_generation": {
+    "generator": "scripts/phase_r/r22_scenario_factory.py",
+    "generator_version": 1,
+    "seed_namespace": "independent per-target streams; not reused by Stage2 clutter or packet-noise RNG",
+    "target_count": 20,
+    "radial_speed_mps": 0.5,
+    "target_snr_db": 20.0,
+    "period_count": 1,
+    "first_beam": 21,
+    "beam_count": 20,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "range_origin_m": 82802.6768996,
+    "range_bin_spacing_m": 2.498270483333333,
+    "range_bin_bounds": [
+      680,
+      1079
+    ],
+    "target_state_substreams": [
+      {
+        "target_id": "R22_T001",
+        "stream_seed": 3865905737105408,
+        "range_bin_stratum": [
+          680,
+          699
+        ],
+        "expected_bin": 689
+      },
+      {
+        "target_id": "R22_T002",
+        "stream_seed": 3865905737105409,
+        "range_bin_stratum": [
+          700,
+          719
+        ],
+        "expected_bin": 700
+      },
+      {
+        "target_id": "R22_T003",
+        "stream_seed": 3865905737105410,
+        "range_bin_stratum": [
+          720,
+          739
+        ],
+        "expected_bin": 728
+      },
+      {
+        "target_id": "R22_T004",
+        "stream_seed": 3865905737105411,
+        "range_bin_stratum": [
+          740,
+          759
+        ],
+        "expected_bin": 750
+      },
+      {
+        "target_id": "R22_T005",
+        "stream_seed": 3865905737105412,
+        "range_bin_stratum": [
+          760,
+          779
+        ],
+        "expected_bin": 772
+      },
+      {
+        "target_id": "R22_T006",
+        "stream_seed": 3865905737105413,
+        "range_bin_stratum": [
+          780,
+          799
+        ],
+        "expected_bin": 789
+      },
+      {
+        "target_id": "R22_T007",
+        "stream_seed": 3865905737105414,
+        "range_bin_stratum": [
+          800,
+          819
+        ],
+        "expected_bin": 806
+      },
+      {
+        "target_id": "R22_T008",
+        "stream_seed": 3865905737105415,
+        "range_bin_stratum": [
+          820,
+          839
+        ],
+        "expected_bin": 821
+      },
+      {
+        "target_id": "R22_T009",
+        "stream_seed": 3865905737105416,
+        "range_bin_stratum": [
+          840,
+          859
+        ],
+        "expected_bin": 859
+      },
+      {
+        "target_id": "R22_T010",
+        "stream_seed": 3865905737105417,
+        "range_bin_stratum": [
+          860,
+          879
+        ],
+        "expected_bin": 873
+      },
+      {
+        "target_id": "R22_T011",
+        "stream_seed": 3865905737105418,
+        "range_bin_stratum": [
+          880,
+          899
+        ],
+        "expected_bin": 895
+      },
+      {
+        "target_id": "R22_T012",
+        "stream_seed": 3865905737105419,
+        "range_bin_stratum": [
+          900,
+          919
+        ],
+        "expected_bin": 902
+      },
+      {
+        "target_id": "R22_T013",
+        "stream_seed": 3865905737105420,
+        "range_bin_stratum": [
+          920,
+          939
+        ],
+        "expected_bin": 928
+      },
+      {
+        "target_id": "R22_T014",
+        "stream_seed": 3865905737105421,
+        "range_bin_stratum": [
+          940,
+          959
+        ],
+        "expected_bin": 943
+      },
+      {
+        "target_id": "R22_T015",
+        "stream_seed": 3865905737105422,
+        "range_bin_stratum": [
+          960,
+          979
+        ],
+        "expected_bin": 974
+      },
+      {
+        "target_id": "R22_T016",
+        "stream_seed": 3865905737105423,
+        "range_bin_stratum": [
+          980,
+          999
+        ],
+        "expected_bin": 991
+      },
+      {
+        "target_id": "R22_T017",
+        "stream_seed": 3865905737105424,
+        "range_bin_stratum": [
+          1000,
+          1019
+        ],
+        "expected_bin": 1018
+      },
+      {
+        "target_id": "R22_T018",
+        "stream_seed": 3865905737105425,
+        "range_bin_stratum": [
+          1020,
+          1039
+        ],
+        "expected_bin": 1023
+      },
+      {
+        "target_id": "R22_T019",
+        "stream_seed": 3865905737105426,
+        "range_bin_stratum": [
+          1040,
+          1059
+        ],
+        "expected_bin": 1055
+      },
+      {
+        "target_id": "R22_T020",
+        "stream_seed": 3865905737105427,
+        "range_bin_stratum": [
+          1060,
+          1079
+        ],
+        "expected_bin": 1069
+      }
+    ]
+  }
+}

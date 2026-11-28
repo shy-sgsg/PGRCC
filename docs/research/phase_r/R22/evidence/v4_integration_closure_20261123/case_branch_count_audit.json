@@ -1,0 +1,176 @@
+{
+  "cases": {
+    "h0": 60,
+    "target_present": 180
+  },
+  "cuda_authorized": false,
+  "design_id": "R22_EXTENSION_20261113_V4_CAUSAL_OUTPUT_COMPLETE_CONFIRMATORY_DRAFT",
+  "design_status": "DRAFT_NOT_FROZEN",
+  "execution_authorized": false,
+  "internal_auxiliary_production_calls": {
+    "h0": 450,
+    "semantics": "source-derived runner branches outside registered method-role ranking slots; includes OFF support, paired A0 reference at +4ns, and targetless TO calls",
+    "target_present": 810,
+    "total": 1260
+  },
+  "method_slot_counts": {
+    "A0": 210,
+    "C0": 210,
+    "FIXED_D3": 210,
+    "HUBER_D3_CAUSAL_PREFIX": 210,
+    "M1_BATCH10_DIAGNOSTIC": 210,
+    "M1_CAUSAL_PREFIX": 210,
+    "PK_KNOWN": 210
+  },
+  "method_slot_counts_by_phase_delay": [
+    {
+      "delay_ns": 0,
+      "method_id": "A0",
+      "phase": "h0",
+      "slots": 30
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "C0",
+      "phase": "h0",
+      "slots": 30
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "FIXED_D3",
+      "phase": "h0",
+      "slots": 30
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "HUBER_D3_CAUSAL_PREFIX",
+      "phase": "h0",
+      "slots": 30
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "M1_BATCH10_DIAGNOSTIC",
+      "phase": "h0",
+      "slots": 30
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "M1_CAUSAL_PREFIX",
+      "phase": "h0",
+      "slots": 30
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "PK_KNOWN",
+      "phase": "h0",
+      "slots": 30
+    },
+    {
+      "delay_ns": 0,
+      "method_id": "A0",
+      "phase": "target_present",
+      "slots": 180
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "C0",
+      "phase": "target_present",
+      "slots": 180
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "FIXED_D3",
+      "phase": "target_present",
+      "slots": 180
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "HUBER_D3_CAUSAL_PREFIX",
+      "phase": "target_present",
+      "slots": 180
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "M1_BATCH10_DIAGNOSTIC",
+      "phase": "target_present",
+      "slots": 180
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "M1_CAUSAL_PREFIX",
+      "phase": "target_present",
+      "slots": 180
+    },
+    {
+      "delay_ns": 4,
+      "method_id": "PK_KNOWN",
+      "phase": "target_present",
+      "slots": 180
+    }
+  ],
+  "offline_diagnostic_slots": 210,
+  "plan_not_executed_items": [
+    "Stage2",
+    "Native CUDA Production",
+    "V4 pilot",
+    "confirmatory matrix"
+  ],
+  "plan_validation": {
+    "case_count": 240,
+    "registered_slot_count": 1470,
+    "status": "passed"
+  },
+  "registered_method_role_slots": {
+    "h0": 210,
+    "target_present": 1260,
+    "total": 1470
+  },
+  "registered_production_slots": {
+    "h0": 180,
+    "target_present": 1080,
+    "total": 1260
+  },
+  "source_derived_production_calls": {
+    "by_phase_and_delay": {
+      "h0": {
+        "plus_four_ns": 540,
+        "total": 630,
+        "zero_delay": 90
+      },
+      "target_present": {
+        "plus_four_ns": 1620,
+        "total": 1890,
+        "zero_delay": 270
+      }
+    },
+    "h0": 630,
+    "h0_maximum": 630,
+    "internal_auxiliary_calls": 1260,
+    "maximum": 2520,
+    "per_case_by_delay": {
+      "0": 3,
+      "4": 18
+    },
+    "plus_four_ns_case_count": 120,
+    "registered_production_slots": 1260,
+    "source_contract": "V4-specific run_case selection: A0 only at 0ns; A0+C0+PK at +4ns; three correction methods add three roles each at +4ns; batch M1 is diagnostic",
+    "target_present": 1890,
+    "target_present_maximum": 1890,
+    "total": 2520,
+    "zero_delay_case_count": 120
+  },
+  "stage2_call_bounds": {
+    "identity_note": "zero-delay A1_OFF/A1_TO are reused only when generated scenario payloads match; +4 ns materializes six roles",
+    "maximum_total": 1440,
+    "minimum_total": 1200,
+    "plus_four_ns_case_calls": {
+      "maximum": 6,
+      "minimum": 6
+    },
+    "zero_delay_case_calls": {
+      "maximum": 6,
+      "minimum": 4
+    }
+  },
+  "status": "passed"
+}

@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "pilot_verdict": "PILOT_PASS",
+  "engineering_scope_only": true,
+  "research_direction": "CONTINUE bounded V4 evaluation preparation; no algorithm innovation claim.",
+  "labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": true,
+    "PERFORMANCE_VERIFIED": false
+  },
+  "criteria": {
+    "stage2_passed": true,
+    "continuous_area_clutter_effective": true,
+    "production_branches_passed": true,
+    "causal_m1_huber_rows": true,
+    "all_estimates_available_no_fallback": true,
+    "truth_mapping_status": "passed",
+    "target_response_complete_finite": true,
+    "detection_metrics_available_for_six_ON_methods": true,
+    "archive_verified_and_raw_removed": true
+  },
+  "single_seed_task_observations": [
+    {
+      "method_id": "A0",
+      "evaluable_truth_opportunities": "200",
+      "hits": "140",
+      "misses": "60",
+      "hit_fraction": "0.7"
+    },
+    {
+      "method_id": "C0",
+      "evaluable_truth_opportunities": "200",
+      "hits": "26",
+      "misses": "174",
+      "hit_fraction": "0.13"
+    },
+    {
+      "method_id": "PK",
+      "evaluable_truth_opportunities": "200",
+      "hits": "140",
+      "misses": "60",
+      "hit_fraction": "0.7"
+    },
+    {
+      "method_id": "R22_R9_Fixed_D3",
+      "evaluable_truth_opportunities": "200",
+      "hits": "142",
+      "misses": "58",
+      "hit_fraction": "0.71"
+    },
+    {
+      "method_id": "M1_CAUSAL_PREFIX",
+      "evaluable_truth_opportunities": "200",
+      "hits": "140",
+      "misses": "60",
+      "hit_fraction": "0.7"
+    },
+    {
+      "method_id": "HUBER_D3_CAUSAL_PREFIX",
+      "evaluable_truth_opportunities": "200",
+      "hits": "142",
+      "misses": "58",
+      "hit_fraction": "0.71"
+    }
+  ],
+  "statistical_limit": "One independent engineering seed; target-period opportunities, processing periods, CUTs and branches are not independent seeds.",
+  "confirmatory_freeze_ready": false,
+  "freeze_blockers": [
+    "position_mde_m remains null",
+    "detection_coverage_noninferiority_margin_pp remains null",
+    "no approved track-protection margin",
+    "formal matrix requires a separate explicit start authorization"
+  ],
+  "formal_240_case_planning_only": {
+    "planned_cases": 240,
+    "planned_production_branches": 1470,
+    "pilot_case_wall_minutes": 14.621221983333333,
+    "simple_240_case_wall_extrapolation_hours": 58.48488793333333,
+    "branch_scaled_production_hours": 9.780729363413649,
+    "stage2_scaled_hours_range": [
+      11.314307028111621,
+      13.577168433733943
+    ],
+    "other_pipeline_overhead_scaled_hours": 16.16435157446541,
+    "execution_total_model_hours_range": [
+      37.25938796599068,
+      39.522249371613
+    ],
+    "archive_linear_branch_model_bytes": 1064709123870,
+    "archive_linear_branch_model_tib": 0.9683473070890614,
+    "warning": "Linear planning estimates only. The pilot contains engineering-only roles, one condition and one seed, and ran under external GPU contention. Formal cases differ. Storage requires separate capacity; no matrix was started."
+  },
+  "ai_training_started": false,
+  "confirmatory_matrix_started": false,
+  "research_master_plan_modified": false
+}

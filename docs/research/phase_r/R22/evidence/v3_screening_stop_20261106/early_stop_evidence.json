@@ -1,0 +1,408 @@
+{
+  "schema_version": 1,
+  "recorded_on": "2026-11-06",
+  "decision_id": "D-2026-11-06-R22-V3-EARLY-STOP",
+  "repository": "shy-sgsg/PGRCC",
+  "branch": "codex/unknown-system-error-next-stage",
+  "source_commit": "003366a7c04877d36281b268c83bfcb08bf7b810",
+  "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "design_id": "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION",
+  "matrix_canonical_design_sha256": "02ce0973ffd8eeb8e20bbd984274b8a1c9895d25fb79bb69741333537271eb18",
+  "execution_identity_design_file_sha256": "bd845ad42f23e630af0a4188a09b155b298eb5fb0b744410b42989dec97e0a74",
+  "matrix_status": "UNKNOWN_STOP",
+  "planned_case_count": 288,
+  "case_attempt_records": [
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10",
+      "attempt": 1,
+      "status": "PASSED",
+      "condition_id": "v0.5_snr10_d0",
+      "seed": 1932001,
+      "applicable_methods": 12,
+      "evaluable_methods": 12,
+      "unknown_methods": 0,
+      "scenario_reason": "all_expected_method_units_evaluable",
+      "archive_name": "screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10__attempt_001.zip",
+      "archive_bytes": 3975001,
+      "archive_sha256": "3c310e25ec2b64c666f4ded398a4c11ed757ae6e2f4a9f7854833681225f3c9d",
+      "raw_case_removed": true
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10",
+      "attempt": 1,
+      "status": "INTERRUPTED",
+      "condition_id": "v0.5_snr10_d4",
+      "seed": 1932001,
+      "applicable_methods": null,
+      "evaluable_methods": null,
+      "unknown_methods": null,
+      "scenario_reason": null,
+      "archive_name": null,
+      "archive_bytes": null,
+      "archive_sha256": null,
+      "raw_case_removed": null
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10",
+      "attempt": 2,
+      "status": "PASSED",
+      "condition_id": "v0.5_snr10_d4",
+      "seed": 1932001,
+      "applicable_methods": 18,
+      "evaluable_methods": 18,
+      "unknown_methods": 0,
+      "scenario_reason": "all_expected_method_units_evaluable",
+      "archive_name": "screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10__attempt_002.zip",
+      "archive_bytes": 5772448,
+      "archive_sha256": "be390b85c484020e29897986379731a5bb7c29093a8061f3c6e8a4b1d45b18e8",
+      "raw_case_removed": true
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_20__delay_0ns__targets_20__periods_10",
+      "attempt": 1,
+      "status": "PASSED",
+      "condition_id": "v0.5_snr20_d0",
+      "seed": 1932001,
+      "applicable_methods": 12,
+      "evaluable_methods": 12,
+      "unknown_methods": 0,
+      "scenario_reason": "all_expected_method_units_evaluable",
+      "archive_name": "screening__seed_1932001__vr_0d5__snr_20__delay_0ns__targets_20__periods_10__attempt_001.zip",
+      "archive_bytes": 4050074,
+      "archive_sha256": "cc4b26a19a75aca707ec6ed3f1b43fbf03ab8093a2ad0a0d65b7692539473d36",
+      "raw_case_removed": true
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_20__delay_4ns__targets_20__periods_10",
+      "attempt": 1,
+      "status": "UNKNOWN_STOP",
+      "condition_id": "v0.5_snr20_d4",
+      "seed": 1932001,
+      "applicable_methods": 18,
+      "evaluable_methods": 17,
+      "unknown_methods": 1,
+      "scenario_reason": "one_or_more_method_units_unknown",
+      "archive_name": "screening__seed_1932001__vr_0d5__snr_20__delay_4ns__targets_20__periods_10__attempt_001.zip",
+      "archive_bytes": 5866062,
+      "archive_sha256": "c5535d6733d381a3c3a5a22e190fe09868c434f2513568323afddb2d5e4767d0",
+      "raw_case_removed": true
+    }
+  ],
+  "verified_archives": [
+    {
+      "path": "archives/failures/screening/screening__seed_1932001__vr_0d5__snr_20__delay_4ns__targets_20__periods_10__attempt_001.zip",
+      "bytes": 5866062,
+      "sha256": "c5535d6733d381a3c3a5a22e190fe09868c434f2513568323afddb2d5e4767d0",
+      "crc_error": null,
+      "member_count": 2354
+    },
+    {
+      "path": "archives/interrupted/screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10__attempt_001_INTERRUPTED.zip",
+      "bytes": 81738924,
+      "sha256": "d3fd2c4719d869f35e511bc7f5ac4f4e37e8b40fc1c965b05eacae9423b9f674",
+      "crc_error": null,
+      "member_count": 3418
+    },
+    {
+      "path": "archives/screening/screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10__attempt_001.zip",
+      "bytes": 3975001,
+      "sha256": "3c310e25ec2b64c666f4ded398a4c11ed757ae6e2f4a9f7854833681225f3c9d",
+      "crc_error": null,
+      "member_count": 1596
+    },
+    {
+      "path": "archives/screening/screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10__attempt_002.zip",
+      "bytes": 5772448,
+      "sha256": "be390b85c484020e29897986379731a5bb7c29093a8061f3c6e8a4b1d45b18e8",
+      "crc_error": null,
+      "member_count": 2357
+    },
+    {
+      "path": "archives/screening/screening__seed_1932001__vr_0d5__snr_20__delay_0ns__targets_20__periods_10__attempt_001.zip",
+      "bytes": 4050074,
+      "sha256": "cc4b26a19a75aca707ec6ed3f1b43fbf03ab8093a2ad0a0d65b7692539473d36",
+      "crc_error": null,
+      "member_count": 1596
+    }
+  ],
+  "failure_case": {
+    "case_id": "r22_multi_target__seed_1932001__v_0.5__snr_20.0__delay_4.0ns",
+    "status": "completed_with_gaps",
+    "scenario": {
+      "seed": null,
+      "radial_speed_mps": null,
+      "target_snr_db": null,
+      "delay_error_ns": null,
+      "target_count": null,
+      "period_count": null
+    },
+    "area_clutter_gate": {
+      "status": "passed",
+      "continuous_area_packets": 1300,
+      "continuous_area_samples": 6508782,
+      "area_mean_power_measured": 0.0221596696662,
+      "ground_range_min_m": 84286.71306914276,
+      "ground_range_max_m": 85289.213854977,
+      "platform_height_m": 6000.0,
+      "ground_height_m": 0.0
+    },
+    "causal_triplets": {
+      "blind": {
+        "max_abs_error": 1.1680875695458492e-05,
+        "reason": "on_minus_off_minus_target_within_tolerance",
+        "rms_error": 6.74389481559968e-07,
+        "sample_count": 61464000,
+        "status": "passed",
+        "tolerance": 5e-05
+      },
+      "ideal": {
+        "max_abs_error": 1.0613811664104703e-05,
+        "reason": "on_minus_off_minus_target_within_tolerance",
+        "rms_error": 6.558373079922699e-07,
+        "sample_count": 61464000,
+        "status": "passed",
+        "tolerance": 5e-05
+      },
+      "known": {
+        "max_abs_error": 1.2730860066267275e-05,
+        "reason": "on_minus_off_minus_target_within_tolerance",
+        "rms_error": 6.853562212613919e-07,
+        "sample_count": 61464000,
+        "status": "passed",
+        "tolerance": 5e-05
+      },
+      "none": {
+        "max_abs_error": 1.0613811664104703e-05,
+        "reason": "on_minus_off_minus_target_within_tolerance",
+        "rms_error": 6.376637296718878e-07,
+        "sample_count": 61464000,
+        "status": "passed",
+        "tolerance": 5e-05
+      }
+    },
+    "evidence_gate": {
+      "causal_triplets": "passed",
+      "empirical_pfa": "NOT_EVALUABLE",
+      "fallback_to_current": false,
+      "truth_used_in_estimator": false,
+      "unique_final_union_hits": "passed",
+      "valid_cut_denominators": "passed"
+    },
+    "evaluation_summary": null,
+    "production_binary_sha256": "d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e",
+    "stage2_binary_sha256": "47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f",
+    "method_config_sha256": null,
+    "production_branches": {
+      "total": 54,
+      "status_counts": {
+        "passed": 53,
+        "failed": 1
+      },
+      "failed": [
+        {
+          "name": "P2_modea_ON",
+          "status": "failed",
+          "configuration_returncode": 0,
+          "production_returncode": 1,
+          "production_status": "failed",
+          "production_elapsed_sec": 11.463632845001484
+        }
+      ]
+    },
+    "failed_branch_comparators": [
+      {
+        "branch": "P2_modea_OFF",
+        "status": "passed",
+        "production_returncode": 0
+      },
+      {
+        "branch": "P2_modea_TO",
+        "status": "passed",
+        "production_returncode": 0
+      },
+      {
+        "branch": "P2_modeb_ON",
+        "status": "passed",
+        "production_returncode": 0
+      },
+      {
+        "branch": "C4_modea_ON",
+        "status": "passed",
+        "production_returncode": 0
+      }
+    ],
+    "production_failure_log_excerpt": [
+      "[fusion][WORKER-POOL] prewarm workers=1 cuda_free=203MB total=3759MB",
+      "[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=0.056GiB/3.672GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.002GiB",
+      "[fusion][BEAM-ERR] beam=50 slot=0 stage=raw_align",
+      "[fusion][ERR] scan beam quality gate failed: valid=0/1 required=1 min_ratio=0.95",
+      "[ERR] GMTI period processing failed",
+      "[FILE][CYCLE] result_file_id=10 period_index=9 algorithm_process_ms=3039.341 end_to_end_ms=3039.344 success=false"
+    ],
+    "production_manifest": {
+      "case_identity": "r22_multi_target__seed_1932001__v_0.5__snr_20.0__delay_4.0ns",
+      "implementation_result": "completed_with_gaps",
+      "all_production_branches_passed": false,
+      "branch_elapsed_sec_sum": 511.4798406090049
+    },
+    "failed_archive_sha256": "c5535d6733d381a3c3a5a22e190fe09868c434f2513568323afddb2d5e4767d0",
+    "failed_archive_crc_error": null
+  },
+  "disk_and_cleanup": {
+    "measured_at": "2026-11-06 Asia/Shanghai",
+    "project_worktree_bytes": 3308716032,
+    "project_worktree_gib": 3.081,
+    "v3_output_bytes": 101449703,
+    "filesystem_available_bytes": 18997358592,
+    "filesystem_available_gib": 17.693,
+    "raw_case_directories_remaining": [],
+    "v3_output_allocated_bytes": 101543936,
+    "v3_output_allocated_gib": 0.095
+  },
+  "status_labels": {
+    "IMPLEMENTED": true,
+    "EXECUTED": true,
+    "EVALUABLE": "partial; 3 passed cases and 17/18 methods in the stopped case",
+    "PERFORMANCE_VERIFIED": false
+  },
+  "interpretation": "The P2 Mode-A ON production branch failed at raw_align while reported free CUDA memory was about 0.056 GiB. Available logs do not preserve the CUDA error code. Device-memory contention is plausible but not proven; retain UNKNOWN_STOP and do not rank methods.",
+  "followup_diagnostic": {
+    "status": "DIAGNOSTIC_REPLAY_PASSED_NOT_A_SCREENING_CASE",
+    "output_root": "outputs/r22_v3_diagnostics_20261106/p2_modea_on_case/attempt_001",
+    "execution_commit": "003366a7c04877d36281b268c83bfcb08bf7b810",
+    "run_manifest_sha256": "4dba49207346e1c4391c5ec8a491ca6a14cda7b8f883bb7ac83240d6d2b314c6",
+    "cleanup_ledger_path": "outputs/r22_v3_diagnostics_20261106/p2_modea_on_case/attempt_001/pipeline/cases/r22_multi_target__seed_1932001__v_0d5__snr_20__delay_4ns/raw_cleanup.json",
+    "cleanup_ledger_sha256": "421633fc2503092dc32b66c7cde5be3489940feb2784a333c926d8e2222348f0",
+    "preflight_path": "outputs/r22_v3_diagnostics_20261106/p2_modea_on_case_attempt_001_preflight.json",
+    "preflight_sha256": "297675eae84fd0af6da631fd6f2a9c1ec8286ac2063520fd6e5f77853786a398",
+    "production_binary_sha256": "d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e",
+    "stage2_binary_sha256": "47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f",
+    "case": {
+      "ai_training": false,
+      "beam_count": 1,
+      "calibration_modes": [
+        "Mode-A"
+      ],
+      "delay_error_ns": 4.0,
+      "execution_method_ids": [
+        "P2"
+      ],
+      "first_beam": 50,
+      "known_error_use": "physical correction upper bound only; blind estimator does not receive it",
+      "method_ids": [
+        "P2"
+      ],
+      "period_count": 10,
+      "production_processing_range": {
+        "rg_ed": 1197,
+        "rg_st": 666
+      },
+      "radial_speed_mps": 0.5,
+      "raw_artifact_policy": "remove_generated_bin_after_evaluation_keep_audit_files",
+      "router_enabled": false,
+      "seed": 1932001,
+      "target_count": 20,
+      "target_snr_db": 20.0,
+      "target_truth_nested_across_density": true,
+      "zero_delay_blind_correction_policy": "execute_frozen_blind_and_fixed_corrections"
+    },
+    "resource_snapshot_before_run": "NVIDIA GeForce RTX 3050 Laptop GPU, 4096 MiB, 1215 MiB, 94 %, 76, P0, 59.62 W, 1912 MHz",
+    "production_branch_count": 9,
+    "branch_results": [
+      {
+        "name": "A0_not_applicable_OFF",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "A0_not_applicable_ON",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "A0_not_applicable_TO",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "P2_modea_OFF",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "P2_modea_ON",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "P2_modea_TO",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "R22_R9_Fixed_D3_OFF",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "R22_R9_Fixed_D3_ON",
+        "returncode": 0,
+        "status": "passed"
+      },
+      {
+        "name": "R22_R9_Fixed_D3_TO",
+        "returncode": 0,
+        "status": "passed"
+      }
+    ],
+    "area_clutter_gate": {
+      "status": "passed",
+      "continuous_area_packets": 1300,
+      "continuous_area_samples": 6508782,
+      "area_mean_power_measured": 0.0221596696662,
+      "ground_range_window_m": [
+        84286.71306914276,
+        85289.213854977
+      ]
+    },
+    "evaluation_summary": {
+      "evaluated_on_rows": 3,
+      "evaluator": "r21-task-eval-v3",
+      "independent_h0_seed_rows": 0,
+      "invalid_truth_opportunities": 0,
+      "target_opportunity_rows": 1200,
+      "target_period_opportunities_are_not_independent_seeds": true,
+      "task_rows": 12
+    },
+    "evidence_gate": {
+      "causal_triplets": "passed",
+      "empirical_pfa": "NOT_EVALUABLE",
+      "fallback_to_current": false,
+      "truth_used_in_estimator": false,
+      "unique_final_union_hits": "passed",
+      "valid_cut_denominators": "passed"
+    },
+    "performance_verified": false,
+    "raw_cleanup": {
+      "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files",
+      "removed_file_count": 401,
+      "removed_bytes": 6888974776,
+      "remaining_bin_count": 0,
+      "status": "completed"
+    },
+    "post_run_storage": {
+      "diagnostic_output_bytes": 206105354,
+      "worktree_bytes": 3325213930,
+      "filesystem_free_bytes": 17918373888
+    },
+    "interpretation": "The same P2 Mode-A ON branch passed on diagnostic replay with about 1.19 GiB free VRAM and high GPU utilization. This supports a transient resource-state explanation but does not prove the original raw_align root cause. The original V3 matrix remains terminal UNKNOWN_STOP; this replay is excluded from V3.1 coverage.",
+    "next_design": {
+      "design_id": "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING",
+      "path": "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json",
+      "sha256": "26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839",
+      "screening_cases": 288,
+      "applicable_on_method_units": 4320,
+      "screening_status": "FROZEN_NOT_YET_EXECUTED"
+    }
+  }
+}

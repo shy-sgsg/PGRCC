@@ -1,0 +1,185 @@
+{
+  "actions_not_taken": [
+    "no Stage2 run",
+    "no Production run",
+    "no CUDA case",
+    "no archive creation",
+    "no remount",
+    "no permission change",
+    "no P0 ZIP migration"
+  ],
+  "authorized_cases": [
+    "target_present_0ns",
+    "h0_0ns",
+    "h0_4ns"
+  ],
+  "blocker": "No currently writable output filesystem has the historical full-output peak-plus-reserve capacity; the read-only external volume is not used.",
+  "captured_at_utc": "2026-11-26T08:51:05.502884+00:00",
+  "combined_root_plus_tmp_bytes_not_a_single_fs_budget": 20108464128,
+  "confirmatory_cpu_dry_run": {
+    "batch_count": 120,
+    "case_count": 240,
+    "design_sha256": "643b2168b3cd4bff7f26fe29618686db5877a5c4a29492d2f5333e2a47ac4ee7",
+    "execution_started": false,
+    "registry_sha256": "23251fcec8871406ec512678364450f785e91cee04316f9e6b8be33cae66a3fc",
+    "status": "NOT_AUTHORIZED"
+  },
+  "design_id": "R22_V4_THREE_SCHEMA_SIZE_PILOT_20261126",
+  "design_sha256": "5fba267143196125f6fe7e4281b95a070611d283d9b0d5313127777bbe5c243a",
+  "external_volume": {
+    "available_bytes": 90118549504,
+    "eligible": false,
+    "filesystem": "/run/media/shy/C61C9A341C9A200B /dev/sda1 fuseblk ro,nosuid,nodev,relatime,user_id=0,group_id=0,default_permissions,allow_other,blksize=4096",
+    "path": "/run/media/shy/C61C9A341C9A200B",
+    "writable": false
+  },
+  "filesystem_gates": {
+    "project_output_fs": {
+      "basis": {
+        "note": "Conservative capacity proxy from the measured full-output P0 case; not a claim that the three unmeasured schemas have this exact size.",
+        "preserved_reserve_bytes": 10737418240,
+        "prior_p0_archive_bytes": 13037254578,
+        "prior_p0_peak_consumption_bytes": 29821104128,
+        "required_free_bytes_per_output_filesystem": 40558522368,
+        "resource_evidence_path": "docs/research/phase_r/R22/evidence/v4_native_cuda_pilot_20261123/resource_usage.json"
+      },
+      "filesystems": [
+        {
+          "device_id": 66315,
+          "free_bytes": 12116533248,
+          "paths": [
+            {
+              "label": "matrix_manifest",
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage",
+              "writable": true
+            },
+            {
+              "label": "raw_case_outputs",
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage",
+              "writable": true
+            },
+            {
+              "label": "complete_archive",
+              "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage",
+              "writable": true
+            }
+          ],
+          "probe_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage",
+          "required_free_bytes": 40558522368,
+          "status": "PAUSED_RESOURCE_GATE"
+        }
+      ],
+      "reasons": [
+        "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage: free 12116533248 < required 40558522368 bytes"
+      ],
+      "status": "PAUSED_RESOURCE_GATE"
+    },
+    "tmp_output_fs": {
+      "basis": {
+        "note": "Conservative capacity proxy from the measured full-output P0 case; not a claim that the three unmeasured schemas have this exact size.",
+        "preserved_reserve_bytes": 10737418240,
+        "prior_p0_archive_bytes": 13037254578,
+        "prior_p0_peak_consumption_bytes": 29821104128,
+        "required_free_bytes_per_output_filesystem": 40558522368,
+        "resource_evidence_path": "docs/research/phase_r/R22/evidence/v4_native_cuda_pilot_20261123/resource_usage.json"
+      },
+      "filesystems": [
+        {
+          "device_id": 51,
+          "free_bytes": 7991930880,
+          "paths": [
+            {
+              "label": "matrix_manifest",
+              "path": "/tmp",
+              "writable": true
+            },
+            {
+              "label": "raw_case_outputs",
+              "path": "/tmp",
+              "writable": true
+            },
+            {
+              "label": "complete_archive",
+              "path": "/tmp",
+              "writable": true
+            }
+          ],
+          "probe_path": "/tmp",
+          "required_free_bytes": 40558522368,
+          "status": "PAUSED_RESOURCE_GATE"
+        }
+      ],
+      "reasons": [
+        "/tmp: free 7991930880 < required 40558522368 bytes"
+      ],
+      "status": "PAUSED_RESOURCE_GATE"
+    }
+  },
+  "gpu_snapshot": {
+    "captured_at_utc": "2026-11-26T08:41:26Z",
+    "cuda_experiment_started": false,
+    "graphics_clock_mhz": 1500,
+    "memory_clock_mhz": 6001,
+    "memory_free_mib": 2501,
+    "memory_total_mib": 4096,
+    "memory_used_mib": 1260,
+    "model": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "power_draw_w": 13.77,
+    "pstate": "P0",
+    "temperature_c": 56,
+    "utilization_percent": 14,
+    "uuid": "GPU-a424cfba-0a51-fa83-c922-973306e571a5"
+  },
+  "live_runner_preflight": {
+    "attempt_directory_created": false,
+    "case_records_created": 0,
+    "case_runner_called": false,
+    "output_fs_free_bytes_at_check": 7991930880,
+    "paused_case_id": "engineering__seed_1937004__vr_2d5__snr_20__delay_0ns__targets_20__periods_10",
+    "phase": "engineering",
+    "required_free_bytes": 40558522368,
+    "status": "PAUSED_RESOURCE_GATE",
+    "temporary_preflight_manifest_removed": true,
+    "write_probes_passed": true
+  },
+  "other_mounts": [
+    {
+      "path": "/dev/shm",
+      "status": "read-only"
+    },
+    {
+      "path": "/run",
+      "status": "read-only"
+    }
+  ],
+  "pilot_cases_started": false,
+  "pilot_cuda_started": false,
+  "prior_full_output_p0_reference": {
+    "archive_bytes": 13037254578,
+    "observed_peak_consumption_bytes": 29821104128,
+    "one_case_required_free_proxy_bytes": 40558522368,
+    "preserved_reserve_bytes": 10737418240,
+    "resource_evidence_path": "docs/research/phase_r/R22/evidence/v4_native_cuda_pilot_20261123/resource_usage.json",
+    "scope_note": "Measured target-present +4 ns case only; proxy for safety, not a size result for the three missing schemas."
+  },
+  "project": {
+    "allocated_bytes": 18631958528,
+    "available_bytes": 12116533248,
+    "filesystem": "/home/shy/AIR/SAR+AI/project/PGRCC /dev/nvme1n1p4[/home/shy/AIR/SAR+AI/project/PGRCC] ext4 rw,nosuid,nodev,relatime",
+    "final_limit_bytes": 20000000000,
+    "headroom_bytes": 1368041472,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC"
+  },
+  "schema_version": 1,
+  "tmp": {
+    "available_bytes": 7991930880,
+    "filesystem": "/tmp tmpfs tmpfs ro,nosuid,nodev,nr_inodes=1048576,inode64,usrquota\n/tmp tmpfs tmpfs rw,nosuid,nodev,nr_inodes=1048576,inode64,usrquota",
+    "path": "/tmp"
+  },
+  "validation_summary": {
+    "affected_cpu_test_files": 5,
+    "cuda_tests_run": false,
+    "tests_passed": 121
+  },
+  "worktree": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage"
+}

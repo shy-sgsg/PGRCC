@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-24",
+  "phase_g_snapshot_commit": "2355118855fc4dfc61aa290c1f7f707d51216981",
+  "checks": [
+    {
+      "command": "python3 -m pytest -q tests/test_r22_v4_confirmatory_statistics.py tests/test_r22_v4_confirmatory_executor.py --basetemp=.scratch/pgrcc_phase_g_pytest_20261124_01",
+      "result": "PASS",
+      "passed": 49,
+      "failed": 0,
+      "scope": "CPU statistical, H0, default-deny authorization and frozen-contract regressions; synthetic and fixture data only",
+      "temporary_directory_cleanup": "the 3,121,152-byte task-owned basetemp directory was removed after the run"
+    },
+    {
+      "command": "python3 -m pytest -q tests/test_r22_v4_confirmatory_statistics.py tests/test_r22_v4_confirmatory_executor.py (default tempfile path)",
+      "result": "ENVIRONMENTAL_TMP_QUOTA_FAILURE; rerun above passed",
+      "passed_before_failure": 47,
+      "failed": 2,
+      "reason": "Disk quota exceeded while writing two pytest fixtures under /tmp; no assertion failure"
+    },
+    {
+      "command": "python3 -m json.tool docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json",
+      "result": "PASS"
+    },
+    {
+      "command": "git diff --check",
+      "result": "PASS"
+    }
+  ],
+  "not_run": [
+    "Stage2",
+    "Native CUDA Production",
+    "confirmatory matrix",
+    "AI training"
+  ],
+  "research_evidence_state": {
+    "IMPLEMENTED": true,
+    "CPU_TESTS_EXECUTED": true,
+    "NEW_GMTI_EXPERIMENT_EXECUTED": false,
+    "NEW_PERFORMANCE_RESULT_EVALUABLE": false,
+    "PERFORMANCE_VERIFIED": false
+  }
+}

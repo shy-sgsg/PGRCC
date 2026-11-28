@@ -1,0 +1,89 @@
+{
+  "branch": "codex/unknown-system-error-next-stage",
+  "confirmatory_matrix_executed": false,
+  "cpu_test_summary": "cpu_integration_test_summary.json",
+  "cuda_authorized_by_this_task": false,
+  "design_id": "R22_EXTENSION_20261113_V4_CAUSAL_OUTPUT_COMPLETE_CONFIRMATORY_DRAFT",
+  "design_status": "DRAFT_NOT_FROZEN",
+  "disk_readiness": {
+    "cuda_pilot_started": false,
+    "filesystem_available_at_delivery_bytes": 8994918400,
+    "filesystem_available_at_review_bytes": 8997859328,
+    "project_allocated_bytes": 5622816768,
+    "project_apparent_bytes": 5296979565,
+    "reason": "nominal headroom after the one-case raw/correction lower bound is too small for unmeasured Production/CSI outputs, archive overlap, and safe system margin",
+    "single_plus4_case_nominal_margin_bytes": 138918400,
+    "single_plus4_case_uncompressed_data_lower_bound_bytes": 8856000000,
+    "workspace_allocated_bytes": 5057789952,
+    "workspace_apparent_bytes": 4866749153
+  },
+  "execution_plan": "execution_plan.json",
+  "implementation_base_commit": "ce7d1a96b6902b02b94408e5b2fabf02c275955b",
+  "integration_status": "CPU_INTEGRATION_PASSED",
+  "master_plan_unchanged_at_base": true,
+  "modified_implementation_file_identities": {
+    "docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json": {
+      "bytes": 21974,
+      "sha256": "636b42aad970f47f0c0d483f6ab7b1c71bf7b6d1e7e5652cdb87a38c42220fc4"
+    },
+    "scripts/phase_r/r22_compact_archive.py": {
+      "bytes": 36804,
+      "sha256": "091d84f3d85e10b53c393aac97b089fead4410aa2d18fef921821edceacf38a3"
+    },
+    "scripts/phase_r/r22_experiment_matrix.py": {
+      "bytes": 35552,
+      "sha256": "23c63e5a5ec7d590df44ceb9b9c475542e5b0ac13c6b37a63832d689747696e5"
+    },
+    "scripts/phase_r/r22_v4_evidence.py": {
+      "bytes": 40107,
+      "sha256": "5e6868258542de444c391e19c803ca9c94168521896a6cca45383c4f9d77c153"
+    },
+    "scripts/phase_r/r22_v4_execution_plan.py": {
+      "bytes": 26382,
+      "sha256": "a722568970786ca40a4c513aadbc061ef313a298ecec3f140faf8063985daebb"
+    },
+    "scripts/phase_r/r22_v4_identity.py": {
+      "bytes": 9615,
+      "sha256": "86f67c0f24d13e3e4d69e269ee697cf8002515d458ecb8f0945efc04dd4acece"
+    },
+    "scripts/phase_r/run_r22_cuda_pilot.py": {
+      "bytes": 70147,
+      "sha256": "cc1ba0cc7c153ce9e91d65fc68558d2bab2f74eb80988047a9c2364660d50f04"
+    },
+    "tests/test_r22_compact_archive.py": {
+      "bytes": 28681,
+      "sha256": "97f58deffb8fe5d96fd03529b4ed62a1a2c5c71adcdf49e868f49473870b6b08"
+    },
+    "tests/test_r22_cuda_pilot.py": {
+      "bytes": 26872,
+      "sha256": "58b2655c429799ab7f125dd8c282a3c3ab7b60457f02018ece638fd95818edd0"
+    },
+    "tests/test_r22_experiment_matrix.py": {
+      "bytes": 30642,
+      "sha256": "4a9dcf0d5ff2a8eb2ff711d5f157caa86a2f0e83b87af87cac035209f89a323c"
+    },
+    "tests/test_r22_v4_evidence.py": {
+      "bytes": 18679,
+      "sha256": "5fde7503182fa476de194bbc49d28c417f8dbdc2dd0f33d6f65ecb6413f802d6"
+    },
+    "tests/test_r22_v4_execution_plan.py": {
+      "bytes": 5608,
+      "sha256": "ed61e90909e6983aaa793e4df1fdfb380183ce36398e104d0bb008d217a53037"
+    },
+    "tests/test_r22_v4_identity.py": {
+      "bytes": 1534,
+      "sha256": "1aa617d13b5fa86ce51878b52b8558a33e6b375a2f7a3879ecdd150d73bb0280"
+    }
+  },
+  "native_cuda_production_executed": false,
+  "performance_verified": false,
+  "report_date": "2026-11-23",
+  "required_research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "research_master_plan_blob_at_base": "e637e3769bde7814298ff012d0f42301884e2985",
+  "research_master_plan_path": "docs/research/RESEARCH_MASTER_PLAN.md",
+  "review_commit_sha": null,
+  "review_commit_sha_note": "The full delivery commit SHA is supplied in the final delivery message; this manifest is not self-referential.",
+  "schema_version": 1,
+  "stage2_executed": false,
+  "v4_pilot_executed": false
+}

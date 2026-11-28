@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "phase": "R22-V4 Phase G",
+  "baseline_commit": "ddbf057d8d944c54f94af54e239cc00644988f1a",
+  "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "design_path": "docs/research/phase_r/R22/config/r22_v4_causal_output_complete_confirmatory_draft_20261113.json",
+  "design_status": "DRAFT_NOT_FROZEN",
+  "implementation": {
+    "bootstrap_t_interval": {
+      "contrast": "studentized bootstrap statistic T*=(mean_boot-mean_observed)/SE_boot",
+      "confidence": 0.95,
+      "upper_endpoint_confidence": 0.975,
+      "upper_endpoint_studentized_quantile": 0.025,
+      "upper_endpoint_formula": "mean_observed - q_0.025(T*) * SE_observed",
+      "quantile_order": "interval inversion reverses quantile order; upper endpoint uses the lower-tail 2.5th percentile",
+      "quantile_interpolation": "NumPy linear",
+      "independent_unit": "seed; resample each seed with its complete paired speed/target/period cluster",
+      "candidate_replicates": 10000,
+      "candidate_rng": "NumPy PCG64 seed 22029"
+    },
+    "degenerate_variance": {
+      "zero_observed_seed_variance": "NOT_EVALUABLE_ZERO_OBSERVED_VARIANCE; point estimate retained, interval endpoints null",
+      "any_zero_standard_error_bootstrap_replicate": "NOT_EVALUABLE_DEGENERATE_BOOTSTRAP_VARIANCE; report degenerate and non-finite counts, interval endpoints null",
+      "other_nonfinite_statistics_or_interval": "NOT_EVALUABLE; interval endpoints null",
+      "interpretation": "zero observed or resampled variance is not reported as zero uncertainty; invalid synthetic Monte Carlo datasets make the audit inconclusive rather than being dropped"
+    },
+    "primary_position": {
+      "contrast": "M1_CAUSAL_PREFIX minus FIXED_D3; negative favors M1",
+      "estimand": "equal-weight mean of per-speed paired common-success RMSE differences within seed",
+      "planned_speeds_mps": [0.5, 2.5, 6.7],
+      "position_scheme": null,
+      "position_mde_m": null,
+      "minimum_common_support_per_speed": null,
+      "candidate_support_floors": [1, 5, 10],
+      "unapproved_support_status": "NOT_EVALUABLE_MINIMUM_COMMON_SUPPORT_UNAPPROVED; descriptive estimate is separate and excluded from confirmatory inference",
+      "scheme_a": "two-sided 95% interval upper endpoint < 0 AND seed-level point estimate <= -MDE",
+      "scheme_b": "two-sided 95% interval upper endpoint < -MDE",
+      "strict_boundary_ties_pass": false
+    },
+    "detection_and_joint_gate": {
+      "detection_endpoint": "M1 minus FIXED_D3 correct-detection coverage difference in percentage points over all planned target-period opportunities",
+      "coverage_noninferiority_margin_pp": null,
+      "success_rule": "two-sided seed-cluster 95% interval lower endpoint > -approved margin",
+      "joint_rule": "selected position rule AND detection-coverage noninferiority; include track-coverage noninferiority only if explicitly selected with an approved margin",
+      "track_protection_policy": null,
+      "track_coverage_noninferiority_margin_pp": null,
+      "missing_opportunity_rule": "preserve planned coverage denominator; missing required record makes that seed position endpoint not evaluable",
+      "method_failure_rule": "current-period zero correction for estimator failure remains in all planned opportunity denominators; no method/reference substitution"
+    },
+    "h0": {
+      "primary_endpoint": "seed-any-event: proportion of independent H0 seeds with at least one false postfilter Detection in ten valid beam-50 periods",
+      "false_track_guard_endpoint": "proportion of independent H0 seeds with at least one unique false confirmed TrackManager track ID",
+      "false_track_counting_unit": "unique false confirmed track IDs per seed; repeated periods are not independent tracks",
+      "event_rate_interval": "exact Clopper-Pearson; report two-sided 95% interval and one-sided exact 95% upper bound",
+      "period_event_fraction": "seed-level clustered descriptive endpoint; do not treat periods as independent seeds",
+      "false_confirmed_track_count_per_seed": "seed-level clustered descriptive endpoint",
+      "seed_event_upper_limit": null,
+      "false_track_event_upper_limit": null,
+      "both_upper_bounds_must_be_strictly_below_approved_limits": true,
+      "complete_seed_set_required": true,
+      "scope_limit": "beam-50 ten-period task endpoint; not full-system Pfa"
+    },
+    "missing_data_and_multiplicity": {
+      "missing_or_invalid_seed": "retain planned registry; no replacement and no silent denominator reduction; incomplete confirmatory endpoint",
+      "missing_truth_or_method_reference": "not evaluable under the frozen method-specific rule; no implicit fallback",
+      "ties": "strict superiority upper endpoint < boundary; noninferiority lower endpoint > -margin; equality fails",
+      "secondary_speed_tests": "Holm correction across three speeds if inferential p-values are reported"
+    }
+  },
+  "historical_support_sensitivity": {
+    "source": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/evidence/parameter_opportunity_audit.csv.gz",
+    "source_sha256": "ed99ec0a1ee2c6b63a6244f8fe4305a60d146e5ed4721c20b26a7e68358cc636",
+    "condition": {
+      "snr_db": 20.0,
+      "delay_ns": 4.0,
+      "speeds_mps": [0.5, 2.5, 6.7],
+      "methods": ["R22_M1_Physics_Matched", "R22_R9_Fixed_D3"],
+      "seed_count": 12,
+      "seed_range_inclusive": [1932001, 1932012]
+    },
+    "historical_estimators": "V3.3 full-case batch estimators; not V4 causal-prefix outcomes",
+    "planned_opportunities_per_seed_speed": 200,
+    "seed_speed_units": 36,
+    "common_success_count_range": [117, 161],
+    "candidate_floor_pass_counts": {
+      "1": 36,
+      "5": 36,
+      "10": 36
+    },
+    "interpretation": "all three floors retain the same historical units; this slice cannot distinguish the candidates and does not select a floor or predict V4 coverage"
+  },
+  "status": {
+    "contract_implementation": "IMPLEMENTED",
+    "cpu_regression": "EXECUTED",
+    "confirmatory_design": "DRAFT_NOT_FROZEN",
+    "confirmatory_experiment": "NOT_AUTHORIZED",
+    "performance_verified": false,
+    "ai_entry_gate": "FAIL",
+    "unresolved_user_choices": [
+      "position scheme A or B",
+      "engineering MDE",
+      "minimum common support per speed",
+      "detection coverage noninferiority margin",
+      "track protection gate or descriptive-only policy",
+      "H0 seed-any-event upper limit",
+      "H0 false-track-event upper limit",
+      "confirmatory seed count"
+    ]
+  }
+}

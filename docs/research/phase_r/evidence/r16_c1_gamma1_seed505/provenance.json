@@ -1,0 +1,80 @@
+{
+  "task": "R16 minimal C1 Gamma=1 ordinary-subtraction Native CUDA Production pilot",
+  "date_local": "2026-10-25",
+  "branch": "codex/unknown-system-error-next-stage",
+  "execution_head": "2d2992b8b1fe54d42789c7250917ebac3c658de3",
+  "execution_tracked_worktree_dirty": true,
+  "dirty_tracked_files": [
+    "scripts/run_production_hierarchical_calibration_pilot.py",
+    "scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py",
+    "tests/test_production_hierarchical_calibration_pilot.py",
+    "tests/test_phase_r13_minimal_baseline_pilot.py"
+  ],
+  "runner_sha256": "456b24d389f4f5abec2f929994852f254435a2518614621e1340226ad7ea10bb",
+  "evaluator_sha256": "f94526720f71b0564c668c73a663c4058770e1f7cfa6f6e0d52bdb740c6106f3",
+  "runner_config_sha256": "cffc1bdbae654f2edf85ef7a711b0c90d2da26ad132571a3306c5437292b6dba",
+  "production_binary": {
+    "path_at_execution": "build/GMTI_pipe_core",
+    "sha256": "ae41c79ee48b530fc71e07b4ade7dcf7095d2ae9e9ee388f0e5ed9943a8fca4f"
+  },
+  "other_binaries": {
+    "build/GMTI_core": "0a94918a06e9766add69964e4f6c906c3e4ae191b48ff2e1e3c485a04d9c0f25",
+    "build/simulate_stage2_statistical": "5dd0ac4e2536b8bcf2508cc53db8a30780eba75f40c025e13ffaa930f8ba7b9b"
+  },
+  "toolchain": {
+    "cuda_toolkit": "nvcc 12.4.131",
+    "cuda_driver_reported_by_nvidia_smi": "13.0",
+    "nvidia_driver": "580.178.04",
+    "g++": "15.2.0",
+    "cmake": "4.2.3",
+    "build_type": "Release",
+    "use_corex": false
+  },
+  "build": {
+    "command": "cmake --build build -j4",
+    "exit_code": 0,
+    "build_type": "Release",
+    "native_cuda": true
+  },
+  "gpu_preflight": {
+    "available": true,
+    "model": "NVIDIA GeForce RTX 3050 Laptop",
+    "p_state": "P8",
+    "temperature_c": 45,
+    "power_draw_w": 6,
+    "power_limit_w": 80,
+    "memory_used_mib": 558,
+    "memory_total_mib": 4096,
+    "utilization_percent": 7,
+    "access": "elevated preflight immediately before local Native CUDA Production execution"
+  },
+  "runner_command": [
+    "env", "USE_COREX=OFF", "GMTI_CFAR_DUMP_BEAM=50", "python3",
+    "scripts/run_production_hierarchical_calibration_pilot.py",
+    "--config", "docs/research/phase_r/evidence/r16_c1_gamma1_seed505/inputs/r16_runner_config.json",
+    "--mode", "pilot", "--output-root", ".scratch/r16_c1_gamma1_seed505_20261025",
+    "--input-mode", "local", "--delay-errors-ns", "0", "--seeds", "505",
+    "--target-velocities-mps", "6.7", "--target-snr-db", "30",
+    "--method-ids", "C0,C1", "--calibration-modes", "Mode-A", "--max-cases", "1"
+  ],
+  "runner_exit_code": 0,
+  "evaluator_command": [
+    "python3", "scripts/phase_r/evaluate_r13_minimal_baseline_pilot.py",
+    "--normal-case-manifest", ".scratch/r16_c1_gamma1_seed505_20261025/cases/base__seed_505__v_6d7__snr_30__delay_0ns/case_manifest.json",
+    "--normal-scene-label", "normal_seed505_v6p7",
+    "--output-dir", ".scratch/r16_c1_gamma1_seed505_20261025/r16_analysis"
+  ],
+  "evaluator_exit_code": 0,
+  "runner_status": "completed_with_gaps",
+  "branch_results": "9/9 selected A0/C0/C1 x OFF/ON/TO branches passed",
+  "analysis_status": "evaluated; 27 final-union CFAR map/geometry audits passed",
+  "performance_verified": false,
+  "cross_stage2_identity": "R14 and R16 OFF/ON/TO period input bytes and SHA-256 matched 9/9",
+  "cross_binary_caveat": "R14 production binary f65a8aa446754cc79b6417f9275b3a01e73eb85098c6a4f9eaea0cb999c38962 differs from R16 binary; R14/R16 C0 final-union CFAR maps differ 9/9",
+  "raw_output_root": ".scratch/r16_c1_gamma1_seed505_20261025",
+  "retained_analysis": "analysis/",
+  "retained_runtime_artifacts": "production/",
+  "raw_stage2_and_production_iq_retained": false,
+  "full_csi_npy_maps_retained": false,
+  "final_union_cfar_maps_retained": "27 losslessly gzipped maps with original and compressed SHA-256 in cfar_union_maps/compression_manifest.csv"
+}

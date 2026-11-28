@@ -1,0 +1,71 @@
+{
+  "created_after_cuda_production": true,
+  "scope": "formula/unit/sign check and Stage2 linear-interpolator response; diagnostic only, not production performance evidence",
+  "fs_hz": 60000000.0,
+  "sample_count": 11820,
+  "pulse_count": 16,
+  "true_delay_ns": 4.0,
+  "constant_phase_rad": 0.37,
+  "intercept_fit_in_model": true,
+  "ideal_frequency_domain_delay": {
+    "D1_ordinary_LS": {
+      "estimate_ns": 4.0,
+      "slope_rad_per_hz": 2.5132741228718345e-08,
+      "support_count": 2312,
+      "status": "ok"
+    },
+    "D2_weighted_LS": {
+      "estimate_ns": 4.000000000000001,
+      "slope_rad_per_hz": 2.5132741228718352e-08,
+      "support_count": 2312,
+      "status": "ok"
+    },
+    "D3_Huber_weighted_LS": {
+      "estimate_ns": 4.000000000000001,
+      "slope_rad_per_hz": 2.5132741228718352e-08,
+      "support_count": 2312,
+      "status": "ok"
+    }
+  },
+  "zero_delay_plus_constant_phase": {
+    "D1_ordinary_LS": {
+      "estimate_ns": -3.3754565845064377e-17,
+      "slope_rad_per_hz": -2.120861921679344e-25,
+      "status": "ok"
+    },
+    "D2_weighted_LS": {
+      "estimate_ns": -3.37545658450646e-17,
+      "slope_rad_per_hz": -2.120861921679358e-25,
+      "status": "ok"
+    },
+    "D3_Huber_weighted_LS": {
+      "estimate_ns": -3.37545658450646e-17,
+      "slope_rad_per_hz": -2.120861921679358e-25,
+      "status": "ok"
+    }
+  },
+  "stage2_zero_extended_linear_interpolator": {
+    "D1_ordinary_LS": {
+      "effective_linear_phase_estimate_ns": 3.9041531740837767,
+      "slope_rad_per_hz": 2.453051786038173e-08,
+      "support_count": 1182,
+      "status": "ok"
+    },
+    "D2_weighted_LS": {
+      "effective_linear_phase_estimate_ns": 3.9045469388172456,
+      "slope_rad_per_hz": 2.453299195716955e-08,
+      "support_count": 1182,
+      "status": "ok"
+    },
+    "D3_Huber_weighted_LS": {
+      "effective_linear_phase_estimate_ns": 3.9064768974064745,
+      "slope_rad_per_hz": 2.454511824462086e-08,
+      "support_count": 1182,
+      "status": "ok"
+    }
+  },
+  "stage2_inverse_relative_rms_closure": 1.2542790546581825e-16,
+  "stage2_boundary_condition": "input sample x[0]=0 as required by the zero-extended inverse operator",
+  "frequency_axis": "numpy.fft.fftfreq(N,d=1/Fs), bin spacing Fs/N; positive fast-time frequency; estimate delta_tau=slope/(2*pi)",
+  "interpretation": "ideal pure-delay phase ramp sign and ns conversion are correct, and constant channel phase is removed by the fitted intercept. Stage2 interpolation has H(f)=(1-d)+d*exp(-j*2*pi*f/Fs), not a pure phase ramp; its apparent least-squares slope is support-weighted and can differ from configured delay."
+}

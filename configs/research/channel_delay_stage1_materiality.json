@@ -1,0 +1,147 @@
+{
+  "schema_version": 1,
+  "status": "exploratory_preregistered",
+  "ai_training": false,
+  "router_enabled": false,
+  "native_four_channel_stap": false,
+  "threshold_policy": {
+    "description": "Thresholds are frozen before Formal-v2; an unavailable source cannot be promoted to a final pass/fail threshold.",
+    "allowed_source_classifications": [
+      "system_requirement",
+      "engineering_judgment",
+      "historical_production_variability",
+      "literature-derived",
+      "not_available"
+    ],
+    "pending_thresholds_are_exploratory_only": true
+  },
+  "metrics": [
+    {
+      "name": "delay_rmse_ns",
+      "unit": "ns",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "delay_estimator; per physical scene block and aggregate",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "RMSE of estimated channel delay against injected delay truth; truth is post-hoc evaluation only."
+    },
+    {
+      "name": "target_detection_pd",
+      "unit": "probability",
+      "direction": "higher_is_better",
+      "threshold": null,
+      "scope": "production ON; visible target-period opportunities",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "Target detection probability under the registered truth-match contract."
+    },
+    {
+      "name": "track_pd",
+      "unit": "probability",
+      "direction": "higher_is_better",
+      "threshold": null,
+      "scope": "production TrackManager; confirmed and matched periods",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "Track probability with lifecycle and same-period association provenance."
+    },
+    {
+      "name": "position_rmse_m",
+      "unit": "m",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "production TrackManager/PIPE; truth-associated outputs",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "Position RMSE in the declared EN coordinate frame."
+    },
+    {
+      "name": "angle_rmse_deg",
+      "unit": "deg",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "production target-associated outputs",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "Angular RMSE using the existing output angle convention."
+    },
+    {
+      "name": "velocity_rmse_mps",
+      "unit": "m/s",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "production target-associated outputs",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "Ground-speed or declared velocity-component RMSE; the exact source is retained per output row."
+    },
+    {
+      "name": "false_clusters",
+      "unit": "count per target-off scene",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "target-off clustering layer",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "False clusters after production CFAR and clustering, separate from cell false-hit fraction."
+    },
+    {
+      "name": "false_detections",
+      "unit": "count per target-off scene",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "target-off protocol output layer",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "False protocol detections after target selection, not a substitute for valid-CUT Pfa."
+    },
+    {
+      "name": "false_tracks",
+      "unit": "count per target-off scene",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "target-off TrackManager layer",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "False tracks after lifecycle/confirmation rules."
+    },
+    {
+      "name": "id_switches",
+      "unit": "count per truth target/scene",
+      "direction": "lower_is_better",
+      "threshold": null,
+      "scope": "adjacent-period production TrackManager target associations",
+      "source_classification": "not_available",
+      "status": "exploratory_pending",
+      "exploratory_pending": true,
+      "definition": "ID switches identified by evidence-first joins; mechanism attribution requires the versioned association audit."
+    }
+  ],
+  "evaluation_rules": {
+    "zero_recoverable_space_status": "NOT_EVALUABLE",
+    "missing_valid_cut_denominator_status": "NOT_EVALUABLE",
+    "missing_block_or_delay_pair_status": "NOT_EVALUABLE",
+    "recovery_space_formula": "A2_minus_A1_direction_normalized",
+    "actual_recovered_formula": "A3_minus_A1_direction_normalized",
+    "recovery_ratio_formula": "actual_recovered_over_recoverable_space",
+    "zero_recoverable_space_reason": "A2_equals_A1_after_direction_normalization",
+    "truth_role": "post_hoc_label_and_metric_evaluation_only"
+  },
+  "final_pass_requires_non_pending_thresholds": true,
+  "comparisons": [
+    "A0_Ideal",
+    "A1_Current_unknown_error",
+    "A2_Known_error_correction_upper_bound",
+    "A3_Blind_target_free_estimated_correction"
+  ]
+}

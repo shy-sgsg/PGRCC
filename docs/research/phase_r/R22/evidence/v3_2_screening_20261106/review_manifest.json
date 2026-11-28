@@ -1,0 +1,132 @@
+{
+  "package_id": "R22_V3_2_SCREENING_COMPACT_REVIEW_20261109",
+  "purpose": "GitHub-readable compact evidence; full case ZIPs remain local and are not represented as remotely inspected.",
+  "repository": "shy-sgsg/PGRCC",
+  "branch": "codex/unknown-system-error-next-stage",
+  "experiment_source_commit": "74bccce61f3ec2f74746512d67271c815ce6a3a8",
+  "research_master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
+  "design_file_sha256": "9fcc56e27c3a78a96ccfbecdf6ef1b3098fb1298d4bac9886058ea9af6081063",
+  "canonical_design_sha256": "ecdb5a3306d27f3298f8c4fd3f199728733ec0f2bae0fd13590e277579b765f5",
+  "method_config_sha256": "588c36904f62febad8476ddccb789ba67de2e9c23dc2ff12b52418eb06706bbc",
+  "production_binary_sha256": "d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e",
+  "stage2_binary_sha256": "47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f",
+  "execution": "Native CUDA; NVIDIA GeForce RTX 3050 Laptop GPU; driver 580.178.04; CoreX=false",
+  "design_scope": {
+    "seeds": [
+      1932001,
+      1932002,
+      1932003,
+      1932004,
+      1932005,
+      1932006,
+      1932007,
+      1932008,
+      1932009,
+      1932010,
+      1932011,
+      1932012
+    ],
+    "speed_mps": [
+      0.5,
+      1.5,
+      2.5,
+      6.7
+    ],
+    "snr_db": [
+      10.0,
+      20.0,
+      30.0
+    ],
+    "delay_ns": [
+      0.0,
+      4.0
+    ],
+    "targets_per_case": 20,
+    "periods_per_case": 10,
+    "beam": 50,
+    "case_count": 288
+  },
+  "result": {
+    "matrix_status": "COMPLETED",
+    "verified_latest_case_archives": 288,
+    "historical_attempt_archives_extra": 1,
+    "applicable_method_units": 4320,
+    "classified_method_units": 4320,
+    "case_status_counts": {
+      "PASSED": 255,
+      "PASSED_WITH_METHOD_GAPS": 33
+    },
+    "method_gap_units": 49,
+    "screening_performance_verified": false,
+    "pfa_status": "NOT_EVALUABLE_NO_INDEPENDENT_H0_SEED"
+  },
+  "blind_estimator_contract": "P1/P2 delay estimation uses paired target-free OFF observations for diagnostics; truth_used_in_estimator=false; this does not establish target-present online deployability.",
+  "full_case_archives": "Local outputs/r22_v3_2_screening_20261106/archives/screening; not included in GitHub compact package.",
+  "files": {
+    "archive_index.csv": {
+      "bytes": 62082,
+      "sha256": "a5bd66302acc12ac410ad4f8560ecd7e137ba40d4e54a09abd7eaadcf4d8bdd1"
+    },
+    "case_audit.csv": {
+      "bytes": 124542,
+      "sha256": "17ba68ad7380dee97b1869f4e52ded3d56c9078974affc754936581dadcb7b61"
+    },
+    "clutter_power_by_seed.csv": {
+      "bytes": 1337,
+      "sha256": "f7620f10890efe0148488da45aa0f023f64a381d3d459ef41d663f3cd00bbc2c"
+    },
+    "csi_roi_summary_by_seed.csv": {
+      "bytes": 566413,
+      "sha256": "3d10584e4271a110c86a595106c65d0b27d265872878b2ac4570331745bdef6c"
+    },
+    "method_coverage.csv": {
+      "bytes": 788,
+      "sha256": "a8c9e92205d99475d29c17871a7abf0ff47a772475ff6f828c8d7e773834e2c9"
+    },
+    "method_gaps.csv": {
+      "bytes": 11154,
+      "sha256": "afc831cd7fca9e6531ff333859142b852a80b3cb0d9b81aa8530bfda8cda9dad"
+    },
+    "off_false_cut_by_seed.csv": {
+      "bytes": 86935,
+      "sha256": "5b3c8c5b7e264351ee9571e6f920fdddc798d5145f158407a4e3c6d5768ce526"
+    },
+    "paired_recovery_summary.csv": {
+      "bytes": 931,
+      "sha256": "23146faea368017f50b50f1fa37a91364216d84d430c5c768bb79c943322a64d"
+    },
+    "paired_seed_recovery.csv": {
+      "bytes": 12736,
+      "sha256": "e76193df82770d6b843cea7adf01507e016a2c093b61d51b5259adf66d59017b"
+    },
+    "parameter_metrics_by_seed.csv": {
+      "bytes": 396293,
+      "sha256": "506e8999512860de1c2eac61acdfaa8bfd87c97228444d639e1cf7b168a8a9da"
+    },
+    "parameter_summary.csv": {
+      "bytes": 28355,
+      "sha256": "fef3ac8c575b32de077408f9bb8094124c9e17de08885c5041e1506b43d10f4e"
+    },
+    "seed_condition_detection.csv": {
+      "bytes": 1054865,
+      "sha256": "00d19f8f6b4637e1f5901ac17ca9f75659c486ffc350e7d5551559a7ff2f8809"
+    },
+    "seed_detection_summary.csv": {
+      "bytes": 5951,
+      "sha256": "f1bb455a9495667e5983865ebe96de779e4208bca0b42619d20035060b8b4363"
+    },
+    "seed_level_detection.csv": {
+      "bytes": 50093,
+      "sha256": "518e88741adb123b7a5ef85230c5cef3cba5052376fbc4d97aec95dc1a3198b0"
+    },
+    "summary.md": {
+      "bytes": 1699,
+      "sha256": "4fbadf5235d3c5f29d70aafd71136257dfbbe11dbbfc5227a013baae3a4b3880"
+    },
+    "track_metrics_by_case.csv": {
+      "bytes": 645435,
+      "sha256": "9883f0feacf80e5be52f56f02d8a3e6c019a1c97029e34eeb9ac871d4723adc4"
+    }
+  }
+}

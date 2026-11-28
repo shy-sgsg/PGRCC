@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "created_at_utc": "2026-11-06T06:28:01.784052+00:00",
+  "matrix": {
+    "status": "UNKNOWN_STOP",
+    "planned_cases": 288,
+    "attempted_cases": 6,
+    "passed_cases": 5,
+    "unknown_stop_cases": 1,
+    "unattempted_cases": 282,
+    "planned_applicable_method_units": 4320,
+    "visited_applicable_method_units": 90,
+    "evaluable_method_units": 87,
+    "unknown_method_units": 3,
+    "unvisited_method_units": 4230,
+    "independent_seeds_observed": 1,
+    "started_at_utc": "2026-11-06T03:31:04.281936+00:00",
+    "finished_at_utc": "2026-11-06T04:55:09.795289+00:00",
+    "design_id": "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING",
+    "manifest_design_sha256": "696dce5b18fab9209f57c7d49922ff3c1ae4ea52f0a524c34cede8e8b933e635",
+    "committed_design_path": "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json",
+    "committed_design_sha256": "26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839",
+    "design_identity_match": false,
+    "design_manifest_hash_found_in_project_json_files_or_case_archives": false
+  },
+  "execution_identity": {
+    "source_commit": "a2d8e65514847e4cc97e9e78df0c5cbafe528217",
+    "branch": "codex/unknown-system-error-next-stage",
+    "production_binary_sha256": "d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e",
+    "stage2_binary_sha256": "47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f",
+    "method_config_sha256": "588c36904f62febad8476ddccb789ba67de2e9c23dc2ff12b52418eb06706bbc",
+    "scenario_template_sha256": "1f4f9c8b9383614601dc019414b8c8a8788b195301526438b95a672b1ee13998",
+    "gpu_preflight_snapshot": [
+      "NVIDIA GeForce RTX 3050 Laptop GPU, GPU-a424cfba-0a51-fa83-c922-973306e571a5, 580.178.04"
+    ],
+    "gpu_preflight_status": {
+      "available": true,
+      "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P0, 61.18, 78, 99, 1905"
+    },
+    "gpu_preflight_vram_free_recorded": false,
+    "gpu_snapshot_after_stop": {
+      "note": "queried after the matrix process had exited; not the failure-time measurement",
+      "name": "NVIDIA GeForce RTX 3050 Laptop GPU",
+      "memory_total_mib": 4096,
+      "memory_used_mib": 2517,
+      "memory_free_mib": 1244,
+      "utilization_percent": 94,
+      "pstate": "P0",
+      "temperature_c": 77,
+      "power_w": 60.47
+    }
+  },
+  "disk_and_cleanup": {
+    "project_tree_measured_bytes": 3360958792,
+    "filesystem_free_bytes_at_summary_creation": 17648926720,
+    "filesystem_total_bytes": 497777065984,
+    "local_archive_bytes_total": 29776837,
+    "ledger_removed_file_count": 8826,
+    "ledger_removed_logical_bytes": 47246962032,
+    "raw_file_count_after_stop": 0,
+    "physical_space_reclaimed_not_inferred_from_logical_ledger": true
+  },
+  "cases": [
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10",
+      "status": "PASSED",
+      "case_gate": {
+        "status": "CASE_VALID",
+        "applicable_count": 12,
+        "evaluable_count": 12,
+        "unknown_count": 0,
+        "unknown_units": []
+      },
+      "area_clutter_gate": {
+        "status": "passed",
+        "continuous_area_packets": 1300,
+        "continuous_area_samples": 6508782,
+        "area_mean_power_measured": 0.0221596696662,
+        "area_model": "continuous_texture",
+        "platform_height_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ]
+      },
+      "evidence_gate": {
+        "causal_triplets": "passed",
+        "empirical_pfa": "NOT_EVALUABLE",
+        "fallback_to_current": false,
+        "truth_used_in_estimator": false,
+        "unique_final_union_hits": "passed",
+        "valid_cut_denominators": "passed"
+      },
+      "task_summary": {
+        "evaluated_on_rows": 12,
+        "evaluator": "r21-task-eval-v3",
+        "independent_h0_seed_rows": 0,
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 4800,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 41
+      },
+      "cleanup": {
+        "status": "completed",
+        "removed_files": 1161,
+        "removed_logical_bytes": 4429735444,
+        "remaining_bin_count": 0,
+        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files"
+      },
+      "compact_archive": {
+        "path": "outputs/r22_v3_1_screening_20261106/archives/screening/screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10__attempt_001.zip",
+        "bytes": 3976494,
+        "sha256": "22cc1b4047ef9522f9f7eb46007f373be5f3db40f11f49fb513574cb73b8d2aa",
+        "zip_crc_verified": true,
+        "member_count": 1596
+      }
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10",
+      "status": "PASSED",
+      "case_gate": {
+        "status": "CASE_VALID",
+        "applicable_count": 18,
+        "evaluable_count": 18,
+        "unknown_count": 0,
+        "unknown_units": []
+      },
+      "area_clutter_gate": {
+        "status": "passed",
+        "continuous_area_packets": 1300,
+        "continuous_area_samples": 6508782,
+        "area_mean_power_measured": 0.0221596696662,
+        "area_model": "continuous_texture",
+        "platform_height_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ]
+      },
+      "evidence_gate": {
+        "causal_triplets": "passed",
+        "empirical_pfa": "NOT_EVALUABLE",
+        "fallback_to_current": false,
+        "truth_used_in_estimator": false,
+        "unique_final_union_hits": "passed",
+        "valid_cut_denominators": "passed"
+      },
+      "task_summary": {
+        "evaluated_on_rows": 18,
+        "evaluator": "r21-task-eval-v3",
+        "independent_h0_seed_rows": 0,
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 7200,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 54
+      },
+      "cleanup": {
+        "status": "completed",
+        "removed_files": 1841,
+        "removed_logical_bytes": 11319001604,
+        "remaining_bin_count": 0,
+        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files"
+      },
+      "compact_archive": {
+        "path": "outputs/r22_v3_1_screening_20261106/archives/screening/screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10__attempt_001.zip",
+        "bytes": 5773644,
+        "sha256": "04c236be1c9696c64082fbaa6274c35187b4b0b6c22a92cbec4683d01b9f446e",
+        "zip_crc_verified": true,
+        "member_count": 2357
+      }
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_20__delay_0ns__targets_20__periods_10",
+      "status": "PASSED",
+      "case_gate": {
+        "status": "CASE_VALID",
+        "applicable_count": 12,
+        "evaluable_count": 12,
+        "unknown_count": 0,
+        "unknown_units": []
+      },
+      "area_clutter_gate": {
+        "status": "passed",
+        "continuous_area_packets": 1300,
+        "continuous_area_samples": 6508782,
+        "area_mean_power_measured": 0.0221596696662,
+        "area_model": "continuous_texture",
+        "platform_height_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ]
+      },
+      "evidence_gate": {
+        "causal_triplets": "passed",
+        "empirical_pfa": "NOT_EVALUABLE",
+        "fallback_to_current": false,
+        "truth_used_in_estimator": false,
+        "unique_final_union_hits": "passed",
+        "valid_cut_denominators": "passed"
+      },
+      "task_summary": {
+        "evaluated_on_rows": 12,
+        "evaluator": "r21-task-eval-v3",
+        "independent_h0_seed_rows": 0,
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 4800,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 41
+      },
+      "cleanup": {
+        "status": "completed",
+        "removed_files": 1161,
+        "removed_logical_bytes": 4429787572,
+        "remaining_bin_count": 0,
+        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files"
+      },
+      "compact_archive": {
+        "path": "outputs/r22_v3_1_screening_20261106/archives/screening/screening__seed_1932001__vr_0d5__snr_20__delay_0ns__targets_20__periods_10__attempt_001.zip",
+        "bytes": 4050792,
+        "sha256": "994a7fae87685e20f957a92537da3363ca5290fcdb358f9431b39957a54c1e80",
+        "zip_crc_verified": true,
+        "member_count": 1596
+      }
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_20__delay_4ns__targets_20__periods_10",
+      "status": "PASSED",
+      "case_gate": {
+        "status": "CASE_VALID",
+        "applicable_count": 18,
+        "evaluable_count": 18,
+        "unknown_count": 0,
+        "unknown_units": []
+      },
+      "area_clutter_gate": {
+        "status": "passed",
+        "continuous_area_packets": 1300,
+        "continuous_area_samples": 6508782,
+        "area_mean_power_measured": 0.0221596696662,
+        "area_model": "continuous_texture",
+        "platform_height_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ]
+      },
+      "evidence_gate": {
+        "causal_triplets": "passed",
+        "empirical_pfa": "NOT_EVALUABLE",
+        "fallback_to_current": false,
+        "truth_used_in_estimator": false,
+        "unique_final_union_hits": "passed",
+        "valid_cut_denominators": "passed"
+      },
+      "task_summary": {
+        "evaluated_on_rows": 18,
+        "evaluator": "r21-task-eval-v3",
+        "independent_h0_seed_rows": 0,
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 7200,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 54
+      },
+      "cleanup": {
+        "status": "completed",
+        "removed_files": 1841,
+        "removed_logical_bytes": 11319074336,
+        "remaining_bin_count": 0,
+        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files"
+      },
+      "compact_archive": {
+        "path": "outputs/r22_v3_1_screening_20261106/archives/screening/screening__seed_1932001__vr_0d5__snr_20__delay_4ns__targets_20__periods_10__attempt_001.zip",
+        "bytes": 5890564,
+        "sha256": "f2dca66963b489585b23f2e986166b841edca39fc0dfc6b5407c09c442abfafc",
+        "zip_crc_verified": true,
+        "member_count": 2357
+      }
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_30__delay_0ns__targets_20__periods_10",
+      "status": "PASSED",
+      "case_gate": {
+        "status": "CASE_VALID",
+        "applicable_count": 12,
+        "evaluable_count": 12,
+        "unknown_count": 0,
+        "unknown_units": []
+      },
+      "area_clutter_gate": {
+        "status": "passed",
+        "continuous_area_packets": 1300,
+        "continuous_area_samples": 6508782,
+        "area_mean_power_measured": 0.0221596696662,
+        "area_model": "continuous_texture",
+        "platform_height_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ]
+      },
+      "evidence_gate": {
+        "causal_triplets": "passed",
+        "empirical_pfa": "NOT_EVALUABLE",
+        "fallback_to_current": false,
+        "truth_used_in_estimator": false,
+        "unique_final_union_hits": "passed",
+        "valid_cut_denominators": "passed"
+      },
+      "task_summary": {
+        "evaluated_on_rows": 12,
+        "evaluator": "r21-task-eval-v3",
+        "independent_h0_seed_rows": 0,
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 4800,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 41
+      },
+      "cleanup": {
+        "status": "completed",
+        "removed_files": 1161,
+        "removed_logical_bytes": 4430130968,
+        "remaining_bin_count": 0,
+        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files"
+      },
+      "compact_archive": {
+        "path": "outputs/r22_v3_1_screening_20261106/archives/screening/screening__seed_1932001__vr_0d5__snr_30__delay_0ns__targets_20__periods_10__attempt_001.zip",
+        "bytes": 4364826,
+        "sha256": "95a491e6e5a449afcc1a62cdc60441363a4ad8c071e2b0def2ab3b3bdb7bd4a9",
+        "zip_crc_verified": true,
+        "member_count": 1596
+      }
+    },
+    {
+      "case_id": "screening__seed_1932001__vr_0d5__snr_30__delay_4ns__targets_20__periods_10",
+      "status": "UNKNOWN_STOP",
+      "case_gate": {
+        "status": "CASE_UNKNOWN_STOP",
+        "applicable_count": 18,
+        "evaluable_count": 15,
+        "unknown_count": 3,
+        "unknown_units": [
+          {
+            "method_id": "C2",
+            "mode": "Mode-A",
+            "reason": "to_branch_status_not_passed"
+          },
+          {
+            "method_id": "C2",
+            "mode": "Mode-B",
+            "reason": "on_branch_status_not_passed"
+          },
+          {
+            "method_id": "C3",
+            "mode": "Mode-A",
+            "reason": "off_branch_status_not_passed"
+          }
+        ]
+      },
+      "area_clutter_gate": {
+        "status": "passed",
+        "continuous_area_packets": 1300,
+        "continuous_area_samples": 6508782,
+        "area_mean_power_measured": 0.0221596696662,
+        "area_model": "continuous_texture",
+        "platform_height_m": 6000.0,
+        "range_window_m": [
+          84500.0,
+          85500.0
+        ]
+      },
+      "evidence_gate": {
+        "causal_triplets": "passed",
+        "empirical_pfa": "NOT_EVALUABLE",
+        "fallback_to_current": false,
+        "truth_used_in_estimator": false,
+        "unique_final_union_hits": "NOT_EVALUABLE",
+        "valid_cut_denominators": "NOT_EVALUABLE"
+      },
+      "task_summary": {
+        "evaluated_on_rows": 16,
+        "evaluator": "r21-task-eval-v3",
+        "independent_h0_seed_rows": 0,
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 6200,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 54
+      },
+      "cleanup": {
+        "status": "completed_with_gaps",
+        "removed_files": 1661,
+        "removed_logical_bytes": 11319232108,
+        "remaining_bin_count": 0,
+        "policy": "remove_generated_bin_and_reproducible_csi_npy_keep_compact_audit_files"
+      },
+      "compact_archive": {
+        "path": "outputs/r22_v3_1_screening_20261106/archives/failures/screening/screening__seed_1932001__vr_0d5__snr_30__delay_4ns__targets_20__periods_10__attempt_001.zip",
+        "bytes": 5720517,
+        "sha256": "dcce39d5aaf17729a6eef0c054201988f3f35e62cc7fd801561a1483f05d8862",
+        "zip_crc_verified": true,
+        "member_count": 2098
+      },
+      "failed_production_branches": [
+        {
+          "archive_member": "pipeline/cases/r22_multi_target__seed_1932001__v_0d5__snr_30__delay_4ns/production/C2_modea_TO/branch_manifest.json",
+          "return_code": 1,
+          "production_status": "failed",
+          "elapsed_seconds": null,
+          "root_cause": "NOT_VERIFIED"
+        },
+        {
+          "archive_member": "pipeline/cases/r22_multi_target__seed_1932001__v_0d5__snr_30__delay_4ns/production/C2_modeb_ON/branch_manifest.json",
+          "return_code": 1,
+          "production_status": "failed",
+          "elapsed_seconds": null,
+          "root_cause": "CUDA_OUT_OF_MEMORY_CONFIRMED"
+        },
+        {
+          "archive_member": "pipeline/cases/r22_multi_target__seed_1932001__v_0d5__snr_30__delay_4ns/production/C3_modea_OFF/branch_manifest.json",
+          "return_code": 1,
+          "production_status": "failed",
+          "elapsed_seconds": null,
+          "root_cause": "NOT_VERIFIED"
+        }
+      ],
+      "confirmed_oom_log_excerpt": [
+        "[ERROR] /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/src/alignFFTAndDBS.cpp:225 GPU memory allocation failed: out of memory",
+        "[fusion][WORKER-POOL] initcuFFTPlans failed for worker 0",
+        "[STARTUP][ERR] DBS fusion worker prewarm failed",
+        "[STARTUP][ERR] MainCtrl initialization failed; no processing started",
+        "[exit_code]=1",
+        "[elapsed_sec]=0.729"
+      ],
+      "failed_branch_logs_present": [
+        "pipeline/cases/r22_multi_target__seed_1932001__v_0d5__snr_30__delay_4ns/production/C2_modeb_ON/gmt_pipe_core.log"
+      ]
+    }
+  ],
+  "performance_claims": {
+    "performance_verified": false,
+    "empirical_pfa_evaluable": false,
+    "statistical_inference_performed": false
+  }
+}

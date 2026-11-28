@@ -1,0 +1,124 @@
+$ /tmp/pgrcc_r22_s1d_cuda_20261031/GMTI_pipe_core --config /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/production.xml --result-dir /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result --track-debug-dir /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/track_debug_runs --track-debug-dump on --runtime-mode=debug --runtime-diagnostics=on --local-test 1=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin
+[LOCAL-TEST] track_debug=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/track_debug_runs/local_test_20261031_161040_974535_pid141923
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/production.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[TRIG-LUT] uploaded 16384-entry sin/cos/asin/atan tables to device memory
+[TRIG-LUT][CPU] mode=lut iterations=4194304 std_sin_cos_ms=58.33972 lut_sin_cos_ms=19.635565 speedup=2.9711251 mean_abs_err=1.7888371e-08 max_abs_err=7.8646936e-08 sink=7066.5895
+[STARTUP] runtime_mode=debug
+[STARTUP] config_path=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/production.xml
+[STARTUP] test=0
+[STARTUP] input_mode=file
+[STARTUP][CYCLE] prt_bytes=378496 prts_per_beam=130 beam_count=1 prts_per_cycle=130 cycle_bytes=49204480
+[STARTUP] XML absolute path: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/production.xml
+[STARTUP] XML read: success
+[STARTUP] echo_input_mode: file
+[STARTUP] test_mode: 0 (shared-memory real echo)
+[STARTUP] shm_name: /time_seq_shm
+[STARTUP] pipe_root_path: /home/raco
+[STARTUP] prt_bytes: 378496
+[STARTUP] acquisition_unit: complete_scan
+[STARTUP] scan_first_beam: 50
+[STARTUP] scan_beam_count: 1
+[STARTUP] processing_beam_count: 1
+[STARTUP] prts_per_beam: 130
+[STARTUP] prts_per_scan: 130
+[STARTUP] scan_bytes: 49204480
+[STARTUP] payload_buffer_bytes: 98408960
+[STARTUP] available_memory: 11579211776
+[STARTUP] channel_count: 4
+[STARTUP] four_channel_fusion: enabled
+[STARTUP] new_protocol_gpu_preprocess: enabled
+[STARTUP] selected_channels: 1,2
+[STARTUP] result_add: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result
+[STARTUP] result_return: enabled
+[STARTUP] test_cycle_data_files: 0 playback=once
+[STARTUP] track_output_state_source: measurement
+[STARTUP] config_generation: 1
+[fusion][WORKER-POOL] rebuild workers=1 process_pulse_num=130 pulse_dec=1 rg_len=4096 range_fft_len=12288
+[fusion][WORKER-POOL] prewarm workers=1 cuda_free=2265MB total=3759MB
+[LOCAL-TEST] XML snapshot: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/production.xml
+[LOCAL-TEST] Echo files: 1
+
+[LOCAL-TEST] ===== 1/1 echo=/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin result_id=1 =====
+[LOCAL-TEST] Use forced result id 1 for echo file: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr20/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_20__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin
+[PARAM_DUMP] runtime_config_dump = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result/runtime_config_dump.json
+[PARAM_DUMP] pulse_len=11820, read_pulse_num=130, fc=1.6e+10, Br=50000000, fs=60000000, Tr=0.00013, PRF=1300
+[PARAM_DUMP] scan_min=-60, scan_max=60, az_count=61, pc_crop_start=3864, pc_crop_len=4096
+[MANIFEST] run_manifest = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result/run_manifest.json
+[TIMING] timing_metrics = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result/timing_metrics.csv
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=29.299999 t_last=29.399231 e_first=498806.59 e_last=498806.59 n_first=4481387.9 n_last=4481392.7 vx_mps=1.2904831e-08 vy_mps=48.371645 vz_mps=0 speed_mps=48.371645
+[imu-interp] beam_id=-1 t_start=29.299999 t_end=29.399231 imu_before_start=0@29.299999 imu_after_start=0@29.299999 imu_before_end=129@29.399231 imu_after_end=129@29.399231 P_start_E=498806.59 P_start_N=4481387.9 P_start_U=6000 P_end_E=498806.59 P_end_N=4481392.7 P_end_U=6000 V_E_mps=1.2904831e-08 V_N_mps=48.371645 V_U_mps=0 speed_mps=48.371645
+[fusion] group start: beams=1 workers=1 configured_worker_cap=8 memory_worker_cap=1 cuda_free=2.1144409GiB/3.6716309GiB pulse_num=130 read_pulse_num=130 process_pulse_num=130 pulse_dec=1 range_input_len=11820 range_fft_len=12288 range_crop_start=3864 range_output_len=4096 rg_len=4096 estimated_dbs_amp_cache~0.0019836426GiB
+[TIMING-SCOPE] data_read: 41 ms
+[TIMING-SCOPE] pulse_compression: 41 ms
+[plane-pos] source=position_delta samples=130 delta_intervals=1 diagnostic_anomalies=0 t_first=29.299999 t_last=29.399231 e_first=498806.59 e_last=498806.59 n_first=4481387.9 n_last=4481392.7 vx_mps=1.2904831e-08 vy_mps=48.371645 vz_mps=0 speed_mps=48.371645
+[imu-interp] beam_id=50 t_start=29.299999 t_end=29.399231 imu_before_start=0@29.299999 imu_after_start=0@29.299999 imu_before_end=129@29.399231 imu_after_end=129@29.399231 P_start_E=498806.59 P_start_N=4481387.9 P_start_U=6000 P_end_E=498806.59 P_end_N=4481392.7 P_end_U=6000 V_E_mps=1.2904831e-08 V_N_mps=48.371645 V_U_mps=0 speed_mps=48.371645
+[fd-center][robust] fd_ctr_hz=-59.875581 valid_range_bins=4096 clipped_range_bins=82 magnitude_cap=135308.94
+[fd-center][theory-guard] observed_hz=-59.875581 theory_wrapped_hz=-578.79206 theory_unwrapped_hz=-3178.7921 sin_theta=0.61566148 speed_mps=48.371645 lambda_m=0.018737029 prf_hz=1300 circular_error_hz=518.91647 limit_hz=122.72442 theta_cmd_deg=38 action=use_theory
+[CSI][CANCELLATION] period=0 beam=50 support_rows=[46,84] before_mean_power=3894.5453 after_mean_power=4802.1149 improvement_db=-0.90975783 strong_top1pct_improvement_db=-0.50437642 phase_coherence=0.8996897 phase_rmse_rad=0.51670307
+[TIMING-SCOPE] csi_metrics: 33 ms
+[TIMING-SCOPE] channel_cancellation: 79 ms
+[CFAR][CSI-BAND] mode=union dynamic=[46,84] applied=dynamic+full
+[TIMING-SCOPE] detection: 353 ms
+[CFAR][SUMMARY] beam=50 slot=0 hit_cells=1302 clusters=105 selected=105 min_points=3 strong_small_kept=0 small_rejected=0 global_median_power=nan pf=1e-06
+[fusion] active DBS beams for bias: 50
+[fusion] estimate_error_angle disabled, using XML beam_pointing_bias=0 deg
+[fusion] beam_pointing_bias=0 deg
+[fusion][loc][total] raw=105 kept=105 drop_sin=0 drop_px=0 drop_gate=0 n_selected=105 n_old_valid=92 n_comp_valid=105 n_old_invalid_comp_valid=13 n_old_valid_comp_invalid=0 n_both_valid=92 n_both_invalid=0 n_duplicate_raw=0 n_output=105
+[TIMING-SCOPE] gmti_processing: 623 ms
+[fusion][dbs] imaging start: beams=1 rd=130x4096 rd_amp_cache~0.0019836426 GiB PRF=1300 Rmin=82802.677 fs=60000000 out_res=25 range_skip=200 beam_skip=1 useGpu=0
+[fusion][dbs] active nonzero beams for mosaic: 50 (1 / 1)
+[fusion][dbs][extent] B=1 M=4096 nEff=130 boundsX=[418845.12, 440946.12] boundsY=[4415439, 4439101] marginX=1524.205m marginY=1631.84m grid=885x947 dx=25 host_mosaic_min~0.0046832208 GiB
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs][diag][grid] boundsX=[420369.34,439421.91] boundsY=[4417071,4437469] nx=885 ny=947 dx=25 dy=25 pixels=838095 max_pixels=300000000
+[fusion][dbs][diag] beams=1 loc_beam_gate_deg=6 dbs_interp_mode=1 dbs_beam_skip=1 dbs_range_skip=200
+[fusion][dbs] writeProducts success:/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result
+[TIMING-SCOPE] dbs_processing: 81 ms
+[LOW-VR-FILTER] enabled=0 threshold_mps=1 input=105 removed_low_velocity=0 removed_nonfinite=0 output=105
+[P38-SLOPE-FILTER] enabled=0 upper_bound_rad_per_hz=0.0005 input=105 removed_upper_bound=0 removed_nonfinite=0 output=105
+[ADJACENT-BEAM-NMS] enabled=1 position_gate_m=30 velocity_gate_mps=0.35 input=105 removed_duplicates=0 output=105
+[GMTI] writeResult: 写入当前检测结果 /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result/GMTI01.bin，目标数: 105
+[TIMING-SCOPE] result_write: 0 ms
+[GMTI] detection_results_csv = /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result/detection_results.csv，目标数: 105，周期快照: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result/detection_results_GMTI01.csv
+[TIMING-SCOPE] detection_result_csv_write: 367 ms
+[TRACK_CONFIG]
+distance_mode=MahalanobisSquared
+assignment_mode=GreedyNearestNeighbor
+output_state_source=measurement
+
+costs:
+distance=on weight=1
+speed=on weight=0.3
+heading=on weight=0.5
+detection_speed=off weight=0
+
+gates:
+euclidean=on threshold=300m
+mahalanobis=on threshold=9.21
+max_speed=on threshold=50m/s
+heading=off threshold=90deg
+detection_speed=off threshold=30m/s
+
+dummy_cost=1.5 invalid_cost=1e+12
+[TRACK] result_id=1 dets=105 active=105 tentative=105 confirmed=0 coasted=0 deleted=0 outputs=0 new=105 suppressed_coasted_speed_outliers=0 matched=0 unmatched_dets=105
+[TRACK_ONLINE] 当前周期确认输出目标数: 0 (result_id=1, raw_dets=105)
+
+[TRACK] 目标信息列表
+-----------------------------------------------------------------------------------------------
+TrackID Lon(deg)      Lat(deg)      Speed(m/s)  Dir(deg)    Range(m)    UTC(s)
+-----------------------------------------------------------------------------------------------
+(empty)
+-----------------------------------------------------------------------------------------------
+
+当前周期 GMTI 目标信息包已保存: /home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1d_period_corrected_crossover_20261031/production/C4_modeb_S1d_input_snr20_cross_csi_snr30/result/GMTI01_track.bin，目标数: 0
+[TIMING-SCOPE] tracking: 5 ms
+[GMTI][RESULT] filtered_detection_count=105 confirmed_current_detection_count=0 protocol_target_count=0
+[TIMING-SCOPE] main_total: 1169 ms
+[FILE][CYCLE] result_file_id=1 period_index=0 algorithm_process_ms=1169.1284 end_to_end_ms=1169.1317 success=true
+[binary_sha256_before]=c7db0d12f930b297851f1b3b53f3e56de5caf0fa90394595de0b8babf7d7c9de
+[binary_sha256_after]=c7db0d12f930b297851f1b3b53f3e56de5caf0fa90394595de0b8babf7d7c9de
+
+[exit_code]=0
+[elapsed_sec]=1.736

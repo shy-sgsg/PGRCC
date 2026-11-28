@@ -1,0 +1,138 @@
+{
+  "analytic_residual_operator": {
+    "passband_magnitude_max": 1.0,
+    "passband_magnitude_min": 0.9330532816167749,
+    "passband_phase_max_rad": 0.04307922143536595,
+    "passband_phase_min_rad": -0.04307922143536595,
+    "passband_phase_rms_rad": 0.030412641503833965,
+    "residual_delay_ns": 0.39003500000000013,
+    "residual_samples": 0.02340210000000001
+  },
+  "channel_and_fusion_closure": {
+    "F1": {
+      "error_mean_power": 0.0,
+      "ls_gain_imag": 0.0,
+      "ls_gain_magnitude": 1.0,
+      "ls_gain_phase_rad": 0.0,
+      "ls_gain_real": 1.0,
+      "max_abs_error": 0.0,
+      "reference_mean_power": 29.33688132888845,
+      "relative_rms": 0.0
+    },
+    "F2": {
+      "error_mean_power": 0.053249617064659006,
+      "ls_gain_imag": -0.01649128137316012,
+      "ls_gain_magnitude": 0.9921732062054491,
+      "ls_gain_phase_rad": -0.01662213886207766,
+      "ls_gain_real": 0.9920361428651034,
+      "max_abs_error": 1.173097297612126,
+      "reference_mean_power": 29.348528663949946,
+      "relative_rms": 0.04259563311473902
+    },
+    "ch1": {
+      "error_mean_power": 0.0,
+      "ls_gain_imag": 0.0,
+      "ls_gain_magnitude": 0.9999999999999999,
+      "ls_gain_phase_rad": 0.0,
+      "ls_gain_real": 0.9999999999999999,
+      "max_abs_error": 0.0,
+      "reference_mean_power": 166.51294503143333,
+      "relative_rms": 0.0
+    },
+    "ch2": {
+      "error_mean_power": 0.21299846833704048,
+      "ls_gain_imag": 0.000289745310612583,
+      "ls_gain_magnitude": 0.9845168680688523,
+      "ls_gain_phase_rad": 0.00029430203198404847,
+      "ls_gain_real": 0.9845168254325352,
+      "max_abs_error": 2.346194595224252,
+      "reference_mean_power": 166.5952892301242,
+      "relative_rms": 0.03575665480392952
+    },
+    "ch3": {
+      "error_mean_power": 0.0,
+      "ls_gain_imag": 0.0,
+      "ls_gain_magnitude": 0.9999999999999998,
+      "ls_gain_phase_rad": 0.0,
+      "ls_gain_real": 0.9999999999999998,
+      "max_abs_error": 0.0,
+      "reference_mean_power": 166.51494645290177,
+      "relative_rms": 0.0
+    },
+    "ch4": {
+      "error_mean_power": 0.0,
+      "ls_gain_imag": 0.0,
+      "ls_gain_magnitude": 0.9999999999999999,
+      "ls_gain_phase_rad": 0.0,
+      "ls_gain_real": 0.9999999999999999,
+      "max_abs_error": 0.0,
+      "reference_mean_power": 166.59793721510223,
+      "relative_rms": 0.0
+    }
+  },
+  "condition": "delay_3.609965ns",
+  "corrected_input_bytes": 49204480,
+  "corrected_input_path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.609965ns/input/period_0001_corrected.bin",
+  "corrected_input_sha256": "adfd183a4a67cb80e05c38cf933d2302bcc1949e156ba6f0897072edf656474b",
+  "correction_ns": 3.609965,
+  "existing_closure_audit": {
+    "channels": {
+      "F1": {
+        "error_mean_power": 0.0,
+        "max_abs_error": 0.0,
+        "phase_rms_rad": 2.9466691103382714e-18,
+        "phase_sample_count": 1536600,
+        "reference_mean_power": 29.336881329029683,
+        "relative_rms_error": 0.0,
+        "sample_count": 1536600,
+        "status": "passed"
+      },
+      "F2": {
+        "error_mean_power": 0.05324961708426012,
+        "max_abs_error": 1.173097297612126,
+        "phase_rms_rad": 0.05786682983596666,
+        "phase_sample_count": 1536600,
+        "reference_mean_power": 29.348528663027476,
+        "relative_rms_error": 0.04259563312324814,
+        "sample_count": 1536600,
+        "status": "failed"
+      }
+    },
+    "definition": "candidate is Known Physical Correction; reference is paired A0 input after four-channel protocol fusion",
+    "status": "failed",
+    "tolerance_relative_rms": 0.001
+  },
+  "known_reference_sha_match": null,
+  "raw_input_path": "$REPO_ROOT/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+  "raw_input_sha256": "f7506d535f54e77da8f74843b7cf2e7506e656f45d2430ab81ee6bfb6c236a0f",
+  "rewrite_integrity": {
+    "all_iq_finite": true,
+    "channel_2_packets_changed": 130,
+    "channels_1_3_4_bitwise_unchanged": true,
+    "header_bytes_unchanged": true,
+    "input_bytes": 49204480,
+    "output_bytes": 49204480,
+    "output_channel_2_nonzero_samples": 1536470,
+    "packet_count": 130,
+    "status": "passed"
+  },
+  "rewrite_record": {
+    "channel_count": 4,
+    "channel_index": 1,
+    "channel_indices": [
+      1
+    ],
+    "correction_definition": "x[n]=(y[n]-d*x[n-1])/(1-d), x[0]=0, d=delta_tau_sec*fs_hz",
+    "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+    "delta_tau_ns": 3.6099650000000003,
+    "delta_tau_sec": 3.609965e-09,
+    "fs_hz": 60000000.0,
+    "input_bytes": 49204480,
+    "input_path": "$REPO_ROOT/outputs/phase_r8_unknown_delay_multiseed_20261023/seed303/cases/base__seed_303__v_p6d7__snr_p30__delay_p4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+    "output_bytes": 49204480,
+    "output_path": "$REPO_ROOT/outputs/phase_r11_local_delay_scan_20261024/conditions/delay_3.609965ns/input/period_0001_corrected.bin",
+    "packets_rewritten": 130,
+    "pulse_len": 11820,
+    "status": "passed"
+  }
+}

@@ -54,15 +54,28 @@ OBS = _load_analyzer()
 
 
 def _git(*args: str) -> str:
-    result = subprocess.run(
-        ["git", "--git-dir=.git-real", "--work-tree=.", *args],
-        cwd=ROOT,
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-    )
-    return result.stdout.strip() if result.returncode == 0 else ""
+    commands = [
+        ["git", "-C", str(ROOT), *args],
+        [
+            "git",
+            "--git-dir",
+            str(ROOT / ".git-real"),
+            "--work-tree",
+            str(ROOT),
+            *args,
+        ],
+    ]
+    for command in commands:
+        result = subprocess.run(
+            command,
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+    return ""
 
 
 def _sha256(path: Path) -> str:
@@ -134,7 +147,7 @@ def estimator_metadata(resolved: Mapping[str, object]) -> dict[str, object]:
     """Select only nominal metadata allowed by the unknown-only contract."""
 
     allowed: dict[str, object] = {}
-    for key in ("waveform", "range_processing", "platform", "simulation_geometry"):
+    for key in ("waveform", "range_processing", "platform", "simulation_geometry", "scan"):
         if key in resolved:
             allowed[key] = copy.deepcopy(resolved[key])
     scene = resolved.get("scene")
@@ -143,6 +156,11 @@ def estimator_metadata(resolved: Mapping[str, object]) -> dict[str, object]:
     for key in ("carrier_phase_sign", "sample_delay_us", "range_geometry"):
         if key in resolved:
             allowed[key] = copy.deepcopy(resolved[key])
+    random = resolved.get("random")
+    if isinstance(random, Mapping):
+        allowed["random"] = {
+            "period_start": copy.deepcopy(random.get("period_start", 0)),
+        }
     return allowed
 
 
@@ -362,6 +380,19 @@ def summarize_case(
     pair_fits = six_pair_result.get("pair_fits", {})
     if not isinstance(pair_fits, Mapping):
         pair_fits = {}
+    six_status = str(six_pair_result.get("status", ""))
+    single_status = str(single_pair_result.get("status", ""))
+    six_fit_rmse = _finite_float(six_pair_result.get("fit_rmse_rad"))
+    if six_fit_rmse is None:
+        six_fit_rmse = _finite_float(global_fit.get("rmse_rad"))
+    six_fallback = (
+        six_pair_result.get("fit_status") == "fallback_unidentifiable"
+        or six_status.startswith("FALLBACK")
+    )
+    single_fallback = (
+        single_pair_result.get("fit_status") == "fallback_unidentifiable"
+        or single_status.startswith("FALLBACK")
+    )
     row: dict[str, object] = {
         "truth_delta_m": float(truth_delta_m),
         "six_fit_status": six_pair_result.get("fit_status"),
@@ -372,7 +403,7 @@ def summarize_case(
         "single_estimate_m": single_estimate,
         "single_error_m": single_error,
         "single_abs_error_m": None if single_error is None else abs(single_error),
-        "six_pair_residual_rmse_rad": _finite_float(global_fit.get("rmse_rad")),
+        "six_pair_residual_rmse_rad": six_fit_rmse,
         "closure_residual_mean_abs_rad": _fit_field(
             six_pair_result, "closure_phase_residual_rad"
         ),
@@ -382,11 +413,24 @@ def summarize_case(
         "cross_pair_consistency_m": _finite_float(
             consistency.get("max_minus_min_delta_d_m")
         ),
-        "six_observation_count": six_pair_result.get("observation_counts"),
-        "six_fallback": six_pair_result.get("fit_status") == "fallback_unidentifiable",
-        "six_failure": six_pair_result.get("fit_status") != "fit",
-        "single_fallback": single_pair_result.get("fit_status") == "fallback_unidentifiable",
-        "single_failure": single_pair_result.get("fit_status") != "fit",
+        "six_observation_count": six_pair_result.get(
+            "observation_counts", six_pair_result.get("observation_count")
+        ),
+        "six_uncertainty_m": _finite_float(six_pair_result.get("uncertainty_m")),
+        "six_deadband_m": _finite_float(six_pair_result.get("deadband_m")),
+        "six_sensitivity_rad_per_m": _finite_float(
+            six_pair_result.get("sensitivity_rad_per_m")
+        ),
+        "six_model_disagreement_mean_abs_rad": _finite_float(
+            six_pair_result.get("model_disagreement_mean_abs_rad")
+        ),
+        "six_geometry_model": six_pair_result.get("geometry_model", six_pair_result.get("model")),
+        "single_uncertainty_m": _finite_float(single_pair_result.get("uncertainty_m")),
+        "single_deadband_m": _finite_float(single_pair_result.get("deadband_m")),
+        "six_fallback": six_fallback,
+        "six_failure": six_pair_result.get("fit_status") != "fit" or six_fallback,
+        "single_fallback": single_fallback,
+        "single_failure": single_pair_result.get("fit_status") != "fit" or single_fallback,
     }
     for pair_name in (item[0] for item in OBS.PAIR_DEFINITIONS):
         pair_fit = pair_fits.get(pair_name, {})
@@ -563,6 +607,7 @@ def run_matrix(
     range_block_size: int = 32,
     bootstrap_resamples: int = 4000,
     estimator_range_half_width_samples: int = 1024,
+    geometry_model: str = "v1",
     nuisance: Mapping[str, object] | None = None,
     required_angles: Sequence[float] = REQUIRED_ANGLES_DEG,
     source_commit_override: Optional[str] = None,
@@ -576,6 +621,8 @@ def run_matrix(
         raise ValueError("min_coherence must be in [0,1]")
     if range_block_size <= 0:
         raise ValueError("range_block_size must be positive")
+    if geometry_model not in {"v1", "v1_linear", "v2", "v2_exact"}:
+        raise ValueError("geometry_model must be v1 or v2")
     output_root.mkdir(parents=True, exist_ok=True)
     with template_path.open("r", encoding="utf-8") as stream:
         template = json.load(stream)
@@ -676,6 +723,7 @@ def run_matrix(
                         range_end=range_end,
                         max_abs_delta_m=0.02,
                         min_coherence=min_coherence,
+                        geometry_model=geometry_model,
                     )
                     single_result = OBS.estimate_unknown_baseline(
                         raw_path,
@@ -693,6 +741,7 @@ def run_matrix(
                         range_end=range_end,
                         max_abs_delta_m=0.02,
                         min_coherence=min_coherence,
+                        geometry_model=geometry_model,
                     )
                     compact_six = copy.deepcopy(six_result)
                     compact_single = copy.deepcopy(single_result)
@@ -764,7 +813,11 @@ def run_matrix(
     )
     completed = [row for row in rows if row.get("case_status") == "completed"]
     manifest: dict[str, object] = {
-        "schema": "unknown_system_error_geometry_matrix_v1",
+        "schema": (
+            "unknown_system_error_geometry_matrix_v1"
+            if geometry_model in {"v1", "v1_linear"}
+            else "unknown_system_error_geometry_matrix_v2"
+        ),
         "status": "completed" if len(completed) == len(rows) else "completed_with_failures",
         "ai_training": False,
         "source": {
@@ -793,6 +846,7 @@ def run_matrix(
             "estimator_range_end": range_end,
             "estimator_range_half_width_samples": estimator_range_half_width_samples,
             "bootstrap_resamples": bootstrap_resamples,
+            "geometry_model": geometry_model,
             "nuisance": {
                 "fixed_channel_phase_mismatch_deg": float(
                     effective_template["channel_impairments"]["channel_fixed_phase_mismatch_deg"]  # type: ignore[index]
@@ -817,6 +871,7 @@ def run_matrix(
             "allowed_nominal_inputs": ["reported channel positions", "waveform", "range processing", "platform", "simulation geometry", "ground height"],
             "forbidden_inputs": ["ideal_off", "ideal_on", "truth", "known-error parameters", "future metrics", "true channel positions"],
             "pair_modes": ["single_pair:C12", "six_pair:C13,C24,C12,C14,C23,C34"],
+            "geometry_model": geometry_model,
         },
         "layout": layout,
         "config_records": config_records,
@@ -851,6 +906,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--range-block-size", type=int, default=32)
     parser.add_argument("--bootstrap-resamples", type=int, default=4000)
     parser.add_argument("--estimator-range-half-width-samples", type=int, default=1024)
+    parser.add_argument("--model", choices=("v1", "v2"), default="v1")
     args = parser.parse_args(argv)
     manifest = run_matrix(
         args.output_root.resolve(),
@@ -862,6 +918,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         range_block_size=args.range_block_size,
         bootstrap_resamples=args.bootstrap_resamples,
         estimator_range_half_width_samples=args.estimator_range_half_width_samples,
+        geometry_model=args.model,
     )
     print(json.dumps({
         "status": manifest["status"],

@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "purpose": "Compact source files for posthoc S1b ON/OFF/TO phase and complex component audit",
+  "source_task": "R22-S1b same-seed SNR30 Mode-A reference-assisted diagnostic",
+  "execution_git_commit": "1ed2a2e67a88a918858784be81794238ef112c7d",
+  "production_binary_sha256": "16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998",
+  "source_worktree_status_recorded": "M docs/research/phase_r/R22/00_master_execution_plan.md\n M include/GMTIProcessor.hpp\n M include/runtime_diagnostics.hpp\n M src/gpu/gpu_kernels.cu\n M src/processOnePeriod.cpp\n M src/runtime_diagnostics.cpp\n M tests/production_calibration_config_selftest.cpp",
+  "stage2_regenerated_for_audit": false,
+  "period_index_zero_based": 4,
+  "period_id": 5,
+  "input_period4_manifest_identity": {
+    "ON": {
+      "source_path_relative_to_case": "scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+      "bytes": 49204480,
+      "sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831"
+    },
+    "OFF": {
+      "source_path_relative_to_case": "scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+      "bytes": 49204480,
+      "sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48"
+    },
+    "TO": {
+      "source_path_relative_to_case": "scenes/A1_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+      "bytes": 49204480,
+      "sha256": "cb8f77cc3153fa9e8d9f3c71a4959692165ab725ce430677b02675adf823b667"
+    }
+  },
+  "files": [
+    {
+      "role": "ON",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_ON/result/production_phase_boundary_trace.csv",
+      "source_bytes": 92313,
+      "source_sha256": "bc39ed43e2aa24fcfa3877795cfa0857192a3dc827671cbbc2748b955b96e51c",
+      "published_path": "s1b_context_source/ON/production_phase_boundary_trace.csv",
+      "published_bytes": 92313,
+      "published_sha256": "bc39ed43e2aa24fcfa3877795cfa0857192a3dc827671cbbc2748b955b96e51c",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "ON",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_ON/result/debug/paired_range_phase_raw_period050_beam050.f32",
+      "source_bytes": 16384,
+      "source_sha256": "ebe0f06b793bb296ee1dc83b1ec4be468a122908448d2cdd47717ef247da0f80",
+      "published_path": "s1b_context_source/ON/debug/paired_range_phase_raw_period050_beam050.f32",
+      "published_bytes": 16384,
+      "published_sha256": "ebe0f06b793bb296ee1dc83b1ec4be468a122908448d2cdd47717ef247da0f80",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "ON",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_ON/result/debug/paired_range_phase_csi_period050_beam050.f32",
+      "source_bytes": 16384,
+      "source_sha256": "242b90e727b5478a74c36cdacb0b2c5c08de972e6ecfb08038d1e64155c6ff1f",
+      "published_path": "s1b_context_source/ON/debug/paired_range_phase_csi_period050_beam050.f32",
+      "published_bytes": 16384,
+      "published_sha256": "242b90e727b5478a74c36cdacb0b2c5c08de972e6ecfb08038d1e64155c6ff1f",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "OFF",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_OFF/result/production_phase_boundary_trace.csv",
+      "source_bytes": 94546,
+      "source_sha256": "dd07b3c0aaec051737b2cf19b7838777919471e2040d801ff623ae6f7bc1d311",
+      "published_path": "s1b_context_source/OFF/production_phase_boundary_trace.csv",
+      "published_bytes": 94546,
+      "published_sha256": "dd07b3c0aaec051737b2cf19b7838777919471e2040d801ff623ae6f7bc1d311",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "OFF",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_OFF/result/debug/paired_range_phase_raw_period050_beam050.f32",
+      "source_bytes": 16384,
+      "source_sha256": "16160312772618e7cb68fd0854ef128a47fa4fbcfd124a36b3993fa2a90476f9",
+      "published_path": "s1b_context_source/OFF/debug/paired_range_phase_raw_period050_beam050.f32",
+      "published_bytes": 16384,
+      "published_sha256": "16160312772618e7cb68fd0854ef128a47fa4fbcfd124a36b3993fa2a90476f9",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "OFF",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_OFF/result/debug/paired_range_phase_csi_period050_beam050.f32",
+      "source_bytes": 16384,
+      "source_sha256": "1df58e30d32decddfbfca733eee8cf702b5b4caa8190ef615e8d303531c38b0e",
+      "published_path": "s1b_context_source/OFF/debug/paired_range_phase_csi_period050_beam050.f32",
+      "published_bytes": 16384,
+      "published_sha256": "1df58e30d32decddfbfca733eee8cf702b5b4caa8190ef615e8d303531c38b0e",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "TO",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_TO/result/production_phase_boundary_trace.csv",
+      "source_bytes": 92673,
+      "source_sha256": "cd1b99aa82ec4d7f8ffb9046b9f87dfe434981c5072ce3fb2021002e6e0c8edf",
+      "published_path": "s1b_context_source/TO/production_phase_boundary_trace.csv",
+      "published_bytes": 92673,
+      "published_sha256": "cd1b99aa82ec4d7f8ffb9046b9f87dfe434981c5072ce3fb2021002e6e0c8edf",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "TO",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_TO/result/debug/paired_range_phase_raw_period050_beam050.f32",
+      "source_bytes": 16384,
+      "source_sha256": "caa02efd9bfea5717e2cc12c5b9b930f40150d482a7144d567d17d8a8f41defc",
+      "published_path": "s1b_context_source/TO/debug/paired_range_phase_raw_period050_beam050.f32",
+      "published_bytes": 16384,
+      "published_sha256": "caa02efd9bfea5717e2cc12c5b9b930f40150d482a7144d567d17d8a8f41defc",
+      "normalization": "none; exact byte copy"
+    },
+    {
+      "role": "TO",
+      "source_path_relative_to_repo": "outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_TO/result/debug/paired_range_phase_csi_period050_beam050.f32",
+      "source_bytes": 16384,
+      "source_sha256": "2484c5eb8a74bd1357e347fd6bb21831c4376ed494a6ac1d1037f9b5cacea279",
+      "published_path": "s1b_context_source/TO/debug/paired_range_phase_csi_period050_beam050.f32",
+      "published_bytes": 16384,
+      "published_sha256": "2484c5eb8a74bd1357e347fd6bb21831c4376ed494a6ac1d1037f9b5cacea279",
+      "normalization": "none; exact byte copy"
+    }
+  ]
+}

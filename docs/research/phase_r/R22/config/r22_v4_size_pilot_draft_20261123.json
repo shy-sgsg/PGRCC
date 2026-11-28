@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "design_id": "R22_V4_OUTPUT_SIZE_PILOT_DRAFT_20261123",
+  "state": "DRAFT_NOT_FROZEN",
+  "execution_authorized": false,
+  "cuda_authorized": false,
+  "ai_training": false,
+  "seed_sets": {
+    "engineering": [1937003],
+    "screening": [1932001],
+    "confirmatory": [1933001],
+    "h0": [1936001]
+  },
+  "pilot_seed_set_note": "Only phase engineering is present and executable in this one-case pilot design. The other three seed-set entries are non-active schema references to the existing R22 screening, reserved confirmatory, and proposed H0 cohorts; they are not pilot cases and must not be added to this design's phases.",
+  "common": {
+    "first_beam": 50,
+    "beam_count": 1,
+    "scenario_template": "simulator/scenarios/beam50_one_targets_continuous.run.json",
+    "method_config": "docs/research/phase_r/R22/config/r22_method_config_v2_range_roi.json",
+    "area": {
+      "range_window_m": [84500.0, 85500.0],
+      "mean_power": 0.02,
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98,
+      "thermal_noise_power": 0.001
+    },
+    "method_ids": ["C0", "PK"],
+    "calibration_modes": ["Mode-A", "Mode-B"],
+    "production_backend": "Native CUDA",
+    "use_corex": false
+  },
+  "phases": {
+    "engineering": {
+      "seed_set": "engineering",
+      "target_count": 20,
+      "period_count": 10,
+      "conditions": [
+        {
+          "condition_id": "v2d5_snr20_d4_size_pilot",
+          "radial_speed_mps": 2.5,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 4.0
+        }
+      ]
+    }
+  },
+  "purpose": "Single target-present +4 ns Native CUDA Production size/archive/resume feasibility only; no confirmatory inference or performance claim.",
+  "required_gates_before_execution": [
+    "independent review and approval of V4 statistical decision thresholds",
+    "final full-project seed registry audit confirms pilot seed 1937003 is unused",
+    "separately authorized CUDA pilot",
+    "dedicated output volume with enough measured peak-space headroom for raw data, CSI/Production outputs, archive co-existence, and system reserve",
+    "current source, CUDA binaries, runtime configuration, and input identities are frozen and recorded"
+  ]
+}

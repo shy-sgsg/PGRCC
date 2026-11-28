@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "task": "R22-S1b selected production stage-boundary causal diagnostic",
+  "created_utc": "2026-10-29T07:37:59.198423+00:00",
+  "repository": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage",
+  "git_commit": "1ed2a2e67a88a918858784be81794238ef112c7d",
+  "worktree_status": "M docs/research/phase_r/R22/00_master_execution_plan.md\n M include/GMTIProcessor.hpp\n M include/runtime_diagnostics.hpp\n M src/gpu/gpu_kernels.cu\n M src/processOnePeriod.cpp\n M src/runtime_diagnostics.cpp\n M tests/production_calibration_config_selftest.cpp",
+  "trace_source_sha256": {
+    "include/GMTIProcessor.hpp": "970bb22d2283c69a2014e8408e9dab6dce2c3015a5b3bec352233a83f349dc5d",
+    "include/runtime_diagnostics.hpp": "d45e0274ebe703f5550ac26044168e504e461cb7cdf1bcf0bc08456a62b82e72",
+    "src/runtime_diagnostics.cpp": "a9338c9f8ade93bc3358de967e858f976f40c65bbabe8c7cffb18574cbc4e43e",
+    "src/processOnePeriod.cpp": "0b6dbee497d38cfec7f429e141435f8c43c6abd3723dbb4e521e154bd7761eb7",
+    "src/gpu/gpu_kernels.cu": "c85694e3bf35217bc8beedf5b28d0dae581d479b9aafdfda1f5b6ece479a6932"
+  },
+  "production_binary": "/tmp/pgrcc_r22_s1b_cuda_20261029/GMTI_pipe_core",
+  "production_binary_sha256": "16cb0f2d35596ff98ab8bdcbc9571b972b99e217053cf0b1b7f6b49168c8c998",
+  "stage2_simulator": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+  "stage2_regenerated": false,
+  "case_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns",
+  "case_manifest_sha256": "58a02646e07343f60b8e09c56fd02180676fb5b10ce76957cea5e116f47215c1",
+  "selector": "5,50,52,1065,1197",
+  "output_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1b_phase_boundary_20261029/snr30",
+  "period_count": 10,
+  "beam_id": 50,
+  "roles": [
+    "ON",
+    "OFF",
+    "TO"
+  ],
+  "purpose_boundary": "Mode-A reference-assisted paired diagnostic; not a blind-method deployment comparison and not a task-performance ranking",
+  "truth_used_in_estimator": false,
+  "gpu_snapshot_before_replay": "name, pstate, temperature.gpu, power.draw [W], utilization.gpu [%], memory.used [MiB], memory.total [MiB], clocks.current.sm [MHz]\nNVIDIA GeForce RTX 3050 Laptop GPU, P0, 87, 62.85 W, 84 %, 2237 MiB, 4096 MiB, 1830 MHz",
+  "gpu_snapshot_returncode": 0,
+  "branches": [
+    {
+      "role": "ON",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/production/C4_modea_ON/branch_manifest.json",
+      "source_branch_manifest_sha256": "f2d978165332a54537604ad860260468dc66082ce988a700bb5ee1918a7bda35",
+      "source_xml_sha256": "b04a4eb79def473e6f48fc9d43446dcab0edc6f2c841f4681c00ea239f135aef",
+      "input_periods": [
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "184ee12706a106a9c00aa3085ed25b4f5f682ebf46f47b36ad0bf5643398bd64"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "64f4af29615aa66714755af661642df5418a40cb0377e172d91c6144dce16e0c"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "2d1bf467fe6e881af23349e41c83ce49c6df735ff7ca408baa61b237e04124dd"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "4834c7119e641feb085ea85006afd8a8f5288f40f44960543a8c88d15173834c"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "d324584380c67b37ea19f3e7efb7ecfdc33ed7287b2e4c97fca5aa98e9d2f831"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "63e526ed40863f57d0122b553760a062597f1585db65301325530146f2af7c8b"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "9d985b98b5c38c75cca74d73aa177e92d9309372fc5b7595b2fc7e1d836a3496"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "89eabb7dd19535ab2da0663e0220e2e4cfc94a83ef57b97b9c7082b1c1668b9c"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "1f8006cb6b01f6da6b54a3cff930959527b3b4e3546ed1b30bc21ac3639851e0"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_ON/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "e9847fe01345bf7a3fb94e43fae461bf1c22c2e0801a5be5ae559bbfd29e557e"
+        }
+      ],
+      "status": "passed",
+      "production_returncode": 0,
+      "output_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_ON/branch_manifest.json"
+    },
+    {
+      "role": "OFF",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/production/C4_modea_OFF/branch_manifest.json",
+      "source_branch_manifest_sha256": "c5c17fed5a3285df2bec5ee0e2a69cb2ca6972a6cfbea0e9031f64b6f89e4898",
+      "source_xml_sha256": "558636b7624bf7a49d423ac5380eacf07417389ae95fc52b4b8472087cbf662b",
+      "input_periods": [
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "a0eb1f462628f5fdaae52de1483bf97202e954a47654b400a73a97bfd5a56b92"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "5d9587381247cbbb0d91839798ef1a30b0d91318414646f3af9b8e28d30e512a"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "cd90d34773fe9b438784a08e77fc0e6b2b3f37f781ce1b04f6cace0ac648558e"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "44a9e23aba417e151a486216c06a3ab3e3147770249bb62763653b1f2ad2cd40"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "a8b253c035d387da24625f189a576fe41f56789fbc1c2870c652ef7a75e25f48"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "c49c80802e41ed073302991e2a9d19b863e403cb36fef5e3c26fdffb4bca535b"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "f108f080f3bf739831e39130ab946ef078930b563bae213b98ee41ee3f06e967"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "3cdf89daa8d17430b4a796f6c0e763cc09c1b6bbcbbde2afd59524de15a6f889"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "92df82533a2a31975ee90e1d9e73c0b8304f139bc980fe173b682ce57de02253"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_OFF/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "fe8072b18c2c3632e78cdbc08535acc2dde073d44032080938a78d36ff8d63a7"
+        }
+      ],
+      "status": "passed",
+      "production_returncode": 0,
+      "output_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_OFF/branch_manifest.json"
+    },
+    {
+      "role": "TO",
+      "source_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/production/C4_modea_TO/branch_manifest.json",
+      "source_branch_manifest_sha256": "f00d34c11f0e7e1c042aa10f39cf3071fb2a15d3aa14beb3ca5b63a025bc5d83",
+      "source_xml_sha256": "b04a4eb79def473e6f48fc9d43446dcab0edc6f2c841f4681c00ea239f135aef",
+      "input_periods": [
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0000.bin",
+          "bytes": 49204480,
+          "sha256": "c793212c5430f8a4ccfdfda68365694368a800826327d9d1bb42178694ad7b4b"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0001.bin",
+          "bytes": 49204480,
+          "sha256": "d4f861d167f83fe6e39416c2795733b8405ef8b8832231de69ab488025ae5612"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0002.bin",
+          "bytes": 49204480,
+          "sha256": "efb52eef511fbdb5aee00e5c91cd604359c55b8c6b57fb7780f7921195fdc484"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0003.bin",
+          "bytes": 49204480,
+          "sha256": "ea509d567e7573822dbb5595af9549245bf1db7702efb3c72a25f9bf93d347c9"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0004.bin",
+          "bytes": 49204480,
+          "sha256": "cb8f77cc3153fa9e8d9f3c71a4959692165ab725ce430677b02675adf823b667"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0005.bin",
+          "bytes": 49204480,
+          "sha256": "41262818bea6741b6649b62f367554b6b51462728e4518ab58fcc49cc0d50509"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0006.bin",
+          "bytes": 49204480,
+          "sha256": "02e1531bab9832bbfdd3725a17d08ecb10a81b542e36c67e03b82e599e29ae19"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0007.bin",
+          "bytes": 49204480,
+          "sha256": "6b6253850af8154d53cc59b1de918009b2848149df79ef96e398862189cfda0f"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0008.bin",
+          "bytes": 49204480,
+          "sha256": "63c2c5854bddc634a3ddf4033799e608d051958daa0b8d11773f24df3a7e9059"
+        },
+        {
+          "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1_c4_support_replay_20261029/snr30/pipeline/cases/r22_multi_target__seed_1932001__v_2d5__snr_30__delay_4ns/scenes/A1_TO/data/stage2_statistical_newprotocol_period_0009.bin",
+          "bytes": 49204480,
+          "sha256": "f1ce8010bdbaf33331db386662ba6b1637646fbc70128cf0c2edf3d6f354c27f"
+        }
+      ],
+      "status": "passed",
+      "production_returncode": 0,
+      "output_branch_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_s1b_phase_boundary_20261029/snr30/production/C4_modea_S1b_TO/branch_manifest.json"
+    }
+  ],
+  "run_status": "passed"
+}

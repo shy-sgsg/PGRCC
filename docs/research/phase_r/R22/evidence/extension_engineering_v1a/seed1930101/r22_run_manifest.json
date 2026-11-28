@@ -1,0 +1,568 @@
+{
+  "all_production_branches_passed": false,
+  "area_clutter_gate": {
+    "area_enabled": true,
+    "area_mean_power_measured": 0.0225128995081,
+    "area_model": "continuous_texture",
+    "continuous_area_packets": 1300,
+    "continuous_area_samples": 6508782,
+    "ground_height_m": 0.0,
+    "ground_range_max_m": 85289.213854977,
+    "ground_range_min_m": 84286.71306914276,
+    "ground_range_window_m": [
+      84286.71306914276,
+      85289.213854977
+    ],
+    "minimum_slant_range_m": 6000.0,
+    "platform_height_m": 6000.0,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "reasons": [],
+    "report_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/A0_ON/reports/stage2_simulation_report.md",
+    "report_sha256": "dfffa3c55d7479814187daaa76ddc0da56711ec11c559e01eb6b6d0963b4e264",
+    "report_values": {
+      "area_ctdr_lag_pulses": "2",
+      "area_power_cv_measured": "1.9925009136",
+      "area_rho_at_CTDR_lag": "0.960397551126",
+      "area_rho_lag1_measured": "0.979999807132",
+      "mean_noise_power_per_complex_sample": "0.00100014187201"
+    },
+    "scenario_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/scenes/scenarios/A0_ON.json",
+    "scenario_sha256": "3373ea80bd80b06740adb7e6072b5977c9c95c1ec681d1cf2fe54eb59057781d",
+    "status": "passed"
+  },
+  "case_id": "engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10",
+  "created_at_utc": "2026-10-27T18:37:57.134291+00:00",
+  "design": {
+    "ai_training": false,
+    "beam_count": 1,
+    "calibration_modes": [
+      "Mode-A",
+      "Mode-B"
+    ],
+    "delay_error_ns": 0.0,
+    "execution_method_ids": [
+      "C0",
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "PK",
+      "PKR"
+    ],
+    "first_beam": 50,
+    "known_error_use": "physical correction upper bound only; blind estimator does not receive it",
+    "method_ids": [
+      "C0",
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "P1",
+      "P2",
+      "PK",
+      "PKR"
+    ],
+    "period_count": 10,
+    "radial_speed_mps": 2.5,
+    "raw_artifact_policy": "remove_generated_bin_after_evaluation_keep_audit_files",
+    "router_enabled": false,
+    "seed": 1930101,
+    "target_count": 20,
+    "target_snr_db": 20.0,
+    "target_truth_nested_across_density": true,
+    "zero_delay_blind_correction_policy": "estimate_only_no_physical_correction"
+  },
+  "evaluation_summary": {
+    "evaluated_on_rows": 8,
+    "evaluator": "r21-task-eval-v3",
+    "independent_h0_seed_rows": 0,
+    "invalid_truth_opportunities": 0,
+    "target_opportunity_rows": 3200,
+    "target_period_opportunities_are_not_independent_seeds": true,
+    "task_rows": 41
+  },
+  "evidence_gate": {
+    "causal_triplets": "passed",
+    "empirical_pfa": "NOT_EVALUABLE",
+    "fallback_to_current": false,
+    "truth_used_in_estimator": false,
+    "unique_final_union_hits": "NOT_EVALUABLE",
+    "valid_cut_denominators": "NOT_EVALUABLE"
+  },
+  "experiment": "PGRCC R22 multi-target Native CUDA Production case",
+  "finished_at_utc": "2026-10-27T18:50:05.123141+00:00",
+  "generator_manifest": {
+    "beam_span": [
+      50,
+      50
+    ],
+    "configured_radial_speed_mps": 2.5,
+    "look_vectors_by_target": {
+      "R22_T001": {
+        "east": -0.7885321115965607,
+        "north": -0.6149935845039923
+      },
+      "R22_T002": {
+        "east": -0.7927234558765505,
+        "north": -0.6095814322165158
+      },
+      "R22_T003": {
+        "east": -0.7929240783686021,
+        "north": -0.609320446024342
+      },
+      "R22_T004": {
+        "east": -0.7857606749186987,
+        "north": -0.6185306473824163
+      },
+      "R22_T005": {
+        "east": -0.7917112629156455,
+        "north": -0.6108954707415284
+      },
+      "R22_T006": {
+        "east": -0.7903338075626604,
+        "north": -0.6126764828386249
+      },
+      "R22_T007": {
+        "east": -0.7893439080690685,
+        "north": -0.6139512967607853
+      },
+      "R22_T008": {
+        "east": -0.7879584986427421,
+        "north": -0.6157283527795968
+      },
+      "R22_T009": {
+        "east": -0.7861671380145145,
+        "north": -0.6180139408670868
+      },
+      "R22_T010": {
+        "east": -0.790863590685578,
+        "north": -0.611992468032013
+      },
+      "R22_T011": {
+        "east": -0.7914527040083413,
+        "north": -0.6112304126251286
+      },
+      "R22_T012": {
+        "east": -0.7846108281969599,
+        "north": -0.6199885872143782
+      },
+      "R22_T013": {
+        "east": -0.7931582125955444,
+        "north": -0.6090156400226855
+      },
+      "R22_T014": {
+        "east": -0.7830480589078581,
+        "north": -0.6219612025204109
+      },
+      "R22_T015": {
+        "east": -0.7899611167107561,
+        "north": -0.613156940827628
+      },
+      "R22_T016": {
+        "east": -0.7912021765550028,
+        "north": -0.6115546711575558
+      },
+      "R22_T017": {
+        "east": -0.7927665047211137,
+        "north": -0.609525445729929
+      },
+      "R22_T018": {
+        "east": -0.7888711169971233,
+        "north": -0.6145586715421978
+      },
+      "R22_T019": {
+        "east": -0.7863006705208868,
+        "north": -0.6178440381992885
+      },
+      "R22_T020": {
+        "east": -0.7888412490340666,
+        "north": -0.61459700928525
+      }
+    },
+    "period_count": 10,
+    "range_bin_assignment_rule": "seed-specific shuffled range-bin permutation; target-count-stable prefix",
+    "range_bin_bounds": [
+      680,
+      1079
+    ],
+    "range_bin_permutation_stream_seed": 8289720814033498,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "schema_version": 1,
+    "seed": 1930101,
+    "stage2_clutter_noise_seed": 1930101,
+    "target_snr_db": 20.0,
+    "target_state_stream_rule": "(seed << 32) | (0x52320000 + zero_based_target_index)",
+    "target_state_substream_count": 20,
+    "target_state_substreams": [
+      {
+        "expected_bin": 723,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 0,
+        "stream_seed": 8289722051985408,
+        "target_id": "R22_T001"
+      },
+      {
+        "expected_bin": 844,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 1,
+        "stream_seed": 8289722051985409,
+        "target_id": "R22_T002"
+      },
+      {
+        "expected_bin": 756,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 2,
+        "stream_seed": 8289722051985410,
+        "target_id": "R22_T003"
+      },
+      {
+        "expected_bin": 688,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 3,
+        "stream_seed": 8289722051985411,
+        "target_id": "R22_T004"
+      },
+      {
+        "expected_bin": 802,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 4,
+        "stream_seed": 8289722051985412,
+        "target_id": "R22_T005"
+      },
+      {
+        "expected_bin": 915,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 5,
+        "stream_seed": 8289722051985413,
+        "target_id": "R22_T006"
+      },
+      {
+        "expected_bin": 1032,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 6,
+        "stream_seed": 8289722051985414,
+        "target_id": "R22_T007"
+      },
+      {
+        "expected_bin": 974,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 7,
+        "stream_seed": 8289722051985415,
+        "target_id": "R22_T008"
+      },
+      {
+        "expected_bin": 838,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 8,
+        "stream_seed": 8289722051985416,
+        "target_id": "R22_T009"
+      },
+      {
+        "expected_bin": 965,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 9,
+        "stream_seed": 8289722051985417,
+        "target_id": "R22_T010"
+      },
+      {
+        "expected_bin": 824,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 10,
+        "stream_seed": 8289722051985418,
+        "target_id": "R22_T011"
+      },
+      {
+        "expected_bin": 995,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 11,
+        "stream_seed": 8289722051985419,
+        "target_id": "R22_T012"
+      },
+      {
+        "expected_bin": 828,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 12,
+        "stream_seed": 8289722051985420,
+        "target_id": "R22_T013"
+      },
+      {
+        "expected_bin": 859,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 13,
+        "stream_seed": 8289722051985421,
+        "target_id": "R22_T014"
+      },
+      {
+        "expected_bin": 884,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 14,
+        "stream_seed": 8289722051985422,
+        "target_id": "R22_T015"
+      },
+      {
+        "expected_bin": 1019,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 15,
+        "stream_seed": 8289722051985423,
+        "target_id": "R22_T016"
+      },
+      {
+        "expected_bin": 786,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 16,
+        "stream_seed": 8289722051985424,
+        "target_id": "R22_T017"
+      },
+      {
+        "expected_bin": 750,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 17,
+        "stream_seed": 8289722051985425,
+        "target_id": "R22_T018"
+      },
+      {
+        "expected_bin": 892,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 18,
+        "stream_seed": 8289722051985426,
+        "target_id": "R22_T019"
+      },
+      {
+        "expected_bin": 709,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 19,
+        "stream_seed": 8289722051985427,
+        "target_id": "R22_T020"
+      }
+    ]
+  },
+  "implementation_result": "completed_with_gaps",
+  "legacy_single_target_task_summary": {
+    "reason": "more than one visible target row in period 0",
+    "replacement_evaluator": "r21-task-eval-v3 via R22 evaluator",
+    "status": "NOT_EVALUABLE_MULTI_TARGET"
+  },
+  "method_config": {
+    "bytes": 23800,
+    "exists": true,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/docs/research/phase_r/R22/config/r22_method_config.json",
+    "sha256": "348da3b932c2b9fbc6f3a6599ba888dcbb35f4d4039162a3e0f6e60cfbc69c7e"
+  },
+  "native_cuda_preflight": {
+    "binary": {
+      "backend": "local Native CUDA",
+      "build_cache": {
+        "bytes": 33162,
+        "exists": true,
+        "path": "build/CMakeCache.txt",
+        "sha256": "4eefad9d42f727d2c968ad9c4e338b0adce7b11a5e74035a4399d7443786581c"
+      },
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+      "repo_relative_path": "build/GMTI_pipe_core",
+      "sha256": "3c4c6bef08291e7d02cefa1b23387d442dfb00cf0fbed0604e9a0fbecaa86760",
+      "use_corex": false
+    },
+    "disk": {
+      "free_bytes": 53705621504,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001",
+      "total_bytes": 497777065984,
+      "used_bytes": 418710536192
+    },
+    "gpu": {
+      "available": true,
+      "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P0, 38.89, 63, 96, 1417"
+    }
+  },
+  "output_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001",
+  "phase": "engineering",
+  "pipeline_case_manifest": {
+    "bytes": 20952745,
+    "exists": true,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/case_manifest.json",
+    "sha256": "6c3a93ccdf289c799e0f903f8e0ec49504bbd22d2be492c0035f9c22f66a6771"
+  },
+  "production_binary": {
+    "backend": "local Native CUDA",
+    "build_cache": {
+      "bytes": 33162,
+      "exists": true,
+      "path": "build/CMakeCache.txt",
+      "sha256": "4eefad9d42f727d2c968ad9c4e338b0adce7b11a5e74035a4399d7443786581c"
+    },
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+    "repo_relative_path": "build/GMTI_pipe_core",
+    "sha256": "3c4c6bef08291e7d02cefa1b23387d442dfb00cf0fbed0604e9a0fbecaa86760",
+    "use_corex": false
+  },
+  "production_branch_count": 36,
+  "production_elapsed_sec_sum": 370.4688065860537,
+  "production_methods_status": "completed_with_gaps",
+  "r22_blind_method_qualification": {
+    "d3_huber": {
+      "correction_ns": -0.26056361599193917,
+      "source_record": {
+        "delta_tau_ns": -0.26056361599193917,
+        "phase_rmse_rad": 0.02184894573543969,
+        "r2": 0.11021062050551433,
+        "support_count": 2364
+      },
+      "status": "AVAILABLE",
+      "support_qualified": true
+    },
+    "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+    "m1": {
+      "correction_ns": -0.23442440499154987,
+      "source_record": {
+        "delta_tau_ns": -0.23442440499154987,
+        "fallback_reason": null,
+        "frequency_span_hz": 22446700.507614214,
+        "method": "M1_Physics_Matched_Delay",
+        "normalized_model_residual": 0.02517933582678856,
+        "relative_response_model": "constant_complex_gain",
+        "status": "ok",
+        "support_count": 2364
+      },
+      "status": "AVAILABLE",
+      "support_qualified": true
+    },
+    "truth_used_in_estimator": false
+  },
+  "r22_delay_estimator": {
+    "baselines": {
+      "D1_ordinary_LS": {
+        "delta_tau_ns": -0.24370452195264486,
+        "phase_rmse_rad": 0.023424949258396714,
+        "r2": 0.08758237160119564,
+        "support_count": 2364
+      },
+      "D2_weighted_LS": {
+        "delta_tau_ns": -0.24524011799171994,
+        "phase_rmse_rad": 0.023405194638012616,
+        "r2": 0.08772503159077238,
+        "support_count": 2364
+      },
+      "D3_Huber_weighted_LS": {
+        "delta_tau_ns": -0.26056361599193917,
+        "phase_rmse_rad": 0.02184894573543969,
+        "r2": 0.11021062050551433,
+        "support_count": 2364
+      }
+    },
+    "beam_angle_deg_max": 38.0,
+    "beam_angle_deg_min": 38.0,
+    "delay_bounds_samples": [
+      -0.49,
+      0.49
+    ],
+    "delay_samples": -0.014065464299492993,
+    "delta_tau_ns": -0.23442440499154987,
+    "fallback_reason": null,
+    "fitted_conjugate_gain": {
+      "imag": 0.037834716604165215,
+      "magnitude": 0.8909842532791468,
+      "phase_rad": 0.04247672864762117,
+      "real": 0.8901805849437974
+    },
+    "frequency_span_hz": 22446700.507614214,
+    "geometry_delay_sec_max": 3.481985800396609e-10,
+    "geometry_delay_sec_min": 3.481985800396609e-10,
+    "geometry_reference_range_m": 82802.7,
+    "input_pulse_count": 1300,
+    "input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+    "method": "M1_Physics_Matched_Delay",
+    "normalized_model_residual": 0.02517933582678856,
+    "phase_rmse_rad": 0.023440643580047903,
+    "relative_response_model": "constant_complex_gain",
+    "reported_geometry_delay_ns": 0.3481985800396609,
+    "status": "ok",
+    "support_count": 2364,
+    "truth_used_in_estimator": false
+  },
+  "raw_cleanup": {
+    "ledger": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/pipeline/cases/r22_multi_target__seed_1930101__v_2d5__snr_20__delay_0ns/raw_cleanup.json",
+    "remaining_bin_count": 0,
+    "removed_bytes": 4429702312,
+    "removed_file_count": 921,
+    "status": "passed"
+  },
+  "scenario_template": {
+    "bytes": 17392,
+    "exists": true,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_extension_20261028_v1a/engineering/engineering/engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10/attempt_001/scenario_template.json",
+    "sha256": "689aea91f10e49d6e1ba3d3c1d160f9ee70ceb3c0d8d39e2a8a638dcf1e2ace3"
+  },
+  "schema_version": 1,
+  "source_identity": {
+    "branch": "codex/unknown-system-error-next-stage",
+    "commit": "91cb5b1de8c2831073465e9192c1a385f0e0e25a",
+    "files": {
+      "scripts/phase_r/r21_historical_task_review.py": {
+        "bytes": 29902,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_historical_task_review.py",
+        "sha256": "b3b6142f9968af619bce3d2a6917073d720246584c623a8acac1ae1eec4a10a5"
+      },
+      "scripts/phase_r/r21_task_evaluator.py": {
+        "bytes": 21991,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_task_evaluator.py",
+        "sha256": "c1820472f6fae354e09e4a331a71212b6ba41c20595f729fc80caa2a01d49a1c"
+      },
+      "scripts/phase_r/r22_scenario_factory.py": {
+        "bytes": 12046,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r22_scenario_factory.py",
+        "sha256": "5caa3df3e22e327060d757681b70d4b6be0194a703e1a7751a06d7808f8355ba"
+      },
+      "scripts/phase_r/run_r22_cuda_pilot.py": {
+        "bytes": 45794,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r22_cuda_pilot.py",
+        "sha256": "5f8a11771d8675cec0aa5c6b5c79c1477145ed9178798d1a37ce16bc025da38b"
+      },
+      "scripts/run_delay_stage1_formal.py": {
+        "bytes": 146077,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "sha256": "fbaf759289f92d3b9dd51015a25e0d008fab19bfb94e14300ef12ec9b286412b"
+      },
+      "scripts/run_production_hierarchical_calibration_pilot.py": {
+        "bytes": 121545,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "d11e274f0e0fdd6bcca85301001121dfb71375d955a17be68bdbde94db68abf4"
+      },
+      "scripts/run_track_manager_e2e.py": {
+        "bytes": 81133,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_track_manager_e2e.py",
+        "sha256": "97cd25766f09f80ee70795dd4f177fa4bbfc5a1c37a87e18ce5f09dcb4de1ff4"
+      }
+    },
+    "tracked_dirty_status": []
+  },
+  "stage2_binary": {
+    "bytes": 645944,
+    "exists": true,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+    "sha256": "ca8aa9eb8b7d97e5743a27e67c312e66a4efecbf2c76880db581192afd08ce8e"
+  },
+  "stage2_elapsed_sec": 202.68120924697723,
+  "stage2_run_count": 6,
+  "status_labels": {
+    "EVALUABLE": false,
+    "EXECUTED": true,
+    "IMPLEMENTED": true,
+    "PERFORMANCE_VERIFIED": false,
+    "performance_note": "single case is feasibility evidence; no inferential claim"
+  }
+}

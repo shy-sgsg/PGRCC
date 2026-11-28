@@ -78,6 +78,43 @@ struct AssocScore {
     RejectReason reject_reason = RejectReason::None;
 };
 
+struct AssociationAuditRow {
+    int result_id = 0;
+    double frame_utc = 0.0;
+    uint16_t track_id = 0;
+    std::string track_state_before;
+    std::string track_state_after;
+    int det_index = -1;
+    int detection_id = -1;
+    int candidate_rank = 0;
+    int candidate_count = 0;
+    int candidate_track_count = 0;
+    std::string candidate_detection_ids;
+    std::string candidate_track_ids;
+    double innovation_e = 0.0;
+    double innovation_n = 0.0;
+    double euclidean_dist_m = 0.0;
+    double euclidean_gate_m = 0.0;
+    double mahalanobis_d2 = kInvalidCost;
+    double mahalanobis_gate_d2 = 0.0;
+    double speed_innovation_mps = 0.0;
+    double heading_innovation_deg = 0.0;
+    std::string distance_mode;
+    std::string assignment_mode;
+    int assignment_column = -1;
+    bool assigned = false;
+    bool gate_passed = false;
+    bool cost_beats_dummy = false;
+    double total_cost = kInvalidCost;
+    double dummy_cost = 0.0;
+    std::string reject_reason;
+    std::string assignment_outcome;
+    std::string lifecycle_event;
+    bool angle_innovation_available = false;
+    bool velocity_innovation_available = false;
+    std::string unavailable_fields;
+};
+
 static double safeNonnegative(double value)
 {
     return std::isfinite(value) ? std::max(0.0, value) : 0.0;
@@ -787,6 +824,132 @@ static void appendTrackAssociationLog(const Config& cfg,
                << (dets[di].e - tr.e) << ","
                << (dets[di].n - tr.n) << "\n";
         }
+    }
+}
+
+static const ManagedTrack* findAuditTrack(const std::vector<ManagedTrack>& tracks,
+                                          uint16_t track_id)
+{
+    for (const auto& track : tracks) {
+        if (track.id == track_id) return &track;
+    }
+    return nullptr;
+}
+
+static std::string auditLifecycleEvent(const AssociationAuditRow& row,
+                                       const ManagedTrack* after)
+{
+    if (!after) return "unavailable_track_state";
+    if (row.assigned) {
+        if (row.track_state_before == "Coasted" &&
+            row.track_state_after == "Confirmed") {
+            return "reacquired";
+        }
+        if (row.track_state_before == "Tentative" &&
+            row.track_state_after == "Confirmed") {
+            return "confirmed";
+        }
+        return "matched";
+    }
+    if (row.assignment_column >= 0) return "matched_other_detection";
+    if (row.track_state_after == "Deleted") return "lost_deleted";
+    if (row.track_state_after == "Coasted") return "coasted";
+    return "candidate_rejected";
+}
+
+static std::string joinAuditDetectionIndices(int count)
+{
+    std::ostringstream out;
+    for (int index = 0; index < count; ++index) {
+        if (index > 0) out << ';';
+        out << index;
+    }
+    return out.str();
+}
+
+static std::string joinAuditTrackIds(const std::vector<int>& active_tracks,
+                                     const std::vector<ManagedTrack>& tracks)
+{
+    std::ostringstream out;
+    bool first = true;
+    for (int index : active_tracks) {
+        if (index < 0 || index >= static_cast<int>(tracks.size())) continue;
+        if (!first) out << ';';
+        out << tracks[static_cast<size_t>(index)].id;
+        first = false;
+    }
+    return out.str();
+}
+
+static void appendTrackAssociationAuditV2(
+    const Config& cfg,
+    const std::vector<AssociationAuditRow>& rows,
+    const std::vector<ManagedTrack>& tracks)
+{
+    if (!detailedTrackDiagnosticsEnabled(cfg) ||
+        (cfg.track_debug_level < 2 && cfg.track_debug_dump_level < 2) ||
+        rows.empty()) {
+        return;
+    }
+    const std::string dir = trackEvalDir(cfg);
+    if (!ensureDirectory(dir)) return;
+    std::ofstream os = openCsvAppend(
+        dir + "/track_association_audit_v2.csv",
+        "schema_version,case_id,run_id,result_id,period_id,frame_utc,track_id,"
+        "track_state_before,track_state_after,det_index,detection_id,candidate_rank,"
+        "candidate_count,candidate_track_count,candidate_detection_ids,candidate_track_ids,"
+        "innovation_e,innovation_n,euclidean_dist_m,euclidean_gate_m,mahalanobis_d2,"
+        "mahalanobis_gate_d2,speed_innovation_mps,heading_innovation_deg,distance_mode,"
+        "assignment_mode,assignment_column,assigned,gate_passed,cost_beats_dummy,total_cost,"
+        "dummy_cost,reject_reason,assignment_outcome,lifecycle_event,"
+        "angle_innovation_available,velocity_innovation_available,unavailable_fields");
+    if (!os.is_open()) return;
+    for (const auto& row : rows) {
+        const ManagedTrack* after = findAuditTrack(tracks, row.track_id);
+        const std::string state_after = after ? stateName(after->state) :
+            "unavailable_track_state";
+        AssociationAuditRow lifecycle_row = row;
+        lifecycle_row.track_state_after = state_after;
+        const std::string lifecycle = auditLifecycleEvent(lifecycle_row, after);
+        os << std::setprecision(12)
+           << 2 << ","
+           << csvEscapeTrack(trackCaseId()) << ","
+           << csvEscapeTrack(trackRunId()) << ","
+           << row.result_id << ","
+           << trackScanPeriodId(row.result_id) << ","
+           << row.frame_utc << ","
+           << row.track_id << ","
+           << row.track_state_before << ","
+           << state_after << ","
+           << row.det_index << ","
+           << row.detection_id << ","
+           << row.candidate_rank << ","
+           << row.candidate_count << ","
+           << row.candidate_track_count << ","
+           << row.candidate_detection_ids << ","
+           << row.candidate_track_ids << ","
+           << row.innovation_e << ","
+           << row.innovation_n << ","
+           << row.euclidean_dist_m << ","
+           << row.euclidean_gate_m << ","
+           << row.mahalanobis_d2 << ","
+           << row.mahalanobis_gate_d2 << ","
+           << row.speed_innovation_mps << ","
+           << row.heading_innovation_deg << ","
+           << row.distance_mode << ","
+           << row.assignment_mode << ","
+           << row.assignment_column << ","
+           << (row.assigned ? 1 : 0) << ","
+           << (row.gate_passed ? 1 : 0) << ","
+           << (row.cost_beats_dummy ? 1 : 0) << ","
+           << row.total_cost << ","
+           << row.dummy_cost << ","
+           << row.reject_reason << ","
+           << row.assignment_outcome << ","
+           << lifecycle << ","
+           << (row.angle_innovation_available ? 1 : 0) << ","
+           << (row.velocity_innovation_available ? 1 : 0) << ","
+           << row.unavailable_fields << "\n";
     }
 }
 
@@ -1882,7 +2045,7 @@ bool runTrackAssociationSelfTests(std::ostream& out)
             flow_cfg.runtime_diagnostics_enabled = true;
             flow_cfg.track_debug_level = 1;
             flow_cfg.track_debug_dump = true;
-            flow_cfg.track_debug_dump_level = 1;
+            flow_cfg.track_debug_dump_level = 2;
             flow_cfg.track_confirm_window = 2;
             flow_cfg.track_confirm_hits = 2;
             flow_cfg.track_output_state_source = mode;
@@ -1924,6 +2087,16 @@ bool runTrackAssociationSelfTests(std::ostream& out)
                   audit_header.find("prediction_valid") != std::string::npos &&
                   audit_header.find("output_utc") != std::string::npos,
               "output provenance audit CSV schema is present");
+        std::ifstream association(audit_dir + "/track_association_audit_v2.csv");
+        std::string association_header;
+        std::getline(association, association_header);
+        check(association.good() &&
+                  association_header.find("track_state_before,track_state_after") !=
+                      std::string::npos &&
+                  association_header.find("candidate_rank,candidate_count") !=
+                      std::string::npos &&
+                  association_header.find("lifecycle_event") != std::string::npos,
+              "versioned association audit CSV schema is present");
     }
     {
         ManagedTrack tr;
@@ -2494,6 +2667,7 @@ std::vector<GMTIDetection> TrackManager::updateRawDetections(
     const double invalid_cost = effectiveInvalidCost(cfg, dummy_cost);
     const double measurement_std = std::max(1.0, cfg.track_measurement_noise_pos);
     const double measurement_var = measurement_std * measurement_std;
+    std::vector<AssociationAuditRow> association_audit_rows;
 
     if (row_count > 0 && det_count > 0) {
         const int col_count = det_count + row_count;
@@ -2524,6 +2698,93 @@ std::vector<GMTIDetection> TrackManager::updateRawDetections(
 
         const std::vector<int> assignment =
             solveConfiguredAssignment(cfg, cost, det_count, dummy_cost);
+        const std::string candidate_detection_ids =
+            joinAuditDetectionIndices(det_count);
+        const std::string candidate_track_ids =
+            joinAuditTrackIds(active_tracks, tracks_);
+        const std::string distance_mode =
+            distanceModeName(normalizedDistanceMode(cfg));
+        const std::string assignment_mode =
+            assignmentModeName(normalizedAssignmentMode(cfg));
+        for (int audit_row = 0; audit_row < row_count; ++audit_row) {
+            const int ti = active_tracks[audit_row];
+            const ManagedTrack& tr = tracks_[ti];
+            const int assignment_column = audit_row < static_cast<int>(assignment.size())
+                ? assignment[audit_row] : -1;
+            for (int di = 0; di < det_count; ++di) {
+                const AssocScore& score = scores[audit_row][di];
+                int candidate_rank = 1;
+                for (int other = 0; other < det_count; ++other) {
+                    const double other_cost = scores[audit_row][other].total_cost;
+                    if (other_cost < score.total_cost ||
+                        (other_cost == score.total_cost && other < di)) {
+                        ++candidate_rank;
+                    }
+                }
+                const bool gate_passed = score.valid;
+                const bool cost_beats_dummy = gate_passed &&
+                    costBeatsDummy(score.total_cost, dummy_cost,
+                                   cfg.track_allow_equal_dummy_cost);
+                const bool assigned = assignment_column == di && cost_beats_dummy;
+                std::string unavailable = "merge_split_lifecycle";
+                if (!score.heading_reference_available) {
+                    unavailable += ";heading_innovation_deg";
+                }
+                if (!score.detection_speed_available) {
+                    unavailable += ";detection_velocity_innovation_mps";
+                }
+                AssociationAuditRow audit;
+                audit.result_id = result_id;
+                audit.frame_utc = frame_utc;
+                audit.track_id = tr.id;
+                audit.track_state_before = stateName(tr.state);
+                audit.det_index = di;
+                audit.detection_id = static_cast<int>(dets[di].id);
+                audit.candidate_rank = candidate_rank;
+                audit.candidate_count = det_count;
+                audit.candidate_track_count = row_count;
+                audit.candidate_detection_ids = candidate_detection_ids;
+                audit.candidate_track_ids = candidate_track_ids;
+                audit.innovation_e = dets[di].e - tr.e;
+                audit.innovation_n = dets[di].n - tr.n;
+                audit.euclidean_dist_m = score.euclidean_dist_m;
+                const double tentative_scale = tr.state == TrackState::Tentative
+                    ? std::max(1.0, safeNonnegative(cfg.track_tentative_gate_scale))
+                    : 1.0;
+                const double tentative_chi2_scale = tr.state == TrackState::Tentative
+                    ? std::max(1.0, safeNonnegative(cfg.track_tentative_chi2_scale))
+                    : 1.0;
+                audit.euclidean_gate_m = cfg.track_use_euclidean_gate
+                    ? safeNonnegative(cfg.track_gate_m) * tentative_scale : 0.0;
+                audit.mahalanobis_d2 = score.mahalanobis_d2;
+                audit.mahalanobis_gate_d2 = cfg.track_use_mahalanobis_gate
+                    ? safeNonnegative(cfg.track_chi2_gate) * tentative_chi2_scale : 0.0;
+                audit.speed_innovation_mps = score.speed_diff_mps;
+                audit.heading_innovation_deg = score.heading_diff_deg;
+                audit.distance_mode = distance_mode;
+                audit.assignment_mode = assignment_mode;
+                audit.assignment_column = assignment_column;
+                audit.assigned = assigned;
+                audit.gate_passed = gate_passed;
+                audit.cost_beats_dummy = cost_beats_dummy;
+                audit.total_cost = score.total_cost;
+                audit.dummy_cost = dummy_cost;
+                audit.reject_reason = gate_passed
+                    ? (cost_beats_dummy ? "None" : "DummyCost")
+                    : rejectReasonName(score.reject_reason);
+                audit.assignment_outcome = assigned
+                    ? "assigned"
+                    : !gate_passed
+                        ? "gate_rejected"
+                        : assignment_column < 0
+                            ? "dummy_assigned"
+                            : "not_selected";
+                audit.angle_innovation_available = score.heading_reference_available;
+                audit.velocity_innovation_available = score.detection_speed_available;
+                audit.unavailable_fields = unavailable;
+                association_audit_rows.push_back(audit);
+            }
+        }
         appendTrackAssociationLog(cfg, result_id, active_tracks, tracks_, dets,
                                   scores, assignment, dummy_cost,
                                   cfg.track_allow_equal_dummy_cost);
@@ -2896,6 +3157,7 @@ std::vector<GMTIDetection> TrackManager::updateRawDetections(
         }
     }
 
+    appendTrackAssociationAuditV2(cfg, association_audit_rows, tracks_);
     dumpDebugSnapshot(cfg, result_id, frame_utc, dets, det_to_track_id,
                       static_cast<int>(out.size()), num_new_tracks,
                       num_matched_tracks, num_unmatched_detections);

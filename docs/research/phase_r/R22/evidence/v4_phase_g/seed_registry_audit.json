@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-11-24",
+  "candidate_ranges": {
+    "target_present": [1933001, 1933030],
+    "h0": [1936001, 1936030]
+  },
+  "remote_git_refs": {
+    "repository": "https://github.com/shy-sgsg/PGRCC.git",
+    "branch_heads": {
+      "codex/unknown-system-error-next-stage": "ddbf057d8d944c54f94af54e239cc00644988f1a",
+      "master": "39d4165df96eea6c2c090d7d9bf054c637c7b6a1"
+    },
+    "local_origin_tracking_refs_match_remote": true,
+    "candidate_seed_execution_identity_found_in_existing_audited_local_records": false,
+    "post_prior_audit_target_branch_commit": "ddbf057d8d944c54f94af54e239cc00644988f1a",
+    "post_prior_audit_commit_scope": "review-request documentation only; no new case execution identity"
+  },
+  "reused_local_audit": {
+    "path": "docs/research/phase_r/R22/evidence/v4_final_freeze_readiness/seed_registry_local_audit.json",
+    "status": "NO_CANDIDATE_COLLISIONS_FOUND_IN_LOCAL_EXECUTION_IDENTITIES",
+    "direct_identity_manifest_count": 125,
+    "local_zip_count": 418,
+    "archive_identity_manifest_count": 421,
+    "unreadable_or_invalid_zip_count": 0,
+    "candidate_collision_count": 0,
+    "filesystem_scope": "local project identity manifests and ZIP central-directory identity records; planned V4 design records excluded from executed identities"
+  },
+  "pilot_seed_dispositions": {
+    "1937001": "GATE_FAILED; do not rerun",
+    "1937002": "INTERRUPTED_NOT_RESUMABLE; do not rerun",
+    "1937003": "EXECUTED_ONCE_AND_ARCHIVED; engineering-only, excluded from confirmatory ranges"
+  },
+  "limitations": [
+    "Only the two currently published GitHub branch heads were queried; no GitHub Actions artifacts, Releases, LFS objects, or external/offline registries were scanned in this task.",
+    "The prior local audit covers the project workspace, not every external storage location or unrelated research repository.",
+    "No claim of global seed uniqueness is made; final freeze still requires any external registry known to the project owner."
+  ],
+  "verdict": "REMOTE_GIT_AND_PRIOR_LOCAL_SCAN_CLEAR; GLOBAL_EXTERNAL_REGISTRY_NOT_VERIFIED; no candidate seed was executed or authorized by this audit"
+}

@@ -1,0 +1,574 @@
+{
+  "schema_version": 1,
+  "stage": "Production Hierarchical Calibration Pilot",
+  "status": "completed_with_gaps",
+  "mode": "formal",
+  "skip_cuda": false,
+  "algorithmic_results_claimed": false,
+  "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+  "source": {
+    "commit": "6fa1a5f92c210c499a6d0112c05d065bb7f06dc9",
+    "dirty": false,
+    "dirty_tracked": false
+  },
+  "config": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/configs/research/production_hierarchical_calibration_delay_pilot.json",
+    "sha256": "faba3352c0197b48a67981e7aa0985f5aa5fbb23cc16df3f65c062c893e0546a"
+  },
+  "runner": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+    "sha256": "787fc1d7c19430165f04f45cd94283a7c43f8266d55261a6fd918e367ec8e0ed"
+  },
+  "analyzer": {
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/analyze_production_hierarchical_calibration_pilot.py",
+    "sha256": "8e529c2d8a0f0c0a06959b4f2ed789f814b93b2154eb1ddd3c5c5781a9eedd27"
+  },
+  "selection": {
+    "selection_mode": "targeted_formal_representatives",
+    "cartesian_full_matrix": false,
+    "case_count": 12,
+    "delay_errors_ns": [
+      -4.0,
+      4.0
+    ],
+    "seeds": [
+      101,
+      202,
+      303
+    ],
+    "target_velocities_mps": [
+      6.7,
+      12.0
+    ],
+    "target_snr_db": [
+      30.0
+    ]
+  },
+  "method_ids": [
+    "C0",
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "P1",
+    "P2",
+    "PK",
+    "PKR"
+  ],
+  "input_contract": {
+    "roles": {
+      "OFF": "C+N",
+      "ON": "S+C+N",
+      "TO": "S"
+    },
+    "shared_identity_fields": [
+      "seed",
+      "background_id",
+      "target_id",
+      "delay_error_ns",
+      "production_identity"
+    ],
+    "identity_rule": "same seed/background/target/production settings",
+    "causal_target_rule": "ON-OFF with TO=S as the independent target control",
+    "modes": {
+      "Mode-A": {
+        "estimator_input_roles": [
+          "OFF"
+        ],
+        "apply_input_roles": [
+          "ON"
+        ],
+        "description": "estimate from target-free OFF=C+N and apply to ON=S+C+N",
+        "truth_used_in_estimator": false,
+        "target_position_allowed": false,
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false
+      },
+      "Mode-B": {
+        "estimator_input_roles": [
+          "ON"
+        ],
+        "apply_input_roles": [
+          "ON"
+        ],
+        "description": "blind online ON=S+C+N estimate; no target truth or error label",
+        "truth_used_in_estimator": false,
+        "target_position_allowed": false,
+        "injected_error_label_allowed": false,
+        "known_error_allowed": false
+      }
+    }
+  },
+  "downstream_compact_contract": {
+    "ON_minus_OFF": {
+      "definition": "target causal transfer; compare ON against paired OFF",
+      "required": true
+    },
+    "TO": {
+      "definition": "target-only evaluator; never an estimator input",
+      "required": true
+    },
+    "CFAR": {
+      "definition": "GO-CFAR valid_cut_count/hit_cut_count geometry",
+      "required": true
+    },
+    "cluster": {
+      "definition": "production cluster count/association layer",
+      "required": true
+    },
+    "protocol_detection": {
+      "definition": "production detection CSV and protocol eligibility",
+      "required": true
+    },
+    "track": {
+      "definition": "production TrackManager confirmed/matched output",
+      "required": true
+    },
+    "target_protection_rule": "causal_ON_minus_OFF_and_TO; never_ON_power_alone",
+    "track_evidence": [
+      "track_association_audit_v2",
+      "track_states",
+      "track_output_payloads",
+      "id_switch_classification_or_NOT_IDENTIFIABLE_FROM_CURRENT_DEBUG"
+    ]
+  },
+  "production_contract": {
+    "input_mode": "local",
+    "period_count": 5,
+    "min_support": 8,
+    "range_band_bins": 6,
+    "robust_phase_threshold_rad": 0.35,
+    "theoretical_cell_pfa": 1e-06,
+    "downstream_contract": {
+      "cfar_type": "GO",
+      "clustering": "production",
+      "localization": "production",
+      "track_manager": "production",
+      "pipe": "production",
+      "track_debug": true
+    }
+  },
+  "evidence_files": [
+    "manifest.json",
+    "method_contract.csv",
+    "gamma_recovery.csv",
+    "clutter_metrics.csv",
+    "decision_matrix.csv",
+    "report.md"
+  ],
+  "raw_outputs": "kept outside this compact tracked evidence directory",
+  "analysis": {
+    "status": "NOT_EVALUABLE",
+    "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+    "algorithmic_results_claimed": false,
+    "residual_closure": {
+      "status": "NOT_EVALUABLE",
+      "reason": "case_residual_closure_not_evaluable:base__seed_303__v_12.0__snr_30.0__delay_-4.0ns",
+      "actual_production_artifacts": false,
+      "source_paths": {
+        "A0": [],
+        "PK": [],
+        "PKR": []
+      },
+      "per_case": {
+        "base__seed_303__v_12.0__snr_30.0__delay_-4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_131249_354957/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_131250_449516/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_131251_306292/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_131252_175629/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_131253_124398/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_131643_272231/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_131644_434889/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_131645_317981/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_131646_305051/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_131647_277073/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_202__v_12.0__snr_30.0__delay_-4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_130424_762742/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_130425_813505/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_130426_630231/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_130427_578551/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_130428_453022/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130814_985971/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130816_209629/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130817_074409/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130817_991825/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130818_887727/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_101__v_12.0__snr_30.0__delay_-4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_125631_109350/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_125632_254262/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_125633_184694/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_125634_118373/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_125635_069981/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130037_606159/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130038_639930/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130039_627065/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130040_551324/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_130041_490076/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_303__v_6.7__snr_30.0__delay_-4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_124821_394481/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_124822_505500/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_124823_357034/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_124824_222404/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_124825_172029/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_125241_618963/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_125242_827490/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_125243_735949/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_125244_729962/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_125245_714569/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_202__v_6.7__snr_30.0__delay_-4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_120436_790594/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_120437_897162/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_120438_737117/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_120439_713197/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_120440_612390/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_120903_824292/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_120905_014556/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_120905_901672/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_120906_840404/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_120907_753666/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_101__v_6.7__snr_30.0__delay_-4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_115405_130542/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_115406_267040/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_115407_189840/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_115408_122449/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_115409_074732/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_115828_605696/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_115829_645885/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_115830_631467/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_115831_551424/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_m4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_m4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_115832_492562/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_303__v_12.0__snr_30.0__delay_4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_114510_507661/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_114511_608272/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_114512_485687/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_114513_371000/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_114514_333070/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114907_644384/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114909_454268/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114910_352720/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114911_363055/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v12/cases/base__seed_303__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114912_377609/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_202__v_12.0__snr_30.0__delay_4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_113704_979305/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_113706_042924/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_113706_864152/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_113707_809716/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_113708_679603/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114051_993686/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114053_179066/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114054_071439/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114055_082121/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v12/cases/base__seed_202__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_114056_086322/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_101__v_12.0__snr_30.0__delay_4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_112636_851849/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_112637_996859/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_112638_934691/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_112639_872496/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_112640_827829/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_113053_650338/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_113054_940490/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_113055_992858/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_113057_034468/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v12/cases/base__seed_101__v_12__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_113058_053699/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_303__v_6.7__snr_30.0__delay_4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_111713_438287/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_111714_542846/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_111715_436066/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_111716_422233/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_111717_516851/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_112115_035348/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_112116_264229/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_112117_145436/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_112118_079246/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed303_v6p7/cases/base__seed_303__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_112119_104672/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_202__v_6.7__snr_30.0__delay_4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_110656_261120/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_110657_326012/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_110658_144479/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_110659_097006/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_110659_978763/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_111104_261853/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_111105_704512/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_111106_716633/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_111107_706556/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed202_v6p7/cases/base__seed_202__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_111108_678799/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        },
+        "base__seed_101__v_6.7__snr_30.0__delay_4.0ns": {
+          "status": "NOT_EVALUABLE",
+          "required_conditions": [
+            "A0",
+            "PK",
+            "PKR"
+          ],
+          "estimator_class_allowed": false,
+          "decision": "NEED_MORE_SINGLE_ERROR_PRODUCTION_EVIDENCE",
+          "reason": "csi_metric_tap_summary_missing:PKR",
+          "residual_power_definition": "10*log10(mean(after_mean_power over clutter_band_strong_power_top10pct period-beam rows))",
+          "period_aggregation": "arithmetic_mean_over_period_beam",
+          "source_paths": {
+            "A0": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_105459_688695/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_105500_856405/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_105501_810655/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_105502_753361/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/A0_not_applicable_OFF/result/csi_metrics/20260929_105503_711667/csi_metric_tap_summary.csv"
+            ],
+            "PK": [
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_105906_422903/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_105907_591385/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_105908_566812/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_105909_496736/csi_metric_tap_summary.csv",
+              "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/.scratch/formal_pilot_4ns_seed101_v6p7/cases/base__seed_101__v_6d7__snr_30__delay_4ns/production/PK_not_applicable_OFF/result/csi_metrics/20260929_105910_419549/csi_metric_tap_summary.csv"
+            ]
+          },
+          "actual_production_artifacts": false
+        }
+      }
+    },
+    "causal_metrics": {
+      "status": "NOT_EVALUABLE"
+    },
+    "empirical_cell_pfa": {
+      "status": "NOT_EVALUABLE"
+    },
+    "waterfall": {
+      "status": "NOT_EVALUABLE",
+      "layers": [
+        "CFAR",
+        "cluster",
+        "protocol_detection",
+        "track"
+      ]
+    },
+    "id_switch": {
+      "status": "NOT_EVALUABLE",
+      "classification": "NOT_EVALUABLE",
+      "limitation": "track_provenance_missing_or_empty"
+    },
+    "questions": {
+      "1_robust_ddc_production_f1_f2": "NOT_EVALUABLE",
+      "2_current_vs_ordinary_subtraction": "evaluable",
+      "3_ddc_fast_time_delay_clutter_recovery": "NOT_EVALUABLE",
+      "4_ddc_range_angle_position_velocity_track": "NOT_EVALUABLE",
+      "5_blind_physical_delay_recovery": "NOT_EVALUABLE",
+      "6_physical_plus_robust_complementarity": "NOT_EVALUABLE",
+      "7_known_delay_to_a0": "NOT_EVALUABLE",
+      "8_target_preservation": "NOT_EVALUABLE",
+      "9_false_alarm_waterfall": "NOT_EVALUABLE",
+      "10_delay_class": "NOT_EVALUABLE_until_single_error_closure",
+      "11_channel_delay_research_value": "NOT_EVALUABLE_without_formal_delay_matrix",
+      "12_servo_velocity_gate": "CLOSED",
+      "13_coupled_physical_state_gate": "CLOSED",
+      "14_ai_gate": "CLOSED"
+    },
+    "reason": "formal_production_evidence_incomplete"
+  }
+}

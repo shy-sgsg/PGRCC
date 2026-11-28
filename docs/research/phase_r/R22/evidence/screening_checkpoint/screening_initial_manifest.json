@@ -1,0 +1,126 @@
+{
+  "cases": [
+    {
+      "attempt": 1,
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10",
+      "compact_archive": {
+        "archive_bytes": 369400,
+        "archive_manifest_sha256": "c535f7a3c56df39fc9990ce85bae62ff572b264f7ba74f33e14ac7cba1495bc2",
+        "archive_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_full_v2_compact/failures/screening/screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10__attempt_001.zip",
+        "archive_sha256": "95f030db4db2b5356cfc648ea0c029640facdcc8983dd41320530fcc2546bd9b",
+        "excluded_bytes": 115694577,
+        "excluded_file_count": 10,
+        "included_bytes": 1351183,
+        "included_file_count": 121,
+        "raw_case_removed": true,
+        "reused_existing_archive": false
+      },
+      "compact_archive_status": "VERIFIED",
+      "condition_id": "v0.5_snr10_d0",
+      "deleted_generated_binary_manifest": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_full_v2_compact/failures/screening/screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10__attempt_001.zip",
+      "failure": {
+        "message": "Kernel global_oom killed matrix Python PID 1616417 (anon RSS 4,745,708 KiB) before Production started; exit code 137.",
+        "type": "HostGlobalOutOfMemoryKill"
+      },
+      "finished_at_utc": "2026-10-28T01:39:09+00:00",
+      "output_root": "/tmp/r22_full_v2/raw/screening/screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10/attempt_001",
+      "raw_output_removed_after_failure_archive": true,
+      "seed": 1932001,
+      "started_at_utc": "2026-10-28T01:35:36.647730+00:00",
+      "status": "INTERRUPTED"
+    },
+    {
+      "all_production_branches_passed": true,
+      "attempt": 2,
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10",
+      "compact_archive": {
+        "archive_bytes": 3939828,
+        "archive_manifest_sha256": "fe1f151d7240a3ac02b2f7729f9a68c366a7be5126809a4162615272bfa3f2b3",
+        "archive_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_full_v2_compact/case_archives/screening/screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10__attempt_002.zip",
+        "archive_sha256": "467eb75a9e1aff833a4ef76a37dd83129a5305ae4865d146e3ab72e7264c7fcb",
+        "excluded_bytes": 287052426,
+        "excluded_file_count": 1460,
+        "included_bytes": 22715960,
+        "included_file_count": 1595,
+        "raw_case_removed": true,
+        "reused_existing_archive": false
+      },
+      "compact_archive_status": "VERIFIED_AND_RAW_REMOVED",
+      "condition_id": "v0.5_snr10_d0",
+      "evaluation_summary": {
+        "evaluated_on_rows": 12,
+        "evaluator": "r21-task-eval-v3",
+        "independent_h0_seed_rows": 0,
+        "invalid_truth_opportunities": 0,
+        "target_opportunity_rows": 4800,
+        "target_period_opportunities_are_not_independent_seeds": true,
+        "task_rows": 41
+      },
+      "finished_at_utc": "2026-10-28T02:19:03.947264+00:00",
+      "implementation_result": "passed",
+      "output_root": "/tmp/r22_full_v2/raw/screening/screening__seed_1932001__vr_0d5__snr_10__delay_0ns__targets_20__periods_10/attempt_002",
+      "raw_output_removed_after_archive_verification": true,
+      "seed": 1932001,
+      "started_at_utc": "2026-10-28T02:08:33.855273+00:00",
+      "status": "PASSED",
+      "status_labels": {
+        "EVALUABLE": true,
+        "EXECUTED": true,
+        "IMPLEMENTED": true,
+        "PERFORMANCE_VERIFIED": false,
+        "performance_note": "single case is feasibility evidence; no inferential claim"
+      }
+    },
+    {
+      "attempt": 1,
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10",
+      "compact_archive": {
+        "archive_bytes": 515488,
+        "archive_manifest_sha256": "a40a4253609e76297a60a605ff63b9905b33de751bd274c0e86b6f0f6487b07a",
+        "archive_path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_full_v2_compact/failures/screening/screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10__attempt_001.zip",
+        "archive_sha256": "8977aeb8a960d469687cc1a981e1a824d4b96d88ab5a4f3dd023b1d2fe49d15e",
+        "excluded_bytes": 154248157,
+        "excluded_file_count": 13,
+        "included_bytes": 2293155,
+        "included_file_count": 170,
+        "raw_case_removed": true,
+        "reused_existing_archive": false
+      },
+      "compact_archive_status": "VERIFIED",
+      "condition_id": "v0.5_snr10_d4",
+      "failure": {
+        "message": "Kernel global_oom killed Python PID 1632381 at RSS 2,500,672 KiB; interrupted during blind estimate before Known/Production.",
+        "type": "HostGlobalOutOfMemoryKill"
+      },
+      "finished_at_utc": "2026-10-28T02:28:00+00:00",
+      "output_root": "/tmp/r22_full_v2/raw/screening/screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10/attempt_001",
+      "raw_output_removed_after_failure_archive": true,
+      "seed": 1932001,
+      "started_at_utc": "2026-10-28T02:23:44.772188+00:00",
+      "status": "INTERRUPTED"
+    },
+    {
+      "attempt": 2,
+      "case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10",
+      "condition_id": "v0.5_snr10_d4",
+      "failure": {
+        "message": "[Errno 122] Disk quota exceeded",
+        "type": "OSError"
+      },
+      "finished_at_utc": "2026-10-28T03:39:41.523330+00:00",
+      "output_root": "/tmp/r22_full_v2/raw/screening/screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10/attempt_002",
+      "seed": 1932001,
+      "started_at_utc": "2026-10-28T03:35:14.648515+00:00",
+      "status": "GATE_FAILED"
+    }
+  ],
+  "design_id": "R22_EXTENSION_20261028_V2_RANGE_ROI",
+  "design_sha256": "4955e2416a724c6e9415718ce0b50054c014f3aa5d6d703665fcdc0b4e105083",
+  "finished_at_utc": "2026-10-28T03:39:41.523345+00:00",
+  "interrupted_case_id": "screening__seed_1932001__vr_0d5__snr_10__delay_4ns__targets_20__periods_10",
+  "phase": "screening",
+  "planned_case_count": 288,
+  "schema_version": 1,
+  "started_at_utc": "2026-10-28T01:35:36.647730+00:00",
+  "status": "GATE_FAILED"
+}

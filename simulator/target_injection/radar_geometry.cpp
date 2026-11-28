@@ -2,6 +2,7 @@
 #include "../common/SimulationGeometry.h"
 
 #include <algorithm>
+#include <cmath>
 
 namespace gmti {
 namespace target_injection {
@@ -15,11 +16,35 @@ double pulseTimeSec(const RadarConfig &radar, int period_id, int beam_id, int pu
            static_cast<double>(pulse_id) / radar.prf_hz;
 }
 
+double effectivePlatformVelocityTrueMps(const TargetGlobalConfig &global)
+{
+    return std::isfinite(global.platform_velocity_true_mps)
+        ? global.platform_velocity_true_mps : global.platform_speed_mps;
+}
+
+double effectivePlatformVelocityReportedMps(const TargetGlobalConfig &global)
+{
+    if (std::isfinite(global.platform_velocity_reported_mps)) {
+        return global.platform_velocity_reported_mps;
+    }
+    return effectivePlatformVelocityTrueMps(global);
+}
+
 PlatformState evaluatePlatformState(const TargetGlobalConfig &global, double time_sec)
 {
     PlatformState p;
-    p.position = Vec3{global.platform_speed_mps * time_sec, 0.0, global.platform_height_m};
-    p.velocity = Vec3{global.platform_speed_mps, 0.0, 0.0};
+    const double speed_mps = effectivePlatformVelocityTrueMps(global);
+    p.position = Vec3{speed_mps * time_sec, 0.0, global.platform_height_m};
+    p.velocity = Vec3{speed_mps, 0.0, 0.0};
+    return p;
+}
+
+PlatformState evaluateReportedPlatformState(const TargetGlobalConfig &global, double time_sec)
+{
+    PlatformState p;
+    const double speed_mps = effectivePlatformVelocityReportedMps(global);
+    p.position = Vec3{speed_mps * time_sec, 0.0, global.platform_height_m};
+    p.velocity = Vec3{speed_mps, 0.0, 0.0};
     return p;
 }
 

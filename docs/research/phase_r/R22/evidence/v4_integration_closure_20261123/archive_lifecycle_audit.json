@@ -1,0 +1,37 @@
+{
+  "cleanup_order": [
+    "write archive to temporary path",
+    "verify every included member against byte count and SHA-256; verify CRC and inventory",
+    "atomically publish archive",
+    "checkpoint archive identity in matrix manifest",
+    "write PENDING raw-cleanup ledger",
+    "remove raw case directory",
+    "checkpoint final cleanup ledger state"
+  ],
+  "execution_status": "no real case archive generated in this task",
+  "publish": {
+    "atomic_publish": "hard-link publication; existing archive is reused only after full identity verification",
+    "temporary_zip_member_inventory_and_sha256_verified_before_publish": true,
+    "zip_crc_checked_before_publish": true
+  },
+  "raw_data_deletion_in_real_runs": "not executed; CUDA and matrix were not run",
+  "resume": {
+    "checks": [
+      "outer archive SHA-256",
+      "archive manifest SHA-256",
+      "profile",
+      "member inventory",
+      "ZIP CRC"
+    ],
+    "existing verified archive_reuse_requires_content_match": true,
+    "raw_reappearance_after_recorded_cleanup_fails_closed": true
+  },
+  "status": "IMPLEMENTED_CPU_TESTED",
+  "task_relevant_synthetic_cases": [
+    "test_v4_archive_profile_keeps_all_detection_and_track_lineage",
+    "test_v4_archive_refuses_complete_status_when_any_detection_period_is_missing",
+    "test_v4_archive_accepts_h0_without_truth_or_to_and_keeps_unproven_arrays",
+    "test_v4_keeps_case_outputs_until_complete_archive_verification",
+    "test_v4_archive_publish_and_raw_cleanup_interruptions_resume_from_verified_state"
+  ]
+}

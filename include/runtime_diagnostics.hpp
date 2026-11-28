@@ -2,7 +2,10 @@
 #define RUNTIME_DIAGNOSTICS_HPP
 
 #include <chrono>
+#include <complex>
+#include <limits>
 #include <string>
+#include <vector>
 
 struct Config;
 
@@ -16,6 +19,41 @@ struct RunPaths {
     std::string run_manifest_json;
 };
 
+// One per-GammaSummary group emitted by the research-only production
+// calibration tap. Keep this record independent of the adapter header so
+// existing non-CUDA diagnostic selftests do not acquire a new link dependency.
+struct ProductionCalibrationGammaGroup {
+    int az_index = -1;
+    int range_start = -1;
+    int range_end = -1;
+    std::string status;
+    int support_count = 0;
+    double phase_coherence = std::numeric_limits<double>::quiet_NaN();
+    double gamma_real = std::numeric_limits<double>::quiet_NaN();
+    double gamma_imag = std::numeric_limits<double>::quiet_NaN();
+    bool truth_used_in_estimator = false;
+    std::string reason;
+};
+
+// One compact aggregate row emitted by the research-only production
+// calibration tap. Group rows are also written to a separate reference CSV.
+struct ProductionCalibrationTap {
+    std::string method;
+    std::string status;
+    std::string source;
+    int support_count = 0;
+    int excluded_count = 0;
+    int groups_total = 0;
+    int valid_groups = 0;
+    double gamma_real = 0.0;
+    double gamma_imag = 0.0;
+    double gamma_abs = 0.0;
+    double phase_coherence = 0.0;
+    bool truth_used_in_estimator = false;
+    std::string reason;
+    std::vector<ProductionCalibrationGammaGroup> gamma_groups;
+};
+
 void initializeRun(const Config& cfg,
                    const std::string& config_path,
                    const std::string& executable_path);
@@ -26,6 +64,36 @@ void finishRun(const Config& cfg, bool normal_exit, int exit_code,
 void writeRuntimeConfigDump(const Config& cfg,
                             const std::string& config_path,
                             const std::string& executable_path);
+
+bool recordProductionCalibrationTap(const Config& cfg,
+                                    int beam_id,
+                                    const ProductionCalibrationTap& tap);
+
+bool recordProductionCalibrationFailureCells(
+    const Config& cfg,
+    int beam_id,
+    const ProductionCalibrationTap& tap,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& f1,
+    const std::vector<std::complex<float>>& f2);
+
+// Opt-in, selected-cell trace for locating the first production processing
+// boundary where paired ON/OFF/TO complex inputs stop closing.
+bool productionStageBoundaryTraceSelected(const Config& cfg, int beam_id);
+
+bool recordProductionStageBoundaryTrace(
+    const Config& cfg,
+    int beam_id,
+    const std::string& stage,
+    int rows,
+    int cols,
+    const std::vector<std::complex<float>>& channel1,
+    const std::vector<std::complex<float>>& channel2,
+    const std::vector<std::complex<float>>& output,
+    const std::vector<float>& range_phase_rad,
+    double p38_slope_rad_per_hz,
+    double p38_intercept_rad);
 
 void recordTiming(const char* scope_name,
                   std::chrono::system_clock::time_point start_time,

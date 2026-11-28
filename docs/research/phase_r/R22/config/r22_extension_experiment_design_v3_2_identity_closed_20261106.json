@@ -1,0 +1,590 @@
+{
+  "schema_version": 1,
+  "design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
+  "state": "FROZEN_FOR_SCREENING",
+  "supersedes_design_id": "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING",
+  "amendments": [
+    {
+      "amendment_id": "ZERO_DELAY_REFERENCE_CORRECTION_NOT_APPLICABLE",
+      "date": "2026-10-28",
+      "scope": "execution_semantics_only",
+      "trigger_evidence": "The first 0 ns engineering case produced a nonzero blind estimate on a no-error input; the specified zero-extended fractional-delay inverse rejected the first-sample boundary before Production.",
+      "policy": "At exactly 0 ns, run P1/P2 only as target-free OFF estimate diagnostics and mark P1/P2, R9 fixed D3, Huber D3, and M1 physical-correction branches NOT_APPLICABLE_ZERO_DELAY_REFERENCE. Do not apply a nonzero correction to the no-error reference.",
+      "unchanged": [
+        "seed sets and condition counts",
+        "target counts and period count",
+        "nonzero-delay correction branches",
+        "blind estimator information restrictions",
+        "PKR min_support=8",
+        "Production quality gates and evaluation rules"
+      ],
+      "original_failure_evidence_preserved": "docs/research/phase_r/R22/evidence/extension_engineering/seed1930101/"
+    },
+    {
+      "amendment_id": "COMMON_PRODUCTION_RANGE_ALIGNED_TO_PHYSICAL_AREA_ROI",
+      "date": "2026-10-28",
+      "scope": "common Production processing and task-evaluation range",
+      "trigger_evidence": "V1A diagnostic replay retained min_support=8 and phase threshold +/-0.35 rad; all 50 C4/PKR failed group records were outside the measured area-clutter ROI bins 680-1079. All four absolute 133-bin groups covering the physical ROI had zero failed gamma rows in that same-seed replay.",
+      "policy": "Use inclusive Production range bins 666-1197 for every method, role, condition, and evaluator branch. This is four complete 133-bin groups aligned to the existing 0-based full-range grouping and contains the entire physical clutter/target ROI.",
+      "physical_mapping": {
+        "range_origin_m": 82802.6768996,
+        "range_bin_spacing_m": 2.498270483333333,
+        "area_roi_range_m_inclusive_support": [
+          84500.0,
+          85500.0
+        ],
+        "area_roi_bins_inclusive": [
+          680,
+          1079
+        ],
+        "engineering_seed_1930101_target_bin_min_max": [
+          688,
+          1032
+        ],
+        "processing_bins_inclusive": [
+          666,
+          1197
+        ],
+        "group_width_bins": 133,
+        "complete_group_intervals_inclusive": [
+          [
+            666,
+            798
+          ],
+          [
+            799,
+            931
+          ],
+          [
+            932,
+            1064
+          ],
+          [
+            1065,
+            1197
+          ]
+        ],
+        "xml_fields": {
+          "rg_st": 666,
+          "rg_ed": 1197
+        }
+      },
+      "unchanged": [
+        "all seed sets, methods, condition counts, target counts, and period counts",
+        "PKR min_support=8 and robust phase threshold +/-0.35 rad",
+        "all Production, CFAR, scan-beam, truth-lineage, and evaluability gates",
+        "paired input identity and blind-estimator information restrictions",
+        "no fallback, no ignored failed groups, and no AI training"
+      ],
+      "comparability": "All methods and roles use the exact same range fields. V2 is a new design and is not pooled with or substituted for V1A results; the V1A failure remains preserved as historical evidence."
+    }
+  ],
+  "entered_from_commit": "49bb3d033f388fde5f51eac7c76953cac0f0011b",
+  "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
+  "seed_audit": {
+    "candidate_ranges": {
+      "engineering": [
+        1930101,
+        1930106
+      ],
+      "screening": [
+        1932001,
+        1932012
+      ],
+      "confirmatory": [
+        1933001,
+        1933030
+      ],
+      "independent_h0": [
+        1935001,
+        1935030
+      ]
+    },
+    "scanned_current_text_evidence_and_paths": true,
+    "collisions_found": [],
+    "prior_engineering_seed_excluded": 1930001,
+    "note": "Dense reuses screening seeds for paired nested 20-vs-40 target comparisons; bridge reuses engineering seeds for the nested 3-vs-20 target comparison. Confirmatory and H0 seed sets are disjoint from the other independent seed sets."
+  },
+  "common": {
+    "first_beam": 50,
+    "beam_count": 1,
+    "scenario_template": "simulator/scenarios/beam50_one_targets_continuous.run.json",
+    "method_config": "docs/research/phase_r/R22/config/r22_method_config_v2_range_roi.json",
+    "area": {
+      "range_window_m": [
+        84500.0,
+        85500.0
+      ],
+      "mean_power": 0.02,
+      "texture_sigma": 0.25,
+      "temporal_correlation_rho": 0.98,
+      "thermal_noise_power": 0.001
+    },
+    "method_ids": [
+      "C0",
+      "C1",
+      "C2",
+      "C3",
+      "C4",
+      "P1",
+      "P2",
+      "PK",
+      "PKR"
+    ],
+    "calibration_modes": [
+      "Mode-A",
+      "Mode-B"
+    ],
+    "production_backend": "Native CUDA",
+    "use_corex": false,
+    "known_error_information": "evaluator_only",
+    "blind_estimator_oracle_inputs": false,
+    "zero_delay_reference_policy": {
+      "delay_error_ns": 0.0,
+      "blind_delay_estimation": "target_free_OFF_diagnostic_only",
+      "physical_correction": "not_applicable",
+      "not_applicable_method_ids": [
+        "P1",
+        "P2",
+        "R22_R9_Fixed_D3",
+        "R22_D3_Huber_B_ON",
+        "R22_M1_Physics_Matched"
+      ],
+      "status": "NOT_APPLICABLE_ZERO_DELAY_REFERENCE"
+    },
+    "ai_training": false,
+    "router_enabled": false,
+    "production_processing_range": {
+      "start_bin": 666,
+      "end_bin": 1197,
+      "inclusive": true,
+      "area_clutter_roi_bins_inclusive": [
+        680,
+        1079
+      ],
+      "group_width_bins": 133
+    }
+  },
+  "seed_sets": {
+    "engineering": [
+      1930101,
+      1930102,
+      1930103,
+      1930104,
+      1930105,
+      1930106
+    ],
+    "screening": [
+      1932001,
+      1932002,
+      1932003,
+      1932004,
+      1932005,
+      1932006,
+      1932007,
+      1932008,
+      1932009,
+      1932010,
+      1932011,
+      1932012
+    ],
+    "confirmatory": [
+      1933001,
+      1933002,
+      1933003,
+      1933004,
+      1933005,
+      1933006,
+      1933007,
+      1933008,
+      1933009,
+      1933010,
+      1933011,
+      1933012,
+      1933013,
+      1933014,
+      1933015,
+      1933016,
+      1933017,
+      1933018,
+      1933019,
+      1933020,
+      1933021,
+      1933022,
+      1933023,
+      1933024,
+      1933025,
+      1933026,
+      1933027,
+      1933028,
+      1933029,
+      1933030
+    ],
+    "h0": [
+      1935001,
+      1935002,
+      1935003,
+      1935004,
+      1935005,
+      1935006,
+      1935007,
+      1935008,
+      1935009,
+      1935010,
+      1935011,
+      1935012,
+      1935013,
+      1935014,
+      1935015,
+      1935016,
+      1935017,
+      1935018,
+      1935019,
+      1935020,
+      1935021,
+      1935022,
+      1935023,
+      1935024,
+      1935025,
+      1935026,
+      1935027,
+      1935028,
+      1935029,
+      1935030
+    ]
+  },
+  "period_count": 10,
+  "target_counts": {
+    "engineering": 20,
+    "screening": 20,
+    "confirmatory": 20,
+    "dense": 40,
+    "bridge": 3,
+    "h0": 0
+  },
+  "phases": {
+    "engineering": {
+      "seed_set": "engineering",
+      "conditions": [
+        {
+          "condition_id": "reference_0ns",
+          "radial_speed_mps": 2.5,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 0.0
+        },
+        {
+          "condition_id": "error_plus4ns",
+          "radial_speed_mps": 2.5,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 4.0
+        }
+      ]
+    },
+    "screening": {
+      "seed_set": "screening",
+      "factorial": {
+        "radial_speed_mps": [
+          0.5,
+          1.5,
+          2.5,
+          6.7
+        ],
+        "target_snr_db": [
+          10.0,
+          20.0,
+          30.0
+        ],
+        "delay_error_ns": [
+          0.0,
+          4.0
+        ]
+      }
+    },
+    "confirmatory": {
+      "seed_set": "confirmatory",
+      "factorial": {
+        "radial_speed_mps": [
+          0.5,
+          2.5,
+          6.7
+        ],
+        "target_snr_db": [
+          20.0
+        ],
+        "delay_error_ns": [
+          0.0,
+          4.0
+        ]
+      }
+    },
+    "dense": {
+      "seed_set": "screening",
+      "factorial": {
+        "radial_speed_mps": [
+          0.5,
+          2.5
+        ],
+        "target_snr_db": [
+          20.0
+        ],
+        "delay_error_ns": [
+          0.0,
+          4.0
+        ]
+      }
+    },
+    "bridge": {
+      "seed_set": "engineering",
+      "conditions": [
+        {
+          "condition_id": "bridge_2p5mps_20db_plus4ns",
+          "radial_speed_mps": 2.5,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 4.0
+        }
+      ]
+    },
+    "h0": {
+      "seed_set": "h0",
+      "conditions": [
+        {
+          "condition_id": "target_free_0ns",
+          "radial_speed_mps": 0.0,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 0.0
+        },
+        {
+          "condition_id": "target_free_plus4ns",
+          "radial_speed_mps": 0.0,
+          "target_snr_db": 20.0,
+          "delay_error_ns": 4.0
+        }
+      ]
+    }
+  },
+  "expected_case_counts": {
+    "engineering": 12,
+    "screening": 288,
+    "confirmatory": 180,
+    "dense": 48,
+    "bridge": 6,
+    "h0": 60,
+    "total": 594
+  },
+  "primary_endpoint": "per_seed correct target detections divided by valid target-period opportunities, aggregated before paired seed-level comparison",
+  "inferential_unit": "independent seed",
+  "h0_policy": "30 independent H0 seeds per delay condition, paired by seed across 0 ns and +4 ns; report seed-clustered uncertainty and never treat CUTs as independent seeds",
+  "period_policy": "V3 screening is frozen at 10 periods. If the full 288-case design becomes unsafe, stop and preserve a PARTIAL manifest; do not reduce periods, seeds, targets, methods, or conditions.",
+  "stop_conditions": [
+    "Any production correctness failure or invalid truth/track lineage stops the affected phase.",
+    "Any required method lacks evaluable core outputs: stop method comparison; do not lower support or quality gates.",
+    "Any area-clutter validity or pairing gate failure stops condition-level comparison.",
+    "Any seed or input identity collision stops execution until resolved.",
+    "Formal results remain incomplete until every frozen confirmatory seed is executed or an explicit resource stop is reported."
+  ],
+  "v3_method_unit_applicability": {
+    "schema_version": 1,
+    "unit": "screening case × method × calibration mode ON task row",
+    "zero_delay_method_units": [
+      {
+        "method_id": "A0",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "C0",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "C1",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "C2",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "C2",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "C3",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "C3",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "C4",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "C4",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "PK",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "PKR",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "PKR",
+        "mode": "Mode-B"
+      }
+    ],
+    "plus4_delay_method_units": [
+      {
+        "method_id": "A0",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "C0",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "C1",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "C2",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "C2",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "C3",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "C3",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "C4",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "C4",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "P1",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "P2",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "P2",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "PK",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "PKR",
+        "mode": "Mode-A"
+      },
+      {
+        "method_id": "PKR",
+        "mode": "Mode-B"
+      },
+      {
+        "method_id": "R22_D3_Huber_B_ON",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "R22_M1_Physics_Matched",
+        "mode": "not_applicable"
+      },
+      {
+        "method_id": "R22_R9_Fixed_D3",
+        "mode": "not_applicable"
+      }
+    ],
+    "expected_screening_case_count": 288,
+    "expected_applicable_on_method_units": 4320,
+    "not_applicable_zero_delay_physical_corrections": [
+      "P1",
+      "P2",
+      "R22_R9_Fixed_D3",
+      "R22_D3_Huber_B_ON",
+      "R22_M1_Physics_Matched"
+    ],
+    "denominator_source": "frozen V2 task-row applicability reproduced explicitly; never inferred from successful outputs"
+  },
+  "v3_execution_policy": {
+    "scope": "screening_only",
+    "resource_failure": "stop_and_report_partial_without_reducing_frozen_design",
+    "resume": "case_level_after_compact_archive_sha_verification",
+    "global_gate_failure": "archive_and_stop; a new reviewed evidence root is required",
+    "method_reference_gap": "continue_only_when_shared_gates_pass_and_gamma_support_evidence_is_explicit"
+  },
+  "v3_1_resource_replay_provenance": {
+    "reason": "The V3 matrix terminated UNKNOWN_STOP after one P2 Mode-A ON raw_align failure at low free VRAM; a diagnostic-only same-condition replay completed the same branch.",
+    "parent_design_id": "R22_EXTENSION_20261105_V3_METHOD_LEVEL_CONTINUATION",
+    "parent_matrix_status": "UNKNOWN_STOP",
+    "diagnostic_only": true,
+    "diagnostic_not_in_new_screening_denominator": true,
+    "diagnostic_run_manifest": "outputs/r22_v3_diagnostics_20261106/p2_modea_on_case/attempt_001/r22_run_manifest.json",
+    "diagnostic_run_manifest_sha256": "4dba49207346e1c4391c5ec8a491ca6a14cda7b8f883bb7ac83240d6d2b314c6",
+    "diagnostic_preflight": "outputs/r22_v3_diagnostics_20261106/p2_modea_on_case_attempt_001_preflight.json",
+    "diagnostic_preflight_sha256": "297675eae84fd0af6da631fd6f2a9c1ec8286ac2063520fd6e5f77853786a398",
+    "replayed_case": {
+      "seed": 1932001,
+      "radial_speed_mps": 0.5,
+      "target_snr_db": 20.0,
+      "delay_error_ns": 4.0,
+      "target_count": 20,
+      "period_count": 10,
+      "beam": 50
+    },
+    "replayed_method_unit": {
+      "method_id": "P2",
+      "mode": "Mode-A",
+      "role": "ON",
+      "production_returncode": 0,
+      "status": "passed"
+    },
+    "diagnostic_production_branches": {
+      "passed": 9,
+      "total": 9
+    },
+    "resource_snapshot_before_run": {
+      "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+      "total_vram_mib": 4096,
+      "free_vram_mib": 1215,
+      "utilization_pct": 94,
+      "temperature_c": 76,
+      "pstate": "P0",
+      "power_w": 59.62,
+      "graphics_clock_mhz": 1912
+    },
+    "interpretation": "The replay passed with more than 1 GiB free VRAM while GPU utilization remained high. Resource contention is plausible for the prior failure but the replay does not prove its root cause; preserve the V3 UNKNOWN_STOP as historical.",
+    "new_screening_policy": "Use a new matrix/raw/archive root and execute all 288 cases and all 4320 applicable ON method units from the beginning. No V3 case or diagnostic replay counts toward V3.1 coverage.",
+    "scientific_factors_changed": false
+  },
+  "v3_2_identity_provenance": {
+    "parent_design_id": "R22_EXTENSION_20261106_V3_1_POST_REPLAY_FULL_SCREENING",
+    "parent_matrix_status": "UNKNOWN_STOP",
+    "parent_matrix_manifest_path": "docs/research/phase_r/R22/evidence/v3_1_early_stop_20261106/matrix_manifest.json",
+    "parent_matrix_manifest_sha256": "4f48b212575a98797bace5c2e18244fe88a89dfaa49b589c70ca569c546f675d",
+    "parent_matrix_manifest_design_canonical_sha256": "696dce5b18fab9209f57c7d49922ff3c1ae4ea52f0a524c34cede8e8b933e635",
+    "committed_parent_design_path": "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_1_resource_replay_20261106.json",
+    "committed_parent_design_file_sha256": "26e202fca197ae1f62cfad099cdf895de7b834eed1622c553e80b8cd2b94a839",
+    "design_digest_semantics": "matrix_manifest.design_sha256 is SHA-256 of canonical JSON serialization with sorted keys and compact separators; it is distinct from the raw file-byte SHA-256.",
+    "parent_digest_reconciliation": "The V3.1 matrix manifest digest exactly equals the canonical digest of the committed V3.1 design JSON. The previously reported mismatch compared this canonical digest with the raw file-byte digest; the V3.1 design content is identifiable.",
+    "new_matrix_from_queue_start": true,
+    "parent_cases_and_method_units_excluded": true,
+    "scientific_factors_changed": false,
+    "quality_gates_changed": false,
+    "reason": "V3.1 remains terminal after UNKNOWN_STOP and cannot be resumed. V3.2 starts an independent matrix from the queue beginning and records both the resolved design path/raw file SHA-256 and the matrix runner's canonical design digest; all scientific factors and gates remain frozen."
+  }
+}

@@ -1,0 +1,403 @@
+{
+  "case_id": "engineering__seed_1930101__vr_2d5__snr_20__delay_0ns__targets_20__periods_10",
+  "created_at_utc": "2026-10-27T20:44:23.377667+00:00",
+  "design": {
+    "ai_training": false,
+    "beam_count": 1,
+    "calibration_modes": [
+      "Mode-A",
+      "Mode-B"
+    ],
+    "delay_error_ns": 0.0,
+    "execution_method_ids": [
+      "C0",
+      "PK",
+      "C4",
+      "PKR"
+    ],
+    "first_beam": 50,
+    "known_error_use": "physical correction upper bound only; blind estimator does not receive it",
+    "method_ids": [
+      "C0",
+      "PK",
+      "C4",
+      "PKR"
+    ],
+    "period_count": 10,
+    "radial_speed_mps": 2.5,
+    "raw_artifact_policy": "keep_generated_binary_artifacts",
+    "router_enabled": false,
+    "seed": 1930101,
+    "target_count": 20,
+    "target_snr_db": 20.0,
+    "target_truth_nested_across_density": true,
+    "zero_delay_blind_correction_policy": "estimate_only_no_physical_correction"
+  },
+  "experiment": "PGRCC R22 multi-target Native CUDA Production case",
+  "generator_manifest": {
+    "beam_span": [
+      50,
+      50
+    ],
+    "configured_radial_speed_mps": 2.5,
+    "look_vectors_by_target": {
+      "R22_T001": {
+        "east": -0.7885321115965607,
+        "north": -0.6149935845039923
+      },
+      "R22_T002": {
+        "east": -0.7927234558765505,
+        "north": -0.6095814322165158
+      },
+      "R22_T003": {
+        "east": -0.7929240783686021,
+        "north": -0.609320446024342
+      },
+      "R22_T004": {
+        "east": -0.7857606749186987,
+        "north": -0.6185306473824163
+      },
+      "R22_T005": {
+        "east": -0.7917112629156455,
+        "north": -0.6108954707415284
+      },
+      "R22_T006": {
+        "east": -0.7903338075626604,
+        "north": -0.6126764828386249
+      },
+      "R22_T007": {
+        "east": -0.7893439080690685,
+        "north": -0.6139512967607853
+      },
+      "R22_T008": {
+        "east": -0.7879584986427421,
+        "north": -0.6157283527795968
+      },
+      "R22_T009": {
+        "east": -0.7861671380145145,
+        "north": -0.6180139408670868
+      },
+      "R22_T010": {
+        "east": -0.790863590685578,
+        "north": -0.611992468032013
+      },
+      "R22_T011": {
+        "east": -0.7914527040083413,
+        "north": -0.6112304126251286
+      },
+      "R22_T012": {
+        "east": -0.7846108281969599,
+        "north": -0.6199885872143782
+      },
+      "R22_T013": {
+        "east": -0.7931582125955444,
+        "north": -0.6090156400226855
+      },
+      "R22_T014": {
+        "east": -0.7830480589078581,
+        "north": -0.6219612025204109
+      },
+      "R22_T015": {
+        "east": -0.7899611167107561,
+        "north": -0.613156940827628
+      },
+      "R22_T016": {
+        "east": -0.7912021765550028,
+        "north": -0.6115546711575558
+      },
+      "R22_T017": {
+        "east": -0.7927665047211137,
+        "north": -0.609525445729929
+      },
+      "R22_T018": {
+        "east": -0.7888711169971233,
+        "north": -0.6145586715421978
+      },
+      "R22_T019": {
+        "east": -0.7863006705208868,
+        "north": -0.6178440381992885
+      },
+      "R22_T020": {
+        "east": -0.7888412490340666,
+        "north": -0.61459700928525
+      }
+    },
+    "period_count": 10,
+    "range_bin_assignment_rule": "seed-specific shuffled range-bin permutation; target-count-stable prefix",
+    "range_bin_bounds": [
+      680,
+      1079
+    ],
+    "range_bin_permutation_stream_seed": 8289720814033498,
+    "range_window_m": [
+      84500.0,
+      85500.0
+    ],
+    "schema_version": 1,
+    "seed": 1930101,
+    "stage2_clutter_noise_seed": 1930101,
+    "target_snr_db": 20.0,
+    "target_state_stream_rule": "(seed << 32) | (0x52320000 + zero_based_target_index)",
+    "target_state_substream_count": 20,
+    "target_state_substreams": [
+      {
+        "expected_bin": 723,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 0,
+        "stream_seed": 8289722051985408,
+        "target_id": "R22_T001"
+      },
+      {
+        "expected_bin": 844,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 1,
+        "stream_seed": 8289722051985409,
+        "target_id": "R22_T002"
+      },
+      {
+        "expected_bin": 756,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 2,
+        "stream_seed": 8289722051985410,
+        "target_id": "R22_T003"
+      },
+      {
+        "expected_bin": 688,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 3,
+        "stream_seed": 8289722051985411,
+        "target_id": "R22_T004"
+      },
+      {
+        "expected_bin": 802,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 4,
+        "stream_seed": 8289722051985412,
+        "target_id": "R22_T005"
+      },
+      {
+        "expected_bin": 915,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 5,
+        "stream_seed": 8289722051985413,
+        "target_id": "R22_T006"
+      },
+      {
+        "expected_bin": 1032,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 6,
+        "stream_seed": 8289722051985414,
+        "target_id": "R22_T007"
+      },
+      {
+        "expected_bin": 974,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 7,
+        "stream_seed": 8289722051985415,
+        "target_id": "R22_T008"
+      },
+      {
+        "expected_bin": 838,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 8,
+        "stream_seed": 8289722051985416,
+        "target_id": "R22_T009"
+      },
+      {
+        "expected_bin": 965,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 9,
+        "stream_seed": 8289722051985417,
+        "target_id": "R22_T010"
+      },
+      {
+        "expected_bin": 824,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 10,
+        "stream_seed": 8289722051985418,
+        "target_id": "R22_T011"
+      },
+      {
+        "expected_bin": 995,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 11,
+        "stream_seed": 8289722051985419,
+        "target_id": "R22_T012"
+      },
+      {
+        "expected_bin": 828,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 12,
+        "stream_seed": 8289722051985420,
+        "target_id": "R22_T013"
+      },
+      {
+        "expected_bin": 859,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 13,
+        "stream_seed": 8289722051985421,
+        "target_id": "R22_T014"
+      },
+      {
+        "expected_bin": 884,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 14,
+        "stream_seed": 8289722051985422,
+        "target_id": "R22_T015"
+      },
+      {
+        "expected_bin": 1019,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 15,
+        "stream_seed": 8289722051985423,
+        "target_id": "R22_T016"
+      },
+      {
+        "expected_bin": 786,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 16,
+        "stream_seed": 8289722051985424,
+        "target_id": "R22_T017"
+      },
+      {
+        "expected_bin": 750,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 17,
+        "stream_seed": 8289722051985425,
+        "target_id": "R22_T018"
+      },
+      {
+        "expected_bin": 892,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 18,
+        "stream_seed": 8289722051985426,
+        "target_id": "R22_T019"
+      },
+      {
+        "expected_bin": 709,
+        "range_bin_permutation_stream_seed": 8289720814033498,
+        "range_bin_rank": 19,
+        "stream_seed": 8289722051985427,
+        "target_id": "R22_T020"
+      }
+    ]
+  },
+  "implementation_result": null,
+  "method_config": {
+    "bytes": 23798,
+    "exists": true,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_gate_diagnostic_method_config_20261028.json",
+    "sha256": "da0614325fbb886a434e74ced9e8648b26d5839c042af637ada29eed88facbc8"
+  },
+  "native_cuda_preflight": {
+    "binary": {
+      "backend": "local Native CUDA",
+      "build_cache": {
+        "bytes": 33162,
+        "exists": true,
+        "path": "build/CMakeCache.txt",
+        "sha256": "4eefad9d42f727d2c968ad9c4e338b0adce7b11a5e74035a4399d7443786581c"
+      },
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+      "repo_relative_path": "build/GMTI_pipe_core",
+      "sha256": "d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e",
+      "use_corex": false
+    },
+    "disk": {
+      "free_bytes": 53094080512,
+      "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_v1a_gate_diagnostic_cells_20261028",
+      "total_bytes": 497777065984,
+      "used_bytes": 419322077184
+    },
+    "gpu": {
+      "available": true,
+      "command": "nvidia-smi --query-gpu=name,pstate,power.draw,temperature.gpu,utilization.gpu,clocks.sm --format=csv,noheader,nounits",
+      "returncode": 0,
+      "stderr": "",
+      "stdout": "NVIDIA GeForce RTX 3050 Laptop GPU, P8, 6.28, 40, 34, 217"
+    }
+  },
+  "output_root": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_v1a_gate_diagnostic_cells_20261028",
+  "phase": "engineering",
+  "production_binary": {
+    "backend": "local Native CUDA",
+    "build_cache": {
+      "bytes": 33162,
+      "exists": true,
+      "path": "build/CMakeCache.txt",
+      "sha256": "4eefad9d42f727d2c968ad9c4e338b0adce7b11a5e74035a4399d7443786581c"
+    },
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/GMTI_pipe_core",
+    "repo_relative_path": "build/GMTI_pipe_core",
+    "sha256": "d9e4d2e0b8429c5415e94be1af0230f3c0148455c394dc6d661e7e6c13a4ad1e",
+    "use_corex": false
+  },
+  "scenario_template": {
+    "bytes": 17291,
+    "exists": true,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/outputs/r22_v1a_gate_diagnostic_cells_20261028/scenario_template.json",
+    "sha256": "cb2b539e51d6347e1c6583df31ed732f266f85c39edaf1178e7b07e9a48ece84"
+  },
+  "schema_version": 1,
+  "source_identity": {
+    "branch": "codex/unknown-system-error-next-stage",
+    "commit": "c1215354b4354fb598bc747eb799ff9995eeee58",
+    "files": {
+      "scripts/phase_r/r21_historical_task_review.py": {
+        "bytes": 29902,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_historical_task_review.py",
+        "sha256": "b3b6142f9968af619bce3d2a6917073d720246584c623a8acac1ae1eec4a10a5"
+      },
+      "scripts/phase_r/r21_task_evaluator.py": {
+        "bytes": 21991,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r21_task_evaluator.py",
+        "sha256": "c1820472f6fae354e09e4a331a71212b6ba41c20595f729fc80caa2a01d49a1c"
+      },
+      "scripts/phase_r/r22_scenario_factory.py": {
+        "bytes": 12046,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/r22_scenario_factory.py",
+        "sha256": "5caa3df3e22e327060d757681b70d4b6be0194a703e1a7751a06d7808f8355ba"
+      },
+      "scripts/phase_r/run_r22_cuda_pilot.py": {
+        "bytes": 45794,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/phase_r/run_r22_cuda_pilot.py",
+        "sha256": "5f8a11771d8675cec0aa5c6b5c79c1477145ed9178798d1a37ce16bc025da38b"
+      },
+      "scripts/run_delay_stage1_formal.py": {
+        "bytes": 146077,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_delay_stage1_formal.py",
+        "sha256": "fbaf759289f92d3b9dd51015a25e0d008fab19bfb94e14300ef12ec9b286412b"
+      },
+      "scripts/run_production_hierarchical_calibration_pilot.py": {
+        "bytes": 121545,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_production_hierarchical_calibration_pilot.py",
+        "sha256": "d11e274f0e0fdd6bcca85301001121dfb71375d955a17be68bdbde94db68abf4"
+      },
+      "scripts/run_track_manager_e2e.py": {
+        "bytes": 81133,
+        "exists": true,
+        "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/scripts/run_track_manager_e2e.py",
+        "sha256": "97cd25766f09f80ee70795dd4f177fa4bbfc5a1c37a87e18ce5f09dcb4de1ff4"
+      }
+    },
+    "tracked_dirty_status": []
+  },
+  "stage2_binary": {
+    "bytes": 645944,
+    "exists": true,
+    "path": "/home/shy/AIR/SAR+AI/project/PGRCC/.worktrees/unknown-system-error-next-stage/build/simulate_stage2_statistical",
+    "sha256": "ca8aa9eb8b7d97e5743a27e67c312e66a4efecbf2c76880db581192afd08ce8e"
+  },
+  "status_labels": {
+    "EVALUABLE": false,
+    "EXECUTED": false,
+    "IMPLEMENTED": true,
+    "PERFORMANCE_VERIFIED": false
+  }
+}

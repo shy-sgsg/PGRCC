@@ -1,0 +1,116 @@
+{
+  "association_evidence": [],
+  "association_gate": {
+    "assignment": "maximum-cardinality then minimum-sum normalized Euclidean residual",
+    "doppler_axis_source": "period/beam Production axis metadata, else detection center/PRF",
+    "doppler_distance": "circular",
+    "doppler_tolerance_bins": 2,
+    "normalized_residual": "hypot(range_delta/2, circular_doppler_delta/2)",
+    "range_tolerance_bins": 2,
+    "same_beam": true,
+    "same_period": true
+  },
+  "candidate_pair_evidence": [],
+  "lineage": {
+    "cluster_count_source": null,
+    "final_detections_joined": null,
+    "postfilter_clusters": null,
+    "raw_detections": null,
+    "raw_removed_before_final": null,
+    "rejected_before_selection": null,
+    "selected_candidates": null,
+    "selected_without_raw_detection": null,
+    "status": "NOT_AVAILABLE",
+    "unjoined_final_detections": null
+  },
+  "lineage_evidence": [],
+  "metrics": {
+    "cfar_branch_hit_cells": 316917,
+    "cfar_status": "evaluable",
+    "final_detections": 404,
+    "lineage_status": "NOT_AVAILABLE",
+    "parameter_observability": "evaluable",
+    "postfilter_cluster_status": "NOT_EVALUABLE_LEGACY_PRE_CLUSTER_SUMMARY",
+    "postfilter_clusters": null,
+    "target_only_response": {
+      "amplitude_ratio": 0.07541121073179598,
+      "definition": "truth-centered 5x5 complex transfer from pre-CSI aligned F1 (CTDR channel-1 tap) to production csi_after, aggregated over periods",
+      "energy_ratio": 0.04953743772441385,
+      "input_energy": 11161952464.721573,
+      "observable": true,
+      "output_energy": 552934525.1040126,
+      "per_period": [
+        {
+          "amplitude_ratio": 0.03429944388822446,
+          "energy_ratio": 0.034837908796120795,
+          "input_energy": 3815171079.6889315,
+          "observable": true,
+          "output_energy": 132912582.1158007,
+          "period_id": 0,
+          "phase_error_rad": -0.1350228629950275,
+          "reason": "truth_centered_target_only_complex_transfer",
+          "sample_count": 25,
+          "status": "evaluable",
+          "target_af_total_truth_hz": -4633.1002422,
+          "target_col": 2048,
+          "target_range_m": 87919.1348495,
+          "target_roi_shape": [
+            5,
+            5
+          ],
+          "target_row": 50
+        },
+        {
+          "amplitude_ratio": 0.07262431341291402,
+          "energy_ratio": 0.03318649182172852,
+          "input_energy": 4226413977.585107,
+          "observable": true,
+          "output_energy": 140259852.90236723,
+          "period_id": 1,
+          "phase_error_rad": 0.27134004034928133,
+          "reason": "truth_centered_target_only_complex_transfer",
+          "sample_count": 25,
+          "status": "evaluable",
+          "target_af_total_truth_hz": -4648.73314311,
+          "target_col": 2154,
+          "target_range_m": 88184.3543384,
+          "target_roi_shape": [
+            5,
+            5
+          ],
+          "target_row": 48
+        },
+        {
+          "amplitude_ratio": 0.13394190741427198,
+          "energy_ratio": 0.08965677869154852,
+          "input_energy": 3120367407.447534,
+          "observable": true,
+          "output_energy": 279762090.0858446,
+          "period_id": 2,
+          "phase_error_rad": -0.09645770790456125,
+          "reason": "truth_centered_target_only_complex_transfer",
+          "sample_count": 25,
+          "status": "evaluable",
+          "target_af_total_truth_hz": -4664.22539336,
+          "target_col": 2261,
+          "target_range_m": 88450.4631906,
+          "target_roi_shape": [
+            5,
+            5
+          ],
+          "target_row": 46
+        }
+      ],
+      "phase_error_rad": 0.02899171425837509,
+      "reason": "truth_centered_target_only_complex_transfer",
+      "sample_count": 75,
+      "status": "evaluable"
+    },
+    "track_status": "evaluable",
+    "unique_union_hit_cells": {
+      "count": null,
+      "status": "NOT_EVALUABLE"
+    }
+  },
+  "mode": "TO"
+}
