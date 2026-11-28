@@ -1,0 +1,15 @@
+Captured at: 2026-11-28T13:19:57+08:00
+Purpose: read-only hardware snapshot for the pending formal-matrix authorization request; no Stage2, Production, or matrix case was started.
+
+Command:
+nvidia-smi --query-gpu=name,uuid,memory.total,memory.used,utilization.gpu,utilization.memory,pstate,clocks.current.sm,clocks.current.memory,power.draw,temperature.gpu --format=csv,noheader
+
+Output:
+NVIDIA GeForce RTX 3050 Laptop GPU, GPU-a424cfba-0a51-fa83-c922-973306e571a5, 4096 MiB, 1392 MiB, 34 %, 1 %, P8, 210 MHz, 405 MHz, 6.28 W, 44 C
+
+Compute application query:
+`nvidia-smi --query-compute-apps=pid,process_name,used_memory --format=csv,noheader` listed no CUDA compute-app entry. The display process list included nautilus, resources, loupe, xdg-desktop-portal-gnome and gnome-text-editor. This snapshot does not predict later GPU load; re-read immediately before execution.
+
+Current binary files at capture:
+Stage2 `build/simulate_stage2_statistical`, SHA-256 `47fa5ec34ca15cdc4edeb35226eefa941a78ee344aa2311e5e7984c811dcb40f`
+Production `build/GMTI_pipe_core`, SHA-256 `adef89d1d3776864a5cddf36eacdd852eff495ae33cdf989642eef7eb4d7f78e`

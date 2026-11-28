@@ -7,10 +7,14 @@ import argparse
 import hashlib
 import itertools
 import json
+import math
 import os
 import shutil
 import sys
 import tempfile
+import threading
+import time
+import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
@@ -20,6 +24,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.phase_r import run_r22_cuda_pilot as r22
+from scripts.phase_r import r22_sharded_archive as sharded
 from scripts.phase_r.r22_compact_archive import archive_case_directory, verify_case_archive
 
 
@@ -35,6 +40,12 @@ V4_SIZE_PILOT_RESOURCE_EVIDENCE = (
     ROOT / "docs/research/phase_r/R22/evidence/"
     "v4_native_cuda_pilot_20261123/resource_usage.json"
 )
+V4_SIZE_PILOT_ARCHIVE_COMPARISON = (
+    ROOT / "docs/research/phase_r/R22/evidence/v4_phase_h/archive_profile_comparison.json"
+)
+V4_SHARD_MAX_UNCOMPRESSED_BYTES = 512 * 1024 * 1024
+V4_PILOT_FILESYSTEM_RESERVE_BYTES = 1024 * 1024 * 1024
+V4_PILOT_RESOURCE_UNCERTAINTY_FACTOR = 1.20
 V4_SIZE_PILOT_APPROVED_SHA256 = r22.V4_SIZE_PILOT_APPROVED_SHA256
 V4_THREE_SCHEMA_SIZE_PILOT_APPROVED_SHA256 = r22.V4_THREE_SCHEMA_SIZE_PILOT_APPROVED_SHA256
 
@@ -302,22 +313,142 @@ def _validate_v4_three_schema_size_pilot_authorization(
     }
 
 
-def _v4_three_schema_size_pilot_resource_gate(
-    paths: Mapping[str, Path],
+def _v4_three_schema_size_pilot_resource_budget(
+    design: Mapping[str, Any],
+    *,
+    resource_evidence_path: Path = V4_SIZE_PILOT_RESOURCE_EVIDENCE,
+    archive_comparison_path: Path = V4_SIZE_PILOT_ARCHIVE_COMPARISON,
+    max_shard_uncompressed_bytes: int = V4_SHARD_MAX_UNCOMPRESSED_BYTES,
+    filesystem_reserve_bytes: int = V4_PILOT_FILESYSTEM_RESERVE_BYTES,
+    uncertainty_factor: float = V4_PILOT_RESOURCE_UNCERTAINTY_FACTOR,
 ) -> dict[str, Any]:
-    prior = json.loads(V4_SIZE_PILOT_RESOURCE_EVIDENCE.read_text(encoding="utf-8"))
+    """Scale the measured P0 case by fixed scene and per-method/mode file groups."""
+    resource_path = Path(resource_evidence_path).expanduser().resolve()
+    comparison_path = Path(archive_comparison_path).expanduser().resolve()
+    prior = json.loads(resource_path.read_text(encoding="utf-8"))
+    comparison = json.loads(comparison_path.read_text(encoding="utf-8"))
+    source_record = comparison.get("source_archive", {})
+    source_path = Path(str(source_record.get("path", ""))).expanduser()
+    if not source_path.is_absolute():
+        source_path = (ROOT / source_path).resolve()
+    if not source_path.is_file():
+        raise FileNotFoundError(f"measured P0 complete archive is unavailable: {source_path}")
+    if source_path.stat().st_size != source_record.get("size_bytes"):
+        raise ValueError("measured P0 archive size differs from its resource evidence")
+    expected_profile = source_record.get("archive_profile")
+    expected_manifest_sha = source_record.get("embedded_archive_manifest_sha256")
+    with zipfile.ZipFile(source_path, "r") as archive:
+        try:
+            manifest_bytes = archive.read("ARCHIVE_MANIFEST.json")
+        except KeyError as exc:
+            raise ValueError("measured P0 archive has no embedded member manifest") from exc
+    actual_manifest_sha = hashlib.sha256(manifest_bytes).hexdigest()
+    if expected_manifest_sha and actual_manifest_sha != expected_manifest_sha:
+        raise ValueError("measured P0 embedded manifest differs from archived resource evidence")
+    archive_manifest = json.loads(manifest_bytes)
+    if archive_manifest.get("archive_profile") != "r22_v4_output_complete" or expected_profile != "r22_v4_output_complete":
+        raise ValueError("resource baseline is not the R22 V4 output-complete profile")
+
     start_free = prior.get("disk_start_free_bytes")
     minimum_free = prior.get("disk_minimum_available_bytes")
-    reserve = prior.get("disk_reserve_bytes")
-    values = (start_free, minimum_free, reserve)
-    if any(isinstance(value, bool) or not isinstance(value, int) for value in values):
+    archive_bytes = prior.get("archive_bytes")
+    reference_branches = prior.get("production_branch_count")
+    if any(isinstance(value, bool) or not isinstance(value, int)
+           for value in (start_free, minimum_free, archive_bytes, reference_branches)):
         raise ValueError("prior output-complete P0 resource evidence is incomplete")
-    peak_bytes = start_free - minimum_free
-    required_free = peak_bytes + reserve
-    if peak_bytes <= 0 or reserve <= 0:
-        raise ValueError("prior output-complete P0 resource evidence is invalid")
+    raw_peak = start_free - minimum_free - archive_bytes
+    if raw_peak <= 0 or reference_branches <= 0 or reference_branches % 3:
+        raise ValueError("prior P0 raw peak or Production branch count is invalid")
 
+    included = archive_manifest.get("included_files")
+    excluded = archive_manifest.get("excluded_files")
+    if not isinstance(included, list) or not isinstance(excluded, list):
+        raise ValueError("prior P0 archive member inventory is incomplete")
+    group_bytes: dict[str, int] = {}
+    payload_bytes = 0
+    for group in (included, excluded):
+        for item in group:
+            if not isinstance(item, Mapping) or not isinstance(item.get("path"), str):
+                raise ValueError("prior P0 archive member inventory contains an invalid row")
+            size = item.get("bytes")
+            if isinstance(size, bool) or not isinstance(size, int) or size < 0:
+                raise ValueError("prior P0 archive member inventory contains an invalid size")
+            parts = Path(item["path"]).parts
+            category = (
+                parts[3] if len(parts) > 3 and parts[:2] == ("pipeline", "cases")
+                else parts[0]
+            )
+            group_bytes[category] = group_bytes.get(category, 0) + size
+            payload_bytes += size
+    if raw_peak < payload_bytes:
+        raise ValueError("measured P0 raw peak is smaller than its uncompressed file inventory")
+    overhead = raw_peak - payload_bytes
+
+    common = design.get("common", {})
+    method_ids = common.get("method_ids", [])
+    modes = common.get("calibration_modes", [])
+    if not method_ids or not modes:
+        raise ValueError("pilot resource model requires non-empty method and calibration-mode sets")
+    active_groups = len(set(method_ids)) * len(set(modes))
+    reference_groups = reference_branches // 3
+    if active_groups <= 0 or active_groups > reference_groups:
+        raise ValueError("pilot method/mode scope exceeds the measured P0 branch coverage")
+    branch_scale = active_groups / reference_groups
+    branch_bytes = group_bytes.get("inputs", 0) + group_bytes.get("production", 0)
+    shared_bytes = sum(
+        value for name, value in group_bytes.items()
+        if name not in {"inputs", "production"}
+    )
+    estimate = math.ceil(shared_bytes + branch_bytes * branch_scale + overhead)
+    if (max_shard_uncompressed_bytes <= 0 or filesystem_reserve_bytes < 0
+            or not math.isfinite(uncertainty_factor) or uncertainty_factor < 1.0):
+        raise ValueError("pilot resource safety margin inputs are invalid")
+    required = (
+        math.ceil(estimate * uncertainty_factor)
+        + max_shard_uncompressed_bytes
+        + filesystem_reserve_bytes
+    )
+    return {
+        "resource_evidence_path": str(resource_path),
+        "archive_comparison_path": str(comparison_path),
+        "source_archive_path": str(source_path),
+        "source_archive_bytes": archive_bytes,
+        "source_archive_manifest_sha256": actual_manifest_sha,
+        "prior_p0_peak_consumption_bytes": start_free - minimum_free,
+        "prior_p0_archive_bytes": archive_bytes,
+        "prior_p0_raw_case_peak_bytes": raw_peak,
+        "prior_p0_uncompressed_inventory_bytes": payload_bytes,
+        "measured_inventory_overhead_bytes": overhead,
+        "p0_bytes_by_storage_group": group_bytes,
+        "active_method_mode_groups": active_groups,
+        "reference_method_mode_groups": reference_groups,
+        "branch_data_scale": branch_scale,
+        "unscaled_shared_scene_bytes": group_bytes.get("scenes", 0),
+        "scaled_branch_data_bytes": math.ceil(branch_bytes * branch_scale),
+        "fixed_other_bytes": shared_bytes - group_bytes.get("scenes", 0),
+        "estimated_raw_case_peak_bytes": estimate,
+        "uncertainty_factor": uncertainty_factor,
+        "max_shard_uncompressed_bytes": max_shard_uncompressed_bytes,
+        "filesystem_reserve_bytes": filesystem_reserve_bytes,
+        "required_free_bytes": required,
+        "required_free_bytes_per_output_filesystem": required,
+        "model_note": (
+            "Measured P0 uncompressed inventory is split into shared scene/other files and "
+            "inputs+Production files; the latter scale by active method×mode groups / P0 groups. "
+            "The measured P0 residual overhead is retained, then a 20% uncertainty margin, "
+            "one shard of temporary headroom, and a 1 GiB filesystem reserve are added."
+        ),
+    }
+
+
+def _v4_three_schema_size_pilot_resource_gate(
+    paths: Mapping[str, Path],
+    design: Mapping[str, Any],
+) -> dict[str, Any]:
+    budget = _v4_three_schema_size_pilot_resource_budget(design)
+    required_free = int(budget["required_free_bytes"])
     filesystems: dict[int, dict[str, Any]] = {}
+    path_devices: dict[str, int] = {}
     for label, supplied_path in paths.items():
         path = Path(supplied_path).expanduser().resolve()
         write_probe_error = None
@@ -336,6 +467,7 @@ def _v4_three_schema_size_pilot_resource_gate(
         if not probe.exists():
             raise FileNotFoundError(f"cannot resolve storage path for pilot preflight: {path}")
         device_id = probe.stat().st_dev
+        path_devices[label] = device_id
         record = filesystems.get(device_id)
         if record is None:
             usage = shutil.disk_usage(probe)
@@ -359,29 +491,216 @@ def _v4_three_schema_size_pilot_resource_gate(
             record["status"] = "PAUSED_RESOURCE_GATE"
         record["paths"].append(path_record)
 
-    blocked = [record for record in filesystems.values() if record["status"] != "READY"]
+    reasons = [
+        f"{record['probe_path']}: free {record['free_bytes']} < required {required_free} bytes"
+        for record in filesystems.values() if record["status"] != "READY"
+    ]
+    raw_device = path_devices.get("raw_case_outputs")
+    archive_device = path_devices.get("complete_archive")
+    if raw_device is not None and archive_device is not None and raw_device != archive_device:
+        reasons.append("raw case outputs and temporary complete archive must share a filesystem for per-shard cleanup")
+        for record in filesystems.values():
+            record["status"] = "PAUSED_RESOURCE_GATE"
+    reasons.extend(
+        f"{path['path']}: output write probe failed: {path['write_probe_error']}"
+        for record in filesystems.values() for path in record["paths"]
+        if not path["writable"]
+    )
+    blocked = any(record["status"] != "READY" for record in filesystems.values())
     return {
         "status": "PAUSED_RESOURCE_GATE" if blocked else "READY",
-        "basis": {
-            "resource_evidence_path": str(V4_SIZE_PILOT_RESOURCE_EVIDENCE.relative_to(ROOT)),
-            "prior_p0_archive_bytes": int(prior["archive_bytes"]),
-            "prior_p0_peak_consumption_bytes": peak_bytes,
-            "preserved_reserve_bytes": reserve,
-            "required_free_bytes_per_output_filesystem": required_free,
-            "note": (
-                "Conservative capacity proxy from the measured full-output P0 case; "
-                "not a claim that the three unmeasured schemas have this exact size."
-            ),
-        },
+        "basis": budget,
         "filesystems": list(filesystems.values()),
-        "reasons": [
-            f"{record['probe_path']}: free {record['free_bytes']} < required {required_free} bytes"
-            for record in blocked
-        ] + [
-            f"{path['path']}: output write probe failed: {path['write_probe_error']}"
-            for record in filesystems.values() for path in record["paths"]
-            if not path["writable"]
-        ],
+        "reasons": reasons,
+    }
+
+
+class _DiskSpaceMonitor:
+    """Sample free bytes during one case and append crash-survivable measurements."""
+
+    def __init__(
+        self,
+        paths: Mapping[str, Path],
+        *,
+        sample_log: Path,
+        sample_interval_seconds: float = 2.0,
+    ) -> None:
+        if sample_interval_seconds <= 0:
+            raise ValueError("disk sample interval must be positive")
+        self.sample_log = Path(sample_log).expanduser().resolve()
+        self.sample_interval_seconds = float(sample_interval_seconds)
+        self._devices: dict[int, dict[str, Any]] = {}
+        for label, supplied in paths.items():
+            path = Path(supplied).expanduser().resolve()
+            probe = path
+            while not probe.exists() and probe != probe.parent:
+                probe = probe.parent
+            if not probe.exists():
+                raise FileNotFoundError(f"cannot resolve resource-monitor path: {path}")
+            device_id = probe.stat().st_dev
+            device = self._devices.setdefault(device_id, {
+                "device_id": device_id,
+                "probe_path": str(probe),
+                "paths": [],
+                "free_start_bytes": None,
+                "minimum_free_bytes": None,
+                "free_end_bytes": None,
+            })
+            device["paths"].append({"label": label, "path": str(path)})
+        self._stream = None
+        self._thread: threading.Thread | None = None
+        self._stop_event = threading.Event()
+        self._lock = threading.Lock()
+        self._sample_count = 0
+        self._started_monotonic: float | None = None
+        self._started_at_utc: str | None = None
+
+    def start(self) -> None:
+        if self._stream is not None:
+            raise RuntimeError("disk monitor has already started")
+        self.sample_log.parent.mkdir(parents=True, exist_ok=True)
+        self._stream = self.sample_log.open("x", encoding="utf-8")
+        self._started_monotonic = time.monotonic()
+        self._started_at_utc = _utc_now()
+        self.sample_once()
+        self._thread = threading.Thread(target=self._run, name="r22-disk-monitor", daemon=True)
+        self._thread.start()
+
+    def _run(self) -> None:
+        while not self._stop_event.wait(self.sample_interval_seconds):
+            self.sample_once()
+
+    def sample_once(self) -> None:
+        timestamp = _utc_now()
+        with self._lock:
+            for device in self._devices.values():
+                try:
+                    free = int(shutil.disk_usage(device["probe_path"]).free)
+                except OSError as exc:
+                    device["last_sample_error"] = f"{type(exc).__name__}: {exc}"
+                    continue
+                if device["free_start_bytes"] is None:
+                    device["free_start_bytes"] = free
+                device["minimum_free_bytes"] = (
+                    free if device["minimum_free_bytes"] is None
+                    else min(int(device["minimum_free_bytes"]), free)
+                )
+                device["free_end_bytes"] = free
+            self._sample_count += 1
+            if self._stream is not None:
+                self._stream.write(json.dumps({
+                    "sample_index": self._sample_count,
+                    "timestamp_utc": timestamp,
+                    "filesystems": [
+                        {key: device[key] for key in (
+                            "device_id", "probe_path", "free_start_bytes",
+                            "minimum_free_bytes", "free_end_bytes", "last_sample_error",
+                        ) if key in device}
+                        for device in self._devices.values()
+                    ],
+                }, sort_keys=True) + "\n")
+                self._stream.flush()
+
+    def stop(self) -> dict[str, Any]:
+        if self._stream is None:
+            raise RuntimeError("disk monitor was not started")
+        self._stop_event.set()
+        if self._thread is not None:
+            self._thread.join()
+        self.sample_once()
+        self._stream.close()
+        self._stream = None
+        elapsed = (
+            time.monotonic() - self._started_monotonic
+            if self._started_monotonic is not None else 0.0
+        )
+        filesystems = []
+        for device in self._devices.values():
+            start = device["free_start_bytes"]
+            minimum = device["minimum_free_bytes"]
+            row = dict(device)
+            row["observed_peak_consumption_bytes"] = (
+                max(0, int(start) - int(minimum))
+                if start is not None and minimum is not None else None
+            )
+            filesystems.append(row)
+        return {
+            "status": "MEASURED",
+            "started_at_utc": self._started_at_utc,
+            "finished_at_utc": _utc_now(),
+            "elapsed_seconds": elapsed,
+            "sample_interval_seconds": self.sample_interval_seconds,
+            "sample_count": self._sample_count,
+            "sample_log": str(self.sample_log),
+            "filesystems": filesystems,
+            "scope_note": "Host filesystem free-space samples include concurrent external activity; they are observed peak usage, not exclusive process attribution.",
+        }
+
+
+def _recover_disk_space_samples(sample_log: str | Path) -> dict[str, Any] | None:
+    path = Path(sample_log).expanduser().resolve()
+    if not path.is_file():
+        return None
+    valid: list[dict[str, Any]] = []
+    invalid_count = 0
+    for raw_line in path.read_bytes().splitlines():
+        if not raw_line.strip():
+            continue
+        try:
+            item = json.loads(raw_line)
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            invalid_count += 1
+            continue
+        if (not isinstance(item, Mapping)
+                or not isinstance(item.get("filesystems"), list)
+                or not item["filesystems"]):
+            invalid_count += 1
+            continue
+        valid.append(dict(item))
+    if not valid:
+        return None
+
+    devices: dict[int, dict[str, Any]] = {}
+    for sample in valid:
+        for filesystem in sample["filesystems"]:
+            if not isinstance(filesystem, Mapping) or "device_id" not in filesystem:
+                continue
+            device_id = int(filesystem["device_id"])
+            row = devices.setdefault(device_id, {
+                "device_id": device_id,
+                "probe_path": filesystem.get("probe_path"),
+                "free_start_bytes": int(filesystem["free_start_bytes"]),
+                "minimum_free_bytes": int(filesystem["minimum_free_bytes"]),
+                "free_end_bytes": int(filesystem["free_end_bytes"]),
+            })
+            row["minimum_free_bytes"] = min(
+                int(row["minimum_free_bytes"]),
+                int(filesystem["minimum_free_bytes"]),
+                int(filesystem["free_end_bytes"]),
+            )
+            row["free_end_bytes"] = int(filesystem["free_end_bytes"])
+            if filesystem.get("last_sample_error"):
+                row["last_sample_error"] = filesystem["last_sample_error"]
+    if not devices:
+        return None
+    filesystems = []
+    for row in devices.values():
+        row["observed_peak_consumption_bytes"] = max(
+            0, int(row["free_start_bytes"]) - int(row["minimum_free_bytes"]),
+        )
+        filesystems.append(row)
+    return {
+        "status": "RECOVERED_PARTIAL",
+        "started_at_utc": valid[0].get("timestamp_utc"),
+        "last_sample_at_utc": valid[-1].get("timestamp_utc"),
+        "sample_count": len(valid),
+        "invalid_sample_line_count": invalid_count,
+        "sample_log": str(path),
+        "filesystems": filesystems,
+        "scope_note": (
+            "Recovered from a possibly truncated sample log after interruption; values reflect "
+            "host filesystem free-space samples, including concurrent activity."
+        ),
     }
 
 
@@ -574,6 +893,167 @@ def _raw_tree_inventory(case_root: Path) -> dict[str, int]:
     return {"file_count": file_count, "bytes": total_bytes}
 
 
+def _three_schema_archive_paths(
+    record: Mapping[str, Any], *, phase: str, archive_base: Path,
+) -> tuple[Path, Path]:
+    stem = f"{record['case_id']}__attempt_{int(record['attempt']):03d}"
+    archive_dir = archive_base / phase
+    return (
+        archive_dir / f"{stem}.archive-set.json",
+        archive_dir / f"{stem}.compact.zip",
+    )
+
+
+def _verify_three_schema_size_pilot_archives(
+    record: Mapping[str, Any], *, phase: str, archive_base: Path,
+) -> dict[str, Any]:
+    full = record.get("full_output_archive")
+    compact = record.get("compact_archive")
+    if not isinstance(full, Mapping) or not isinstance(compact, Mapping):
+        raise ValueError(f"three-schema archive receipt is incomplete for {record['case_id']}")
+    archive_set_path, compact_path = _three_schema_archive_paths(
+        record, phase=phase, archive_base=archive_base,
+    )
+    if Path(str(full.get("archive_set_path", ""))).expanduser().resolve() != archive_set_path.resolve():
+        raise ValueError(f"full-output archive-set path changed for {record['case_id']}")
+    if Path(str(compact.get("archive_path", ""))).expanduser().resolve() != compact_path.resolve():
+        raise ValueError(f"compact archive path changed for {record['case_id']}")
+    return sharded.verify_sharded_archive_receipt(
+        archive_set_path,
+        expected_sha256=str(full.get("archive_set_sha256", "")),
+        expected_manifest_sha256=str(full.get("archive_manifest_sha256", "")),
+        expected_compact_sha256=str(compact.get("archive_sha256", "")),
+    )
+
+
+def _ensure_three_schema_size_pilot_archives(
+    record: dict[str, Any], *, phase: str, raw_base: Path,
+    archive_base: Path, manifest: dict[str, Any], manifest_path: Path,
+    require_complete_output: bool,
+) -> None:
+    if not require_complete_output:
+        raise ValueError("three-schema size pilot requires complete V4 output verification")
+    case_root = _case_output_path(raw_base, str(record["output_root"]))
+    archive_set_path, compact_path = _three_schema_archive_paths(
+        record, phase=phase, archive_base=archive_base,
+    )
+    archive_set_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if archive_set_path.is_file():
+        archive_set_state = json.loads(archive_set_path.read_text(encoding="utf-8"))
+        archive_status = archive_set_state.get("status")
+    else:
+        archive_status = None
+
+    if archive_status not in {"COMPACT_VERIFIED", "COMPACTED_CLEANED"}:
+        record["full_output_archive_status"] = "PENDING"
+        _write_json_atomic(manifest_path, manifest)
+        full_archive_result = sharded.archive_case_directory_sharded(
+            case_root,
+            archive_set_path,
+            raw_root=raw_base,
+            archive_profile="r22_v4_output_complete",
+            require_complete_output=True,
+            max_shard_uncompressed_bytes=V4_SHARD_MAX_UNCOMPRESSED_BYTES,
+            remove_source=True,
+        )
+        verified_full_set = json.loads(archive_set_path.read_text(encoding="utf-8"))
+        record["full_output_archive_status"] = "VERIFIED"
+        record["full_output_archive"] = {
+            "archive_set_path": str(archive_set_path),
+            "archive_set_sha256_before_compaction": full_archive_result["archive_set_sha256"],
+            "archive_manifest_sha256": full_archive_result["archive_manifest_sha256"],
+            "archive_set_identity_sha256": full_archive_result["archive_set_identity_sha256"],
+            "archive_bytes": full_archive_result["archive_bytes"],
+            "shard_count": full_archive_result["shard_count"],
+            "shards": full_archive_result["shards"],
+            "source_file_count": verified_full_set["source_file_count"],
+            "source_file_bytes": full_archive_result["source_file_bytes"],
+            "included_file_count": full_archive_result["included_file_count"],
+            "included_bytes": full_archive_result["included_bytes"],
+            "excluded_file_count": full_archive_result["excluded_file_count"],
+            "excluded_bytes": full_archive_result["excluded_bytes"],
+            "crc_verified": full_archive_result["crc_verified"],
+            "member_manifest_verified": full_archive_result["member_manifest_verified"],
+            "raw_case_removed": full_archive_result["raw_case_removed"],
+            "full_archive_payload_present": True,
+        }
+        record["raw_cleanup_ledger"] = {
+            "status": "REMOVED_AFTER_FULL_ARCHIVE_VERIFICATION",
+            "case_path": str(case_root),
+            "file_count": verified_full_set["source_file_count"],
+            "bytes": full_archive_result["source_file_bytes"],
+            "included_bytes": full_archive_result["included_bytes"],
+            "excluded_bytes": full_archive_result["excluded_bytes"],
+            "archive_set_path": str(archive_set_path),
+            "archive_manifest_sha256": full_archive_result["archive_manifest_sha256"],
+            "archive_crc_verified": full_archive_result["crc_verified"],
+            "removed_at_utc": _utc_now(),
+            "raw_case_present_after": case_root.exists(),
+        }
+        _write_json_atomic(manifest_path, manifest)
+    else:
+        full_archive_state = json.loads(archive_set_path.read_text(encoding="utf-8"))
+        if full_archive_state.get("archive_profile") != "r22_v4_output_complete":
+            raise ValueError(f"sharded archive profile changed for {record['case_id']}")
+
+    record["compact_archive_status"] = "PENDING"
+    _write_json_atomic(manifest_path, manifest)
+    compact_result = sharded.compact_sharded_case_archive(
+        archive_set_path, compact_path, cleanup_full_archive=True,
+    )
+    receipt = sharded.verify_sharded_archive_receipt(
+        archive_set_path,
+        expected_sha256=compact_result["archive_set_sha256"],
+        expected_manifest_sha256=compact_result["full_archive_manifest_sha256"],
+        expected_compact_sha256=compact_result["archive_sha256"],
+    )
+    final_set = json.loads(archive_set_path.read_text(encoding="utf-8"))
+    record["full_output_archive"] = {
+        "archive_set_path": str(archive_set_path),
+        "archive_set_sha256": compact_result["archive_set_sha256"],
+        "archive_manifest_sha256": compact_result["full_archive_manifest_sha256"],
+        "archive_set_identity_sha256": compact_result["full_archive_identity_sha256"],
+        "archive_bytes": compact_result["full_archive_bytes"],
+        "shard_count": len(final_set.get("shards", [])),
+        "shards": final_set.get("shards", []),
+        "crc_verified": receipt["crc_verified_before_full_archive_cleanup"],
+        "member_manifest_verified": receipt["member_manifest_verified_before_full_archive_cleanup"],
+        "historically_verified_full_archive": receipt["historically_verified_full_archive"],
+        "full_archive_payload_present": receipt["full_archive_payload_present"],
+        "full_archive_cleanup": final_set.get("full_archive_cleanup"),
+    }
+    record["full_output_archive_status"] = "VERIFIED_COMPACTED_AND_CLEANED"
+    record["compact_archive"] = {
+        "archive_path": compact_result["archive_path"],
+        "archive_sha256": compact_result["archive_sha256"],
+        "archive_manifest_sha256": compact_result["archive_manifest_sha256"],
+        "archive_profile": compact_result["archive_profile"],
+        "archive_bytes": compact_result["archive_bytes"],
+        "included_file_count": compact_result["included_file_count"],
+        "included_bytes": compact_result["included_bytes"],
+        "crc_verified": compact_result["crc_verified"],
+        "member_manifest_verified": compact_result["member_manifest_verified"],
+    }
+    record["compact_archive_status"] = "VERIFIED_AND_RAW_REMOVED"
+    ledger = dict(record.get("raw_cleanup_ledger", {}))
+    ledger.update({
+        "status": "REMOVED_AFTER_FULL_ARCHIVE_VERIFICATION",
+        "archive_set_path": str(archive_set_path),
+        "archive_set_sha256": compact_result["archive_set_sha256"],
+        "archive_manifest_sha256": compact_result["full_archive_manifest_sha256"],
+        "compact_archive_sha256": compact_result["archive_sha256"],
+        "full_archive_payload_present": False,
+        "raw_case_present_after": case_root.exists(),
+        "full_archive_cleanup_status": final_set.get("full_archive_cleanup", {}).get("status"),
+    })
+    record["raw_cleanup_ledger"] = ledger
+    record["raw_output_removed_after_archive_verification"] = True
+    record.pop("compact_archive_error", None)
+    record.pop("full_output_archive_error", None)
+    _write_json_atomic(manifest_path, manifest)
+
+
 def _ensure_compact_archive(
     record: dict[str, Any],
     *,
@@ -587,6 +1067,23 @@ def _ensure_compact_archive(
     require_complete_output: bool = False,
     prior_archive_verified: bool = False,
 ) -> None:
+    if record.get("archive_strategy") == "v4_sharded_full_then_compact":
+        selected_archive_base = (
+            failure_archive_root
+            if failure_archive_root is not None
+            and record.get("status") in {"GATE_FAILED", "UNKNOWN_STOP"}
+            else archive_base
+        )
+        _ensure_three_schema_size_pilot_archives(
+            record,
+            phase=phase,
+            raw_base=raw_base,
+            archive_base=selected_archive_base,
+            manifest=manifest,
+            manifest_path=manifest_path,
+            require_complete_output=require_complete_output,
+        )
+        return
     case_root = _case_output_path(raw_base, str(record["output_root"]))
     selected_archive_base = (
         failure_archive_root
@@ -699,6 +1196,7 @@ def run_matrix(
     max_cases: int | None = None,
     resume: bool = False,
     retry_interrupted: bool = False,
+    retry_failed_case: bool = False,
     run_case_fn: Callable[..., Mapping[str, Any]] | None = None,
     case_evaluator_fn: Callable[[Path, Mapping[str, Any]], Mapping[str, Any]] | None = None,
     failure_archive_root: Path | None = None,
@@ -712,6 +1210,11 @@ def run_matrix(
     if archive_profile not in {"legacy", "r22_v4_output_complete"}:
         raise ValueError(f"unknown R22 archive profile: {archive_profile}")
     size_pilot_design_id = design.get("design_id")
+    archive_strategy = (
+        "v4_sharded_full_then_compact"
+        if size_pilot_design_id == r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID
+        else None
+    )
     is_size_pilot_design = size_pilot_design_id in {
         r22.V4_SIZE_PILOT_DESIGN_ID,
         r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID,
@@ -736,6 +1239,11 @@ def run_matrix(
         raise ValueError("V4 size-pilot design requires archive_profile=r22_v4_output_complete")
     if retry_interrupted and not resume:
         raise ValueError("retry_interrupted requires resume=True")
+    if retry_failed_case and not resume:
+        raise ValueError("retry_failed_case requires resume=True")
+    if (retry_failed_case
+            and size_pilot_design_id != r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID):
+        raise ValueError("retry_failed_case is limited to the approved three-schema size pilot")
     specs = build_case_specs(design, phase)
     if max_cases is not None:
         if isinstance(max_cases, bool) or max_cases <= 0:
@@ -760,6 +1268,7 @@ def run_matrix(
         raise ValueError("V3 case classification with compaction requires failure_archive_root")
     manifest_path = output_root / "matrix_manifest.json"
     digest = _design_digest(design)
+    failed_case_to_retry: str | None = None
     metadata = dict(manifest_metadata or {})
     execution_identity = metadata.get("execution_identity", metadata)
     preflight_snapshot = metadata.get("preflight_snapshot")
@@ -770,7 +1279,45 @@ def run_matrix(
         if manifest.get("design_id") != design.get("design_id") or manifest.get("design_sha256") != digest:
             raise ValueError("cannot resume with a different frozen design")
         if manifest.get("status") == "GATE_FAILED":
-            raise RuntimeError("phase previously failed its gate; use a new evidence root after review")
+            if not retry_failed_case:
+                raise RuntimeError("phase previously failed its gate; use a new evidence root after review")
+            latest_by_case: dict[str, Mapping[str, Any]] = {}
+            for row in manifest.get("cases", []):
+                if isinstance(row, Mapping) and row.get("case_id"):
+                    latest_by_case[str(row["case_id"])] = row
+            failed_case_ids = [
+                case_id for case_id, row in latest_by_case.items()
+                if row.get("status") == "GATE_FAILED"
+            ]
+            if (len(failed_case_ids) != 1
+                    or any(row.get("status") == "UNKNOWN_STOP" for row in latest_by_case.values())):
+                raise RuntimeError(
+                    "retry_failed_case requires exactly one latest GATE_FAILED case and no UNKNOWN_STOP cases"
+                )
+            failed_case_to_retry = failed_case_ids[0]
+            phase_case_ids = {
+                r22.case_identifier(
+                    phase=phase, seed=item["seed"], speed_mps=item["speed_mps"],
+                    snr_db=item["snr_db"], delay_ns=item["delay_ns"],
+                    target_count=item["target_count"], period_count=item["period_count"],
+                ) for item in specs
+            }
+            if failed_case_to_retry not in phase_case_ids:
+                raise ValueError("failed case is outside the explicitly authorized phase scope")
+            failed_attempt = int(latest_by_case[failed_case_to_retry].get("attempt", 0))
+            manifest.setdefault("recovery_events", []).append({
+                "type": "EXPLICIT_RETRY_OF_GATE_FAILED_CASE",
+                "status": "RETRY_AUTHORIZED",
+                "case_id": failed_case_to_retry,
+                "failed_attempt": failed_attempt,
+                "prior_case_status": "GATE_FAILED",
+                "requested_at_utc": _utc_now(),
+                "authorization_design_id": str(design.get("design_id")),
+                "approved_design_sha256": str(approved_design_sha256),
+            })
+            manifest["status"] = "RUNNING"
+        elif retry_failed_case:
+            raise RuntimeError("retry_failed_case requires a matrix currently stopped at GATE_FAILED")
         if case_evaluator_fn is not None and manifest.get("status") == "UNKNOWN_STOP":
             raise RuntimeError("phase previously stopped on unknown evidence; use a new evidence root after review")
         if metadata:
@@ -782,9 +1329,13 @@ def run_matrix(
         prior_archive_profile = manifest.get("archive_profile", "legacy")
         if prior_archive_profile != archive_profile:
             raise ValueError("cannot resume with a different compact-archive profile")
+        if manifest.get("archive_strategy") != archive_strategy:
+            raise ValueError("cannot resume with a different V4 archive strategy")
         if manifest.get("v4_size_pilot_authorization") != v4_size_pilot_authorization:
             raise ValueError("cannot resume with a different V4 size-pilot authorization identity")
     else:
+        if retry_failed_case:
+            raise RuntimeError("retry_failed_case requires an existing GATE_FAILED matrix manifest")
         if any(output_root.iterdir()):
             raise FileExistsError(f"refuse to use non-empty matrix output root: {output_root}")
         manifest = {
@@ -793,6 +1344,7 @@ def run_matrix(
             "design_sha256": digest,
             "phase": phase,
             "archive_profile": archive_profile,
+            "archive_strategy": archive_strategy,
             "v4_size_pilot_authorization": v4_size_pilot_authorization,
             "status": "RUNNING",
             "planned_case_count": len(build_case_specs(design, phase)),
@@ -864,15 +1416,25 @@ def run_matrix(
                 if prior_archive is not None:
                     if not isinstance(prior_archive, Mapping):
                         raise ValueError(f"invalid compact archive record for {case_id}")
-                    if prior_archive.get("archive_profile", "legacy") != archive_profile:
-                        raise ValueError(f"compact archive profile changed for {case_id}")
-                    verify_case_archive(
-                        Path(str(prior_archive.get("archive_path", ""))),
-                        expected_sha256=str(prior_archive.get("archive_sha256", "")),
-                        expected_manifest_sha256=str(prior_archive.get("archive_manifest_sha256", "")),
-                        archive_profile=archive_profile,
-                        require_complete_output=(archive_profile == "r22_v4_output_complete"),
+                    expected_compact_profile = (
+                        sharded.COMPACT_PROFILE
+                        if archive_strategy == "v4_sharded_full_then_compact"
+                        else archive_profile
                     )
+                    if prior_archive.get("archive_profile", "legacy") != expected_compact_profile:
+                        raise ValueError(f"compact archive profile changed for {case_id}")
+                    if archive_strategy == "v4_sharded_full_then_compact":
+                        _verify_three_schema_size_pilot_archives(
+                            previous, phase=phase, archive_base=archive_base,
+                        )
+                    else:
+                        verify_case_archive(
+                            Path(str(prior_archive.get("archive_path", ""))),
+                            expected_sha256=str(prior_archive.get("archive_sha256", "")),
+                            expected_manifest_sha256=str(prior_archive.get("archive_manifest_sha256", "")),
+                            archive_profile=archive_profile,
+                            require_complete_output=(archive_profile == "r22_v4_output_complete"),
+                        )
                     prior_archive_verified = True
                 try:
                     _ensure_compact_archive(
@@ -906,6 +1468,11 @@ def run_matrix(
                 previous["status"] = "INTERRUPTED"
                 previous["finished_at_utc"] = _utc_now()
                 previous["interruption_reason"] = "runner ended before a terminal case checkpoint"
+                sample_log = previous.get("resource_usage_sample_log")
+                if sample_log and "resource_usage" not in previous:
+                    recovered_usage = _recover_disk_space_samples(str(sample_log))
+                    if recovered_usage is not None:
+                        previous["resource_usage"] = recovered_usage
             if not retry_interrupted:
                 manifest["status"] = "INTERRUPTED_REVIEW_REQUIRED"
                 manifest["interrupted_case_id"] = case_id
@@ -914,9 +1481,14 @@ def run_matrix(
                 break
             _write_json_atomic(manifest_path, manifest)
         elif previous:
-            manifest["status"] = "GATE_FAILED"
-            _write_json_atomic(manifest_path, manifest)
-            break
+            if not (
+                retry_failed_case
+                and case_id == failed_case_to_retry
+                and previous.get("status") == "GATE_FAILED"
+            ):
+                manifest["status"] = "GATE_FAILED"
+                _write_json_atomic(manifest_path, manifest)
+                break
         if size_pilot_design_id == r22.V4_THREE_SCHEMA_SIZE_PILOT_DESIGN_ID:
             storage_paths = {
                 "matrix_manifest": output_root,
@@ -925,7 +1497,7 @@ def run_matrix(
             }
             if failure_archive_base is not None:
                 storage_paths["failure_archive"] = failure_archive_base
-            resource_gate = _v4_three_schema_size_pilot_resource_gate(storage_paths)
+            resource_gate = _v4_three_schema_size_pilot_resource_gate(storage_paths, design)
             manifest.setdefault("resource_gate_history", []).append(resource_gate)
             manifest["resource_gate"] = resource_gate
             if resource_gate["status"] != "READY":
@@ -957,13 +1529,41 @@ def run_matrix(
             "output_root": str(case_root),
             "started_at_utc": started,
         }
+        if archive_strategy is not None:
+            record["archive_strategy"] = archive_strategy
+        if failed_case_to_retry == case_id:
+            recovery_event = manifest["recovery_events"][-1]
+            recovery_event.update({
+                "status": "RETRY_STARTED",
+                "retry_attempt": attempt,
+                "retry_started_at_utc": started,
+            })
         manifest.setdefault("cases", []).append(record)
         existing[case_id] = record
         manifest["status"] = "RUNNING"
         manifest["active_case_id"] = case_id
         manifest["active_case_output_root"] = str(case_root)
         _write_json_atomic(manifest_path, manifest)
+        resource_monitor: _DiskSpaceMonitor | None = None
+        resource_monitor_started = False
         try:
+            if archive_strategy == "v4_sharded_full_then_compact":
+                sample_log = (
+                    output_root / "resource_usage"
+                    / f"{case_id}__attempt_{attempt:03d}.jsonl"
+                )
+                resource_monitor = _DiskSpaceMonitor(
+                    {
+                        "matrix_manifest": output_root,
+                        "raw_case_outputs": raw_base,
+                        "complete_archive": archive_base,
+                    },
+                    sample_log=sample_log,
+                )
+                record["resource_usage_sample_log"] = str(sample_log)
+                _write_json_atomic(manifest_path, manifest)
+                resource_monitor.start()
+                resource_monitor_started = True
             case_kwargs = {
                 "phase": phase,
                 "seed": spec["seed"],
@@ -1024,6 +1624,13 @@ def run_matrix(
             record["failure"] = {"type": type(exc).__name__, "message": str(exc)}
         record["status"] = state
         record["finished_at_utc"] = _utc_now()
+        if failed_case_to_retry == case_id:
+            recovery_event = manifest["recovery_events"][-1]
+            recovery_event.update({
+                "status": "RETRY_FINISHED",
+                "retry_case_status": state,
+                "retry_finished_at_utc": record["finished_at_utc"],
+            })
         completed_now += 1
         manifest["status"] = "RUNNING" if state in passed_states else "GATE_FAILED"
         if state == "UNKNOWN_STOP":
@@ -1035,6 +1642,7 @@ def run_matrix(
         should_archive = state in passed_states or (
             state in failure_states and failure_archive_base is not None
         )
+        archive_failed = False
         if should_archive and archive_base is not None:
             try:
                 record["compact_archive_status"] = "PENDING"
@@ -1059,8 +1667,19 @@ def run_matrix(
                 manifest["finished_at_utc"] = _utc_now()
                 _write_json_atomic(manifest_path, manifest)
                 print(f"[{phase}] ARCHIVE_PENDING {case_id}: {exc}", flush=True)
-                break
+                archive_failed = True
+        if resource_monitor_started and resource_monitor is not None:
+            try:
+                record["resource_usage"] = resource_monitor.stop()
+            except Exception as exc:
+                record["resource_usage_error"] = {
+                    "type": type(exc).__name__, "message": str(exc),
+                    "sample_log": record.get("resource_usage_sample_log"),
+                }
+            _write_json_atomic(manifest_path, manifest)
         print(f"[{phase}] {state} {case_id}", flush=True)
+        if archive_failed:
+            break
         if state in failure_states or state == "GATE_FAILED":
             break
 
@@ -1113,6 +1732,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="start a new attempt after preserving an interrupted case record",
     )
     parser.add_argument(
+        "--retry-failed-case", action="store_true",
+        help="retry exactly one gate-failed case in the approved three-schema size pilot",
+    )
+    parser.add_argument(
         "--authorize-v4-size-pilot", action="store_true",
         help="authorize only a hash-bound user-approved R22-V4 size-pilot design",
     )
@@ -1136,6 +1759,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             max_cases=args.max_cases,
             resume=args.resume,
             retry_interrupted=args.retry_interrupted,
+            retry_failed_case=args.retry_failed_case,
             archive_profile=args.archive_profile,
             design_source_path=args.design,
             authorize_v4_size_pilot=args.authorize_v4_size_pilot,

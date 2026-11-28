@@ -28,6 +28,7 @@ from scripts.phase_r import r21_historical_task_review as r21_eval  # noqa: E402
 from scripts.phase_r import run_r12_physics_matched_delay as r12  # noqa: E402
 from scripts.phase_r import run_r21_cuda_pilot as r21  # noqa: E402
 from scripts.phase_r.r22_scenario_factory import build_seed_scenario  # noqa: E402
+from scripts.phase_r.r22_v4_case_schema import is_h0_to_not_applicable  # noqa: E402
 
 DEFAULT_STAGE2 = ROOT / "build/simulate_stage2_statistical"
 DEFAULT_PRODUCTION = ROOT / "build/GMTI_pipe_core"
@@ -195,9 +196,13 @@ def _source_identity() -> dict[str, Any]:
     sources = (
         Path(__file__), Path(__file__).with_name("r22_scenario_factory.py"),
         Path(__file__).with_name("r22_v4_evidence.py"),
+        Path(__file__).with_name("r22_v4_case_schema.py"),
+        Path(__file__).with_name("r22_v4_identity.py"),
         Path(__file__).with_name("r22_compact_archive.py"),
         Path(__file__).with_name("r22_experiment_matrix.py"),
+        Path(__file__).with_name("r22_sharded_archive.py"),
         ROOT / "scripts/run_delay_stage1_formal.py",
+        ROOT / "scripts/estimate_channel_delay.py",
         ROOT / "scripts/run_production_hierarchical_calibration_pilot.py",
         ROOT / "scripts/run_track_manager_e2e.py",
         ROOT / "scripts/phase_r/run_r12_physics_matched_delay.py",
@@ -272,6 +277,7 @@ def _annotate_v4_branch_classes(
     for branch in branch_records:
         record = dict(branch)
         role = str(record.get("role") or "")
+        target_response_not_applicable = phase == "h0" and role == "TO"
         canonical = runner_to_v4.get(str(record.get("method_id") or ""))
         is_registered = canonical in registered_methods and role in registered_roles
         record["v4_registered_method_id"] = canonical if is_registered else None
@@ -280,6 +286,14 @@ def _annotate_v4_branch_classes(
             else "internal_auxiliary_branch" if role in {"ON", "OFF", "TO"}
             else "non_branch_diagnostic"
         )
+        if target_response_not_applicable:
+            record["v4_target_response_not_applicable"] = True
+            record["v4_target_response_not_applicable_reason"] = (
+                "H0 target_count=0; no target-only response source"
+            )
+            record["v4_observed_production_status"] = record.get("status")
+            if record.get("status") != "passed":
+                record["status"] = "NOT_APPLICABLE_NO_TARGETS"
         annotated.append(record)
     return annotated
 
@@ -408,8 +422,14 @@ def _audit_production_branches(
     return audited
 
 
-def _all_production_branches_passed(branch_records: Sequence[Mapping[str, Any]]) -> bool:
-    production_branches = [record for record in branch_records if str(record.get("role", "")) != "ALL"]
+def _all_production_branches_passed(
+    branch_records: Sequence[Mapping[str, Any]], *, target_count: int,
+) -> bool:
+    production_branches = [
+        record for record in branch_records
+        if str(record.get("role", "")) != "ALL"
+        and not is_h0_to_not_applicable(record, target_count=target_count)
+    ]
     return bool(production_branches) and all(
         record.get("status") == "passed"
         and record.get("production_returncode") == 0
@@ -672,6 +692,8 @@ def _delay_corrected_inputs_by_period(
             "period_id": period_id,
             "source_path": str(Path(source).resolve()),
             "destination_path": str(destination.resolve()),
+            "source_identity": file_identity(Path(source)),
+            "corrected_identity": file_identity(destination),
             "estimator_status": estimate.get("estimator_status"),
             "estimate_ns": estimate.get("estimate_ns"),
             "applied_correction_ns": correction_ns,
@@ -1699,9 +1721,18 @@ def run_case(
                 target_count=target_count,
                 period_count=period_count,
                 case_id=case_id,
+                causal_prefix_estimators=causal_prefix_records,
+                delay_ns=float(delay_ns),
             )
             pipeline_manifest["r22_v4_target_response"] = v4_response_manifest
         write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
+        if v4_output_complete:
+            from scripts.phase_r.r22_v4_evidence import validate_target_complex_response
+
+            pipeline_manifest["r22_causal_prefix_lineage_audit"] = validate_target_complex_response(
+                pipeline_case_root,
+            )["causal_prefix_lineage_audit"]
+            write_json(pipeline_case_root / "case_manifest.json", pipeline_manifest)
         tables = _evaluate_branches(
             phase=phase,
             case_id=case_id,
@@ -1726,7 +1757,9 @@ def run_case(
         ]
         evaluable_h0_seed_count = len({row.get("seed") for row in evaluable_h0_task_rows})
         invalid_truth = sum(int(row.get("invalid_truth_opportunities") or 0) for row in evaluated_on)
-        all_branches_passed = _all_production_branches_passed(method_records)
+        all_branches_passed = _all_production_branches_passed(
+            method_records, target_count=target_count,
+        )
         manifest.update({
             "status_labels": {
                 "IMPLEMENTED": True,

@@ -19,6 +19,7 @@ from scripts.phase_r.r22_v4_identity import (
     branch_identity_key,
     validate_branch_manifest_identity,
 )
+from scripts.phase_r.r22_v4_case_schema import is_h0_to_not_applicable
 
 
 _ROLES = ("ON", "OFF", "TO")
@@ -45,6 +46,276 @@ def _file_record(path: Path, root: Path) -> dict[str, Any]:
         "exists": resolved.is_file(),
         "bytes": resolved.stat().st_size if resolved.is_file() else None,
         "sha256": _sha256(resolved) if resolved.is_file() else None,
+    }
+
+
+_CAUSAL_PREFIX_METHODS = ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX")
+_CAUSAL_ESTIMATOR_INPUT_ROLE = "A1_Current_unknown_error_ON_raw_C1_C2_only"
+_CAUSAL_CORRECTION_SOURCE = "same_case_ON_raw_C1_C2_causal_prefix"
+_CAUSAL_CORRECTION_OPERATOR = "estimate_channel_delay.rewrite_float32_protocol_delay"
+_CAUSAL_OPERATOR_MODEL = "inverse_stage2_zero_extended_linear_interpolator"
+
+
+def _causal_estimator_rows(value: Mapping[str, Any] | None) -> dict[str, list[dict[str, Any]]]:
+    if value is None:
+        return {}
+    if not isinstance(value, Mapping):
+        raise ValueError("causal prefix estimator inventory is not an object")
+    normalized: dict[str, list[dict[str, Any]]] = {}
+    fields = (
+        "method_id", "period_id", "prefix_period_ids", "prefix_input_identities",
+        "estimator_input_role", "estimator_status", "estimate_ns",
+        "applied_correction_ns", "fallback_status", "truth_used_in_estimator",
+    )
+    for method_id in _CAUSAL_PREFIX_METHODS:
+        raw_rows = value.get(method_id, [])
+        if not isinstance(raw_rows, list):
+            raise ValueError(f"causal estimator rows are invalid: {method_id}")
+        normalized[method_id] = [
+            {key: row.get(key) for key in fields}
+            for row in raw_rows if isinstance(row, Mapping)
+        ]
+        if len(normalized[method_id]) != len(raw_rows):
+            raise ValueError(f"causal estimator row is not an object: {method_id}")
+    unexpected = set(value) - set(_CAUSAL_PREFIX_METHODS)
+    if unexpected:
+        raise ValueError(f"unregistered causal estimator methods: {sorted(unexpected)}")
+    return normalized
+
+
+def _causal_branch_rows(records: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    fields = (
+        "branch_name", "method_id", "role", "status", "production_returncode",
+        "v4_execution_class", "v4_target_response_not_applicable",
+        "v4_target_response_not_applicable_reason", "correction_source",
+        "estimator_method_id", "estimator_input_role", "truth_used_in_estimator",
+        "truth_used_to_apply_correction", "correction_operator", "period_corrections",
+    )
+    return [
+        {key: record.get(key) for key in fields}
+        for record in records
+        if record.get("method_id") in _CAUSAL_PREFIX_METHODS
+        and str(record.get("role", "")) in _ROLES
+    ]
+
+
+def _verified_causal_file_identity(
+    identity: Mapping[str, Any], *, case_root: Path, label: str,
+) -> dict[str, Any]:
+    path_value = identity.get("path")
+    if identity.get("exists") is not True or not isinstance(path_value, str):
+        raise ValueError(f"causal lineage file identity is incomplete: {label}")
+    path = Path(path_value).expanduser()
+    if not path.is_absolute():
+        raise ValueError(f"causal lineage path must be absolute: {label}")
+    resolved = path.resolve()
+    try:
+        resolved.relative_to(case_root.resolve())
+    except ValueError as exc:
+        raise ValueError(f"causal lineage path is outside the case: {label}") from exc
+    if (not resolved.is_file()
+            or isinstance(identity.get("bytes"), bool)
+            or resolved.stat().st_size != int(identity.get("bytes", -1))
+            or _sha256(resolved) != str(identity.get("sha256") or "")):
+        raise ValueError(f"causal lineage file content identity differs: {label}")
+    return {
+        "path": str(resolved), "exists": True,
+        "bytes": resolved.stat().st_size, "sha256": _sha256(resolved),
+    }
+
+
+def validate_causal_prefix_lineage(
+    causal_prefix_estimators: Mapping[str, Any] | None,
+    branch_records: Sequence[Mapping[str, Any]],
+    *,
+    period_count: int,
+    delay_ns: float,
+    case_root: Path,
+) -> dict[str, Any]:
+    """Bind each causal-prefix estimate to the exact correction applied per role/period."""
+    estimates = _causal_estimator_rows(causal_prefix_estimators)
+    branches = _causal_branch_rows(branch_records)
+    causal_branch_methods = {str(row["method_id"]) for row in branches}
+    if delay_ns == 0.0:
+        if causal_branch_methods or any(estimates.values()):
+            raise ValueError("zero-delay reference must not schedule a causal correction method")
+        return {
+            "status": "NOT_APPLICABLE_NO_CAUSAL_CORRECTION_METHODS",
+            "delay_ns": 0.0, "period_count": period_count, "methods": {},
+        }
+    if delay_ns != 4.0 or period_count <= 0:
+        raise ValueError("causal correction lineage requires the frozen +4 ns, positive-period case")
+    if causal_branch_methods != set(_CAUSAL_PREFIX_METHODS):
+        raise ValueError("causal Production method inventory is incomplete")
+
+    verified_methods: dict[str, list[dict[str, Any]]] = {}
+    for method_id in _CAUSAL_PREFIX_METHODS:
+        method_estimates = estimates.get(method_id, [])
+        if len(method_estimates) != period_count:
+            raise ValueError(f"causal estimator period count differs: {method_id}")
+        by_period: dict[int, dict[str, Any]] = {}
+        canonical_inputs: dict[int, dict[str, Any]] = {}
+        for row in method_estimates:
+            period = row.get("period_id")
+            if isinstance(period, bool) or not isinstance(period, int) or period in by_period:
+                raise ValueError(f"causal estimator period identity is invalid: {method_id}")
+            if row.get("method_id") != method_id:
+                raise ValueError(f"causal estimator method identity differs: {method_id}")
+            if row.get("estimator_input_role") != _CAUSAL_ESTIMATOR_INPUT_ROLE:
+                raise ValueError(f"causal estimator input role is invalid: {method_id}/{period}")
+            if row.get("truth_used_in_estimator") is not False:
+                raise ValueError(f"causal estimator used or failed to exclude truth: {method_id}/{period}")
+            expected_prefix = list(range(period + 1))
+            if row.get("prefix_period_ids") != expected_prefix:
+                raise ValueError(f"causal estimator prefix is not causal: {method_id}/{period}")
+            raw_identities = row.get("prefix_input_identities")
+            if not isinstance(raw_identities, list) or len(raw_identities) != period + 1:
+                raise ValueError(f"causal estimator prefix file identities are incomplete: {method_id}/{period}")
+            identities: list[dict[str, Any]] = []
+            for input_period, raw_identity in enumerate(raw_identities):
+                if (not isinstance(raw_identity, Mapping)
+                        or raw_identity.get("period_id") != input_period):
+                    raise ValueError(f"causal estimator prefix identity order differs: {method_id}/{period}")
+                identity = _verified_causal_file_identity(
+                    raw_identity, case_root=case_root,
+                    label=f"{method_id}/{period}/input-{input_period}",
+                )
+                identities.append({"period_id": input_period, **identity})
+                canonical = canonical_inputs.get(input_period)
+                if canonical is not None and identity != canonical:
+                    raise ValueError(f"causal prefix input identity changed across periods: {method_id}")
+                canonical_inputs[input_period] = identity
+
+            status = row.get("estimator_status")
+            applied = row.get("applied_correction_ns")
+            if isinstance(applied, bool) or not isinstance(applied, (int, float)) or not math.isfinite(float(applied)):
+                raise ValueError(f"causal applied correction is not finite: {method_id}/{period}")
+            estimate = row.get("estimate_ns")
+            fallback = row.get("fallback_status")
+            if status == "AVAILABLE":
+                if (isinstance(estimate, bool) or not isinstance(estimate, (int, float))
+                        or not math.isfinite(float(estimate)) or fallback is not None
+                        or not math.isclose(float(applied), float(estimate), rel_tol=0.0, abs_tol=1.0e-12)):
+                    raise ValueError(f"available causal estimate differs from applied correction: {method_id}/{period}")
+            elif (status != "NOT_AVAILABLE" or estimate is not None or float(applied) != 0.0
+                  or fallback != "ESTIMATOR_UNAVAILABLE_ZERO_CORRECTION"):
+                raise ValueError(f"unavailable causal estimate lacks explicit zero fallback: {method_id}/{period}")
+            by_period[period] = {
+                "method_id": method_id, "period_id": period,
+                "prefix_period_ids": expected_prefix,
+                "prefix_input_identities": identities,
+                "estimator_status": status,
+                "estimate_ns": estimate,
+                "applied_correction_ns": float(applied),
+                "fallback_status": fallback,
+            }
+        if set(by_period) != set(range(period_count)):
+            raise ValueError(f"causal estimator period set is incomplete: {method_id}")
+
+        method_branches = [row for row in branches if row.get("method_id") == method_id]
+        by_role: dict[str, dict[str, Any]] = {}
+        for branch in method_branches:
+            role = str(branch.get("role", ""))
+            if role in by_role:
+                raise ValueError(f"duplicate causal Production role: {method_id}/{role}")
+            by_role[role] = branch
+        if set(by_role) != set(_ROLES):
+            raise ValueError(f"causal Production role set is incomplete: {method_id}")
+
+        role_audit: dict[str, list[dict[str, Any]]] = {}
+        for role in _ROLES:
+            branch = by_role[role]
+            if (not isinstance(branch.get("branch_name"), str)
+                    or not branch.get("branch_name")
+                    or branch.get("correction_source") != _CAUSAL_CORRECTION_SOURCE
+                    or branch.get("estimator_method_id") != method_id
+                    or branch.get("estimator_input_role") != _CAUSAL_ESTIMATOR_INPUT_ROLE
+                    or branch.get("truth_used_in_estimator") is not False
+                    or branch.get("truth_used_to_apply_correction") is not False
+                    or branch.get("correction_operator") != _CAUSAL_CORRECTION_OPERATOR):
+                raise ValueError(f"causal Production branch lineage is invalid: {method_id}/{role}")
+            corrections = branch.get("period_corrections")
+            if not isinstance(corrections, list) or len(corrections) != period_count:
+                raise ValueError(f"causal Production correction period set is incomplete: {method_id}/{role}")
+            corrections_by_period: dict[int, Mapping[str, Any]] = {}
+            for correction in corrections:
+                period = correction.get("period_id") if isinstance(correction, Mapping) else None
+                if (isinstance(period, bool) or not isinstance(period, int)
+                        or period in corrections_by_period):
+                    raise ValueError(f"causal correction period identity is invalid: {method_id}/{role}")
+                corrections_by_period[period] = correction
+            if set(corrections_by_period) != set(range(period_count)):
+                raise ValueError(f"causal correction period set differs: {method_id}/{role}")
+            role_periods: list[dict[str, Any]] = []
+            for period in range(period_count):
+                estimate = by_period[period]
+                correction = corrections_by_period[period]
+                for field, expected in (
+                    ("estimator_status", estimate["estimator_status"]),
+                    ("estimate_ns", estimate["estimate_ns"]),
+                    ("applied_correction_ns", estimate["applied_correction_ns"]),
+                    ("fallback_status", estimate["fallback_status"]),
+                ):
+                    actual = correction.get(field)
+                    if field.endswith("_ns") and actual is not None and expected is not None:
+                        equal = math.isclose(float(actual), float(expected), rel_tol=0.0, abs_tol=1.0e-12)
+                    else:
+                        equal = actual == expected
+                    if not equal:
+                        raise ValueError(f"causal correction differs from estimator: {method_id}/{role}/{period}/{field}")
+                source_identity = correction.get("source_identity")
+                corrected_identity = correction.get("corrected_identity")
+                if not isinstance(source_identity, Mapping) or not isinstance(corrected_identity, Mapping):
+                    raise ValueError(f"causal correction file identities are missing: {method_id}/{role}/{period}")
+                verified_source = _verified_causal_file_identity(
+                    source_identity, case_root=case_root,
+                    label=f"{method_id}/{role}/{period}/source",
+                )
+                verified_corrected = _verified_causal_file_identity(
+                    corrected_identity, case_root=case_root,
+                    label=f"{method_id}/{role}/{period}/corrected",
+                )
+                if role == "ON":
+                    expected_on = estimate["prefix_input_identities"][period]
+                    if verified_source != {key: expected_on[key] for key in ("path", "exists", "bytes", "sha256")}:
+                        raise ValueError(f"ON correction source is not the estimator's current-period input: {method_id}/{period}")
+                if correction.get("source_path") != verified_source["path"] or correction.get("destination_path") != verified_corrected["path"]:
+                    raise ValueError(f"causal correction paths differ from their identities: {method_id}/{role}/{period}")
+                operator = correction.get("operator_audit")
+                if (not isinstance(operator, Mapping)
+                        or operator.get("status") != "passed"
+                        or operator.get("correction_model") != _CAUSAL_OPERATOR_MODEL
+                        or operator.get("input_path") != verified_source["path"]
+                        or operator.get("output_path") != verified_corrected["path"]
+                        or not math.isclose(float(operator.get("delta_tau_ns", math.nan)),
+                                             float(estimate["applied_correction_ns"]),
+                                             rel_tol=0.0, abs_tol=1.0e-12)
+                        or int(operator.get("input_bytes", -1)) != verified_source["bytes"]
+                        or int(operator.get("output_bytes", -1)) != verified_corrected["bytes"]
+                        or int(operator.get("packets_rewritten", 0)) <= 0):
+                    raise ValueError(f"causal correction operator audit differs: {method_id}/{role}/{period}")
+                role_periods.append({
+                    "period_id": period,
+                    "estimator_status": estimate["estimator_status"],
+                    "estimate_ns": estimate["estimate_ns"],
+                    "applied_correction_ns": estimate["applied_correction_ns"],
+                    "fallback_status": estimate["fallback_status"],
+                    "source_identity": verified_source,
+                    "corrected_identity": verified_corrected,
+                    "operator_audit": dict(operator),
+                })
+            role_audit[role] = role_periods
+        verified_methods[method_id] = [
+            {**by_period[period], "roles": {
+                role: role_audit[role][period] for role in _ROLES
+            }}
+            for period in range(period_count)
+        ]
+    return {
+        "status": "PASSED",
+        "delay_ns": float(delay_ns),
+        "period_count": period_count,
+        "methods": verified_methods,
     }
 
 
@@ -262,6 +533,8 @@ def extract_target_complex_response(
     target_count: int,
     period_count: int,
     case_id: str | None = None,
+    causal_prefix_estimators: Mapping[str, Any] | None = None,
+    delay_ns: float = 0.0,
 ) -> dict[str, Any]:
     """Save truth-aligned CSI ROIs with mode- and role-complete identities."""
     root = Path(case_root).expanduser().resolve()
@@ -270,6 +543,10 @@ def extract_target_complex_response(
         raise FileExistsError(f"refusing to overwrite V4 response evidence: {output}")
     if target_count < 0 or period_count <= 0:
         raise ValueError("target_count and period_count are invalid")
+    causal_lineage_audit = validate_causal_prefix_lineage(
+        causal_prefix_estimators, branch_records,
+        period_count=period_count, delay_ns=float(delay_ns), case_root=root,
+    )
     resolved_case_id = case_id
     case_manifest_path = root / "case_manifest.json"
     if resolved_case_id is None and case_manifest_path.is_file():
@@ -309,10 +586,26 @@ def extract_target_complex_response(
     branch_groups: dict[tuple[str, str, str, str], dict[str, dict[str, Any]]] = {}
     seen_branch_keys: set[tuple[str, str, str, str, str, str]] = set()
     branch_identity_records: list[dict[str, Any]] = []
+    not_applicable_branches: list[dict[str, Any]] = []
     for record in branch_records:
         role = str(record.get("role", ""))
         branch_name = str(record.get("branch_name", ""))
         if role not in _ROLES or not branch_name:
+            continue
+        if is_h0_to_not_applicable(record, target_count=target_count):
+            not_applicable_branches.append({
+                "branch_name": branch_name,
+                "method_id": record.get("method_id"),
+                "condition": record.get("condition"),
+                "mode": record.get("mode"),
+                "role": role,
+                "status": record.get("status"),
+                "observed_production_status": record.get(
+                    "v4_observed_production_status", record.get("status"),
+                ),
+                "production_returncode": record.get("production_returncode"),
+                "reason": record.get("v4_target_response_not_applicable_reason"),
+            })
             continue
         if record.get("status") != "passed" or record.get("production_returncode") != 0:
             raise ValueError(f"V4 response source branch did not pass Production: {branch_name}")
@@ -358,14 +651,24 @@ def extract_target_complex_response(
         })
     if not branch_groups:
         raise ValueError("V4 response extraction requires at least one Production branch")
-    for group_key, group in branch_groups.items():
+    branch_group_records: list[dict[str, Any]] = []
+    for group_key, group in sorted(branch_groups.items()):
         required_roles = {"ON", "TO"} if target_count > 0 else {"ON"}
         if group_key[3] in {"Mode-A", "Mode-B"}:
-            required_roles = {"ON", "OFF", "TO"}
+            required_roles = {"ON", "OFF", "TO"} if target_count > 0 else {"ON", "OFF"}
         if not required_roles <= set(group):
             raise ValueError(
                 f"V4 Production mode group lacks required roles {sorted(required_roles)}: {group_key}"
             )
+        branch_group_records.append({
+            "case_id": group_key[0],
+            "condition": group_key[1],
+            "method_id": group_key[2],
+            "mode": group_key[3],
+            "available_roles": sorted(group),
+            "required_roles": sorted(required_roles),
+            "status": "COMPLETE",
+        })
 
     taps: dict[tuple[str, str, str, str, str], dict[int, tuple[Path, dict[str, str]]]] = {}
     evidence_branch_keys: list[tuple[str, str, str, str, str, str]] = []
@@ -555,13 +858,18 @@ def extract_target_complex_response(
         production_branch_records.append(record)
 
     manifest = {
-        "schema_version": 2, "case_id": resolved_case_id,
+        "schema_version": 3, "case_id": resolved_case_id,
         "status": "NOT_APPLICABLE_NO_TARGETS" if target_count == 0 else "EVALUABLE",
         "status_labels": {
             "IMPLEMENTED": True, "EXECUTED": True, "EVALUABLE": True,
             "PERFORMANCE_VERIFIED": False,
         },
         "target_count_design": target_count, "period_count": period_count,
+        "delay_ns": float(delay_ns),
+        "causal_prefix_lineage_status": causal_lineage_audit["status"],
+        "causal_prefix_lineage_audit": causal_lineage_audit,
+        "causal_prefix_estimators": _causal_estimator_rows(causal_prefix_estimators),
+        "causal_prefix_production_branches": _causal_branch_rows(branch_records),
         "target_truth_expected": target_count > 0,
         "truth_source": _file_record(truth_path, root) if truth_path is not None else None,
         "truth_mapping_audit": truth_audit,
@@ -588,7 +896,9 @@ def extract_target_complex_response(
         "target_period_roi_count": len(roi_manifest_rows),
         "complex_response_row_count": response_count,
         "adaptive_role_diagnostic_row_count": len(closure_rows),
+        "branch_groups": branch_group_records,
         "production_branches": production_branch_records,
+        "not_applicable_branches": not_applicable_branches,
         "response_evidence_branch_count": len(evidence_keys),
         "period_processing_states": period_processing_states,
         "files": {},
@@ -608,6 +918,8 @@ def extract_target_complex_response(
         "response_row_count": response_count, "target_period_roi_count": len(roi_manifest_rows),
         "target_only_response_source": "TO" if target_count > 0 else "not_applicable",
         "adaptive_role_closure_is_diagnostic_only": True,
+        "causal_prefix_lineage_status": causal_lineage_audit["status"],
+        "causal_prefix_lineage_audit": causal_lineage_audit,
     }
 
 def validate_target_complex_response(case_root: Path) -> dict[str, Any]:
@@ -660,6 +972,7 @@ def validate_target_complex_response(case_root: Path) -> dict[str, Any]:
         raise ValueError("V4 target ROI row count differs from its manifest")
     target_count = int(manifest.get("target_count_design", -1))
     period_count = int(manifest.get("period_count", 0))
+    delay_ns = float(manifest.get("delay_ns", math.nan))
     expected_status = "NOT_APPLICABLE_NO_TARGETS" if target_count == 0 else "EVALUABLE"
     if (target_count < 0 or period_count <= 0 or manifest.get("status") != expected_status
             or (target_count == 0 and (response_rows != 0 or roi_rows != 0))
@@ -699,6 +1012,24 @@ def validate_target_complex_response(case_root: Path) -> dict[str, Any]:
     elif (truth_audit.get("status") != "NOT_APPLICABLE_NO_TARGETS"
           or truth_audit.get("identity_row_count") != 0):
         raise ValueError("V4 H0 truth mapping audit must be explicitly not applicable")
+    lineage_audit = validate_causal_prefix_lineage(
+        manifest.get("causal_prefix_estimators"),
+        manifest.get("causal_prefix_production_branches", []),
+        period_count=period_count, delay_ns=delay_ns, case_root=root,
+    )
+    if (manifest.get("causal_prefix_lineage_status") != lineage_audit.get("status")
+            or manifest.get("causal_prefix_lineage_audit") != lineage_audit):
+        raise ValueError("V4 causal-prefix lineage audit does not match its bound records")
+    case_manifest_path = root / "case_manifest.json"
+    if case_manifest_path.is_file():
+        case_manifest = json.loads(case_manifest_path.read_text(encoding="utf-8"))
+        if isinstance(case_manifest, Mapping):
+            if "r22_causal_prefix_estimators" in case_manifest:
+                if _causal_estimator_rows(case_manifest.get("r22_causal_prefix_estimators")) != manifest.get("causal_prefix_estimators"):
+                    raise ValueError("V4 response causal estimates differ from pipeline case manifest")
+            if "method_branches" in case_manifest:
+                if _causal_branch_rows(case_manifest.get("method_branches", [])) != manifest.get("causal_prefix_production_branches"):
+                    raise ValueError("V4 response causal branches differ from pipeline case manifest")
     branches = manifest.get("production_branches")
     states = manifest.get("period_processing_states")
     if not isinstance(branches, list) or not isinstance(states, list):
@@ -728,4 +1059,6 @@ def validate_target_complex_response(case_root: Path) -> dict[str, Any]:
         "response_row_count": response_rows,
         "target_period_roi_count": roi_rows,
         "period_processing_state_count": len(states),
+        "causal_prefix_lineage_status": lineage_audit["status"],
+        "causal_prefix_lineage_audit": lineage_audit,
     }

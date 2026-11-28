@@ -1,4 +1,4 @@
-"""Expand the R22 V4 draft into a non-executing, source-aware run plan."""
+"""Expand the frozen R22 V4 design into a non-executing run plan."""
 
 from __future__ import annotations
 
@@ -236,7 +236,7 @@ def build_v4_execution_plan(design: Mapping[str, Any]) -> dict[str, Any]:
     if design.get("schema_version") != 1:
         raise ValueError("unsupported V4 schema_version")
     if design.get("execution_authorized") is not False or design.get("cuda_authorized") is not False:
-        raise ValueError("V4 draft must remain non-executable and CUDA unauthorized")
+        raise ValueError("V4 frozen design must remain non-executable and CUDA unauthorized")
     production = design.get("production")
     target = design.get("target_present")
     h0 = design.get("h0")
@@ -318,7 +318,7 @@ def build_v4_execution_plan(design: Mapping[str, Any]) -> dict[str, Any]:
     if (registered_counts["target_present"] != int(target["production_branch_count"])
             or registered_counts["h0"] != int(h0["production_branch_count"])):
         raise ValueError(
-            "registered method-role slot totals differ from draft; do not silently change design"
+            "registered method-role slot totals differ from frozen design; do not silently change design"
         )
 
     templates, calls_by_delay = _production_templates()
@@ -386,7 +386,7 @@ def build_v4_execution_plan(design: Mapping[str, Any]) -> dict[str, Any]:
         "registered_branch_counts": {**registered_counts, "total": declared_total},
         "registered_science_branches": registered,
         "registered_slot_semantics": (
-            "draft-declared method/role slots; M1_BATCH10_DIAGNOSTIC slots are estimates only, "
+            "frozen-design method/role slots; M1_BATCH10_DIAGNOSTIC slots are estimates only, "
             "not Production branches or ranking observations"
         ),
         "offline_diagnostic_slot_count": diag_total,

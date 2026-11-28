@@ -85,6 +85,9 @@ def _fixture(*, target_count: int, delay_ns: float, include_auxiliary_roles: boo
         "target_response_row_count": 0 if h0 else 400,
         "target_roi_row_count": 0 if h0 else 200,
         "truth_mapping_status": "NOT_APPLICABLE_NO_TARGETS" if h0 else "passed",
+        "causal_prefix_lineage_status": (
+            "PASSED" if delay_ns == 4.0 else "NOT_APPLICABLE_NO_CAUSAL_CORRECTION_METHODS"
+        ),
     }
     return identity, members, payload
 
@@ -118,6 +121,16 @@ def test_zero_delay_schema_rejects_correction_branches_and_does_not_require_esti
 
     with pytest.raises(ValueError, match="zero-delay case contains correction method"):
         validate_v4_case_schema(identity, members, payload_metadata=payload)
+
+
+def test_schema_requires_causal_lineage_status_to_match_delay_condition():
+    identity, members, payload = _fixture(target_count=20, delay_ns=4.0)
+
+    with pytest.raises(ValueError, match="causal-prefix lineage status"):
+        validate_v4_case_schema(
+            identity, members,
+            payload_metadata={**payload, "causal_prefix_lineage_status": "NOT_APPLICABLE_NO_CAUSAL_CORRECTION_METHODS"},
+        )
 
 
 def test_h0_schema_requires_no_target_roi_no_truth_associations_and_h0_evaluator():
@@ -174,3 +187,62 @@ def test_schema_rejects_missing_detection_period_or_trackmanager_lineage():
     members.remove(f"{CASE_ROOT}/production/A0_ON/result/detection_results_GMTI10.csv")
     with pytest.raises(ValueError, match="missing required Production member"):
         validate_v4_case_schema(identity, members, payload_metadata=payload)
+
+
+def test_schema_allows_only_runner_generated_root_provenance_files():
+    identity, members, payload = _fixture(target_count=20, delay_ns=0.0)
+    generated = members | {"scenario_template.json", "target_generation_manifest.json"}
+    assert validate_v4_case_schema(identity, generated, payload_metadata=payload)["status"] == "PASS"
+    with pytest.raises(ValueError, match="outside its schema allowlist"):
+        validate_v4_case_schema(
+            identity, generated | {"unregistered_root_payload.bin"}, payload_metadata=payload,
+        )
+
+
+def test_h0_exact_non_applicable_to_marker_skips_target_only_branch_outputs():
+    identity, members, payload = _fixture(
+        target_count=0, delay_ns=0.0, include_auxiliary_roles=True,
+    )
+    branch = "A0_TO"
+    members = {
+        name for name in members
+        if not name.startswith(f"{CASE_ROOT}/production/{branch}/result/")
+        and not name.startswith(f"{CASE_ROOT}/production/{branch}/track_debug_runs/")
+    }
+    manifest = {
+        "role": "TO",
+        "v4_target_response_not_applicable": True,
+        "v4_execution_class": "internal_auxiliary_branch",
+        "v4_target_response_not_applicable_reason": (
+            "H0 target_count=0; no target-only response source"
+        ),
+    }
+    result = validate_v4_case_schema(
+        identity, members, payload_metadata=payload,
+        branch_manifest_records={branch: manifest},
+    )
+    assert result["status"] == "PASS"
+    assert result["non_applicable_h0_branches"] == [branch]
+
+
+def test_h0_non_applicable_to_without_exact_marker_still_requires_branch_outputs():
+    identity, members, payload = _fixture(
+        target_count=0, delay_ns=0.0, include_auxiliary_roles=True,
+    )
+    branch = "A0_TO"
+    members = {
+        name for name in members
+        if not name.startswith(f"{CASE_ROOT}/production/{branch}/result/")
+        and not name.startswith(f"{CASE_ROOT}/production/{branch}/track_debug_runs/")
+    }
+    malformed = {
+        "role": "TO",
+        "v4_target_response_not_applicable": True,
+        "v4_execution_class": "internal_auxiliary_branch",
+        "v4_target_response_not_applicable_reason": "wrong reason",
+    }
+    with pytest.raises(ValueError, match="missing required Production member"):
+        validate_v4_case_schema(
+            identity, members, payload_metadata=payload,
+            branch_manifest_records={branch: malformed},
+        )

@@ -11,8 +11,125 @@ import pytest
 
 from scripts.phase_r.r22_v4_evidence import (
     extract_target_complex_response,
+    validate_causal_prefix_lineage,
     validate_target_complex_response,
 )
+
+
+def _causal_lineage_fixture(case_root: Path, *, periods: int = 2):
+    methods = ("M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX")
+    identities = []
+    for period in range(periods):
+        path = case_root / "inputs" / "estimator_on" / f"period_{period:04d}.bin"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(f"on-{period}".encode())
+        identities.append({
+            "period_id": period, "path": str(path.resolve()), "exists": True,
+            "bytes": path.stat().st_size,
+            "sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        })
+
+    estimators = {}
+    branches = []
+    for method_index, method in enumerate(methods):
+        estimates = []
+        applied_by_period = []
+        for period in range(periods):
+            applied = 0.5 + method_index * 0.1 + period * 0.01
+            applied_by_period.append(applied)
+            estimates.append({
+                "method_id": method,
+                "period_id": period,
+                "prefix_period_ids": list(range(period + 1)),
+                "prefix_input_identities": identities[:period + 1],
+                "estimator_input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+                "estimator_status": "AVAILABLE",
+                "estimate_ns": applied,
+                "applied_correction_ns": applied,
+                "fallback_status": None,
+                "truth_used_in_estimator": False,
+            })
+        estimators[method] = estimates
+
+        for role in ("ON", "OFF", "TO"):
+            corrections = []
+            for period, applied in enumerate(applied_by_period):
+                source = case_root / "inputs" / role / f"period_{period:04d}.bin"
+                if role == "ON":
+                    source = Path(identities[period]["path"])
+                source.parent.mkdir(parents=True, exist_ok=True)
+                if not source.exists():
+                    source.write_bytes(f"{role}-{period}".encode())
+                destination = case_root / "corrected" / method / role / f"period_{period:04d}.bin"
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                destination.write_bytes(f"corrected-{method}-{role}-{period}".encode())
+                source_identity = {
+                    "path": str(source.resolve()), "exists": True,
+                    "bytes": source.stat().st_size,
+                    "sha256": hashlib.sha256(source.read_bytes()).hexdigest(),
+                }
+                corrected_identity = {
+                    "path": str(destination.resolve()), "exists": True,
+                    "bytes": destination.stat().st_size,
+                    "sha256": hashlib.sha256(destination.read_bytes()).hexdigest(),
+                }
+                operator = {
+                    "status": "passed",
+                    "correction_model": "inverse_stage2_zero_extended_linear_interpolator",
+                    "input_path": source_identity["path"],
+                    "output_path": corrected_identity["path"],
+                    "delta_tau_ns": applied,
+                    "input_bytes": source_identity["bytes"],
+                    "output_bytes": corrected_identity["bytes"],
+                    "packets_rewritten": 1,
+                }
+                corrections.append({
+                    "period_id": period,
+                    "estimator_status": "AVAILABLE",
+                    "estimate_ns": applied,
+                    "applied_correction_ns": applied,
+                    "fallback_status": None,
+                    "source_path": source_identity["path"],
+                    "destination_path": corrected_identity["path"],
+                    "source_identity": source_identity,
+                    "corrected_identity": corrected_identity,
+                    "operator_audit": operator,
+                })
+            branches.append({
+                "branch_name": f"{method}_{role}",
+                "method_id": method,
+                "role": role,
+                "correction_source": "same_case_ON_raw_C1_C2_causal_prefix",
+                "estimator_method_id": method,
+                "estimator_input_role": "A1_Current_unknown_error_ON_raw_C1_C2_only",
+                "truth_used_in_estimator": False,
+                "truth_used_to_apply_correction": False,
+                "correction_operator": "estimate_channel_delay.rewrite_float32_protocol_delay",
+                "period_corrections": corrections,
+            })
+    return estimators, branches
+
+
+def test_causal_prefix_lineage_accepts_period_ordered_estimate_and_corrections(tmp_path: Path):
+    estimators, branches = _causal_lineage_fixture(tmp_path)
+
+    result = validate_causal_prefix_lineage(
+        estimators, branches, period_count=2, delay_ns=4.0, case_root=tmp_path,
+    )
+
+    assert result["status"] == "PASSED"
+    assert result["period_count"] == 2
+    assert set(result["methods"]) == {"M1_CAUSAL_PREFIX", "HUBER_D3_CAUSAL_PREFIX"}
+
+
+def test_causal_prefix_lineage_rejects_correction_that_differs_from_estimator(tmp_path: Path):
+    estimators, branches = _causal_lineage_fixture(tmp_path)
+    branches[0]["period_corrections"][0]["applied_correction_ns"] += 0.25
+
+    with pytest.raises(ValueError, match="causal correction differs from estimator"):
+        validate_causal_prefix_lineage(
+            estimators, branches, period_count=2, delay_ns=4.0, case_root=tmp_path,
+        )
 
 
 def _write_tap(
@@ -201,6 +318,8 @@ def test_v4_extractor_saves_all_target_cells_roles_and_overlap_state(tmp_path: P
     with Path(result["response_path"]).open("r", encoding="utf-8", newline="") as stream:
         rows = list(csv.DictReader(stream))
     assert result["status"] == "EVALUABLE"
+    assert manifest["schema_version"] == 3
+    assert manifest["causal_prefix_lineage_status"] == "NOT_APPLICABLE_NO_CAUSAL_CORRECTION_METHODS"
     assert len(rows) == 108
     assert {row["role"] for row in rows} == {"ON", "OFF", "TO"}
     assert {row["target_id"] for row in rows} == {"T1", "T2"}
@@ -220,6 +339,7 @@ def test_v4_extractor_saves_all_target_cells_roles_and_overlap_state(tmp_path: P
     verification = validate_target_complex_response(root)
     assert verification["response_row_count"] == 108
     assert verification["period_processing_state_count"] == 3
+    assert verification["causal_prefix_lineage_status"] == "NOT_APPLICABLE_NO_CAUSAL_CORRECTION_METHODS"
 
 
 def test_v4_target_free_extraction_allows_absent_truth_file(tmp_path: Path):
@@ -323,6 +443,56 @@ def test_v4_target_free_response_needs_no_truth_or_to_branch(tmp_path: Path):
     assert manifest["production_branches"][0]["role"] == "ON"
     assert manifest["period_processing_states"] == []
     assert validate_target_complex_response(root)["response_row_count"] == 0
+
+
+def test_v4_target_free_mode_groups_ignore_only_marked_non_applicable_to_failures(
+    tmp_path: Path,
+):
+    root = tmp_path / "h0-case"
+    records = []
+    for mode in ("Mode-A", "Mode-B"):
+        for role in ("ON", "OFF"):
+            branch_name = f"A0_{mode.lower().replace('-', '')}_{role}"
+            branch_root = root / "production" / branch_name
+            branch_root.mkdir(parents=True)
+            records.append(_register_branch(
+                root, branch_root, case_id="h0-case", branch_name=branch_name,
+                method_id="A0", condition="A0", mode=mode, role=role,
+            ))
+        records.append({
+            "case_id": "h0-case",
+            "branch_name": f"A0_{mode.lower().replace('-', '')}_TO",
+            "method_id": "A0",
+            "condition": "A0",
+            "mode": mode,
+            "role": "TO",
+            "status": "NOT_APPLICABLE_NO_TARGETS",
+            "v4_observed_production_status": "failed",
+            "production_returncode": 1,
+            "v4_execution_class": "internal_auxiliary_branch",
+            "v4_target_response_not_applicable": True,
+            "v4_target_response_not_applicable_reason": (
+                "H0 target_count=0; no target-only response source"
+            ),
+        })
+
+    result = extract_target_complex_response(
+        root, simulation={}, branch_records=records, target_count=0, period_count=1,
+    )
+    manifest = json.loads(Path(result["manifest_path"]).read_text(encoding="utf-8"))
+
+    assert result["status"] == "NOT_APPLICABLE_NO_TARGETS"
+    assert result["response_row_count"] == 0
+    assert len(manifest["production_branches"]) == 4
+    assert {row["branch_name"] for row in manifest["not_applicable_branches"]} == {
+        "A0_modea_TO", "A0_modeb_TO",
+    }
+    assert {row["observed_production_status"] for row in manifest["not_applicable_branches"]} == {
+        "failed",
+    }
+    assert {tuple(row["required_roles"]) for row in manifest["branch_groups"]} == {
+        ("OFF", "ON"),
+    }
 
 
 def test_v4_truth_mapping_conflict_fails_before_creating_response_evidence(tmp_path: Path):

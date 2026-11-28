@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 import zipfile
@@ -32,14 +33,29 @@ def _registry(tmp_path: Path) -> dict:
     )
 
 
-def test_draft_registry_is_exact_paired_and_default_denied(tmp_path):
+def test_frozen_registry_is_exact_paired_and_default_denied(tmp_path):
     registry = _registry(tmp_path)
+    approved_design = json.loads(DESIGN.read_text(encoding="utf-8"))
     assert registry["case_count"] == 240
     assert registry["batch_count"] == 120
-    assert registry["design_status"] == "DRAFT_NOT_FROZEN"
+    assert registry["design_status"] == "FROZEN"
+    assert registry["design_execution_authorized"] is False
+    assert registry["design_cuda_authorized"] is False
+    assert registry["seed_registry_sha256"] == approved_design["references"]["seed_registry_sha256"]
+    assert registry["seed_registry_id"] == "R22_V4_PHASE_H_SEED_REGISTRY_20261126"
     assert registry["execution_authorized"] is False
     assert registry["cuda_authorized"] is False
     assert registry["registry_sha256"] == executor.registry_digest(registry)
+    required_runtime_sources = {
+        "scripts/phase_r/r22_experiment_matrix.py",
+        "scripts/phase_r/r22_sharded_archive.py",
+        "scripts/phase_r/r22_v4_evidence.py",
+        "scripts/phase_r/r22_scenario_factory.py",
+        "scripts/phase_r/r22_v4_identity.py",
+        "scripts/estimate_channel_delay.py",
+        "scripts/run_track_manager_e2e.py",
+    }
+    assert required_runtime_sources <= set(registry["runtime_source_identity"])
     thresholds = registry["frozen_thresholds"]
     assert thresholds["position_mde_m"] == 3.0
     assert thresholds["detection_coverage_noninferiority_margin_pp"] == 1.0
@@ -66,6 +82,12 @@ def test_draft_registry_is_exact_paired_and_default_denied(tmp_path):
     assert all(len(batch["case_ids"]) == 2 for batch in registry["batches"])
     assert all(batch["delay_error_ns"] == [0.0, 4.0] for batch in registry["batches"])
     assert {case["phase"] for case in registry["cases"]} == {"target_present", "h0"}
+    assert {case["seed"] for case in registry["cases"] if case["phase"] == "target_present"} == set(
+        range(1933001, 1933031)
+    )
+    assert {case["seed"] for case in registry["cases"] if case["phase"] == "h0"} == set(
+        range(1936001, 1936031)
+    )
 
     checkpoint = executor.create_checkpoint(registry)
     assert checkpoint["execution_status"] == "NOT_AUTHORIZED"
@@ -83,11 +105,26 @@ def test_draft_registry_is_exact_paired_and_default_denied(tmp_path):
         )
 
 
+def test_confirmatory_registry_fails_closed_when_seed_registry_digest_differs(tmp_path):
+    design = json.loads(DESIGN.read_text(encoding="utf-8"))
+    design["references"]["seed_registry_sha256"] = "0" * 64
+    changed_design_path = tmp_path / "changed_seed_registry_reference.json"
+    changed_design_path.write_text(json.dumps(design), encoding="utf-8")
+
+    with pytest.raises(ValueError, match="seed registry digest"):
+        executor.build_confirmatory_registry(
+            design_path=changed_design_path,
+            scenario_template=TEMPLATE,
+            method_config=METHOD_CONFIG,
+            output_root=tmp_path / "changed-seed-registry-output",
+        )
+
+
 def _authorized_registry_and_record(tmp_path: Path):
     design = json.loads(DESIGN.read_text())
     design["status"] = "FROZEN"
-    design["execution_authorized"] = True
-    design["cuda_authorized"] = True
+    design["execution_authorized"] = False
+    design["cuda_authorized"] = False
     design["primary_comparison"]["position_mde_m"] = 3.0
     design["primary_comparison"]["position_scheme"] = "A"
     design["primary_comparison"]["minimum_common_support_per_speed"] = 1
@@ -111,7 +148,13 @@ def _authorized_registry_and_record(tmp_path: Path):
         "status": "PASS",
         "archive_profile": "r22_v4_output_complete",
         "stage2_production_cuda_started": True,
-        "max_archive_bytes_by_case_schema": {
+        "retained_archive_profile": "r22_v4_size_pilot_compact",
+        "peak_temporary_includes_full_archive": True,
+        "project_root": str(tmp_path.resolve()),
+        "project_allocated_bytes_at_measurement": 0,
+        "project_final_cap_bytes": 20_000_000_000,
+        "storage_reserve_bytes": 10_737_418_240,
+        "max_retained_case_bytes_by_schema": {
             "target_present_0ns": 100,
             "target_present_4ns": 100,
             "h0_0ns": 100,
@@ -121,6 +164,9 @@ def _authorized_registry_and_record(tmp_path: Path):
     }
     resource_evidence_path = tmp_path / "resource_evidence.json"
     resource_evidence_path.write_text(json.dumps(resource_evidence), encoding="utf-8")
+    projection = executor._resource_projection(
+        registry, case_ids, resource_evidence, reserve_bytes=10_737_418_240,
+    )
     record = {
         "schema_version": 1,
         "authorization_type": executor.AUTHORIZATION_TYPE,
@@ -149,8 +195,8 @@ def _authorized_registry_and_record(tmp_path: Path):
         "runtime_profile_sha256": registry["runtime_profile_sha256"],
         "resource_evidence_path": str(resource_evidence_path),
         "resource_evidence_sha256": hashlib.sha256(resource_evidence_path.read_bytes()).hexdigest(),
-        "resource_reserve_bytes": 100,
-        "minimum_free_bytes": 1350,
+        "resource_reserve_bytes": 10_737_418_240,
+        "minimum_free_bytes": projection["minimum_free_bytes"],
         "frozen_thresholds": copy.deepcopy(registry["frozen_thresholds"]),
     }
     record["authorization_sha256"] = executor.authorization_digest(record)
@@ -300,6 +346,145 @@ def test_resource_gate_denies_default_and_checks_disk_gpu_and_archive(tmp_path):
     assert passed["execution_started"] is False
 
 
+def test_resource_projection_fails_closed_when_retained_archives_exceed_project_cap(tmp_path):
+    registry, _record, selected = _authorized_registry_and_record(tmp_path)
+    evidence_path = Path(registry["output_root"]).parent / "resource_evidence.json"
+    evidence = json.loads(evidence_path.read_text())
+    evidence["project_allocated_bytes_at_measurement"] = 19_999_999_999
+    with pytest.raises(ValueError, match="final project storage cap"):
+        executor._resource_projection(
+            registry, registry["batches"][0]["case_ids"], evidence,
+            reserve_bytes=10_737_418_240,
+        )
+
+
+def test_resource_projection_rejects_missing_or_changed_frozen_reserve(tmp_path):
+    registry, _record, selected = _authorized_registry_and_record(tmp_path)
+    evidence_path = Path(registry["output_root"]).parent / "resource_evidence.json"
+    evidence = json.loads(evidence_path.read_text())
+    for reserve in (0, 10_737_418_239):
+        with pytest.raises(ValueError, match="frozen 10 GiB storage reserve"):
+            executor._resource_projection(
+                registry, registry["batches"][0]["case_ids"], evidence,
+                reserve_bytes=reserve,
+            )
+
+
+def test_authorized_case_inventory_covers_all_approved_batches(tmp_path):
+    registry, authorization, _selected = _authorized_registry_and_record(tmp_path)
+    selected_batches = [row["batch_id"] for row in registry["batches"][:2]]
+    selected_cases = [
+        case_id for batch in selected_batches
+        for case_id in next(row for row in registry["batches"] if row["batch_id"] == batch)["case_ids"]
+    ]
+    authorization["selected_batch_ids"] = selected_batches
+    authorization["selected_case_ids"] = selected_cases
+    authorization["max_case_count"] = len(selected_cases)
+    authorization["authorization_sha256"] = executor.authorization_digest(authorization)
+
+    assert executor._authorized_case_ids(registry, authorization) == selected_cases
+    assert len(selected_cases) > len(registry["batches"][0]["case_ids"])
+
+
+def test_final_project_cap_is_checked_after_last_case_archive_cleanup(tmp_path, monkeypatch):
+    registry, authorization, selected = _authorized_registry_and_record(tmp_path)
+    stage2 = tmp_path / "stage2.bin"
+    production = tmp_path / "production.bin"
+    stage2.write_bytes(b"synthetic stage2 executable identity")
+    production.write_bytes(b"synthetic production executable identity")
+    authorization["stage2_binary_sha256"] = hashlib.sha256(stage2.read_bytes()).hexdigest()
+    authorization["production_binary_sha256"] = hashlib.sha256(production.read_bytes()).hexdigest()
+    authorization["authorization_sha256"] = executor.authorization_digest(authorization)
+    output = Path(registry["output_root"])
+    output.mkdir(parents=True, exist_ok=True)
+    registry_path = output / "confirmatory_case_registry.json"
+    authorization_path = output / "authorization.json"
+    registry_path.write_text(json.dumps(registry), encoding="utf-8")
+    authorization_path.write_text(json.dumps(authorization), encoding="utf-8")
+
+    monkeypatch.setattr(executor, "_probe_gpu_uuid", lambda: "GPU-test-uuid")
+    monkeypatch.setattr(
+        executor.shutil, "disk_usage",
+        lambda _path: SimpleNamespace(total=10**12, used=0, free=10**12),
+    )
+    run_calls = []
+
+    def fake_run_case(case_output, **kwargs):
+        run_calls.append(Path(case_output))
+        Path(case_output).mkdir(parents=True, exist_ok=False)
+        result = {
+            "implementation_result": "passed",
+            "status_labels": {"IMPLEMENTED": True, "EXECUTED": True,
+                              "EVALUABLE": True, "PERFORMANCE_VERIFIED": False},
+            "evaluation_summary": {"task_rows": 1},
+        }
+        (Path(case_output) / "r22_run_manifest.json").write_text(json.dumps(result))
+        return result
+
+    monkeypatch.setattr(executor.runner, "run_case", fake_run_case)
+    monkeypatch.setattr(executor.sharded.compact, "_v4_required_members",
+                        lambda _root, _files: ["r22_run_manifest.json"])
+    monkeypatch.setattr(executor.sharded.compact, "_v4_verified_dense_csi_exclusions",
+                        lambda *_args, **_kwargs: {})
+    monkeypatch.setattr(executor.sharded.compact, "_compact_case_manifest_extract",
+                        lambda *_args: None)
+    monkeypatch.setattr(executor.sharded.compact, "_exclusion_reason", lambda *_args: None)
+    monkeypatch.setattr(
+        executor.sharded.compact, "_confirmatory_case_schema",
+        lambda _root, _members, identity: {
+            "status": "PASS", "phase_family": identity["phase"],
+            "required_members": ["r22_run_manifest.json"],
+        },
+    )
+    post_case_measurements = {"count": 0}
+
+    def allocated_bytes(_root, *, exclude_subtrees=()):
+        if exclude_subtrees:
+            return 0
+        post_case_measurements["count"] += 1
+        return (executor.PROJECT_FINAL_CAP_BYTES - 1
+                if post_case_measurements["count"] == 1
+                else executor.PROJECT_FINAL_CAP_BYTES + 1)
+
+    monkeypatch.setattr(executor, "_allocated_tree_bytes", allocated_bytes)
+
+    with pytest.raises(RuntimeError, match="actual project allocation exceeds the final cap"):
+        executor.execute_authorized_batches(
+            registry_path=registry_path, authorization_path=authorization_path,
+            batch_ids=selected, stage2_binary=stage2, production_binary=production,
+        )
+
+    checkpoint = json.loads((output / "confirmatory_checkpoint.json").read_text())
+    assert checkpoint["execution_status"] == "PAUSED_PROJECT_FINAL_CAP"
+    assert checkpoint["actual_project_final_storage_check"]["allocated_bytes"] == (
+        executor.PROJECT_FINAL_CAP_BYTES + 1
+    )
+    assert len(run_calls) == 2
+    assert all(not path.exists() for path in run_calls)
+
+
+def test_allocated_tree_measurement_deduplicates_hardlinks_and_excludes_active_case(tmp_path):
+    project = tmp_path / "project"
+    project.mkdir()
+    retained = project / "retained.bin"
+    retained.write_bytes(b"retained")
+    os.link(retained, project / "retained-hardlink.bin")
+    active_case = project / "raw" / "case-a" / "attempt_001"
+    active_case.mkdir(parents=True)
+    (active_case / "large.bin").write_bytes(b"temporary raw data")
+
+    measured = executor._allocated_tree_bytes(project)
+    excluded = executor._allocated_tree_bytes(project, exclude_subtrees=(active_case,))
+    expected_retained = retained.stat().st_blocks * 512
+    expected_full = expected_retained + active_case.stat().st_blocks * 512
+    expected_full += (active_case / "large.bin").stat().st_blocks * 512
+    expected_full += (active_case.parent).stat().st_blocks * 512
+    expected_full += (active_case.parents[1]).stat().st_blocks * 512
+    expected_full += (project / "raw").stat().st_blocks * 512
+    assert measured == expected_full
+    assert excluded == expected_retained + (project / "raw").stat().st_blocks * 512
+
+
 def test_checkpoint_state_machine_retries_only_technical_failures_and_checks_archive(tmp_path):
     registry = _registry(tmp_path)
     checkpoint = executor.create_checkpoint(registry)
@@ -310,10 +495,19 @@ def test_checkpoint_state_machine_retries_only_technical_failures_and_checks_arc
     )
     executor.transition_case(checkpoint, case_id, "RUNNING", retry_same_case=True)
     executor.transition_case(checkpoint, case_id, "ARCHIVED", archive={
+        "case_id": case_id,
+        "case_schema_identity_sha256": "9" * 64,
         "archive_path": str(tmp_path / "case.zip"),
         "archive_sha256": "c" * 64,
         "archive_manifest_sha256": "d" * 64,
         "archive_profile": "r22_v4_output_complete",
+        "receipt_compression": "gzip-9",
+        "full_archive_payload_present": False,
+        "historically_verified_full_archive": True,
+        "compact_archive_path": str(tmp_path / "case.compact.zip"),
+        "compact_archive_sha256": "e" * 64,
+        "compact_archive_manifest_sha256": "f" * 64,
+        "compact_archive_profile": "r22_v4_size_pilot_compact",
     })
 
     verified_calls: list[tuple] = []
@@ -362,8 +556,9 @@ def test_dry_run_writes_registry_and_checkpoint_without_execution(tmp_path):
     assert result["case_count"] == 240
     assert result["status"] == "NOT_AUTHORIZED"
     assert (tmp_path / "run" / "confirmatory_case_registry.json").is_file()
-    saved = json.loads((tmp_path / "run" / "confirmatory_checkpoint.json").read_text())
+    saved = json.loads((tmp_path / "run" / "confirmatory_dry_run_checkpoint.json").read_text())
     assert saved["execution_status"] == "NOT_AUTHORIZED"
+    assert not (tmp_path / "run" / "confirmatory_checkpoint.json").exists()
 
 
 def test_runner_v4_output_complete_remains_default_deny_without_authorization(tmp_path):
@@ -385,6 +580,13 @@ def test_cpu_simulated_batch_execution_archives_checkpoints_and_resumes_without_
     tmp_path, monkeypatch,
 ):
     registry, authorization, selected = _authorized_registry_and_record(tmp_path)
+    dry_run_result = executor.dry_run(
+        design_path=DESIGN,
+        scenario_template=TEMPLATE,
+        method_config=METHOD_CONFIG,
+        output_root=Path(registry["output_root"]),
+    )
+    assert dry_run_result["status"] == "NOT_AUTHORIZED"
     stage2 = tmp_path / "stage2.bin"
     production = tmp_path / "production.bin"
     stage2.write_bytes(b"synthetic stage2 executable identity")
@@ -401,10 +603,11 @@ def test_cpu_simulated_batch_execution_archives_checkpoints_and_resumes_without_
     authorization_path.write_text(json.dumps(authorization), encoding="utf-8")
 
     monkeypatch.setattr(executor, "_probe_gpu_uuid", lambda: "GPU-test-uuid")
+    free_space = {"bytes": 10**12}
     monkeypatch.setattr(
         executor.shutil,
         "disk_usage",
-        lambda _path: SimpleNamespace(total=10**12, used=0, free=10**12),
+        lambda _path: SimpleNamespace(total=10**12, used=0, free=free_space["bytes"]),
     )
     calls = []
 
@@ -420,33 +623,61 @@ def test_cpu_simulated_batch_execution_archives_checkpoints_and_resumes_without_
         (Path(output_root) / "r22_run_manifest.json").write_text(json.dumps(result))
         return result
 
-    def fake_archive(case_root, archive_path, **kwargs):
-        archive_path.parent.mkdir(parents=True, exist_ok=True)
-        manifest = {"archive_profile": "r22_v4_output_complete", "included_files": [],
-                    "required_v4_members": []}
-        manifest_bytes = json.dumps(manifest, sort_keys=True).encode()
-        run_manifest = (Path(case_root) / "r22_run_manifest.json").read_bytes()
-        with zipfile.ZipFile(archive_path, "w", compression=zipfile.ZIP_DEFLATED) as archive:
-            archive.writestr("ARCHIVE_MANIFEST.json", manifest_bytes)
-            archive.writestr("r22_run_manifest.json", run_manifest)
-        return {
-            "archive_path": str(archive_path.resolve()),
-            "archive_sha256": hashlib.sha256(archive_path.read_bytes()).hexdigest(),
-            "archive_manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
-            "archive_profile": "r22_v4_output_complete",
-            "archive_bytes": archive_path.stat().st_size,
-        }
-
     monkeypatch.setattr(executor.runner, "run_case", fake_run_case)
-    monkeypatch.setattr(executor, "archive_case_directory", fake_archive)
-    monkeypatch.setattr(executor, "verify_case_archive", lambda *args, **kwargs: {"crc_verified": True})
+    monkeypatch.setattr(
+        executor.sharded.compact, "_v4_required_members",
+        lambda _root, _files: ["r22_run_manifest.json"],
+    )
+    monkeypatch.setattr(
+        executor.sharded.compact, "_v4_verified_dense_csi_exclusions",
+        lambda *_args, **_kwargs: {},
+    )
+    monkeypatch.setattr(executor.sharded.compact, "_compact_case_manifest_extract", lambda *_args: None)
+    monkeypatch.setattr(executor.sharded.compact, "_exclusion_reason", lambda *_args: None)
+    monkeypatch.setattr(
+        executor.sharded.compact, "_confirmatory_case_schema",
+        lambda _root, _members, identity: {
+            "status": "PASS", "phase_family": identity["phase"],
+            "required_members": ["r22_run_manifest.json"],
+        },
+    )
 
+    first_case_id = registry["batches"][0]["case_ids"][0]
+    original_transition = executor.transition_case
+
+    def interrupt_after_receipt(checkpoint, case_id, new_status, **kwargs):
+        if case_id == first_case_id and new_status == "ARCHIVED":
+            raise RuntimeError("simulated stop after compact receipt publication")
+        return original_transition(checkpoint, case_id, new_status, **kwargs)
+
+    monkeypatch.setattr(executor, "transition_case", interrupt_after_receipt)
+    with pytest.raises(RuntimeError, match="compact receipt publication"):
+        executor.execute_authorized_batches(
+            registry_path=registry_path,
+            authorization_path=authorization_path,
+            batch_ids=selected,
+            stage2_binary=stage2,
+            production_binary=production,
+        )
+    assert len(calls) == 1
+    interrupted_checkpoint = json.loads((output / "confirmatory_checkpoint.json").read_text())
+    interrupted_state = interrupted_checkpoint["cases"][first_case_id]
+    assert interrupted_state["status"] == "RUNNING"
+    interrupted_receipt = output / "archives" / (
+        f"{first_case_id}__attempt_001.archive-set.json.gz"
+    )
+    assert interrupted_receipt.is_file()
+    assert (output / "raw" / first_case_id / "attempt_001" / "r22_run_manifest.json").is_file()
+
+    monkeypatch.setattr(executor, "transition_case", original_transition)
+    free_space["bytes"] = authorization["minimum_free_bytes"] - 1
     first = executor.execute_authorized_batches(
         registry_path=registry_path,
         authorization_path=authorization_path,
         batch_ids=selected,
         stage2_binary=stage2,
         production_binary=production,
+        resume=True,
     )
     assert first["status"] == "AUTHORIZED_BATCHES_COMPLETE"
     assert len(calls) == 2
@@ -456,6 +687,17 @@ def test_cpu_simulated_batch_execution_archives_checkpoints_and_resumes_without_
     assert {checkpoint["cases"][case_id]["status"] for case_id in selected_cases} == {"EVALUATED"}
     assert sum(row["status"] == "PLANNED" for row in checkpoint["cases"].values()) == 238
     assert all(not path.exists() for path, _, _ in calls)
+    for case_id in selected_cases:
+        archived = checkpoint["cases"][case_id]["archive"]
+        assert archived["compact_archive_profile"] == "r22_v4_size_pilot_compact"
+        assert Path(archived["compact_archive_path"]).is_file()
+        assert Path(archived["archive_path"]).name.endswith(".archive-set.json.gz")
+        assert not Path(archived["raw_case_path"]).exists()
+        assert not Path(str(archived["archive_path"])[:-3]).exists()
+        assert executor._default_archive_verifier(
+            Path(archived["archive_path"]), archived["archive_sha256"],
+            archived["archive_manifest_sha256"], archived["archive_profile"],
+        )["compact_archive_verified"] is True
 
     resumed = executor.execute_authorized_batches(
         registry_path=registry_path,

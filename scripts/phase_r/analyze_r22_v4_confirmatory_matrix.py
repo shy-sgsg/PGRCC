@@ -130,24 +130,62 @@ def _read_verified_case(
         raise ValueError(f"{case_id}: checkpoint has no archive record")
     if archive_record.get("archive_profile") != ARCHIVE_PROFILE:
         raise ValueError(f"{case_id}: archive profile is not {ARCHIVE_PROFILE}")
-    archive_path = Path(str(archive_record.get("archive_path", ""))).expanduser()
-    if not archive_path.is_absolute():
+    receipt_path = Path(str(archive_record.get("archive_path", ""))).expanduser()
+    if not receipt_path.is_absolute():
         if archive_root is None:
             raise ValueError(f"{case_id}: relative archive path requires --archive-root")
-        archive_path = archive_root / archive_path
-    archive_path = archive_path.resolve()
-    verification = executor.verify_case_archive(
-        archive_path,
-        expected_sha256=str(archive_record.get("archive_sha256", "")),
-        expected_manifest_sha256=str(archive_record.get("archive_manifest_sha256", "")),
-        archive_profile=ARCHIVE_PROFILE,
-        require_complete_output=True,
-        require_case_schema=True,
-    )
+        receipt_path = archive_root / receipt_path
+    receipt_path = receipt_path.resolve()
+    sharded_receipt = archive_record.get("compact_archive_path") is not None
+    full_manifest: Mapping[str, Any] | None = None
+    if sharded_receipt:
+        verification = executor._default_archive_verifier(
+            receipt_path,
+            str(archive_record.get("archive_sha256", "")),
+            str(archive_record.get("archive_manifest_sha256", "")),
+            ARCHIVE_PROFILE,
+        )
+        archive_set = executor._load_archive_set(receipt_path)
+        full_manifest_value = archive_set.get("archive_manifest")
+        if not isinstance(full_manifest_value, Mapping):
+            raise ValueError(f"{case_id}: retained archive receipt lacks the full archive manifest")
+        full_manifest = full_manifest_value
+        if (archive_record.get("case_schema_identity_sha256")
+                != full_manifest.get("case_schema_identity_sha256")):
+            raise ValueError(f"{case_id}: checkpoint case-schema identity differs from receipt")
+        compact_path = Path(str(archive_record.get("compact_archive_path", ""))).expanduser()
+        if not compact_path.is_absolute():
+            if archive_root is None:
+                raise ValueError(f"{case_id}: relative compact archive path requires --archive-root")
+            compact_path = archive_root / compact_path
+        compact_path = compact_path.resolve()
+        if (str(compact_path) != str(Path(str(verification["compact_archive_path"])).resolve())
+                or archive_record.get("compact_archive_sha256")
+                != verification.get("compact_archive_sha256")
+                or archive_record.get("compact_archive_manifest_sha256")
+                != verification.get("compact_archive_manifest_sha256")):
+            raise ValueError(f"{case_id}: checkpoint compact archive identity differs from verified receipt")
+        archive_path = compact_path
+        verification = executor.verify_case_archive(
+            archive_path,
+            expected_sha256=str(archive_record.get("compact_archive_sha256", "")),
+            expected_manifest_sha256=str(archive_record.get("compact_archive_manifest_sha256", "")),
+            archive_profile=executor.COMPACT_PROFILE,
+        )
+    else:
+        archive_path = receipt_path
+        verification = executor.verify_case_archive(
+            archive_path,
+            expected_sha256=str(archive_record.get("archive_sha256", "")),
+            expected_manifest_sha256=str(archive_record.get("archive_manifest_sha256", "")),
+            archive_profile=ARCHIVE_PROFILE,
+            require_complete_output=True,
+            require_case_schema=True,
+        )
     if archive_record.get("case_id") not in (None, case_id):
         raise ValueError(f"{case_id}: checkpoint archive case ID disagrees")
     with zipfile.ZipFile(archive_path, "r") as stream:
-        manifest = json.loads(stream.read("ARCHIVE_MANIFEST.json"))
+        manifest = full_manifest or json.loads(stream.read("ARCHIVE_MANIFEST.json"))
         case_identity = manifest.get("case_schema_identity")
         if not isinstance(case_identity, Mapping):
             raise ValueError(f"{case_id}: archive lacks registered case-schema identity")
@@ -217,7 +255,10 @@ def _read_verified_case(
         "case": dict(case),
         "archive": verification,
         "archive_path": str(archive_path),
-        "archive_manifest_sha256": verification["archive_manifest_sha256"],
+        "archive_manifest_sha256": (
+            archive_record.get("archive_manifest_sha256")
+            if sharded_receipt else verification["archive_manifest_sha256"]
+        ),
         "case_root": case_root,
         "tables": table,
         "branch_manifests": branch_manifests,

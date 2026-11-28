@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import csv
+import gzip
 import hashlib
 import io
 import json
@@ -247,6 +248,76 @@ def _write_case_archive(
     }
 
 
+def _write_sharded_receipt_and_compact(case: dict, tmp_path: Path) -> dict:
+    legacy = _write_case_archive(case, tmp_path)
+    with zipfile.ZipFile(legacy["archive_path"], "r") as source:
+        full_manifest_bytes = source.read("ARCHIVE_MANIFEST.json")
+        full_manifest = json.loads(full_manifest_bytes)
+        payloads = {
+            item["path"]: source.read(item["path"])
+            for item in full_manifest["included_files"]
+        }
+    set_identity = hashlib.sha256(b"simulated sharded archive-set identity").hexdigest()
+    compact_manifest = {
+        "schema_version": 1,
+        "archive_profile": executor.COMPACT_PROFILE,
+        "source_archive_format": executor.sharded.ARCHIVE_SET_FORMAT,
+        "source_archive_profile": executor.ARCHIVE_PROFILE,
+        "source_archive_set_identity_sha256": set_identity,
+        "source_archive_manifest_sha256": legacy["archive_manifest_sha256"],
+        "required_v4_members": full_manifest["required_v4_members"],
+        "included_files": full_manifest["included_files"],
+        "excluded_files": [],
+        "symlink_entries": [],
+        "included_bytes": sum(item["bytes"] for item in full_manifest["included_files"]),
+        "excluded_bytes": 0,
+        "symlink_target_bytes": 0,
+    }
+    compact_manifest_bytes = (
+        json.dumps(compact_manifest, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+    ).encode()
+    compact_path = tmp_path / f"{case['case_id']}.compact.zip"
+    with zipfile.ZipFile(compact_path, "w", compression=zipfile.ZIP_DEFLATED) as target:
+        for name, payload in payloads.items():
+            target.writestr(name, payload)
+        target.writestr("ARCHIVE_MANIFEST.json", compact_manifest_bytes)
+    compact_sha = hashlib.sha256(compact_path.read_bytes()).hexdigest()
+    compact_manifest_sha = hashlib.sha256(compact_manifest_bytes).hexdigest()
+    receipt = {
+        "status": "COMPACTED_CLEANED",
+        "archive_profile": executor.ARCHIVE_PROFILE,
+        "archive_manifest_sha256": legacy["archive_manifest_sha256"],
+        "full_archive_verified_at_utc": "simulated-fixture",
+        "archive_manifest": full_manifest,
+        "archive_set_identity_sha256": set_identity,
+        "archive_bytes": 123,
+        "full_archive_cleanup": {
+            "status": "REMOVED_AFTER_COMPACT_VERIFICATION", "shards": [],
+        },
+        "compact_archive": {
+            "archive_path": str(compact_path.resolve()),
+            "archive_sha256": compact_sha,
+            "archive_manifest_sha256": compact_manifest_sha,
+            "archive_profile": executor.COMPACT_PROFILE,
+        },
+    }
+    receipt_path = tmp_path / f"{case['case_id']}.archive-set.json.gz"
+    with receipt_path.open("wb") as raw, gzip.GzipFile(fileobj=raw, mode="wb", mtime=0) as zipped:
+        zipped.write((json.dumps(receipt, ensure_ascii=False, sort_keys=True) + "\n").encode())
+    return {
+        "case_id": case["case_id"],
+        "archive_path": str(receipt_path.resolve()),
+        "archive_sha256": hashlib.sha256(receipt_path.read_bytes()).hexdigest(),
+        "archive_manifest_sha256": legacy["archive_manifest_sha256"],
+        "archive_profile": executor.ARCHIVE_PROFILE,
+        "case_schema_identity_sha256": full_manifest["case_schema_identity_sha256"],
+        "compact_archive_path": str(compact_path.resolve()),
+        "compact_archive_sha256": compact_sha,
+        "compact_archive_manifest_sha256": compact_manifest_sha,
+        "compact_archive_profile": executor.COMPACT_PROFILE,
+    }
+
+
 def _write_registry_checkpoint(
     tmp_path: Path, *, missing: bool = False, missing_target_status: bool = False,
     wrong_association_seed: bool = False,
@@ -298,6 +369,26 @@ def test_confirmatory_analyzer_reads_verified_archives_and_keeps_endpoints_seed_
     assert target["position_interval"]["status"] == "NOT_EVALUABLE_INCOMPLETE_OR_INSUFFICIENT_SEED_SET"
     assert target["detection_coverage_m1_minus_fixed_d3_pp"]["status"] == "NOT_EVALUABLE_INSUFFICIENT_SEEDS"
     assert (tmp_path / "analysis/r22_v4_confirmatory_analysis.json").is_file()
+
+
+def test_case_reader_resolves_verified_sharded_receipt_to_compact_evaluator_archive(
+    tmp_path, monkeypatch,
+):
+    registry = _registry(tmp_path)
+    case = next(row for row in registry["cases"] if row["phase"] == "target_present")
+    archive_record = _write_sharded_receipt_and_compact(case, tmp_path)
+    monkeypatch.setattr(
+        executor.sharded, "verify_sharded_archive_receipt",
+        lambda *_args, **_kwargs: {"status": "PASS"},
+    )
+    state = {"status": "VERIFIED", "archive": archive_record}
+
+    verified = analysis._read_verified_case(case, state, archive_root=None)
+
+    assert verified["archive_path"] == archive_record["compact_archive_path"]
+    assert verified["archive_manifest_sha256"] == archive_record["archive_manifest_sha256"]
+    assert len(verified["truth_keys"]) == case["period_count"]
+    assert len(verified["tables"]["associations"]) > 0
 
 
 def test_confirmatory_analyzer_fails_closed_on_missing_opportunity_and_track_rows(tmp_path):

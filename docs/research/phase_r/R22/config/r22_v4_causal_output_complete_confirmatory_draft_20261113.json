@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "design_id": "R22_EXTENSION_20261113_V4_CAUSAL_OUTPUT_COMPLETE_CONFIRMATORY_DRAFT",
-  "status": "DRAFT_NOT_FROZEN",
+  "design_id": "R22_EXTENSION_20261113_V4_CAUSAL_OUTPUT_COMPLETE_CONFIRMATORY_FROZEN",
+  "status": "FROZEN",
   "execution_authorized": false,
   "cuda_authorized": false,
   "ai_training": false,
   "router_enabled": false,
   "created_from_commit": "4a2f51aef8ecea2ff1eee5278d6cc93b36131560",
-  "updated_on": "2026-11-26",
-  "draft_revision": 6,
+  "updated_on": "2026-11-28",
+  "draft_revision": 7,
   "case_identity_semantics": "240 unique case identities are paired/nested by seed; they are not 240 statistically independent samples",
   "master_plan_blob": "e637e3769bde7814298ff012d0f42301884e2985",
   "supersedes": null,
@@ -16,7 +16,7 @@
     "prior_design": "docs/research/phase_r/R22/config/r22_extension_experiment_design_v3_2_identity_closed_20261106.json",
     "prior_design_id": "R22_EXTENSION_20261106_V3_2_IDENTITY_CLOSED_FULL_SCREENING",
     "v3_3_review": "docs/research/phase_r/R22/V3_3_residual_task_gap_audit/FINAL_RESEARCH_REPORT.md",
-    "contract": "docs/research/phase_r/R22/31_v4_causal_output_complete_confirmatory_contract_draft_20261113.md",
+    "contract": "docs/research/phase_r/R22/54_v4_phase_h_final_contract_and_freeze.md",
     "seed_registry": "docs/research/phase_r/R22/evidence/v4_phase_h/seed_registry_20261126.json",
     "seed_registry_sha256": "ec73bb776882a25cde4250d0092fec24157b7d38aaea6961729a909f1826abfd"
   },
@@ -95,7 +95,7 @@
         "delay_ns": 4.0,
         "role": "same-information deterministic prefix baseline",
         "allowed_input": "same-case ON raw C1/C2 periods 0..k; same geometry and correction operator as M1",
-        "algorithm_identity": "audited batch candidate at source commit 1063d67c96af7dbbe7fe871b3a56be0ca453b9b2: physics_matched_delay._slope_baselines geometry-corrects observed_cross by geometry_cross, unwraps phase, magnitude-weights fit_weighted_line(robust=True); prefix runner not implemented",
+        "algorithm_identity": "For each period k, scripts/phase_r/run_r22_cuda_pilot.py::_causal_prefix_estimates passes only the same-case allowed ON raw C1/C2 period inputs 0..k to scripts/phase_r/run_r12_physics_matched_delay.py::_blind_m1_from_b_on; D3_Huber_weighted_LS is computed inside scripts/phase_r/physics_matched_delay.py::_slope_baselines from geometry-corrected observed_cross/geometry_cross, frequency-sorted unwrapped phase, and observed-cross-magnitude weights using fit_weighted_line(robust=True), then independently qualified by scripts/phase_r/run_r21_cuda_pilot.py::qualify_blind_methods. The frozen shared M1 support mask, Huber IRLS settings and qualification gates below apply; unavailable estimates receive zero correction for that period.",
         "robust_fit": "12 IRLS iterations; scale 1.4826*MAD with 1e-6 floor; standardized Huber cutoff 1.345",
         "shared_support_mask": "same M1-selected mask: finite nonzero observed/geometry cross, nonzero frequency, and observed_cross magnitude >= 80th percentile of valid bins",
         "qualification_gate": "finite D3 estimate; support_count >= 8; frequency_span_hz >= 3e6; D3 support_count equals M1 support_count",
@@ -161,8 +161,12 @@
         "delay_ns": 4.0,
         "role": "same-information deterministic prefix baseline",
         "allowed_input": "same-case target-free C1/C2 periods 0..k; same geometry and correction operator as M1",
-        "algorithm_identity": "freeze exact implementation, weights, support rule, and source commit before execution",
-        "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator"
+        "algorithm_identity": "For each period k, scripts/phase_r/run_r22_cuda_pilot.py::_causal_prefix_estimates passes only the same-case allowed target-free ON raw C1/C2 period inputs 0..k to scripts/phase_r/run_r12_physics_matched_delay.py::_blind_m1_from_b_on; D3_Huber_weighted_LS is computed inside scripts/phase_r/physics_matched_delay.py::_slope_baselines from geometry-corrected observed_cross/geometry_cross, frequency-sorted unwrapped phase, and observed-cross-magnitude weights using fit_weighted_line(robust=True), then independently qualified by scripts/phase_r/run_r21_cuda_pilot.py::qualify_blind_methods. The frozen shared M1 support mask, Huber IRLS settings and qualification gates below apply; unavailable estimates receive zero correction for that period.",
+        "failure_policy": "explicit zero-correction C0 for the period; include in policy denominator",
+        "robust_fit": "12 IRLS iterations; scale 1.4826*MAD with 1e-6 floor; standardized Huber cutoff 1.345",
+        "shared_support_mask": "same M1-selected mask: finite nonzero observed/geometry cross, nonzero frequency, and observed_cross magnitude >= 80th percentile of valid bins",
+        "qualification_gate": "finite D3 estimate; support_count >= 8; frequency_span_hz >= 3e6; D3 support_count equals M1 support_count; declared physical delay_bounds_samples gate",
+        "known_gate_gap": "closed in the current R21 qualifier: the same finite sample rate and delay_bounds_samples gate is applied independently to the M1 and D3 Huber estimates; the out-of-domain D3 regression case is covered by tests/test_r21_cuda_pilot.py"
       },
       {
         "id": "M1_CAUSAL_PREFIX",
@@ -300,7 +304,7 @@
     "detection_coverage_noninferiority_margin_pp": 1.0,
     "track_protection_policy": "DESCRIPTIVE_ONLY",
     "track_coverage_noninferiority_margin_pp": null,
-    "threshold_status": "USER_APPROVED_2026_11_26; design remains DRAFT_NOT_FROZEN pending registry, resource, implementation review, and execution-readiness gates"
+    "threshold_status": "USER_APPROVED_AND_FROZEN_2026_11_28; execution and CUDA remain unauthorized until a separate user authorization is bound to this frozen design."
   },
   "secondary_information_matched_comparison": {
     "methods": [
@@ -405,35 +409,46 @@
     "intermediate_peak_may_exceed_final_limit": true,
     "v3_2_archives_retained": true,
     "v4_archive_must_retain_all_period_detection_and_track_debug": true,
-    "v4_full_output_size_estimate": null,
-    "required_resource_gate": "before each authorized schema case, prove adequate space for the measured full output-complete archive, expanded inputs/production outputs, coexistence peak, and reserve on the actual writable target filesystems; do not substitute compact archive size",
+    "v4_full_output_size_estimate": 13037254578,
+    "required_resource_gate": "Before each case, require actual filesystem free bytes >= remaining retained compact-plus-gzip-receipt projection with 25% margin + measured full-case P0 temporary peak 29,821,104,128 bytes + 10 GiB reserve. Independently require actual project allocated bytes excluding the active raw case + the remaining retained-archive projection with 25% margin <= 20,000,000,000 bytes. The target-present +4 ns receipt component uses a conservative model from the actual P0 full-output manifest and is explicitly identified as modeled.",
     "delete_raw_only_after": [
-      "compact archive complete",
-      "identity and CRC/SHA verified",
-      "required evidence reconstructibility established",
-      "cleanup ledger written"
+      "full-output sharded archive verified by member manifest, per-shard SHA and ZIP CRC",
+      "compact archive complete and verified",
+      "gzip-9 full archive-set receipt published and read-back verified",
+      "case/schema identity tied to the frozen registry",
+      "cleanup ledger and checkpoint written"
     ],
-    "post_review_target": "remove dispensable intermediates; retain necessary records/config/audit/high-value evidence and keep final project below 20000000000 bytes",
-    "last_checked_on": "2026-11-26",
-    "current_cleanup": "2026-11-26: only manifest-classified reproducible V2 per-case plots were removed; no pilot or historical high-value outputs were deleted",
+    "post_review_target": "Keep necessary records, configs, audit receipts, and high-value results; after each case retain only verified compact plus compressed full-output receipt and keep final project allocated bytes below 20,000,000,000.",
+    "last_checked_on": "2026-11-28",
+    "current_cleanup": "2026-11-28: three old CPU-only dry-runs were replaced after final-registry verification and removed with a per-file SHA cleanup ledger; three audit inventories were gzip-9 compressed only after byte-for-byte decompression checks. Unique P0, pilot data, truth, failure evidence, and manifests remain protected.",
     "final_project_limit_bytes": 20000000000,
-    "current_project_allocated_bytes": 18631958528,
-    "current_root_filesystem_available_bytes": 12116500480,
-    "current_tmp_available_bytes": 7991930880,
+    "current_project_allocated_bytes": 17372479488,
+    "current_root_filesystem_available_bytes": 58379059200,
+    "current_tmp_available_bytes": 7721476096,
     "p0_target_present_plus4ns_archive_bytes_measured": 13037254578,
     "p0_observed_peak_consumption_bytes": 29821104128,
     "p0_preserved_free_space_reserve_bytes": 10737418240,
     "size_pilot_required_free_bytes_per_output_filesystem_proxy": 40558522368,
-    "three_schema_size_pilot_status": "USER_AUTHORIZED; PAUSED_RESOURCE_GATE_BEFORE_ANY_CASE; no pilot case started",
-    "resource_preflight_evidence": "docs/research/phase_r/R22/evidence/v4_phase_h/resource_preflight_20261126.json",
-    "other_mounts_checked": "project ext4 and /tmp tmpfs are writable but each is below the measured full-output P0 peak-plus-reserve proxy; external volume has 90,118,549,504 bytes free but is read-only; /dev/shm and /run are read-only"
+    "three_schema_size_pilot_status": "COMPLETED; three CUDA pilots executed; H0 0 ns required attempt 003 after preserved interrupted and gate-failed attempts; all raw case directories removed only after archive verification.",
+    "resource_preflight_evidence": "docs/research/phase_r/R22/evidence/v4_phase_h/resource_budget_20261128.json",
+    "other_mounts_checked": "Project ext4 currently has 58,386,644,992 bytes free; /tmp has 7,732,916,224 bytes free and is below the 43,162,945,556-byte full-matrix free-space model; the previously inspected external volume remains read-only and was not modified.",
+    "retained_archive_profile": "r22_v4_size_pilot_compact plus gzip-9 full-output archive-set receipt",
+    "retained_case_bytes_by_schema": {
+      "target_present_0ns": 3852669,
+      "target_present_4ns": 18403158,
+      "h0_0ns": 428428,
+      "h0_4ns": 2255376
+    },
+    "retained_case_bytes_matrix_total": 2083538550,
+    "retained_case_bytes_matrix_with_25pct_margin": 2604423188,
+    "full_matrix_minimum_free_bytes": 43162945556,
+    "full_matrix_free_space_margin_at_measurement_bytes": 15216113644,
+    "full_matrix_projected_allocated_bytes_with_25pct_margin": 19976902676,
+    "full_matrix_projected_cap_margin_bytes": 23097324
   },
   "freeze_blockers": [
-    "independent review of the implemented prefix estimator, output schema, archive and resume gates",
-    "execute and verify the three authorized missing-schema Native CUDA size pilots",
-    "derive final per-schema and three-case resource budgets from the authorized complete-output size pilots",
-    "actual Production/CUDA output audit and evidence evaluability",
-    "separate user authorization for the formal confirmatory matrix"
+    "refresh the Native CUDA GPU and binary identities immediately before authorization",
+    "separate explicit user authorization for the formal confirmatory matrix"
   ],
   "stop_conditions": [
     "invalid area-clutter injection or paired background identity",
@@ -447,7 +462,7 @@
     "archive identity/CRC failure or unsafe resume identity change",
     "resource state cannot complete one atomic case safely"
   ],
-  "last_updated_on": "2026-11-26",
+  "last_updated_on": "2026-11-28",
   "implementation_update": {
     "status_labels": {
       "IMPLEMENTED": true,
@@ -459,17 +474,21 @@
       "period-prefix M1 and same-input Huber qualification/correction runner",
       "future-period input isolation and current-period zero-correction fallback",
       "fixed shared target CSI_AFTER per-cell complex response schema",
-      "output-complete archive validation and SHA/manifest/CRC resume verification"
+      "V4 complete-output sharded archive bound to registered case/schema identity",
+      "gzip-9 retained archive-set receipt plus compact archive verification and interruption-safe resume",
+      "per-case project-cap and filesystem-space gates; raw cleanup only after receipt and compact verification"
     ],
-    "cpu_verification": "targeted unit/schema tests only; no actual estimator, Stage2, Production, or CUDA execution",
+    "cpu_verification": "Focused V4 CPU regression: 172 passed; py_compile passed for changed Python modules; final diff check pending. No confirmatory matrix execution.",
     "execution_authorized": false,
     "cuda_authorized": false,
     "ai_training": false
   },
   "parameter_decision": {
-    "status": "USER_APPROVED_PARAMETERS_FIXED_DESIGN_NOT_FROZEN",
+    "status": "USER_APPROVED_AND_FROZEN_2026_11_28; execution remains separately unauthorized",
     "approved_on": "2026-11-26",
     "record_path": "docs/research/phase_r/R22/evidence/v4_phase_h/user_parameter_approval_20261126.json",
     "scope": "Phase H report 54 research-direction screening parameter package; not product acceptance criteria and not authorization for the formal confirmatory matrix"
-  }
+  },
+  "frozen_on": "2026-11-28",
+  "freeze_note": "Statistical thresholds and case identities are frozen from the user-approved Phase H contract. This freeze does not authorize execution or CUDA; a separate explicit authorization must bind the frozen design, registry, selected batches, runtime binaries, GPU and resources."
 }

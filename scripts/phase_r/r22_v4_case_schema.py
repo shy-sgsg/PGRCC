@@ -49,6 +49,21 @@ H0_FORBIDDEN_MEMBER_SUFFIXES = (
     "/truth/moving_target_truth.csv",
     "/truth/target_injection_amplitudes.csv",
 )
+H0_TO_NOT_APPLICABLE_REASON = "H0 target_count=0; no target-only response source"
+RUNNER_ROOT_PROVENANCE_MEMBERS = frozenset({
+    "scenario_template.json", "target_generation_manifest.json",
+})
+
+
+def is_h0_to_not_applicable(record: Mapping[str, Any], *, target_count: int) -> bool:
+    """Use one exact marker for the internal target-only H0 branch across all gates."""
+    return (
+        target_count == 0
+        and str(record.get("role", "")) == "TO"
+        and record.get("v4_target_response_not_applicable") is True
+        and record.get("v4_execution_class") == "internal_auxiliary_branch"
+        and record.get("v4_target_response_not_applicable_reason") == H0_TO_NOT_APPLICABLE_REASON
+    )
 
 
 def _method_role(branch: str) -> tuple[str, str] | None:
@@ -98,6 +113,7 @@ def validate_v4_case_schema(
     member_names: Iterable[str],
     *,
     payload_metadata: Mapping[str, Any] | None = None,
+    branch_manifest_records: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Validate one of the four target/H0 × zero/+4 ns archive contracts."""
     if not isinstance(case_identity, Mapping):
@@ -132,12 +148,14 @@ def validate_v4_case_schema(
     allowlist_patterns.extend([
         f"{case_root}/scenes/**/truth/**",
         f"{case_root}/r22_v4_output_evidence/**",
+        *sorted(RUNNER_ROOT_PROVENANCE_MEMBERS),
     ])
     forbidden: list[str] = []
     outside_allowlist = [
         name for name in members
         if name != "r22_run_manifest.json"
         and name != "case_manifest_review_extract.json"
+        and name not in RUNNER_ROOT_PROVENANCE_MEMBERS
         and not name.startswith(case_root + "/")
         and not name.startswith("evaluation/")
     ]
@@ -188,6 +206,14 @@ def validate_v4_case_schema(
             raise ValueError("target-present response and ROI must contain evaluated target samples")
         if metadata.get("truth_mapping_status") != "passed":
             raise ValueError("target-present truth mapping audit must pass")
+
+    lineage_status = metadata.get("causal_prefix_lineage_status")
+    if lineage_status is not None:
+        expected_lineage_status = (
+            "PASSED" if delay == 4.0 else "NOT_APPLICABLE_NO_CAUSAL_CORRECTION_METHODS"
+        )
+        if lineage_status != expected_lineage_status:
+            raise ValueError("causal-prefix lineage status differs from the frozen delay condition")
 
     missing = sorted(required - members)
     if missing:
@@ -242,12 +268,24 @@ def validate_v4_case_schema(
 
     branch_fixed = (
         "branch_manifest.json", "production.xml", "gmt_pipe_core.log",
-        "result/debug/cfar_geometry_diagnostics.csv",
+    )
+    non_applicable_h0_branches = sorted(
+        branch for branch in production_branches
+        if phase == "h0"
+        and isinstance((branch_manifest_records or {}).get(branch), Mapping)
+        and is_h0_to_not_applicable(
+            (branch_manifest_records or {})[branch], target_count=target_count,
+        )
     )
     missing_production: list[str] = []
     for branch in production_branches:
         base = f"{case_root}/production/{branch}/"
         missing_production.extend(base + name for name in branch_fixed if base + name not in members)
+        if branch in non_applicable_h0_branches:
+            continue
+        geometry = base + "result/debug/cfar_geometry_diagnostics.csv"
+        if geometry not in members:
+            missing_production.append(geometry)
         missing_production.extend(
             base + f"result/detection_results_GMTI{period:02d}.csv"
             for period in range(1, 11)
@@ -290,12 +328,14 @@ def validate_v4_case_schema(
         "branch_roles": sorted(actual_roles, key=lambda row: (row["method_id"], row["role"])),
         "production_branch_count": len(production_branches),
         "production_branches": sorted(production_branches),
+        "non_applicable_h0_branches": non_applicable_h0_branches,
         "auxiliary_roles": auxiliary_roles,
         "target_response_status": metadata.get("target_response_status"),
         "target_response_target_count": int(metadata.get("target_response_target_count", 0)),
         "target_response_row_count": int(metadata.get("target_response_row_count", 0)),
         "target_roi_row_count": int(metadata.get("target_roi_row_count", 0)),
         "truth_mapping_status": metadata.get("truth_mapping_status"),
+        "causal_prefix_lineage_status": lineage_status,
         "optional_member_count": len(optional),
         "optional_members": optional,
         "detection_csvs_per_branch": 10,

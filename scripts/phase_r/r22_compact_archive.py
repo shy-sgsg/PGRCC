@@ -22,6 +22,7 @@ from scripts.phase_r.r22_v4_identity import (
     branch_identity_key,
     validate_branch_manifest_identity,
 )
+from scripts.phase_r.r22_v4_case_schema import is_h0_to_not_applicable
 
 
 _PER_CASE_IMAGE_SUFFIXES = {".png", ".jpg", ".jpeg", ".gif", ".webp"}
@@ -92,6 +93,10 @@ def _relative_to_case(path: Path, case_root: Path) -> str:
         raise ValueError(f"V4 required artifact is outside case root: {resolved}") from exc
 
 
+def _is_v4_h0_non_applicable_to(record: Mapping[str, Any], *, target_count: int) -> bool:
+    return is_h0_to_not_applicable(record, target_count=target_count)
+
+
 def _v4_branch_group_roles(
     records: list[Mapping[str, Any]], *, case_id: str, target_count: int,
 ) -> dict[tuple[str, str, str, str], set[str]]:
@@ -113,7 +118,7 @@ def _v4_branch_group_roles(
     for group_key, roles in groups.items():
         required_roles = {"ON"} if target_count == 0 else {"ON", "TO"}
         if group_key[3] in {"Mode-A", "Mode-B"}:
-            required_roles = {"ON", "OFF", "TO"}
+            required_roles = {"ON", "OFF"} if target_count == 0 else {"ON", "OFF", "TO"}
         if not required_roles <= roles:
             raise ValueError(
                 f"V4 method/mode lacks required roles {sorted(required_roles)}: {group_key}"
@@ -136,6 +141,14 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
         )
     response_manifest_path = response_manifests[0]
     response_manifest = json.loads(response_manifest_path.read_text(encoding="utf-8"))
+    if int(response_manifest.get("schema_version", 0)) >= 3:
+        from scripts.phase_r.r22_v4_evidence import validate_target_complex_response
+
+        response_validation = validate_target_complex_response(response_manifest_path.parent.parent)
+        if response_manifest.get("causal_prefix_lineage_status") != response_validation.get(
+            "causal_prefix_lineage_status",
+        ):
+            raise ValueError("V4 causal-prefix lineage has not passed source and branch identity validation")
     labels = response_manifest.get("status_labels", {})
     if (response_manifest.get("status") not in {"EVALUABLE", "NOT_APPLICABLE_NO_TARGETS"}
             or labels.get("IMPLEMENTED") is not True
@@ -225,8 +238,10 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
         "scripts/phase_r/run_r22_cuda_pilot.py",
         "scripts/phase_r/r22_scenario_factory.py",
         "scripts/phase_r/r22_v4_evidence.py",
+        "scripts/phase_r/r22_v4_case_schema.py",
         "scripts/phase_r/r22_compact_archive.py",
         "scripts/phase_r/r22_experiment_matrix.py",
+        "scripts/phase_r/r22_sharded_archive.py",
         "scripts/phase_r/run_r12_physics_matched_delay.py",
         "scripts/phase_r/run_r21_cuda_pilot.py",
         "scripts/phase_r/r21_task_evaluator.py",
@@ -298,12 +313,27 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
     if not isinstance(expected_records, list):
         raise ValueError("V4 pipeline manifest lacks Production branch inventory")
     expected_branch_keys: set[tuple[str, str, str, str, str, str]] = set()
+    expected_not_applicable_keys: set[tuple[str, str, str, str, str, str]] = set()
+    expected_records_by_key: dict[tuple[str, str, str, str, str, str], Mapping[str, Any]] = {}
     for record in expected_records:
         if not isinstance(record, Mapping) or str(record.get("role", "")) not in {"ON", "OFF", "TO"}:
             continue
-        if record.get("status") != "passed" or not record.get("branch_name"):
+        is_not_applicable = _is_v4_h0_non_applicable_to(record, target_count=target_count)
+        if not record.get("branch_name"):
+            raise ValueError("V4 pipeline manifest contains a Production branch without an identity")
+        if record.get("status") != "passed" and not (
+            is_not_applicable and record.get("status") == "NOT_APPLICABLE_NO_TARGETS"
+        ):
             raise ValueError("V4 pipeline manifest contains an incomplete Production branch")
-        expected_branch_keys.add(branch_identity_key(branch_identity(record, case_id=case_id)))
+        if is_not_applicable and record.get("status") == "NOT_APPLICABLE_NO_TARGETS":
+            if (record.get("v4_observed_production_status") in (None, "passed")
+                    or record.get("production_returncode") == 0):
+                raise ValueError("V4 H0 non-applicable TO branch lacks its observed failure identity")
+        key = branch_identity_key(branch_identity(record, case_id=case_id))
+        expected_branch_keys.add(key)
+        expected_records_by_key[key] = record
+        if is_not_applicable:
+            expected_not_applicable_keys.add(key)
     required.add(_relative_to_case(pipeline_case_manifest_path, case_root))
 
     branch_manifests = [
@@ -311,6 +341,7 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
         if item.name == "branch_manifest.json" and "production" in item.parts
     ]
     actual_branch_keys: set[tuple[str, str, str, str, str, str]] = set()
+    actual_not_applicable_keys: set[tuple[str, str, str, str, str, str]] = set()
     actual_branch_records: list[Mapping[str, Any]] = []
     for manifest_path in branch_manifests:
         record = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -323,6 +354,21 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
             raise ValueError(f"duplicate V4 Production branch identity: {branch_key}")
         actual_branch_keys.add(branch_key)
         actual_branch_records.append(record)
+        expected_record = expected_records_by_key.get(branch_key)
+        expected_not_applicable = branch_key in expected_not_applicable_keys
+        actual_not_applicable = _is_v4_h0_non_applicable_to(record, target_count=target_count)
+        if expected_not_applicable != actual_not_applicable:
+            raise ValueError(f"V4 H0 non-applicable TO branch identity differs: {identity['branch_name']}")
+        if expected_not_applicable:
+            if (expected_record is None
+                    or record.get("status") != expected_record.get("status")
+                    or record.get("production_returncode") != expected_record.get("production_returncode")
+                    or record.get("v4_observed_production_status") !=
+                    expected_record.get("v4_observed_production_status")):
+                raise ValueError(
+                    f"V4 H0 non-applicable TO failure audit differs: {identity['branch_name']}"
+                )
+            actual_not_applicable_keys.add(branch_key)
         branch_name = str(identity["branch_name"])
         method_id = str(identity["method_id"])
         required.add(_relative_to_case(manifest_path, case_root))
@@ -350,6 +396,8 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
         result_dir = result_raw if result_raw.is_absolute() else branch_root / result_raw
         if not result_dir.is_dir():
             raise ValueError(f"V4 Production result directory is missing: {result_dir}")
+        if expected_not_applicable:
+            continue
         detection_files = sorted(result_dir.rglob("detection_results_GMTI*.csv"))
         expected_period_count = int(record.get("period_count_expected", 0))
         if expected_period_count <= 0 or len(detection_files) != expected_period_count:
@@ -390,6 +438,8 @@ def _v4_required_members(case_root: Path, files: list[Path]) -> list[str]:
 
     if actual_branch_keys != expected_branch_keys:
         raise ValueError("V4 archived branch identities differ from pipeline manifest")
+    if actual_not_applicable_keys != expected_not_applicable_keys:
+        raise ValueError("V4 H0 non-applicable TO inventory differs from branch manifests")
     _v4_branch_group_roles(actual_branch_records, case_id=case_id, target_count=target_count)
 
     missing = sorted(path for path in required
@@ -496,6 +546,12 @@ def _confirmatory_case_schema(
         raise ValueError("confirmatory archive requires one target-response manifest")
     response_path = case_root / response_manifests[0]
     response = json.loads(response_path.read_text(encoding="utf-8"))
+    expected_lineage_status = (
+        "PASSED" if delay_ns == 4.0 else "NOT_APPLICABLE_NO_CAUSAL_CORRECTION_METHODS"
+    )
+    if (float(response.get("delay_ns", float("nan"))) != delay_ns
+            or response.get("causal_prefix_lineage_status") != expected_lineage_status):
+        raise ValueError("confirmatory archive causal-prefix lineage status differs from frozen delay condition")
     response_dir = response_path.parent
     roi_path = response_dir / "target_roi_manifest.csv"
     complex_path = response_dir / "target_complex_response.csv"
@@ -512,11 +568,23 @@ def _confirmatory_case_schema(
         "target_response_row_count": complex_rows,
         "target_roi_row_count": roi_rows,
         "truth_mapping_status": truth.get("status"),
+        "causal_prefix_lineage_status": response.get("causal_prefix_lineage_status"),
     }
+    branch_manifest_records: dict[str, Mapping[str, Any]] = {}
+    production_prefix = f"{case_root}/production/"
+    for name in member_names:
+        if not name.startswith(production_prefix) or not name.endswith("/branch_manifest.json"):
+            continue
+        branch_name = name[len(production_prefix):].split("/", 1)[0]
+        record = json.loads((case_root / name).read_text(encoding="utf-8"))
+        if not isinstance(record, Mapping):
+            raise ValueError(f"Production branch manifest must be an object: {name}")
+        branch_manifest_records[branch_name] = record
     return validate_v4_case_schema(
         case_identity,
         member_names,
         payload_metadata=payload,
+        branch_manifest_records=branch_manifest_records,
     )
 
 

@@ -1,5 +1,13 @@
 # PGRCC 研究决策日志
 
+## 2026-11-28｜R22-V4 Phase H：冻结准备与逐 case 资源闭环完成，正式矩阵待单独授权
+
+- **记录编号与身份：** `D-2026-11-28-R22-V4-PHASE-H-FREEZE-READINESS`；执行基线`4eb79daebe890895cf3aa2093edc2e53e88f68de`；分支`codex/unknown-system-error-next-stage`；研究总纲blob`e637e3769bde7814298ff012d0f42301884e2985`保持不变。冻结设计SHA-256为`5f3cfa00f0409ea0129fea24b799bab8b6648cad2790d3accfe0c9399fb68455`；最终CPU dry-run registry SHA-256为`1546ed2c90836c6cf163547080352f1bd16b93c18c1e28f0ff6011f7347cd57c`。
+- **参数与seed裁决：** 按用户批准参数包冻结Scheme A、3 m位置MDE、每速度共同成功支持≥10、检测覆盖非劣界1个百分点、航迹覆盖描述性报告、target-present/H0各30 seed、seed-cluster studentized bootstrap-t、paired-t和两个H0单侧exact 95%上界严格低于10%的门。Seed registry哈希为`ec73bb776882a25cde4250d0092fec24157b7d38aaea6961729a909f1826abfd`；只声明已访问本地记录范围内无冲突，不声称外部全局唯一。
+- **实际完成：** 三类此前缺失schema size pilot已执行；执行器改为逐case完整分片归档、校验后compact、gzip-9完整archive-set回执及可恢复检查点；只有回执与compact身份和CRC通过后才清理raw。新增每case文件系统峰值门与按PGRCC根目录allocated inode预测的20,000,000,000-byte最终保留门。最终CPU干跑生成240 case/120 batch及完整运行源码身份，状态`NOT_AUTHORIZED`，没有开始确认矩阵、Stage2、Production或AI。资源证据对target-present +4 ns使用P0清单构造的回执大小保守模型，明确不是实测。
+- **存储清理：** 前三份旧CPU-only dry-run与复审前冻结预检共四份已由最新预检替代；新增旧预检逐文件大小/SHA复核后删除，释放2,330,624 allocated bytes，逐文件明细见[复审版清理台账](phase_r/R22/evidence/storage_reclaim_20261128/executor_reviewed_dryrun_cleanup_ledger_20261128.json)。前三份清理释放allocated bytes上界6,975,488。三份审计库存先做gzip-9往返字节核验后压缩替换，释放11,386,880 allocated bytes。唯一P0完整ZIP、pilot compact/receipt、真值和失败案例证据保留。详细数值见[Phase H报告57](phase_r/R22/57_v4_phase_h_size_pilots_and_matrix_freeze_20261128.md)、[最终干跑](phase_r/R22/evidence/v4_phase_h/preflight_20261128_executor_reviewed/confirmatory_dry_run.json)、[资源预算](phase_r/R22/evidence/v4_phase_h/resource_budget_20261128.json)和[清理台账](phase_r/R22/evidence/storage_reclaim_20261128/superseded_dryrun_cleanup_ledger_20261128.json)。
+- **阶段与授权：** V4筛选设计`FROZEN`；三类pilot已执行但H0为`EVALUABLE_WITH_GAPS`，不作性能结论；正式矩阵`NOT_AUTHORIZED`、`PERFORMANCE_VERIFIED=false`，AI entry gate仍`FAIL`。冻结不构成执行授权。须先提交设计身份、240-case规模、约61.76小时调度估算、峰值磁盘与最终保留方案、断点续跑和剩余科研风险，再由用户一次性明确授权矩阵。
+
 > 本日志只追加，不回写旧决定。以下条目根据各阶段原报告整理；它们记录“当时依据当时证据作出的决定”，不是补造新实验。长期研究主题、目标和技术路线以 [RESEARCH_MASTER_PLAN.md](RESEARCH_MASTER_PLAN.md) 为准；当前阶段与短期任务以 [RESEARCH_STATUS.md](RESEARCH_STATUS.md) 为准。本日志记录已作出的方向决定，不自动授权修改总纲，也不能单方面覆盖总纲中的长期目标。历史条目中的“总纲变更”描述其记录时的历史事件，不构成未来修改授权，且本次未改写这些结论。任何总纲正文修改（包括阶段状态、当前任务、下一步、标题、链接和文字整理）都必须在编辑前获得用户对具体内容或明确范围的批准。每次新增方向决定，须记录决策编号、日期、代码/证据身份、原假设、问题、关键发现、`CONTINUE / STOP / PIVOT`、对总体目标与研究计划的影响、是否建议更新总纲、停止条件和下一项优先工作。新决定可以取代当前方向，但不删除旧条目。
 
 ## 2026-11-26｜R22-V4 Phase H Task 1：统计契约修正，方向与执行仍待用户

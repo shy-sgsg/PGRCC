@@ -1,4 +1,5 @@
 import json
+import hashlib
 import math
 from pathlib import Path
 from types import SimpleNamespace
@@ -74,6 +75,17 @@ def test_v4_runner_uses_only_registered_calibration_methods_for_each_delay(tmp_p
         r22._load_method_configuration(config_path, scenario_path, ())
 
 
+def test_v4_source_identity_includes_causal_and_archive_implementations():
+    identity = r22._source_identity()
+
+    assert {
+        "scripts/phase_r/r22_sharded_archive.py",
+        "scripts/phase_r/r22_v4_case_schema.py",
+        "scripts/phase_r/r22_v4_identity.py",
+        "scripts/estimate_channel_delay.py",
+    } <= set(identity["files"])
+
+
 def test_v4_runner_labels_scientific_and_internal_production_roles_separately():
     branches = [
         {"method_id": "A0", "role": "ON"},
@@ -103,6 +115,7 @@ def test_v4_runner_labels_scientific_and_internal_production_roles_separately():
     assert [row["v4_execution_class"] for row in h0_labeled] == [
         "internal_auxiliary_branch", "registered_scientific_branch",
     ]
+    assert h0_labeled[0]["v4_target_response_not_applicable"] is True
 
 
 def test_r22_zero_delay_reference_records_estimates_without_applying_correction():
@@ -795,6 +808,11 @@ def test_periodwise_delay_correction_uses_same_period_estimate(monkeypatch, tmp_
     assert [item[0] for item in observed] == [f"period_{period:04d}.bin" for period in range(3)]
     assert [item[1] for item in observed] == pytest.approx([0.0, 1.5e-9, 3.25e-9])
     assert len(audits) == 3
+    assert [audit["source_identity"]["sha256"] for audit in audits] == [
+        hashlib.sha256(b"raw").hexdigest()
+    ] * 3
+    assert all(audit["corrected_identity"]["sha256"] == hashlib.sha256(b"corrected").hexdigest()
+               for audit in audits)
 
 
 def test_causal_method_runs_one_continuous_production_branch_per_role(
@@ -905,7 +923,7 @@ def test_r22_attaches_production_evidence_gates_before_aggregating_branch_status
 
     assert audited[0]["production_path_gate"] == {"status": "passed", "branch": "C0"}
     assert audited[1] == branches[1]
-    assert r22._all_production_branches_passed(audited)
+    assert r22._all_production_branches_passed(audited, target_count=20)
 
 
 def test_r22_rejects_any_production_branch_with_failed_evidence_gate(monkeypatch):
@@ -917,7 +935,32 @@ def test_r22_rejects_any_production_branch_with_failed_evidence_gate(monkeypatch
 
     audited = r22._audit_production_branches(branches)
 
-    assert not r22._all_production_branches_passed(audited)
+    assert not r22._all_production_branches_passed(audited, target_count=20)
+
+
+def test_r22_h0_excludes_only_explicit_non_applicable_target_response_branch():
+    branches = [
+        {"method_id": "A0", "role": "ON", "status": "passed",
+         "production_returncode": 0,
+         "production_path_gate": {"status": "passed"}},
+        {"method_id": "A0", "role": "TO", "status": "NOT_APPLICABLE_NO_TARGETS",
+         "production_returncode": 1,
+         "production_path_gate": {"status": "failed"},
+         "v4_execution_class": "internal_auxiliary_branch",
+         "v4_target_response_not_applicable": True,
+         "v4_target_response_not_applicable_reason": (
+             "H0 target_count=0; no target-only response source"
+         )},
+    ]
+
+    assert r22._all_production_branches_passed(branches, target_count=0)
+    branches[1].pop("v4_target_response_not_applicable_reason")
+    assert not r22._all_production_branches_passed(branches, target_count=0)
+    branches[1]["v4_target_response_not_applicable_reason"] = (
+        "H0 target_count=0; no target-only response source"
+    )
+    branches[0]["production_path_gate"] = {"status": "failed"}
+    assert not r22._all_production_branches_passed(branches, target_count=0)
 
 
 def test_v4_cleanup_does_not_delete_raw_input_before_response_verification(tmp_path: Path):

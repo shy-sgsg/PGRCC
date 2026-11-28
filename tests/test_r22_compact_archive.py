@@ -11,6 +11,7 @@ import pytest
 
 from scripts.phase_r import r22_experiment_matrix as matrix
 from scripts.phase_r import r22_compact_archive as compact
+from scripts.phase_r import r22_sharded_archive as sharded
 
 
 def test_v4_archive_branch_groups_keep_modes_separate_and_fail_missing_or_duplicate_roles():
@@ -39,6 +40,18 @@ def test_v4_archive_branch_groups_keep_modes_separate_and_fail_missing_or_duplic
             records + [{**records[0], "branch_name": "another-ON"}],
             case_id="case-1", target_count=20,
         )
+    h0_records = [
+        {
+            **next(row for row in records if row["role"] == role),
+            "mode": mode,
+            "branch_name": f"H0_{mode}_{role}",
+        }
+        for mode in ("Mode-A", "Mode-B") for role in ("ON", "OFF")
+    ]
+    h0_groups = compact._v4_branch_group_roles(
+        h0_records, case_id="case-1", target_count=0,
+    )
+    assert all(roles == {"ON", "OFF"} for roles in h0_groups.values())
 
 
 def test_case_archive_hashes_audit_files_before_removing_case_tree(tmp_path: Path):
@@ -309,8 +322,10 @@ def _write_v4_archive_case(
         "scripts/phase_r/run_r22_cuda_pilot.py",
         "scripts/phase_r/r22_scenario_factory.py",
         "scripts/phase_r/r22_v4_evidence.py",
+        "scripts/phase_r/r22_v4_case_schema.py",
         "scripts/phase_r/r22_compact_archive.py",
         "scripts/phase_r/r22_experiment_matrix.py",
+        "scripts/phase_r/r22_sharded_archive.py",
         "scripts/phase_r/run_r12_physics_matched_delay.py",
         "scripts/phase_r/run_r21_cuda_pilot.py",
         "scripts/phase_r/r21_task_evaluator.py",
@@ -627,6 +642,60 @@ def test_v4_archive_accepts_h0_without_truth_or_to_and_keeps_unproven_arrays(tmp
     assert result["raw_case_removed"] is False
 
 
+def test_v4_archive_accepts_declared_h0_to_failure_but_keeps_its_failure_audit(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "h0" / "case-v4-h0-with-to-gap"
+    case_root.mkdir(parents=True)
+    _write_v4_archive_case(
+        case_root, target_count=0, roles=("ON", "OFF", "TO"),
+    )
+    pipeline_case = case_root / "pipeline" / "cases" / "run"
+    to_root = pipeline_case / "production" / "C0_TO"
+    case_manifest_path = pipeline_case / "case_manifest.json"
+    case_manifest = json.loads(case_manifest_path.read_text(encoding="utf-8"))
+    to_record = next(row for row in case_manifest["method_branches"] if row["role"] == "TO")
+    to_record.update({
+        "status": "NOT_APPLICABLE_NO_TARGETS",
+        "production_returncode": 1,
+        "v4_execution_class": "internal_auxiliary_branch",
+        "v4_target_response_not_applicable": True,
+        "v4_target_response_not_applicable_reason": (
+            "H0 target_count=0; no target-only response source"
+        ),
+        "v4_observed_production_status": "failed",
+        "production_path_gate": {"status": "failed"},
+    })
+    (to_root / "branch_manifest.json").write_text(json.dumps(to_record), encoding="utf-8")
+    case_manifest_path.write_text(json.dumps(case_manifest), encoding="utf-8")
+    for path in list((to_root / "result").rglob("*")):
+        if path.is_file():
+            path.unlink()
+    for path in sorted((to_root / "track_debug_runs").rglob("*"), reverse=True):
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            path.rmdir()
+    (to_root / "track_debug_runs").rmdir()
+    archive_path = tmp_path / "archives" / "case-v4-h0-with-to-gap.zip"
+
+    result = matrix.archive_case_directory(
+        case_root, archive_path, raw_root=raw_root, remove_source=False,
+        archive_profile="r22_v4_output_complete", require_complete_output=True,
+    )
+
+    assert case_root.is_dir()
+    assert result["raw_case_removed"] is False
+    with zipfile.ZipFile(archive_path) as archive:
+        names = set(archive.namelist())
+        assert "pipeline/cases/run/production/C0_TO/branch_manifest.json" in names
+        assert "pipeline/cases/run/production/C0_TO/production.xml" in names
+        assert "pipeline/cases/run/production/C0_TO/gmt_pipe_core.log" in names
+        assert not any("C0_TO/result/detection_results_" in name for name in names)
+        record = json.loads(archive.read("pipeline/cases/run/production/C0_TO/branch_manifest.json"))
+        assert record["v4_observed_production_status"] == "failed"
+        assert record["production_returncode"] == 1
+
+
 def test_v4_archive_preserves_internal_input_symlinks_without_copying_payloads(tmp_path: Path):
     raw_root = tmp_path / "raw"
     case_root = raw_root / "engineering" / "case-v4-links"
@@ -664,6 +733,353 @@ def test_v4_archive_preserves_internal_input_symlinks_without_copying_payloads(t
     )
     assert verification["crc_verified"] is True
     assert verification["member_manifest_verified"] is True
+
+
+def test_sharded_v4_archive_checkpoints_verified_members_and_releases_raw_data(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-sharded"
+    first = case_root / "inputs" / "period_0000.bin"
+    second = case_root / "production" / "C0_ON" / "result.csv"
+    alias = case_root / "production_inputs" / "period_0000.bin"
+    first.parent.mkdir(parents=True)
+    second.parent.mkdir(parents=True)
+    alias.parent.mkdir(parents=True)
+    first.write_bytes(b"first-data")
+    second.write_bytes(b"second-data")
+    alias.symlink_to(first.resolve())
+    archive_set = tmp_path / "archives" / "case-sharded.archive-set.json"
+
+    result = sharded.archive_case_directory_sharded(
+        case_root,
+        archive_set,
+        raw_root=raw_root,
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=False,
+        max_shard_uncompressed_bytes=6,
+        remove_source=True,
+    )
+
+    assert result["status"] == "VERIFIED"
+    assert result["shard_count"] == 4
+    assert result["raw_case_removed"] is True
+    assert not case_root.exists()
+    verified = sharded.verify_sharded_case_archive(
+        archive_set,
+        expected_sha256=result["archive_sha256"],
+        expected_manifest_sha256=result["archive_manifest_sha256"],
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=False,
+    )
+    assert verified["member_manifest_verified"] is True
+    assert verified["crc_verified"] is True
+    manifest = json.loads(archive_set.read_text(encoding="utf-8"))
+    archived = {
+        member
+        for shard in manifest["shards"]
+        for member in shard["members"]
+    }
+    assert archived == {
+        "ARCHIVE_MANIFEST.json",
+        "inputs/period_0000.bin",
+        "production/C0_ON/result.csv",
+        "production_inputs/period_0000.bin",
+    }
+
+
+def test_sharded_archive_preserves_files_added_after_archive_inventory(tmp_path: Path, monkeypatch):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-late-file"
+    case_root.mkdir(parents=True)
+    (case_root / "included.csv").write_text("verified\n", encoding="utf-8")
+    archive_set = tmp_path / "archives" / "case-late-file.archive-set.json"
+    real_verify = sharded.verify_sharded_case_archive
+
+    def add_late_file(*args, **kwargs):
+        result = real_verify(*args, **kwargs)
+        (case_root / "late_user_note.txt").write_text("keep this\n", encoding="utf-8")
+        return result
+
+    monkeypatch.setattr(sharded, "verify_sharded_case_archive", add_late_file)
+    result = sharded.archive_case_directory_sharded(
+        case_root, archive_set, raw_root=raw_root,
+        archive_profile="r22_v4_output_complete", require_complete_output=False,
+        max_shard_uncompressed_bytes=1024, remove_source=True,
+    )
+
+    assert result["raw_case_removed"] is False
+    assert (case_root / "late_user_note.txt").read_text(encoding="utf-8") == "keep this\n"
+    receipt = json.loads(archive_set.read_text(encoding="utf-8"))["source_cleanup"]
+    assert receipt["status"] == "UNINVENTORIED_OR_UNRECOGNIZED_FILES_PRESERVED"
+    assert receipt["remaining_file_count"] == 1
+
+
+def test_sharded_archive_refuses_to_remove_changed_excluded_file(tmp_path: Path, monkeypatch):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-mutated-exclusion"
+    case_root.mkdir(parents=True)
+    (case_root / "included.csv").write_text("verified\n", encoding="utf-8")
+    excluded = case_root / "per_case_plot.png"
+    excluded.write_bytes(b"original plot")
+    archive_set = tmp_path / "archives" / "case-mutated-exclusion.archive-set.json"
+    real_verify = sharded.verify_sharded_case_archive
+
+    def mutate_exclusion(*args, **kwargs):
+        result = real_verify(*args, **kwargs)
+        excluded.write_bytes(b"changed after inventory")
+        return result
+
+    monkeypatch.setattr(sharded, "verify_sharded_case_archive", mutate_exclusion)
+    with pytest.raises(ValueError, match="excluded source file identity changed"):
+        sharded.archive_case_directory_sharded(
+            case_root, archive_set, raw_root=raw_root,
+            archive_profile="r22_v4_output_complete", require_complete_output=False,
+            max_shard_uncompressed_bytes=1024, remove_source=True,
+        )
+
+    assert excluded.read_bytes() == b"changed after inventory"
+
+
+def test_sharded_v4_archive_resumes_after_a_later_shard_write_fails(tmp_path: Path, monkeypatch):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "engineering" / "case-resume"
+    case_root.mkdir(parents=True)
+    (case_root / "a.bin").write_bytes(b"aaaa")
+    (case_root / "b.bin").write_bytes(b"bbbb")
+    archive_set = tmp_path / "archives" / "case-resume.archive-set.json"
+    real_writer = sharded._write_sharded_archive_part
+    calls = {"count": 0}
+
+    def fail_on_second_part(*args, **kwargs):
+        calls["count"] += 1
+        if calls["count"] == 3:
+            raise OSError("injected failure before third shard publication")
+        return real_writer(*args, **kwargs)
+
+    monkeypatch.setattr(sharded, "_write_sharded_archive_part", fail_on_second_part)
+    with pytest.raises(OSError, match="before third shard publication"):
+        sharded.archive_case_directory_sharded(
+            case_root,
+            archive_set,
+            raw_root=raw_root,
+            archive_profile="r22_v4_output_complete",
+            require_complete_output=False,
+            max_shard_uncompressed_bytes=4,
+            remove_source=True,
+        )
+
+    checkpoint = json.loads(archive_set.read_text(encoding="utf-8"))
+    assert checkpoint["status"] == "ARCHIVING"
+    assert checkpoint["shards"][0]["status"] == "VERIFIED"
+    assert not (case_root / "a.bin").exists()
+    assert (case_root / "b.bin").is_file()
+
+    monkeypatch.setattr(sharded, "_write_sharded_archive_part", real_writer)
+    resumed = sharded.archive_case_directory_sharded(
+        case_root,
+        archive_set,
+        raw_root=raw_root,
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=False,
+        max_shard_uncompressed_bytes=4,
+        remove_source=True,
+    )
+    assert resumed["status"] == "VERIFIED"
+    assert resumed["resumed_shard_count"] == 2
+    assert not case_root.exists()
+
+
+def test_verified_sharded_archive_compacts_before_full_payload_cleanup(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "h0" / "case-compact"
+    case_root.mkdir(parents=True)
+    (case_root / "r22_run_manifest.json").write_text('{"phase":"h0"}\n', encoding="utf-8")
+    (case_root / "evaluation").mkdir()
+    evaluator = case_root / "evaluation" / "task_metrics.csv"
+    evaluator.write_text("case_id,hits\ncase-compact,10\n", encoding="utf-8")
+    archive_set = tmp_path / "archives" / "case-compact.archive-set.json"
+    compact_path = tmp_path / "archives" / "case-compact.compact.zip"
+
+    complete = sharded.archive_case_directory_sharded(
+        case_root,
+        archive_set,
+        raw_root=raw_root,
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=False,
+        max_shard_uncompressed_bytes=32,
+        remove_source=True,
+    )
+    compacted = sharded.compact_sharded_case_archive(
+        archive_set, compact_path, cleanup_full_archive=True,
+    )
+
+    assert complete["crc_verified"] is True
+    assert compacted["status"] == "VERIFIED"
+    assert compact_path.is_file()
+    assert not Path(str(archive_set) + ".shards").exists()
+    receipt = sharded.verify_sharded_archive_receipt(
+        archive_set,
+        expected_sha256=compacted["archive_set_sha256"],
+        expected_manifest_sha256=compacted["full_archive_manifest_sha256"],
+        expected_compact_sha256=compacted["archive_sha256"],
+    )
+    assert receipt["historically_verified_full_archive"] is True
+    assert receipt["full_archive_payload_present"] is False
+    with zipfile.ZipFile(compact_path, "r") as archive:
+        manifest = json.loads(archive.read("ARCHIVE_MANIFEST.json"))
+        assert manifest["archive_profile"] == "r22_v4_size_pilot_compact"
+        assert "evaluation/task_metrics.csv" in archive.namelist()
+
+
+def test_compact_archive_cleanup_resumes_from_verified_shard_receipt(tmp_path: Path, monkeypatch):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "h0" / "case-cleanup-resume"
+    (case_root / "evaluation").mkdir(parents=True)
+    (case_root / "r22_run_manifest.json").write_text('{"phase":"h0"}\n', encoding="utf-8")
+    (case_root / "evaluation" / "task_metrics.csv").write_text(
+        "case_id,hits\ncase-cleanup-resume,1\n", encoding="utf-8",
+    )
+    (case_root / "large-a.bin").write_bytes(b"a" * 400)
+    (case_root / "large-b.bin").write_bytes(b"b" * 400)
+    archive_set = tmp_path / "archives" / "case-cleanup-resume.archive-set.json"
+    compact_path = tmp_path / "archives" / "case-cleanup-resume.compact.zip"
+    sharded.archive_case_directory_sharded(
+        case_root, archive_set, raw_root=raw_root,
+        archive_profile="r22_v4_output_complete", require_complete_output=False,
+        max_shard_uncompressed_bytes=300, remove_source=True,
+    )
+
+    original_unlink = Path.unlink
+
+    def fail_on_second_shard(path, *args, **kwargs):
+        if path.name == "part_0001.zip":
+            raise OSError("injected interruption during full archive cleanup")
+        return original_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "unlink", fail_on_second_shard)
+    with pytest.raises(OSError, match="during full archive cleanup"):
+        sharded.compact_sharded_case_archive(
+            archive_set, compact_path, cleanup_full_archive=True,
+        )
+    checkpoint = json.loads(archive_set.read_text(encoding="utf-8"))
+    assert checkpoint["status"] == "COMPACT_VERIFIED"
+    assert checkpoint["full_archive_cleanup"]["status"] == "IN_PROGRESS"
+    assert compact_path.is_file()
+
+    monkeypatch.setattr(Path, "unlink", original_unlink)
+    resumed = sharded.compact_sharded_case_archive(
+        archive_set, compact_path, cleanup_full_archive=True,
+    )
+    assert resumed["status"] == "VERIFIED"
+    receipt = sharded.verify_sharded_archive_receipt(
+        archive_set,
+        expected_sha256=resumed["archive_set_sha256"],
+        expected_manifest_sha256=resumed["full_archive_manifest_sha256"],
+        expected_compact_sha256=resumed["archive_sha256"],
+    )
+    assert receipt["historically_verified_full_archive"] is True
+
+
+def test_compact_cleanup_recovers_if_first_shard_was_unlinked_before_checkpoint_update(
+    tmp_path: Path, monkeypatch,
+):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "h0" / "case-first-shard-interruption"
+    (case_root / "evaluation").mkdir(parents=True)
+    (case_root / "r22_run_manifest.json").write_text('{"phase":"h0"}\n', encoding="utf-8")
+    (case_root / "evaluation" / "task_metrics.csv").write_text("case_id,hits\nx,1\n")
+    (case_root / "large.bin").write_bytes(b"x" * 800)
+    archive_set = tmp_path / "archives" / "first-shard.archive-set.json"
+    compact_path = tmp_path / "archives" / "first-shard.compact.zip"
+    sharded.archive_case_directory_sharded(
+        case_root, archive_set, raw_root=raw_root,
+        archive_profile="r22_v4_output_complete", require_complete_output=False,
+        max_shard_uncompressed_bytes=300, remove_source=True,
+    )
+
+    original_unlink = Path.unlink
+    injected = {"done": False}
+
+    def unlink_then_interrupt(path, *args, **kwargs):
+        result = original_unlink(path, *args, **kwargs)
+        if path.name == "part_0000.zip" and not injected["done"]:
+            injected["done"] = True
+            raise OSError("simulated process loss after first shard unlink")
+        return result
+
+    monkeypatch.setattr(Path, "unlink", unlink_then_interrupt)
+    with pytest.raises(OSError, match="after first shard unlink"):
+        sharded.compact_sharded_case_archive(archive_set, compact_path, cleanup_full_archive=True)
+    interrupted = json.loads(archive_set.read_text(encoding="utf-8"))
+    assert interrupted["full_archive_cleanup"]["status"] == "IN_PROGRESS"
+    assert not (archive_set.parent / "first-shard.archive-set.json.shards/part_0000.zip").exists()
+
+    monkeypatch.setattr(Path, "unlink", original_unlink)
+    resumed = sharded.compact_sharded_case_archive(archive_set, compact_path, cleanup_full_archive=True)
+    assert resumed["status"] == "VERIFIED"
+    assert json.loads(archive_set.read_text(encoding="utf-8"))["status"] == "COMPACTED_CLEANED"
+
+
+def test_compact_cleanup_removes_only_owned_orphan_shard_temporaries(tmp_path: Path):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "h0" / "case-orphan-shard-temp"
+    (case_root / "evaluation").mkdir(parents=True)
+    (case_root / "r22_run_manifest.json").write_text('{"phase":"h0"}\n', encoding="utf-8")
+    (case_root / "evaluation" / "task_metrics.csv").write_text("case_id,hits\nx,1\n")
+    archive_set = tmp_path / "archives" / "orphan-temp.archive-set.json"
+    compact_path = tmp_path / "archives" / "orphan-temp.compact.zip"
+    sharded.archive_case_directory_sharded(
+        case_root, archive_set, raw_root=raw_root,
+        archive_profile="r22_v4_output_complete", require_complete_output=False,
+        max_shard_uncompressed_bytes=1024, remove_source=True,
+    )
+    shard_dir = Path(str(archive_set) + ".shards")
+    owned_temp = shard_dir / ".part_0000.zip.interrupted.tmp"
+    unrelated = shard_dir / "unrelated.tmp"
+    owned_temp.write_bytes(b"partial zip")
+    unrelated.write_bytes(b"keep")
+
+    with pytest.raises(OSError):
+        sharded.compact_sharded_case_archive(archive_set, compact_path, cleanup_full_archive=True)
+    assert not owned_temp.exists()
+    assert unrelated.read_bytes() == b"keep"
+
+    unrelated.unlink()
+    resumed = sharded.compact_sharded_case_archive(archive_set, compact_path, cleanup_full_archive=True)
+    assert resumed["status"] == "VERIFIED"
+
+
+def test_existing_compact_collision_requires_member_hashes_not_only_crc_and_manifest(
+    tmp_path: Path,
+):
+    raw_root = tmp_path / "raw"
+    case_root = raw_root / "h0" / "case-tampered-compact-collision"
+    (case_root / "evaluation").mkdir(parents=True)
+    (case_root / "r22_run_manifest.json").write_text('{"phase":"h0"}\n', encoding="utf-8")
+    (case_root / "evaluation" / "task_metrics.csv").write_text("case_id,hits\nx,1\n")
+    archive_set = tmp_path / "archives" / "tampered-collision.archive-set.json"
+    compact_path = tmp_path / "archives" / "tampered-collision.compact.zip"
+    sharded.archive_case_directory_sharded(
+        case_root, archive_set, raw_root=raw_root,
+        archive_profile="r22_v4_output_complete", require_complete_output=False,
+        max_shard_uncompressed_bytes=1024, remove_source=True,
+    )
+    sharded.compact_sharded_case_archive(archive_set, compact_path, cleanup_full_archive=False)
+    receipt = json.loads(archive_set.read_text(encoding="utf-8"))
+    receipt["status"] = "FULL_VERIFIED"
+    receipt.pop("compact_archive", None)
+    receipt.pop("compact_verified_at_utc", None)
+    receipt.pop("full_archive_cleanup", None)
+    archive_set.write_text(json.dumps(receipt), encoding="utf-8")
+
+    with zipfile.ZipFile(compact_path, "r") as source:
+        members = {name: source.read(name) for name in source.namelist()}
+    members["evaluation/task_metrics.csv"] += b"tampered\n"
+    with zipfile.ZipFile(compact_path, "w", compression=zipfile.ZIP_DEFLATED) as changed:
+        for name, payload in members.items():
+            changed.writestr(name, payload)
+
+    with pytest.raises(ValueError, match="compact archive member failed SHA-256 check"):
+        sharded.compact_sharded_case_archive(archive_set, compact_path, cleanup_full_archive=True)
 
 
 def test_v4_archive_hashes_shared_symlink_target_once_for_link_identity(tmp_path: Path, monkeypatch):
@@ -742,3 +1158,42 @@ def test_v4_confirmatory_resume_requires_a_passing_case_type_schema(tmp_path: Pa
             archive_profile="r22_v4_output_complete",
             require_complete_output=True,
         )
+
+
+def test_sharded_v4_archive_manifest_binds_confirmatory_case_schema_identity(
+    tmp_path: Path, monkeypatch,
+):
+    case_root = tmp_path / "raw" / "case-1"
+    case_root.mkdir(parents=True)
+    (case_root / "r22_run_manifest.json").write_text(
+        json.dumps({"phase": "confirmatory"}), encoding="utf-8",
+    )
+    identity = {
+        "case_id": "case-1", "phase": "target_present",
+        "target_count": 20, "delay_error_ns": 4.0,
+    }
+    monkeypatch.setattr(
+        compact, "_v4_required_members", lambda _root, _files: ["r22_run_manifest.json"],
+    )
+    monkeypatch.setattr(
+        compact, "_v4_verified_dense_csi_exclusions",
+        lambda *_args, **_kwargs: {},
+    )
+    monkeypatch.setattr(compact, "_compact_case_manifest_extract", lambda *_args: None)
+    monkeypatch.setattr(compact, "_exclusion_reason", lambda *_args: None)
+    monkeypatch.setattr(
+        compact, "_confirmatory_case_schema",
+        lambda *_args: {"status": "PASS", "required_members": ["r22_run_manifest.json"]},
+    )
+
+    prepared, _ = sharded._make_archive_manifest(
+        case_root,
+        archive_profile="r22_v4_output_complete",
+        require_complete_output=True,
+        case_schema_identity=identity,
+    )
+
+    manifest = prepared["archive_manifest"]
+    assert manifest["case_schema_identity"] == identity
+    assert manifest["case_schema"]["status"] == "PASS"
+    assert "r22_run_manifest.json" in manifest["required_v4_members"]

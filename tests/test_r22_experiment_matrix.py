@@ -5,6 +5,7 @@ import hashlib
 import json
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
 import pytest
@@ -54,6 +55,7 @@ def test_matrix_script_supports_direct_cli_invocation():
     assert "--phase" in result.stdout
     assert "--authorize-v4-size-pilot" in result.stdout
     assert "--approved-design-sha256" in result.stdout
+    assert "--retry-failed-case" in result.stdout
 
 
 def test_frozen_r22_design_expands_exact_case_counts_and_h0_is_target_free():
@@ -232,7 +234,24 @@ def test_interrupted_case_requires_explicit_retry_and_preserves_prior_attempt(tm
     prior_output = raw_root / "engineering" / case_id / "attempt_001"
     prior_output.mkdir(parents=True)
     (prior_output / "partial.log").write_text("interrupted", encoding="utf-8")
-    output_root.mkdir()
+    sample_log = output_root / "resource_usage" / "attempt_001.jsonl"
+    sample_log.parent.mkdir(parents=True)
+    samples = [
+        {"sample_index": 1, "timestamp_utc": "t1", "filesystems": [{
+            "device_id": 7, "probe_path": str(tmp_path),
+            "free_start_bytes": 1000, "minimum_free_bytes": 1000,
+            "free_end_bytes": 1000,
+        }]},
+        {"sample_index": 2, "timestamp_utc": "t2", "filesystems": [{
+            "device_id": 7, "probe_path": str(tmp_path),
+            "free_start_bytes": 1000, "minimum_free_bytes": 400,
+            "free_end_bytes": 400,
+        }]},
+    ]
+    sample_log.write_bytes(
+        b"".join(json.dumps(item).encode("utf-8") + b"\n" for item in samples)
+        + b"\x00\x00truncated-tail",
+    )
     manifest = {
         "schema_version": 1,
         "design_id": design["design_id"],
@@ -242,7 +261,8 @@ def test_interrupted_case_requires_explicit_retry_and_preserves_prior_attempt(tm
         "planned_case_count": 1,
         "cases": [{"case_id": case_id, "condition_id": "c0", "seed": 101,
                    "attempt": 1, "status": "RUNNING",
-                   "output_root": str(prior_output), "started_at_utc": "earlier"}],
+                   "output_root": str(prior_output), "started_at_utc": "earlier",
+                   "resource_usage_sample_log": str(sample_log)}],
     }
     (output_root / "matrix_manifest.json").write_text(json.dumps(manifest), encoding="utf-8")
     runner_calls = []
@@ -261,6 +281,11 @@ def test_interrupted_case_requires_explicit_retry_and_preserves_prior_attempt(tm
     )
     assert interrupted["status"] == "INTERRUPTED_REVIEW_REQUIRED"
     assert interrupted["cases"][0]["status"] == "INTERRUPTED"
+    recovered_usage = interrupted["cases"][0]["resource_usage"]
+    assert recovered_usage["status"] == "RECOVERED_PARTIAL"
+    assert recovered_usage["sample_count"] == 2
+    assert recovered_usage["filesystems"][0]["observed_peak_consumption_bytes"] == 600
+    assert recovered_usage["invalid_sample_line_count"] == 1
     assert not runner_calls
     assert (prior_output / "partial.log").is_file()
 
@@ -667,7 +692,7 @@ def test_v4_three_schema_size_pilot_pauses_before_case_when_storage_is_below_mea
             self.free = free
             self.used = self.total - free
 
-    capacity = {"free": 40_000_000_000}
+    capacity = {"free": 10_000_000_000}
     monkeypatch.setattr(
         matrix.shutil, "disk_usage",
         lambda _path: DiskUsage(capacity["free"]),
@@ -690,8 +715,8 @@ def test_v4_three_schema_size_pilot_pauses_before_case_when_storage_is_below_mea
     assert result["status"] == "PAUSED_RESOURCE_GATE"
     assert runner_calls == []
     assert result["resource_gate"]["status"] == "PAUSED_RESOURCE_GATE"
-    assert result["resource_gate"]["basis"]["required_free_bytes_per_output_filesystem"] == 40_558_522_368
-    assert result["resource_gate"]["filesystems"][0]["free_bytes"] == 40_000_000_000
+    assert result["resource_gate"]["basis"]["required_free_bytes_per_output_filesystem"] > 10_000_000_000
+    assert result["resource_gate"]["filesystems"][0]["free_bytes"] == 10_000_000_000
     assert result["cases"] == []
     assert not list(raw_root.rglob("attempt_*"))
 
@@ -710,6 +735,218 @@ def test_v4_three_schema_size_pilot_pauses_before_case_when_storage_is_below_mea
     assert resumed["status"] == "GATE_FAILED"
     assert len(resumed["resource_gate_history"]) == 2
     assert resumed["resource_gate_history"][1]["status"] == "READY"
+
+
+def test_v4_pilot_resource_budget_scales_branch_data_but_keeps_shared_scene_bytes(tmp_path):
+    design = matrix.load_design(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN)
+    archive_manifest = {
+        "archive_profile": "r22_v4_output_complete",
+        "included_files": [
+            {"path": "pipeline/cases/case/inputs/input.bin", "bytes": 60, "sha256": "a" * 64},
+            {"path": "pipeline/cases/case/production/C0_ON/out.bin", "bytes": 40, "sha256": "b" * 64},
+            {"path": "pipeline/cases/case/scenes/scene.bin", "bytes": 40, "sha256": "c" * 64},
+            {"path": "evaluation/task_metrics.csv", "bytes": 10, "sha256": "d" * 64},
+        ],
+        "excluded_files": [
+            {"path": "pipeline/cases/case/production/C0_ON/result/csi.npy", "bytes": 20},
+            {"path": "pipeline/cases/case/scenes/dense.f32", "bytes": 10},
+        ],
+    }
+    source_archive = tmp_path / "p0.zip"
+    with zipfile.ZipFile(source_archive, "w") as archive:
+        archive.writestr("ARCHIVE_MANIFEST.json", json.dumps(archive_manifest))
+    source_archive_bytes = source_archive.stat().st_size
+    manifest_sha = hashlib.sha256(json.dumps(archive_manifest).encode()).hexdigest()
+    resource_path = tmp_path / "resource.json"
+    resource_path.write_text(json.dumps({
+        "archive_bytes": source_archive_bytes,
+        "disk_start_free_bytes": source_archive_bytes + 500,
+        "disk_minimum_available_bytes": 300,
+        "production_branch_count": 18,
+    }), encoding="utf-8")
+    comparison_path = tmp_path / "comparison.json"
+    comparison_path.write_text(json.dumps({
+        "source_archive": {
+            "path": str(source_archive),
+            "size_bytes": source_archive_bytes,
+            "archive_profile": "r22_v4_output_complete",
+            "embedded_archive_manifest_sha256": manifest_sha,
+        },
+    }), encoding="utf-8")
+
+    budget = matrix._v4_three_schema_size_pilot_resource_budget(
+        design,
+        resource_evidence_path=resource_path,
+        archive_comparison_path=comparison_path,
+        max_shard_uncompressed_bytes=50,
+        filesystem_reserve_bytes=100,
+        uncertainty_factor=1.0,
+    )
+
+    assert budget["active_method_mode_groups"] == 4
+    assert budget["reference_method_mode_groups"] == 6
+    assert budget["branch_data_scale"] == pytest.approx(2 / 3)
+    assert budget["estimated_raw_case_peak_bytes"] == 160
+    assert budget["required_free_bytes"] == 310
+    assert budget["unscaled_shared_scene_bytes"] == 50
+
+
+def test_case_disk_monitor_retains_minimum_free_space_and_sample_log(tmp_path, monkeypatch):
+    values = iter((1000, 400, 700, 600))
+
+    class Usage:
+        total = 5000
+
+        def __init__(self, free):
+            self.free = free
+            self.used = self.total - free
+
+    monkeypatch.setattr(matrix.shutil, "disk_usage", lambda _path: Usage(next(values)))
+    sample_log = tmp_path / "resource_samples.jsonl"
+    monitor = matrix._DiskSpaceMonitor(
+        {"case_and_archive": tmp_path}, sample_log=sample_log,
+        sample_interval_seconds=3600,
+    )
+
+    monitor.start()
+    monitor.sample_once()
+    monitor.sample_once()
+    result = monitor.stop()
+
+    assert result["filesystems"][0]["free_start_bytes"] == 1000
+    assert result["filesystems"][0]["minimum_free_bytes"] == 400
+    assert result["filesystems"][0]["observed_peak_consumption_bytes"] == 600
+    assert result["sample_count"] == 4
+    assert len(sample_log.read_text(encoding="utf-8").splitlines()) == 4
+
+
+def test_three_schema_size_pilot_retains_compact_and_receipt_then_resume_skips_cuda_case(
+    tmp_path, monkeypatch,
+):
+    design = matrix.load_design(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN)
+    monkeypatch.setattr(matrix, "_v4_three_schema_size_pilot_resource_gate", lambda *_: {
+        "status": "READY", "basis": {"required_free_bytes": 1}, "filesystems": [], "reasons": [],
+    })
+    real_archiver = matrix.sharded.archive_case_directory_sharded
+
+    def small_case_archiver(*args, **kwargs):
+        kwargs["require_complete_output"] = False
+        return real_archiver(*args, **kwargs)
+
+    monkeypatch.setattr(matrix.sharded, "archive_case_directory_sharded", small_case_archiver)
+    runner_calls = []
+
+    def successful_runner(case_root, **_kwargs):
+        runner_calls.append(case_root)
+        (case_root / "evaluation").mkdir(parents=True)
+        (case_root / "r22_run_manifest.json").write_text('{"phase":"engineering"}\n')
+        (case_root / "evaluation" / "task_metrics.csv").write_text(
+            "case_id,hits\npilot,20\n",
+        )
+        return {
+            "implementation_result": "passed",
+            "status_labels": {"EVALUABLE": True},
+            "all_production_branches_passed": True,
+        }
+
+    output_root = tmp_path / "matrix"
+    raw_root = tmp_path / "raw"
+    archive_root = tmp_path / "archives"
+    first = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=successful_runner, archive_profile="r22_v4_output_complete",
+        **_v4_three_schema_pilot_authorization_args(),
+    )
+    assert first["status"] == "COMPLETED"
+    assert len(runner_calls) == 1
+    record = first["cases"][0]
+    assert record["compact_archive_status"] == "VERIFIED_AND_RAW_REMOVED"
+    assert record["full_output_archive"]["full_archive_payload_present"] is False
+    assert record["compact_archive"]["archive_path"].endswith(".compact.zip")
+
+    resumed = matrix.run_matrix(
+        design, phase="engineering", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=lambda *_a, **_kw: pytest.fail("completed pilot case reran"),
+        archive_profile="r22_v4_output_complete", resume=True,
+        **_v4_three_schema_pilot_authorization_args(),
+    )
+    assert resumed["skipped_cases"] == 1
+    assert len(runner_calls) == 1
+
+
+def test_three_schema_size_pilot_explicit_retry_preserves_failed_attempt_and_runs_next_case(
+    tmp_path, monkeypatch,
+):
+    design = matrix.load_design(V4_THREE_SCHEMA_SIZE_PILOT_DESIGN)
+    monkeypatch.setattr(matrix, "_v4_three_schema_size_pilot_resource_gate", lambda *_: {
+        "status": "READY", "basis": {"required_free_bytes": 1}, "filesystems": [], "reasons": [],
+    })
+    real_archiver = matrix.sharded.archive_case_directory_sharded
+
+    def small_case_archiver(*args, **kwargs):
+        kwargs["require_complete_output"] = False
+        return real_archiver(*args, **kwargs)
+
+    monkeypatch.setattr(matrix.sharded, "archive_case_directory_sharded", small_case_archiver)
+    output_root = tmp_path / "matrix"
+    raw_root = tmp_path / "raw"
+    archive_root = tmp_path / "archives"
+    case_id = matrix.build_case_specs(design, "h0")[0]
+    case_id = matrix.r22.case_identifier(
+        phase="h0", seed=case_id["seed"], speed_mps=case_id["speed_mps"],
+        snr_db=case_id["snr_db"], delay_ns=case_id["delay_ns"],
+        target_count=case_id["target_count"], period_count=case_id["period_count"],
+    )
+
+    def failed_runner(case_root, **_kwargs):
+        case_root.mkdir(parents=True)
+        (case_root / "failed-branch.json").write_text('{"status":"failed"}\n')
+        return {
+            "implementation_result": "completed_with_gaps",
+            "status_labels": {"EVALUABLE": False},
+            "all_production_branches_passed": False,
+        }
+
+    first = matrix.run_matrix(
+        design, phase="h0", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=failed_runner, archive_profile="r22_v4_output_complete",
+        **_v4_three_schema_pilot_authorization_args(),
+    )
+    assert first["status"] == "GATE_FAILED"
+    failed_attempt = next(row for row in first["cases"] if row["case_id"] == case_id)
+    assert failed_attempt["attempt"] == 1
+    assert failed_attempt["status"] == "GATE_FAILED"
+
+    def successful_runner(case_root, **_kwargs):
+        (case_root / "evaluation").mkdir(parents=True)
+        (case_root / "r22_run_manifest.json").write_text('{"phase":"h0"}\n')
+        (case_root / "evaluation" / "h0_metrics.csv").write_text("seed,events\n1937005,0\n")
+        return {
+            "implementation_result": "passed",
+            "status_labels": {"EVALUABLE": True},
+            "evaluation_summary": {"independent_h0_seed_rows": 1},
+            "all_production_branches_passed": True,
+        }
+
+    resumed = matrix.run_matrix(
+        design, phase="h0", output_root=output_root,
+        raw_output_root=raw_root, compact_archive_root=archive_root,
+        run_case_fn=successful_runner, archive_profile="r22_v4_output_complete",
+        resume=True, retry_failed_case=True,
+        **_v4_three_schema_pilot_authorization_args(),
+    )
+
+    attempts = [row for row in resumed["cases"] if row["case_id"] == case_id]
+    assert [(row["attempt"], row["status"]) for row in attempts] == [
+        (1, "GATE_FAILED"), (2, "PASSED"),
+    ]
+    assert attempts[0]["output_root"] != attempts[1]["output_root"]
+    assert resumed["recovery_events"][-1]["case_id"] == case_id
+    assert resumed["recovery_events"][-1]["failed_attempt"] == 1
+    assert resumed["status"] == "COMPLETED"
 
 
 def test_v4_three_schema_size_pilot_pauses_before_case_when_archive_root_is_not_writable(

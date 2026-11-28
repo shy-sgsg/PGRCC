@@ -8,13 +8,16 @@ hash-bound authorization record and delegates each case to the Native CUDA runne
 from __future__ import annotations
 
 import argparse
+import gzip
 import hashlib
 import json
 import math
 import os
 import shutil
+import stat
 import subprocess
 import sys
+import tempfile
 import zipfile
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,10 +28,10 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.phase_r import r22_v4_execution_plan as execution_plan
+from scripts.phase_r import r22_sharded_archive as sharded
 from scripts.phase_r import run_r22_cuda_pilot as runner
 from scripts.phase_r.r22_v4_confirmatory_statistics import H0_PRIMARY_ENDPOINT
 from scripts.phase_r.r22_compact_archive import (
-    archive_case_directory,
     verify_case_archive,
 )
 
@@ -43,6 +46,9 @@ DEFAULT_METHOD_CONFIG = ROOT / (
 )
 AUTHORIZATION_TYPE = "PGRCC_R22_V4_CONFIRMATORY_NATIVE_CUDA"
 ARCHIVE_PROFILE = "r22_v4_output_complete"
+COMPACT_PROFILE = sharded.COMPACT_PROFILE
+PROJECT_FINAL_CAP_BYTES = 20_000_000_000
+RESOURCE_RESERVE_BYTES = 10_737_418_240
 CASE_STATES = {
     "PLANNED", "RUNNING", "ARCHIVED", "VERIFIED", "EVALUATED",
     "FAILED", "NOT_EVALUABLE",
@@ -116,10 +122,24 @@ _STATISTICAL_POLICY_FIELDS = {
 RUNTIME_SOURCE_PATHS = (
     "scripts/phase_r/r22_v4_confirmatory_executor.py",
     "scripts/phase_r/run_r22_cuda_pilot.py",
+    "scripts/phase_r/r22_experiment_matrix.py",
+    "scripts/phase_r/r22_sharded_archive.py",
+    "scripts/phase_r/r22_scenario_factory.py",
     "scripts/phase_r/r22_v4_execution_plan.py",
+    "scripts/phase_r/r22_v4_evidence.py",
     "scripts/phase_r/r22_v4_case_schema.py",
+    "scripts/phase_r/r22_v4_identity.py",
     "scripts/phase_r/r22_compact_archive.py",
     "scripts/phase_r/r22_v4_confirmatory_statistics.py",
+    "scripts/phase_r/run_r12_physics_matched_delay.py",
+    "scripts/phase_r/run_r21_cuda_pilot.py",
+    "scripts/phase_r/physics_matched_delay.py",
+    "scripts/phase_r/r21_task_evaluator.py",
+    "scripts/phase_r/r21_historical_task_review.py",
+    "scripts/run_delay_stage1_formal.py",
+    "scripts/estimate_channel_delay.py",
+    "scripts/run_production_hierarchical_calibration_pilot.py",
+    "scripts/run_track_manager_e2e.py",
 )
 
 
@@ -239,6 +259,67 @@ def _batch_id(key: tuple[str, int, float]) -> str:
     return f"H0_seed{seed}"
 
 
+def _validate_seed_registry_binding(
+    design: Mapping[str, Any],
+) -> tuple[dict[str, Any], dict[str, set[int]]]:
+    references = design.get("references")
+    if not isinstance(references, Mapping):
+        raise ValueError("confirmatory design has no seed-registry reference")
+    relative_path = references.get("seed_registry")
+    expected_digest = references.get("seed_registry_sha256")
+    if not isinstance(relative_path, str) or not relative_path:
+        raise ValueError("confirmatory design seed-registry path is missing")
+    if not isinstance(expected_digest, str) or len(expected_digest) != 64:
+        raise ValueError("confirmatory design seed-registry digest is missing")
+    path = _resolve_path(Path(relative_path))
+    if not path.is_file():
+        raise FileNotFoundError(f"confirmatory seed registry is missing: {path}")
+    value = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(value, dict):
+        raise ValueError("confirmatory seed registry must be a JSON object")
+    actual_digest = canonical_sha256(value, omit="registry_sha256")
+    if (value.get("registry_sha256") != expected_digest
+            or actual_digest != expected_digest):
+        raise ValueError("confirmatory seed registry digest differs from the approved design")
+
+    cohorts = value.get("cohorts")
+    if not isinstance(cohorts, Mapping):
+        raise ValueError("confirmatory seed registry has no cohorts")
+    cohort_specs = {
+        "target_present": ("target_present_confirmatory", "target_present"),
+        "h0": ("h0_confirmatory", "h0"),
+    }
+    seed_sets: dict[str, set[int]] = {}
+    for phase, (cohort_key, design_key) in cohort_specs.items():
+        cohort = cohorts.get(cohort_key)
+        seeds = cohort.get("seeds") if isinstance(cohort, Mapping) else None
+        if (not isinstance(seeds, list) or not seeds
+                or any(isinstance(seed, bool) or not isinstance(seed, int) for seed in seeds)
+                or len(set(seeds)) != len(seeds)):
+            raise ValueError(f"confirmatory seed registry cohort is invalid: {cohort_key}")
+        phase_design = design.get(design_key)
+        if not isinstance(phase_design, Mapping):
+            raise ValueError(f"confirmatory design cohort is missing: {design_key}")
+        count = phase_design.get("seed_count")
+        if isinstance(count, bool) or count != len(seeds):
+            raise ValueError(f"confirmatory seed count differs from registry: {phase}")
+        range_key = (
+            "seed_range_inclusive" if phase == "target_present"
+            else "candidate_seed_range_inclusive"
+        )
+        seed_range = phase_design.get(range_key)
+        if (not isinstance(seed_range, list) or len(seed_range) != 2
+                or any(isinstance(item, bool) or not isinstance(item, int) for item in seed_range)
+                or seeds != list(range(seed_range[0], seed_range[1] + 1))):
+            raise ValueError(f"confirmatory design seed range differs from registry: {phase}")
+        seed_sets[phase] = set(seeds)
+    return {
+        "path": str(path),
+        "registry_id": value.get("registry_id"),
+        "registry_sha256": expected_digest,
+    }, seed_sets
+
+
 def build_confirmatory_registry(
     *, design_path: Path = DEFAULT_DESIGN,
     scenario_template: Path = DEFAULT_TEMPLATE,
@@ -257,6 +338,7 @@ def build_confirmatory_registry(
     design = json.loads(design_path.read_text(encoding="utf-8"))
     if not isinstance(design, dict):
         raise ValueError("R22-V4 design must be a JSON object")
+    seed_registry_binding, approved_seed_sets = _validate_seed_registry_binding(design)
     expanded = execution_plan.build_v4_execution_plan(_planning_copy(design))
     output_path = _resolve_path(output_root)
     source_identity = {
@@ -306,6 +388,12 @@ def build_confirmatory_registry(
             f"V4 confirmatory registry expected 240 cases/120 paired batches, "
             f"found {len(cases)}/{len(batches)}"
         )
+    expanded_seed_sets = {
+        phase: {int(case["seed"]) for case in cases if case.get("phase") == phase}
+        for phase in ("target_present", "h0")
+    }
+    if expanded_seed_sets != approved_seed_sets:
+        raise ValueError("expanded confirmatory cases differ from the approved seed registry")
 
     registry: dict[str, Any] = {
         "schema_version": 1,
@@ -319,6 +407,9 @@ def build_confirmatory_registry(
         "cuda_authorized": False,
         "design_path": str(design_path),
         "design_sha256": sha256_file(design_path),
+        "seed_registry_path": seed_registry_binding["path"],
+        "seed_registry_id": seed_registry_binding["registry_id"],
+        "seed_registry_sha256": seed_registry_binding["registry_sha256"],
         "scenario_template_path": str(template_path),
         "scenario_template_sha256": sha256_file(template_path),
         "method_config_path": str(method_config_path),
@@ -503,6 +594,55 @@ def _case_schema_key(case: Mapping[str, Any]) -> str:
     return f"{family}_{int(float(case.get('delay_error_ns', -1)))}ns"
 
 
+def _case_schema_identity_sha256(case: Mapping[str, Any]) -> str:
+    identity = {
+        key: case[key]
+        for key in ("case_id", "phase", "target_count", "delay_error_ns")
+        if key in case
+    }
+    if set(identity) != {"case_id", "phase", "target_count", "delay_error_ns"}:
+        raise ValueError("registered V4 case lacks a complete archive schema identity")
+    return hashlib.sha256(json.dumps(
+        identity, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"), allow_nan=False,
+    ).encode("utf-8")).hexdigest()
+
+
+def _allocated_tree_bytes(root: Path, *, exclude_subtrees: Sequence[Path] = ()) -> int:
+    input_root = Path(root).expanduser().absolute()
+    if input_root.is_symlink() or not input_root.is_dir():
+        raise ValueError(f"project storage root must be an existing non-symlink directory: {input_root}")
+    base = input_root.resolve()
+    if not base.is_dir():
+        raise ValueError(f"project storage root must be an existing non-symlink directory: {base}")
+    excluded: list[Path] = []
+    for item in exclude_subtrees:
+        candidate = Path(item).expanduser().absolute()
+        try:
+            candidate.relative_to(base)
+        except ValueError:
+            continue
+        excluded.append(candidate)
+    pending = [base]
+    seen_inodes: set[tuple[int, int]] = set()
+    allocated = 0
+    while pending:
+        directory = pending.pop()
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                path = Path(entry.path)
+                if any(path == item or item in path.parents for item in excluded):
+                    continue
+                metadata = entry.stat(follow_symlinks=False)
+                inode = (int(metadata.st_dev), int(metadata.st_ino))
+                if inode not in seen_inodes:
+                    allocated += int(metadata.st_blocks) * 512
+                    seen_inodes.add(inode)
+                if stat.S_ISDIR(metadata.st_mode):
+                    pending.append(path)
+    return allocated
+
+
 def _resource_projection(
     registry: Mapping[str, Any],
     case_ids: Sequence[str],
@@ -510,12 +650,14 @@ def _resource_projection(
     *,
     reserve_bytes: int,
 ) -> dict[str, int]:
-    per_schema = resource_evidence.get("max_archive_bytes_by_case_schema")
+    per_schema = resource_evidence.get("max_retained_case_bytes_by_schema")
     required_schemas = {"target_present_0ns", "target_present_4ns", "h0_0ns", "h0_4ns"}
     if not isinstance(per_schema, Mapping) or set(per_schema) != required_schemas:
-        raise ValueError("resource evidence must measure archive size for all four V4 case schemas")
-    if isinstance(reserve_bytes, bool) or not isinstance(reserve_bytes, int) or reserve_bytes < 0:
-        raise ValueError("resource_reserve_bytes must be a non-negative integer")
+        raise ValueError("resource evidence must measure retained compact-plus-receipt size for all four V4 schemas")
+    if (isinstance(reserve_bytes, bool) or not isinstance(reserve_bytes, int)
+            or reserve_bytes != RESOURCE_RESERVE_BYTES
+            or resource_evidence.get("storage_reserve_bytes") != RESOURCE_RESERVE_BYTES):
+        raise ValueError("resource_reserve_bytes must match the frozen 10 GiB storage reserve")
     case_map = {str(row["case_id"]): row for row in registry.get("cases", [])}
     measured_archive_total = 0
     for case_id in case_ids:
@@ -526,16 +668,60 @@ def _resource_projection(
         measured_archive_total += measured_size
     peak = resource_evidence.get("peak_temporary_bytes")
     if isinstance(peak, bool) or not isinstance(peak, int) or peak <= 0:
-        raise ValueError("resource evidence requires a measured positive peak_temporary_bytes")
+        raise ValueError("resource evidence requires a measured positive full-case peak_temporary_bytes")
+    project_root = resource_evidence.get("project_root")
+    project_allocated = resource_evidence.get("project_allocated_bytes_at_measurement")
+    project_cap = resource_evidence.get("project_final_cap_bytes")
+    if not isinstance(project_root, str) or not project_root:
+        raise ValueError("resource evidence must identify the final project storage root")
+    if (isinstance(project_allocated, bool) or not isinstance(project_allocated, int)
+            or project_allocated < 0):
+        raise ValueError("resource evidence must record project allocated bytes at measurement")
+    if project_cap != PROJECT_FINAL_CAP_BYTES:
+        raise ValueError("resource evidence final project cap differs from the authorized 20 GB limit")
     archive_with_margin = (measured_archive_total * 5 + 3) // 4
+    projected_project_bytes = project_allocated + archive_with_margin
+    if projected_project_bytes > project_cap:
+        raise ValueError(
+            "retained V4 compact archives exceed the final project storage cap with the frozen margin"
+        )
     return {
         "selected_case_count": len(case_ids),
-        "measured_archive_bytes_total": measured_archive_total,
-        "archive_bytes_with_25pct_margin": archive_with_margin,
+        "measured_retained_case_bytes_total": measured_archive_total,
+        "retained_case_bytes_with_25pct_margin": archive_with_margin,
         "measured_peak_temporary_bytes": peak,
         "storage_reserve_bytes": reserve_bytes,
         "minimum_free_bytes": archive_with_margin + peak + reserve_bytes,
+        "project_root": project_root,
+        "project_allocated_bytes_at_measurement": project_allocated,
+        "project_retained_archive_projection_bytes": archive_with_margin,
+        "project_final_allocated_projection_bytes": projected_project_bytes,
+        "project_final_cap_bytes": project_cap,
+        "project_cap_margin_bytes": project_cap - projected_project_bytes,
     }
+
+
+def _authorized_case_ids(
+    registry: Mapping[str, Any], authorization: Mapping[str, Any],
+) -> list[str]:
+    """Return the full signed authorization inventory, including unrequested batches."""
+    selected_batches = authorization.get("selected_batch_ids")
+    selected_cases = authorization.get("selected_case_ids")
+    if (not isinstance(selected_batches, list) or not selected_batches
+            or not isinstance(selected_cases, list)):
+        raise ValueError("authorization lacks selected batch/case inventories")
+    batch_map = {str(row["batch_id"]): row for row in registry.get("batches", [])}
+    if any(str(batch_id) not in batch_map for batch_id in selected_batches):
+        raise ValueError("authorization references an unregistered batch")
+    expected = [
+        str(case_id)
+        for batch_id in selected_batches
+        for case_id in batch_map[str(batch_id)].get("case_ids", [])
+    ]
+    supplied = [str(case_id) for case_id in selected_cases]
+    if len(expected) != len(set(expected)) or set(expected) != set(supplied) or len(expected) != len(supplied):
+        raise ValueError("authorization case inventory does not match all selected batches")
+    return expected
 
 
 def validate_confirmatory_authorization(
@@ -573,10 +759,10 @@ def validate_confirmatory_authorization(
         raise ValueError("authorization registry identity differs")
     if registry.get("design_status") != "FROZEN":
         raise ValueError("confirmatory design is not frozen")
-    if registry.get("design_execution_authorized") is not True:
-        raise ValueError("frozen design does not explicitly authorize execution")
-    if registry.get("design_cuda_authorized") is not True:
-        raise ValueError("frozen design does not explicitly authorize CUDA")
+    if registry.get("design_execution_authorized") is not False:
+        raise ValueError("frozen design must defer execution approval to the separate authorization")
+    if registry.get("design_cuda_authorized") is not False:
+        raise ValueError("frozen design must defer CUDA approval to the separate authorization")
     if registry.get("ai_training") is not False:
         raise ValueError("V4 confirmatory design must keep AI training disabled")
     if registry.get("execution_authorized") is not False or registry.get("cuda_authorized") is not False:
@@ -587,8 +773,8 @@ def validate_confirmatory_authorization(
         raise ValueError("frozen design file changed or is missing after registry creation")
     current_design = _load_json_object(design_path)
     if (current_design.get("status") != "FROZEN"
-            or current_design.get("execution_authorized") is not True
-            or current_design.get("cuda_authorized") is not True
+            or current_design.get("execution_authorized") is not False
+            or current_design.get("cuda_authorized") is not False
             or current_design.get("ai_training") is not False
             or _frozen_thresholds(current_design) != registry.get("frozen_thresholds")):
         raise ValueError("frozen design state or thresholds differ from the registry")
@@ -622,10 +808,15 @@ def validate_confirmatory_authorization(
     if not evidence_path.is_file() or sha256_file(evidence_path) != evidence_sha_value:
         raise ValueError("measured resource evidence is missing or its SHA-256 changed")
     resource_evidence = _load_json_object(evidence_path)
-    if (resource_evidence.get("status") != "PASS"
+    if (resource_evidence.get("status") not in {
+                "PASS", "PASS_WITH_CONSERVATIVE_RECEIPT_MODEL",
+            }
             or resource_evidence.get("archive_profile") != ARCHIVE_PROFILE
             or resource_evidence.get("stage2_production_cuda_started") is not True):
-        raise ValueError("resource evidence is not a completed V4 output-profile Native CUDA pilot")
+        raise ValueError("resource evidence lacks completed V4 pilots and a bounded output profile")
+    if (resource_evidence.get("retained_archive_profile") != COMPACT_PROFILE
+            or resource_evidence.get("peak_temporary_includes_full_archive") is not True):
+        raise ValueError("resource evidence does not bound compact retention and full-archive temporary peak")
     if authorization.get("runtime_source_identity") != registry.get("runtime_source_identity"):
         raise ValueError("runtime source identity differs from the registry")
     if authorization.get("runtime_source_identity_sha256") != registry.get("runtime_source_identity_sha256"):
@@ -831,8 +1022,22 @@ def transition_case(
             raise ValueError(f"invalid V4 case transition: {old} -> {new_status}")
     if new_status == "ARCHIVED":
         if not isinstance(archive, Mapping) or archive.get("archive_profile") != ARCHIVE_PROFILE:
-            raise ValueError("ARCHIVED status requires a complete-output archive identity")
+            raise ValueError("ARCHIVED status requires a complete-output archive receipt")
         for key in ("archive_path", "archive_sha256", "archive_manifest_sha256"):
+            if not archive.get(key):
+                raise ValueError(f"ARCHIVED status lacks {key}")
+        if (archive.get("case_id") != case_id
+                or not archive.get("case_schema_identity_sha256")
+                or archive.get("receipt_compression") != "gzip-9"
+                or archive.get("full_archive_payload_present") is not False
+                or archive.get("historically_verified_full_archive") is not True):
+            raise ValueError("ARCHIVED status lacks a case-bound compressed full-output receipt")
+        if archive.get("compact_archive_profile") != COMPACT_PROFILE:
+            raise ValueError("ARCHIVED status requires a verified compact-retention archive")
+        for key in (
+            "compact_archive_path", "compact_archive_sha256",
+            "compact_archive_manifest_sha256",
+        ):
             if not archive.get(key):
                 raise ValueError(f"ARCHIVED status lacks {key}")
     if new_status == "FAILED" and failure_kind not in {"technical", "algorithm", "data"}:
@@ -865,14 +1070,131 @@ def transition_case(
     return record
 
 
+def _archive_set_bytes(path: Path) -> bytes:
+    if path.name.endswith(".json.gz"):
+        with gzip.open(path, "rb") as stream:
+            return stream.read()
+    return path.read_bytes()
+
+
+def _load_archive_set(path: Path) -> dict[str, Any]:
+    value = json.loads(_archive_set_bytes(path))
+    if not isinstance(value, dict):
+        raise ValueError(f"V4 archive-set receipt is not a JSON object: {path}")
+    return value
+
+
+def _verify_archive_set_and_compact(
+    archive_set_path: Path,
+    archive_set: Mapping[str, Any],
+    *,
+    expected_manifest_sha256: str,
+    expected_case_id: str | None = None,
+) -> dict[str, Any]:
+    if (archive_set.get("status") != "COMPACTED_CLEANED"
+            or archive_set.get("archive_profile") != ARCHIVE_PROFILE
+            or archive_set.get("archive_manifest_sha256") != expected_manifest_sha256
+            or not archive_set.get("full_archive_verified_at_utc")):
+        raise ValueError(f"V4 archive-set receipt is not verified and compacted: {archive_set_path}")
+    manifest = archive_set.get("archive_manifest")
+    if not isinstance(manifest, Mapping):
+        raise ValueError("V4 full archive manifest is missing from its retained receipt")
+    manifest_bytes = json.dumps(
+        manifest, ensure_ascii=False, indent=2, sort_keys=True, allow_nan=False,
+    ).encode("utf-8") + b"\n"
+    if hashlib.sha256(manifest_bytes).hexdigest() != expected_manifest_sha256:
+        raise ValueError("retained V4 full archive manifest SHA-256 differs")
+    identity = manifest.get("case_schema_identity")
+    schema = manifest.get("case_schema")
+    if (not isinstance(identity, Mapping) or not isinstance(schema, Mapping)
+            or schema.get("status") != "PASS"):
+        raise ValueError("retained V4 archive lacks its passing registered case schema")
+    if expected_case_id is not None and identity.get("case_id") != expected_case_id:
+        raise ValueError("retained V4 archive case identity differs from the checkpoint")
+    identity_sha = hashlib.sha256(json.dumps(
+        identity, ensure_ascii=False, sort_keys=True,
+        separators=(",", ":"), allow_nan=False,
+    ).encode("utf-8")).hexdigest()
+    if identity_sha != manifest.get("case_schema_identity_sha256"):
+        raise ValueError("retained V4 case-schema identity digest differs")
+
+    cleanup = archive_set.get("full_archive_cleanup", {})
+    if (cleanup.get("status") != "REMOVED_AFTER_COMPACT_VERIFICATION"
+            or any(item.get("status") != "REMOVED_AFTER_COMPACT_VERIFICATION"
+                   for item in cleanup.get("shards", []))):
+        raise ValueError("full V4 archive shards were not all removed after compact verification")
+    compact_record = archive_set.get("compact_archive")
+    if not isinstance(compact_record, Mapping):
+        raise ValueError("retained V4 archive-set receipt has no compact identity")
+    compact_path = Path(str(compact_record.get("archive_path") or "")).expanduser().resolve()
+    if (compact_record.get("archive_profile") != COMPACT_PROFILE
+            or not compact_path.is_file()):
+        raise ValueError("retained V4 compact archive is missing or has the wrong profile")
+
+    temporary_receipt: Path | None = None
+    plain_receipt = archive_set_path
+    try:
+        if archive_set_path.name.endswith(".json.gz"):
+            fd, name = tempfile.mkstemp(
+                prefix=f".{archive_set_path.name}.", suffix=".verify.json",
+                dir=archive_set_path.parent,
+            )
+            temporary_receipt = Path(name)
+            with os.fdopen(fd, "wb") as stream:
+                stream.write(_archive_set_bytes(archive_set_path))
+                stream.flush()
+                os.fsync(stream.fileno())
+            plain_receipt = temporary_receipt
+        receipt_check = sharded.verify_sharded_archive_receipt(
+            plain_receipt,
+            expected_sha256=sha256_file(plain_receipt),
+            expected_manifest_sha256=expected_manifest_sha256,
+            expected_compact_sha256=str(compact_record.get("archive_sha256") or ""),
+        )
+    finally:
+        if temporary_receipt is not None:
+            temporary_receipt.unlink(missing_ok=True)
+
+    compact_manifest_sha256 = str(compact_record.get("archive_manifest_sha256") or "")
+    compact_check = verify_case_archive(
+        compact_path,
+        expected_sha256=str(compact_record.get("archive_sha256") or ""),
+        expected_manifest_sha256=compact_manifest_sha256,
+        archive_profile=COMPACT_PROFILE,
+    )
+    with zipfile.ZipFile(compact_path, "r") as compact_zip:
+        compact_manifest = json.loads(compact_zip.read("ARCHIVE_MANIFEST.json"))
+    if (compact_manifest.get("source_archive_manifest_sha256") != expected_manifest_sha256
+            or compact_manifest.get("source_archive_set_identity_sha256")
+            != archive_set.get("archive_set_identity_sha256")):
+        raise ValueError("compact archive is not bound to the retained full-output receipt")
+    compact_names = {str(row.get("path")) for row in compact_manifest.get("included_files", [])}
+    if not set(manifest.get("required_v4_members", [])) <= compact_names:
+        raise ValueError("compact archive omits a required V4 evidence member")
+    return {
+        "case_id": identity.get("case_id"),
+        "archive_set_identity_sha256": archive_set.get("archive_set_identity_sha256"),
+        "case_schema_identity_sha256": manifest.get("case_schema_identity_sha256"),
+        "full_archive_bytes": archive_set.get("archive_bytes"),
+        "full_archive_payload_present": False,
+        "historically_verified_full_archive": True,
+        "compact_archive_path": str(compact_path),
+        "compact_archive_sha256": compact_record.get("archive_sha256"),
+        "compact_archive_manifest_sha256": compact_record.get("archive_manifest_sha256"),
+        "compact_archive_verified": True,
+        "compact_verification": compact_check,
+        "receipt_verification": receipt_check,
+    }
+
+
 def _default_archive_verifier(path: Path, sha: str, manifest_sha: str, profile: str) -> Any:
-    return verify_case_archive(
-        path,
-        expected_sha256=sha,
-        expected_manifest_sha256=manifest_sha,
-        archive_profile=profile,
-        require_complete_output=True,
-        require_case_schema=True,
+    if profile != ARCHIVE_PROFILE:
+        raise ValueError("checkpoint archive profile differs from the V4 full-output receipt")
+    if not path.is_file() or sha256_file(path) != sha:
+        raise ValueError(f"compressed V4 archive-set receipt SHA-256 mismatch: {path}")
+    archive_set = _load_archive_set(path)
+    return _verify_archive_set_and_compact(
+        path, archive_set, expected_manifest_sha256=manifest_sha,
     )
 
 
@@ -910,12 +1232,29 @@ def validate_checkpoint_resume(
             profile = archive.get("archive_profile")
             if profile != ARCHIVE_PROFILE:
                 raise ValueError(f"resume archive profile changed: {case_id}")
-            archive_verifier(
+            if archive.get("compact_archive_profile") != COMPACT_PROFILE:
+                raise ValueError(f"resume compact-retention profile changed: {case_id}")
+            verification = archive_verifier(
                 Path(str(archive.get("archive_path") or "")),
                 str(archive.get("archive_sha256") or ""),
                 str(archive.get("archive_manifest_sha256") or ""),
                 str(profile),
             )
+            if archive_verifier is _default_archive_verifier:
+                if (archive.get("case_id") != case_id
+                        or verification.get("case_id") != case_id
+                        or verification.get("case_schema_identity_sha256")
+                        != archive.get("case_schema_identity_sha256")
+                        or archive.get("case_schema_identity_sha256")
+                        != _case_schema_identity_sha256(row)):
+                    raise ValueError(f"resume archive case-schema identity changed: {case_id}")
+                for checkpoint_key, verified_key in (
+                    ("compact_archive_path", "compact_archive_path"),
+                    ("compact_archive_sha256", "compact_archive_sha256"),
+                    ("compact_archive_manifest_sha256", "compact_archive_manifest_sha256"),
+                ):
+                    if str(archive.get(checkpoint_key)) != str(verification.get(verified_key)):
+                        raise ValueError(f"resume compact archive identity changed: {case_id}")
             verified_archives += 1
     return {
         "status": "RESUME_VALID",
@@ -946,7 +1285,7 @@ def dry_run(
     _write_json_atomic(output_path / "confirmatory_execution_plan.json", plan)
     _write_json_atomic(output_path / "confirmatory_case_registry.json", registry)
     _write_json_atomic(output_path / "confirmatory_authorization_template.json", authorization_template(registry))
-    write_checkpoint(output_path / "confirmatory_checkpoint.json", checkpoint)
+    write_checkpoint(output_path / "confirmatory_dry_run_checkpoint.json", checkpoint)
     summary = {
         "status": "NOT_AUTHORIZED",
         "registry_sha256": registry["registry_sha256"],
@@ -1055,36 +1394,168 @@ def validate_case_authorization(
     )
 
 
-def _adopt_or_verify_archive(
-    archive_path: Path,
-    *,
-    case_id: str,
-) -> dict[str, Any]:
-    """Recover a ZIP published before a checkpoint write was interrupted."""
-    with zipfile.ZipFile(archive_path, "r") as archive:
-        if archive.testzip() is not None or "ARCHIVE_MANIFEST.json" not in archive.namelist():
-            raise ValueError(f"orphan archive failed ZIP integrity: {archive_path}")
-        manifest_bytes = archive.read("ARCHIVE_MANIFEST.json")
-        manifest = json.loads(manifest_bytes)
-    archive_record = {
-        "archive_path": str(archive_path.resolve()),
-        "archive_sha256": sha256_file(archive_path),
-        "archive_manifest_sha256": hashlib.sha256(manifest_bytes).hexdigest(),
-        "archive_profile": manifest.get("archive_profile"),
-        "archive_bytes": archive_path.stat().st_size,
-        "recovered_after_checkpoint_gap": True,
-        "case_id": case_id,
-    }
-    if archive_record["archive_profile"] != ARCHIVE_PROFILE:
-        raise ValueError(f"orphan archive profile mismatch: {archive_path}")
-    verify_case_archive(
-        archive_path,
-        expected_sha256=archive_record["archive_sha256"],
-        expected_manifest_sha256=archive_record["archive_manifest_sha256"],
-        archive_profile=ARCHIVE_PROFILE,
-        require_complete_output=True,
-        require_case_schema=True,
+def _materialize_archive_set(archive_set_path: Path) -> Path:
+    """Restore the small gzip receipt to its working JSON path for resume."""
+    compressed = Path(str(archive_set_path) + ".gz")
+    if not compressed.is_file():
+        return archive_set_path
+    payload = _archive_set_bytes(compressed)
+    if archive_set_path.exists():
+        if archive_set_path.read_bytes() != payload:
+            raise ValueError("plain and compressed V4 archive-set receipts disagree")
+        return archive_set_path
+    fd, temporary_name = tempfile.mkstemp(
+        prefix=f".{archive_set_path.name}.", suffix=".resume.tmp",
+        dir=archive_set_path.parent,
     )
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, archive_set_path)
+    except Exception:
+        temporary.unlink(missing_ok=True)
+        raise
+    return archive_set_path
+
+
+def _compress_archive_set_receipt(archive_set_path: Path) -> tuple[Path, str, str]:
+    payload = archive_set_path.read_bytes()
+    compressed_path = Path(str(archive_set_path) + ".gz")
+    if compressed_path.exists():
+        if _archive_set_bytes(compressed_path) != payload:
+            raise ValueError("existing compressed V4 archive-set receipt has different content")
+    else:
+        fd, temporary_name = tempfile.mkstemp(
+            prefix=f".{compressed_path.name}.", suffix=".tmp",
+            dir=compressed_path.parent,
+        )
+        temporary = Path(temporary_name)
+        try:
+            with os.fdopen(fd, "wb") as raw_stream:
+                with gzip.GzipFile(
+                    fileobj=raw_stream, mode="wb", compresslevel=9, mtime=0,
+                ) as zipped:
+                    zipped.write(payload)
+                raw_stream.flush()
+                os.fsync(raw_stream.fileno())
+            with gzip.open(temporary, "rb") as compressed_stream:
+                round_trip = compressed_stream.read()
+            if round_trip != payload:
+                raise ValueError("compressed V4 archive-set receipt failed read-back")
+            os.link(temporary, compressed_path)
+            temporary.unlink()
+        except Exception:
+            temporary.unlink(missing_ok=True)
+            raise
+    compressed_sha = sha256_file(compressed_path)
+    uncompressed_sha = hashlib.sha256(payload).hexdigest()
+    if _archive_set_bytes(compressed_path) != payload:
+        raise ValueError("compressed V4 archive-set receipt changed during publication")
+    archive_set_path.unlink()
+    return compressed_path, compressed_sha, uncompressed_sha
+
+
+def _archive_confirmatory_case(
+    case_root: Path,
+    *,
+    raw_root: Path,
+    archive_root: Path,
+    case_identity: Mapping[str, Any],
+    attempt: int,
+) -> dict[str, Any]:
+    case_id = str(case_identity["case_id"])
+    stem = f"{case_id}__attempt_{attempt:03d}"
+    archive_set_path = archive_root / f"{stem}.archive-set.json"
+    compact_path = archive_root / f"{stem}.compact.zip"
+    archive_root.mkdir(parents=True, exist_ok=True)
+    _materialize_archive_set(archive_set_path)
+
+    if not archive_set_path.exists() and compact_path.exists():
+        raise FileExistsError(f"compact archive has no resumable full-output receipt: {compact_path}")
+    raw_inventory = _raw_attempt_inventory(case_root)
+    if archive_set_path.exists():
+        archive_set = _load_archive_set(archive_set_path)
+        if (archive_set.get("archive_format") != sharded.ARCHIVE_SET_FORMAT
+                or archive_set.get("archive_profile") != ARCHIVE_PROFILE
+                or archive_set.get("case_root") != str(case_root.resolve())):
+            raise ValueError(f"existing archive-set identity differs for {case_id}")
+        manifest = archive_set.get("archive_manifest", {})
+        if manifest.get("case_schema_identity") != {
+            key: case_identity[key]
+            for key in ("case_id", "phase", "target_count", "delay_error_ns")
+            if key in case_identity
+        }:
+            raise ValueError(f"existing archive-set case identity differs for {case_id}")
+        if archive_set.get("status") not in {"FULL_VERIFIED", "COMPACT_VERIFIED", "COMPACTED_CLEANED"}:
+            sharded.archive_case_directory_sharded(
+                case_root,
+                archive_set_path,
+                raw_root=raw_root,
+                archive_profile=ARCHIVE_PROFILE,
+                require_complete_output=True,
+                remove_source=False,
+                case_schema_identity=case_identity,
+            )
+    else:
+        sharded.archive_case_directory_sharded(
+            case_root,
+            archive_set_path,
+            raw_root=raw_root,
+            archive_profile=ARCHIVE_PROFILE,
+            require_complete_output=True,
+            remove_source=False,
+            case_schema_identity=case_identity,
+        )
+
+    compact_result = sharded.compact_sharded_case_archive(
+        archive_set_path, compact_path, cleanup_full_archive=True,
+    )
+    archive_set = _load_archive_set(archive_set_path)
+    manifest_sha = str(archive_set.get("archive_manifest_sha256") or "")
+    _verify_archive_set_and_compact(
+        archive_set_path, archive_set,
+        expected_manifest_sha256=manifest_sha,
+        expected_case_id=case_id,
+    )
+    compressed_path, compressed_sha, uncompressed_sha = _compress_archive_set_receipt(
+        archive_set_path,
+    )
+    archive_record = {
+        "case_id": case_id,
+        "archive_path": str(compressed_path.resolve()),
+        "archive_sha256": compressed_sha,
+        "archive_set_uncompressed_sha256": uncompressed_sha,
+        "archive_manifest_sha256": manifest_sha,
+        "archive_profile": ARCHIVE_PROFILE,
+        "archive_bytes": int(archive_set.get("archive_bytes", 0)),
+        "archive_set_identity_sha256": archive_set.get("archive_set_identity_sha256"),
+        "case_schema_identity_sha256": archive_set.get("archive_manifest", {}).get(
+            "case_schema_identity_sha256"
+        ),
+        "archive_shard_count": len(archive_set.get("shards", [])),
+        "full_archive_payload_present": False,
+        "historically_verified_full_archive": True,
+        "compact_archive_path": str(compact_path.resolve()),
+        "compact_archive_sha256": str(compact_result["archive_sha256"]),
+        "compact_archive_manifest_sha256": str(compact_result["archive_manifest_sha256"]),
+        "compact_archive_profile": COMPACT_PROFILE,
+        "compact_archive_bytes": int(compact_result["archive_bytes"]),
+        "compact_archive_included_file_count": int(compact_result["included_file_count"]),
+        "compact_archive_included_bytes": int(compact_result["included_bytes"]),
+        "receipt_compression": "gzip-9",
+        "receipt_bytes": compressed_path.stat().st_size,
+        "raw_inventory_before_removal": raw_inventory,
+        "raw_case_path": str(case_root.resolve()),
+    }
+    verification = _default_archive_verifier(
+        compressed_path, compressed_sha, manifest_sha, ARCHIVE_PROFILE,
+    )
+    for key in ("compact_archive_path", "compact_archive_sha256", "compact_archive_manifest_sha256"):
+        if str(archive_record[key]) != str(verification.get(key)):
+            raise ValueError(f"published compact receipt identity differs: {key}")
     return archive_record
 
 
@@ -1192,17 +1663,6 @@ def execute_authorized_batches(
         Path(str(authorization["resource_evidence_path"]))
     )
     output_root.parent.mkdir(parents=True, exist_ok=True)
-    disk = shutil.disk_usage(output_root.parent)
-    resources = resource_gate(
-        authorization=authorization,
-        free_bytes=int(disk.free),
-        required_free_bytes=auth["minimum_free_bytes"],
-        observed_gpu_uuid=gpu_uuid,
-    )
-    _write_json_atomic(output_root / "confirmatory_resource_gate.json", resources)
-    if resources["status"] != "READY":
-        raise RuntimeError(f"R22-V4 resource gate denied execution: {resources['reasons']}")
-
     checkpoint_path = output_root / "confirmatory_checkpoint.json"
     if checkpoint_path.exists():
         if not resume:
@@ -1216,6 +1676,19 @@ def execute_authorized_batches(
         if resume:
             raise FileNotFoundError("--resume requested but no checkpoint exists")
         checkpoint = create_checkpoint(registry)
+
+    disk = shutil.disk_usage(output_root.parent)
+    resources = resource_gate(
+        authorization=authorization,
+        free_bytes=int(disk.free),
+        required_free_bytes=0 if resume else auth["minimum_free_bytes"],
+        observed_gpu_uuid=gpu_uuid,
+        enforce_authorized_floor=not resume,
+    )
+    resources["gate_scope"] = "RESUME_RECOVERY_AND_PER_CASE" if resume else "FRESH_AUTHORIZED_EXECUTION"
+    _write_json_atomic(output_root / "confirmatory_resource_gate.json", resources)
+    if resources["status"] != "READY":
+        raise RuntimeError(f"R22-V4 resource gate denied execution: {resources['reasons']}")
     checkpoint["execution_status"] = "AUTHORIZED_RUNNING"
     checkpoint["execution_authorized"] = True
     checkpoint["cuda_authorized"] = True
@@ -1226,22 +1699,54 @@ def execute_authorized_batches(
 
     case_by_id = {str(row["case_id"]): row for row in registry["cases"]}
     batch_by_id = {str(row["batch_id"]): row for row in registry["batches"]}
+    authorized_case_ids = _authorized_case_ids(registry, authorization)
     archive_root = output_root / "archives"
     raw_root = output_root / "raw"
     archive_root.mkdir(parents=True, exist_ok=True)
     raw_root.mkdir(parents=True, exist_ok=True)
     completed_ids: list[str] = []
 
+    project_root = Path(str(resource_evidence["project_root"])).expanduser().resolve()
+
+    def verify_actual_project_cap(case_id: str | None) -> None:
+        allocated_bytes = _allocated_tree_bytes(project_root)
+        check = {
+            "status": "PASS" if allocated_bytes <= PROJECT_FINAL_CAP_BYTES else "PAUSED_PROJECT_FINAL_CAP",
+            "project_root": str(project_root),
+            "allocated_bytes": allocated_bytes,
+            "project_final_cap_bytes": PROJECT_FINAL_CAP_BYTES,
+            "case_id": case_id,
+        }
+        checkpoint["actual_project_final_storage_check"] = check
+        if allocated_bytes > PROJECT_FINAL_CAP_BYTES:
+            checkpoint["execution_status"] = "PAUSED_PROJECT_FINAL_CAP"
+            checkpoint["last_project_storage_gate"] = check
+            write_checkpoint(checkpoint_path, checkpoint)
+            raise RuntimeError(
+                "actual project allocation exceeds the final cap after verified case cleanup: "
+                f"allocated={allocated_bytes} cap={PROJECT_FINAL_CAP_BYTES} case={case_id}"
+            )
+        write_checkpoint(checkpoint_path, checkpoint)
+
     def verified_cleanup_and_finalize(case_id: str, archive_record: Mapping[str, Any]) -> None:
-        archive_path_value = Path(str(archive_record["archive_path"])).resolve()
-        verify_case_archive(
-            archive_path_value,
-            expected_sha256=str(archive_record["archive_sha256"]),
-            expected_manifest_sha256=str(archive_record["archive_manifest_sha256"]),
-            archive_profile=ARCHIVE_PROFILE,
-            require_complete_output=True,
-            require_case_schema=True,
+        archive_set_path = Path(str(archive_record["archive_path"])).resolve()
+        verification = _default_archive_verifier(
+            archive_set_path,
+            str(archive_record["archive_sha256"]),
+            str(archive_record["archive_manifest_sha256"]),
+            ARCHIVE_PROFILE,
         )
+        if (archive_record.get("case_id") != case_id
+                or verification.get("case_id") != case_id
+                or verification.get("case_schema_identity_sha256")
+                != archive_record.get("case_schema_identity_sha256")
+                or archive_record.get("case_schema_identity_sha256")
+                != _case_schema_identity_sha256(case_by_id[case_id])):
+            raise ValueError(f"verified full-output receipt identity differs for {case_id}")
+        if str(verification.get("compact_archive_path")) != str(
+            Path(str(archive_record["compact_archive_path"])).resolve()
+        ):
+            raise ValueError(f"verified compact archive path differs for {case_id}")
         record = checkpoint["cases"][case_id]
         if record["status"] == "ARCHIVED":
             transition_case(checkpoint, case_id, "VERIFIED")
@@ -1250,7 +1755,7 @@ def execute_authorized_batches(
         if not isinstance(cleanup, Mapping):
             cleanup = {
                 "status": "PENDING_VERIFIED_ARCHIVE_CLEANUP",
-                "archive_path": str(archive_path_value),
+                "archive_path": str(archive_set_path),
                 "archive_sha256": archive_record["archive_sha256"],
                 "raw_case_path": record.get("raw_case_path"),
             }
@@ -1258,7 +1763,10 @@ def execute_authorized_batches(
             write_checkpoint(checkpoint_path, checkpoint)
         raw_case_value = cleanup.get("raw_case_path")
         if raw_case_value:
-            raw_case_path = Path(str(raw_case_value)).resolve()
+            raw_case_input = Path(str(raw_case_value)).expanduser()
+            if raw_case_input.is_symlink():
+                raise ValueError(f"unsafe symlink V4 attempt cleanup path: {raw_case_input}")
+            raw_case_path = raw_case_input.resolve()
             try:
                 relative = raw_case_path.relative_to(raw_root.resolve())
             except ValueError as exc:
@@ -1277,7 +1785,7 @@ def execute_authorized_batches(
         _finalize_verified_case(
             checkpoint,
             case_id,
-            archive_path=archive_path_value,
+            archive_path=Path(str(archive_record["compact_archive_path"])).resolve(),
             checkpoint_path=checkpoint_path,
         )
 
@@ -1294,28 +1802,40 @@ def execute_authorized_batches(
             if state["status"] == "ARCHIVED":
                 archive_record = state["archive"]
                 verified_cleanup_and_finalize(case_id, archive_record)
+                verify_actual_project_cap(case_id)
                 completed_ids.append(case_id)
                 continue
             if state["status"] == "VERIFIED":
                 verified_cleanup_and_finalize(case_id, state["archive"])
+                verify_actual_project_cap(case_id)
                 completed_ids.append(case_id)
                 continue
 
             if state["status"] == "RUNNING":
                 attempt = int(state.get("attempt_count", 0))
                 interrupted_raw = raw_root / case_id / f"attempt_{attempt:03d}"
-                interrupted_archive = archive_root / f"{case_id}__attempt_{attempt:03d}.zip"
-                if interrupted_archive.is_file():
-                    archive_record = _adopt_or_verify_archive(
-                        interrupted_archive, case_id=case_id,
+                archive_stem = f"{case_id}__attempt_{attempt:03d}"
+                interrupted_archive_set = archive_root / f"{archive_stem}.archive-set.json"
+                if (interrupted_archive_set.is_file()
+                        or Path(str(interrupted_archive_set) + ".gz").is_file()):
+                    archive_record = _archive_confirmatory_case(
+                        interrupted_raw,
+                        raw_root=raw_root,
+                        archive_root=archive_root,
+                        case_identity=case,
+                        attempt=attempt,
                     )
                     recovered = _case_manifest_result(interrupted_raw)
-                    if recovered is not None:
-                        state["pending_evaluation"] = recovered
+                    if recovered is None:
+                        recovered = _archive_evaluation(
+                            Path(str(archive_record["compact_archive_path"])),
+                        )
+                    state["pending_evaluation"] = recovered
                     state["raw_case_path"] = str(interrupted_raw)
                     transition_case(checkpoint, case_id, "ARCHIVED", archive=archive_record)
                     write_checkpoint(checkpoint_path, checkpoint)
                     verified_cleanup_and_finalize(case_id, archive_record)
+                    verify_actual_project_cap(case_id)
                     completed_ids.append(case_id)
                     continue
                 recovered = _case_manifest_result(interrupted_raw)
@@ -1323,19 +1843,18 @@ def execute_authorized_batches(
                     state["pending_evaluation"] = recovered
                     state["raw_case_path"] = str(interrupted_raw)
                     write_checkpoint(checkpoint_path, checkpoint)
-                    recovered_archive = archive_case_directory(
+                    recovered_archive = _archive_confirmatory_case(
                         interrupted_raw,
-                        interrupted_archive,
                         raw_root=raw_root,
-                        remove_source=False,
-                        archive_profile=ARCHIVE_PROFILE,
-                        require_complete_output=True,
-                        case_schema_identity=case,
+                        archive_root=archive_root,
+                        case_identity=case,
+                        attempt=attempt,
                     )
                     recovered_archive["case_id"] = case_id
                     transition_case(checkpoint, case_id, "ARCHIVED", archive=recovered_archive)
                     write_checkpoint(checkpoint_path, checkpoint)
                     verified_cleanup_and_finalize(case_id, recovered_archive)
+                    verify_actual_project_cap(case_id)
                     completed_ids.append(case_id)
                     continue
                 state["raw_case_path"] = str(interrupted_raw)
@@ -1353,14 +1872,23 @@ def execute_authorized_batches(
                 raise RuntimeError(f"case {case_id} has a terminal {state.get('failure_kind')} failure")
             attempt = int(state.get("attempt_count", 0)) + 1
             raw_case = raw_root / case_id / f"attempt_{attempt:03d}"
-            archive_path = archive_root / f"{case_id}__attempt_{attempt:03d}.zip"
-            if raw_case.exists() or raw_case.is_symlink() or archive_path.exists():
+            archive_stem = f"{case_id}__attempt_{attempt:03d}"
+            archive_set_path = archive_root / f"{archive_stem}.archive-set.json"
+            archive_artifacts = (
+                archive_set_path,
+                Path(str(archive_set_path) + ".gz"),
+                Path(str(archive_set_path) + ".shards"),
+                archive_root / f"{archive_stem}.compact.zip",
+            )
+            if raw_case.exists() or raw_case.is_symlink() or any(
+                path.exists() for path in archive_artifacts
+            ):
                 raise FileExistsError(
-                    f"attempt output already exists; refusing overwrite: {raw_case} / {archive_path}"
+                    f"attempt output already exists; refusing overwrite: {raw_case} / {archive_artifacts}"
                 )
             pending_authorized_cases = [
                 authorized_case_id
-                for authorized_case_id in auth["case_ids"]
+                for authorized_case_id in authorized_case_ids
                 if checkpoint["cases"][authorized_case_id]["status"]
                 not in {"EVALUATED", "NOT_EVALUABLE", "ARCHIVED", "VERIFIED"}
             ]
@@ -1370,6 +1898,36 @@ def execute_authorized_batches(
                 resource_evidence,
                 reserve_bytes=int(authorization["resource_reserve_bytes"]),
             )
+            project_root = Path(str(resource_evidence["project_root"])).expanduser().resolve()
+            project_persistent_bytes = _allocated_tree_bytes(
+                project_root, exclude_subtrees=(raw_case,),
+            )
+            projected_final_project_bytes = (
+                project_persistent_bytes
+                + remaining_projection["retained_case_bytes_with_25pct_margin"]
+            )
+            project_gate = {
+                "status": "READY" if projected_final_project_bytes <= PROJECT_FINAL_CAP_BYTES else "PAUSED_PROJECT_FINAL_CAP",
+                "project_root": str(project_root),
+                "project_persistent_bytes_excluding_active_raw_case": project_persistent_bytes,
+                "remaining_retained_archives_with_25pct_margin_bytes": remaining_projection[
+                    "retained_case_bytes_with_25pct_margin"
+                ],
+                "projected_final_allocated_bytes": projected_final_project_bytes,
+                "project_final_cap_bytes": PROJECT_FINAL_CAP_BYTES,
+                "case_id": case_id,
+            }
+            if projected_final_project_bytes > PROJECT_FINAL_CAP_BYTES:
+                checkpoint["execution_status"] = "PAUSED_PROJECT_FINAL_CAP"
+                checkpoint["last_project_storage_gate"] = project_gate
+                write_checkpoint(checkpoint_path, checkpoint)
+                raise RuntimeError(
+                    "project final-storage gate paused before case "
+                    f"{case_id}: projected={projected_final_project_bytes} "
+                    f"cap={PROJECT_FINAL_CAP_BYTES}"
+                )
+            checkpoint["last_project_storage_gate"] = project_gate
+            write_checkpoint(checkpoint_path, checkpoint)
             disk_now = shutil.disk_usage(output_root.parent)
             case_resource_gate = resource_gate(
                 authorization=authorization,
@@ -1435,18 +1993,13 @@ def execute_authorized_batches(
             checkpoint["cases"][case_id]["pending_evaluation"] = evaluation
             write_checkpoint(checkpoint_path, checkpoint)
 
-            if not archive_path.exists():
-                archive_record = archive_case_directory(
-                    raw_case,
-                    archive_path,
-                    raw_root=raw_root,
-                    remove_source=False,
-                    archive_profile=ARCHIVE_PROFILE,
-                    require_complete_output=True,
-                    case_schema_identity=case,
-                )
-            else:
-                archive_record = _adopt_or_verify_archive(archive_path, case_id=case_id)
+            archive_record = _archive_confirmatory_case(
+                raw_case,
+                raw_root=raw_root,
+                archive_root=archive_root,
+                case_identity=case,
+                attempt=attempt,
+            )
             archive_record["case_id"] = case_id
             transition_case(checkpoint, case_id, "ARCHIVED", archive=archive_record)
             write_checkpoint(checkpoint_path, checkpoint)
@@ -1457,11 +2010,15 @@ def execute_authorized_batches(
                 "raw_inventory_before_removal": _raw_attempt_inventory(raw_case),
                 "archive_path": archive_record["archive_path"],
                 "archive_sha256": archive_record["archive_sha256"],
-                "reason": "remove raw attempt only after complete V4 archive SHA/member/CRC verification",
+                "compact_archive_path": archive_record["compact_archive_path"],
+                "compact_archive_sha256": archive_record["compact_archive_sha256"],
+                "reason": "remove raw attempt only after full shard, retained receipt, and compact SHA/member/CRC verification",
             }
             write_checkpoint(checkpoint_path, checkpoint)
             verified_cleanup_and_finalize(case_id, archive_record)
+            verify_actual_project_cap(case_id)
             completed_ids.append(case_id)
+    verify_actual_project_cap(None)
     checkpoint["execution_status"] = "AUTHORIZED_BATCHES_COMPLETE"
     write_checkpoint(checkpoint_path, checkpoint)
     return {
