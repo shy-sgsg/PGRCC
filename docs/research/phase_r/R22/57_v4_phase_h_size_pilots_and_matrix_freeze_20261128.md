@@ -57,9 +57,9 @@ CPU 集成测试实际模拟“回执与 compact 已发布、checkpoint 尚未�
 | H0 +4 ns | 30 | 2,255,376 B | 67,661,280 B |
 | **合计** | **240** | — | **2,083,538,550 B** |
 
-全矩阵 compact+receipt 保留量加25%资源不确定余量为 **2,604,423,188 B**。最坏 P0 full-case 临时峰值 **29,821,104,128 B**，另保留 **10,737,418,240 B** 自由空间，因此正式矩阵首批的单文件系统最低空闲量为 **43,162,945,556 B**。2026-11-28 最新预算实测项目所在 ext4 可用 **58,355,437,568 B**，高于此代理 **15,192,492,012 B**；独立`/tmp`可用 **7,394,082,816 B**，不与ext4混算。P0峰值是主机文件系统free-space观测差，可能包含并发主机活动；它作为保守代理使用。
+全矩阵 compact+receipt 保留量加25%资源不确定余量为 **2,604,423,188 B**。最坏 P0 full-case 临时峰值 **29,821,104,128 B**，另保留 **10,737,418,240 B** 自由空间，因此正式矩阵首批的单文件系统最低空闲量为 **43,162,945,556 B**。资源预算脚本于2026-11-28 05:56:25 UTC实测项目所在 ext4 可用 **58,351,124,480 B**，高于此代理 **15,188,178,924 B**；随后单独查询时`/tmp`可用 **7,708,450,816 B**，不与ext4混算。P0峰值是主机文件系统free-space观测差，可能包含并发主机活动；它作为保守代理使用。
 
-最新资源证据记录项目根 allocated bytes **17,372,565,504 B**。加上全矩阵 compact+receipt 预测和25%余量，最终预测 **19,976,988,692 B**，低于20,000,000,000 B上限 **23,011,308 B**。执行器会在新 case 前按授权中的全部 case 计算最终态；每个 case 完成归档校验与 raw 清理后再检查实际项目占用，并在报告 batch 完成前再次实测。超过cap会写入checkpoint并暂停；active raw中间空间由独立filesystem free-space gate控制。
+最新资源证据记录项目根 allocated bytes **17,373,773,824 B**。加上全矩阵 compact+receipt 预测和25%余量，最终预测 **19,978,197,012 B**，低于20,000,000,000 B上限 **21,802,988 B**。此余量很薄，不能视为容量充足；执行器会在新 case 前按授权中的全部 case 计算最终态，每个 case 完成归档校验与 raw 清理后再检查实际项目占用，并在报告 batch 完成前再次实测。超过cap会写入checkpoint并暂停；active raw中间空间由独立filesystem free-space gate控制。实际启动前还需刷新项目allocated bytes和文件系统可用量。
 
 先前三份CPU dry-run及本次被复审版替代的旧预检均只含可再生成计划/registry/checkpoint，不含实验数据；均在核验替代物并逐文件记录SHA后定向清理。第二次清理释放2,330,624 allocated bytes，记录见[复审版dry-run替换清理台账](evidence/storage_reclaim_20261128/executor_reviewed_dryrun_cleanup_ledger_20261128.json)；前一批清理见[原清理台账](evidence/storage_reclaim_20261128/superseded_dryrun_cleanup_ledger_20261128.json)。三份审计库存压缩替换释放11,386,880 allocated bytes；唯一P0、pilot compact/receipt、真值和失败证据保留。
 
